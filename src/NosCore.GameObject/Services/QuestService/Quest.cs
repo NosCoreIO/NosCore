@@ -106,6 +106,7 @@ namespace NosCore.GameObject.Services.QuestService
         {
             Packets.Enumerations.QuestType.Hunt => true,
             Packets.Enumerations.QuestType.NumberOfKill => true,
+            Packets.Enumerations.QuestType.DefeatEnemies => true,
             Packets.Enumerations.QuestType.Capture => true,
             Packets.Enumerations.QuestType.CaptureWithoutGettingTheMonster => true,
             Packets.Enumerations.QuestType.Brings => true,

@@ -163,6 +163,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 {
                     World.Create<HuntQuestHandler>(),
                     World.Create<NumberOfKillQuestHandler>(),
+                    World.Create<DefeatEnemiesQuestHandler>(),
                     World.Create<GoToQuestHandler>(),
                     new NpcButtonQuestHandler(Quests),
                 },
@@ -432,6 +433,54 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .Then(ObjectiveProgressShouldBe_, 0)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AnyMonsterKilledInATimeSpaceCountsTowardsADefeatQuest()
+        {
+            await new Spec("Any monster killed inside a time-space counts towards a quest to defeat enemies in a time-space")
+                .Given(CharacterHasADefeatQuestNeedingTwoKillsInATimeSpace)
+                .And(TheCharacterIsInATimeSpace)
+                .WhenAsync(KillingADifferentMob)
+                .Then(ObjectiveProgressShouldBe_, 1)
+                .And(ObjectivesShouldBeIncomplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastTimeSpaceKillCompletesADefeatQuest()
+        {
+            await new Spec("The second kill inside a time-space completes a quest to defeat two enemies there")
+                .Given(CharacterHasADefeatQuestNeedingTwoKillsInATimeSpace)
+                .And(TheCharacterIsInATimeSpace)
+                .WhenAsync(KillingADifferentMob)
+                .AndAsync(KillingTheRequiredMob)
+                .Then(ObjectivesShouldBeComplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillsOutsideATimeSpaceDoNotCountTowardsADefeatQuest()
+        {
+            await new Spec("A monster killed on an ordinary map does not count towards a quest to defeat enemies in a time-space")
+                .Given(CharacterHasADefeatQuestNeedingTwoKillsInATimeSpace)
+                .WhenAsync(KillingADifferentMob)
+                .Then(ObjectiveProgressShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasADefeatQuestNeedingTwoKillsInATimeSpace()
+        {
+            var objective = new QuestObjectiveDto { QuestObjectiveId = Guid.NewGuid(), FirstData = 9999, SecondData = 2 };
+            _trackedQuest = new CharacterQuest
+            {
+                QuestId = 7500,
+                Quest = new Quest { QuestId = 7500, QuestType = QuestType.DefeatEnemies, QuestObjectives = [objective] },
+            };
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), _trackedQuest);
+        }
+
+        private void TheCharacterIsInATimeSpace() =>
+            Session.Character.MapInstance.MapInstanceType = NosCore.Data.Enumerations.Map.MapInstanceType.TimeSpaceInstance;
 
         private void CharacterHasHuntQuestNeedingTwoKills()
         {

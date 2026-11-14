@@ -2676,6 +2676,8 @@ Give a character quest 1509 (win time-space 1) and walk into time-space 1's ston
 - [ ] Finishing the time-space with a success completes 1509 with "Quest complete" and its reward
 - [ ] Leaving or failing the time-space keeps 1509 open
 - [ ] With quest 6160 open, winning the Mother Cuby raid completes it for every member still in the raid
+- [ ] With daily quest 7500 ("Defeat 5 enemies in the Time-Space") open, every monster killed inside a
+  time-space moves its counter (x/5) and the fifth completes it; kills on an ordinary map do not count
 
 ### Quest window
 
