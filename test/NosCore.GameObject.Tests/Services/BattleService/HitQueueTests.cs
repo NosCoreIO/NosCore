@@ -102,7 +102,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(), new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var skill = MakeSkill() with
             {
                 SkillVnum = 7,
@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 });
 
             var queue = new HitQueue(calc.Object, stats.Object, buffs.Object,
-                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object,
+                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(),
                 new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var skill = MakeSkill() with { BCards = new[] { new BCardDto { Type = 3 } } };
 
@@ -180,7 +180,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(), new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var skill = MakeSkill() with { Duration = 100, BCards = new[] { new BCardDto { Type = 3 } } };
 
             await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
@@ -219,7 +219,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             FirstData = percent
         };
 
-        private HitQueue QueueDealing(int ordinaryDamage, IDamageLeechService? leech = null)
+        private HitQueue QueueDealing(int ordinaryDamage, IDamageLeechService? leech = null, IManaShieldService? shield = null)
         {
             var calc = new Mock<IDamageCalculator>();
             calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
@@ -228,8 +228,20 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
                 new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object,
-                leech ?? new Mock<IDamageLeechService>().Object,
+                leech ?? new Mock<IDamageLeechService>().Object, shield ?? ManaShieldMock.Shieldless(),
                 new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+        }
+
+        [TestMethod]
+        public async Task WhatTheManaShieldPaysNeverReachesHp()
+        {
+            var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };
+            var shield = new Mock<IManaShieldService>();
+            shield.Setup(s => s.AbsorbAsync(target, 100)).ReturnsAsync(75);
+
+            await QueueDealing(100, shield: shield.Object).EnqueueAsync(Request(new FakeBattleEntity(), target));
+
+            Assert.AreEqual(525, target.Hp);
         }
 
         [TestMethod]
@@ -385,7 +397,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(), new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         private class MutableDamage

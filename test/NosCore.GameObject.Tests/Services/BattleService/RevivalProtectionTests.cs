@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             _queue = new HitQueue(calculator.Object, stats.Object, _buffs,
-                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object,
+                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(),
                 new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 

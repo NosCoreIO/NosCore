@@ -284,6 +284,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Under Giantism with HP missing, each landed hit heals you by its share of the damage, up to
       your maximum HP
 
+### Mana Shield-type buffs
+
+- [ ] Under Mana Shield ("heal 25% of inflicted damage by reducing MP"), let a monster hit you:
+      a quarter of each blow comes off your MP and only the rest off your HP
+- [ ] With less MP than that quarter, only the MP left is used and the rest of the blow hits HP
+
 ### Chance of receiving critical hits
 
 - [ ] Wear an armour with "probability to receive critical hits is decreased by 20%" (8643) and let a
