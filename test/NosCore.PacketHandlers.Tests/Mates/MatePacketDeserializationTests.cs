@@ -10,6 +10,7 @@ using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.Mates;
 using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Mates;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Mates
@@ -24,9 +25,21 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [DataRow("ptctl 1 2 1135623 50 132 1135626 49 133 1135623 9", typeof(PtctlPacketHandler))]
         [DataRow("say_p 1135623 good boy", typeof(SayPPacketHandler))]
         [DataRow("suctl 200 0 1135623 3 2045", typeof(SuCtlPacketHandler))]
+        [DataRow("u_pet 1135623 3 2045 664", typeof(UpetPacketHandler))]
         public void TheClientsLineReachesItsHandler(string line, Type handler)
         {
             Assert.IsInstanceOfType(Deserializer.Deserialize(line), handler.BaseType.NotNull().GetGenericArguments()[0]);
+        }
+
+        [TestMethod]
+        public void TheSkillOfAPetOrderIsReadWithOrWithoutTheCellItIsSentWith()
+        {
+            var bare = (UpetPacket)Deserializer.Deserialize("u_pet 1135623 3 2045 664");
+            var withCell = (UpetPacket)Deserializer.Deserialize("u_pet 1135623 3 2045 664 144 124");
+
+            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, 664), (bare.MateTransportId, bare.TargetType, bare.TargetId, bare.Unknown2));
+            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, 664),
+                (withCell.MateTransportId, withCell.TargetType, withCell.TargetId, withCell.Unknown2));
         }
 
         [TestMethod]

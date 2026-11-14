@@ -70,6 +70,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short SlowSkillCastId = 2;
         public const short SlowSkillMp = 20;
 
+        // A creature to own as a pet: it has mana, and one skill of its own for its skill bar that takes
+        // a moment to cast and a long time to come back.
+        public const short PetVNum = 8;
+        public const short PetSkill = 220;
+        public const short PetSkillMp = 40;
+
         // Has something to say, so talking to it is answered, and stands away from the shopkeeper.
         public const int Broker = 2;
         public const short BrokerDialog = 1;
@@ -185,6 +191,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 Cooldown = 300, MpCost = SlowSkillMp, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
             });
 
+            // As the client data has them: skill type 5 is a skill for a NosMate's skill bar.
+            context.Add(new Skill
+            {
+                SkillVNum = PetSkill, Name = "skill220", CastId = 3, SkillType = 5, Type = 0, Range = 1, CastTime = 2, Cooldown = 300,
+                MpCost = PetSkillMp, Effect = 220, AttackAnimation = 12, CastAnimation = -1, CastEffect = -1
+            });
+
             // Creatures that stand still on the meadow: one that falls to any hit, one that does
             // not, and one that stays dead for a while.
             context.Add(new NpcMonster { NpcMonsterVNum = WeakVNum, Name = "weak", Level = 1, MaxHp = 1, Xp = 40, JobXp = 10 });
@@ -206,6 +219,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             await context.SaveChangesAsync();
             context.Add(new MapMonster { MapMonsterId = Biter, MapId = Meadow, MapX = 80, MapY = 20, VNum = BiterVNum });
+
+            context.Add(new NpcMonster
+            {
+                NpcMonsterVNum = PetVNum, Name = "pet", Level = 1, MaxHp = 100, MaxMp = 100, HpBonus = 100, MpBonus = 100,
+                BasicRange = 1, BasicCooldown = 20
+            });
+            await context.SaveChangesAsync();
+            context.Add(new NpcMonsterSkill { NpcMonsterVNum = PetVNum, SkillVNum = PetSkill });
 
             context.Add(new NpcMonster { NpcMonsterVNum = ShopkeeperVNum, Name = "shopkeeper", Level = 1, MaxHp = 100 });
             await context.SaveChangesAsync();
@@ -249,6 +270,18 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public static async Task TeachAsync(NosCoreContext context, long characterId, short skillVNum)
         {
             context.Add(new CharacterSkill { Id = Guid.NewGuid(), CharacterId = characterId, SkillVNum = skillVNum });
+            await context.SaveChangesAsync();
+        }
+
+        // A pet has to be owned before the character is selected, like what it carries. It comes into the
+        // world in the team, at its owner's side, and as full as it can be.
+        public static async Task GivePetAsync(NosCoreContext context, long characterId, short vnum)
+        {
+            context.Add(new Mate
+            {
+                CharacterId = characterId, VNum = vnum, MateType = MateType.Pet, Level = 1, Loyalty = 1000, Hp = short.MaxValue,
+                Mp = short.MaxValue, IsTeamMember = true, IsSummonable = true
+            });
             await context.SaveChangesAsync();
         }
 

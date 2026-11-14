@@ -20,6 +20,7 @@ namespace NosCore.PacketHandlers.Mates
 {
     public class UpetPacketHandler(
         IMateAttackService mateAttackService,
+        IPetSkillService petSkillService,
         ISessionRegistry sessionRegistry,
         ILogger<UpetPacketHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
@@ -28,6 +29,19 @@ namespace NosCore.PacketHandlers.Mates
         public override async Task ExecuteAsync(UpetPacket packet, ClientSession session)
         {
             var character = session.Character;
+
+            // The fourth field is the skill pressed on the pet's bar, and none means a basic attack. A mate
+            // is an ally of every player and npc, so a skill only goes for a monster.
+            if (packet.Unknown2 != 0)
+            {
+                if (packet.TargetType == VisualType.Monster
+                    && character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId) is { } monster)
+                {
+                    await petSkillService.CastAsync(character, packet.MateTransportId, packet.Unknown2, monster);
+                }
+
+                return;
+            }
 
             // Trusting the id would let a client drive somebody else's pet.
             if (!character.Mates.TryGetValue(packet.MateTransportId, out var mate)

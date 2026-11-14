@@ -129,6 +129,7 @@ Writing one:
   `await client.NoneSinceAsync(mark, match, TimeSpan.FromSeconds(1))`.
 - `Harness.GiveAsync(player, vnum, amount)` puts items in a bag before the character enters;
   `configure: c => c.Gold = 1000` on `EnterAsync` or `AddPlayerAsync` sets anything on the row.
+- `Harness.GivePetAsync(player)` gives a character a pet that is in its team when it enters.
 - `Harness.AddFamilyAsync(head, members...)` stores a family before its members enter, for
   scenarios that are not about founding one.
 - `Harness.ComeBackAsync(player)` brings a character that has just left into the world again,

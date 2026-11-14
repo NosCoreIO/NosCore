@@ -35,10 +35,9 @@ namespace NosCore.GameObject.Services.MateService
         private const short CooldownSeconds = 30;
         private const short TransformDelayMilliseconds = 5000;
         private const int TransformEffect = 196;
-        private const int MinimumSkillCooldownMs = 200;
 
         private readonly ILookup<short, SkillDto> _skillsBySet = skills
-            .Where(s => s.IsPartnerSkill())
+            .Where(s => s.IsMateSkill())
             .OrderBy(s => s.CastId)
             .ToLookup(s => s.UpgradeType);
 
@@ -47,40 +46,12 @@ namespace NosCore.GameObject.Services.MateService
                 ? _skillsBySet[specialist.Item.PartnerSkillSet].ToList()
                 : [];
 
-        public async Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target)
-        {
-            if (!owner.Mates.TryGetValue(mateTransportId, out var partner)
-                || !partner.IsTeamMember
-                || partner.Entity is not { } entity
-                || target.MapInstance != entity.MapInstance
-                || Skills(owner, partner).FirstOrDefault(s => s.CastId == slot) is not { } skill
-                || entity.Mp < skill.MpCost)
-            {
-                return false;
-            }
-
-            var now = clock.GetCurrentInstant();
-            if (entity.NextUsableAt.TryGetValue(skill.SkillVNum, out var readyAt) && readyAt > now)
-            {
-                return false;
-            }
-
-            var distance = (int)distanceCalculator.GetDistance((entity.PositionX, entity.PositionY),
-                (target.PositionX, target.PositionY));
-            var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
-            if (!SkillReach.IsInReach(skill.TargetType, skill.Range, skill.TargetRange, distance, targetArea)
-                || !await battleService.Hit(entity, target, new HitArguments { SkillId = skill.CastId, Skill = skill }))
-            {
-                return false;
-            }
-
-            entity.NextUsableAt[skill.SkillVNum] =
-                now.Plus(Duration.FromMilliseconds(Math.Max(MinimumSkillCooldownMs, skill.Cooldown * 100)));
-            entity.Mp -= skill.MpCost;
-            partner.Mp = entity.Mp;
-            await owner.SendPacketAsync(partner.GeneratePst());
-            return true;
-        }
+        public Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target) =>
+            owner.Mates.TryGetValue(mateTransportId, out var partner)
+            && Skills(owner, partner).FirstOrDefault(s => s.CastId == slot) is { } skill
+                ? MateSkillCast.CastAsync(owner, partner, skill, target, battleService, distanceCalculator,
+                    clock.GetCurrentInstant())
+                : Task.FromResult(false);
 
         public async Task ToggleAsync(PlayerComponentBundle owner)
         {
