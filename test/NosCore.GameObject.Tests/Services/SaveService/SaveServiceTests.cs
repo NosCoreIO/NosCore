@@ -46,6 +46,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private IDao<IItemInstanceDto?, Guid> ItemInstanceDao;
         private IDao<InventoryItemInstanceDto, Guid> InventoryItemInstanceDao;
         private IDao<StaticBuffDto, long> StaticBuffDao;
+        private IDao<RespawnDto, long> RespawnDao;
         private BuffService Buffs;
         private StaticBuffService StaticBuffs;
 
@@ -71,6 +72,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             ItemInstanceDao = itemInstanceDao;
             InventoryItemInstanceDao = inventoryItemInstanceDao;
             var respawnDao = new Dao<Database.Entities.Respawn, RespawnDto, long>(NullLogger<Dao<Database.Entities.Respawn, RespawnDto, long>>.Instance, contextBuilder);
+            RespawnDao = respawnDao;
 
             Buffs = World.Create<BuffService>();
             StaticBuffDao = new Dao<StaticBuff, StaticBuffDto, long>(NullLogger<Dao<StaticBuff, StaticBuffDto, long>>.Instance, contextBuilder);
@@ -128,6 +130,31 @@ namespace NosCore.GameObject.Tests.Services.SaveService
 
             var characterId = Session.Character.CharacterId;
             Assert.AreEqual(1, World.MateDao.Where(s => s.CharacterId == characterId).NotNull().Count());
+        }
+
+        [TestMethod]
+        public async Task ANewPlaceOfRevivalLeavesAnotherCharactersRowAlone()
+        {
+            var other = await RespawnDao.TryInsertOrUpdateAsync(new RespawnDto
+            {
+                CharacterId = Session.Character.CharacterId + 1, MapId = 1, X = 80, Y = 116, RespawnMapTypeId = 0,
+            });
+            var respawn = new RespawnDto
+            {
+                CharacterId = Session.Character.CharacterId, MapId = 2550, X = 23, Y = 34, RespawnMapTypeId = 0,
+            };
+            Session.Character.Respawns.Add(respawn);
+
+            await Service.SaveAsync(Session);
+            await Service.SaveAsync(Session);
+
+            var otherRow = (await RespawnDao.FirstOrDefaultAsync(r => r.RespawnId == other.RespawnId)).NotNull();
+            Assert.AreEqual(Session.Character.CharacterId + 1, otherRow.CharacterId);
+            Assert.AreEqual((short)1, otherRow.MapId);
+            Assert.AreNotEqual(other.RespawnId, respawn.RespawnId);
+            var characterId = Session.Character.CharacterId;
+            var own = RespawnDao.Where(r => r.CharacterId == characterId).NotNull().Single();
+            Assert.AreEqual((short)2550, own.MapId);
         }
 
         private async Task<NosCore.GameObject.Services.MateService.Mate> OwnedPetAsync()
