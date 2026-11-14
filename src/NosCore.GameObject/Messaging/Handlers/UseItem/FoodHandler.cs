@@ -21,7 +21,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class FoodHandler(IClock clock, ICardCatalog cardCatalog)
+    public sealed class FoodHandler(IClock clock, ICardCatalog cardCatalog, IRecoveryBonusService recoveryBonus)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -45,8 +45,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await character.MapInstance.SendPacketAsync(character.GenerateEff(DigestionService.EatEffect));
             await character.UseUpOneAsync(evt.InventoryItem);
 
-            var hpPerTick = item.Hp / DigestionSchedule.TickCount;
-            var mpPerTick = item.Mp / DigestionSchedule.TickCount;
+            var hpPerTick = recoveryBonus.Boost(character, item.Hp) / DigestionSchedule.TickCount;
+            var mpPerTick = recoveryBonus.Boost(character, item.Mp) / DigestionSchedule.TickCount;
             var state = character.Digestion;
             bool full;
 

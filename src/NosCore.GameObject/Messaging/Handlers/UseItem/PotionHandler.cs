@@ -11,13 +11,14 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.PotionService;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class PotionHandler(IPotionCooldownService potionCooldown)
+    public sealed class PotionHandler(IPotionCooldownService potionCooldown, IRecoveryBonusService recoveryBonus)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -43,8 +44,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
                 potionCooldown.Start(character);
                 left = character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-                character.Hp = Math.Min(character.MaxHp, character.Hp + item.Hp);
-                character.Mp = Math.Min(character.MaxMp, character.Mp + item.Mp);
+                character.Hp = Math.Min(character.MaxHp, character.Hp + recoveryBonus.Boost(character, item.Hp));
+                character.Mp = Math.Min(character.MaxMp, character.Mp + recoveryBonus.Boost(character, item.Mp));
                 return Task.FromResult(true);
             });
             if (!drunk)

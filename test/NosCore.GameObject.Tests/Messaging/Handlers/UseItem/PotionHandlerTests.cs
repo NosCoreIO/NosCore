@@ -20,6 +20,10 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.PotionService;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
+using NosCore.GameObject.Ecs.Interfaces;
+using Moq;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -40,6 +44,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private InventoryItemInstance _potion;
         private readonly List<MapTypeMapDto> _mapTypeMaps = new();
         private readonly List<MapTypeDto> _mapTypes = new();
+        private Mock<IEquipmentStatsService> _gear;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -48,7 +53,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session = await World.CreateSessionAsync();
             _session.Character.MaxHp = 1000;
             _session.Character.MaxMp = 800;
-            _handler = new PotionHandler(new PotionCooldownService(_mapTypeMaps, _mapTypes, World.Clock));
+            _gear = World.Freeze<Mock<IEquipmentStatsService>>();
+            _gear.Setup(g => g.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
+            _handler = new PotionHandler(new PotionCooldownService(_mapTypeMaps, _mapTypes, World.Clock),
+                World.Create<RecoveryBonusService>());
         }
 
         [TestMethod]
@@ -64,6 +72,24 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .And(TheStatBarShouldShow_Hp_Mp, 800, 200)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task GearThatBoostsRecoveryItemsMakesThePotionHealMore()
+        {
+            await new Spec("Gear raising recovery items by 20% makes a 300 Hp potion heal 360")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterWearsGearBoostingRecoveryBy_Percent, 20)
+                .And(CharacterHas_Hp_Mp, 100, 200)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 460)
+                .ExecuteAsync();
+        }
+
+        private void CharacterWearsGearBoostingRecoveryBy_Percent(int percent) =>
+            _gear.Setup(g => g.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None with
+            {
+                BCards = [new BCardDto { Type = 71, SubType = 21, FirstData = (short)percent }],
+            });
 
         [TestMethod]
         public async Task ARecoveryPotionRestoresHpAndMp()

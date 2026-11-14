@@ -21,7 +21,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class SnackHandler(IClock clock, ICardCatalog cardCatalog)
+    public sealed class SnackHandler(IClock clock, ICardCatalog cardCatalog, IRecoveryBonusService recoveryBonus)
     {
         // Not a ceiling on a tick: it only turns away another snack while earlier ones still digest.
         public const int SnackLimit = 300;
@@ -38,8 +38,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var hpPerTick = item.Hp / DigestionSchedule.TickCount;
-            var mpPerTick = item.Mp / DigestionSchedule.TickCount;
+            var hpPerTick = recoveryBonus.Boost(character, item.Hp) / DigestionSchedule.TickCount;
+            var mpPerTick = recoveryBonus.Boost(character, item.Mp) / DigestionSchedule.TickCount;
             var state = character.Digestion;
             bool refused;
 
