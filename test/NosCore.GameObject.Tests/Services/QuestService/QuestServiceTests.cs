@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private List<ScriptOfferDto> ScriptOffers;
         private List<QuestDto> Quests;
         private List<QuestObjectiveDto> QuestObjectives;
+        private readonly Mock<Wolverine.IMessageBus> Bus = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -94,6 +95,41 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     LevelMax = 99,
                     IsDaily = false,
                     IsSecondary = false
+                },
+                new QuestDto
+                {
+                    QuestId = 6,
+                    QuestType = QuestType.UnKnow,
+                    LevelMin = 1,
+                    LevelMax = 99,
+                    IsSecondary = true,
+                    NextQuestId = 8
+                },
+                new QuestDto
+                {
+                    QuestId = 8,
+                    QuestType = QuestType.Dialog2,
+                    LevelMin = 1,
+                    LevelMax = 99,
+                    IsSecondary = true,
+                    NextQuestId = 6
+                },
+                new QuestDto
+                {
+                    QuestId = 9,
+                    QuestType = QuestType.UnKnow,
+                    LevelMin = 1,
+                    LevelMax = 99,
+                    IsSecondary = true,
+                    NextQuestId = 1
+                },
+                new QuestDto
+                {
+                    QuestId = 7,
+                    QuestType = QuestType.UnKnow,
+                    LevelMin = 1,
+                    LevelMax = 99,
+                    IsSecondary = true
                 }
             };
 
@@ -120,10 +156,49 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     World.Create<HuntQuestHandler>(),
                     World.Create<NumberOfKillQuestHandler>(),
                     World.Create<GoToQuestHandler>(),
+                    new NpcButtonQuestHandler(Quests),
                 },
-                new Mock<Wolverine.IMessageBus>().Object,
+                Bus.Object,
                 new Mock<IQuestRewardService>().Object);
         }
+
+        [TestMethod]
+        public async Task AQuestWithoutObjectiveThatLinksOnIsDoneWhenTaken()
+        {
+            await new Spec("A quest with no objective, paired with the quest it links to, ends when taken so that quest follows")
+                .WhenAsync(TakingQuest_, (short)6)
+                .Then(Quest_ShouldBeDone_, (short)6, true)
+                .And(QuestCompletedShouldBePublishedFor_, (short)6)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AQuestWithoutObjectiveThatOnlyLinksForwardWaitsForItsButton()
+        {
+            await new Spec("A quest with no objective whose next quest does not link back stays open")
+                .WhenAsync(TakingQuest_, (short)9)
+                .Then(Quest_ShouldBeDone_, (short)9, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AQuestWithoutObjectiveOrLinkWaitsForItsButton()
+        {
+            await new Spec("A quest with no objective and no link stays open for the NPC hand-in button")
+                .WhenAsync(TakingQuest_, (short)7)
+                .Then(Quest_ShouldBeDone_, (short)7, false)
+                .ExecuteAsync();
+        }
+
+        private async Task TakingQuest_(short questId) =>
+            AddQuestResult = await Service.AddQuestAsync(Session.Character, QuestActionType.Achieve, questId);
+
+        private void Quest_ShouldBeDone_(short questId, bool done) =>
+            Assert.AreEqual(done, Session.Character.Quests.Values.Single(q => q.QuestId == questId).CompletedOn is not null);
+
+        private void QuestCompletedShouldBePublishedFor_(short questId) =>
+            Assert.IsTrue(Bus.Invocations.Select(i => i.Arguments[0]).OfType<GameObject.Messaging.Events.QuestCompletedEvent>()
+                .Any(e => e.Quest.QuestId == questId));
 
         [TestMethod]
         public async Task AChapterAnNpcOffersDoesNotStartWhenThePreviousOneEnds()

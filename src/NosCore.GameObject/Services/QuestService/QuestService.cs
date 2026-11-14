@@ -328,13 +328,21 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
-            character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
+            var added = new CharacterQuest
             {
                 CharacterId = character.VisualId,
                 Id = Guid.NewGuid(),
                 Quest = quest,
                 QuestId = quest.QuestId
-            });
+            };
+            character.Quests.TryAdd(added.Id, added);
+            if (questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.QuestType)?.CompletesWhenTaken(quest) == true)
+            {
+                await character.SendPacketAsync(character.GenerateQuestPacket());
+                await CompleteQuestAsync(character, added);
+                return true;
+            }
+
             await character.SendPacketAsync(character.GenerateQuestPacket(showDialog: true));
             if (quest.TargetMap != null)
             {
