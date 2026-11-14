@@ -25,6 +25,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const int LootMode = 8;
         private const int CannotPickUp = 112;
         private const int SharedByTheGroup = 561;
+        private const int CannotChangeGroupMode = 560;
 
         private static Func<string, bool> Pebbles(int amount) =>
             packet => packet.StartsWith($"ivn {EtcPocket} 0.{WorldData.Pebble}.{amount}.", StringComparison.Ordinal);
@@ -53,6 +54,12 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await killer.ExpectSinceAsync(cast, p => p == "sr 0", "the skill ready again");
             }
         }
+
+        private static bool IsAnnounced(string packet) =>
+            packet.Split(' ') is ["msgi", _, var id, ..] && id == SharedByTheGroup.ToString(CultureInfo.InvariantCulture);
+
+        private static bool IsRefused(string packet) =>
+            packet.Split(' ') is ["infoi", var id, ..] && id == CannotChangeGroupMode.ToString(CultureInfo.InvariantCulture);
 
         private static async Task GroupAsync(TestClient inviter, TestClient newcomer)
         {
@@ -127,10 +134,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var asked = alice.Mark();
             // Whichever of the two leads: the other one is refused, and only one of them asks at a time.
             await alice.SendAsync($"gop {LootMode} 1");
-            await alice.ExpectSinceAsync(asked, p => TestClient.HeaderOf(p) == "stat", "the answer to the loot mode");
-            await bob.SendAsync($"gop {LootMode} 1");
-            await bob.ExpectSinceAsync(shared, p => p.Split(' ') is ["msgi", _, var id, ..] && id == SharedByTheGroup.ToString(CultureInfo.InvariantCulture),
-                "the new way of looting announced");
+            var answer = await alice.ExpectSinceAsync(asked, p => IsAnnounced(p) || IsRefused(p), "the answer to the loot mode");
+            if (IsRefused(answer))
+            {
+                await bob.SendAsync($"gop {LootMode} 1");
+            }
+
+            await bob.ExpectSinceAsync(shared, IsAnnounced, "the new way of looting announced");
 
             var drop = await KillPreyAsync(alice, 0);
 
