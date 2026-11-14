@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
                 new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, PvpDamageBoost, Slash, StrongSlash },
                 Vitality.Object, new Mock<IBattleStatsProvider>().Object,
                 new NosCore.Algorithm.ExperienceService.ExperienceService(), new NosCore.Algorithm.JobExperienceService.JobExperienceService(),
-                new NosCore.Algorithm.HeroExperienceService.HeroExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService());
+                new NosCore.Algorithm.HeroExperienceService.HeroExperienceService(), new NosCore.Algorithm.SpExperienceService.SpExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService());
         }
 
         private void Know(SkillDto skill) =>

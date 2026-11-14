@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MonsterGoldService;
 using NosCore.Algorithm.SkillPointService;
@@ -35,7 +36,7 @@ namespace NosCore.GameObject.Services.QuestService;
 public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQuestRewardDto> questQuestRewards,
         IItemCatalog itemCatalog, IItemGenerationService itemGenerationService,
         IExperienceProgressionService experienceProgression, IExperienceService experienceService,
-        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService,
         ISkillPointService skillPointService, IMonsterGoldService monsterGoldService, List<NpcMonsterDto> npcMonsters,
         ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer,
         IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
@@ -151,12 +152,12 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
                 if (character.Level < reward.Data)
                 {
                     await character.SetLevelAsync((byte)reward.Data, experienceService, jobExperienceService,
-                        heroExperienceService, skillPointService, sessionRegistry, localizer);
+                        heroExperienceService, spExperienceService, skillPointService, sessionRegistry, localizer);
                 }
                 if (reward.RewardType == QuestRewardType.LevelAndJobLevel && reward.SecondData is { } jobLevel && character.JobLevel < jobLevel)
                 {
                     await character.SetJobLevelAsync((byte)jobLevel, experienceService,
-                        jobExperienceService, heroExperienceService, skillPointService);
+                        jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
                 }
                 return (reward.RewardType, reward.Data, reward.SecondData ?? 0);
 

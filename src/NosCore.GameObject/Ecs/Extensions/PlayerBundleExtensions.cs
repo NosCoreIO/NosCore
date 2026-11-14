@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Algorithm.BankService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Algorithm.JobExperienceService;
@@ -279,7 +280,7 @@ public static class PlayerBundleExtensions
 
     public static async Task SetLevelAsync(this PlayerComponentBundle player, byte level,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService, ISkillPointService skillPointService, ISessionRegistry sessionRegistry,
+        IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService, ISessionRegistry sessionRegistry,
         IGameLanguageLocalizer localizer)
     {
         player.Level = level;
@@ -289,7 +290,7 @@ public static class PlayerBundleExtensions
 
         await player.SendPacketAsync(player.GenerateStat());
         await player.SendPacketAsync(player.GenerateStatInfo());
-        await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
+        await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
 
         var visualId = player.VisualId;
         var authority = player.Authority;
@@ -466,16 +467,23 @@ public static class PlayerBundleExtensions
     public static LevPacket GenerateLev(this PlayerComponentBundle player,
         IExperienceService experienceService,
         IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
+        IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService,
+        ISkillPointService skillPointService)
     {
+        // While transformed the job slots carry the worn specialist card's level instead.
+        var sp = player.UseSp
+            ? player.InventoryService.LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance
+            : null;
         return new LevPacket
         {
             Level = player.Level,
             LevelXp = player.LevelXp,
-            JobLevel = player.JobLevel,
-            JobLevelXp = player.JobLevelXp,
+            JobLevel = sp?.SpLevel ?? player.JobLevel,
+            JobLevelXp = sp == null ? player.JobLevelXp : sp.Xp ?? 0,
             XpLoad = experienceService.GetExperience(player.Level),
-            JobXpLoad = jobExperienceService.GetJobExperience(player.Class, player.JobLevel),
+            JobXpLoad = sp == null
+                ? jobExperienceService.GetJobExperience(player.Class, player.JobLevel)
+                : spExperienceService.GetSpExperience(sp.SpLevel, isSecondarySp: false),
             Reputation = player.Reputation,
             SkillCp = player.RemainingSkillPoints(skillPointService),
             HeroXp = player.HeroLevelXp,
@@ -891,7 +899,7 @@ public static class ClientSessionMailExtensions
 
     public static async Task ChangeClassAsync(this ClientSession session, CharacterClassType classType,
         IOptions<WorldConfiguration> worldConfiguration,
-        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService,
+        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService,
         IItemGenerationService itemProvider, Services.SkillService.ISkillService skillService)
     {
         var character = session.Character;
@@ -959,7 +967,7 @@ public static class ClientSessionMailExtensions
         var eqPacket = character.GenerateEq();
         var effPacket8 = character.GenerateEff(8);
         var condPacket = character.GenerateCond();
-        var levPacket = character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService);
+        var levPacket = character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
         var cmodePacket = character.GenerateCMode();
         var msgiPacket = new MsgiPacket
         {

@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
@@ -29,7 +30,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class StatDataMessageChannelCommunicationMessageHandler(ILogger<StatDataMessageChannelCommunicationMessageHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration, ISessionRegistry sessionRegistry,
-        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService,
+        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService,
         IGameLanguageLocalizer gameLanguageLocalizer, IItemGenerationService itemProvider, ISkillService skillService, List<ItemDto> items)
         : ChannelCommunicationMessageHandler<StatData>
     {
@@ -46,14 +47,14 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             switch (data.ActionType)
             {
                 case UpdateStatActionType.UpdateLevel:
-                    await character.SetLevelAsync((byte)data.Data, experienceService, jobExperienceService, heroExperienceService, skillPointService,
+                    await character.SetLevelAsync((byte)data.Data, experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService,
                         sessionRegistry, gameLanguageLocalizer);
                     break;
                 case UpdateStatActionType.UpdateJobLevel:
-                    await character.SetJobLevelAsync((byte)data.Data, experienceService, jobExperienceService, heroExperienceService, skillPointService);
+                    await character.SetJobLevelAsync((byte)data.Data, experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
                     break;
                 case UpdateStatActionType.UpdateHeroLevel:
-                    await character.SetHeroLevelAsync((byte)data.Data, experienceService, jobExperienceService, heroExperienceService, skillPointService);
+                    await character.SetHeroLevelAsync((byte)data.Data, experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
                     break;
                 case UpdateStatActionType.UpdateReputation:
                     await character.SetReputationAsync(data.Data);
@@ -68,7 +69,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     break;
                 case UpdateStatActionType.UpdateClass:
                     await session.ChangeClassAsync((CharacterClassType)data.Data, worldConfiguration, experienceService, jobExperienceService,
-                        heroExperienceService, skillPointService, itemProvider, skillService);
+                        heroExperienceService, spExperienceService, skillPointService, itemProvider, skillService);
                     break;
                 default:
                     logger.LogError(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);

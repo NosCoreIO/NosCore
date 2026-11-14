@@ -6,6 +6,7 @@
 
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.CommandPackets;
@@ -21,14 +22,14 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Command
 {
     public class SetJobLevelCommandPacketHandler(IRemoteCharacterService remoteCharacterService,
-        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
+        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService)
         : PacketHandler<SetJobLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetJobLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetJobLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService, skillPointService);
+                await session.Character.SetJobLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
                 return;
             }
 

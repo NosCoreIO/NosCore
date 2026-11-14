@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
@@ -35,7 +36,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.TransformationService
 {
     public class TransformationService(IClock clock, IExperienceService experienceService,
-            IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService, ILogger<TransformationService> logger,
+            IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService, ILogger<TransformationService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration,
             SpeedCalculationService.ISpeedCalculationService speedCalculationService,
             SkillService.ISkillService skillService,
@@ -61,7 +62,7 @@ namespace NosCore.GameObject.Services.TransformationService
             var spCooldown = character.SpCooldown;
             var mapInstance = character.MapInstance;
             var condPacket = session.Character.GenerateCond();
-            var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService);
+            var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
             var cModePacket = session.Character.GenerateCMode();
             var statPacket = session.Character.GenerateStat();
             var scPacket = session.Character.GenerateSc(battleStatsProvider);
@@ -134,7 +135,7 @@ namespace NosCore.GameObject.Services.TransformationService
             var characterId2 = character.CharacterId;
             var mapInstance = character.MapInstance;
             var cModePacket = session.Character.GenerateCMode();
-            var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService);
+            var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
             var effPacket = session.Character.GenerateEff(196);
             var spPointPacket = session.Character.GenerateSpPoint(worldConfiguration);
             var condPacket = session.Character.GenerateCond();
