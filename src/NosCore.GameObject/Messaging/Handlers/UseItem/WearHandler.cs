@@ -187,6 +187,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             await vitalityService.RefreshAndNotifyAsync(session.Character).ConfigureAwait(false);
+            await messageBus.PublishAsync(new MovementConditionChangedEvent(session.Character));
             await messageBus.PublishAsync(new ItemWornEvent(session.Character, itemInstance.ItemInstance.ItemVNum));
         }
     }

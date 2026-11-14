@@ -30,6 +30,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.Messaging.Events;
 
 namespace NosCore.GameObject.Services.MapChangeService
 {
@@ -320,6 +321,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
 
                 await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance, currentMapInstance));
+                await messageBus.PublishAsync(new MovementConditionChangedEvent(character));
             }
             catch (Exception ex)
             {

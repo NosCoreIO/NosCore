@@ -15,13 +15,16 @@ using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Messaging.Events;
+using Wolverine;
 
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class RemovePacketHandler(NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             NosCore.GameObject.Services.BattleService.IBattleStatsProvider battleStatsProvider,
-            NosCore.GameObject.Services.MateService.IPartnerEquipmentService partnerEquipmentService)
+            NosCore.GameObject.Services.MateService.IPartnerEquipmentService partnerEquipmentService,
+            IMessageBus messageBus)
         : PacketHandler<RemovePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
@@ -75,6 +78,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             await vitalityService.RefreshAndNotifyAsync(clientSession.Character).ConfigureAwait(false);
+            await messageBus.PublishAsync(new MovementConditionChangedEvent(clientSession.Character));
         }
     }
 }

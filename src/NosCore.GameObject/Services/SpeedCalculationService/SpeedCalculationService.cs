@@ -13,6 +13,8 @@ using NosCore.Algorithm.SpeedService;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.SpeedCalculationService
@@ -32,19 +34,31 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
             var bonus = 0;
             foreach (var buff in buffService.GetActiveBuffs(aliveEntity))
             {
-                foreach (var bCard in buff.BCards)
+                bonus += SpeedBonus(buff.BCards);
+            }
+
+            if (aliveEntity is PlayerComponentBundle character)
+            {
+                foreach (var slot in Enum.GetValues<EquipmentType>())
                 {
-                    bonus += bCard.Effect() switch
+                    if (character.InventoryService.LoadBySlotAndType((short)slot, NoscorePocketType.Wear)?.ItemInstance
+                        is { } worn)
                     {
-                        BCardEffect.MoveMovementSpeedIncreased => bCard.FirstData,
-                        BCardEffect.MoveMovementSpeedDecreased => -bCard.FirstData,
-                        _ => 0,
-                    };
+                        bonus += SpeedBonus(cardCatalog.GetItemBCards(worn.ItemVNum));
+                    }
                 }
             }
 
             return (byte)Math.Clamp(baseSpeed + bonus, 0, maxSpeed);
         }
+
+        private static int SpeedBonus(IEnumerable<BCardDto> bCards) =>
+            bCards.Sum(bCard => bCard.Effect() switch
+            {
+                BCardEffect.MoveMovementSpeedIncreased => bCard.FirstData,
+                BCardEffect.MoveMovementSpeedDecreased => -bCard.FirstData,
+                _ => 0,
+            });
 
         public byte CalculateSpeed(INonPlayableEntity nonPlayableEntity)
         {

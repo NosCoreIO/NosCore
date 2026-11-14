@@ -6,11 +6,17 @@
 
 using System;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Ecs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NosCore.Algorithm.SpeedService;
 using NosCore.Data.StaticEntities;
@@ -28,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         private GameObject.Services.SpeedCalculationService.SpeedCalculationService SpeedCalculationService;
         private Mock<ISpeedService> SpeedService;
         private Mock<IBuffService> Buffs;
+        private Mock<ICardCatalog> Catalog;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -36,6 +43,8 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
             SpeedService = World.Freeze<Mock<ISpeedService>>();
             Buffs = World.Freeze<Mock<IBuffService>>();
             Buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(Array.Empty<BuffInstance>());
+            Catalog = World.Freeze<Mock<ICardCatalog>>();
+            Catalog.Setup(c => c.GetItemBCards(It.IsAny<short>())).Returns(Array.Empty<BCardDto>());
             SpeedCalculationService = World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>();
         }
 
@@ -119,6 +128,33 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
             Buffs.Setup(b => b.HasEffect(character, BCardEffect.MoveMovementImpossible)).Returns(true);
 
             Assert.AreEqual(0, SpeedCalculationService.CalculateSpeed(character));
+        }
+
+        [TestMethod]
+        public async Task AWornCostumeWithASpeedBonusRaisesTheSpeed()
+        {
+            const short costumeVNum = 4245;
+            SpeedService.Setup(x => x.GetSpeed(CharacterClassType.Archer)).Returns((byte)12);
+            Catalog.Setup(c => c.GetItemBCards(costumeVNum))
+                .Returns(new[] { Move(BCardEffect.MoveMovementSpeedIncreased, 2) });
+            var character = (await World.CreateSessionAsync()).Character;
+            character.Class = CharacterClassType.Archer;
+            var item = new Item
+            {
+                VNum = costumeVNum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.CostumeSuit,
+            };
+            var costume = InventoryItemInstance.Create(
+                new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object, World.LogLanguageLocalizer)
+                {
+                    Amount = 1,
+                    ItemVNum = costumeVNum,
+                }, character.CharacterId);
+            costume.Slot = (short)EquipmentType.CostumeSuit;
+            costume.Type = NoscorePocketType.Wear;
+            character.InventoryService[costume.ItemInstanceId] = costume;
+
+            Assert.AreEqual(14, SpeedCalculationService.CalculateSpeed(character));
         }
 
         private static BCardDto Move(BCardEffect effect, int value) =>
