@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261114115645_AddSelfIntroductionItemEffect";
+    public override string LastMigrationId => "20261114125311_AddMountMapSpeed";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2231,6 +2231,27 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.ToTable("MinilandObject");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.MountMapSpeed", b =>
+            {
+                b.Property<int>("MountMapSpeedId")
+                    .HasColumnType("integer");
+
+                b.Property<short>("ItemVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("MapId")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Speed")
+                    .HasColumnType("smallint");
+
+                b.HasKey("MountMapSpeedId");
+
+                b.HasIndex("ItemVNum");
+
+                b.ToTable("MountMapSpeed");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.NpcMonster", b =>
             {
                 b.Property<short>("NpcMonsterVNum")
@@ -4136,6 +4157,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .OnDelete(DeleteBehavior.Restrict);
 
                 b.Navigation("InventoryItemInstance");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.MountMapSpeed", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Item", "Item")
+                    .WithMany()
+                    .HasForeignKey("ItemVNum")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Item");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.NpcMonsterSkill", b =>

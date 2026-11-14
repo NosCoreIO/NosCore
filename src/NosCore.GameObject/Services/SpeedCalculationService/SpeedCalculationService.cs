@@ -20,9 +20,12 @@ using NosCore.GameObject.Services.BattleService;
 namespace NosCore.GameObject.Services.SpeedCalculationService
 {
     public class SpeedCalculationService(ISpeedService speedService, IBuffService buffService, ICardCatalog cardCatalog,
-        List<ItemDto> items) : ISpeedCalculationService
+        List<ItemDto> items, List<MountMapSpeedDto> mountMapSpeeds) : ISpeedCalculationService
     {
         private const int MaxSpeedOnFoot = 59;
+
+        private readonly Dictionary<(short Mount, short Map), byte> _mapSpeeds =
+            mountMapSpeeds.ToDictionary(s => (s.ItemVNum, s.MapId), s => s.Speed);
 
         private byte CalculateSpeed(IAliveEntity aliveEntity, int baseSpeed, int maxSpeed)
         {
@@ -73,7 +76,10 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
                         .Any(b => cardCatalog.IsGrantedBy(b.CardId, ItemEffectType.SpeedBooster))
                     ? items.Find(i => i.VNum == characterEntity.VehicleVNum)?.SpeedBoost ?? 0
                     : 0;
-                return CalculateSpeed(characterEntity, characterEntity.VehicleSpeed + boost, byte.MaxValue);
+                var mapSpeed = characterEntity.MapInstance?.Map is { } map
+                    ? _mapSpeeds.GetValueOrDefault((characterEntity.VehicleVNum, map.MapId))
+                    : 0;
+                return CalculateSpeed(characterEntity, characterEntity.VehicleSpeed + boost + mapSpeed, byte.MaxValue);
             }
 
             return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class), MaxSpeedOnFoot);

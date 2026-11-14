@@ -25,7 +25,7 @@ namespace NosCore.Parser
         MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
         MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
         PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
-        ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, MountScrollParser mountScrollParser, SpeedBoostParser speedBoostParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
+        ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, MountScrollParser mountScrollParser, SpeedBoostParser speedBoostParser, MountMapSpeedParser mountMapSpeedParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
         QuestPrizeParser questPrizeParser, QuestParser questParser, FamilyQuestParser familyQuestParser, ActParser actParser, ScriptParser scriptParser, ScriptOfferParser scriptOfferParser,
         ConstStringParser constStringParser, ScriptedInstanceParser scriptedInstanceParser, InstantCombatParser instantCombatParser,
         AccountParser accountParser, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
@@ -187,6 +187,7 @@ namespace NosCore.Parser
             await boxContentParser.InsertBoxContentsAsync();
             await mountScrollParser.InsertMountScrollsAsync();
             await speedBoostParser.InsertSpeedBoostsAsync();
+            await mountMapSpeedParser.InsertMountMapSpeedsAsync();
         }
 
         public void SetFolder(string folder)

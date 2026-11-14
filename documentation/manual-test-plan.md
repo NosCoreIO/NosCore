@@ -553,6 +553,10 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] Open a personal shop and use the mount: nothing happens
 - [ ] Die while riding: you fall off the mount, and revive on foot at walking speed
 - [ ] Use a Magical Camel Parchment Scroll (5923): you ride the camel and the scroll is used up
+- [ ] Ride the camel of the Grenigas Relic (5914) on a desert map such as the Treasure Hunt Camp
+      (200): it is clearly faster than on Chicken Farm Path, and back to its own speed after
+      leaving the desert. The same holds for each region a mount's description names (Glacernon,
+      NosVille, Port Alveus, Mount Krem, the Region of the Burning Sword, Moritius, Undercity)
 
 ### Class change
 
