@@ -517,6 +517,9 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Stand next to a Tired Chief Miner (111) until it uses its skill (407): two Happy Miners
       (105) and a Weak Expy Miner (108) appear on its cell. Between skills its hits are plain
       basic attacks, not that skill
+- [ ] Kill a Wiggy Wiggler (226): a Small Wiggler (229) appears within a few cells of where it
+      died, from the summon card on its BASIC row. An Angry Beehive (208) releases an Angry Swarm
+      of Bees (210) 40% of the time
 
 ---
 
