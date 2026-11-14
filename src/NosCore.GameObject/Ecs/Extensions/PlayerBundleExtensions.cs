@@ -561,15 +561,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static OutPacket GenerateOut(this PlayerComponentBundle player)
-    {
-        return new OutPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId
-        };
-    }
-
     // The icon slot carries one of the two ladders: the reputation icon while dignity is
     // untouched, and the negated dignity icon once it drops into a penalty band.
     private static byte GetIcon(PlayerComponentBundle player)

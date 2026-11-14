@@ -154,11 +154,7 @@ namespace NosCore.GameObject.Services.BattleService
         {
             await monster.MapInstance.SendPacketAsync(caughtAt);
             await monster.MapInstance.SendPacketAsync(owner.GenerateEff(CaughtEffect));
-            await monster.MapInstance.SendPacketAsync(new OutPacket
-            {
-                VisualType = VisualType.Monster,
-                VisualId = monster.VisualId
-            });
+            await monster.MapInstance.SendPacketAsync(monster.GenerateOut());
         }
 
         private static SuPacket Animation(PlayerComponentBundle owner, MonsterComponentBundle monster, int hpPercent,
