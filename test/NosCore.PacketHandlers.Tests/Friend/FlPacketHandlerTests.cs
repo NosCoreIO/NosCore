@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
                 });
             Session = await World.CreateSessionAsync();
-            FlPacketHandler = new FlCommandPacketHandler(World.Create<NosCore.GameObject.Services.BroadcastService.SessionRegistry>());
+            FlPacketHandler = new FlCommandPacketHandler();
         }
 
         [TestMethod]
