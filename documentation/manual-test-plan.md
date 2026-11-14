@@ -350,6 +350,9 @@ The cell must be within the skill's range plus one cell of the caster.
 - [ ] Watch from a second character: the caster plays the cast, then the skill's effect is
       drawn on the clicked cell before the hits, even when the area is empty
 - [ ] The skill icon comes back when the cooldown ends
+- [ ] As the Archer specialist (SP 4495), cast its teleport skill (1123) at a cell a few steps
+      away: the character appears on that cell and the skill goes on cooldown
+- [ ] Cast it at a wall or a tree: the skill plays but the character stays where it was
 
 ### Skills cast on yourself or an ally
 

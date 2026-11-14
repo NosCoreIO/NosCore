@@ -126,7 +126,7 @@ namespace NosCore.GameObject.Services.BattleService
         {
             var mapInstance = origin.MapInstance;
             var skill = CanCast(origin) && !IsStunned(origin) && mapInstance != null ? Resolve(origin, arguments) : null;
-            if (mapInstance == null || skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill))
+            if (mapInstance == null || skill == null || !(skill.HitsSeveral || skill.TargetType == SkillReach.GroundSkill) || captureService.IsCaptureSkill(skill))
             {
                 await CancelAsync(origin, null);
                 return false;
@@ -136,6 +136,12 @@ namespace NosCore.GameObject.Services.BattleService
             {
                 await CancelAsync(origin, null);
                 return false;
+            }
+
+            if (skill.BCards.Any(b => b.Effect() == BCardEffect.FairyXpIncreaseTeleportToLocation)
+                && mapInstance.Map.IsWalkable(mapX, mapY))
+            {
+                await origin.TeleportAsync(mapX, mapY);
             }
 
             await mapInstance.SendPacketAsync(new BsPacket
