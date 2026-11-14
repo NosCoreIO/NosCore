@@ -7,35 +7,14 @@
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.BroadcastService;
-using NosCore.Packets.ClientPackets.Relations;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Commands;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class FlCommandPacketHandler(ISessionRegistry sessionRegistry)
-        : PacketHandler<FlCommandPacket>, IWorldPacketHandler
+    public class FlCommandPacketHandler : PacketHandler<FlCommandPacket>, IWorldPacketHandler
     {
-        public override async Task ExecuteAsync(FlCommandPacket flPacket, ClientSession session)
-        {
-            if (!sessionRegistry.TryGetCharacter(s => s.Name == flPacket.CharacterName, out var target))
-            {
-                await session.SendPacketAsync(new InfoiPacket
-                {
-                    Message = Game18NConstString.UnknownCharacter
-                });
-                return;
-            }
-
-            var fins = new FinsPacket
-            {
-                CharacterId = target.VisualId,
-                Type = FinsPacketType.Accepted
-            };
-
-            await session.HandlePacketsAsync(new[] { fins });
-        }
+        public override Task ExecuteAsync(FlCommandPacket flPacket, ClientSession session) =>
+            session.HandlePacketsAsync(new[] { new FriendInvitePacket { CharacterName = flPacket.CharacterName ?? string.Empty } });
     }
 }

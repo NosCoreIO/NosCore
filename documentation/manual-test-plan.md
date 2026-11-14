@@ -1348,6 +1348,8 @@ and 5 Apples.
       both see the new looting mode
 - [ ] A third joins and A leaves: B is told they lead now
 - [ ] A party of two ends: each of the two sees the party-disbanded message once
+- [ ] A types `$Party B` (or the client language's alias, such as `$Invitation B`): B gets the
+      party invite, the same as from the menu. `$Party Nobody` answers "Unknown person."
 
 ### Leaving a party
 
@@ -1714,6 +1716,8 @@ Two characters, A and B, on the same channel, then on different channels.
       receives nothing. A removes B from the blacklist and whispers again: it arrives
 - [ ] B logs in and A whispers B at once, also right after A whispered B while B was still
       away: the whisper arrives. The same for a friend message to a friend who has just logged in
+- [ ] A types `$Adding B` (or the client language's alias): B is asked "Become friends with A?",
+      and confirming makes them friends. `$Adding Nobody` answers "Unknown person."
 - [ ] A has several friends, some online, some not: the friend list shows each with its name
       and the right online state; a friend message to an online friend arrives, to an offline
       friend shows "friend offline"

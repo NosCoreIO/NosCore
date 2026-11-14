@@ -306,6 +306,7 @@ namespace NosCore.Tests.Shared
                 Create<BlInsPackettHandler>(),
                 Create<UseItemPacketHandler>(),
                 Create<FinsPacketHandler>(),
+                Create<FriendInvitePacketHandler>(),
                 Create<SelectPacketHandler>(),
                 Create<CSkillPacketHandler>(),
                 Create<CBuyPacketHandler>(),
