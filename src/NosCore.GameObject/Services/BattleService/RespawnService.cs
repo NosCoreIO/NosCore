@@ -96,7 +96,6 @@ public sealed class RespawnService(
         {
             character.Respawns.Add(new RespawnDto
             {
-                RespawnId = character.Respawns.Count == 0 ? 1 : character.Respawns.Max(r => r.RespawnId) + 1,
                 CharacterId = character.CharacterId,
                 MapId = mapId,
                 X = x,

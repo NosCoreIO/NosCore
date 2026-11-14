@@ -242,6 +242,18 @@ namespace NosCore.GameObject.Services.SaveService
                     return;
                 }
 
+                // The key is shared by every character, so a new row takes the id the database gives it.
+                foreach (var respawn in character.Respawns.Where(r => r.RespawnId == 0))
+                {
+                    var inserted = await respawnDao.TryInsertOrUpdateAsync(respawn);
+                    if (inserted == null)
+                    {
+                        Fail("Respawn insert");
+                        return;
+                    }
+                    respawn.RespawnId = inserted.RespawnId;
+                }
+
                 if (!await respawnDao.TryInsertOrUpdateAsync(character.Respawns))
                 {
                     Fail("Respawn upsert");
