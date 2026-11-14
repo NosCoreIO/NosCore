@@ -89,6 +89,11 @@ namespace NosCore.PacketHandlers.Chat
                 }
 
                 var receiverId = receiver.ConnectedCharacter?.Id;
+                if (receiverId == session.Character.VisualId)
+                {
+                    return;
+                }
+
                 var blacklisteds = await blacklistCache.GetBlacklistedAsync(session.Character.VisualId);
                 if (receiverId != null && (blacklisteds.Any(s => s.CharacterId == receiverId)
                     || (await blacklistCache.GetBlacklistedAsync(receiverId.Value)).Any(s => s.CharacterId == session.Character.VisualId)))
