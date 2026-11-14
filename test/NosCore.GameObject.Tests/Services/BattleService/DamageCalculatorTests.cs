@@ -246,6 +246,16 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void AHugeHitWithAMapBossBonusDoesNotWrap()
+        {
+            var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 1_000_000_000, MaxHit = 1_000_000_000, MapBossDamagePercent = 200 };
+            var damage = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker, StatsBuilder.Default() with { IsMapBoss = true }, MeleeSkill).Damage;
+
+            Assert.IsTrue(damage > 1_000_000_000, $"got {damage}");
+        }
+
+        [TestMethod]
         public void MoraleAddsFlatDamage()
         {
             var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService());
