@@ -37,6 +37,7 @@ public sealed class HitQueue(
     IRegenerationService regenerationService,
     IVitalityService vitalityService,
     IOnHitBuffService onHitBuffService,
+    IDamageLeechService damageLeechService,
     ILogger<HitQueue> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IHitQueue, ISingletonService
 {
     // For entities that are on no map at all.
@@ -211,6 +212,7 @@ public sealed class HitQueue(
             }
 
             await onHitBuffService.TriggerAsync(request.Origin, target, killed);
+            await damageLeechService.ApplyAsync(request.Origin, credited);
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));
         }

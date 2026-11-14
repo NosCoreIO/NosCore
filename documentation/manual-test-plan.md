@@ -276,6 +276,13 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Under Lethargy (S) ("100% chance to reduce damage by 30%"), your auto-attacks on a monster
       deal about 30% less than without it; when it wears off they return to normal
 
+### HP gained or lost from your own hits
+
+- [ ] Under Spooked (S) ("HP is decreased by 40% of the damage dealt"), each auto-attack on a
+      monster costs you 40% of its damage, never more than half your maximum HP in one hit
+- [ ] Under Giantism with HP missing, each landed hit heals you by its share of the damage, up to
+      your maximum HP
+
 ### Chance of receiving critical hits
 
 - [ ] Wear an armour with "probability to receive critical hits is decreased by 20%" (8643) and let a
