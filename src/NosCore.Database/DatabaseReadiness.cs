@@ -19,7 +19,7 @@ namespace NosCore.Database
     public static class DatabaseReadiness
     {
         // Bump when a parser change has to be imported again before the world server can run on it.
-        public const int GameDataVersion = 3;
+        public const int GameDataVersion = 4;
 
         private const int GameDataImportRow = 1;
 
