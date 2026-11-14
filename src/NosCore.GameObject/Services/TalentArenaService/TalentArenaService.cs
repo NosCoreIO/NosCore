@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
@@ -399,6 +400,24 @@ namespace NosCore.GameObject.Services.TalentArenaService
             }
         }
 
+        // A draw counts as neither a win nor a loss.
+        public static void Record(CharacterDto record, ArenaTeamType team, ArenaResultType result)
+        {
+            if (result == ArenaResultType.Draw)
+            {
+                return;
+            }
+
+            if (result == (team == ArenaTeamType.Zenas ? ArenaResultType.ZenasWon : ArenaResultType.EreniaWon))
+            {
+                record.TalentWin++;
+            }
+            else
+            {
+                record.TalentLose++;
+            }
+        }
+
         public static ArenaResultType? Result(IReadOnlyCollection<(ArenaTeamType Team, bool Defeated)> fighters)
         {
             var zenasLeft = fighters.Any(f => f.Team == ArenaTeamType.Zenas && !f.Defeated);
@@ -733,6 +752,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                         OpponentLivesLeft = Lives(Opponent(fighter.Team)),
                     });
                     var won = result == (fighter.Team == ArenaTeamType.Zenas ? ArenaResultType.ZenasWon : ArenaResultType.EreniaWon);
+                    Record(session.Character.CharacterDto, fighter.Team, result);
                     foreach (var gift in won ? definition.GiftItems : definition.ConsolationItems)
                     {
                         await service.RewardAsync(session.Character, gift.VNum, gift.Amount);
@@ -743,6 +763,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 {
                     if (service.Session(fighter.CharacterId) is { } session)
                     {
+                        session.Character.CharacterDto.TalentSurrender++;
                         session.Character.TalentArenaTeam = null;
                         session.Character.InTalentArenaRing = false;
                     }

@@ -2498,6 +2498,9 @@ arena) next to Tei Ken, the left NPC on the steps. Learned skills are needed to 
 - [ ] Not verifiable yet: spectating a match by name (`taw`), which this client never sends
 - [ ] When a team has nobody left the result window shows WIN/LOSE with won rounds and lives;
       winners get 1 Gold Medal, losers 3 Silver Medals, each with a chat line
+- [ ] Afterwards, right-clicking a fighter's HP bar at the top of the screen shows the match under
+      "Highscore: Arena of Talents" (one more won or lost); a draw changes neither, and a fighter
+      who left the match map while staying online counts one more surrendered
 - [ ] Ten seconds later (or after Close) everyone is back where they registered, the HUD is gone,
       and players can be hit only where they could before
 - [ ] The match runs from `instances/talent-arena.csx`: setting its preparation to 30 seconds and
