@@ -155,7 +155,7 @@ namespace NosCore.Parser.Tests
         {
             var basic = string.Join("\t", new[] { "0", "0", "0", "0", "0", "11", "-380", "300", "1", "0" }
                 .Concat(Enumerable.Repeat("0", 40)));
-            var card = string.Join("\t", new[] { "26", "4", "12540", "1", "0" }.Concat(Enumerable.Repeat("0", 15)));
+            var card = string.Join("\t", new[] { "26", "4", "12540", "1", "0", "0", "0", "0", "0", "0", "26", "8", "144", "0", "0", "0", "0", "0", "0", "0" });
             File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(1490, "zts1490e", 60, basic: basic, card: card));
             var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
                 _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
@@ -165,7 +165,7 @@ namespace NosCore.Parser.Tests
                 .ReturnsAsync(true);
             await parser.InsertNpcMonstersAsync(_tempFolder);
 
-            CollectionAssert.AreEquivalent(new[] { "0 11/22 95 75", "1 26/21 1 3135" },
+            CollectionAssert.AreEquivalent(new[] { "0 11/22 95 75", "1 26/21 1 3135", "3 26/11 2 36" },
                 saved.Select(b => $"{b.Slot} {b.Type}/{b.SubType} {b.FirstData} {b.SecondData}").ToArray());
         }
 
