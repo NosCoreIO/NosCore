@@ -6,6 +6,8 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -306,7 +308,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static PairyPacket GeneratePairy(this IAliveEntity aliveEntity, WearableInstance? fairy)
         {
-            var isBuffed = false; //TODO aliveEntity.Buff.Any(b => b.Card.CardId == 131);
+            var isBuffed = fairy != null && aliveEntity.HasFairyElementBuff();
             return new PairyPacket
             {
                 VisualType = aliveEntity.VisualType,
@@ -316,6 +318,16 @@ namespace NosCore.GameObject.Ecs.Extensions
                 ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
                 Morph = (fairy?.Item?.Morph ?? 0) + (isBuffed ? 5 : 0)
             };
+        }
+
+        // A buff that raises the worn fairy's element shows the fairy in its boosted look.
+        public static bool HasFairyElementBuff(this IAliveEntity aliveEntity)
+        {
+            var buffs = aliveEntity is PlayerComponentBundle player
+                ? player.World.TryGetComponent<BuffStateComponent>(player.Entity)?.ActiveBuffs
+                : null;
+            return buffs != null && buffs.Values.Any(buff =>
+                buff.BCards.Any(b => b.Effect() == BCardEffect.Type96IncreaseFairyElement));
         }
 
         public static CModePacket GenerateCMode(this IAliveEntity aliveEntity)

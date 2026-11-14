@@ -486,7 +486,7 @@ public static class PlayerBundleExtensions
             Level = player.Level,
             Name = player.Name,
             Element = (ElementType)(fairy?.Item?.Element ?? 0),
-            ElementRate = fairy?.Item?.ElementRate ?? 0,
+            ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
             Class = player.Class,
             Gender = player.Gender,
             ReputationIco = (ExtendedReputationType)player.ReputIcon,
