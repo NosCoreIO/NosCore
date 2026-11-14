@@ -1426,6 +1426,7 @@ own message, in the client's language.
 - [ ] A turns whisper off; B whispers A: B sees "This person does not want to receive
       whispers." and A receives nothing. Repeat with B on another channel. Turn it back on
       and the whisper arrives
+- [ ] A whispers A's own name: the chat shows the line once, with no "(From A)" copy
 - [ ] A turns party off; B invites A: B sees "This person's party option is blocked." and A
       gets no invite. Turn it back on and the invite arrives
 - [ ] A blocks emoticons ("Some visual effects will now be hidden."); B uses an emoticon: A

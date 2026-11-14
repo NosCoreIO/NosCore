@@ -197,6 +197,41 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task WhisperingToYourselfIsNotDeliveredBack()
+        {
+            await new Spec("Whispering to yourself shows the line once and delivers nothing")
+                .Given(CharacterIsOnMap)
+                .And(TheSenderIsOnline)
+                .WhenAsync(WhisperingToYourself)
+                .Then(NoMessageShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        private void TheSenderIsOnline()
+        {
+            PubSubHub.Setup(x => x.GetSubscribersAsync())
+                .Returns(Task.FromResult(new List<Subscriber>
+                {
+                    new Subscriber
+                    {
+                        ConnectedCharacter = new Data.WebApi.Character
+                        {
+                            Id = Session.Character.CharacterId,
+                            Name = Session.Character.Name
+                        }
+                    }
+                }));
+        }
+
+        private async Task WhisperingToYourself()
+        {
+            await Handler.ExecuteAsync(new WhisperPacket
+            {
+                Message = $"{Session.Character.Name} Hello there!"
+            }, Session);
+        }
+
         private void NobodyIsOnline()
         {
             PubSubHub.Setup(x => x.GetSubscribersAsync()).Returns(Task.FromResult(new List<Subscriber>()));
