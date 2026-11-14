@@ -12,11 +12,13 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.QuestService;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
     [UsedImplicitly]
-    public sealed class OnEntityCapturedHandler(IQuestService questService, ILogger<OnEntityCapturedHandler> logger)
+    public sealed class OnEntityCapturedHandler(IQuestService questService, ILogger<OnEntityCapturedHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         [UsedImplicitly]
         public async Task Handle(EntityCapturedEvent evt)
@@ -30,7 +32,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to progress capture quest for character {CharacterId}", character.VisualId);
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.CAPTURE_QUEST_PROGRESS_FAILED], character.VisualId);
             }
         }
     }

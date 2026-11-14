@@ -22,6 +22,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Tests.Shared;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.MapChangeService
 {
@@ -149,7 +151,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             var clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             var map = new MapInstance(new Map.Map { MapId = 0, NameI18NKey = "testMap", Data = new byte[] { 2, 0, 2, 0, 0, 0, 0, 0 } },
                 Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
-                NullLogger<MapInstance>.Instance, clock, World.MapChangeService,
+                NullLogger<MapInstance>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock, World.MapChangeService,
                 World.SessionGroupFactory, World.SessionRegistry,
                 World.DistanceCalculator);
             var sessions = new Mock<ISessionGroup>();

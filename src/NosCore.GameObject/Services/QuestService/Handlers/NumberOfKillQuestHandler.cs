@@ -7,11 +7,14 @@
 using JetBrains.Annotations;
 using NosCore.Packets.Enumerations;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
 [UsedImplicitly]
-public sealed class NumberOfKillQuestHandler(ILogger<NumberOfKillQuestHandler> logger) : KillQuestHandlerBase(logger)
+public sealed class NumberOfKillQuestHandler(ILogger<NumberOfKillQuestHandler> logger,
+    ILogLanguageLocalizer<LogLanguageKey> logLanguage) : KillQuestHandlerBase(logger, logLanguage)
 {
     public override QuestType QuestType => QuestType.NumberOfKill;
 }

@@ -14,6 +14,8 @@ using NosCore.Parser.Parsers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Tests
 {
@@ -41,7 +43,7 @@ namespace NosCore.Parser.Tests
             rolls.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<RollGeneratedItemDto>>()))
                 .Callback<IEnumerable<RollGeneratedItemDto>>(rows => _rolls.AddRange(rows))
                 .ReturnsAsync(true);
-            _parser = new BoxContentParser(items.Object, rolls.Object, NullLogger<BoxContentParser>.Instance);
+            _parser = new BoxContentParser(items.Object, rolls.Object, NullLogger<BoxContentParser>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

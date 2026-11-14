@@ -10,11 +10,13 @@ using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
 {
     public class InstantCombatParser(IDao<InstantCombatMonsterDto, short> monsterDao,
-        IDao<InstantCombatDropDto, short> dropDao, ILogger<InstantCombatParser> logger)
+        IDao<InstantCombatDropDto, short> dropDao, ILogger<InstantCombatParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertInstantCombatWavesAsync()
         {
@@ -41,7 +43,7 @@ namespace NosCore.Parser.Parsers
             await dropDao.TryDeleteAsync(dropDao.LoadAll().Select(d => d.InstantCombatDropId).ToList());
             await monsterDao.TryInsertOrUpdateAsync(monsters);
             await dropDao.TryInsertOrUpdateAsync(drops);
-            logger.LogInformation("{Monsters} Instant Combat monster lines and {Drops} drop lines imported", monsters.Count, drops.Count);
+            logger.LogInformation(logLanguage[LogLanguageKey.INSTANT_COMBAT_PARSED], monsters.Count, drops.Count);
         }
     }
 }

@@ -26,6 +26,8 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.MapChangeService
 {
@@ -69,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                     new System.Lazy<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>(new Mock<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>().Object),
                     World.Create<GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry>(),
                     World.Clock,
-                    NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance),
+                    NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }
 

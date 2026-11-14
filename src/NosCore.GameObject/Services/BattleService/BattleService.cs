@@ -27,6 +27,8 @@ using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using Microsoft.Extensions.Logging;
 using Wolverine;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.BattleService
 {
@@ -44,7 +46,7 @@ namespace NosCore.GameObject.Services.BattleService
         ICaptureService captureService,
         ICastDelayService castDelayService,
         IBuffService buffService,
-        ILogger<BattleService> logger) : IBattleService, ISingletonService
+        ILogger<BattleService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
@@ -71,7 +73,7 @@ namespace NosCore.GameObject.Services.BattleService
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Capture attempt failed: {Attacker} -> {Target}", origin.VisualId, target.VisualId);
+                    logger.LogError(ex, logLanguage[LogLanguageKey.CAPTURE_FAILED], origin.VisualId, target.VisualId);
                 }
 
                 ScheduleCooldownReset(origin, skill);
@@ -152,7 +154,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Hit processing failed: {Attacker} -> {Target}", origin.VisualId, target.VisualId);
+                logger.LogError(ex, logLanguage[LogLanguageKey.HIT_PROCESSING_FAILED], origin.VisualId, target.VisualId);
             }
         }
 

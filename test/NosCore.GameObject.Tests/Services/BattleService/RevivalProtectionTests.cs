@@ -20,6 +20,8 @@ using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -57,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             _queue = new HitQueue(calculator.Object, stats.Object, _buffs,
                 new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object,
-                new Mock<ILogger<HitQueue>>().Object);
+                new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

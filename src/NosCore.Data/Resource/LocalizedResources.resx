@@ -646,4 +646,247 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>This event is already running.</value>
   </data>
+  <data name="PARSING_FOLDER" xml:space="preserve">
+    <value>Parsing non-interactively from {Folder}</value>
+  </data>
+  <data name="SPEED_BOOSTERS_PARSED" xml:space="preserve">
+    <value>{Mounts} mounts get their Speed Booster effect</value>
+  </data>
+  <data name="MOUNT_SCROLLS_PARSED" xml:space="preserve">
+    <value>{Scrolls} mount scrolls draw from {Rolls} mounts</value>
+  </data>
+  <data name="INSTANT_COMBAT_PARSED" xml:space="preserve">
+    <value>{Monsters} Instant Combat monster lines and {Drops} drop lines imported</value>
+  </data>
+  <data name="BOX_CONTENTS_PARSED" xml:space="preserve">
+    <value>{Boxes} boxes and packs get their {Rolls} items</value>
+  </data>
+  <data name="LIFE_TICK_FAILED" xml:space="preserve">
+    <value>Life tick failed</value>
+  </data>
+  <data name="RECURRING_PUBLISH_FAILED" xml:space="preserve">
+    <value>Recurring publish of {Message} failed</value>
+  </data>
+  <data name="KILL_QUEST_PROGRESS_FAILED" xml:space="preserve">
+    <value>Failed to progress kill quest for character {CharacterId}</value>
+  </data>
+  <data name="ITEM_QUEST_PROGRESS_FAILED" xml:space="preserve">
+    <value>Failed to progress quest {QuestId} for character {CharacterId}</value>
+  </data>
+  <data name="CAPTURE_QUEST_PROGRESS_FAILED" xml:space="preserve">
+    <value>Failed to progress capture quest for character {CharacterId}</value>
+  </data>
+  <data name="UNKNOWN_PROBABILITY_WINDOW" xml:space="preserve">
+    <value>n_run ProbabilityUIs requested unknown WindowType={Raw} (NPC visualId={VisualId}); extend WindowType or add a mapping</value>
+  </data>
+  <data name="SPEAKER_MESSAGE_FAILED" xml:space="preserve">
+    <value>Speaker message to {CharacterId} failed</value>
+  </data>
+  <data name="PLAYER_REVIVAL_FAILED" xml:space="preserve">
+    <value>PlayerRevivalHandler failed for {CharacterId}</value>
+  </data>
+  <data name="DEATH_BCARD_BROADCAST_FAILED" xml:space="preserve">
+    <value>Failed to broadcast death-BCard stat update for character {CharacterId}</value>
+  </data>
+  <data name="PACKET_PROCESSING_FAILED" xml:space="preserve">
+    <value>Unhandled exception while processing packet for session {SessionId}</value>
+  </data>
+  <data name="SESSION_DISCONNECT_FAILED" xml:space="preserve">
+    <value>Unhandled exception while disconnecting session {SessionId}</value>
+  </data>
+  <data name="MATE_UNKNOWN_MONSTER" xml:space="preserve">
+    <value>Mate {MateId} refers to unknown NpcMonster {VNum} and was skipped</value>
+  </data>
+  <data name="MATE_REVIVAL_FAILED" xml:space="preserve">
+    <value>Reviving mate {MateId} failed</value>
+  </data>
+  <data name="EVENT_STILL_RUNNING" xml:space="preserve">
+    <value>{Event} is still running and was not started again</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_UNREADABLE" xml:space="preserve">
+    <value>The script of ScriptedInstance {ScriptedInstanceId} on map {MapId} could not be read</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_NO_ENTRANCE" xml:space="preserve">
+    <value>No instance entrance at {MapId} {PositionX},{PositionY} to attach {Label} to</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_MAP_MISSING" xml:space="preserve">
+    <value>Instance {ScriptedInstanceId} asks for map {VNum}, which does not exist</value>
+  </data>
+  <data name="QUEST_EXPERIENCE_WITHOUT_MONSTER" xml:space="preserve">
+    <value>Quest {QuestId} pays experience per monster but hunts none</value>
+  </data>
+  <data name="QUEST_REWARD_TYPE_UNSUPPORTED" xml:space="preserve">
+    <value>Quest reward {RewardId} of type {Type} is not granted yet</value>
+  </data>
+  <data name="QUEST_REWARD_NO_CLASS_ITEM" xml:space="preserve">
+    <value>Quest reward {RewardId} has no item for class {Class}</value>
+  </data>
+  <data name="QUEST_REWARD_LOST_INVENTORY_FULL" xml:space="preserve">
+    <value>Quest reward {VNum}x{Amount} lost: inventory full for character {CharacterId}</value>
+  </data>
+  <data name="QUEST_PROGRESS_SEND_FAILED" xml:space="preserve">
+    <value>Failed to send quest progress for character {CharacterId} quest {QuestId}</value>
+  </data>
+  <data name="CAPTURE_FAILED" xml:space="preserve">
+    <value>Capture attempt failed: {Attacker} -&gt; {Target}</value>
+  </data>
+  <data name="HIT_PROCESSING_FAILED" xml:space="preserve">
+    <value>Hit processing failed: {Attacker} -&gt; {Target}</value>
+  </data>
+  <data name="AI_TICK_FAILED" xml:space="preserve">
+    <value>AI tick failed for {VisualId}</value>
+  </data>
+  <data name="MONSTER_CAST_FAILED" xml:space="preserve">
+    <value>Cast of skill {Skill} by {VisualId} failed</value>
+  </data>
+  <data name="HIT_APPLY_FAILED" xml:space="preserve">
+    <value>Failed to apply hit to entity {Handle}</value>
+  </data>
+  <data name="REGENERATION_TICK_FAILED" xml:space="preserve">
+    <value>Regeneration tick failed for map {MapId}</value>
+  </data>
+  <data name="DROP_SPAWN_FAILED" xml:space="preserve">
+    <value>Failed to spawn drop {VNum} from {Mob}</value>
+  </data>
+  <data name="GOLD_DROP_SPAWN_FAILED" xml:space="preserve">
+    <value>Failed to spawn gold drop from {Mob}</value>
+  </data>
+  <data name="DIGESTION_SESSION_TICK_FAILED" xml:space="preserve">
+    <value>Digestion tick failed for session {SessionId}</value>
+  </data>
+  <data name="DIGESTION_MAP_TICK_FAILED" xml:space="preserve">
+    <value>Digestion tick failed for map {MapId}</value>
+  </data>
+  <data name="LAND_OF_DEATH_FAILED" xml:space="preserve">
+    <value>Land of Death failed</value>
+  </data>
+  <data name="LAND_OF_DEATH_REVIVE_FAILED" xml:space="preserve">
+    <value>Land of Death revive failed for {CharacterId}</value>
+  </data>
+  <data name="LAND_OF_DEATH_MAP_MISSING" xml:space="preserve">
+    <value>The Land of Death needs map {MapId} imported by the parser</value>
+  </data>
+  <data name="LAND_OF_DEATH_MONSTER_MISSING" xml:space="preserve">
+    <value>The Land of Death needs monster {VNum} imported by the parser</value>
+  </data>
+  <data name="LAND_OF_DEATH_CLOSE_FAILED" xml:space="preserve">
+    <value>Closing the Land of Death of family {FamilyId} failed</value>
+  </data>
+  <data name="WALK_DROPPED_SPEED" xml:space="preserve">
+    <value>walk dropped: server speed {ServerSpeed} &lt; packet speed {PacketSpeed} for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY})</value>
+  </data>
+  <data name="WALK_DROPPED_DISTANCE" xml:space="preserve">
+    <value>walk dropped: distance {Distance} &gt; speed/2 ({HalfSpeed}) for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY}) packetSpeed={PacketSpeed}</value>
+  </data>
+  <data name="WALK_DROPPED_UNREACHABLE" xml:space="preserve">
+    <value>walk dropped: character {VisualId} cannot reach ({ToX},{ToY}) from ({FromX},{FromY}) at speed {Speed} yet</value>
+  </data>
+  <data name="WALK_ACCEPTED" xml:space="preserve">
+    <value>walk accepted: character {VisualId} wrote ({WrittenX},{WrittenY}); ECS now reads PositionX/Y=({StoredX},{StoredY}) MapX/Y=({StoredMapX},{StoredMapY})</value>
+  </data>
+  <data name="INSTANT_COMBAT_FAILED" xml:space="preserve">
+    <value>Instant Combat failed</value>
+  </data>
+  <data name="INSTANT_COMBAT_DATA_MISSING" xml:space="preserve">
+    <value>Instant Combat needs map {MapId} and its waves imported by the parser</value>
+  </data>
+  <data name="INSTANT_COMBAT_ROOM_FAILED" xml:space="preserve">
+    <value>Instant Combat room {MapInstanceId} failed</value>
+  </data>
+  <data name="BROADCAST_FAILED" xml:space="preserve">
+    <value>Broadcast to {ChannelId} failed</value>
+  </data>
+  <data name="HERO_MESSAGE_FAILED" xml:space="preserve">
+    <value>Hero message to {CharacterId} failed</value>
+  </data>
+  <data name="MAP_LIFE_TICK_FAILED" xml:space="preserve">
+    <value>Life tick failed for map {MapId}</value>
+  </data>
+  <data name="SKILL_COOLDOWN_RESET_FAILED" xml:space="preserve">
+    <value>Failed to reset cooldown for skill {CastId}</value>
+  </data>
+  <data name="MAP_LIFE_STEP_FAILED" xml:space="preserve">
+    <value>Life tick step {Step} failed for map {MapId}</value>
+  </data>
+  <data name="ENTITY_LIFE_TICK_FAILED" xml:space="preserve">
+    <value>Life tick failed for {What} {Id} on map {MapId}</value>
+  </data>
+  <data name="RESPAWN_LIFE_TICK_FAILED" xml:space="preserve">
+    <value>Life tick failed for respawn {Entity} on map {MapId}</value>
+  </data>
+  <data name="ICE_BREAKER_FAILED" xml:space="preserve">
+    <value>Icebreaker failed</value>
+  </data>
+  <data name="ICE_BREAKER_MAP_MISSING" xml:space="preserve">
+    <value>Icebreaker needs map {MapId} imported by the parser</value>
+  </data>
+  <data name="MISSING_KEEPALIVE" xml:space="preserve">
+    <value>Session {SessionId} sent a packet without a keep-alive number and was disconnected</value>
+  </data>
+  <data name="PACKET_REFUSED_BEFORE_MFA" xml:space="preserve">
+    <value>Packet {Header} refused until MFA is validated</value>
+  </data>
+  <data name="PACKET_REFUSED_WHILE_DEAD" xml:space="preserve">
+    <value>Packet {Header} refused while dead</value>
+  </data>
+  <data name="PACKET_REFUSED_IN_STATE" xml:space="preserve">
+    <value>Packet {Header} refused while {State}</value>
+  </data>
+  <data name="PACKET_IN_FLIGHT_ON_DISCONNECT" xml:space="preserve">
+    <value>Session {SessionId} still had a packet in flight when it disconnected</value>
+  </data>
+  <data name="DISCONNECT_STEP_FAILED" xml:space="preserve">
+    <value>Disconnect step {Step} failed for session {SessionId}</value>
+  </data>
+  <data name="SESSION_IP_UNREGISTER_FAILED" xml:space="preserve">
+    <value>Failed to unregister session IP for {Account}</value>
+  </data>
+  <data name="ACCOUNT_CLAIM_RELEASE_FAILED" xml:space="preserve">
+    <value>Failed to release the account claim of session {SessionId}</value>
+  </data>
+  <data name="GAME_OPTION_REJECTED" xml:space="preserve">
+    <value>The master server rejected the {Option} option of {CharacterId}</value>
+  </data>
+  <data name="FIRST_QUEST_SCRIPT_FAILED" xml:space="preserve">
+    <value>Starting the first quest script failed for character {CharacterId}</value>
+  </data>
+  <data name="REQINFO_UNSUPPORTED_VISUAL_TYPE" xml:space="preserve">
+    <value>req_info 6 for unsupported visualType={VisualType} visualId={VisualId}</value>
+  </data>
+  <data name="REQINFO_MATE_NOT_WIRED" xml:space="preserve">
+    <value>req_info 6 &lt;mateTransportId={TransportId}&gt; received but mate subsystem is not wired</value>
+  </data>
+  <data name="WHISPER_FAILED" xml:space="preserve">
+    <value>Whisper failed.</value>
+  </data>
+  <data name="WORLD_ENTRY_REFUSED_AUTHORITY" xml:space="preserve">
+    <value>World entry refused for {AccountName}: authority {Authority}</value>
+  </data>
+  <data name="WORLD_ENTRY_REFUSED_MAINTENANCE" xml:space="preserve">
+    <value>World entry refused for {AccountName}: the channel is in maintenance</value>
+  </data>
+  <data name="CHARACTER_CREATION_NOT_COMMITTED" xml:space="preserve">
+    <value>The creation of {Name} was not committed</value>
+  </data>
+  <data name="STARTER_ITEMS_FAILED" xml:space="preserve">
+    <value>The starter items of {Class} cannot be given; {Name} was not created</value>
+  </data>
+  <data name="CHARACTER_NOT_STORED" xml:space="preserve">
+    <value>{Name} could not be stored and was not created</value>
+  </data>
+  <data name="REVIVAL_FAILED" xml:space="preserve">
+    <value>Revival failed for character {CharacterId} type {Type}</value>
+  </data>
+  <data name="ARENA_REVIVAL_CARD_MISSING" xml:space="preserve">
+    <value>No card is set to protect a fighter revived in the arena</value>
+  </data>
+  <data name="ARENA_REVIVAL_PROTECTION_FAILED" xml:space="preserve">
+    <value>Arena revival protection failed for character {CharacterId}</value>
+  </data>
+  <data name="UNHANDLED_NRUN_RUNNER" xml:space="preserve">
+    <value>Unhandled n_run runner {Runner}</value>
+  </data>
+  <data name="NRUN_WITHOUT_DIALOG" xml:space="preserve">
+    <value>n_run {Runner} without an open dialog with NPC {VisualId}</value>
+  </data>
 </root>

@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Ecs.Extensions
 {
@@ -95,7 +97,8 @@ namespace NosCore.GameObject.Ecs.Extensions
         // (targeting hostile mobs) flow through the same TickAsync — the AI
         // implementation decides what counts as a target based on the entity's
         // race/hostility.
-        public static async Task TickLifeAsync(this INonPlayableEntity entity, IMonsterAi? monsterAi, IHeuristic distanceCalculator, IClock clock, ILogger logger)
+        public static async Task TickLifeAsync(this INonPlayableEntity entity, IMonsterAi? monsterAi, IHeuristic distanceCalculator, IClock clock, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             try
             {
@@ -112,7 +115,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Life tick failed");
+                logger.LogError(e, logLanguage[LogLanguageKey.LIFE_TICK_FAILED]);
             }
         }
 

@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Shops
             var handler = handlers.FirstOrDefault(h => h.Runner == packet.Runner);
             if (handler is null)
             {
-                logger.LogDebug("Unhandled n_run runner {Runner}", packet.Runner);
+                logger.LogDebug(logLanguage[LogLanguageKey.UNHANDLED_NRUN_RUNNER], packet.Runner);
                 return Task.CompletedTask;
             }
 
@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Shops
                     : null;
                 if (npc is not { } dialogNpc || !npcDialogService.IsOpenWith(character, dialogNpc))
                 {
-                    logger.LogDebug("n_run {Runner} without an open dialog with NPC {VisualId}", packet.Runner, packet.VisualId);
+                    logger.LogDebug(logLanguage[LogLanguageKey.NRUN_WITHOUT_DIALOG], packet.Runner, packet.VisualId);
                     return Task.CompletedTask;
                 }
 

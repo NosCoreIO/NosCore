@@ -26,6 +26,8 @@ using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Battle
 {
@@ -44,7 +46,7 @@ namespace NosCore.PacketHandlers.Battle
     // Every branch ends with `tp` (position) + `revive` + refreshed `stat`, mirroring
     // the death.txt trace at lines 6338–6344.
     public class RevivalPacketHandler(
-        ILogger<RevivalPacketHandler> logger,
+        ILogger<RevivalPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IMapChangeService mapChangeService,
         IRespawnService respawnService,
         IBuffService buffService,
@@ -88,7 +90,7 @@ namespace NosCore.PacketHandlers.Battle
             catch (Exception ex)
             {
                 character.IsAlive = false;
-                logger.LogWarning(ex, "Revival failed for character {CharacterId} type {Type}",
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.REVIVAL_FAILED],
                     character.CharacterId, packet.Type);
             }
         }
@@ -168,7 +170,7 @@ namespace NosCore.PacketHandlers.Battle
             var protection = cardCatalog.GetTriggeredCard(CardTrigger.ArenaRevival);
             if (protection == null)
             {
-                logger.LogWarning("No card is set to protect a fighter revived in the arena");
+                logger.LogWarning(logLanguage[LogLanguageKey.ARENA_REVIVAL_CARD_MISSING]);
                 return;
             }
 
@@ -180,7 +182,7 @@ namespace NosCore.PacketHandlers.Battle
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Arena revival protection failed for character {CharacterId}", character.CharacterId);
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.ARENA_REVIVAL_PROTECTION_FAILED], character.CharacterId);
             }
         }
 

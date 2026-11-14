@@ -44,6 +44,8 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -51,6 +53,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
     {
         public short MaxPacketsBuffer { get; } = 250;
         private readonly ILogger<MapInstance> _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         private readonly IMapItemGenerationService _mapItemGenerationService;
         private readonly Lock _sleepLock = new();
@@ -90,7 +93,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public MapExecutor Executor { get; } = new();
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
+            IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
             IVitalityService? vitalityService = null,
@@ -116,6 +119,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             Sessions = sessionGroupFactory.Create();
             _mapItemGenerationService = mapItemGenerationService;
             _logger = logger;
+            _logLanguage = logLanguage;
             _mapChangeService = mapChangeService;
             _sessionRegistry = sessionRegistry;
             _distanceCalculator = distanceCalculator;
@@ -507,7 +511,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError(e, "Life tick failed for map {MapId}", Map.MapId);
+                        _logger.LogError(e, _logLanguage[LogLanguageKey.MAP_LIFE_TICK_FAILED], Map.MapId);
                     }
                 }
             }
@@ -529,7 +533,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 try
                 {
-                    await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                    await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger, _logLanguage);
                 }
                 catch (Exception e)
                 {
@@ -541,7 +545,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 try
                 {
-                    await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                    await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger, _logLanguage);
                 }
                 catch (Exception e)
                 {
@@ -633,7 +637,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Failed to reset cooldown for skill {CastId}", castId);
+                    _logger.LogWarning(e, _logLanguage[LogLanguageKey.SKILL_COOLDOWN_RESET_FAILED], castId);
                 }
             }
         }
@@ -651,13 +655,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Life tick step {Step} failed for map {MapId}", what, Map.MapId);
+                _logger.LogError(e, _logLanguage[LogLanguageKey.MAP_LIFE_STEP_FAILED], what, Map.MapId);
             }
         }
 
         private void LogTickFailure(Exception e, string what, long id)
         {
-            _logger.LogError(e, "Life tick failed for {What} {Id} on map {MapId}", what, id, Map.MapId);
+            _logger.LogError(e, _logLanguage[LogLanguageKey.ENTITY_LIFE_TICK_FAILED], what, id, Map.MapId);
         }
 
         private async Task SweepPendingRespawnsAsync()
@@ -684,7 +688,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, "Life tick failed for respawn {Entity} on map {MapId}", entity, Map.MapId);
+                    _logger.LogError(e, _logLanguage[LogLanguageKey.RESPAWN_LIFE_TICK_FAILED], entity, Map.MapId);
                 }
             }
         }

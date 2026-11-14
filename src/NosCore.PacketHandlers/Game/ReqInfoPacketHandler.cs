@@ -104,7 +104,7 @@ namespace NosCore.PacketHandlers.Game
                     template = monsterLookup?.NpcMonster;
                     break;
                 default:
-                    logger.LogDebug("req_info 6 for unsupported visualType={VisualType} visualId={VisualId}", visualType, visualId);
+                    logger.LogDebug(logLanguage[LogLanguageKey.REQINFO_UNSUPPORTED_VISUAL_TYPE], visualType, visualId);
                     return;
             }
 
@@ -122,7 +122,7 @@ namespace NosCore.PacketHandlers.Game
         // unknown mate id gets.
         private Task HandleMateInfoAsync(ReqInfoPacket packet, ClientSession session)
         {
-            logger.LogDebug("req_info 6 <mateTransportId={TransportId}> received but mate subsystem is not wired",
+            logger.LogDebug(logLanguage[LogLanguageKey.REQINFO_MATE_NOT_WIRED],
                 packet.TargetVNum);
             return Task.CompletedTask;
         }

@@ -16,6 +16,8 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
@@ -24,7 +26,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
     // the reward distributor uses so the quest logic never has to be called
     // from BattleService or RewardService directly.
     [UsedImplicitly]
-    public sealed class OnEntityDiedHandler(IQuestService questService, ILogger<OnEntityDiedHandler> logger)
+    public sealed class OnEntityDiedHandler(IQuestService questService, ILogger<OnEntityDiedHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         [UsedImplicitly]
         public async Task Handle(EntityDiedEvent evt)
@@ -50,7 +52,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, "Failed to progress kill quest for character {CharacterId}", character.VisualId);
+                    logger.LogWarning(ex, logLanguage[LogLanguageKey.KILL_QUEST_PROGRESS_FAILED], character.VisualId);
                 }
             }
         }

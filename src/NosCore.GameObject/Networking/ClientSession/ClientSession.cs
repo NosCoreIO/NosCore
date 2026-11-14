@@ -312,7 +312,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (OperationCanceledException)
             {
-                _logger.LogWarning("Session {SessionId} still had a packet in flight when it disconnected", SessionId);
+                _logger.LogWarning(logLanguage[LogLanguageKey.PACKET_IN_FLIGHT_ON_DISCONNECT], SessionId);
             }
 
             IsClosing = true;
@@ -342,7 +342,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Disconnect step {Step} failed for session {SessionId}", handler.GetType().Name, SessionId);
+                        _logger.LogError(ex, logLanguage[LogLanguageKey.DISCONNECT_STEP_FAILED], handler.GetType().Name, SessionId);
                     }
                 }
             }
@@ -365,13 +365,13 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (_account is { } account)
                 {
                     try { await authHub.UnregisterSessionIpAsync(account.Name); }
-                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to unregister session IP for {Account}", account.Name); }
+                    catch (Exception ex) { _logger.LogWarning(ex, logLanguage[LogLanguageKey.SESSION_IP_UNREGISTER_FAILED], account.Name); }
                 }
                 if (_subscribedSessionId is { } subscribedSessionId)
                 {
                     _subscribedSessionId = null;
                     try { await pubSubHub.UnsubscribeAsync(subscribedSessionId); }
-                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to release the account claim of session {SessionId}", subscribedSessionId); }
+                    catch (Exception ex) { _logger.LogWarning(ex, logLanguage[LogLanguageKey.ACCOUNT_CLAIM_RELEASE_FAILED], subscribedSessionId); }
                 }
 
                 packetLock?.Dispose();

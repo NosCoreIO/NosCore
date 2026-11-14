@@ -17,6 +17,9 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using Moq;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
 {
@@ -40,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
                     Data = new byte[] { 2, 0, 2, 0, 0, 0, 0, 0 },
                 },
                 Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
-                NullLogger<MapInstance>.Instance, World.Clock, World.MapChangeService,
+                NullLogger<MapInstance>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, World.Clock, World.MapChangeService,
                 World.SessionGroupFactory, World.SessionRegistry,
                 World.DistanceCalculator);
             map.LoadMonsters(

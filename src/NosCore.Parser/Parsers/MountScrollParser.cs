@@ -11,11 +11,13 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
 {
     public class MountScrollParser(IDao<ItemDto, short> itemDao,
-        IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<MountScrollParser> logger)
+        IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<MountScrollParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertMountScrollsAsync()
         {
@@ -47,7 +49,7 @@ namespace NosCore.Parser.Parsers
 
             await itemDao.TryInsertOrUpdateAsync(scrolls);
             await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls);
-            logger.LogInformation("{Scrolls} mount scrolls draw from {Rolls} mounts", scrolls.Count, rolls.Count);
+            logger.LogInformation(logLanguage[LogLanguageKey.MOUNT_SCROLLS_PARSED], scrolls.Count, rolls.Count);
         }
     }
 }

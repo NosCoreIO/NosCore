@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using System;
 using System.Linq;
 using ServiceUnderTest = NosCore.GameObject.Services.ScriptedInstanceService.ScriptedInstanceService;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 {
@@ -33,7 +35,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private ServiceUnderTest Build(params ScriptedInstanceDto[] entrances)
         {
-            return new ServiceUnderTest(entrances.ToList(), [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), World.Create<MapInstanceRegistry>(), World.Clock, NullLogger<ServiceUnderTest>.Instance);
+            return new ServiceUnderTest(entrances.ToList(), [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), World.Create<MapInstanceRegistry>(), World.Clock, NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         private static ScriptedInstanceDto TimeSpace(short id, short mapId, short x, short y,
@@ -164,7 +166,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             }).ToList();
             return (new ServiceUnderTest([entrance], maps, new System.Lazy<IMapInstanceGeneratorService>(generator.Object),
                     World.MapInstanceRegistry, World.Clock,
-                    NullLogger<ServiceUnderTest>.Instance),
+                    NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
                 generator, removed);
         }
 

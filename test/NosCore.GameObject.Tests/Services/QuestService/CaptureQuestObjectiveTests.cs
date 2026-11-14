@@ -34,6 +34,8 @@ using SpecLight;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
 using MateStatsService = NosCore.GameObject.Services.MateService.MateStatsService;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.QuestService
 {
@@ -79,13 +81,13 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 new IQuestTypeHandler[] { World.Create<CaptureQuestHandler>(), World.Create<CaptureWithoutGettingTheMonsterQuestHandler>() },
                 new Mock<Wolverine.IMessageBus>().Object,
                 new Mock<IQuestRewardService>().Object);
-            var capturedHandler = new OnEntityCapturedHandler(questService, NullLogger<OnEntityCapturedHandler>.Instance);
+            var capturedHandler = new OnEntityCapturedHandler(questService, NullLogger<OnEntityCapturedHandler>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             Bus = new InlineOrDeferredMessageBus<EntityCapturedEvent>(capturedHandler.Handle);
 
             var random = new Mock<IRandomProvider>();
             random.Setup(r => r.Next(0, 100)).Returns(0);
             var mateService = new MateServiceImpl(World.MateDao, Creatures.Values.ToList(),
-                new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance);
+                new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             Captures = new CaptureService(World.MateDao, mateService, Bus.Object,
                 World.Clock, random.Object, World.DistanceCalculator);
         }

@@ -30,6 +30,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.SaveService
 {
@@ -97,7 +99,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                     new List<NpcMonsterDto>(),
                     new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
                     World.Create<NosCore.GameObject.Services.MateService.MateStatsService>(),
-                    NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance),
+                    NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
                 new DaoTransactionScope(contextBuilder),
                 StaticBuffs);
         }

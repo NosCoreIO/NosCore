@@ -27,6 +27,8 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Tests.Shared;
 using Wolverine;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -73,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 World.SessionRegistry, clock, new Mock<ICaptureService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.ICastDelayService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
-                NullLogger<GameObject.Services.BattleService.BattleService>.Instance);
+                NullLogger<GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             Assert.IsTrue(await service.Hit(session.Character, monster, new HitArguments { SkillId = 7 }));
 

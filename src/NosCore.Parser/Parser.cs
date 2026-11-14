@@ -58,7 +58,7 @@ namespace NosCore.Parser
             {
                 throw new DirectoryNotFoundException($"Folder not found: {folder}");
             }
-            logger.LogInformation("Parsing non-interactively from {Folder}", folder);
+            logger.LogInformation(logLanguage[LogLanguageKey.PARSING_FOLDER], folder);
             factory.SetFolder(folder);
             await factory.ImportPacketsAsync().ConfigureAwait(false);
             await RunFullImportAsync().ConfigureAwait(false);

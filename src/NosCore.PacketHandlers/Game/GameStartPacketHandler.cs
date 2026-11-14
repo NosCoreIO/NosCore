@@ -37,6 +37,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -46,7 +48,7 @@ namespace NosCore.PacketHandlers.Game
             IPubSubHub pubSubHub, IBlacklistHub blacklistHttpClient,
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService, ISkillService skillService,
-            IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger,
+            IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IBuffService buffService, IVitalityService vitalityService,
             ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService,
             IRespawnService respawnService)
@@ -99,7 +101,7 @@ namespace NosCore.PacketHandlers.Game
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Starting the first quest script failed for character {CharacterId}",
+                    logger.LogError(ex, logLanguage[LogLanguageKey.FIRST_QUEST_SCRIPT_FAILED],
                         session.Character.CharacterId);
                 }
             }

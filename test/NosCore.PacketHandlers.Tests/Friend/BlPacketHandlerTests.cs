@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Tests.Friend
 {
@@ -59,7 +61,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            BlPacketHandler = new BlPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger));
+            BlPacketHandler = new BlPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object));
         }
 
         [TestMethod]

@@ -21,6 +21,8 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -34,7 +36,7 @@ public sealed class HitQueue(
     IBuffService buffService,
     IRegenerationService regenerationService,
     IVitalityService vitalityService,
-    ILogger<HitQueue> logger) : IHitQueue, ISingletonService
+    ILogger<HitQueue> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IHitQueue, ISingletonService
 {
     // For entities that are on no map at all.
     private readonly AsyncLock _offMap = new();
@@ -203,7 +205,7 @@ public sealed class HitQueue(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to apply hit to entity {Handle}", request.Target.Handle);
+            logger.LogError(ex, logLanguage[LogLanguageKey.HIT_APPLY_FAILED], request.Target.Handle);
             request.Completion.TrySetException(ex);
         }
     }

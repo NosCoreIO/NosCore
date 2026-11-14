@@ -27,6 +27,8 @@ using NosCore.GameObject.Services.PathfindingService;
 using NosCore.PathFinder.Interfaces;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Tests.Shared;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -65,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<IRandomProvider>().Object,
                 World.Clock,
                 new Dictionary<short, SkillDto>(),
-                NullLogger<MonsterAi>.Instance);
+                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]
@@ -81,7 +83,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<IRandomProvider>().Object,
                 new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
                 new Dictionary<short, SkillDto>(),
-                new Mock<ILogger<MonsterAi>>().Object);
+                new Mock<ILogger<MonsterAi>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             Assert.IsNotNull(ai);
             Assert.IsInstanceOfType(ai, typeof(IMonsterAi));
@@ -264,7 +266,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var ai = new MonsterAi(_battle.Object, _aggro, pathfinding.Object, World.SessionRegistry,
                 World.DistanceCalculator, new Mock<INpcCombatCatalog>().Object,
                 new Mock<IRandomProvider>().Object, World.Clock, new Dictionary<short, SkillDto>(),
-                NullLogger<MonsterAi>.Instance);
+                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var monster = SpawnMonster(4, 1);
             PlacePlayer(4, 5);
 
@@ -376,7 +378,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 World.Create<GameObject.Services.PathfindingService.PathfindingService>(), World.SessionRegistry,
                 World.DistanceCalculator, catalog.Object, random.Object, World.Clock,
                 new Dictionary<short, SkillDto> { [50] = new() { SkillVNum = 50, CastId = 3, Range = 2, Cooldown = 100, CastTime = 10 } },
-                NullLogger<MonsterAi>.Instance);
+                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var cast = new TaskCompletionSource<bool>();
             _battle.Setup(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.Is<HitArguments>(a => a.SkillId == 3)))
                 .Returns(cast.Task);

@@ -23,6 +23,8 @@ using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using NosCore.GameObject.Services.MovementService;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -50,6 +52,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     private readonly IRandomProvider random;
     private readonly IClock clock;
     private readonly ILogger<MonsterAi> logger;
+    private readonly ILogLanguageLocalizer<LogLanguageKey> logLanguage;
     private readonly IReadOnlyDictionary<short, SkillDto> skillsByVnum;
 
     public MonsterAi(
@@ -62,9 +65,10 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IRandomProvider random,
         IClock clock,
         List<SkillDto> skills,
-        ILogger<MonsterAi> logger)
+        ILogger<MonsterAi> logger,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : this(battleService, aggroService, pathfindingService, sessionRegistry, distanceCalculator,
-            catalog, random, clock, skills.ToDictionary(s => s.SkillVNum, s => s), logger)
+            catalog, random, clock, skills.ToDictionary(s => s.SkillVNum, s => s), logger, logLanguage)
     {
     }
 
@@ -78,7 +82,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IRandomProvider random,
         IClock clock,
         IReadOnlyDictionary<short, SkillDto> skillsByVnum,
-        ILogger<MonsterAi> logger)
+        ILogger<MonsterAi> logger,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         this.battleService = battleService;
         this.aggroService = aggroService;
@@ -90,6 +95,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         this.clock = clock;
         this.skillsByVnum = skillsByVnum;
         this.logger = logger;
+        this.logLanguage = logLanguage;
     }
 
     private static readonly Duration UnreachableRetry = Duration.FromSeconds(2);
@@ -146,7 +152,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "AI tick failed for {VisualId}", entity.VisualId);
+            logger.LogError(ex, logLanguage[LogLanguageKey.AI_TICK_FAILED], entity.VisualId);
             return false;
         }
     }
@@ -424,7 +430,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Cast of skill {Skill} by {VisualId} failed", skill.SkillVnum, entity.VisualId);
+            logger.LogError(ex, logLanguage[LogLanguageKey.MONSTER_CAST_FAILED], skill.SkillVnum, entity.VisualId);
         }
         finally
         {

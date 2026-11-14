@@ -18,12 +18,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Shared.Enumerations;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MateService
 {
     public class MateService(IDao<MateDto, long> mateDao, List<NpcMonsterDto> npcMonsters,
         IIdService<Mate> mateIdService, IMateStatsService mateStatsService,
-        ILogger<MateService> logger) : IMateService
+        ILogger<MateService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IMateService
     {
         public Task<List<Mate>> LoadAsync(long characterId)
         {
@@ -35,7 +37,7 @@ namespace NosCore.GameObject.Services.MateService
                 var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == row.VNum);
                 if (npcMonster == null)
                 {
-                    logger.LogWarning("Mate {MateId} refers to unknown NpcMonster {VNum} and was skipped",
+                    logger.LogWarning(logLanguage[LogLanguageKey.MATE_UNKNOWN_MONSTER],
                         row.MateId, row.VNum);
                     continue;
                 }

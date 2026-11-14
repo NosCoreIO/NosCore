@@ -261,18 +261,22 @@ namespace NosCore.WorldServer
                     services.AddHostedService(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<SaveAllSessionsMessage>>>(),
+                        sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
                         TimeSpan.FromMinutes(5)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>>>(),
+                        sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
                         TimeSpan.FromMinutes(5)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<RefreshMinilandPointsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshMinilandPointsMessage>>>(),
+                        sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
                         TimeSpan.FromMinutes(1)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<RefreshGroupBarsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshGroupBarsMessage>>>(),
+                        sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
                         TimeSpan.FromSeconds(2)));
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;

@@ -14,10 +14,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.BroadcastService
 {
-    public class SessionRegistry(ILogger<SessionRegistry> logger) : ISessionRegistry
+    public class SessionRegistry(ILogger<SessionRegistry> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : ISessionRegistry
     {
         private readonly ConcurrentDictionary<string, SessionInfo> _sessionsByChannelId = new();
         private readonly ConcurrentDictionary<long, string> _channelIdByCharacterId = new();
@@ -168,7 +170,7 @@ namespace NosCore.GameObject.Services.BroadcastService
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
+                    logger.LogWarning(ex, logLanguage[LogLanguageKey.BROADCAST_FAILED], s.ChannelId);
                 }
             }));
 

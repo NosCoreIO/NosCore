@@ -25,6 +25,8 @@ using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Tests.Chat
 {
@@ -63,6 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
             Handler = new WhisperPacketHandler(
                 Logger,
+                new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object,
                 Serializer.Object,
                 World.Create<BlacklistCacheService>(),
                 World.Create<SubscriberCacheService>(),

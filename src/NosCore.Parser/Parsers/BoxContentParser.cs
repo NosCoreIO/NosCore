@@ -11,11 +11,13 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
 {
     public class BoxContentParser(IDao<ItemDto, short> itemDao,
-        IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<BoxContentParser> logger)
+        IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<BoxContentParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertBoxContentsAsync()
         {
@@ -48,7 +50,7 @@ namespace NosCore.Parser.Parsers
             await rollGeneratedItemDao.TryDeleteAsync(rollGeneratedItemDao.LoadAll().Select(r => r.RollGeneratedItemId).ToList());
             await itemDao.TryInsertOrUpdateAsync(boxes);
             await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls);
-            logger.LogInformation("{Boxes} boxes and packs get their {Rolls} items", boxes.Count, rolls.Count);
+            logger.LogInformation(logLanguage[LogLanguageKey.BOX_CONTENTS_PARSED], boxes.Count, rolls.Count);
         }
     }
 }

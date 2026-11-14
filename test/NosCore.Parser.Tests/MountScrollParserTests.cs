@@ -13,6 +13,8 @@ using NosCore.Parser.Parsers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Tests
 {
@@ -42,7 +44,7 @@ namespace NosCore.Parser.Tests
             rolls.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<RollGeneratedItemDto>>()))
                 .Callback<IEnumerable<RollGeneratedItemDto>>(rows => _savedRolls.AddRange(rows))
                 .ReturnsAsync(true);
-            _parser = new MountScrollParser(items.Object, rolls.Object, NullLogger<MountScrollParser>.Instance);
+            _parser = new MountScrollParser(items.Object, rolls.Object, NullLogger<MountScrollParser>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

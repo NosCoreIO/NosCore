@@ -23,6 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.MinilandService
 {
@@ -177,15 +179,15 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             var mapChangeService = new Mock<GameObject.Services.MapChangeService.IMapChangeService>().Object;
 
             _nosvilleInstance = new MapInstance(mapNosville, Guid.NewGuid(), false,
-                MapInstanceType.BaseMapInstance, mapItemProvider, logger, clock,
+                MapInstanceType.BaseMapInstance, mapItemProvider, logger, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock,
                 mapChangeService, sessionGroupFactory, World.SessionRegistry,
                 World.DistanceCalculator);
             _oldNosvilleInstance = new MapInstance(mapOldNosville, Guid.NewGuid(), false,
-                MapInstanceType.BaseMapInstance, mapItemProvider, logger, clock,
+                MapInstanceType.BaseMapInstance, mapItemProvider, logger, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock,
                 mapChangeService, sessionGroupFactory, World.SessionRegistry,
                 World.DistanceCalculator);
             _minilandInstance = new MapInstance(mapMiniland, Guid.NewGuid(), false,
-                MapInstanceType.NormalInstance, mapItemProvider, logger, clock,
+                MapInstanceType.NormalInstance, mapItemProvider, logger, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock,
                 mapChangeService, sessionGroupFactory, World.SessionRegistry,
                 World.DistanceCalculator);
 

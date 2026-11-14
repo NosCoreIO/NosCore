@@ -114,8 +114,9 @@ the decided design, not a migration in flight:
    announcement, come from an `ArgumentType` of `msgi`, not from a new string. Only when the
    client has no equivalent does it become a `LanguageKey` plus every `.resx` under
    `NosCore.Data/Resource/`, never a literal.
-6. A **log message**? → a `LogLanguageKey` plus every `.resx`, never an English literal.
-   Keep the structured placeholders (`{SessionId}`) in the resource text.
+6. A **log message**? → a `LogLanguageKey` with its text in `LocalizedResources.resx`, never an
+   English literal. Keep the structured placeholders (`{SessionId}`) in the resource text; the
+   other languages fall back to English until translated.
 
 **Never derive logic from description text.** Item, card and skill descriptions are
 translations that change between client versions, so no parser or service may read them

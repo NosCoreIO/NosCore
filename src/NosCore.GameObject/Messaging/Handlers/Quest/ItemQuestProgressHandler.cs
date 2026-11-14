@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
@@ -21,7 +23,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
     public sealed class ItemQuestProgressHandler(
         IQuestService questService,
         IEnumerable<IQuestTypeHandler> questTypeHandlers,
-        ILogger<ItemQuestProgressHandler> logger)
+        ILogger<ItemQuestProgressHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         [UsedImplicitly]
         public Task Handle(ItemsReceivedEvent evt) =>
@@ -74,7 +76,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, "Failed to progress quest {QuestId} for character {CharacterId}",
+                    logger.LogWarning(ex, logLanguage[LogLanguageKey.ITEM_QUEST_PROGRESS_FAILED],
                         quest.QuestId, character.CharacterId);
                 }
             }

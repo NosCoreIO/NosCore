@@ -159,7 +159,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
             return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService,
-                loggerFactory.CreateLogger<MapInstance>(), clock,
+                loggerFactory.CreateLogger<MapInstance>(), logLanguage, clock,
                 mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, monsterAi, buffService, regenerationService, vitalityService, digestionService, speedCalculationService, battleStatsProvider, heatService, mateRevivalService);
         }
 

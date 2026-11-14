@@ -37,6 +37,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.LandOfDeathService
 {
@@ -52,7 +54,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         IAggroService aggroService,
         IItemCatalog itemCatalog,
         IClock clock,
-        ILogger<LandOfDeathService> logger) : ILandOfDeathService, ISingletonService
+        ILogger<LandOfDeathService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : ILandOfDeathService, ISingletonService
     {
         public const short MapId = 150;
         public const short EntranceX = 153;
@@ -112,7 +114,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Land of Death failed");
+                    logger.LogError(e, logLanguage[LogLanguageKey.LAND_OF_DEATH_FAILED]);
                 }
                 finally
                 {
@@ -217,7 +219,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Land of Death revive failed for {CharacterId}", player.CharacterId);
+                    logger.LogError(e, logLanguage[LogLanguageKey.LAND_OF_DEATH_REVIVE_FAILED], player.CharacterId);
                 }
             });
         }
@@ -316,7 +318,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 var baseMap = mapInstanceRegistry.GetBaseMapById(MapId);
                 if (baseMap == null)
                 {
-                    logger.LogError("The Land of Death needs map {MapId} imported by the parser", MapId);
+                    logger.LogError(logLanguage[LogLanguageKey.LAND_OF_DEATH_MAP_MISSING], MapId);
                     return null;
                 }
 
@@ -339,7 +341,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             var npcMonster = npcMonsters.Find(m => m.NpcMonsterVNum == FlyingFireDevilVNum);
             if (npcMonster == null)
             {
-                logger.LogError("The Land of Death needs monster {VNum} imported by the parser", FlyingFireDevilVNum);
+                logger.LogError(logLanguage[LogLanguageKey.LAND_OF_DEATH_MONSTER_MISSING], FlyingFireDevilVNum);
                 return;
             }
 
@@ -389,7 +391,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Closing the Land of Death of family {FamilyId} failed", familyId);
+                    logger.LogError(e, logLanguage[LogLanguageKey.LAND_OF_DEATH_CLOSE_FAILED], familyId);
                 }
                 finally
                 {

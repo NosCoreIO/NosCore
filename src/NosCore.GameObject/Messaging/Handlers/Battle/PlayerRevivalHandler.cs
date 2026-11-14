@@ -22,6 +22,8 @@ using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
@@ -39,7 +41,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
     //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power.
     [UsedImplicitly]
-    public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ISessionRegistry sessionRegistry,
+    public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IIceBreakerService iceBreakerService,
         ILandOfDeathService landOfDeathService)
     {
@@ -120,7 +122,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "PlayerRevivalHandler failed for {CharacterId}", player.CharacterId);
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.PLAYER_REVIVAL_FAILED], player.CharacterId);
             }
         }
 

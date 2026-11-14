@@ -29,6 +29,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.IceBreakerService
 {
@@ -40,7 +42,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
         IRandomProvider random,
         IIceBreakerRewardService rewardService,
         IOptions<WorldConfiguration> worldConfiguration,
-        ILogger<IceBreakerService> logger) : IIceBreakerService, ISingletonService
+        ILogger<IceBreakerService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IIceBreakerService, ISingletonService
     {
         public const short MapId = 2005;
         public const int MaxPlayers = 50;
@@ -95,7 +97,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Icebreaker failed");
+                    logger.LogError(e, logLanguage[LogLanguageKey.ICE_BREAKER_FAILED]);
                 }
                 finally
                 {
@@ -197,7 +199,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
             var baseMap = mapInstanceRegistry.GetBaseMapById(MapId);
             if (baseMap == null)
             {
-                logger.LogError("Icebreaker needs map {MapId} imported by the parser", MapId);
+                logger.LogError(logLanguage[LogLanguageKey.ICE_BREAKER_MAP_MISSING], MapId);
                 return;
             }
 

@@ -38,6 +38,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Tests.Game
 {
@@ -93,6 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 SkillService.Object,
                 new NosCore.Algorithm.FamilyExperienceService.FamilyExperienceService(),
                 Logger.Object,
+                new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object,
                 BuffService.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 World.Create<NosCore.GameObject.Services.CharacterRankingService.CharacterRankingService>(),
