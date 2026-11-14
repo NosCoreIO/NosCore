@@ -126,6 +126,9 @@ same damage means only one of the two is being read.
       plus the level gap: no further flat bonus on top
 - [ ] With skills imported by the current parser, a mage's basic attack (260, "magic attack +60")
       hits 60 harder than the same mage's attack with a skill that carries no attack bonus
+- [ ] A level 90 mage wearing Robber Gang's Shining Robe (4020, "magic attack +100") hits a
+      defenceless monster about 100 harder with the basic attack than the same mage in another
+      robe. A "melee attacks increased" buff does not change a mage's magic hits
 - [ ] Upgrade the weapon from +0 to +5: the damage goes up by a share of the weapon's own attack,
       not of the whole attack
 - [ ] A critical hit adds its bonus on top of a normal hit; the level gap is not multiplied

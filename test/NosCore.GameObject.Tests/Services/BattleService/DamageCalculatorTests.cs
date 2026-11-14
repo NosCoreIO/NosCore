@@ -74,6 +74,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void MagicSkillsHitWithTheMagicAttack()
+        {
+            var attacker = StatsBuilder.Default() with { Class = CharacterClassType.Mage, MinHit = 100, MaxHit = 100, MinMagic = 500, MaxMagic = 500 };
+
+            var magic = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker, StatsBuilder.Default(), MagicSkill);
+            var melee = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker with { Class = CharacterClassType.Swordsman }, StatsBuilder.Default(), MeleeSkill);
+
+            Assert.IsTrue(magic.Damage > melee.Damage + 300, $"magic {magic.Damage}, melee {melee.Damage}");
+        }
+
+        [TestMethod]
         public void DamageFlooredWhenDefenceExceedsAttack()
         {
             // Big armor, small hit — damage should floor (it is randomised in 1..5 when

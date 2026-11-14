@@ -33,6 +33,30 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void MagicalAttackCardsRaiseTheMagicAttackOnly()
+        {
+            var stats = StatsOf(
+                Card(BCardEffect.AttackPowerMagicalAttacksIncreased, 50, 0, slot: 0),
+                Card(BCardEffect.DamageMagicalIncreased, 10, 0, slot: 0));
+
+            Assert.AreEqual((100 + 50) * 110 / 100, stats.MinMagic);
+            Assert.AreEqual((200 + 50) * 110 / 100, stats.MaxMagic);
+            Assert.AreEqual(100, stats.MinHit);
+            Assert.AreEqual(200, stats.MaxHit);
+        }
+
+        [TestMethod]
+        public void MeleeAttackCardsLeaveTheMagicAttackAlone()
+        {
+            var stats = StatsOf(
+                Card(BCardEffect.AttackPowerMeleeAttacksIncreased, 50, 0, slot: 0),
+                Card(BCardEffect.DamageMeleeIncreased, 10, 0, slot: 0));
+
+            Assert.AreEqual(100, stats.MinMagic);
+            Assert.AreEqual((100 + 50) * 110 / 100, stats.MinHit);
+        }
+
+        [TestMethod]
         public void AMonsterWithoutCardsKeepsItsOwnStats()
         {
             Assert.IsNull(StatsOf().ChanceDamageTaken);
@@ -51,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private static CombatStats StatsOf(params BCardDto[] cards)
         {
             var monster = new Mock<INonPlayableEntity>();
-            monster.SetupGet(e => e.NpcMonster).Returns(new NpcMonsterDto { NpcMonsterVNum = Vnum });
+            monster.SetupGet(e => e.NpcMonster).Returns(new NpcMonsterDto { NpcMonsterVNum = Vnum, DamageMinimum = 100, DamageMaximum = 200 });
             monster.SetupGet(e => e.Level).Returns((byte)1);
 
             var buffs = new Mock<IBuffService>();
