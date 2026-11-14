@@ -297,7 +297,7 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 var teamMates = character.Mates.Values.Where(s => s.IsTeamMember && s.RevivesAt == null).ToList();
                 foreach (var (mate, x, y) in MatePlacement.Arrange(character.PositionX, character.PositionY,
-                    newMapInstance.Map, teamMates))
+                    newMapInstance.Map, character.IsVehicled ? [] : teamMates))
                 {
                     await mate.SpawnAsync(character, newMapInstance, x, y);
                 }

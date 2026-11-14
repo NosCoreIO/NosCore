@@ -468,6 +468,11 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       speed, and the scroll count drops by one; use one again to dismount, and none is used
 - [ ] Use a Novice Mount Scroll (5833) below level 70: you ride one of its six mounts, slower than
       that mount on its own, and the scroll stays; at level 70 it says your level is too high
+- [ ] With a pet and a partner out, mount: both leave the map. Change map while riding: they stay
+      away. Dismount: they come back next to you
+- [ ] Sit down (`x`) and mount: you stand up first, then the bar runs
+- [ ] Open a personal shop and use the mount: nothing happens
+- [ ] Die while riding: you fall off the mount, and revive on foot at walking speed
 - [ ] Use a Magical Camel Parchment Scroll (5923): you ride the camel and the scroll is used up
 
 ### Class change

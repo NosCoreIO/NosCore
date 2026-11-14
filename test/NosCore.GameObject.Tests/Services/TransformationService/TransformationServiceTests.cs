@@ -103,6 +103,36 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheTeamLeavesTheMapWhileItsOwnerRides()
+        {
+            var pet = await TeamPetOnTheMapAsync();
+
+            await ChangingToVehicle();
+
+            Assert.IsNull(pet.Entity);
+        }
+
+        [TestMethod]
+        public async Task TheTeamComesBackWhenItsOwnerGetsOff()
+        {
+            var pet = await TeamPetOnTheMapAsync();
+            await ChangingToVehicle();
+
+            await RemovingVehicle();
+
+            Assert.IsNotNull(pet.Entity);
+        }
+
+        private async Task<NosCore.GameObject.Services.MateService.Mate> TeamPetOnTheMapAsync()
+        {
+            var pet = TestMates.Pet(Session.Character.CharacterId);
+            Session.Character.Mates[pet.MateTransportId] = pet;
+            await pet.SpawnAsync(Session.Character, Session.Character.MapInstance,
+                Session.Character.PositionX, Session.Character.PositionY);
+            return pet;
+        }
+
         // VehicleSpeed alone changes nothing the player can feel: `cond` carries Speed, and Speed
         // was written once at login from the class table. Asserting only VehicleSpeed is what let
         // a mount that adds no speed look correct.
