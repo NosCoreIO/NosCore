@@ -2287,7 +2287,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<bool>("CantVoke")
                     .HasColumnType("boolean");
 
-                b.Property<byte>("CellMinRange")
+                b.Property<short>("CellMinRange")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("CellSize")
@@ -2454,7 +2454,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<bool>("NoAggresiveIcon")
                     .HasColumnType("boolean");
 
-                b.Property<byte>("NoticeRange")
+                b.Property<short>("NoticeRange")
                     .HasColumnType("smallint");
 
                 b.Property<bool>("OnDefenseOnlyOnce")

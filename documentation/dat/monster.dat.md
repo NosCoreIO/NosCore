@@ -319,7 +319,7 @@
 | 28 | Parsed | HpThreshold | Int16 | HP% threshold that swaps the mode / item vnum |
 | 29 | Parsed | RangeThreshold | Int16 | Range threshold for mode swap |
 | 30 | Parsed | CModeVNum | Int16 | c_mode vnum (transform target) |
-| 31 | Parsed | CellMinRange | Byte | Minimum cells before the mode engages |
+| 31 | Parsed | CellMinRange | Int16 | Minimum cells before the mode engages |
 | 32 | Parsed | Midgard | Int32 | Midgard-specific data |
 
 ## NAME
@@ -351,7 +351,7 @@
 |---:|---|---|---|---|
 | 2 | Parsed | IsHostile | Boolean | Non-zero means the mob aggroes on sight |
 | 3 | Parsed | GroupAttack | Byte | Group-aggro mode (1 = with allies, 5 = with group) |
-| 4 | Parsed | NoticeRange | Byte | Aggro radius in cells |
+| 4 | Parsed | NoticeRange | Int16 | Aggro radius in cells |
 | 5 | Parsed | Speed | Byte | Movement speed |
 | 6 | Parsed | RespawnTime | Int32 | Respawn delay, deciseconds |
 
@@ -384,7 +384,7 @@
 | 3 | Parsed | SpawnMobOrColor | Int32 | When hostility>20000: spawn-mob vnum, else packed RGBA color |
 | 4 | Parsed | AmountRequired | Byte | Amount of the required item |
 | 4 | Parsed | VNumRequired | Int16 | VNum of the item required to tame/interact |
-| 5 | Parsed | SpriteSize | SByte | Sprite scale bonus % (negative shrinks, positive grows) |
+| 5 | Parsed | SpriteSize | Int16 | Sprite scale bonus % (negative shrinks, positive grows) |
 | 6 | Parsed | CellSize | Byte | Collision cell footprint (used for big-boss AOE math) |
 | 7 | NonParsed | unknown0 |  | Always 0. |
 

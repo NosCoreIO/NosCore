@@ -93,7 +93,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.DarkResistance, "ATTRIB", 0, 7, s => Convert.ToInt16(s), "Dark resistance")
                 .Field(x => x.IsHostile, "PREATT", 0, 2, s => s != "0", "Non-zero means the mob aggroes on sight")
                 .Field(x => x.GroupAttack, "PREATT", 0, 3, s => Convert.ToByte(s), "Group-aggro mode (1 = with allies, 5 = with group)")
-                .Field(x => x.NoticeRange, "PREATT", 0, 4, s => Convert.ToByte(s), "Aggro radius in cells")
+                .Field(x => x.NoticeRange, "PREATT", 0, 4, s => Convert.ToInt16(s), "Aggro radius in cells")
                 .Field(x => x.Speed, "PREATT", 0, 5, s => Convert.ToByte(s), "Movement speed")
                 .Field(x => x.RespawnTime, "PREATT", 0, 6, s => Convert.ToInt32(s), "Respawn delay, deciseconds")
                 .Field(x => x.BasicSkill, "EFF", 0, 2, s => Convert.ToInt16(s), "Basic on-attack effect id")
@@ -107,7 +107,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.DashSpeed, "ZSKILL", 0, 7, s => Convert.ToByte(s), "Dash visual speed")
                 .Field(x => x.IconId, "SETTING", 0, 2, s => Convert.ToInt16(s), "Target-info avatar index (NSip)")
                 .Field(x => x.SpawnMobOrColor, "SETTING", 0, 3, s => Convert.ToInt32(s), "When hostility>20000: spawn-mob vnum, else packed RGBA color")
-                .Field(x => x.SpriteSize, "SETTING", 0, 5, s => Convert.ToSByte(s), "Sprite scale bonus % (negative shrinks, positive grows)")
+                .Field(x => x.SpriteSize, "SETTING", 0, 5, s => Convert.ToInt16(s), "Sprite scale bonus % (negative shrinks, positive grows)")
                 .Field(x => x.CellSize, "SETTING", 0, 6, s => Convert.ToByte(s), "Collision cell footprint (used for big-boss AOE math)")
                 .Field(x => x.PetInfoVal1, "PETINFO", 0, 2, s => Convert.ToInt32(s), "Pet stat factor 1 (collectable: tries; teleporter: itemVnum; mate: HP/melee factor)")
                 .Field(x => x.PetInfoVal2, "PETINFO", 0, 3, s => Convert.ToInt32(s), "Pet stat factor 2 (collectable: cooldown; teleporter: amount; mate: ranged/dodge factor)")
@@ -136,7 +136,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.HpThreshold, "MODE", 0, 28, s => Convert.ToInt16(s), "HP% threshold that swaps the mode / item vnum")
                 .Field(x => x.RangeThreshold, "MODE", 0, 29, s => Convert.ToInt16(s), "Range threshold for mode swap")
                 .Field(x => x.CModeVNum, "MODE", 0, 30, s => Convert.ToInt16(s), "c_mode vnum (transform target)")
-                .Field(x => x.CellMinRange, "MODE", 0, 31, s => Convert.ToByte(s), "Minimum cells before the mode engages")
+                .Field(x => x.CellMinRange, "MODE", 0, 31, s => Convert.ToInt16(s), "Minimum cells before the mode engages")
                 .Field(x => x.Midgard, "MODE", 0, 32, s => Convert.ToInt32(s), "Midgard-specific data")
                 .Field(x => x.Level, chunk => Level(chunk),
                     reads: new[] { ("LEVEL", 0, 2) },
@@ -197,7 +197,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Concentrate, chunk => Attack(chunk, _monsterStatService.GetHitRate, 6),
                     reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 6), ("LEVEL", 0, 2), ("RACE", 0, 2), ("ZSKILL", 0, 2) },
                     source: "race/level/WEAPON[2]/attack class curve + WEAPON[6]", description: "Hit rate")
-                .Field(x => x.CriticalChance, chunk => Convert.ToByte(_monsterStatService.GetCriticalChance() + Convert.ToInt16(chunk["WEAPON"][0][7])),
+                .Field(x => x.CriticalChance, chunk => (byte)Math.Max(0, _monsterStatService.GetCriticalChance() + Convert.ToInt16(chunk["WEAPON"][0][7])),
                     reads: new[] { ("WEAPON", 0, 7) },
                     source: "base chance + WEAPON[7]", description: "Critical hit chance")
                 .Field(x => x.CriticalRate, chunk => Convert.ToInt16(_monsterStatService.GetCriticalRate() + Convert.ToInt16(chunk["WEAPON"][0][8])),
