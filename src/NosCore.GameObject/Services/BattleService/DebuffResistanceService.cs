@@ -19,7 +19,8 @@ namespace NosCore.GameObject.Services.BattleService;
 
 public sealed class DebuffResistanceService(
     IEquipmentStatsService equipmentStatsService,
-    IPassiveSkillService passiveSkillService) : IDebuffResistanceService, ISingletonService
+    IPassiveSkillService passiveSkillService,
+    ICardCatalog cardCatalog) : IDebuffResistanceService, ISingletonService
 {
     // The data names a buff family and a level but no percentage; the item descriptions only
     // promise "a high chance of protection".
@@ -62,7 +63,7 @@ public sealed class DebuffResistanceService(
         return modifier;
     }
 
-    private static int Sum(IReadOnlyList<BCardDto> bCards, CardDto card)
+    private int Sum(IReadOnlyList<BCardDto> bCards, CardDto card)
     {
         var sum = 0;
         for (var i = 0; i < bCards.Count; i++)
@@ -73,12 +74,18 @@ public sealed class DebuffResistanceService(
         return sum;
     }
 
-    private static int Modifier(BCardDto bCard, CardDto card)
+    private int Modifier(BCardDto bCard, CardDto card)
     {
         var effect = bCard.Effect();
         if (effect == BCardEffect.BuffPreventingBadEffect)
         {
             return bCard.FirstData == card.GroupId && card.Level <= bCard.SecondData ? -FamilyProtection : 0;
+        }
+
+        if (effect == BCardEffect.SpecialisationBuffResistanceResistanceToEffect)
+        {
+            var named = cardCatalog.GetCard((short)bCard.SecondData);
+            return named != null && named.GroupId == card.GroupId && card.Level <= named.Level ? -bCard.FirstData : 0;
         }
 
         if (!Resistances.TryGetValue(effect, out var resistance) || card.Level > bCard.FirstData
