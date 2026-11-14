@@ -136,6 +136,12 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var weapon = RollBaseDamage(context.MainWeaponMin, context.MainWeaponMax);
         // Signed: an attack debuff can take the rest below zero, and it must still count.
         var attack = RollSigned(context.MainMinDmg - context.MainWeaponMin, context.MainMaxDmg - context.MainWeaponMax);
+        if (context.Kind == AttackKind.Magical)
+        {
+            // Magic bounds can be narrower than the weapon's own range, so the two rolls together
+            // must not leave them.
+            attack = Math.Clamp(weapon + attack, context.MainMinDmg, Math.Max(context.MainMinDmg, context.MainMaxDmg)) - weapon;
+        }
 
         var defence = context.MonsterDefence;
         var upgrade = context.MainUpgrade - defender.DefenceUpgrade;
@@ -289,6 +295,14 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
             Kind = AttackKind.Melee,
         };
 
+        void UseMagic()
+        {
+            ctx.Kind = AttackKind.Magical;
+            ctx.MainMinDmg = attacker.MinMagic ?? attacker.MinHit;
+            ctx.MainMaxDmg = attacker.MaxMagic ?? attacker.MaxHit;
+            ctx.MonsterDefence = defender.MagicDefence;
+        }
+
         void UseRanged()
         {
             ctx.MainMinDmg = attacker.MinDistance;
@@ -315,8 +329,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
                 ctx.MonsterDodge = defender.DistanceDefenceDodge;
                 break;
             case 2: // magic — no dodge, no crit (handled in caller)
-                ctx.Kind = AttackKind.Magical;
-                ctx.MonsterDefence = defender.MagicDefence;
+                UseMagic();
                 ctx.MonsterDodge = 0;
                 break;
             case 3: // class-typed (self skills that scale off class)
@@ -330,8 +343,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
                         ctx.MonsterDodge = defender.DistanceDefenceDodge;
                         break;
                     case CharacterClassType.Mage:
-                        ctx.Kind = AttackKind.Magical;
-                        ctx.MonsterDefence = defender.MagicDefence;
+                        UseMagic();
                         break;
                     default:
                         ctx.MonsterDefence = defender.Defence;

@@ -84,7 +84,10 @@ public readonly record struct CombatStats(
     IReadOnlyList<RaceDamage>? RaceDamage = null,
     // Percentage added to hits on map bosses.
     int MapBossDamagePercent = 0,
-    PvpShellStats PvpShell = default);
+    PvpShellStats PvpShell = default,
+    // Magic hits read these rather than MinHit/MaxHit, which carry the melee bonuses.
+    int? MinMagic = null,
+    int? MaxMagic = null);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
 public readonly record struct ChanceDamage(int Chance, int Percent);

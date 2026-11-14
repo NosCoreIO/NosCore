@@ -301,6 +301,8 @@ public sealed class BattleStatsProvider(
             MaxHit = ByFactor((int)((stats.MaxHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)), totals.FactorAttackAll + totals.FactorAttackMelee),
             MinDistance = ByFactor((int)((stats.MinDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)), totals.FactorAttackAll + totals.FactorAttackRanged),
             MaxDistance = ByFactor((int)((stats.MaxDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)), totals.FactorAttackAll + totals.FactorAttackRanged),
+            MinMagic = ByFactor((int)(((stats.MinMagic ?? stats.MinHit) + totals.AttackAll + totals.AttackMagical) * (1 + (totals.DamageAll + totals.DamageMagical) / 100.0)), totals.FactorAttackAll),
+            MaxMagic = ByFactor((int)(((stats.MaxMagic ?? stats.MaxHit) + totals.AttackAll + totals.AttackMagical) * (1 + (totals.DamageAll + totals.DamageMagical) / 100.0)), totals.FactorAttackAll),
             EnemyFireResistance = stats.EnemyFireResistance + totals.FoeAll + totals.FoeFire,
             EnemyWaterResistance = stats.EnemyWaterResistance + totals.FoeAll + totals.FoeWater,
             EnemyLightResistance = stats.EnemyLightResistance + totals.FoeAll + totals.FoeLight,

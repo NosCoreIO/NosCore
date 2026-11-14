@@ -74,6 +74,37 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void MagicSkillsHitWithTheMagicAttack()
+        {
+            var attacker = StatsBuilder.Default() with { Class = CharacterClassType.Mage, MinHit = 100, MaxHit = 100, MinMagic = 500, MaxMagic = 500 };
+
+            var magic = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker, StatsBuilder.Default(), MagicSkill);
+            var melee = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker with { Class = CharacterClassType.Swordsman }, StatsBuilder.Default(), MeleeSkill);
+
+            Assert.IsTrue(magic.Damage > melee.Damage + 300, $"magic {magic.Damage}, melee {melee.Damage}");
+        }
+
+        [TestMethod]
+        public void AWeaponRollCannotLiftAMagicHitAboveItsMagicBounds()
+        {
+            var mage = StatsBuilder.Default() with
+            {
+                IsPlayer = true, Class = CharacterClassType.Mage, MagicDefence = 0,
+                MinHit = 200, MaxHit = 300, MinMagic = 100, MaxMagic = 150,
+            };
+            var defender = StatsBuilder.Default() with { MagicDefence = 0 };
+
+            var weaponRolledHigh = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 200 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(mage with { WeaponMinHit = 100, WeaponMaxHit = 200 }, defender, MagicSkill);
+            var atMagicMax = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(mage with { MinMagic = 150 }, defender, MagicSkill);
+
+            Assert.AreEqual(atMagicMax.Damage, weaponRolledHigh.Damage);
+        }
+
+        [TestMethod]
         public void DamageFlooredWhenDefenceExceedsAttack()
         {
             // Big armor, small hit — damage should floor (it is randomised in 1..5 when
