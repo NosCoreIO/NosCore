@@ -133,6 +133,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await ExpectAsync("c_map");
             var condition = await ExpectAsync("cond");
             Speed = int.Parse(condition.Split(' ')[5], CultureInfo.InvariantCulture);
+            // The map's packets come first and game_start carries on after them; title is the last
+            // packet it always sends, so nothing of the login is left to arrive once it is here.
+            await ExpectAsync("title");
             return Since(mark);
         }
 

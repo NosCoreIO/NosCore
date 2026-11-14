@@ -124,9 +124,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 31, 71);
             await GroupAsync(alice, bob);
             var shared = bob.Mark();
+            var asked = alice.Mark();
             // Whichever of the two leads: the other one is refused, and only one of them asks at a time.
             await alice.SendAsync($"gop {LootMode} 1");
-            await alice.ExpectAsync("stat");
+            await alice.ExpectSinceAsync(asked, p => TestClient.HeaderOf(p) == "stat", "the answer to the loot mode");
             await bob.SendAsync($"gop {LootMode} 1");
             await bob.ExpectSinceAsync(shared, p => p.Split(' ') is ["msgi", _, var id, ..] && id == SharedByTheGroup.ToString(CultureInfo.InvariantCulture),
                 "the new way of looting announced");

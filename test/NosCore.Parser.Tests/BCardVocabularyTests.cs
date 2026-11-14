@@ -15,8 +15,7 @@ using NosCore.Tests.Shared;
 namespace NosCore.Parser.Tests
 {
     // documentation/dat/BCard.dat.md is the record of what BCard.dat declares. These
-    // check BCardEffect against it, the way LogLanguageTests checks the language keys
-    // against the resources: one direction always, the incomplete one opt-in.
+    // check BCardEffect against it in both directions.
     [TestClass]
     public class BCardVocabularyTests
     {
@@ -52,14 +51,13 @@ namespace NosCore.Parser.Tests
             }
         }
 
-        // Opt-in: the rows it lists are declared by BCard.dat with no client sentence, so a name
-        // would be invented rather than read. Mirrors CheckEveryLanguageValueSet.
-        [TestCategory("OPTIONAL-TEST")]
+        // A row the client gives no sentence for stays unnamed: its name would be invented rather
+        // than read.
         [TestMethod]
-        public void EveryDeclaredEffectIsNamed()
+        public void EveryDescribedEffectIsNamed()
         {
             var result = string.Join(Environment.NewLine, ReadVocabulary()
-                .Where(row => row.Declared && row.Effect.NotNull().Length == 0)
+                .Where(row => row.Declared && row.Effect.NotNull().Length == 0 && row.Text.Length > 0)
                 .Select(row => $"type {row.Type} subtype {row.SubType} has no BCardEffect member: {row.Text}"));
 
             if (result.Length != 0)
