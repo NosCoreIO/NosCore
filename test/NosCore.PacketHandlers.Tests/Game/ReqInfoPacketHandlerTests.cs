@@ -66,7 +66,19 @@ namespace NosCore.PacketHandlers.Tests.Game
                 new Mock<ILogger<ReqInfoPacketHandler>>().Object,
                 World.LogLanguageLocalizer,
                 World.SessionRegistry,
-                NpcMonsters);
+                NpcMonsters,
+                World.GameLanguageLocalizer);
+        }
+
+        [TestMethod]
+        public async Task ThePlayerCardCarriesTheIntroductionAndNoFamily()
+        {
+            await new Spec("tc_info carries the player's introduction, and -1 with no tag when the player has no family")
+                .Given(ThePlayerHasTheIntroduction_, "Hello there")
+                .WhenAsync(RequestingPlayerInfoForSelf)
+                .Then(TheCardShouldShowTheIntroduction_, "Hello there")
+                .And(TheCardShouldShowNoFamily)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -272,6 +284,18 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         // --- Thens ---
+
+        private void ThePlayerHasTheIntroduction_(string text) => Session.Character.Biography = text;
+
+        private void TheCardShouldShowTheIntroduction_(string text) =>
+            Assert.AreEqual(text, Session.LastPackets.OfType<TcInfoPacket>().Single().Biography);
+
+        private void TheCardShouldShowNoFamily()
+        {
+            var card = Session.LastPackets.OfType<TcInfoPacket>().Single();
+            Assert.AreEqual(-1, card.FamilyId);
+            Assert.IsNull(card.FamilyName);
+        }
 
         private void TcInfoPacketShouldBeSent() =>
             Assert.IsTrue(Session.LastPackets.Any(p => p is TcInfoPacket));

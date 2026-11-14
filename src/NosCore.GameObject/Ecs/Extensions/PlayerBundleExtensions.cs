@@ -495,9 +495,10 @@ public static class PlayerBundleExtensions
         };
     }
 
-    // The right-click info card for a player: class, level, worn gear, faction and PvP stats.
-    // Family and talent fields stay 0 until those systems exist.
-    public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player)
+    // The right-click info card for a player: class, level, family, worn gear, faction and PvP stats.
+    // Talent fields stay 0 until that system exists.
+    public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player,
+        IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
         var inv = player.InventoryService;
         var weapon = (inv.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
@@ -517,6 +518,8 @@ public static class PlayerBundleExtensions
             ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
             Class = player.Class,
             Gender = player.Gender,
+            FamilyId = player.Family?.FamilyId ?? -1,
+            FamilyName = player.GenerateFamilyTag(localizer, viewerLanguage),
             ReputationIco = (ExtendedReputationType)player.ReputIcon,
             DignityIco = (CharacterDignity)player.DignityIcon,
             HaveWeapon = weapon != null ? 1 : 0,
@@ -542,7 +545,7 @@ public static class PlayerBundleExtensions
             IsPvpSecondary = false,
             IsPvpArmor = false,
             HeroLevel = player.HeroLevel,
-            Biography = string.Empty,
+            Biography = player.Biography,
         };
     }
 

@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
@@ -38,7 +39,8 @@ namespace NosCore.PacketHandlers.Game
     public sealed class ReqInfoPacketHandler(ILogger<ReqInfoPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry,
-            List<NpcMonsterDto> npcMonsters)
+            List<NpcMonsterDto> npcMonsters,
+            IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<ReqInfoPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ReqInfoPacket packet, ClientSession session)
@@ -48,7 +50,7 @@ namespace NosCore.PacketHandlers.Game
                 case ReqInfoType.PlayerInfo:
                     if (sessionRegistry.TryGetCharacter(s => s.VisualId == packet.TargetVNum, out var target))
                     {
-                        await session.SendPacketAsync(target.GenerateReqInfo()).ConfigureAwait(false);
+                        await session.SendPacketAsync(target.GenerateReqInfo(gameLanguageLocalizer, session.Character.AccountLanguage));
                     }
                     return;
 
