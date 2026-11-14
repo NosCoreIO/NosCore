@@ -64,6 +64,17 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         [TestMethod]
+        public async Task TheMinilandGoesEvenWhenAnEarlierStepTookTheOwnersEntityDown()
+        {
+            var owner = _owner.Character;
+            owner.World.DestroyEntity(owner.Entity);
+
+            await World.Create<MinilandDisconnectHandler>().HandleDisconnectAsync(_owner);
+
+            _maps.Verify(s => s.RemoveMapAsync(_miniland), Times.Once);
+        }
+
+        [TestMethod]
         public void TheMinilandGoesAfterEveryOtherStep()
         {
             var miniland = World.Create<MinilandDisconnectHandler>();

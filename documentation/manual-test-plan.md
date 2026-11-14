@@ -2290,7 +2290,8 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Let the clock run out instead: the score shows a time-out and you are sent back the
       same way
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
-      from, not in a room, and the world log shows the run's rooms being removed
+      from, not in a room, and the world log shows the run's rooms being removed and no
+      failed disconnect step
 - [ ] Copy `timespace-01.csx` to a new script whose `OnFirstEnter` loops forever, and enter
       it: about thirty seconds later (`InstanceScriptTimeout`) the score shows a failure, the
       world log says the script did not return, and ten seconds after that you are sent back

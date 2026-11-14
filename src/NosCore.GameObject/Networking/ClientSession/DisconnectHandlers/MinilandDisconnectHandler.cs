@@ -29,7 +29,7 @@ public class MinilandDisconnectHandler(IMinilandService minilandService, IMapIns
             return;
         }
 
-        var minilandId = await minilandService.DeleteMinilandAsync(session.Character.CharacterId);
+        var minilandId = await minilandService.DeleteMinilandAsync(session.SelectedCharacterId);
         if (minilandId is not { } mapInstanceId)
         {
             return;

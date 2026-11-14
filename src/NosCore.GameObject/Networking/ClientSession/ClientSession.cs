@@ -58,6 +58,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public bool HasPlayerEntity => LivePlayer() != null;
 
+        // Still readable once a disconnect step has taken the entity down with its map.
+        public long SelectedCharacterId { get; private set; }
+
         // Completes once every disconnect step has run and the entity is gone.
         public Task Disconnected => _disconnected.Task;
 
@@ -252,6 +255,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             var slot = new PlayerSlot(new PlayerComponentBundle(entity, world));
             Volatile.Write(ref _player, slot);
+            SelectedCharacterId = slot.Bundle.CharacterId;
             HasSelectedCharacter = true;
 
             if (Channel != null)
