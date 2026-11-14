@@ -16,6 +16,10 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.Data.WebApi;
+using Moq;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -49,6 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         private InventoryItemInstance _minilandObject;
         private ItemGenerationService _itemProvider;
         private MapDesignObject _mapObject;
+        private readonly Mock<IMailHub> _mailHub = new();
 
         private List<ItemDto> MinilandItems => new()
         {
@@ -99,8 +104,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 MinilandItems,
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
+            World.Inject(_mailHub.Object);
             _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider, MinigameRewards, World.Clock,
-                new ItemCatalog(MinilandItems));
+                new ItemCatalog(MinilandItems), World.Create<ItemDeliveryService>());
         }
 
         [TestMethod]
@@ -373,6 +379,53 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         }
 
         [TestMethod]
+        public async Task AClaimedRewardShouldShowInItsInventorySlot()
+        {
+            await new Spec("A claimed reward should show in its inventory slot")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(RewardSlotShouldBeShown)
+                .And(ReceivedItemMessageShouldSay_, 2)
+                .And(NothingShouldGoToTheParcelBox)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARewardAddedToAStackShouldNameItsOwnAmount()
+        {
+            await new Spec("A reward added to a stack should name its own amount")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .And(CharacterHolds_, (short)1269)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(ReceivedItemMessageShouldSay_, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARewardThatDoesNotFitShouldGoToTheParcelBox()
+        {
+            await new Spec("A reward that does not fit should go to the parcel box")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .And(TheMainPocketIsFull)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(RewardsShouldBeGranted_, 1)
+                .And(TheRewardShouldGoToTheParcelBox)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ClaimingARewardWearsTheObjectByItsLevel()
         {
             await new Spec("Claiming a reward wears the object by its level")
@@ -467,6 +520,30 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private void RewardsShouldBeGranted_(int count) =>
             Assert.AreEqual(count, _session.LastPackets.OfType<MloRwPacket>().Count());
+
+        private void RewardSlotShouldBeShown() =>
+            Assert.IsTrue(_session.LastPackets.OfType<IvnPacket>()
+                .Any(p => p.IvnSubPackets?.Any(s => s?.VNum == 1269) == true));
+
+        private void NothingShouldGoToTheParcelBox() =>
+            _mailHub.Verify(s => s.SendMailAsync(It.IsAny<MailRequest>()), Times.Never);
+
+        private void TheRewardShouldGoToTheParcelBox()
+        {
+            var characterId = _session.Character.CharacterId;
+            _mailHub.Verify(s => s.SendMailAsync(It.Is<MailRequest>(r =>
+                r.VNum == 1269 && r.Amount == 2 && r.Mail.ReceiverId == characterId)), Times.Once);
+        }
+
+        private void TheMainPocketIsFull()
+        {
+            for (short slot = 0; slot < World.WorldConfiguration.Value.BackpackSize; slot++)
+            {
+                _session.Character.InventoryService.AddItemToPocket(
+                    InventoryItemInstance.Create(_itemProvider.Create(1271, 1), _session.Character.CharacterId),
+                    NoscorePocketType.Main, slot);
+            }
+        }
 
         private void Level1BoxesShouldBe_(int amount) => Assert.AreEqual(amount, _mapObject.Level1BoxAmount);
 

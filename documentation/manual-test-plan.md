@@ -2703,6 +2703,9 @@ Give yourself the quest through its script, or by walking the quest line that le
 - [ ] Choosing a reward takes durability from the object: 10, 15, 20, 25 or 30 for reward
       levels 1 to 5 (check the Durability window before and after). A reward refused for lack of
       production points takes none. At 0 durability, Start Game says the object needs repairing
+- [ ] A chosen reward appears in its inventory slot at once, with the "received" chat line, without
+      relogging. With that pocket full, the reward arrives in the parcel box instead. Items from
+      an opened box batch behave the same way
 
 ## Miniland points
 

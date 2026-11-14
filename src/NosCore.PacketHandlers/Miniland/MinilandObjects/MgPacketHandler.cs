@@ -36,7 +36,8 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
     public class MgPacketHandler(IMinilandService minilandProvider, IItemGenerationService itemProvider,
-        IMinigameRewardService minigameRewards, IClock clock, IItemCatalog itemCatalog)
+        IMinigameRewardService minigameRewards, IClock clock, IItemCatalog itemCatalog,
+        IItemDeliveryService itemDelivery)
         : PacketHandler<MinigamePacket>, IWorldPacketHandler
     {
         private sealed record Minigame(ClientSession Session, MinigamePacket Packet,
@@ -208,14 +209,8 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 if (gifts.Count > i)
                 {
-                    var item = itemProvider.Create(gifts.ElementAt(i).VNum, gifts.ElementAt(i).Amount);
-                    var inv = mg.Session.Character.InventoryService.AddItemToPocket(
-                        InventoryItemInstance.Create(item, mg.Session.Character.CharacterId));
-                    if (inv != null && inv.Count != 0)
-                    {
-                        await mg.Session.SendPacketAsync(mg.Session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ReceivedThisItem,
-                            2, item.Item.VNum.ToString(), gifts.ElementAt(i).Amount));
-                    }
+                    await itemDelivery.DeliverAsync(mg.Session.Character,
+                        itemProvider.Create(gifts.ElementAt(i).VNum, gifts.ElementAt(i).Amount));
 
                     list.Add(new MloPmgSubPacket
                     { BoxVNum = gifts.ElementAt(i).VNum, BoxAmount = gifts.ElementAt(i).Amount });
@@ -317,15 +312,8 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             mg.Instance.DurabilityPoint = Math.Max(0, mg.Instance.DurabilityPoint - MinilandPointExtensions.MinigameDurabilityCost(tier));
             await mg.Session.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.ItemVNum });
-            var inv = mg.Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                itemProvider.Create(obj.ItemVNum,
-                    obj.Amount), mg.Session.Character.CharacterId));
             mg.Miniland.MinilandPoint -= MinilandPointExtensions.MinigameRewardCost;
-            if (inv == null || inv.Count == 0)
-            {
-                //todo add gifts
-                //mg.Session.Character.SendGift(mg.Session.Character.CharacterId, obj.VNum, obj.Amount, 0, 0, false);
-            }
+            await itemDelivery.DeliverAsync(mg.Session.Character, itemProvider.Create(obj.ItemVNum, obj.Amount));
 
             if (mg.Miniland.MapInstanceId != mg.Session.Character.MapInstanceId)
             {
