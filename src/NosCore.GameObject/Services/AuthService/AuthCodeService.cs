@@ -14,8 +14,9 @@ namespace NosCore.GameObject.Services.AuthService
     {
         public static readonly Duration AuthCodeLifetime = Duration.FromMinutes(2);
 
-        // Covers the player picking a channel from the list the login server sends.
-        public static readonly Duration ReadyForAuthLifetime = Duration.FromMinutes(1);
+        // The client puts no timer on its channel list, so this has to outlast a player who
+        // leaves the list open for a while.
+        public static readonly Duration ReadyForAuthLifetime = Duration.FromMinutes(10);
 
         public static readonly Duration ChannelChangeLifetime = Duration.FromSeconds(15);
 
