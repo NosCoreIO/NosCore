@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 World.LogLanguageLocalizer,
                 BattleService.Object,
                 World.SessionRegistry,
-                new SkillCastService(World.Clock, Gear.Object),
+                new SkillCastService(World.Clock, Gear.Object, World.Create<BuffService>()),
                 World.DistanceCalculator,
                 World.Create<WalkService>());
         }

@@ -47,6 +47,7 @@ namespace NosCore.GameObject.Services.BattleService
         ICaptureService captureService,
         ICastDelayService castDelayService,
         IBuffService buffService,
+        ISkillCastService skillCastService,
         ILogger<BattleService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -335,7 +336,7 @@ namespace NosCore.GameObject.Services.BattleService
         {
             if (origin is not PlayerComponentBundle character) return;
 
-            var readyAt = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(skill.Cooldown * 100));
+            var readyAt = clock.GetCurrentInstant().Plus(skillCastService.Cooldown(character, skill.Cooldown));
             character.PendingResets[skill.CastId] = readyAt;
         }
 
