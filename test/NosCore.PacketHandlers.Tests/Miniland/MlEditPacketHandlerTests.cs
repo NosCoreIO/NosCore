@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Packets;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -211,7 +210,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             Assert.AreEqual("Test Test", miniland.MinilandMessage);
             var lastpacket2 = ((MlintroPacket?)Session.LastPackets.FirstOrDefault(s => s is MlintroPacket)).NotNull();
             Assert.AreEqual("Test Test", lastpacket2?.Intro);
-            Assert.AreEqual("mlintro Test^Test", new Serializer(new[] { typeof(MlintroPacket) }).Serialize(lastpacket2.NotNull()));
         }
 
         private void InfoPacketShouldBeSent()

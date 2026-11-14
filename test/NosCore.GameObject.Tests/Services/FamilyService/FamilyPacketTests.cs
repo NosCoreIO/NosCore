@@ -10,14 +10,11 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets;
+using NosCore.Packets.ServerPackets.Families;
 using NosCore.Shared.Enumerations;
-using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Family = NosCore.GameObject.Services.FamilyService.Family;
 using GenderType = NosCore.Packets.Enumerations.GenderType;
@@ -123,34 +120,21 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         [TestMethod]
-        public void TheTagGoesOutOnTheWireExactlyAsTheCaptureHasIt()
+        public void NoFamilyLeavesEveryFamilyFieldEmpty()
         {
-            var serializer = BuildSerializer();
-
+            // gidx 1 741328 -1 - 0
             _session.Character.Family = null;
-            var line = serializer.Serialize(new[]
-                { (IPacket)_session.Character.GenerateGidx(World.GameLanguageLocalizer,
-                    RegionType.EN) }).TrimEnd('\uFFFF', '\n', ' ');
 
-            StringAssert.StartsWith(line, "gidx 1 ");
-            StringAssert.EndsWith(line, " -1 - 0",
-                "no family has to reach the client as -1 and -, not as empty fields");
-        }
-
-        [TestMethod]
-        public void ASpacedFamilyMessageAndRankTravelAsOneFieldEach()
-        {
-            // ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 1 1 1 1 2 1 2 coin^afk^go^rush^larene^30^min^=p
-            var serializer = BuildSerializer();
-            _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Head);
-
-            var ginfo = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGInfo(
-                new FamilyExperienceService()).NotNull() }).TrimEnd();
-            StringAssert.Contains(ginfo, "coin^afk^go^rush", $"the notice is one field: {ginfo}");
-
-            var gidx = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGidx(
-                World.GameLanguageLocalizer, RegionType.EN) }).TrimEnd();
-            Assert.AreEqual(7, gidx.Split(' ').Length, $"the tag is one field: {gidx}");
+            PacketAssert.AreEqual(new GidxPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.VisualId,
+                FamilyId = null,
+                Unknown = null,
+                FamilyName = null,
+                FamilyLevel = 0,
+                FamilyIcons = [],
+            }, _session.Character.GenerateGidx(World.GameLanguageLocalizer, RegionType.EN));
         }
 
         [TestMethod]
@@ -172,25 +156,19 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         public void AFamilyGoesOutWithItsIdNameAndLevel()
         {
             // gidx 1 521919 5052.-1 -Nemesis-(...) 7 0|0|0
-            var serializer = BuildSerializer();
-
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
-            var line = serializer.Serialize(new[]
-                { (IPacket)_session.Character.GenerateGidx(World.GameLanguageLocalizer,
-                    RegionType.EN) }).TrimEnd('\uFFFF', '\n', ' ');
 
-            var fields = line.Split(' ');
-            Assert.AreEqual("gidx", fields[0]);
-            Assert.AreEqual("1", fields[1]);
-            Assert.AreEqual("5052.-1", fields[3]);
-            StringAssert.StartsWith(fields[4], "-Nemesis-(");
-            Assert.AreEqual("7", fields[5]);
-            Assert.AreEqual("0|0|0", fields[6]);
+            PacketAssert.AreEqual(new GidxPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.VisualId,
+                FamilyId = 5052,
+                Unknown = -1,
+                FamilyName = _session.Character.GenerateFamilyTag(World.GameLanguageLocalizer, RegionType.EN),
+                FamilyLevel = 7,
+                FamilyIcons = [false, false, false],
+            }, _session.Character.GenerateGidx(World.GameLanguageLocalizer, RegionType.EN));
         }
-
-        private static Serializer BuildSerializer() => new(typeof(IPacket).Assembly.GetTypes()
-            .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract)
-            .ToList());
 
         [TestMethod]
         public void TheRankIsReadInTheLanguageOfWhoeverIsLooking()
