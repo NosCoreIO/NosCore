@@ -6,11 +6,18 @@
 
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Entities;
 
 namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class VisualEntityExtension
     {
+        public static OutPacket GenerateOut(this IVisualEntity visualEntity) => new()
+        {
+            VisualType = visualEntity.VisualType,
+            VisualId = visualEntity.VisualId
+        };
+
         public static SpeakPacket GenerateSpk(this INamedEntity visualEntity, SpeakPacket packet)
         {
             return new SpeakPacket

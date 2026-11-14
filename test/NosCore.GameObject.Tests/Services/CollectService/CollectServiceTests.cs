@@ -20,6 +20,8 @@ using NosCore.GameObject.Services.CollectService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -199,6 +201,9 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         private void TheObjectShouldBeOut()
         {
             Assert.IsFalse(_session.Character.MapInstance.GetNpcById(MapNpcId).NotNull().IsAlive);
+            var removed = _session.Character.MapInstance.LastPackets.OfType<OutPacket>().Single();
+            Assert.AreEqual(VisualType.Npc, removed.VisualType);
+            Assert.AreEqual(MapNpcId, removed.VisualId);
         }
 
         private void TheObjectShouldStillStand()

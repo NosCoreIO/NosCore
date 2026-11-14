@@ -22,6 +22,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Mates;
@@ -113,6 +114,16 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 order);
             Assert.AreEqual(Game18NConstString.CaptureSuccessful, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
             Assert.IsTrue(_session.Character.MapInstance.LastPackets.OfType<EffectPacket>().Any(e => e.Id == 197));
+        }
+
+        [TestMethod]
+        public async Task ACaughtMonsterLeavesTheMapAsAMonster()
+        {
+            await Catching();
+
+            var removed = _session.Character.MapInstance.LastPackets.OfType<OutPacket>().Single();
+            Assert.AreEqual(VisualType.Monster, removed.VisualType);
+            Assert.AreEqual(_monster.VisualId, removed.VisualId);
         }
 
         [TestMethod]
