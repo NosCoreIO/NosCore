@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
@@ -38,6 +39,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private ClientSession _session;
         private Mock<IBuffService> _buffs;
+        private readonly Mock<IVitalityService> _vitality = new();
         private BuffPotionHandler _handler;
         private InventoryItemInstance _potion;
 
@@ -49,7 +51,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _buffs = new Mock<IBuffService>();
             var catalog = new Mock<ICardCatalog>();
             catalog.Setup(c => c.GetItemBCards(AttackPotionVNum)).Returns(PotionBCards);
-            _handler = new BuffPotionHandler(_buffs.Object, catalog.Object);
+            _handler = new BuffPotionHandler(_buffs.Object, catalog.Object, _vitality.Object);
         }
 
         [TestMethod]
@@ -62,6 +64,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _buffs.Verify(b => b.InflictCardsAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), PotionBCards),
                 Times.Once);
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(AttackPotionVNum));
+        }
+
+        [TestMethod]
+        public async Task DrinkingAPotionRefreshesTheMaximumHpAndMp()
+        {
+            GivePotion(ItemEffectType.BuffPotions);
+
+            await UseAsync();
+
+            _vitality.Verify(v => v.RefreshAndNotifyAsync(It.IsAny<PlayerComponentBundle>()), Times.Once);
         }
 
         [TestMethod]
