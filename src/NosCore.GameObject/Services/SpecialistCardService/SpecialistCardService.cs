@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using NosCore.Algorithm.SpecialistPointService;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -55,9 +56,13 @@ public sealed class SpecialistCardService(ISpecialistPointService specialistPoin
         return true;
     }
 
-    public SpecialistPointBonus GetBonus(SpecialistInstance specialist) =>
-        specialistPointService.GetAttackBonus(specialistPointService.GetAttackLevel(specialist.SlDamage))
-        + specialistPointService.GetDefenceBonus(specialistPointService.GetDefenceLevel(specialist.SlDefence))
-        + specialistPointService.GetElementBonus(specialistPointService.GetElementLevel(specialist.SlElement))
-        + specialistPointService.GetHpMpBonus(specialistPointService.GetHpMpLevel(specialist.SlHp));
+    public SpecialistPointBonus GetBonus(SpecialistInstance specialist, SpecialistLevelBoost boost = default)
+    {
+        var maximum = specialistPointService.GetMaximumStatLevel(specialist.Upgrade);
+        int Level(int level, int extra) => extra == 0 ? level : Math.Min(level + extra, Math.Max(level, maximum));
+        return specialistPointService.GetAttackBonus(Level(specialistPointService.GetAttackLevel(specialist.SlDamage), boost.Attack))
+            + specialistPointService.GetDefenceBonus(Level(specialistPointService.GetDefenceLevel(specialist.SlDefence), boost.Defence))
+            + specialistPointService.GetElementBonus(Level(specialistPointService.GetElementLevel(specialist.SlElement), boost.Element))
+            + specialistPointService.GetHpMpBonus(Level(specialistPointService.GetHpMpLevel(specialist.SlHp), boost.HpMp));
+    }
 }

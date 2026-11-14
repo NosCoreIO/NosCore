@@ -592,6 +592,49 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         }
 
         [TestMethod]
+        public void AWeaponShellsSlOptionsRaiseTheTransformedCard()
+        {
+            var card = WearSpecialist();
+            _session.Character.UseSp = true;
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            var without = _service.Resolve(_session.Character);
+            ((WearableInstance)weapon).EquipmentOptions = null;
+            AddOption(weapon, WeaponShellOptionType.IncreasedSlDamage, 10);
+            AddOption(weapon, WeaponShellOptionType.IncreasedSlAll, 10);
+
+            var with = _service.Resolve(_session.Character);
+
+            var cards = new SpecialistCardService(new SpecialistPointService());
+            var raised = cards.GetBonus(card, new SpecialistLevelBoost(20, 10, 10, 10));
+            var own = cards.GetBonus(card);
+            Assert.AreEqual(without.MinHit + raised.Damage - own.Damage, with.MinHit);
+            Assert.AreEqual(without.CloseDefence + raised.Defence - own.Defence, with.CloseDefence);
+            Assert.IsTrue(with.MinHit > without.MinHit);
+        }
+
+        [TestMethod]
+        public void AnSlOptionStopsAtTheCardsMaximumLevel()
+        {
+            var card = WearSpecialist();
+            card.SlDamage = 1000;
+            var cards = new SpecialistCardService(new SpecialistPointService());
+
+            Assert.AreEqual(cards.GetBonus(card).Damage, cards.GetBonus(card, new SpecialistLevelBoost(15, 0, 0, 0)).Damage);
+        }
+
+        [TestMethod]
+        public void SlOptionsDoNothingUntilTransformed()
+        {
+            WearSpecialist();
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            var without = _service.Resolve(_session.Character);
+            ((WearableInstance)weapon).EquipmentOptions = null;
+            AddOption(weapon, WeaponShellOptionType.IncreasedSlAll, 10);
+
+            Assert.AreEqual(without, _service.Resolve(_session.Character) with { BCards = without.BCards });
+        }
+
+        [TestMethod]
         public void SkillPointsSpentOnTheCardAddToTheTransformedStats()
         {
             var card = WearSpecialist();

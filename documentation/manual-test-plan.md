@@ -1680,6 +1680,9 @@ a Flamberge (`$CreateItem 299 5`), Rainbow Pearls (`$CreateItem 1429 20`) and a 
       Magic Eraser
 - [ ] An armour shell with a defence or resistance option raises that line in the Character window
       the same way
+- [ ] A weapon shell with an SL option (SL damage, defence, element, energy or all) changes
+      nothing until you transform; once transformed, the Character window's attack (or defence,
+      element, HP/MP) is higher than with the same card and a weapon without the shell
 
 ---
 
