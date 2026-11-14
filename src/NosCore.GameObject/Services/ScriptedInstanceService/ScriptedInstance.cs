@@ -49,9 +49,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     MaxLevel = EffectiveLevelMaximum
                 },
                 RequiredSeeds = (short)(Definition?.RequiredItems.Sum(s => s.Amount) ?? 0),
-                DrawRewards = EmptySlots(5),
-                SpecialRewards = EmptySlots(2),
-                BonusRewards = EmptySlots(3),
+                DrawRewards = Slots(Definition?.DrawItems, 5),
+                SpecialRewards = Slots(Definition?.SpecialItems, 2),
+                BonusRewards = Slots(Definition?.GiftItems, 3),
                 HighScore = new RbrSubPacketHighScore { Score = 0, Nickname = null },
                 IsHidden = false,
                 LoserMode = false,
@@ -63,7 +63,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             };
         }
 
-        private static List<RbrSubPacketItem?> EmptySlots(int count) =>
-            [.. Enumerable.Range(0, count).Select(_ => (RbrSubPacketItem?)new RbrSubPacketItem { Quantity = 0 })];
+        private static List<RbrSubPacketItem?> Slots(IReadOnlyList<InstanceGift>? gifts, int count) =>
+            [.. Enumerable.Range(0, count).Select(i => gifts?.ElementAtOrDefault(i) is { } gift
+                ? new RbrSubPacketItem { ItemId = gift.VNum, Quantity = gift.Amount }
+                : (RbrSubPacketItem?)new RbrSubPacketItem { Quantity = 0 })];
     }
 }

@@ -2269,7 +2269,7 @@ same trust as the server's own code, so only the operator should be able to writ
       script name
 
 - [ ] Walking onto the stone opens the time-space panel with its name and level range, and
-      empty reward slots
+      empty reward slots when the script declares no rewards
 - [ ] A character outside the level range is refused with a message and stays put
 - [ ] A character without the required items is refused with a message and keeps what
       they had
@@ -2312,6 +2312,24 @@ dropping their `MaxHp` makes the run quick.
       map, which this client does not draw yet, so drive it from a second, headless player
 - [ ] Disconnect inside a run you were alone in, then log back in: you are on the open world,
       not in a room
+
+### Time-space reward chest
+
+Copy `timespace-01.csx` to `timespace-chest.csx`, point the row's `Script` at it, and add to its
+definition `.WithGold(1000).WithReputation(50).WithReward(1012, 2).WithSpecialReward(2282, 1)
+.WithDraw(1013, 3).WithDraw(1014, 1).WithFamilyExperience(200)`. Play it with a character in a family.
+
+- [ ] The stone's panel lists the two draw items, the special item and the bonus item in their
+      slots
+- [ ] Win the run: the client opens the chest as the score window appears. It shows the bonus,
+      special and drawn items; chat says 1000 gold and 50 reputation were earned, and the gold
+      and reputation shown on the character go up by those amounts
+- [ ] The bonus, special and one of the two draw items are in the inventory
+- [ ] Confirming the score window gives nothing more
+- [ ] The family window's history shows 200 family experience from the character
+- [ ] With a full inventory, the items arrive in the parcel box instead
+- [ ] Near the gold limit, the gold stops at the limit
+- [ ] Let the clock run out: the score has no chest to open and nothing is given
 
 ### Raids
 
