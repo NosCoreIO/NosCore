@@ -7,6 +7,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using NosCore.Database;
+using NosCore.ParserInputGenerator.Generator;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -23,20 +24,21 @@ namespace NosCore.Parser
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         ParserCliOptions cli,
         IHostApplicationLifetime lifetime,
-        DbContext context)
+        DbContext context,
+        ParserInputBuilder inputBuilder)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                if (cli.HasFolder)
+                if (cli.Interactive)
                 {
-                    await RunNonInteractiveAsync(cli.Folder, stoppingToken).ConfigureAwait(false);
+                    await RunInteractiveAsync(stoppingToken);
                 }
                 else
                 {
-                    await RunInteractiveAsync(stoppingToken).ConfigureAwait(false);
+                    await RunNonInteractiveAsync(cli.Folder ?? await DownloadClientFilesAsync(), stoppingToken);
                 }
 
                 logger.LogInformation(logLanguage[LogLanguageKey.DONE]);
@@ -48,11 +50,20 @@ namespace NosCore.Parser
             }
             finally
             {
-                if (cli.HasFolder)
+                if (!cli.Interactive)
                 {
                     lifetime.StopApplication();
                 }
             }
+        }
+
+        // Without a folder the parser fetches the client files itself, next to its own binaries,
+        // and reuses the ones already there when they are still current.
+        private async Task<string> DownloadClientFilesAsync()
+        {
+            var workFolder = Path.Combine(AppContext.BaseDirectory, "client-data");
+            logger.LogInformation(logLanguage[LogLanguageKey.DOWNLOADING_CLIENT_FILES], workFolder);
+            return await inputBuilder.BuildAsync(workFolder);
         }
 
         private async Task RunNonInteractiveAsync(string folder, CancellationToken stoppingToken)

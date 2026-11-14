@@ -17,6 +17,7 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="NosCore.Algorithm" />
+    <PackageReference Include="NosCore.ParserInputGenerator" />
   </ItemGroup>
 
   <ItemGroup>

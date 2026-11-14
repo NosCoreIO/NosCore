@@ -13,20 +13,21 @@ using System.Runtime.InteropServices;
 
 namespace NosCore.WorldServer
 {
-    // Imports the game data again, from the folder the last import read, when the parser build or
-    // the client files changed since. A database whose folder this server cannot see is only
-    // checked against the parser build. Accounts are not seeded again, so a removed one stays removed.
+    // Imports the game data when the database has none, and again, from the folder the last import
+    // read, when the parser build or the client files changed since. A database whose folder this
+    // server cannot see is only checked against the parser build. Accounts are only seeded by the
+    // first import, so a removed one stays removed.
     public static class GameDataRefresh
     {
         public static void EnsureCurrent(string connectionString, string[] args)
         {
             var parserBuild = GameDataFingerprint.OfParser(typeof(ParserBootstrap).Assembly);
-            if (IsStale(connectionString, parserBuild) != null)
+            if (ImportToRun(connectionString, parserBuild) != null)
             {
                 using var importLock = DatabaseReadiness.LockGameDataImport(connectionString);
-                if (IsStale(connectionString, parserBuild) is { } stillStale)
+                if (ImportToRun(connectionString, parserBuild) is { } import)
                 {
-                    RunParser(stillStale, args);
+                    RunParser(import, args);
                 }
             }
 
@@ -37,27 +38,44 @@ namespace NosCore.WorldServer
             }
         }
 
-        // The folder to import again from, when the import is out of date and that folder can be read.
-        private static string? IsStale(string connectionString, string parserBuild)
+        // Null when nothing has to run. A database never imported gets a first import, with the
+        // client files downloaded and the default accounts created; an out-of-date one is imported
+        // again from its folder when that folder can be read.
+        private static ParserRun? ImportToRun(string connectionString, string parserBuild)
         {
             var import = DatabaseReadiness.ReadGameDataImport(connectionString);
-            if (import == null || GameDataFingerprint.TryOfClientFiles(import.Folder) == null)
+            if (import == null)
+            {
+                return DatabaseReadiness.CanConnect(connectionString) ? new ParserRun(null, SeedAccounts: true) : null;
+            }
+
+            if (GameDataFingerprint.TryOfClientFiles(import.Folder) == null)
             {
                 return null;
             }
 
             return !DatabaseReadiness.IsUpToDate(connectionString) || DatabaseReadiness.DescribeGameData(import, parserBuild) != null
-                ? import.Folder
+                ? new ParserRun(import.Folder, SeedAccounts: false)
                 : null;
         }
 
-        private static void RunParser(string folder, string[] args)
+        private sealed record ParserRun(string? Folder, bool SeedAccounts);
+
+        private static void RunParser(ParserRun run, string[] args)
         {
             var start = new ProcessStartInfo(DotnetHost()) { UseShellExecute = false };
             start.ArgumentList.Add(typeof(ParserBootstrap).Assembly.Location);
-            start.ArgumentList.Add("--folder");
-            start.ArgumentList.Add(folder);
-            start.ArgumentList.Add(ParserCliOptions.SkipAccountsFlag);
+            if (run.Folder != null)
+            {
+                start.ArgumentList.Add("--folder");
+                start.ArgumentList.Add(run.Folder);
+            }
+
+            if (!run.SeedAccounts)
+            {
+                start.ArgumentList.Add(ParserCliOptions.SkipAccountsFlag);
+            }
+
             var config = Array.IndexOf(args, "--config");
             if (config > -1 && config + 1 < args.Length)
             {
