@@ -1107,6 +1107,9 @@ and the items in the Etc bag.
       name changes above it, on its portrait and in the pet window, "New name has been assigned to
       your teammate." shows, and one tag is used up. Cancelling the window, or using the tag on a
       partner, keeps the tag
+- [ ] Pet Food (2077) on the pet: its loyalty in the pet window goes up by 100, it gains some
+      experience, "The pet is happy with the food." shows, and the food is used up. A pet at 3000
+      loyalty does not eat it; a partner does not either
 - [ ] Special Pet Food (2187): "The pet can collect items from now on." and the pet window shows
       the pick-up ability; a second one on the same pet stays in the bag
 - [ ] NosMate Summoning Book (2419) on a NosMate that cannot be summoned: it can be now; on one

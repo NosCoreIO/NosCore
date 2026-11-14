@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -23,10 +24,14 @@ using MateModel = NosCore.GameObject.Services.MateService.Mate;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class MateItemHandler(IMateService mateService, IMateStatsService mateStatsService)
+    public sealed class MateItemHandler(IMateService mateService, IMateStatsService mateStatsService,
+        IMateProgressionService mateProgressionService)
     {
         // A fed mate must stay this many levels under its owner.
         public const int LevelUpGap = 5;
+
+        public const short MaxLoyalty = 3000;
+        public const short FoodLoyalty = 100;
 
         private const int LevelUpEffect = 8;
         private const int LevelUpAura = 198;
@@ -55,6 +60,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 ? await ApplySkinAsync(owner, mate, item.EffectValue, item.Morph)
                 : (TeacherItemEffectType)item.Effect switch
                 {
+                    TeacherItemEffectType.PetFood when mate.MateType == MateType.Pet => await FeedAsync(owner, mate, item.EffectValue),
                     TeacherItemEffectType.PetLevelUp when mate.MateType == MateType.Pet => await LevelUpAsync(owner, mate),
                     TeacherItemEffectType.PartnerLevelUp when mate.MateType == MateType.Partner => await LevelUpAsync(owner, mate),
                     TeacherItemEffectType.PetLevelDown when mate.MateType == MateType.Pet => await LevelDownAsync(owner, mate),
@@ -124,6 +130,20 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 EntityId = mate.MateTransportId
             });
             return false;
+        }
+
+        private async Task<bool> FeedAsync(PlayerComponentBundle owner, MateModel mate, long experience)
+        {
+            if (mate.Loyalty >= MaxLoyalty)
+            {
+                return false;
+            }
+
+            mate.Loyalty = (short)Math.Min(mate.Loyalty + FoodLoyalty, MaxLoyalty);
+            // The food's value is taken as the experience it gives; the description only says "to the appropriate level".
+            await mateProgressionService.AddExperienceAsync(owner, mate, experience);
+            await owner.SendPacketAsync(Message(Game18NConstString.PetHappyWithFood));
+            return true;
         }
 
         private static async Task<bool> TeachPickUpAsync(PlayerComponentBundle owner, MateModel mate)

@@ -9,6 +9,7 @@ namespace NosCore.Data.Enumerations.Items
     // What the effect number means on an item of ItemType Teacher, where it does not match ItemEffectType.
     public enum TeacherItemEffectType : ushort
     {
+        PetFood = 10,
         PetLevelUp = 11,
         PartnerLevelUp = 12,
         PetNameTag = 13,

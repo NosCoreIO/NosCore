@@ -58,7 +58,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.Level = 30;
             var mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto>(),
                 new IdService<Mate>(1), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
-            _handler = new MateItemHandler(mateService, World.Create<MateStatsService>());
+            _handler = new MateItemHandler(mateService, World.Create<MateStatsService>(),
+                new NosCore.GameObject.Services.MateService.MateProgressionService(World.Create<MateStatsService>()));
         }
 
         [TestMethod]
@@ -136,6 +137,48 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(9, partner.Level);
             Assert.AreEqual(0, Remaining());
             Assert.AreEqual(Game18NConstString.PartnerEatHesitantly, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task PetFoodRaisesLoyaltyAndGivesExperienceAsync()
+        {
+            var pet = Owned(TestMates.Pet(_session.Character.CharacterId, level: 5));
+            pet.Loyalty = 1000;
+            Holding(ItemType.Teacher, (ItemEffectType)TeacherItemEffectType.PetFood, value: 50);
+
+            await UseOnAsync(pet);
+
+            Assert.AreEqual(1100, pet.Loyalty);
+            Assert.AreEqual(50, pet.Experience);
+            Assert.AreEqual(0, Remaining());
+            Assert.AreEqual(Game18NConstString.PetHappyWithFood, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task PetFoodStopsAtFullLoyaltyAsync()
+        {
+            var pet = Owned(TestMates.Pet(_session.Character.CharacterId, level: 5));
+            pet.Loyalty = MateItemHandler.MaxLoyalty - 30;
+            Holding(ItemType.Teacher, (ItemEffectType)TeacherItemEffectType.PetFood, value: 50, amount: 2);
+
+            await UseOnAsync(pet);
+            await UseOnAsync(pet);
+
+            Assert.AreEqual(MateItemHandler.MaxLoyalty, pet.Loyalty);
+            Assert.AreEqual(1, Remaining(), "a pet at full loyalty must not eat");
+        }
+
+        [TestMethod]
+        public async Task PetFoodIsRefusedForAPartnerAsync()
+        {
+            var partner = Owned(TestMates.Partner(_session.Character.CharacterId));
+            partner.Loyalty = 1000;
+            Holding(ItemType.Teacher, (ItemEffectType)TeacherItemEffectType.PetFood, value: 50);
+
+            await UseOnAsync(partner);
+
+            Assert.AreEqual(1000, partner.Loyalty);
+            Assert.AreEqual(1, Remaining());
         }
 
         [TestMethod]
