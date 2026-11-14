@@ -560,6 +560,12 @@
   <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
     <value>Načteno {0} rodinných úkolů!</value>
   </data>
+  <data name="SCRIPT_OFFERS_PARSED" xml:space="preserve">
+    <value>{0} ScriptOffers Parsed!</value>
+  </data>
+  <data name="SCRIPT_OFFERS_LOADED" xml:space="preserve">
+    <value>{0} ScriptOffers Loaded!</value>
+  </data>
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Tato událost už probíhá.</value>
   </data>

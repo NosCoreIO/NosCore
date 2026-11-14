@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private GameObject.Services.QuestService.QuestService Service;
         private ClientSession Session;
         private List<ScriptDto> Scripts;
+        private List<ScriptOfferDto> ScriptOffers;
         private List<QuestDto> Quests;
         private List<QuestObjectiveDto> QuestObjectives;
 
@@ -43,6 +44,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Session.Character.Level = 50;
 
             Scripts = new List<ScriptDto>();
+            ScriptOffers = new List<ScriptOfferDto>();
             Quests = new List<QuestDto>
             {
                 new QuestDto
@@ -106,6 +108,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             Service = new GameObject.Services.QuestService.QuestService(
                 Scripts,
+                ScriptOffers,
                 World.WorldConfiguration,
                 Quests,
                 QuestObjectives,
@@ -120,6 +123,66 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 },
                 new Mock<Wolverine.IMessageBus>().Object,
                 new Mock<IQuestRewardService>().Object);
+        }
+
+        [TestMethod]
+        public async Task AChapterAnNpcOffersDoesNotStartWhenThePreviousOneEnds()
+        {
+            await new Spec("Finishing a chapter waits for the NPC that offers the next one")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)2, (byte)1)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TakingAnOfferedChapterStartsItsFirstStep()
+        {
+            await new Spec("Picking a chapter from the NPC's list starts it")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)10, (byte)2)
+                .And(TheOfferResultShouldBe_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOfferedChapterWaitsForItsLevel()
+        {
+            await new Spec("A chapter is not handed out below its level")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)60)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)1)
+                .And(TheOfferResultShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOfferedChapterWaitsForThePreviousOneToEnd()
+        {
+            await new Spec("A chapter is not handed out while the one before it is still running")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .And(CharacterIsBackOnStepOneOfChapterOne)
+                .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)1, (byte)1)
+                .And(TheOfferResultShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlyTheNpcThatOffersAChapterHandsItOut()
+        {
+            await new Spec("Another NPC cannot hand out the chapter")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)300)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)1)
+                .And(TheOfferResultShouldBe_, false)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -679,6 +742,40 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private Task RunningTheCurrentStepAs_(QuestActionType type)
         {
             return Service.RunCurrentScriptStepAsync(Session.Character, type);
+        }
+
+        private bool _offerResult;
+
+        private void Npc_OffersChapter_FromLevel_(short npcVNum, byte scriptId, byte levelMinimum)
+        {
+            ScriptOffers.Add(new ScriptOfferDto
+            {
+                ScriptId = scriptId, NpcVNum = npcVNum, RequiredScriptId = (byte)(scriptId - 1), LevelMinimum = levelMinimum, DialogId = 42
+            });
+            Scripts.Add(new ScriptDto { Id = Guid.NewGuid(), ScriptId = scriptId, ScriptStepId = 10, StepType = "talk" });
+        }
+
+        private void CharacterIsOnTheLastStepOfChapterOne()
+        {
+            Scripts.Add(new ScriptDto { Id = Guid.NewGuid(), ScriptId = 1, ScriptStepId = 1, StepType = "talk" });
+            var last = new ScriptDto { Id = Guid.NewGuid(), ScriptId = 1, ScriptStepId = 2, StepType = "talk" };
+            Scripts.Add(last);
+            Session.Character.Script = last;
+        }
+
+        private void CharacterIsBackOnStepOneOfChapterOne()
+        {
+            Session.Character.Script = Scripts.First(s => s.ScriptId == 1 && s.ScriptStepId == 1);
+        }
+
+        private async Task TakingChapter_FromNpc_(byte scriptId, short npcVNum)
+        {
+            _offerResult = await Service.TakeScriptOfferAsync(Session.Character, npcVNum, scriptId);
+        }
+
+        private void TheOfferResultShouldBe_(bool expected)
+        {
+            Assert.AreEqual(expected, _offerResult);
         }
 
         private void CharacterShouldBeOnStep_OfScript_(short stepId, byte scriptId)

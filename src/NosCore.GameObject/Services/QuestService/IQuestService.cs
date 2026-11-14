@@ -34,6 +34,9 @@ namespace NosCore.GameObject.Services.QuestService
         // Validates or achieves the script step the character is currently on.
         Task RunCurrentScriptStepAsync(PlayerComponentBundle character, QuestActionType type);
 
+        // Starts the story chapter an NPC offers once the character has the level and has finished the chapter before it.
+        Task<bool> TakeScriptOfferAsync(PlayerComponentBundle character, short npcVNum, byte scriptId);
+
         Task GiveUpQuestAsync(PlayerComponentBundle character, int questId);
     }
 }

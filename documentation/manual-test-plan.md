@@ -2335,6 +2335,18 @@ done. Use the "Quests offered in NPC dialogs" scene with daily quest 7516 alread
 - [ ] A story quest done before (for example the rookie training quests 100 to 113) is never handed
       out a second time
 
+### Story chapters from "Get Quest"
+
+After the tutorial, each story chapter is handed out by an NPC's "Get Quest" list rather than
+starting on its own. Put a level 60 character on the last step of chapter 11 next to Sandra Brake
+(NPC 394, dialog 51).
+
+- [ ] "Get Quest" opens her list of chapters 56, 57, 60 and 65, with "Level 56" highlighted
+- [ ] Picking "Level 56" starts the chapter with her greeting dialogue
+- [ ] Picking "Level 57" does nothing while chapter 56 is not done
+- [ ] At level 50, picking "Level 56" does nothing
+- [ ] Finishing a chapter's last step does not start the next chapter until it is taken from its NPC
+
 ### Rewards
 
 Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open

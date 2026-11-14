@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.QuestService
 {
-    public class QuestService(List<ScriptDto> scripts,
+    public class QuestService(List<ScriptDto> scripts, List<ScriptOfferDto> scriptOffers,
             IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests,
             List<QuestObjectiveDto> questObjectives, ILogger<QuestService> logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
@@ -70,10 +70,36 @@ namespace NosCore.GameObject.Services.QuestService
             var orderedScripts = scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
             var nextScript = orderedScripts.FirstOrDefault(s => (s.ScriptId == (character.Script?.ScriptId ?? 0)) && (s.ScriptStepId > (character.Script?.ScriptStepId ?? 0))) ??
                 orderedScripts.FirstOrDefault(s => s.ScriptId > (character.Script?.ScriptId ?? 0));
-            if (nextScript == null)
+            if (nextScript == null || (nextScript.ScriptId != character.Script?.ScriptId && scriptOffers.Any(o => o.ScriptId == nextScript.ScriptId)))
             {
                 return;
             }
+
+            await StartScriptStepAsync(character, nextScript);
+        }
+
+        public async Task<bool> TakeScriptOfferAsync(PlayerComponentBundle character, short npcVNum, byte scriptId)
+        {
+            var offer = scriptOffers.FirstOrDefault(o => o.ScriptId == scriptId && o.NpcVNum == npcVNum);
+            var current = character.Script;
+            if (offer == null || character.Level < offer.LevelMinimum || current == null || current.ScriptId != offer.RequiredScriptId
+                || scripts.Any(s => s.ScriptId == current.ScriptId && s.ScriptStepId > current.ScriptStepId))
+            {
+                return false;
+            }
+
+            var firstStep = scripts.Where(s => s.ScriptId == scriptId).MinBy(s => s.ScriptStepId);
+            if (firstStep == null)
+            {
+                return false;
+            }
+
+            await StartScriptStepAsync(character, firstStep);
+            return true;
+        }
+
+        private async Task StartScriptStepAsync(PlayerComponentBundle character, ScriptDto nextScript)
+        {
             character.Script = nextScript;
             await character.SendPacketAsync(new ScriptPacket()
             {

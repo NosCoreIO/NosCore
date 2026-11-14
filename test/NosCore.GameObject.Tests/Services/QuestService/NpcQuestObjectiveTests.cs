@@ -63,6 +63,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             };
             var questService = new GameObject.Services.QuestService.QuestService(
                 new List<ScriptDto>(),
+                new List<ScriptOfferDto>(),
                 World.WorldConfiguration,
                 new List<QuestDto>(),
                 new List<QuestObjectiveDto>(),
