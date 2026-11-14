@@ -2018,16 +2018,16 @@ same trust as the server's own code, so only the operator should be able to writ
 
 ### Inside a time-space
 
-Run `timespace-01`, the sample shipped in `instances/`. Its monsters are 58, 59 and 200;
+Run `timespace-01`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
 dropping their `MaxHp` makes the run quick.
 
 - [ ] On entry a clock appears and counts down from ten minutes
-- [ ] Three hostile monsters appear in the first room, and a padlocked portal stands at its
+- [ ] Three hostile monsters appear in the first room and are drawn as soon as the room is, and a padlocked portal stands at its
       east edge; walking onto the padlock does nothing
 - [ ] No time-space stone is drawn inside the rooms
 - [ ] Killing the third monster opens the padlock; walking onto it moves you to the second
-      room, where a single wolf waits
-- [ ] Killing the wolf shows Mission Clear with the monsters killed, the rooms explored and
+      room, where a single Weak Devil Vampire waits
+- [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
       the "Perfect" stamp when every summoned monster died
 - [ ] About ten seconds later you are back beside the stone on the open world, and the clock
       is gone
