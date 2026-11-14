@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Map
             {
                 await session.SendPacketAsync(new MsgPacket
                 {
-                    Message = miniland.MinilandMessage?.Replace(' ', '^')
+                    Message = miniland.MinilandMessage
                 });
 
                 miniland.DailyVisitCount++;
