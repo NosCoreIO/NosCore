@@ -79,6 +79,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ThePartySharesItsLives()
+        {
+            await new Spec("Lives belong to the party, so a second player's death after the first used the life fails the run")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .AndAsync(ThePlayerDies)
+                .AndAsync(TenSecondsPass)
+                .WhenAsync(AnotherPlayerInTheRunDies)
+                .Then(TheRunShouldHaveRunOutOfLives)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task LeavingAStartedRunCostsDignityAndALife()
         {
             await new Spec("Giving up a started time-space costs 20 dignity and one of the party's lives")
@@ -181,6 +193,15 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _session.Character.IsAlive = false;
             _session.Character.Hp = 0;
             await _run.PlayerDownAsync(_session.Character);
+        }
+
+        private async Task AnotherPlayerInTheRunDies()
+        {
+            var other = await World.CreateSessionAsync();
+            other.Character.MapInstance = _session.Character.MapInstance;
+            other.Character.IsAlive = false;
+            other.Character.Hp = 0;
+            await _run.PlayerDownAsync(other.Character);
         }
 
         private async Task TenSecondsPass()

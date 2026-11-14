@@ -39,12 +39,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             if (run.Host is TimeSpaceRunHost host && run.HasStarted && run.EndState == null)
             {
+                var gaveUp = false;
                 await run.RunHostAsync(() =>
                 {
+                    gaveUp = true;
                     host.LoseLife(run);
                     return Task.CompletedTask;
                 });
-                await LoseDignityAsync(session);
+                if (gaveUp)
+                {
+                    await LoseDignityAsync(session);
+                }
             }
 
             await run.Host.ReturnAsync(session);
