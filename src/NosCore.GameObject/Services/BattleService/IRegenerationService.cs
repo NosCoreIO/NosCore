@@ -6,16 +6,13 @@
 
 using System.Threading.Tasks;
 using NosCore.GameObject.Ecs;
-using NosCore.GameObject.Services.MapInstanceGenerationService;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// HP/MP natural regeneration. Called from MapInstance's life loop so every connected
-// player on the map ticks together. Sitting players regen full-rate unconditionally;
-// standing players regen half-rate gated on "no damage for 4s".
+// HP/MP natural regeneration for one player whose step RegenerationSystem found due.
 public interface IRegenerationService
 {
-    Task TickAsync(MapInstance mapInstance);
+    Task RegenerateAsync(PlayerComponentBundle character);
 
     // HitQueue calls this whenever a player takes damage so standing regen stays
     // suppressed for the 4s grace window. Sitting regen is unaffected —

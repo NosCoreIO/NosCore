@@ -15,7 +15,8 @@ public class SkillResetSystem
 {
     private readonly QueryDescription _pendingQuery = new QueryDescription().WithAll<SkillResetComponent>();
 
-    // Claims every skill whose cooldown has run out, so each reset is handed out once.
+    // Claims every skill whose cooldown has run out, so each reset is handed out once. A recast
+    // that moved the deadline in the meantime keeps its entry.
     public void TakeReady(MapWorld world, Instant now, List<(Entity Entity, long CastId)> ready)
     {
         world.Exclusive(w => w.Query(in _pendingQuery, (Entity entity, ref SkillResetComponent resets) =>
@@ -27,7 +28,7 @@ public class SkillResetSystem
 
             foreach (var (castId, readyAt) in resets.PendingResets)
             {
-                if (readyAt <= now && resets.PendingResets.TryRemove(castId, out _))
+                if (readyAt <= now && resets.PendingResets.TryRemove(new KeyValuePair<long, Instant>(castId, readyAt)))
                 {
                     ready.Add((entity, castId));
                 }

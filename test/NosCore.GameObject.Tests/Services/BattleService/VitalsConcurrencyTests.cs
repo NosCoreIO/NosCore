@@ -26,6 +26,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.GroupService;
@@ -79,7 +80,15 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         // The map's life tick runs regeneration on the map's executor.
         private Task RegenerationTickAsync(RegenerationService regeneration) =>
-            _map.Executor.RunAsync(() => regeneration.TickAsync(_map));
+            _map.Executor.RunAsync(async () =>
+            {
+                var due = new List<Arch.Core.Entity>();
+                new RegenerationSystem().FindDue(_map.EcsWorld, World.Clock.GetCurrentInstant(), due);
+                foreach (var entity in due)
+                {
+                    await regeneration.RegenerateAsync(new PlayerComponentBundle(entity, _map.EcsWorld));
+                }
+            });
 
         [TestMethod]
         public async Task RegenerationDoesNotBringBackAPlayerKilledAtTheSameMoment()
@@ -88,9 +97,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());
-            var regeneration = new RegenerationService(World.SessionRegistry, World.Clock,
+            var regeneration = new RegenerationService(World.Clock,
                 equipment.Object, buffs.Object, new NosCore.GameObject.Services.SkillService.PassiveSkillService(new NpcCombatCatalog([], [], [])),
-                new RecoveryRateService(), NullLogger<RegenerationService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+                new RecoveryRateService());
             var lethal = Queue(1_000_000);
             var revived = 0;
 

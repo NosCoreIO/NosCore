@@ -10,7 +10,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
 using NosCore.Algorithm.RecoveryRateService;
+using Arch.Core;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -43,7 +46,15 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         private Task TickAsync() =>
-            Session.Character.MapInstance.Executor.RunAsync(() => Regeneration.TickAsync(Session.Character.MapInstance));
+            Session.Character.MapInstance.Executor.RunAsync(async () =>
+            {
+                var due = new List<Entity>();
+                new RegenerationSystem().FindDue(Session.Character.MapInstance.EcsWorld, World.Clock.GetCurrentInstant(), due);
+                foreach (var entity in due)
+                {
+                    await Regeneration.RegenerateAsync(new PlayerComponentBundle(entity, Session.Character.MapInstance.EcsWorld));
+                }
+            });
 
         private async Task TickAfterAsync(int seconds)
         {

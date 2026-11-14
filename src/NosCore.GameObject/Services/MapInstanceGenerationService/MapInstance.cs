@@ -85,6 +85,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly List<Entity> _dueRespawns = new();
         private readonly BuffSystem _buffSystem = new();
         private readonly SkillResetSystem _skillResetSystem = new();
+        private readonly RegenerationSystem _regenerationSystem = new();
+        private readonly List<Entity> _dueRegeneration = new();
         private readonly List<(Entity Entity, long CastId)> _readySkills = new();
         private readonly List<(Entity Entity, VisualType VisualType)> _dueBuffs = new();
 
@@ -568,7 +570,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
 
             await GuardAsync(_buffService is { } buffs ? () => TickBuffsAsync(buffs) : null, "buffs");
-            await GuardAsync(_regenerationService == null ? null : () => _regenerationService.TickAsync(this), "regeneration");
+            await GuardAsync(_regenerationService is { } regeneration ? () => RegenerateAsync(regeneration) : null, "regeneration");
             await GuardAsync(_digestionService == null ? null : () => _digestionService.TickAsync(this), "digestion");
             await GuardAsync(_mateRevivalService == null ? null : () => _mateRevivalService.TickAsync(this), "mate revival");
             await GuardAsync(SendSkillResetsAsync, "cooldown resets");
@@ -630,6 +632,23 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             if (_heatService != null)
             {
                 await _heatService.RefreshAsync(character);
+            }
+        }
+
+        private async Task RegenerateAsync(IRegenerationService regeneration)
+        {
+            _dueRegeneration.Clear();
+            _regenerationSystem.FindDue(EcsWorld, _clock.GetCurrentInstant(), _dueRegeneration);
+            foreach (var entity in _dueRegeneration)
+            {
+                try
+                {
+                    await regeneration.RegenerateAsync(new PlayerComponentBundle(entity, EcsWorld));
+                }
+                catch (Exception e)
+                {
+                    LogTickFailure(e, "regeneration", EcsWorld.TryGetComponent<EntityIdentityComponent>(entity)?.VisualId ?? 0);
+                }
             }
         }
 
