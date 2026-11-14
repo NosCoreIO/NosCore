@@ -639,6 +639,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This player is not on your friend list!.
+        /// </summary>
+        public static string NOT_IN_FRIENDLIST {
+            get {
+                return ResourceManager.GetString("NOT_IN_FRIENDLIST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} NpcMonsters Loaded!.
         /// </summary>
         public static string NPCMONSTERS_LOADED {

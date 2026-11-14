@@ -282,6 +282,9 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Ten gracz nie jest na Twojej czarnej liście!</value>
   </data>
+  <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
+    <value>Ten gracz nie jest na Twojej liście znajomych!</value>
+  </data>
   <data name="NO_DIGNITYLEVEL" xml:space="preserve">
     <value>Brak DignityLevel w bazie danych! Uruchom parser, inaczej ikony godności będą błędne.</value>
   </data>
