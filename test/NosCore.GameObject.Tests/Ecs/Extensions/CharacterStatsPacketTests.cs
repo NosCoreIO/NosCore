@@ -67,6 +67,27 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         }
 
         [TestMethod]
+        public void ADebuffedAttackOrDefenceShowsAsZeroRatherThanBelow()
+        {
+            _stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(default(CombatStats) with
+            {
+                MinHit = -1, MaxHit = 7, MinDistance = -4, MaxDistance = -2,
+                Defence = -18, DistanceDefence = -16, MagicDefence = -18, FireResistance = -5,
+            });
+
+            var sc = _session.Character.GenerateSc(_stats.Object);
+
+            Assert.AreEqual(0, sc.MinHit);
+            Assert.AreEqual(7, sc.MaxHit);
+            Assert.AreEqual(0, sc.SecondaryMinHit);
+            Assert.AreEqual(0, sc.SecondaryMaxHit);
+            Assert.AreEqual(0, sc.Defence);
+            Assert.AreEqual(0, sc.DistanceDefence);
+            Assert.AreEqual(0, sc.MagicalDefence);
+            Assert.AreEqual(-5, sc.FireResistance);
+        }
+
+        [TestMethod]
         [DataRow(CharacterClassType.Adventurer, AttackType.Melee, AttackType.Ranged)]
         [DataRow(CharacterClassType.Swordsman, AttackType.Melee, AttackType.Ranged)]
         [DataRow(CharacterClassType.Archer, AttackType.Ranged, AttackType.Melee)]

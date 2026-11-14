@@ -183,7 +183,8 @@ parser) after a change to how these are read.
 
 - [ ] Under Resurrection Side Effects (card 44, 2 per level) at level 30, the character window
       (`p`) shows attack and all three defences 60 lower than without it. A naked adventurer goes
-      from 59~67 attack and 42 / 44 / 42 defence to -1~7 and -18 / -16 / -18
+      from 59~67 attack and 42 / 44 / 42 defence to 0~7 and 0 / 0 / 0: the window never shows a
+      value below zero, while hits taken still grow by what the defence lost below it
 
 ### The equipped fairy's element — BCard type 96 subtypes 0 and 1
 
