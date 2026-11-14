@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShellOptionService;
@@ -20,7 +21,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     // Dropped on a weapon or armour, removes every shell option from it.
     [UsedImplicitly]
-    public sealed class MagicEraserHandler(IShellOptionService shellOptionService)
+    public sealed class MagicEraserHandler(IShellOptionService shellOptionService, IBattleStatsProvider battleStatsProvider)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -53,9 +54,14 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             await shellOptionService.ClearAsync(equipment.Id);
+            equipment.EquipmentOptions = null;
             equipment.ShellRarity = null;
             await character.UseUpOneAsync(evt.InventoryItem);
             await SendAsync(evt, Game18NConstString.AllOptionsRemoved);
+            if (targetType.ToNoscorePocketType() == NoscorePocketType.Wear)
+            {
+                await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
+            }
         }
 
         private static Task SendAsync(ItemUsedEvent evt, Game18NConstString message) =>

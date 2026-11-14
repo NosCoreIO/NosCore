@@ -7,12 +7,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Guri;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -259,11 +261,11 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
                 }));
 
         private Task DroppingTheShellWithMode_(short mode) =>
-            new ShellHandler(_bench.Service, _bench.Random.Object)
+            new ShellHandler(_bench.Service, _bench.Random.Object, new Mock<IBattleStatsProvider>().Object)
                 .Handle(new ItemUsedEvent(_session, _shell, Use(PocketType.Equipment, _shell.Slot, mode, _equipment)));
 
         private Task DroppingTheEraser() =>
-            new MagicEraserHandler(_bench.Service)
+            new MagicEraserHandler(_bench.Service, new Mock<IBattleStatsProvider>().Object)
                 .Handle(new ItemUsedEvent(_session, _consumable, Use(PocketType.Main, _consumable.Slot, 0, _equipment)));
 
         private UseItemPacket Use(PocketType type, short slot, short mode, InventoryItemInstance? target = null) => new()

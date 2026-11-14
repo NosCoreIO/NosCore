@@ -1641,6 +1641,11 @@ a Flamberge (`$CreateItem 299 5`), Rainbow Pearls (`$CreateItem 1429 20`) and a 
 - [ ] Double-click the Magic Eraser, then click the worn weapon: "All the options have been
       removed.", the eraser is used and the weapon's window no longer lists options
 - [ ] The eraser on a weapon without options: "There are no options on this item." and it stays
+- [ ] Note the attack in the Character window, then put a shell with "Enhanced damage" on the worn
+      weapon: the window's attack rises by that amount straight away, and falls back after the
+      Magic Eraser
+- [ ] An armour shell with a defence or resistance option raises that line in the Character window
+      the same way
 
 ---
 
