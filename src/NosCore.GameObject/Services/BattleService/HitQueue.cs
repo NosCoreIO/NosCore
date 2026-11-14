@@ -36,6 +36,7 @@ public sealed class HitQueue(
     IBuffService buffService,
     IRegenerationService regenerationService,
     IVitalityService vitalityService,
+    IOnHitBuffService onHitBuffService,
     ILogger<HitQueue> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IHitQueue, ISingletonService
 {
     // For entities that are on no map at all.
@@ -208,6 +209,8 @@ public sealed class HitQueue(
             {
                 await buffService.InflictCardsAsync(target, request.Origin, request.Skill.BCards);
             }
+
+            await onHitBuffService.TriggerAsync(request.Origin, target, killed);
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));
         }
