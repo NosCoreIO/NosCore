@@ -247,6 +247,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedMarketAsync(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
+            DatabaseReadiness.RecordGameDataImport(context);
         }
 
         private static async Task SeedMarketAsync(NosCoreContext context)

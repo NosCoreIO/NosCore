@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261114021543_ResyncRespawnIdentity";
+    public override string LastMigrationId => "20261114024804_AddGameDataImport";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1069,6 +1069,19 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasKey("ItemVNum");
 
                 b.ToTable("FamilyUpgrade");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.GameDataImport", b =>
+            {
+                b.Property<int>("GameDataImportId")
+                    .HasColumnType("integer");
+
+                b.Property<int>("Version")
+                    .HasColumnType("integer");
+
+                b.HasKey("GameDataImportId");
+
+                b.ToTable("GameDataImport");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.I18NActDesc", b =>

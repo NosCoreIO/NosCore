@@ -207,7 +207,9 @@ dotnet test NosCore.sln
 - **Migrations**: `dotnet ef migrations add <Name> --project src/NosCore.Database`. Never
   hand-write the Designer files.
 - **The parser** is interactive by default; pass `--folder <path>` for a non-interactive
-  run. It applies pending migrations on startup.
+  run. It applies pending migrations on startup. When a parser change has to be imported
+  again before the server can run on it, bump `DatabaseReadiness.GameDataVersion`: the world
+  server refuses an import older than that.
 - **`MSB3026` / `MSB3027`** means a running server or an open IDE is holding the DLL. The
   compile almost certainly succeeded — stop the process rather than hunting for a code
   error.

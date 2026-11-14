@@ -136,6 +136,8 @@ namespace NosCore.Database
 
         public virtual DbSet<ReputationLevel>? ReputationLevel { get; set; }
 
+        public virtual DbSet<GameDataImport>? GameDataImport { get; set; }
+
         public virtual DbSet<Respawn>? Respawn { get; set; }
 
         public virtual DbSet<RespawnMapType>? RespawnMapType { get; set; }
