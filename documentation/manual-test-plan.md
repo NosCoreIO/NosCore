@@ -2630,6 +2630,8 @@ A level 80 character has quests 2100 and 2101 done, and both 2102 (main line 210
 
 - [ ] After entering the game the quest window lists both "Attack on the Harbour" and "Dark Revenger"
 - [ ] Progress on one quest updates its own row and leaves the other one alone
+- [ ] With 2102 open, Harbour Guard Tom still hands out "Level 80 - Attack on the Harbour" (a main quest no
+  longer blocks other quests; only five open main or five open secondary quests do)
 
 ### Quests that only hand out their hand-in
 

@@ -291,9 +291,7 @@ namespace NosCore.GameObject.Services.QuestService
             var quest = questDto.Adapt<Quest>();
             quest.QuestObjectives = questObjectives.Where(s => s.QuestId == questId).ToList();
 
-            if (character.Quests.Where(s => s.Value.ObjectivesCompletedOn == null && s.Value.CompletedOn == null).Any(q => !q.Value.Quest.IsSecondary) ||
-                (character.Quests.Where(s => s.Value.ObjectivesCompletedOn == null && s.Value.CompletedOn == null).Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
-                    quest.QuestType != QuestType.WinRaid))
+            if (quest.QuestType != QuestType.WinRaid && !CharacterQuest.HasFreeSlot(character.Quests.Values, quest.IsSecondary))
             {
                 return false;
             }

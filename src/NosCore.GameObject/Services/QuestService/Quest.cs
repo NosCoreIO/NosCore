@@ -26,10 +26,20 @@ namespace NosCore.GameObject.Services.QuestService
         // Main quests take the first five quest window slots and secondary quests the last five.
         public static byte FreeSlot(IEnumerable<CharacterQuest> quests, bool secondary)
         {
-            var taken = quests.Where(q => q.CompletedOn == null).Select(q => q.Slot).ToHashSet();
-            var preferred = Enumerable.Range(secondary ? 5 : 0, 5);
-            return (byte)preferred.Concat(Enumerable.Range(0, 10)).FirstOrDefault(s => !taken.Contains((byte)s));
+            var taken = TakenSlots(quests);
+            return (byte)SlotRange(secondary).Concat(Enumerable.Range(0, 10)).FirstOrDefault(s => !taken.Contains((byte)s));
         }
+
+        public static bool HasFreeSlot(IEnumerable<CharacterQuest> quests, bool secondary)
+        {
+            var taken = TakenSlots(quests);
+            return SlotRange(secondary).Any(s => !taken.Contains((byte)s));
+        }
+
+        private static HashSet<byte> TakenSlots(IEnumerable<CharacterQuest> quests) =>
+            quests.Where(q => q.CompletedOn == null).Select(q => q.Slot).ToHashSet();
+
+        private static IEnumerable<int> SlotRange(bool secondary) => Enumerable.Range(secondary ? 5 : 0, 5);
 
         // A daily quest can be taken again once a day has passed, so it only counts as done until then.
         public bool IsDoneAt(NodaTime.Instant now) =>
