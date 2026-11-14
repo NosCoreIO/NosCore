@@ -14,32 +14,22 @@ Nothing here needs configuration: every default in `configuration/` points at `l
   process below.
 - A NosTale client installed, to play with.
 
-## 1. Build
+## 1. Start the stack
 
 From the root of the NosCore clone:
 
 ```bash
-dotnet build NosCore.sln
+dotnet run --project src/NosCore.DevHost
 ```
 
-Everything lands in `build/net11.0`. The servers find `configuration/` relative to that folder,
-so start them from there.
+This builds everything into `build/net11.0` and starts the master, login and world servers in
+one terminal, each line prefixed with the server it comes from. Ctrl+C stops all three, and the
+world server saves its characters on the way out.
 
-## 2. Start the servers
-
-Each in its own terminal, from `build/net11.0`, in any order:
-
-```bash
-dotnet NosCore.MasterServer.dll
-```
-
-```bash
-dotnet NosCore.LoginServer.dll
-```
-
-```bash
-dotnet NosCore.WorldServer.dll
-```
+To run them separately instead, for example to restart one or to attach a debugger, build with
+`dotnet build NosCore.sln` and start each from `build/net11.0`, in its own terminal and in any
+order: `dotnet NosCore.MasterServer.dll`, `dotnet NosCore.LoginServer.dll` and
+`dotnet NosCore.WorldServer.dll`. The servers find `configuration/` relative to that folder.
 
 The first time, the world server finds an empty database and fills it before it opens: it
 downloads the client's data files into `build/net11.0/client-data`, creates the `noscore`
@@ -72,7 +62,7 @@ The first import also creates two accounts, both with the password `test`:
 Stop the world server with Ctrl+C rather than killing it: it saves its characters on the way
 out.
 
-## 3. Add a packet capture
+## 2. Add a packet capture
 
 The client's files do not say where monsters, NPCs, portals, shops and teleporters are: those
 exist only in what a server sends. Without a capture the server runs, but its maps are empty,
@@ -97,7 +87,7 @@ Without `--folder` it downloads the client files as above. `--interactive` asks 
 and for each import in turn. The world server remembers the folder of the last import and uses
 it from then on.
 
-## 4. Connect a client
+## 3. Connect a client
 
 The client has the official login server's address built in, so it needs a copy that points
 at yours. The Client Creator in
@@ -123,7 +113,7 @@ need the PostgreSQL from above and report themselves as not run without it.
 - **A server keeps printing "Waiting for a world server to do it".** No world server has
   imported the game data yet. Start one, or run the parser.
 - **The maps have no monsters or NPCs.** There is no `packet.txt` in the folder of the last
-  import; see step 3.
+  import; see step 2.
 - **"Already connected" at login.** The world server still holds the account's last session.
   It lets go when that connection closes; restarting the world server always clears it.
 - **`MSB3026` or `MSB3027` during a build.** A running server holds the files being replaced.

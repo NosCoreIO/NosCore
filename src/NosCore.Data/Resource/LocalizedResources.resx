@@ -660,6 +660,12 @@
   <data name="DOWNLOADING_CLIENT_FILES" xml:space="preserve">
     <value>No folder given: downloading the client files into {Folder}</value>
   </data>
+  <data name="STOPPING_SERVERS" xml:space="preserve">
+    <value>Stopping the servers; the world server saves its characters first</value>
+  </data>
+  <data name="SERVER_PROCESS_EXITED" xml:space="preserve">
+    <value>The {Server} server stopped with exit code {ExitCode}</value>
+  </data>
   <data name="PACKET_CAPTURE_MISSING" xml:space="preserve">
     <value>{File} is missing: the maps get no monsters, NPCs, portals, shops or teleporters. Put a packet capture there and run the parser again to fill them.</value>
   </data>
