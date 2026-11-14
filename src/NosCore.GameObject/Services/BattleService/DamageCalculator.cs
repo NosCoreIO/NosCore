@@ -181,7 +181,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
     // A hit that lands always does some damage: anything under 5 becomes 1 to 5.
     private DamageResult Land(CombatStats attacker, CombatStats defender, AttackKind kind, int damage, bool isCritical)
     {
-        var totalDamage = RollChanceDamageTaken(defender, kind, RollChanceDamage(attacker, damage));
+        var totalDamage = RollChanceDamageTaken(defender, kind, RollChanceDamage(attacker, ApplyRaceDamage(attacker, defender, damage)));
         if (totalDamage < 5)
         {
             totalDamage = random.Next(1, 6);
@@ -190,6 +190,25 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         return new DamageResult(
             Math.Max(1, totalDamage),
             isCritical ? SuPacketHitMode.CriticalAttack : SuPacketHitMode.SuccessAttack);
+    }
+
+    private static int ApplyRaceDamage(CombatStats attacker, CombatStats defender, int damage)
+    {
+        if (attacker.RaceDamage == null || defender.Race is not { } race)
+        {
+            return damage;
+        }
+
+        var percent = 0;
+        foreach (var bonus in attacker.RaceDamage)
+        {
+            if (bonus.Matches(race, defender.RaceType))
+            {
+                percent += bonus.Percent;
+            }
+        }
+
+        return damage * (100 + percent) / 100;
     }
 
     private int RollChanceDamage(CombatStats attacker, int damage)

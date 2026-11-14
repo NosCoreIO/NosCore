@@ -11,6 +11,7 @@ using System.Linq;
 using NosCore.Algorithm.DamageService;
 using NosCore.Algorithm.SecondaryDamageService;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Shared.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -84,6 +85,7 @@ public sealed class BattleStatsProvider(
             WaterResistance = stats.WaterResistance + gear.WaterResistance,
             LightResistance = stats.LightResistance + gear.LightResistance,
             DarkResistance = stats.DarkResistance + gear.DarkResistance,
+            RaceDamage = gear.RaceDamage,
         };
 
     private CombatStats ResolveBaseStats(IAliveEntity entity) => entity switch
@@ -125,7 +127,9 @@ public sealed class BattleStatsProvider(
         FireResistance: mob.FireResistance,
         WaterResistance: mob.WaterResistance,
         LightResistance: mob.LightResistance,
-        DarkResistance: mob.DarkResistance);
+        DarkResistance: mob.DarkResistance,
+        Race: (MonsterRace)mob.Race,
+        RaceType: mob.RaceType);
 
     private static CombatStats FromMate(MateService.Mate mate, byte level, byte heroLevel) =>
         FromMonster(mate.NpcMonster, level, heroLevel) with

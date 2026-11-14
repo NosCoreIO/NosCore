@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Battle;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -207,6 +208,26 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .Calculate(attacker, magicGuard, MeleeSkill);
 
             Assert.AreEqual(full.Damage, melee.Damage);
+        }
+
+        [TestMethod]
+        public void ARaceBonusRaisesHitsOnThatRaceOnly()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                RaceDamage = new[] { new RaceDamage(MonsterRace.HighLevel, MonsterRaceType.Plant, 50) },
+            };
+            Func<CombatStats, int> hit = defender =>
+                new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
+                    .Calculate(attacker, defender, MeleeSkill).Damage;
+
+            var plant = StatsBuilder.Default() with { Race = MonsterRace.HighLevel, RaceType = (byte)MonsterRaceType.Plant };
+            var full = hit(StatsBuilder.Default());
+
+            Assert.AreEqual(full * 3 / 2, hit(plant));
+            Assert.AreEqual(full, hit(plant with { RaceType = (byte)MonsterRaceType.Animal }));
+            Assert.AreEqual(full, hit(plant with { Race = MonsterRace.LowLevel }));
         }
 
         [TestMethod]

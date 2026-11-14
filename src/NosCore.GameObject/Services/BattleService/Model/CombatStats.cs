@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.BattleService.Model;
@@ -75,7 +76,11 @@ public readonly record struct CombatStats(
     int WeaponMaxDistance = 0,
     bool IsPlayer = false,
     IReadOnlyList<ChanceDamage>? ChanceDamage = null,
-    IReadOnlyList<ChanceDamageTaken>? ChanceDamageTaken = null);
+    IReadOnlyList<ChanceDamageTaken>? ChanceDamageTaken = null,
+    // Set on monsters only, so that race bonuses never match a player.
+    MonsterRace? Race = null,
+    byte RaceType = 0,
+    IReadOnlyList<RaceDamage>? RaceDamage = null);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
 public readonly record struct ChanceDamage(int Chance, int Percent);
@@ -83,6 +88,13 @@ public readonly record struct ChanceDamage(int Chance, int Percent);
 // Type 11: each hit taken of the given kind, or of any kind when Kind is null, rolls Chance percent
 // to change its damage by Percent.
 public readonly record struct ChanceDamageTaken(int Chance, int Percent, AttackKind? Kind);
+
+// Percent added to hits on monsters of a race, or of one subtype of it when RaceType is set.
+public readonly record struct RaceDamage(MonsterRace Race, MonsterRaceType? RaceType, int Percent)
+{
+    public bool Matches(MonsterRace race, byte raceType) =>
+        Race == race && (RaceType == null || (byte)RaceType == raceType);
+}
 
 public enum AttackKind
 {
