@@ -6,7 +6,6 @@
 
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Visibility;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Ecs.Extensions;
 
@@ -23,27 +22,6 @@ public static class MonsterBundleExtensions
         monster.IsAlive = true;
     }
 
-    public static InPacket GenerateIn(this MonsterComponentBundle monster)
-    {
-        return new InPacket
-        {
-            VisualType = VisualType.Monster,
-            VisualId = monster.VisualId,
-            VNum = monster.VNum == 0 ? string.Empty : monster.VNum.ToString(),
-            PositionX = monster.PositionX,
-            PositionY = monster.PositionY,
-            Direction = monster.Direction,
-            InNonPlayerSubPacket = new InNonPlayerSubPacket
-            {
-                Dialog = 0,
-                InAliveSubPacket = new InAliveSubPacket
-                {
-                    Hp = monster.MaxHp > 0 ? (int)(monster.Hp / (float)monster.MaxHp * 100) : 100,
-                    Mp = monster.MaxMp > 0 ? (int)(monster.Mp / (float)monster.MaxMp * 100) : 100
-                },
-                SpawnEffect = SpawnEffectType.Summon,
-                IsSitting = monster.IsSitting,
-            }
-        };
-    }
+    public static InPacket GenerateIn(this MonsterComponentBundle monster) =>
+        monster.GenerateIn(SpawnEffectType.Summon);
 }
