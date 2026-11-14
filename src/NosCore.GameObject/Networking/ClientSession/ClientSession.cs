@@ -54,7 +54,12 @@ namespace NosCore.GameObject.Networking.ClientSession
         private PlayerSlot? _player;
         private int _changingMap;
 
+        private readonly TaskCompletionSource _disconnected = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
         public bool HasPlayerEntity => LivePlayer() != null;
+
+        // Completes once every disconnect step has run and the entity is gone.
+        public Task Disconnected => _disconnected.Task;
 
         public ref PlayerComponentBundle Character
         {
@@ -375,6 +380,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 }
 
                 packetLock?.Dispose();
+                _disconnected.TrySetResult();
                 _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
         }

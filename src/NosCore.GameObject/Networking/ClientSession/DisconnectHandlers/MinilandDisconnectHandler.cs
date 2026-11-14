@@ -4,16 +4,23 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 
-public class MinilandDisconnectHandler(IMinilandService minilandService, IMapInstanceGeneratorService mapInstanceGeneratorService) : ISessionDisconnectHandler
+public class MinilandDisconnectHandler(IMinilandService minilandService, IMapInstanceGeneratorService mapInstanceGeneratorService,
+    ISessionRegistry sessionRegistry) : ISessionDisconnectHandler
 {
-    public int Order => 100;
+    // Two players leaving each other's Miniland at once would otherwise wait on each other for good.
+    private static readonly TimeSpan VisitorWait = TimeSpan.FromSeconds(5);
+
+    // Last: removing the Miniland destroys the entity of whoever still stands in it, its owner included.
+    public int Order => 200;
 
     public async Task HandleDisconnectAsync(ClientSession session)
     {
@@ -23,9 +30,25 @@ public class MinilandDisconnectHandler(IMinilandService minilandService, IMapIns
         }
 
         var minilandId = await minilandService.DeleteMinilandAsync(session.Character.CharacterId);
-        if (minilandId != null)
+        if (minilandId is not { } mapInstanceId)
         {
-            await mapInstanceGeneratorService.RemoveMapAsync((Guid)minilandId);
+            return;
         }
+
+        // A visitor already on the way out is not moved by the removal, so its own steps, the save
+        // among them, have to finish before the map and the entity on it go.
+        var leaving = sessionRegistry.GetClientSessionsByMapInstance(mapInstanceId)
+            .Where(visitor => visitor != session && visitor.TryGetCharacter(out var character) && character.IsDisconnecting)
+            .Select(visitor => visitor.Disconnected)
+            .ToList();
+        try
+        {
+            await Task.WhenAll(leaving).WaitAsync(VisitorWait);
+        }
+        catch (TimeoutException)
+        {
+        }
+
+        await mapInstanceGeneratorService.RemoveMapAsync(mapInstanceId);
     }
 }
