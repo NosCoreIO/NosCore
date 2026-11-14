@@ -18,6 +18,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging.Handlers.Guri;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -96,6 +97,19 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             await UseOnAsync(pet);
 
             Assert.AreEqual(1, pet.Level);
+            Assert.AreEqual(1, Remaining());
+        }
+
+        [TestMethod]
+        public async Task ANameTagOpensTheNameWindowAndStaysUntilANameIsGivenAsync()
+        {
+            var pet = Owned(TestMates.Pet(_session.Character.CharacterId));
+            Holding(TeacherItemEffectType.PetNameTag);
+
+            await UseOnAsync(pet);
+
+            Assert.IsTrue(_session.LastPackets.OfType<GuriPacket>().Any(g => g.Type == GuriPacketType.TextInput
+                && g.Argument == PetNameHandler.TextInputArgument && g.EntityId == pet.MateTransportId));
             Assert.AreEqual(1, Remaining());
         }
 

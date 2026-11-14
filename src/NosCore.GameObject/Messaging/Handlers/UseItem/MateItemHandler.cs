@@ -59,6 +59,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     TeacherItemEffectType.PartnerLevelUp when mate.MateType == MateType.Partner => await LevelUpAsync(owner, mate),
                     TeacherItemEffectType.PetLevelDown when mate.MateType == MateType.Pet => await LevelDownAsync(owner, mate),
                     TeacherItemEffectType.PartnerLevelDown when mate.MateType == MateType.Partner => await LevelDownAsync(owner, mate),
+                    TeacherItemEffectType.PetNameTag when mate.MateType == MateType.Pet => await AskNameAsync(owner, mate),
                     TeacherItemEffectType.PetPickUpTraining when mate.MateType == MateType.Pet => await TeachPickUpAsync(owner, mate),
                     TeacherItemEffectType.MateSummoningBook => await MakeSummonableAsync(owner, mate),
                     TeacherItemEffectType.ReleasePet when mate.MateType == MateType.Pet => await ReleaseAsync(owner, mate),
@@ -110,6 +111,19 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 ? Game18NConstString.MateEatTentatively
                 : Game18NConstString.PartnerEatHesitantly));
             return true;
+        }
+
+        // The tag is used up once the client sends the name back.
+        private static async Task<bool> AskNameAsync(PlayerComponentBundle owner, MateModel mate)
+        {
+            await owner.SendPacketAsync(new GuriPacket
+            {
+                Type = GuriPacketType.TextInput,
+                Argument = Guri.PetNameHandler.TextInputArgument,
+                SecondArgument = 1,
+                EntityId = mate.MateTransportId
+            });
+            return false;
         }
 
         private static async Task<bool> TeachPickUpAsync(PlayerComponentBundle owner, MateModel mate)
