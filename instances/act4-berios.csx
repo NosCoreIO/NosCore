@@ -40,7 +40,7 @@ public class BeriosRaid : InstanceScript
             .StartingAt(17, 17)
             .WithRoom(141, out _entrance)
             .WithRoom(142, out _lair)
-            .WithReward(999, 1, 50)
+            .WithReward(999, 1, 50, randomRare: true)
             .Build();
     }
 

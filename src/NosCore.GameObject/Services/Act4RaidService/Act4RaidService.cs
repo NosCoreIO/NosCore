@@ -14,6 +14,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.FactionWarService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -44,6 +45,7 @@ namespace NosCore.GameObject.Services.Act4RaidService
         IMapChangeService mapChangeService,
         IItemGenerationService itemProvider,
         IClock clock,
+        IRandomProvider random,
         ILogger<Act4RaidService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IAct4RaidService, ISingletonService
     {
         public const int Reputation = 10000;
@@ -52,6 +54,8 @@ namespace NosCore.GameObject.Services.Act4RaidService
         private const int GateReach = 2;
         private static readonly Duration ReviveDelay = Duration.FromSeconds(20);
         private static readonly Duration UrgentFrom = Duration.FromMinutes(30);
+        private const int LowestRare = -2;
+        private const int HighestRare = 6;
 
         private readonly ConcurrentDictionary<(long FamilyId, FactionType Faction), ScriptedInstanceRun> _runs = new();
         private readonly ConcurrentDictionary<Act4RaidType, IInstanceScript> _scripts = new();
@@ -176,7 +180,8 @@ namespace NosCore.GameObject.Services.Act4RaidService
                 await character.SetReputationAsync(character.Reputation + Reputation);
                 foreach (var gift in definition.GiftItems)
                 {
-                    var item = itemProvider.Create(gift.VNum, gift.Amount, 0, 0, gift.Design);
+                    var rare = gift.RandomRare ? (sbyte)random.Next(LowestRare, HighestRare + 1) : (sbyte)0;
+                    var item = itemProvider.Create(gift.VNum, gift.Amount, rare, 0, gift.Design);
                     if (character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId))?.FirstOrDefault() is { } added)
                     {
                         await session.SendPacketAsync(added.GeneratePocketChange((PocketType)added.Type, added.Slot));
