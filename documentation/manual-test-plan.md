@@ -2227,6 +2227,20 @@ Krem. Stand next to one before each check.
       the flower, each collect advances the quest window and the last one completes the quest;
       opening the flower without finishing the bar does not count
 
+### Collect quest drops
+
+Collect quests name a monster, the item it drops and a chance per 10 000. Put a character on
+Chicken Farm Path with quest 1600 open (item 1152 from monster 2, chance 250) and a monster 2
+next to them.
+
+- [ ] Kill monster 2 often enough: item 1152 falls where it died
+- [ ] Another player cannot pick that item up; the quest holder can, and the quest window moves
+      to 1/1
+- [ ] Once the item is in the bag, monster 2 no longer drops it
+- [ ] A player without the quest never sees item 1152 drop
+- [ ] Quest 1532 asks for items monsters 27 and 33 already drop for everyone: they still drop at
+      their usual rate, not twice
+
 ### Rewards
 
 Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open
