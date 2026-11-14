@@ -250,6 +250,9 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       connects
 - [ ] Wear the Monkey Hat ("high chance of protection from Blackouts") and repeat: Blackout
       lands only now and then (about one hit in ten)
+- [ ] Wear the Antique Mask ("60% resistance to the effect: Flame Poison and lower") and let
+      Flame Poison be put on you repeatedly: it lands on about two attempts in five instead of
+      every one, and a weaker card of the same family is resisted the same way
 
 ### Costume attack and defence bonuses
 
@@ -324,7 +327,8 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 
 ### Recovery item bonuses
 
-- [ ] Wear amulet 4361 ("recovery items +40%") and, with at least 1400 HP and 1400 MP missing,
+- [ ] With no other recovery bonus active, wear amulet 4361 ("recovery items +40%") and, with at
+      least 1400 HP and 1400 MP missing,
       drink potion 1010 (1000 HP and MP): the bars rise by 1400 each instead of 1000
 - [ ] With the amulet on, a snack heals two fifths more HP and MP per tick
 - [ ] With the amulet on, a meal heals two fifths more HP and MP per tick, never above the usual

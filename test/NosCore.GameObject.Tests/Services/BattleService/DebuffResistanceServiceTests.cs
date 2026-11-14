@@ -102,6 +102,27 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void AResistanceToANamedEffectCoversWeakerCardsOfItsFamily()
+        {
+            World.Freeze<Mock<ICardCatalog>>().Setup(c => c.GetCard(DeadlyBlackout.CardId)).Returns(DeadlyBlackout);
+            Wearing(Card(BCardEffect.SpecialisationBuffResistanceResistanceToEffect, 20, DeadlyBlackout.CardId));
+
+            Assert.AreEqual(-20, Modifier(Blackout));
+            Assert.AreEqual(-20, Modifier(DeadlyBlackout));
+            Assert.AreEqual(0, Modifier(Freeze));
+        }
+
+        [TestMethod]
+        public void AResistanceToANamedEffectDoesNotCoverStrongerCards()
+        {
+            World.Freeze<Mock<ICardCatalog>>().Setup(c => c.GetCard(Blackout.CardId)).Returns(Blackout);
+            Wearing(Card(BCardEffect.SpecialisationBuffResistanceResistanceToEffect, 20, Blackout.CardId));
+
+            Assert.AreEqual(-20, Modifier(Blackout));
+            Assert.AreEqual(0, Modifier(DeadlyBlackout));
+        }
+
+        [TestMethod]
         public void AnActiveBuffAddsItsResistance()
         {
             var buff = new BuffInstance(4222, BuffType.Good, null, Instant.MinValue, Instant.MaxValue,
