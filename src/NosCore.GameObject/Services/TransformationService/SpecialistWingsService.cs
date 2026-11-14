@@ -27,7 +27,7 @@ public sealed class SpecialistWingsService(IBuffService buffService, ICardCatalo
             await buffService.RemoveAsync(character, stale);
         }
 
-        if (wanted != null && buffs.All(b => b.CardId != wanted.CardId))
+        if (wanted != null && character.UseSp && buffs.All(b => b.CardId != wanted.CardId))
         {
             await buffService.ApplyPermanentAsync(character, wanted, cardCatalog.GetCardBCards(wanted.CardId));
         }

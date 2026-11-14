@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Services.BroadcastService;
@@ -19,9 +18,15 @@ namespace NosCore.GameObject.Messaging.ScheduledJobs
         [UsedImplicitly]
         public async Task Handle(DrainSpecialistPointsMessage _)
         {
-            foreach (var session in sessionRegistry.GetSessions(s => s.HasSelectedCharacter && s.Character.UseSp).ToList())
+            foreach (var session in sessionRegistry.GetSessions())
             {
-                await specialistTransformationService.DrainPointsAsync(session);
+                using (await session.AcquirePacketLockAsync())
+                {
+                    if (session.HasPlayerEntity)
+                    {
+                        await specialistTransformationService.DrainPointsAsync(session);
+                    }
+                }
             }
         }
     }

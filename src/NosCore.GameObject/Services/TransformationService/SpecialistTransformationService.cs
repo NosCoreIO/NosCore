@@ -139,7 +139,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
     {
         var character = session.Character;
         var now = clock.GetCurrentInstant();
-        if (!character.UseSp || now - character.LastAttack > CombatWindow
+        if (!character.UseSp || character.IsVehicled || now - character.LastAttack > CombatWindow
             || character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
                 is not SpecialistInstance { Item.SpType: > 0 } specialist)
         {
@@ -150,7 +150,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
         var fromBasic = Math.Min(cost, character.SpPoint);
         character.SpPoint -= fromBasic;
         character.SpAdditionPoint = Math.Max(0, character.SpAdditionPoint - (cost - fromBasic));
-        if (character.SpPoint == 0 && character.SpAdditionPoint == 0 && !character.IsVehicled)
+        if (character.SpPoint == 0 && character.SpAdditionPoint == 0)
         {
             character.LastSp = now;
             await transformationService.RemoveSpAsync(session);

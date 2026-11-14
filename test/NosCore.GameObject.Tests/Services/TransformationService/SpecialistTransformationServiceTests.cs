@@ -170,6 +170,21 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task PointsAreKeptWhileRiding()
+        {
+            await new Spec("Points are kept while riding a mount")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardCostsThreePointsASecond)
+                .And(CharacterHas_SpPointsAnd_AdditionalPoints, 10, 0)
+                .And(CharacterAttackedJustNow)
+                .And(CharacterIsInVehicle)
+                .WhenAsync(ASecondPasses)
+                .Then(CharacterShouldHave_SpPointsAnd_AdditionalPoints, 10, 0)
+                .ExecuteAsync();
+        }
+
         private void TheCardCostsThreePointsASecond()
         {
             WornCard().Item.SpType = 3;

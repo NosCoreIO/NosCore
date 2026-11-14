@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private static readonly ILogger<NosCore.GameObject.Services.TransformationService.TransformationService> Logger = new Mock<ILogger<NosCore.GameObject.Services.TransformationService.TransformationService>>().Object;
         private ITransformationService Service;
         private NosCore.GameObject.Services.BattleService.BuffService Buffs;
+        private Mock<ISpecialistWingsService> Wings = new();
         private ClientSession Session;
         private const short BoostCardId = 336;
         private const short MountWithABuff = 13752;
@@ -60,7 +61,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
                 Buffs,
                 cards.Object,
-                new Mock<ISpecialistWingsService>().Object);
+                Wings.Object);
         }
 
         [TestMethod]
@@ -71,6 +72,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .WhenAsync(RemovingSp)
                 .Then(MorphShouldBeReset)
                 .And(SpCooldownShouldBeSet)
+                .And(TheWingsShouldBeRefreshed)
                 .ExecuteAsync();
         }
 
@@ -268,6 +270,11 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private void VehicleSpeedShouldBeZero()
         {
             Assert.AreEqual((byte)0, Session.Character.VehicleSpeed);
+        }
+
+        private void TheWingsShouldBeRefreshed()
+        {
+            Wings.Verify(w => w.RefreshAsync(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>()), Times.Once);
         }
     }
 }
