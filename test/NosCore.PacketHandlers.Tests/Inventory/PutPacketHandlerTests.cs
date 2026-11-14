@@ -93,6 +93,21 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task DroppingWhileAPrivateShopIsOpenShouldFail()
+        {
+            await new Spec("Dropping while a private shop is open should fail")
+                .Given(CharacterHasDroppableItem)
+                .And(CharacterHasAPrivateShopOpen)
+                .WhenAsync(DroppingOneItem)
+                .Then(ShouldReceiveCantDropMessage)
+                .And(InventoryShouldNotBeEmpty)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasAPrivateShopOpen() =>
+            Session.Character.Shop = new NosCore.GameObject.Services.ShopService.Shop();
+
         private void CharacterHasStackOf_Items(int value)
         {
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(Item.Create(1012, 999), 0));
