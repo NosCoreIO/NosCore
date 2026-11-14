@@ -11,6 +11,7 @@ using NosCore.Algorithm.MateExperienceService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MateService;
 using NosCore.Packets.ServerPackets.Mates;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.MateService
@@ -107,6 +108,19 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             Assert.AreEqual(5, _session.LastPackets.OfType<ScpPacket>().Last().Experience);
             Assert.AreEqual(pet.MateTransportId, _session.LastPackets.OfType<ScpPacket>().Last().TransportId);
+        }
+
+        [TestMethod]
+        public async Task ALevelUpRefillsThePartyBar()
+        {
+            var pet = AddPet();
+            pet.Hp = 1;
+
+            await _service.AddExperienceAsync(_session.Character, _curve.GetPetExperience(10));
+
+            var bar = _session.LastPackets.OfType<PstPacket>().Last();
+            Assert.AreEqual(pet.MateTransportId, bar.VisualId);
+            Assert.AreEqual(100, bar.HpLeft);
         }
     }
 }
