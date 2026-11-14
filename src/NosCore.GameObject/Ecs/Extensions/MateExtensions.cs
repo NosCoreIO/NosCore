@@ -20,6 +20,7 @@ using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Networking;
 using NosCore.Shared.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -213,6 +214,26 @@ namespace NosCore.GameObject.Ecs.Extensions
             entity.Hp = mate.Hp;
             entity.Mp = mate.Mp;
             return entity;
+        }
+
+        // A level lost keeps what the mate had, cut down to what the lower level holds.
+        public static void FitToLevel(this Mate mate)
+        {
+            mate.Experience = Math.Min(mate.Experience, Math.Max(mate.XpLoad - 1, 0));
+            mate.Hp = Math.Min(mate.Hp, mate.MaxHp);
+            mate.Mp = Math.Min(mate.Mp, mate.MaxMp);
+            if (mate.Entity is not { } entity)
+            {
+                return;
+            }
+
+            entity.Level = mate.Level;
+            entity.MaxHp = mate.MaxHp;
+            entity.MaxMp = mate.MaxMp;
+            entity.Hp = Math.Min(entity.Hp, mate.MaxHp);
+            entity.Mp = Math.Min(entity.Mp, mate.MaxMp);
+            mate.Hp = entity.Hp;
+            mate.Mp = entity.Mp;
         }
 
         public static Task SpawnAsync(this Mate mate, PlayerComponentBundle owner, MapInstance mapInstance,

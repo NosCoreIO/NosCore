@@ -73,6 +73,58 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task StrangeFoodLowersAPetByOneLevelAsync()
+        {
+            var pet = Owned(TestMates.Pet(_session.Character.CharacterId, level: 25));
+            pet.Experience = long.MaxValue;
+            Holding(TeacherItemEffectType.PetLevelDown);
+
+            await UseOnAsync(pet);
+
+            Assert.AreEqual(24, pet.Level);
+            Assert.IsTrue(pet.Experience < pet.XpLoad, "the experience must fit the lower level");
+            Assert.AreEqual(0, Remaining());
+            Assert.AreEqual(Game18NConstString.MateEatTentatively, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task StrangeFoodIsRefusedForALevelOnePetAsync()
+        {
+            var pet = Owned(TestMates.Pet(_session.Character.CharacterId, level: 1));
+            Holding(TeacherItemEffectType.PetLevelDown);
+
+            await UseOnAsync(pet);
+
+            Assert.AreEqual(1, pet.Level);
+            Assert.AreEqual(1, Remaining());
+        }
+
+        [TestMethod]
+        public async Task StrangePetFoodIsRefusedForAPartnerAsync()
+        {
+            var partner = Owned(TestMates.Partner(_session.Character.CharacterId, level: 10));
+            Holding(TeacherItemEffectType.PetLevelDown);
+
+            await UseOnAsync(partner);
+
+            Assert.AreEqual(10, partner.Level);
+            Assert.AreEqual(1, Remaining());
+        }
+
+        [TestMethod]
+        public async Task StrangePartnerFoodLowersAPartnerByOneLevelAsync()
+        {
+            var partner = Owned(TestMates.Partner(_session.Character.CharacterId, level: 10));
+            Holding(TeacherItemEffectType.PartnerLevelDown);
+
+            await UseOnAsync(partner);
+
+            Assert.AreEqual(9, partner.Level);
+            Assert.AreEqual(0, Remaining());
+            Assert.AreEqual(Game18NConstString.PartnerEatHesitantly, LastMessage());
+        }
+
+        [TestMethod]
         public async Task FoodIsRefusedForAPetTooCloseToItsOwnerAsync()
         {
             var pet = Owned(TestMates.Pet(_session.Character.CharacterId, level: 26));

@@ -57,6 +57,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 {
                     TeacherItemEffectType.PetLevelUp when mate.MateType == MateType.Pet => await LevelUpAsync(owner, mate),
                     TeacherItemEffectType.PartnerLevelUp when mate.MateType == MateType.Partner => await LevelUpAsync(owner, mate),
+                    TeacherItemEffectType.PetLevelDown when mate.MateType == MateType.Pet => await LevelDownAsync(owner, mate),
+                    TeacherItemEffectType.PartnerLevelDown when mate.MateType == MateType.Partner => await LevelDownAsync(owner, mate),
                     TeacherItemEffectType.PetPickUpTraining when mate.MateType == MateType.Pet => await TeachPickUpAsync(owner, mate),
                     TeacherItemEffectType.MateSummoningBook => await MakeSummonableAsync(owner, mate),
                     TeacherItemEffectType.ReleasePet when mate.MateType == MateType.Pet => await ReleaseAsync(owner, mate),
@@ -90,6 +92,23 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             await RefreshAsync(owner, mate);
+            return true;
+        }
+
+        private async Task<bool> LevelDownAsync(PlayerComponentBundle owner, MateModel mate)
+        {
+            if (mate.Level <= 1)
+            {
+                return false;
+            }
+
+            mate.Level--;
+            mateStatsService.ApplyLevel(mate);
+            mate.FitToLevel();
+            await RefreshAsync(owner, mate);
+            await owner.SendPacketAsync(Message(mate.MateType == MateType.Pet
+                ? Game18NConstString.MateEatTentatively
+                : Game18NConstString.PartnerEatHesitantly));
             return true;
         }
 

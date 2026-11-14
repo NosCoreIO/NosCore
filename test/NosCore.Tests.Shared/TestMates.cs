@@ -20,8 +20,8 @@ namespace NosCore.Tests.Shared
         public static Mate Pet(long characterId, bool isTeamMember = true, byte level = 1, short vnum = 333) =>
             Create(characterId, MateType.Pet, isTeamMember, level, vnum, "Chicken");
 
-        public static Mate Partner(long characterId, bool isTeamMember = true) =>
-            Create(characterId, MateType.Partner, isTeamMember, 1, 317, "Partner");
+        public static Mate Partner(long characterId, bool isTeamMember = true, byte level = 1) =>
+            Create(characterId, MateType.Partner, isTeamMember, level, 317, "Partner");
 
         private static Mate Create(long characterId, MateType type, bool isTeamMember, byte level, short vnum,
             string name)
