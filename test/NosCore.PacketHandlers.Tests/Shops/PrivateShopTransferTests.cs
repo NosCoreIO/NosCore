@@ -121,6 +121,20 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         [TestMethod]
+        public async Task ABuyerOfLowDignityPaysWhatTheOwnerReceives()
+        {
+            await new Spec("A buyer of low dignity pays what the owner receives")
+                .GivenAsync(TheOwnerOpensTheShop)
+                .And(TheBuyerHasADignityOf_, (short)-300)
+                .WhenAsync(TheBuyerBuys_FromShopSlot_, (short)3, (short)1)
+                .Then(TheBuyerShouldHave_Gold, 9_700L)
+                .And(TheOwnerShouldHave_Gold, 300L)
+                .ExecuteAsync();
+        }
+
+        private void TheBuyerHasADignityOf_(short dignity) => _buyer.Character.Dignity = dignity;
+
+        [TestMethod]
         public async Task BuyingEquipmentKeepsItsOptions()
         {
             await new Spec("Buying equipment keeps its options")

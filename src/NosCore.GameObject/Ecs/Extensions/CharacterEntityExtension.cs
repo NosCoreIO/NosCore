@@ -538,7 +538,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
             var reputprice = itemReputPrice * amount;
 
-            var percent = dignityService.GetShopPriceMultiplier(characterEntity.DignityIcon);
+            var percent = shop.OwnerCharacter == null ? dignityService.GetShopPriceMultiplier(characterEntity.DignityIcon) : 1;
             if (amount > item.Amount)
             {
                 return;
@@ -571,8 +571,13 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
-            var inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                itemProvider.Create(item.ItemInstance.ItemVNum, amount), characterEntity.CharacterId));
+            var bought = item.ItemInstance.Item.Type is NoscorePocketType.Main or NoscorePocketType.Etc
+                ? [itemProvider.Create(item.ItemInstance.ItemVNum, amount)]
+                : Enumerable.Range(0, amount).Select(_ => itemProvider.Create(item.ItemInstance.ItemVNum, 1)).ToList();
+            var inv = characterEntity.InventoryService.HasRoomFor(bought)
+                ? bought.SelectMany(it => characterEntity.InventoryService.AddItemToPocket(
+                    InventoryItemInstance.Create(it, characterEntity.CharacterId)) ?? []).ToList()
+                : null;
 
             if (inv?.Count > 0)
             {
