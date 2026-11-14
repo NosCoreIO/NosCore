@@ -514,6 +514,9 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Kill a Spider Egg (1921): a Strong Magmaros (1918) appears where it died. A Soft Pii Pod
       (45) summons two Soft Piis (36) the same way. Monsters with a "chance of summoning upon
       death" card, such as the Lava Pit (2014), summon only that often
+- [ ] Stand next to a Tired Chief Miner (111) until it uses its skill (407): two Happy Miners
+      (105) and a Weak Expy Miner (108) appear on its cell. Between skills its hits are plain
+      basic attacks, not that skill
 
 ---
 

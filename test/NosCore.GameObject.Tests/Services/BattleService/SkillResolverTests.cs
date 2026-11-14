@@ -51,6 +51,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             (await (await TestWorld.CreateAsync()).CreateSessionAsync()).Character;
 
         [TestMethod]
+        public void AMonstersBasicAttackIsNotItsSkillThatSharesCastIdZero()
+        {
+            var skills = new Dictionary<short, SkillDto>(_skills) { [300] = new SkillDto { SkillVNum = 300, CastId = 0, Cooldown = 400, SkillType = 1 } };
+            var catalog = new NpcCombatCatalog(new() { new NpcMonsterSkillDto { NpcMonsterVNum = 111, SkillVNum = 300, Rate = 100 } }, new(), new());
+            var monster = new Mock<INonPlayableEntity>();
+            monster.Setup(m => m.NpcMonster).Returns(new NpcMonsterDto { NpcMonsterVNum = 111, BasicCooldown = 20 });
+            var resolver = new SkillResolver(skills, catalog);
+
+            Assert.AreEqual((short?)300, resolver.Resolve(monster.Object, 0)?.SkillVnum);
+            Assert.AreEqual((short?)0, resolver.ResolveBasic(monster.Object)?.SkillVnum);
+        }
+
+        [TestMethod]
         public void UnknownCasterReturnsNull()
         {
             var resolver = new SkillResolver(_skills, _catalog);
