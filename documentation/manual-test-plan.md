@@ -540,6 +540,8 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] Mount a vehicle: a three-second bar runs, then the sprite changes **and** you move faster
 - [ ] Dismount: the speed returns to the class value
 - [ ] Speed survives a map change while mounted
+- [ ] With a second player watching, ride out of the map and come back: the watcher sees you on
+      the mount, not on foot; the same when the watcher enters a map where you already ride
 - [ ] Walk, cast a skill, or take a hit during the mounting bar: you don't mount
 - [ ] Start the mounting bar and transform into your specialist straight after: the specialist
       bar doesn't finish off the mount, and the other way round

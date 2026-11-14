@@ -370,7 +370,7 @@ public static class PlayerBundleExtensions
                 FairyBooster = false,
                 FairyMorph = (byte)(fairy?.Item.Morph ?? 0),
                 ShowInEffect = false,
-                Morph = player.UseSp && !player.IsVehicled ? (byte)player.Morph : (byte)0,
+                Morph = player.ShownMorph(),
                 WeaponUpgradeRareSubPacket = player.GetWeaponUpgradeRareSubPacket(),
                 ArmorUpgradeRareSubPacket = player.GetArmorUpgradeRareSubPacket(),
                 FamilySubPacket = new FamilySubPacket(),
@@ -583,13 +583,17 @@ public static class PlayerBundleExtensions
             Class = player.Class,
             Icon = GetIcon(player),
             Compliment = (short)(player.Authority == AuthorityType.Moderator ? 500 : player.Compliment),
-            Morph = 0,
+            Morph = player.ShownMorph(),
             Invisible = false,
             FamilyLevel = 0,
-            MorphUpgrade = 0,
+            MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
             ArenaWinner = false
         };
     }
+
+    // A mount replaces the sprite just as a specialist card does.
+    public static short ShownMorph(this PlayerComponentBundle player) =>
+        player.UseSp || player.IsVehicled ? player.Morph : (short)0;
 
     // The icon slot carries one of the two ladders: the reputation icon while dignity is
     // untouched, and the negated dignity icon once it drops into a penalty band.

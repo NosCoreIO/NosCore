@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
 
             var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
 
-            Assert.AreEqual((byte)3, sub.Morph);
+            Assert.AreEqual((short)3, sub.Morph);
             Assert.AreEqual((byte)7, sub.MorphUpgrade);
             Assert.AreEqual((byte)2, sub.MorphUpgrade2);
         }
@@ -53,9 +53,22 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
 
             var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
 
-            Assert.AreEqual((byte)0, sub.Morph);
+            Assert.AreEqual((short)0, sub.Morph);
             Assert.AreEqual((byte)0, sub.MorphUpgrade);
             Assert.AreEqual((byte)0, sub.MorphUpgrade2);
+        }
+
+        [TestMethod]
+        public void ARiderShowsTheMountToNewcomersAndInTheirOwnMapEntry()
+        {
+            _session.Character.IsVehicled = true;
+            _session.Character.Morph = 2369;
+
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
+            var cInfo = _session.Character.GenerateCInfo(World.GameLanguageLocalizer);
+
+            Assert.AreEqual((short)2369, sub.Morph);
+            Assert.AreEqual((short)2369, cInfo.Morph);
         }
 
         [TestMethod]

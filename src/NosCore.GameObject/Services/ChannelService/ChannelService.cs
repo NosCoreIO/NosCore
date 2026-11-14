@@ -7,6 +7,7 @@
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Services.ChannelService
 
             await clientSession.SendPacketAsync(new ItPacket
             {
-                Mode = 1
+                Mode = ItModeType.ShipToAct4
             });
 
             await authHttpClient.SetAwaitingChannelChangeAsync(clientSession.Account.Name, server.Id, clientSession.MfaValidated);
