@@ -2538,6 +2538,14 @@ Quest".
 - [ ] After a relog the list still treats 6818 and 6819 as done
 - [ ] A daily quest done more than a day ago is offered again after a relog
 
+### Time-space and raid wins
+
+Give a character quest 1509 (win time-space 1) and walk into time-space 1's stone.
+
+- [ ] Finishing the time-space with a success completes 1509 with "Quest complete" and its reward
+- [ ] Leaving or failing the time-space keeps 1509 open
+- [ ] With quest 6160 open, winning the Mother Cuby raid completes it for every member still in the raid
+
 ### Rewards
 
 Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open

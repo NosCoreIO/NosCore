@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -12,11 +13,14 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
-    public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService)
+    public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
+        IMessageBus messageBus)
         : IInstanceRunHost
     {
         public ScriptedInstance Entrance => entrance;
@@ -27,9 +31,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
 
-        public Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
+        public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
         {
-            return run.BroadcastAsync(new ScorePacket
+            await run.BroadcastAsync(new ScorePacket
             {
                 EndState = state,
                 MonsterKilled = (short)run.MonstersKilled,
@@ -37,6 +41,16 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 IsAllMonstersKilled = run.MonstersKilled >= run.MonstersSummoned,
                 IsNoNpcDead = true
             });
+
+            if (state != EndStateType.Success || entrance.Definition is not { } definition)
+            {
+                return;
+            }
+
+            foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
+            {
+                await messageBus.PublishAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
+            }
         }
 
         public Task ReturnAsync(ClientSession session) =>
