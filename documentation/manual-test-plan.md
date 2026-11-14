@@ -288,6 +288,11 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       8 s instead of 10 s
 - [ ] Wear amulet 4291 ("mana cost -30%"): a skill that costs 100 MP takes 70 MP off the bar
 
+### Maximum HP and MP buffs
+
+- [ ] Drink buff potion 1248 (max HP and MP +10%): the HP and MP bars' maximums rise by a tenth at
+      once, and fall back when the buff ends
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,

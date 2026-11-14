@@ -46,7 +46,7 @@ public sealed class VitalityService(
         foreach (var card in cards)
         {
             var type = (BCardType.CardType)card.Type;
-            if (type != BCardType.CardType.Quest && type != BCardType.CardType.MaxHpmp)
+            if (type != BCardType.CardType.Quest && type != BCardType.CardType.MaxHpmp && type != BCardType.CardType.Recovery)
             {
                 continue;
             }
@@ -71,6 +71,10 @@ public sealed class VitalityService(
                 case BCardEffect.MaxHpmpDecreasesMaximumHp: hpPercent -= value; break;
                 case BCardEffect.MaxHpmpIncreasesMaximumMp: mpPercent += value; break;
                 case BCardEffect.MaxHpmpDecreasesMaximumMp: mpPercent -= value; break;
+                case BCardEffect.RecoveryMaxHpIncreased: hpPercent += value; break;
+                case BCardEffect.RecoveryMaxHpDecreased: hpPercent -= value; break;
+                case BCardEffect.RecoveryMaxMpIncreased: mpPercent += value; break;
+                case BCardEffect.RecoveryMaxMpDecreased: mpPercent -= value; break;
 
                 // Subtype 51 moves both maxima together.
                 case BCardEffect.MaxHpmpMaximumHpmpIncreased: hp += value; mp += value; break;

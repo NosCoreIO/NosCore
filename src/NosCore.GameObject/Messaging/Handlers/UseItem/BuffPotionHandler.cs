@@ -15,7 +15,7 @@ using NosCore.Packets.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class BuffPotionHandler(IBuffService buffService, ICardCatalog cardCatalog)
+    public sealed class BuffPotionHandler(IBuffService buffService, ICardCatalog cardCatalog, IVitalityService vitalityService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             await character.UseUpOneAsync(evt.InventoryItem);
             await buffService.InflictCardsAsync(character, character, cardCatalog.GetItemBCards(item.VNum));
+            await vitalityService.RefreshAndNotifyAsync(character);
         }
     }
 }
