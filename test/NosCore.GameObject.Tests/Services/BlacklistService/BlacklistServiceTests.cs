@@ -64,13 +64,33 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
         }
 
         [TestMethod]
-        public async Task BlacklistingDisconnectedPlayerShouldThrow()
+        public async Task BlacklistingAnOfflinePlayerShouldSucceed()
         {
-            await new Spec("Blacklisting disconnected player should throw")
-                .Given(TargetIsOffline)
-                .WhenAsync(BlacklistingTarget).Catch(out var exception)
-                .Then(ShouldThrowArgumentException_, exception)
+            await new Spec("Blacklisting an offline player should succeed")
+                .GivenAsync(BothPlayersAreOnline)
+                .And(TargetIsOffline)
+                .WhenAsync(BlacklistingTarget)
+                .ThenAsync(BlacklistRelationShouldExist)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BlacklistingACharacterThatDoesNotExistStoresNothing()
+        {
+            await new Spec("Blacklisting a character that does not exist stores nothing")
+                .GivenAsync(BothPlayersAreOnline)
+                .WhenAsync(BlacklistingCharacter_, 999_999L)
+                .Then(NoRelationShouldBeStored)
+                .ExecuteAsync();
+        }
+
+        private async Task BlacklistingCharacter_(long characterId) =>
+            BlacklistResult = await Service.BlacklistPlayerAsync(CharacterId, characterId);
+
+        private void NoRelationShouldBeStored()
+        {
+            Assert.AreEqual(LanguageKey.USER_NOT_CONNECTED, BlacklistResult);
+            Assert.IsFalse(World.CharacterRelationDao.Where(r => r.CharacterId == CharacterId)?.Any() ?? false);
         }
 
         [TestMethod]
@@ -232,11 +252,6 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
         private async Task BlacklistingTarget()
         {
             BlacklistResult = await Service.BlacklistPlayerAsync(CharacterId, TargetCharacterId);
-        }
-
-        private void ShouldThrowArgumentException_(Lazy<Exception> exception)
-        {
-            Assert.IsInstanceOfType(exception.Value, typeof(ArgumentException));
         }
 
         private async Task GettingBlacklistedList()
