@@ -193,17 +193,15 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
 
     private static int ApplyRaceDamage(CombatStats attacker, CombatStats defender, int damage)
     {
-        if (attacker.RaceDamage == null || defender.Race is not { } race)
+        var percent = defender.IsMapBoss ? attacker.MapBossDamagePercent : 0;
+        if (attacker.RaceDamage != null && defender.Race is { } race)
         {
-            return damage;
-        }
-
-        var percent = 0;
-        foreach (var bonus in attacker.RaceDamage)
-        {
-            if (bonus.Matches(race, defender.RaceType))
+            foreach (var bonus in attacker.RaceDamage)
             {
-                percent += bonus.Percent;
+                if (bonus.Matches(race, defender.RaceType))
+                {
+                    percent += bonus.Percent;
+                }
             }
         }
 

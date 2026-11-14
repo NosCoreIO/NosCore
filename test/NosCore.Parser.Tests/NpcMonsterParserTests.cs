@@ -12,6 +12,7 @@ using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -134,6 +135,19 @@ namespace NosCore.Parser.Tests
             var monster = _savedMonsters.Single();
             Assert.AreEqual(5, monster.AttackUpgrade);
             Assert.AreEqual(3, monster.DefenceUpgrade);
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_EtcBit30MarksAMapBoss()
+        {
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"),
+                BuildMonster(284, "zts284e", 55, etc: 1073744960) + BuildMonster(27, "zts27e", 14, etc: 1028));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            Assert.AreEqual(MonsterType.Boss, _savedMonsters.Single(m => m.NpcMonsterVNum == 284).MonsterType);
+            Assert.AreEqual(MonsterType.Unknown, _savedMonsters.Single(m => m.NpcMonsterVNum == 27).MonsterType);
         }
 
         [TestMethod]
