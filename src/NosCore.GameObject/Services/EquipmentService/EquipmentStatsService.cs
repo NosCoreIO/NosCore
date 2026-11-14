@@ -151,6 +151,8 @@ public sealed class EquipmentStatsService(
                 {
                     MpConsumptionDecrease = stats.MpConsumptionDecrease
                         + options.Where(o => o.Type == (byte)WeaponShellOptionType.ReducedMpConsumption).Sum(o => o.Value),
+                    MapBossDamagePercent = stats.MapBossDamagePercent
+                        + options.Where(o => o.Type == (byte)WeaponShellOptionType.IncreasedDamageToMapBosses).Sum(o => o.Value),
                     PvpShell = AddPvpShell(stats.PvpShell, options),
                 };
             }

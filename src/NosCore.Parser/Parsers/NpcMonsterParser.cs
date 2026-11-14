@@ -216,7 +216,7 @@ namespace NosCore.Parser.Parsers
                     source: "VNUM[2] + ITEM[2..61] + merged DropDao catalog", description: "20 group drops, vnum/chance/amount triples, merged with the per-monster drop DAO")
                 .Field(x => x.MonsterType, chunk => ImportMonsterType(chunk),
                     reads: new[] { ("VNUM", 0, 2), ("ETC", 0, 2), ("RACE", 0, 2), ("RACE", 0, 3) },
-                    source: "VNUM[2] + ETC[2] + RACE[2,3]", description: "Categorisation (Mate/Normal/Trap/Unknown)")
+                    source: "VNUM[2] + ETC[2] + RACE[2,3]", description: "Categorisation (Boss when ETC bit 30 is set, Elite, Special or Unknown)")
                 .Field(x => x.NoAggresiveIcon, chunk =>
                 {
                     var unknowndata = LoadUnknownData(chunk);
@@ -425,10 +425,18 @@ namespace NosCore.Parser.Parsers
             return drops;
         }
 
+        // Set on the map and event bosses (Ginseng, Chicken King, Lord Morcos...) and on no ordinary monster.
+        private const long MapBossFlag = 0x40000000;
+
         private MonsterType ImportMonsterType(Dictionary<string, string[][]> chunk)
         {
             var monstervnum = Convert.ToInt16(chunk["VNUM"][0][2]);
             var unknownData = LoadUnknownData(chunk);
+            if ((unknownData & MapBossFlag) != 0)
+            {
+                return MonsterType.Boss;
+            }
+
             if (monstervnum >= 588 && monstervnum <= 607)
             {
                 return MonsterType.Elite;

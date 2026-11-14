@@ -86,6 +86,7 @@ public sealed class BattleStatsProvider(
             LightResistance = stats.LightResistance + gear.LightResistance,
             DarkResistance = stats.DarkResistance + gear.DarkResistance,
             RaceDamage = gear.RaceDamage,
+            MapBossDamagePercent = gear.MapBossDamagePercent,
             PvpShell = gear.PvpShell,
         };
 
@@ -130,7 +131,8 @@ public sealed class BattleStatsProvider(
         LightResistance: mob.LightResistance,
         DarkResistance: mob.DarkResistance,
         Race: (MonsterRace)mob.Race,
-        RaceType: mob.RaceType);
+        RaceType: mob.RaceType,
+        IsMapBoss: mob.MonsterType == MonsterType.Boss);
 
     private static CombatStats FromMate(MateService.Mate mate, byte level, byte heroLevel) =>
         FromMonster(mate.NpcMonster, level, heroLevel) with
