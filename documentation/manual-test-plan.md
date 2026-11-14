@@ -260,6 +260,11 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       5 %, rounded down (109-117 becomes 114-122)
 - [ ] Wear Denim Clothing ("All defence stats +5%"): every defence rises by 5 %
 
+### Debuffs that weaken your hits
+
+- [ ] Under Lethargy (S) ("100% chance to reduce damage by 30%"), your auto-attacks on a monster
+      deal about 30% less than without it; when it wears off they return to normal
+
 ### Chance of receiving critical hits
 
 - [ ] Wear an armour with "probability to receive critical hits is decreased by 20%" (8643) and let a
