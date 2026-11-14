@@ -98,6 +98,14 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 },
                 new QuestDto
                 {
+                    QuestId = 10,
+                    QuestType = QuestType.Hunt,
+                    LevelMin = 1,
+                    LevelMax = 99,
+                    IsSecondary = false
+                },
+                new QuestDto
+                {
                     QuestId = 6,
                     QuestType = QuestType.UnKnow,
                     LevelMin = 1,
@@ -323,13 +331,23 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
-        public async Task AddingNonSecondaryQuestWhenOneExistsShouldFail()
+        public async Task AMainQuestCanBeTakenWhileAnotherIsOpen()
         {
-            await new Spec("Adding non-secondary quest when one exists should fail")
+            await new Spec("A main quest can be taken while another main quest is open")
                 .Given(NonSecondaryQuestAlreadyActive)
                 .WhenAsync(AddingAnotherNonSecondaryQuest)
-                .Then(QuestShouldStillBeOne)
-                .And(AddResultShouldBeFalse)
+                .Then(TwoMainQuestsShouldBeOpenInTheirOwnSlots)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMainQuestIsRefusedWhenTheMainSlotsAreFull()
+        {
+            await new Spec("A main quest is refused when the five main slots are taken")
+                .Given(FiveMainQuestsAreOpen)
+                .WhenAsync(AddingAnotherNonSecondaryQuest)
+                .Then(AddResultShouldBeFalse)
+                .And(TheMainQuestShouldNotBeAdded)
                 .ExecuteAsync();
         }
 
@@ -546,7 +564,31 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
         private async Task AddingAnotherNonSecondaryQuest()
         {
-            AddQuestResult = await Service.AddQuestAsync(Session.Character, QuestActionType.Validate, 5);
+            AddQuestResult = await Service.AddQuestAsync(Session.Character, QuestActionType.Validate, 10);
+        }
+
+        private void FiveMainQuestsAreOpen()
+        {
+            for (byte slot = 0; slot < 5; slot++)
+            {
+                Session.Character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
+                {
+                    QuestId = (short)(100 + slot),
+                    Slot = slot,
+                    Quest = new Quest { QuestId = (short)(100 + slot), QuestType = QuestType.Hunt, QuestObjectives = new List<QuestObjectiveDto>() },
+                });
+            }
+        }
+
+        private void TwoMainQuestsShouldBeOpenInTheirOwnSlots()
+        {
+            Assert.IsTrue(AddQuestResult);
+            CollectionAssert.AreEquivalent(new byte[] { 0, 1 }, Session.Character.Quests.Values.Select(q => q.Slot).ToArray());
+        }
+
+        private void TheMainQuestShouldNotBeAdded()
+        {
+            Assert.IsFalse(Session.Character.Quests.Values.Any(q => q.QuestId == 10));
         }
 
         private void CharacterHasGoToQuest()
