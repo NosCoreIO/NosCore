@@ -10,6 +10,7 @@ using NodaTime;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
@@ -128,6 +129,30 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .GivenAsync(Player_UsesTheSealAsync, 0)
                 .WhenAsync(Player_AnswersTheLeaderAsync, 1)
                 .Then(Player_IsNotInTheTeam, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnInvitationLapsesWhenItsTeamIsGone()
+        {
+            await new Spec("An invitation is for the team it was sent from, not the next team its sender leads")
+                .GivenAsync(Player_UsesTheSealAsync, 0)
+                .AndAsync(TheLeaderInvites_Async, 1)
+                .AndAsync(Player_LeavesAsync, 0)
+                .AndAsync(Player_UsesTheSealAsync, 0)
+                .WhenAsync(Player_AnswersTheLeaderAsync, 1)
+                .Then(Player_IsNotInTheTeam, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATeamOfTwoIsLeftThroughTheRaidOnDisconnect()
+        {
+            await new Spec("A disconnecting member of a two-member raid team does not disband it as a party")
+                .GivenAsync(ATeamOf_Async, 2)
+                .WhenAsync(Player_DropsAsAGroupMemberAsync, 1)
+                .Then(TheTeamHas_Members, 2)
+                .And(Player_IsInTheTeam, 1)
                 .ExecuteAsync();
         }
 
@@ -366,6 +391,9 @@ namespace NosCore.GameObject.Tests.Services.RaidService
             await _raids.DisconnectAsync(session);
             World.SessionRegistry.Unregister(channel.Id);
         }
+
+        private Task Player_DropsAsAGroupMemberAsync(int player) =>
+            World.Create<GroupDisconnectHandler>().HandleDisconnectAsync(_players[player]);
 
         private void Player_IsLevel_(int player, byte level) => _players[player].Character.Level = level;
 

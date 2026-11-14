@@ -16,7 +16,8 @@ public class GroupDisconnectHandler(IGroupLeaveService groupLeaveService) : ISes
 
     public async Task HandleDisconnectAsync(ClientSession session)
     {
-        if (!session.HasSelectedCharacter)
+        // A raid team is left through the raid, once the session is off its map.
+        if (!session.HasSelectedCharacter || session.Character.Group.Raid != null)
         {
             return;
         }

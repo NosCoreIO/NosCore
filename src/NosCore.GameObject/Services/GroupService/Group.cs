@@ -48,6 +48,9 @@ namespace NosCore.GameObject.Services.GroupService
 
         public ScriptedInstanceRun? RaidRun { get; set; }
 
+        // Who the raid team's leader has invited and has not answered yet.
+        public ConcurrentDictionary<long, byte> Invited { get; } = new();
+
         public bool IsGroupFull => Count >= (long)Type;
 
         public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Player) <= 1;

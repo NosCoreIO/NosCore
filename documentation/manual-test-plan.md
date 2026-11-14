@@ -2149,6 +2149,9 @@ Set the `Script` column of a raid row (`Type` 1 in `ScriptedInstance`; the row o
 `raid-mother-cuby`, the raid shipped in `instances/`. It is opened by item 1127, for levels
 30 to 49 and teams of 5 to 15; the boss is 282 and its helpers 283, and dropping their `MaxHp`
 makes the run quick. Use five characters at level 30 to 49, called A to E below, all on one map.
+The client has no button that sends `mkraid` without the raid window (see "Not verifiable yet"),
+so "A starts" means the leader's session sends `mkraid 0 0`: lead with a headless character, or
+send the packet from a client build that can type raw packets.
 
 - [ ] A uses the seal: "You are the raid leader" appears, the seal is gone from the inventory
 - [ ] A uses a second seal: "already in a raid" appears and the seal stays
@@ -2184,6 +2187,10 @@ makes the run quick. Use five characters at level 30 to 49, called A to E below,
 - [ ] C disconnects inside the raid: the others see that C left; when the last member
       disconnects, logging back in finds no raid room left
 - [ ] D, not invited, cannot get into the team by any button while the raid runs
+- [ ] A invites B, then A leaves and opens a new team with another seal; B accepts the old
+      question: B stays out of A's new team
+- [ ] With only A and B in the team, B disconnects before the start: A stays in the raid team
+      and sees that B left
 
 ### Instant Combat
 

@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.Instances.Abstractions;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
@@ -57,12 +58,6 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
-            if (character.Group.Count > 1)
-            {
-                await MessageAsync(leader, Game18NConstString.CannotCreateRaidWhileInGroup);
-                return;
-            }
-
             var raid = await scriptedInstanceService.GetRaidBySealAsync(seal.ItemInstance.ItemVNum);
             if (raid == null)
             {
@@ -70,25 +65,38 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
-            if (!character.InventoryService.TryConsume(seal, 1))
+            Game18NConstString? refusal = null;
+            using (await Group.MembershipLock.AcquireAsync())
             {
+                if (character.Group.Count > 1 || character.Group.Raid != null)
+                {
+                    refusal = character.Group.Raid != null ? Game18NConstString.AlreadyInRaid : Game18NConstString.CannotCreateRaidWhileInGroup;
+                }
+                else if (character.InventoryService.TryConsume(seal, 1))
+                {
+                    character.Group.LeaveGroup(character);
+                    var team = new Group(GroupType.Team, sessionGroupFactory)
+                    {
+                        GroupId = groupIdService.GetNextId(),
+                        Raid = raid
+                    };
+                    groupIdService.Items[team.GroupId] = team;
+                    character.JoinGroup(team);
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            if (refusal != null)
+            {
+                await MessageAsync(leader, refusal.Value);
                 return;
             }
 
             await leader.SendPacketAsync(character.InventoryService.LoadBySlotAndType(seal.Slot, seal.Type)
                 .GeneratePocketChange((PocketType)seal.Type, seal.Slot));
-
-            using (await Group.MembershipLock.AcquireAsync())
-            {
-                character.Group.LeaveGroup(character);
-                var team = new Group(GroupType.Team, sessionGroupFactory)
-                {
-                    GroupId = groupIdService.GetNextId(),
-                    Raid = raid
-                };
-                groupIdService.Items[team.GroupId] = team;
-                character.JoinGroup(team);
-            }
 
             await MessageAsync(leader, Game18NConstString.YouAreRaidLeader);
             await leader.SendPacketsAsync(TeamPackets(character.CharacterId));
@@ -116,7 +124,7 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
-            leader.Character.GroupRequestCharacterIds.TryAdd(characterId, characterId);
+            team.Invited.TryAdd(characterId, 0);
             await target.SendPacketAsync(new Qnai2Packet
             {
                 YesPacket = new RdPacket { Type = (short)RdRequest.Join, CharacterId = leader.Character.CharacterId, Parameter = 1 },
@@ -139,12 +147,12 @@ namespace NosCore.GameObject.Services.RaidService
             Game18NConstString? refusal;
             using (await Group.MembershipLock.AcquireAsync())
             {
-                if (!leader.Character.GroupRequestCharacterIds.TryRemove(character.CharacterId, out _))
+                team = leader.Character.Group;
+                if (team.Leader?.VisualId != leaderId || !team.Invited.TryRemove(character.CharacterId, out _))
                 {
                     return;
                 }
 
-                team = leader.Character.Group;
                 refusal = team.Raid == null ? Game18NConstString.RaidDoesNotExist : JoinRefusal(team, character.Group);
                 if (refusal == null)
                 {
@@ -171,7 +179,7 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
-            await RemoveAsync(member, Game18NConstString.PlayerHasLeftTeam, true);
+            await RemoveAsync(member, member.Character.Group, Game18NConstString.PlayerHasLeftTeam, true);
         }
 
         public async Task KickAsync(ClientSession leader, long characterId)
@@ -189,8 +197,10 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
-            await MessageAsync(target, Game18NConstString.YouKickedFromTeam);
-            await RemoveAsync(target, Game18NConstString.PlayerKickedFromTeam, true);
+            if (await RemoveAsync(target, team, Game18NConstString.PlayerKickedFromTeam, true))
+            {
+                await MessageAsync(target, Game18NConstString.YouKickedFromTeam);
+            }
         }
 
         public async Task DisbandAsync(ClientSession leader)
@@ -213,29 +223,9 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
-            if (team.RaidRun != null)
+            if (StartRefusal(team, leader, raid, definition) is { } early)
             {
-                await MessageAsync(leader, Game18NConstString.RaidAlreadyStarted);
-                return;
-            }
-
-            var members = Sessions(team).ToList();
-            if (members.Count < definition.TeamSizeMinimum)
-            {
-                await MessageAsync(leader, Game18NConstString.TooFewRaidMember);
-                return;
-            }
-
-            var leaderMap = leader.Character.MapInstance.MapInstanceId;
-            if (members.Count != team.Count || members.Any(s => s.Character.MapInstance.MapInstanceId != leaderMap))
-            {
-                await MessageAsync(leader, Game18NConstString.AllRaidMembersShouldBeOn);
-                return;
-            }
-
-            if (members.Any(s => s.Character.Level < raid.EffectiveLevelMinimum || s.Character.Level > raid.EffectiveLevelMaximum))
-            {
-                await MessageAsync(leader, Game18NConstString.LevelDoesNotMatch);
+                await MessageAsync(leader, early);
                 return;
             }
 
@@ -248,7 +238,26 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
-            team.RaidRun = run;
+            // The roster may have changed while the rooms were built, so it is checked again and
+            // fixed in the same step that marks the team as started.
+            List<ClientSession>? members = null;
+            Game18NConstString? refusal;
+            using (await Group.MembershipLock.AcquireAsync())
+            {
+                refusal = StartRefusal(team, leader, raid, definition);
+                if (refusal == null)
+                {
+                    team.RaidRun = run;
+                    members = Sessions(team).ToList();
+                }
+            }
+
+            if (members == null)
+            {
+                await scriptedInstanceService.DisposeIfEmptyAsync(run);
+                await MessageAsync(leader, refusal ?? Game18NConstString.RaidDoesNotExist);
+                return;
+            }
 
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
             foreach (var member in members)
@@ -259,9 +268,38 @@ namespace NosCore.GameObject.Services.RaidService
             await run.StartAsync();
         }
 
+        private Game18NConstString? StartRefusal(Group team, ClientSession leader, ScriptedInstance raid, ScriptedInstanceDefinition definition)
+        {
+            if (team.RaidRun != null)
+            {
+                return Game18NConstString.RaidAlreadyStarted;
+            }
+
+            if (!ReferenceEquals(leader.Character.Group, team) || team.Leader?.VisualId != leader.Character.CharacterId)
+            {
+                return Game18NConstString.RaidDoesNotExist;
+            }
+
+            var members = Sessions(team).ToList();
+            if (members.Count < definition.TeamSizeMinimum)
+            {
+                return Game18NConstString.TooFewRaidMember;
+            }
+
+            var leaderMap = leader.Character.MapInstance.MapInstanceId;
+            if (members.Count != team.Count || members.Any(s => s.Character.MapInstance.MapInstanceId != leaderMap))
+            {
+                return Game18NConstString.AllRaidMembersShouldBeOn;
+            }
+
+            return members.Any(s => s.Character.Level < raid.EffectiveLevelMinimum || s.Character.Level > raid.EffectiveLevelMaximum)
+                ? Game18NConstString.LevelDoesNotMatch
+                : null;
+        }
+
         public Task DisconnectAsync(ClientSession member) =>
             member.Character.Group.Raid != null
-                ? RemoveAsync(member, Game18NConstString.PlayerHasLeftTeam, false)
+                ? RemoveAsync(member, member.Character.Group, Game18NConstString.PlayerHasLeftTeam, false)
                 : Task.CompletedTask;
 
         private async Task EndedAsync(ScriptedInstanceRun run, Group team, ScriptedInstance raid, EndStateType state)
@@ -302,7 +340,7 @@ namespace NosCore.GameObject.Services.RaidService
 
             run.StoodUp(player.CharacterId);
             await MessageAsync(session, Game18NConstString.FinishedLives);
-            await RemoveAsync(session, Game18NConstString.PlayerHasLeftTeam, true);
+            await RemoveAsync(session, host.Team, Game18NConstString.PlayerHasLeftTeam, true);
         }
 
         private async Task ReviveDueAsync(RaidHost host, ScriptedInstanceRun run)
@@ -351,22 +389,29 @@ namespace NosCore.GameObject.Services.RaidService
             }
         }
 
-        private async Task RemoveAsync(ClientSession member, Game18NConstString told, bool online)
+        // Takes the member out of that team only, so a decision made before an await cannot reach
+        // a team they have moved to since. False when they were no longer in it.
+        private async Task<bool> RemoveAsync(ClientSession member, Group team, Game18NConstString told, bool online)
         {
             var character = member.Character;
-            var team = character.Group;
-            var run = team.RaidRun;
-            var wasLeader = team.Leader?.VisualId == character.CharacterId;
+            ScriptedInstanceRun? run;
+            bool wasLeader;
             using (await Group.MembershipLock.AcquireAsync())
             {
-                if (!team.IsMember(character.CharacterId))
+                if (!ReferenceEquals(character.Group, team) || !team.IsMember(character.CharacterId))
                 {
-                    return;
+                    return false;
                 }
 
+                run = team.RaidRun;
+                wasLeader = team.Leader?.VisualId == character.CharacterId;
                 team.LeaveGroup(character);
                 character.Group = new Group(GroupType.Group, sessionGroupFactory);
                 character.Group.JoinGroup(character);
+                if (wasLeader)
+                {
+                    team.Invited.Clear();
+                }
             }
 
             if (team.Count == 0)
@@ -386,15 +431,12 @@ namespace NosCore.GameObject.Services.RaidService
                 await BroadcastAsync(team, new RaidPacket { Type = Leader, Value = newLeader.VisualId });
             }
 
-            if (run == null)
-            {
-                return;
-            }
-
-            if (online && scriptedInstanceService.GetRun(character.MapInstance.MapInstanceId) == run)
+            if (run != null && online && scriptedInstanceService.GetRun(character.MapInstance.MapInstanceId) == run)
             {
                 await ReturnAsync(member);
             }
+
+            return true;
         }
 
         private async Task DissolveAsync(Group team, Game18NConstString? told)
@@ -411,6 +453,7 @@ namespace NosCore.GameObject.Services.RaidService
                 }
 
                 team.Clear();
+                team.Invited.Clear();
                 groupIdService.Items.TryRemove(team.GroupId, out _);
             }
 
@@ -491,6 +534,8 @@ namespace NosCore.GameObject.Services.RaidService
 
         private sealed class RaidHost(RaidService service, Group team, ScriptedInstance raid) : IInstanceRunHost
         {
+            public Group Team => team;
+
             public Dictionary<long, int> Falls { get; } = [];
 
             public Dictionary<long, Instant> RevivesAt { get; } = [];
