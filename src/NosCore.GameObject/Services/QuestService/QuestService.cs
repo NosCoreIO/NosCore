@@ -332,7 +332,9 @@ namespace NosCore.GameObject.Services.QuestService
                 Id = Guid.NewGuid(),
                 Quest = quest,
                 QuestId = quest.QuestId,
-                Slot = CharacterQuest.FreeSlot(character.Quests.Values, quest.IsSecondary)
+                Slot = CharacterQuest.FreeSlot(character.Quests.Values, quest.IsSecondary,
+                    character.Quests.Values.Where(q => q.CompletedOn != null && q.Quest.NextQuestId == quest.QuestId)
+                        .OrderByDescending(q => q.CompletedOn).FirstOrDefault()?.Slot)
             };
             character.Quests.TryAdd(added.Id, added);
             if (questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.QuestType)?.CompletesWhenTaken(quest) == true)
@@ -342,7 +344,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return true;
             }
 
-            await character.SendPacketAsync(character.GenerateQuestPacket(showDialog: true));
+            await character.SendPacketAsync(character.GenerateQuestPacket(added));
             if (quest.TargetMap != null)
             {
                 await character.SendPacketAsync(quest.GenerateTargetPacket());

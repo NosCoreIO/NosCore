@@ -61,6 +61,24 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Assert.AreEqual((byte)0, CharacterQuest.FreeSlot(full, secondary: true));
         }
 
+        [TestMethod]
+        public void AQuestThatFollowsAnotherKeepsItsSlot()
+        {
+            var open = QuestOf(6136, line: 6136, secondary: true);
+            open.Slot = 6;
+
+            Assert.AreEqual((byte)7, CharacterQuest.FreeSlot([open], secondary: true, previous: 7));
+        }
+
+        [TestMethod]
+        public void AQuestThatFollowsAnotherTakesTheFirstFreeSlotWhenThatSlotIsTaken()
+        {
+            var open = QuestOf(6136, line: 6136, secondary: true);
+            open.Slot = 7;
+
+            Assert.AreEqual((byte)5, CharacterQuest.FreeSlot([open], secondary: true, previous: 7));
+        }
+
         private static CharacterQuest QuestOf(short id, short line, bool secondary) => new()
         {
             QuestId = id,
