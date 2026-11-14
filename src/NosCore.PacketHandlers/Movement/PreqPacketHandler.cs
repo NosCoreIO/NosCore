@@ -8,6 +8,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MovementService;
+using NosCore.GameObject.Services.RaidService;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -16,12 +17,19 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class PreqPacketHandler(IMovementService movementService)
+    public class PreqPacketHandler(IMovementService movementService, IRaidService raidService)
         : PacketHandler<PreqPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
         {
-            if (await movementService.UsePortalAsync(session) != PortalResult.TooSoon)
+            var result = await movementService.UsePortalAsync(session);
+            if (result == PortalResult.NoPortal)
+            {
+                await raidService.UseGateAsync(session);
+                return;
+            }
+
+            if (result != PortalResult.TooSoon)
             {
                 return;
             }

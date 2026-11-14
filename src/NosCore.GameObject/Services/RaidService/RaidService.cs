@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -100,6 +101,7 @@ namespace NosCore.GameObject.Services.RaidService
 
             await MessageAsync(leader, Game18NConstString.YouAreRaidLeader);
             await leader.SendPacketsAsync(TeamPackets(character.CharacterId));
+            await RefreshAsync(character.Group);
         }
 
         public async Task InviteAsync(ClientSession leader, long characterId)
@@ -142,13 +144,32 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
+            await AddAsync(joiner, leader, team => team.Invited.TryRemove(joiner.Character.CharacterId, out _));
+        }
+
+        // A listed team takes anyone who asks from the board, without an invitation.
+        public async Task JoinListedAsync(ClientSession joiner, string leaderName)
+        {
+            var leader = sessionRegistry.GetSession(s => s.HasPlayerEntity && s.Character.Name == leaderName);
+            if (leader == null)
+            {
+                await MessageAsync(joiner, Game18NConstString.RaidDoesNotExist);
+                return;
+            }
+
+            await AddAsync(joiner, leader, team => team.Listed);
+        }
+
+        private async Task AddAsync(ClientSession joiner, ClientSession leader, Func<Group, bool> admitted)
+        {
             var character = joiner.Character;
+            var leaderId = leader.Character.CharacterId;
             Group team;
             Game18NConstString? refusal;
             using (await Group.MembershipLock.AcquireAsync())
             {
                 team = leader.Character.Group;
-                if (team.Leader?.VisualId != leaderId || !team.Invited.TryRemove(character.CharacterId, out _))
+                if (team.Leader?.VisualId != leaderId || !admitted(team))
                 {
                     return;
                 }
@@ -170,6 +191,7 @@ namespace NosCore.GameObject.Services.RaidService
             await MessageAsync(joiner, Game18NConstString.JoinedToTeam);
             await joiner.SendPacketsAsync(TeamPackets(team.Leader?.VisualId ?? leaderId));
             await TellTeamAsync(team, character.CharacterId, Game18NConstString.PlayerJoinedToTeam, character.Name);
+            await RefreshAsync(team);
         }
 
         public async Task LeaveAsync(ClientSession member)
@@ -213,6 +235,48 @@ namespace NosCore.GameObject.Services.RaidService
 
             await DissolveAsync(team, Game18NConstString.TeamDisbanded);
         }
+
+        // The leader starts the raid from its gate: stepping on it asks whether to open the raid,
+        // and the answer sends mkraid.
+        public async Task<bool> UseGateAsync(ClientSession session)
+        {
+            var character = session.Character;
+            if (Gate(character) is not { } gate)
+            {
+                return false;
+            }
+
+            var team = character.Group;
+            if (team.Raid == null)
+            {
+                await MessageAsync(session, Game18NConstString.CreateTeamFirst);
+            }
+            else if (team.Raid.ScriptedInstanceId != gate.ScriptedInstanceId)
+            {
+                await MessageAsync(session, Game18NConstString.RaidDoNotMatchSeal);
+            }
+            else if (team.Leader?.VisualId != character.CharacterId)
+            {
+                await MessageAsync(session, Game18NConstString.LeaderMustLeadRaid);
+            }
+            else
+            {
+                await session.SendPacketAsync(new QnaiPacket
+                {
+                    YesPacket = new MkRaidPacket(),
+                    Question = Game18NConstString.AskCreateRaidMap
+                });
+            }
+
+            return true;
+        }
+
+        private ScriptedInstance? Gate(PlayerComponentBundle character) =>
+            character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance
+            && scriptedInstanceService.GetNear(character.MapInstance.Map.MapId, character.PositionX, character.PositionY) is
+                { Type: ScriptedInstanceType.Raid } gate
+                ? gate
+                : null;
 
         public async Task StartAsync(ClientSession leader)
         {
@@ -280,6 +344,11 @@ namespace NosCore.GameObject.Services.RaidService
                 return Game18NConstString.RaidDoesNotExist;
             }
 
+            if (Gate(leader.Character)?.ScriptedInstanceId != raid.ScriptedInstanceId)
+            {
+                return Game18NConstString.RaidDoNotMatchSeal;
+            }
+
             var members = Sessions(team).ToList();
             if (members.Count < definition.TeamSizeMinimum)
             {
@@ -320,6 +389,7 @@ namespace NosCore.GameObject.Services.RaidService
         {
             var falls = host.Falls.GetValueOrDefault(player.CharacterId) + 1;
             host.Falls[player.CharacterId] = falls;
+            await RefreshAsync(host.Team);
             if (falls <= RevivesPerRun)
             {
                 host.RevivesAt[player.CharacterId] = clock.GetCurrentInstant().Plus(ReviveDelay);
@@ -431,6 +501,8 @@ namespace NosCore.GameObject.Services.RaidService
                 await BroadcastAsync(team, new RaidPacket { Type = Leader, Value = newLeader.VisualId });
             }
 
+            await RefreshAsync(team);
+
             if (run != null && online && scriptedInstanceService.GetRun(character.MapInstance.MapInstanceId) == run)
             {
                 await ReturnAsync(member);
@@ -454,6 +526,7 @@ namespace NosCore.GameObject.Services.RaidService
 
                 team.Clear();
                 team.Invited.Clear();
+                team.Listed = false;
                 groupIdService.Items.TryRemove(team.GroupId, out _);
             }
 
@@ -468,9 +541,113 @@ namespace NosCore.GameObject.Services.RaidService
             }
         }
 
+        public async Task ShowBoardAsync(ClientSession session)
+        {
+            var team = session.Character.Group;
+            var isLeader = team.Raid != null && team.Leader?.VisualId == session.Character.CharacterId;
+            var mode = isLeader
+                ? team.Listed ? RlPacketType.WantToRegister : RlPacketType.WantToUnregister
+                : team.Raid != null ? RlPacketType.MemberAndAlreadyInList : RlPacketType.Normal;
+            await session.SendPacketAsync(Board(mode));
+        }
+
+        public async Task ListAsync(ClientSession leader)
+        {
+            var team = leader.Character.Group;
+            if (team.Raid == null || team.RaidRun != null || team.Leader?.VisualId != leader.Character.CharacterId)
+            {
+                return;
+            }
+
+            if (team.Listed)
+            {
+                await MessageAsync(leader, Game18NConstString.AlreadyRegistered2);
+                return;
+            }
+
+            team.Listed = true;
+            await leader.SendPacketAsync(Board(RlPacketType.WantToRegister));
+        }
+
+        public async Task UnlistAsync(ClientSession leader)
+        {
+            var team = leader.Character.Group;
+            if (team.Raid == null || !team.Listed)
+            {
+                return;
+            }
+
+            if (team.Leader?.VisualId != leader.Character.CharacterId)
+            {
+                await MessageAsync(leader, Game18NConstString.OnlyLeaderCanDeleteRaid);
+                return;
+            }
+
+            team.Listed = false;
+            await leader.SendPacketAsync(Board(RlPacketType.WantToUnregister));
+            await MessageAsync(leader, Game18NConstString.RemovedFromRaidList);
+        }
+
+        private ServerRlPacket Board(RlPacketType mode)
+        {
+            var teams = new List<ServerRlSubPacket?>();
+            foreach (var team in groupIdService.Items.Values.Where(s => s is { Listed: true, Raid: not null, RaidRun: null }))
+            {
+                if (team.Leader is not { } head
+                    || sessionRegistry.GetSessionByCharacterId(head.VisualId) is not { HasPlayerEntity: true } leader)
+                {
+                    continue;
+                }
+
+                teams.Add(new ServerRlSubPacket
+                {
+                    RaidId = team.Raid?.Definition?.Id ?? 0,
+                    LevelMinimum = team.Raid?.EffectiveLevelMinimum ?? 0,
+                    LevelMaximum = team.Raid?.EffectiveLevelMaximum ?? 0,
+                    LeaderName = leader.Character.Name,
+                    LeaderLevel = leader.Character.Level,
+                    LeaderMorph = Morph(leader.Character),
+                    LeaderClass = leader.Character.Class,
+                    LeaderGender = leader.Character.Gender,
+                    MemberCount = (short)team.Count,
+                    LeaderHeroLevel = leader.Character.HeroLevel
+                });
+            }
+
+            return new ServerRlPacket { Mode = (byte)mode, Teams = teams };
+        }
+
+        // Redraws the raid team window of every member, with each member's falls in this run.
+        private Task RefreshAsync(Group team)
+        {
+            var falls = (team.RaidRun?.Host as RaidHost)?.Falls;
+            var members = Sessions(team).ToList();
+            var packet = new RdlstPacket
+            {
+                LevelMinimum = team.Raid?.EffectiveLevelMinimum ?? 0,
+                LevelMaximum = team.Raid?.EffectiveLevelMaximum ?? 0,
+                RaidId = team.Raid?.Definition?.Id ?? 0,
+                Members = members.Select(s => (RdlstSubPacket?)new RdlstSubPacket
+                {
+                    Level = s.Character.Level,
+                    Morph = Morph(s.Character),
+                    Class = s.Character.Class,
+                    Deaths = (short)(falls?.GetValueOrDefault(s.Character.CharacterId) ?? 0),
+                    Name = s.Character.Name,
+                    Gender = s.Character.Gender,
+                    CharacterId = s.Character.CharacterId,
+                    HeroLevel = s.Character.HeroLevel
+                }).ToList()
+            };
+            return BroadcastAsync(team, packet);
+        }
+
+        private static short Morph(PlayerComponentBundle player) =>
+            player.UseSp || player.IsVehicled ? (short)player.Morph : (short)-1;
+
         private IEnumerable<ClientSession> Sessions(Group team) =>
-            team.Keys.Where(s => s.Item1 == VisualType.Player)
-                .Select(s => sessionRegistry.GetSessionByCharacterId(s.Item2))
+            team.MembersInJoiningOrder.Where(s => s.VisualType == VisualType.Player)
+                .Select(s => sessionRegistry.GetSessionByCharacterId(s.VisualId))
                 .OfType<ClientSession>()
                 .Where(s => s.HasPlayerEntity);
 

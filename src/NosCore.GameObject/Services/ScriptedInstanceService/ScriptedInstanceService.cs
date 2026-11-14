@@ -13,6 +13,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NodaTime;
+using NosCore.Packets.ServerPackets.Portals;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -271,6 +272,21 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 _runsByRoom.TryRemove(room, out _);
                 await _mapInstanceGeneratorService.Value.RemoveMapAsync(room);
             }
+        }
+
+        // Only raids with a script get a gate; the rest would have nothing to start.
+        public IEnumerable<GpPacket> GenerateRaidGates(short mapId)
+        {
+            return GetByMap(mapId)
+                .Where(s => s.Type == ScriptedInstanceType.Raid && !string.IsNullOrWhiteSpace(s.Script))
+                .Select(s => new GpPacket
+                {
+                    SourceX = s.PositionX,
+                    SourceY = s.PositionY,
+                    MapId = mapId,
+                    PortalType = PortalType.Raid,
+                    PortalId = s.ScriptedInstanceId
+                });
         }
 
         public IEnumerable<WpPacket> GenerateWp(short mapId)

@@ -24,8 +24,18 @@ namespace NosCore.GameObject.Services.RaidService
 
         Task DisbandAsync(ClientSession leader);
 
+        Task<bool> UseGateAsync(ClientSession session);
+
         Task StartAsync(ClientSession leader);
 
         Task DisconnectAsync(ClientSession member);
+
+        Task ShowBoardAsync(ClientSession session);
+
+        Task ListAsync(ClientSession leader);
+
+        Task UnlistAsync(ClientSession leader);
+
+        Task JoinListedAsync(ClientSession joiner, string leaderName);
     }
 }

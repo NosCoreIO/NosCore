@@ -17,7 +17,9 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Instances.Abstractions;
+using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Helpers;
 using NosCore.Tests.Shared;
@@ -74,6 +76,8 @@ namespace NosCore.GameObject.Tests.Services.RaidService
             {
                 var session = await World.CreateSessionAsync();
                 session.Character.Level = 40;
+                session.Character.PositionX = 2;
+                session.Character.PositionY = 2;
                 World.SessionRegistry.Register(new SessionInfo
                 {
                     ChannelId = session.Channel.NotNull().Id,
@@ -92,7 +96,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
             World.Inject(loader.Object);
             World.Inject(new List<ScriptedInstanceDto>
             {
-                new() { ScriptedInstanceId = 7, MapId = 1, PositionX = 2, PositionY = 2, Type = ScriptedInstanceType.Raid, Script = "raid" }
+                new() { ScriptedInstanceId = 7, MapId = TestWorld.TestMapId, PositionX = 2, PositionY = 2, Type = ScriptedInstanceType.Raid, Script = "raid" }
             });
             World.Inject(new List<NpcMonsterDto> { new() { NpcMonsterVNum = Boss, MaxHp = 10 } });
             World.Inject(new Lazy<IMapInstanceGeneratorService>(World.MapInstanceGeneratorService));
@@ -119,6 +123,124 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .AndAsync(TheLeaderInvites_Async, 1)
                 .WhenAsync(Player_AnswersTheLeaderAsync, 1)
                 .Then(Player_IsInTheTeam, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EveryMemberSeesTheTeamWindow()
+        {
+            await new Spec("Every member's raid team window lists the team, leader first")
+                .GivenAsync(ATeamOf_Async, 2)
+                .Then(Player_SeesTheTeam_, 0, new[] { 0, 1 })
+                .And(Player_SeesTheTeam_, 1, new[] { 0, 1 })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFallIsCountedOnTheTeamWindow()
+        {
+            await new Spec("The team window counts each member's falls in the run")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .WhenAsync(Player_FallsAsync, 1)
+                .Then(Player_ShowsFalls_, 1, 1)
+                .And(Player_ShowsFalls_, 0, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AListedTeamIsOnTheBoard()
+        {
+            await new Spec("A team its leader listed is on the raid board")
+                .GivenAsync(Player_UsesTheSealAsync, 0)
+                .AndAsync(TheLeaderListsTheTeamAsync)
+                .WhenAsync(Player_OpensTheBoardAsync, 1)
+                .Then(Player_SeesTheLeaderOnTheBoard, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnUnlistedTeamIsOffTheBoard()
+        {
+            await new Spec("Taking a team off the board hides it")
+                .GivenAsync(Player_UsesTheSealAsync, 0)
+                .AndAsync(TheLeaderListsTheTeamAsync)
+                .AndAsync(TheLeaderUnlistsTheTeamAsync)
+                .WhenAsync(Player_OpensTheBoardAsync, 1)
+                .Then(Player_SeesAnEmptyBoard, 1)
+                .And(TheLeaderWasTold_, Game18NConstString.RemovedFromRaidList)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AListedTeamTakesAnyoneFromTheBoard()
+        {
+            await new Spec("A player joins a listed team from the board without an invitation")
+                .GivenAsync(Player_UsesTheSealAsync, 0)
+                .AndAsync(TheLeaderListsTheTeamAsync)
+                .WhenAsync(Player_JoinsFromTheBoardAsync, 1)
+                .Then(Player_IsInTheTeam, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnUnlistedTeamTakesNobodyFromTheBoard()
+        {
+            await new Spec("A team that is not on the board cannot be joined from it")
+                .GivenAsync(Player_UsesTheSealAsync, 0)
+                .WhenAsync(Player_JoinsFromTheBoardAsync, 1)
+                .Then(Player_IsNotInTheTeam, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AStartedTeamLeavesTheBoard()
+        {
+            await new Spec("A team is off the board once its raid has started")
+                .GivenAsync(ATeamOf_Async, 2)
+                .AndAsync(TheLeaderListsTheTeamAsync)
+                .AndAsync(TheLeaderStartsAsync)
+                .WhenAsync(Player_OpensTheBoardAsync, 2)
+                .Then(Player_SeesAnEmptyBoard, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLeaderAtTheGateIsAskedToOpenTheRaid()
+        {
+            await new Spec("Stepping on the raid's gate asks its team leader whether to open the raid")
+                .GivenAsync(ATeamOf_Async, 2)
+                .WhenAsync(Player_StepsOnTheGateAsync, 0)
+                .Then(Player_IsAskedToOpenTheRaid, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlyTheLeaderOpensTheRaidFromTheGate()
+        {
+            await new Spec("A member who is not the leader is told the leader must lead the raid")
+                .GivenAsync(ATeamOf_Async, 2)
+                .WhenAsync(Player_StepsOnTheGateAsync, 1)
+                .Then(Player_WasTold_, 1, Game18NConstString.LeaderMustLeadRaid)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheGateNeedsATeam()
+        {
+            await new Spec("Stepping on the gate without a raid team says a team comes first")
+                .WhenAsync(Player_StepsOnTheGateAsync, 3)
+                .Then(Player_WasTold_, 3, Game18NConstString.CreateTeamFirst)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheRaidStartsOnlyFromItsGate()
+        {
+            await new Spec("A leader away from the gate cannot start the raid")
+                .GivenAsync(ATeamOf_Async, 2)
+                .And(TheLeaderWalksAwayFromTheGate)
+                .WhenAsync(TheLeaderStartsAsync)
+                .Then(TheRaidHasNotStarted)
                 .ExecuteAsync();
         }
 
@@ -317,6 +439,46 @@ namespace NosCore.GameObject.Tests.Services.RaidService
             _raids.JoinAsync(_players[player], Leader.Character.CharacterId);
 
         private Task Player_LeavesAsync(int player) => _raids.LeaveAsync(_players[player]);
+
+        private Task Player_StepsOnTheGateAsync(int player) => _raids.UseGateAsync(_players[player]);
+
+        private void TheLeaderWalksAwayFromTheGate() => Leader.Character.PositionX = 9;
+
+        private void Player_IsAskedToOpenTheRaid(int player) =>
+            Assert.IsTrue(_players[player].LastPackets.OfType<QnaiPacket>()
+                .Any(s => s.Question == Game18NConstString.AskCreateRaidMap && s.YesPacket is MkRaidPacket));
+
+        private Task TheLeaderListsTheTeamAsync() => _raids.ListAsync(Leader);
+
+        private Task TheLeaderUnlistsTheTeamAsync() => _raids.UnlistAsync(Leader);
+
+        private Task Player_OpensTheBoardAsync(int player) => _raids.ShowBoardAsync(_players[player]);
+
+        private Task Player_JoinsFromTheBoardAsync(int player) =>
+            _raids.JoinListedAsync(_players[player], Leader.Character.Name);
+
+        private void Player_SeesTheTeam_(int player, int[] members)
+        {
+            var window = _players[player].LastPackets.OfType<RdlstPacket>().Last();
+            CollectionAssert.AreEqual(members.Select(s => _players[s].Character.CharacterId).ToList(),
+                window.Members.NotNull().Select(s => s.NotNull().CharacterId).ToList());
+        }
+
+        private void Player_ShowsFalls_(int player, int falls)
+        {
+            var id = _players[player].Character.CharacterId;
+            var window = Leader.LastPackets.OfType<RdlstPacket>().Last();
+            Assert.AreEqual(falls, window.Members.NotNull().Single(s => s.NotNull().CharacterId == id).NotNull().Deaths);
+        }
+
+        private void Player_SeesTheLeaderOnTheBoard(int player)
+        {
+            var board = _players[player].LastPackets.OfType<ServerRlPacket>().Last();
+            Assert.AreEqual(Leader.Character.Name, board.Teams.NotNull().Single().NotNull().LeaderName);
+        }
+
+        private void Player_SeesAnEmptyBoard(int player) =>
+            Assert.AreEqual(0, _players[player].LastPackets.OfType<ServerRlPacket>().Last().Teams.NotNull().Count);
 
         private Task TheLeaderKicks_Async(int player) => _raids.KickAsync(Leader, _players[player].Character.CharacterId);
 

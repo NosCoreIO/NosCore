@@ -51,6 +51,9 @@ namespace NosCore.GameObject.Services.GroupService
         // Who the raid team's leader has invited and has not answered yet.
         public ConcurrentDictionary<long, byte> Invited { get; } = new();
 
+        // Whether the raid team's leader has put it on the raid listing board.
+        public bool Listed { get; set; }
+
         public bool IsGroupFull => Count >= (long)Type;
 
         public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Player) <= 1;
