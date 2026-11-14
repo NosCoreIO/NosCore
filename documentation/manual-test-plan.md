@@ -817,6 +817,20 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] On a Horned Sweeper (5152), walk a few cells in the open and use the booster: the rider
       jumps 5 cells further the way it was walking
 - [ ] Do the same facing a fence a couple of cells away: the rider stops in front of the fence
+- [ ] On a 12th Anniversary Speedy Alpaca (5807) with HP and MP down, the booster restores level × 10
+      HP (300 at level 30) with the heal number over the character, and the MP bar stays where it was
+- [ ] On a Rodeo Bull (9220) the booster shows two icons, the boost for 8 seconds and Red Flag for 5;
+      a second player who selects the rider sees both
+- [ ] The same with the mount's own buff on a 14th Anniversary Boxer Kangaroo (9276, Dukes Up!), a
+      Royal Rabbit Carriage (9589, Magic Eggshell), a Steam Motorbike (13415, Steam Boost, together
+      with the 5 cell jump) and Chi Tu (13752, Divine Gallop)
+- [ ] On a Turtlecopter (9149) the boost lasts 9 seconds; when its icon goes the Dizzy icon appears
+      and the rider can neither move nor attack for a second, then rides on at the mount's own speed
+- [ ] Get off the Turtlecopter while boosted: the boost icon goes and no Dizzy follows
+- [ ] On a boosted Turtlecopter next to a monster that hits in melee or from range, about nine hits
+      in ten miss; once the boost is over they land as before
+- [ ] On a Power Loader (1618) the booster is used up and the loader rides slower for 10 seconds
+      (speed 19 against 23), and a level 4 or lower debuff is removed
 
 ### Fireworks and event toys
 

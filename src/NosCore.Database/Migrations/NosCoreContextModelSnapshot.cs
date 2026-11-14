@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261114063828_AddRaidSealItemEffect";
+    public override string LastMigrationId => "20261114075552_AddSpeedBoostBuffs";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1678,19 +1678,31 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<byte>("Speed")
                     .HasColumnType("smallint");
 
-                b.Property<byte>("SpeedBoost")
+                b.Property<short>("SpeedBoost")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("SpeedBoostDashCells")
                     .HasColumnType("smallint");
 
+                b.Property<byte>("SpeedBoostDodgeChance")
+                    .HasColumnType("smallint");
+
                 b.Property<byte>("SpeedBoostDuration")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("SpeedBoostEndCardId")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("SpeedBoostRemovesDebuffsUpToLevel")
                     .HasColumnType("smallint");
 
+                b.Property<byte>("SpeedBoostRestoresHpPerLevel")
+                    .HasColumnType("smallint");
+
                 b.Property<byte>("SpeedBoostRestoresPerLevel")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("SpeedBoostStartCardId")
                     .HasColumnType("smallint");
 
                 b.Property<short>("SpeedBoostTeleportEffect")

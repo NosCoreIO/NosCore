@@ -20,6 +20,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SpeedCalculationService;
@@ -44,6 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private InventoryItemInstance _booster;
         private const short LowDebuff = 900;
         private const short HighDebuff = 901;
+        private const short StartCardId = 853;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -127,6 +129,91 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             Assert.AreEqual(character.MaxHp, character.Hp);
             Assert.AreEqual(Math.Min(character.MaxMp, 151), character.Mp);
+        }
+
+        [TestMethod]
+        public async Task AMountThatRestoresHpAloneLeavesMpAsItWas()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 20, SpeedBoost = 3, SpeedBoostDuration = 5, SpeedBoostRestoresHpPerLevel = 10 });
+            var character = _session.Character;
+            character.Hp = 1;
+            character.Mp = 1;
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(Math.Min(character.MaxHp, 1 + character.Level * 10), character.Hp);
+            Assert.AreEqual(1, character.Mp);
+        }
+
+        [TestMethod]
+        public async Task AMountItsBoosterSlowsDownRidesSlowerForItsBoostTime()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 23, SpeedBoost = -4, SpeedBoostDuration = 10 });
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(19, _session.Character.Speed);
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(BoosterVNum));
+            World.Clock.Advance(Duration.FromSeconds(11));
+            await _buffs.TickAsync(_session.Character);
+            Assert.AreEqual(23, _speed.CalculateSpeed(_session.Character));
+        }
+
+        [TestMethod]
+        public async Task AMountWithABuffOfItsOwnGivesItForTheCardsTime()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 21, SpeedBoost = 3, SpeedBoostDuration = 8, SpeedBoostStartCardId = StartCardId });
+            World.Freeze<Mock<ICardCatalog>>().Setup(c => c.GetCard(StartCardId))
+                .Returns(new CardDto { CardId = StartCardId, BuffType = BuffType.Good, Duration = 50 });
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            var buff = _buffs.GetActiveBuffs(_session.Character).Single(b => b.CardId == StartCardId);
+            Assert.AreEqual(5, (int)(buff.ExpiresAt - World.Clock.GetCurrentInstant()).TotalSeconds);
+            Assert.IsTrue(_buffs.HasBuff(_session.Character, BoostCardId));
+        }
+
+        [TestMethod]
+        public async Task AMountWithoutABuffOfItsOwnGivesTheBoostAlone()
+        {
+            Mount(speed: 20, boost: 2, seconds: 3);
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(BoostCardId, _buffs.GetActiveBuffs(_session.Character).Single().CardId);
+        }
+
+        [TestMethod]
+        public async Task ADodgingMountDodgesForAsLongAsItIsBoosted()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 20, SpeedBoost = 3, SpeedBoostDuration = 9, SpeedBoostDodgeChance = 90 });
+            World.UseReal<IEquipmentStatsService, EquipmentStatsService>();
+            var stats = World.Create<BattleStatsProvider>();
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(90, stats.GetStats(_session.Character).GuaranteedDodgeChance);
+            World.Clock.Advance(Duration.FromSeconds(10));
+            await _buffs.TickAsync(_session.Character);
+            Assert.AreEqual(0, stats.GetStats(_session.Character).GuaranteedDodgeChance);
+        }
+
+        [TestMethod]
+        public async Task AMountThatDoesNotDodgeGetsNoDodgeFromItsBoost()
+        {
+            Mount(speed: 20, boost: 2, seconds: 3);
+            World.UseReal<IEquipmentStatsService, EquipmentStatsService>();
+            var stats = World.Create<BattleStatsProvider>();
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(0, stats.GetStats(_session.Character).GuaranteedDodgeChance);
         }
 
         [TestMethod]

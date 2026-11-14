@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var character = session.Character;
             if (evt.InventoryItem.ItemInstance.Item.Effect != ItemEffectType.SpeedBooster || !character.IsVehicled
                 || items.Find(i => i.VNum == character.VehicleVNum) is not { } mount
-                || mount is { SpeedBoost: 0, SpeedBoostRestoresPerLevel: 0, SpeedBoostRemovesDebuffsUpToLevel: 0, SpeedBoostTeleportsRandomly: false, SpeedBoostDashCells: 0 }
+                || mount is { SpeedBoostDuration: 0, SpeedBoostTeleportsRandomly: false }
                 || cardCatalog.GetItemCard(evt.InventoryItem.ItemInstance.ItemVNum) is not { } card
                 || buffService.HasBuff(character, card.CardId))
             {
@@ -49,9 +50,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await character.UseUpOneAsync(evt.InventoryItem);
             await character.MapInstance.SendPacketAsync(character.GenerateEff(evt.InventoryItem.ItemInstance.Item.EffectValue));
 
-            if (mount.SpeedBoost > 0)
+            if (mount.SpeedBoostDuration > 0)
             {
-                await buffService.ApplyAsync(character, card, cardCatalog.GetCardBCards(card.CardId), character,
+                await buffService.ApplyAsync(character, card, BoostEffects(card, mount), character,
                     mount.SpeedBoostDuration * 1000);
                 character.Speed = speedCalculationService.CalculateSpeed(character);
                 await session.SendPacketAsync(character.GenerateCond());
@@ -62,11 +63,13 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 await buffService.RemoveBadAsync(character, mount.SpeedBoostRemovesDebuffsUpToLevel);
             }
 
-            if (mount.SpeedBoostRestoresPerLevel > 0)
+            if (mount.SpeedBoostStartCardId > 0 && cardCatalog.GetCard(mount.SpeedBoostStartCardId) is { } startCard)
             {
-                var amount = character.Level * mount.SpeedBoostRestoresPerLevel;
-                await character.HealAsync(amount, amount);
+                await buffService.ApplyAsync(character, startCard, cardCatalog.GetCardBCards(startCard.CardId), character);
             }
+
+            var restored = character.Level * mount.SpeedBoostRestoresPerLevel;
+            await character.HealAsync(restored + character.Level * mount.SpeedBoostRestoresHpPerLevel, restored);
 
             if (mount.SpeedBoostDashCells > 0)
             {
@@ -78,6 +81,20 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 await character.TeleportAsync(cell.X, cell.Y);
                 await character.MapInstance.SendPacketAsync(character.GenerateEff(mount.SpeedBoostTeleportEffect));
             }
+        }
+
+        // The dodge rides on the boost itself, so it ends with it.
+        private IReadOnlyList<BCardDto> BoostEffects(CardDto card, ItemDto mount)
+        {
+            var effects = cardCatalog.GetCardBCards(card.CardId);
+            return mount.SpeedBoostDodgeChance == 0
+                ? effects
+                : [.. effects, new BCardDto
+                {
+                    Type = BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropability.Type(),
+                    SubType = BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropability.SubType(),
+                    FirstData = mount.SpeedBoostDodgeChance,
+                }];
         }
 
         private static async Task DashAsync(PlayerComponentBundle character, int cells)

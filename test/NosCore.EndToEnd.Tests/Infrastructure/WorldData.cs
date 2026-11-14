@@ -21,9 +21,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 {
     // The smallest world a server will run: no client files, only what the scenarios stand on.
     // Two open maps joined by a portal, a miniland, a shopkeeper with one item to sell, a broker
-    // to talk to, a chest and a weapon to hand out, what a new adventurer is given, creatures to
-    // hit, and a market where players may keep a shop, with a grocer. Characters are added by
-    // the scenarios.
+    // to talk to, a chest and a weapon to hand out, what a new adventurer is given, a mount with its
+    // booster, creatures to hit, and a market where players may keep a shop, with a grocer.
+    // Characters are added by the scenarios.
     public static class WorldData
     {
         public const string Password = "test";
@@ -97,6 +97,20 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // Worth something, yet neither sold to a shop nor handed to another player.
         public const short Keepsake = 2029;
+
+        // A mount whose booster gives one buff when it is used and another when the boost runs out,
+        // and restores some HP.
+        public const short Steed = 5000;
+        public const short SteedLook = 2000;
+        public const byte SteedSpeed = 20;
+        public const byte SteedBoost = 2;
+        public const byte SteedBoostSeconds = 2;
+        public const byte SteedHpPerLevel = 10;
+        public const short Booster = 5001;
+        public const short BoostCard = 50;
+        public const short SteedStartCard = 51;
+        public const short SteedEndCard = 52;
+        public const int SteedCardTime = 30;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -181,6 +195,22 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 VNum = CostumeHat, Name = "costumehat", Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
                 EquipmentSlot = EquipmentType.CostumeHat
             });
+            context.Add(new Item
+            {
+                VNum = Steed, Name = "steed", Type = NoscorePocketType.Mount, ItemType = ItemType.Special, Speed = SteedSpeed,
+                Morph = SteedLook, SpeedBoost = SteedBoost, SpeedBoostDuration = SteedBoostSeconds,
+                SpeedBoostRestoresHpPerLevel = SteedHpPerLevel, SpeedBoostStartCardId = SteedStartCard, SpeedBoostEndCardId = SteedEndCard
+            });
+            context.Add(new Item
+            {
+                VNum = Booster, Name = "booster", Type = NoscorePocketType.Main, ItemType = ItemType.Special,
+                Effect = ItemEffectType.SpeedBooster
+            });
+            context.Add(new Card { CardId = BoostCard, Name = "boost" });
+            context.Add(new Card { CardId = SteedStartCard, Name = "steedstart", Duration = SteedCardTime });
+            context.Add(new Card { CardId = SteedEndCard, Name = "steedend", Duration = SteedCardTime });
+            // The card an item gives is the one its buff effect names.
+            context.Add(new BCard { ItemVNum = Booster, Type = 25, SubType = 11, FirstData = 100, SecondData = BoostCard });
             // What a new adventurer is given: its club, its catapult, its clothes, and its three skills.
             context.Add(Worn(1, EquipmentType.MainWeapon, ItemType.Weapon));
             context.Add(Worn(8, EquipmentType.SecondaryWeapon, ItemType.Weapon));

@@ -208,13 +208,17 @@ namespace NosCore.Database.Entities
         // A mount scroll that disappears once its rider is mounted.
         public bool ConsumedOnMount { get; set; }
 
-        public byte SpeedBoost { get; set; }
+        // Negative on a mount its booster slows down.
+        public short SpeedBoost { get; set; }
 
         // In seconds.
         public byte SpeedBoostDuration { get; set; }
 
         // HP and MP restored per character level.
         public byte SpeedBoostRestoresPerLevel { get; set; }
+
+        // HP alone restored per character level.
+        public byte SpeedBoostRestoresHpPerLevel { get; set; }
 
         public byte SpeedBoostRemovesDebuffsUpToLevel { get; set; }
 
@@ -223,6 +227,15 @@ namespace NosCore.Database.Entities
         public byte SpeedBoostDashCells { get; set; }
 
         public short SpeedBoostTeleportEffect { get; set; }
+
+        // In percent, for as long as the boost lasts.
+        public byte SpeedBoostDodgeChance { get; set; }
+
+        // Card given when the booster is used; 0 for none.
+        public short SpeedBoostStartCardId { get; set; }
+
+        // Card given when the boost runs out; 0 for none.
+        public short SpeedBoostEndCardId { get; set; }
 
         // Sound played around the user when a PlayEffect item goes off; 0 for none.
         public short UseSound { get; set; }
