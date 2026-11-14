@@ -15,6 +15,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.RaidService;
+using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Tests.Shared;
@@ -46,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Run = new ScriptedInstanceRun(Host.Object, new EmptyScript(),
                 new Dictionary<int, MapInstance> { [1] = Session.Character.MapInstance },
                 new Dictionary<short, NpcMonsterDto>(), new RandomProvider(), World.Clock, World.SessionRegistry,
-                World.Create<AggroService>(), NullLogger.Instance, World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
+                World.Create<AggroService>(), World.Create<ItemThrowService>(), NullLogger.Instance, World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
             Service = World.Create<InstanceExitService>();
         }
 

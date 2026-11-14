@@ -235,6 +235,10 @@ namespace NosCore.GameObject.Services.MapChangeService
                 if (newMapInstance.IsAct4)
                 {
                     await session.SendPacketAsync(factionWarService.GenerateFc(character));
+                    if (factionWarService.GenerateRaidGate(character) is { } raidGate)
+                    {
+                        await session.SendPacketAsync(raidGate);
+                    }
                 }
 
                 var minilandPortals = minilandProvider

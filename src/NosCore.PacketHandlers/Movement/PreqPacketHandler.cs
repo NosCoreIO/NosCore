@@ -6,6 +6,7 @@
 
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.Act4RaidService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MovementService;
 using NosCore.GameObject.Services.RaidService;
@@ -17,7 +18,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class PreqPacketHandler(IMovementService movementService, IRaidService raidService)
+    public class PreqPacketHandler(IMovementService movementService, IRaidService raidService,
+        IAct4RaidService act4RaidService)
         : PacketHandler<PreqPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
@@ -25,7 +27,11 @@ namespace NosCore.PacketHandlers.Movement
             var result = await movementService.UsePortalAsync(session);
             if (result == PortalResult.NoPortal)
             {
-                await raidService.UseGateAsync(session);
+                if (!await act4RaidService.UseGateAsync(session))
+                {
+                    await raidService.UseGateAsync(session);
+                }
+
                 return;
             }
 

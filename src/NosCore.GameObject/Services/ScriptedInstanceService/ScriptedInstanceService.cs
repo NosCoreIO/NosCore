@@ -23,6 +23,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.MiniMap;
@@ -44,6 +45,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IInstanceScriptLoader _scriptLoader;
         private readonly ISessionRegistry _sessionRegistry;
         private readonly IAggroService _aggroService;
+        private readonly IItemThrowService _itemThrowService;
         private readonly IDao<MapMonsterDto, int> _mapMonsters;
         private readonly List<NpcMonsterDto> _npcMonsterList;
         private readonly Lazy<IMapChangeService> _mapChangeService;
@@ -66,6 +68,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IInstanceScriptLoader scriptLoader,
             ISessionRegistry sessionRegistry,
             IAggroService aggroService,
+            IItemThrowService itemThrowService,
             IDao<MapMonsterDto, int> mapMonsters,
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
@@ -82,6 +85,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _scriptLoader = scriptLoader;
             _sessionRegistry = sessionRegistry;
             _aggroService = aggroService;
+            _itemThrowService = itemThrowService;
             _mapMonsters = mapMonsters;
             _npcMonsterList = npcMonsters;
             _mapChangeService = mapChangeService;
@@ -218,7 +222,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             var run = new ScriptedInstanceRun(host, logic, built, _npcMonsters, _random, _clock,
-                _sessionRegistry, _aggroService, _logger, _logLanguage, _scriptTimeout);
+                _sessionRegistry, _aggroService, _itemThrowService, _logger, _logLanguage, _scriptTimeout);
             foreach (var id in run.Rooms.Values)
             {
                 _runsByRoom[id] = run;
