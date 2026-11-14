@@ -11,6 +11,7 @@ using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,9 +24,20 @@ namespace NosCore.Instances.Scripting
 
         // Roslyn costs ~1.3s to warm up and ~85ms a script after that, so compiling every
         // instance at boot would be about eleven seconds for no benefit. Compiled on first
-        // use instead, then kept.
-        public Task<IInstanceScript> LoadAsync(string name) =>
-            _scripts.GetOrAdd(name, key => new Lazy<Task<IInstanceScript>>(() => CompileAsync(key))).Value;
+        // use instead, then kept. A failed load is forgotten, so a fixed file loads on the next try.
+        public async Task<IInstanceScript> LoadAsync(string name)
+        {
+            var entry = _scripts.GetOrAdd(name, key => new Lazy<Task<IInstanceScript>>(() => CompileAsync(key)));
+            try
+            {
+                return await entry.Value;
+            }
+            catch
+            {
+                _scripts.TryRemove(new KeyValuePair<string, Lazy<Task<IInstanceScript>>>(name, entry));
+                throw;
+            }
+        }
 
         private async Task<IInstanceScript> CompileAsync(string name)
         {

@@ -37,11 +37,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private ServiceUnderTest Build(params ScriptedInstanceDto[] entrances)
         {
-            return new ServiceUnderTest(entrances.ToList(), [], [],
-                new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object),
-                new MapInstanceRegistry(), new Mock<IInstanceScriptLoader>().Object, World.SessionRegistry,
-                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), World.Clock, World.WorldConfiguration,
-                NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            return Create(entrances.ToList(), [], new Mock<IMapInstanceGeneratorService>(),
+                new Mock<IInstanceScriptLoader>());
+        }
+
+        private ServiceUnderTest Create(List<ScriptedInstanceDto> entrances, List<MapDto> maps,
+            Mock<IMapInstanceGeneratorService> generator, Mock<IInstanceScriptLoader> loader)
+        {
+            World.Inject(entrances);
+            World.Inject(maps);
+            World.Inject(new List<NpcMonsterDto>());
+            World.Inject(new System.Lazy<IMapInstanceGeneratorService>(generator.Object));
+            World.Inject(new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object));
+            World.Inject(loader.Object);
+            return World.Create<ServiceUnderTest>();
         }
 
         private static ScriptedInstanceDto TimeSpace(short id, short mapId, short x, short y,
@@ -173,11 +182,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var loader = new Mock<IInstanceScriptLoader>();
             loader.Setup(s => s.LoadAsync(TwoRooms)).ReturnsAsync(new TwoRoomScript());
             loader.Setup(s => s.LoadAsync(Broken)).ThrowsAsync(new InvalidOperationException("did not compile"));
-            return (new ServiceUnderTest([entrance], maps, [], new System.Lazy<IMapInstanceGeneratorService>(generator.Object),
-                    World.MapInstanceRegistry, loader.Object, World.SessionRegistry,
-                    new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), World.Clock, World.WorldConfiguration,
-                    NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
-                generator, removed);
+            return (Create([entrance], maps, generator, loader), generator, removed);
         }
 
         private const string TwoRooms = "two-rooms";

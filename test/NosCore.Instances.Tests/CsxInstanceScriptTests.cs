@@ -124,6 +124,21 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public async Task AScriptFixedAfterAFailedLoadLoadsOnTheNextTry()
+        {
+            var dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, "fixed.csx");
+            await File.WriteAllTextAsync(path, "this is not C#;");
+            var loader = new CsxInstanceScriptLoader(dir);
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => loader.LoadAsync("fixed"));
+
+            await File.WriteAllTextAsync(path, "public class Fixed : InstanceScript; return new Fixed();");
+
+            Assert.IsNotNull(await loader.LoadAsync("fixed"));
+        }
+
+        [TestMethod]
         [DataRow("../outside")]
         [DataRow("sub/inside")]
         [DataRow("..")]

@@ -299,8 +299,29 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
             release.SetResult();
             await holder;
+            await _second.Executor.RunAsync(() => Task.CompletedTask);
 
             Assert.AreEqual(EndStateType.Fail, run.EndState);
+            Assert.AreEqual(0, _second.EnumerateMonsters().Count());
+        }
+
+        [TestMethod]
+        public async Task AScriptThatSucceedsAndThenThrowsFailsTheRunAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Succeed();
+                    throw new InvalidOperationException();
+                }
+            });
+
+            await run.StartAsync();
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+            Assert.IsTrue(_first.LastPackets.OfType<NosCore.Packets.ClientPackets.Instance.ScorePacket>()
+                .All(s => s.EndState == EndStateType.Fail));
         }
 
         [TestMethod]

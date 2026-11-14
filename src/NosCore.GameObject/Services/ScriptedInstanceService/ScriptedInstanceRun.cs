@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Duration _clockLimit;
         private Instant? _returnAt;
         private readonly TimeSpan _stepTimeout;
-        private bool _abandoned;
+        private volatile bool _abandoned;
 
         public ScriptedInstanceRun(ScriptedInstance entrance, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
@@ -73,6 +73,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         }
 
         public ScriptedInstance Entrance { get; }
+
+        private string Name => $"scripted instance {Entrance.ScriptedInstanceId}";
 
         public IReadOnlyDictionary<int, Guid> Rooms { get; }
 
@@ -199,7 +201,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 _summoned++;
-                _pending.Add(() => mapInstance.Executor.RunAsync(() =>
+                _pending.Add(() => OnRoom(mapInstance, () =>
                 {
                     var monster = mapInstance.SummonMonster(npcMonster, spawn.At.X, spawn.At.Y, spawn.IsHostile);
                     return mapInstance.SendPacketAsync(monster.GenerateIn());
@@ -224,7 +226,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 DestinationMapInstanceId = to.MapInstanceId,
                 Type = locked ? PortalType.Closed : PortalType.Open
             };
-            _pending.Add(() => from.Executor.RunAsync(() =>
+            _pending.Add(() => OnRoom(from, () =>
             {
                 from.Portals.Add(portal);
                 return from.SendPacketAsync(portal.GenerateGp());
@@ -235,7 +237,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         {
             var from = _rooms[fromRoom];
             var to = _rooms[toRoom].MapInstanceId;
-            _pending.Add(() => from.Executor.RunAsync(async () =>
+            _pending.Add(() => OnRoom(from, async () =>
             {
                 foreach (var portal in from.Portals.Where(s => s.DestinationMapInstanceId == to).ToList())
                 {
@@ -363,60 +365,63 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        // Triggers run one at a time, and what they ask for is carried out once the script
-        // has returned, so a script never sees the run half-applied.
+        // Work left on a room's queue by an abandoned run must not land after the failure.
+        private Task OnRoom(MapInstance room, Func<Task> action) =>
+            room.Executor.RunAsync(() => _abandoned ? Task.CompletedTask : action());
+
+        // Triggers and the work they ask for run one at a time and in order. The work is
+        // carried out once the script has returned, so a script never sees the run half-applied.
         private async Task RunAsync(Func<Task> trigger)
         {
             await _gate.WaitAsync();
-            List<Func<Task>> work;
             try
             {
+                var endBefore = EndState;
                 try
                 {
                     await trigger();
                 }
                 catch (ScriptAbandonedException)
                 {
+                    // An ending the failed trigger asked for was never applied.
                     _pending.Clear();
+                    EndState = endBefore;
                     Abandon();
                 }
+                catch (Exception exception)
+                {
+                    _pending.Clear();
+                    _logger.LogError(exception, "{Instance} failed", Name);
+                    return;
+                }
 
-                work = [.. _pending];
-                _pending.Clear();
-            }
-            catch (Exception exception)
-            {
-                _pending.Clear();
-                _logger.LogError(exception, "Instance {ScriptedInstanceId} failed",
-                    Entrance.ScriptedInstanceId);
-                return;
+                await ApplyPendingAsync();
             }
             finally
             {
                 _gate.Release();
             }
+        }
 
-            foreach (var step in work)
+        private async Task ApplyPendingAsync()
+        {
+            while (_pending.Count > 0)
             {
+                var step = _pending[0];
+                _pending.RemoveAt(0);
                 try
                 {
                     await step().WaitAsync(_stepTimeout);
                 }
                 catch (TimeoutException)
                 {
-                    _logger.LogError("A step of instance {ScriptedInstanceId} did not finish within {Timeout}",
-                        Entrance.ScriptedInstanceId, _stepTimeout);
-                    await RunAsync(() =>
-                    {
-                        Abandon();
-                        return Task.CompletedTask;
-                    });
-                    return;
+                    _logger.LogError("A step of {Instance} did not finish within {Timeout}", Name, _stepTimeout);
+                    _pending.Clear();
+                    Abandon();
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, "A step of instance {ScriptedInstanceId} failed",
-                        Entrance.ScriptedInstanceId);
+                    _logger.LogError(exception, "A step of {Instance} failed", Name);
                 }
             }
         }

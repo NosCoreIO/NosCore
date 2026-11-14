@@ -27,7 +27,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public async Task EnterAsync(ClientSession session, ScriptedInstance entrance)
         {
             var character = session.Character;
-            await scriptedInstanceService.LoadAsync(entrance);
+            if (!await scriptedInstanceService.LoadAsync(entrance))
+            {
+                await RefuseAsync(session, Game18NConstString.TimespaceDoesNotExist);
+                return;
+            }
 
             if (character.Level < entrance.EffectiveLevelMinimum
                 || character.Level > entrance.EffectiveLevelMaximum)

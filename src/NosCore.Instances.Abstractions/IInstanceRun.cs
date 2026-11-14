@@ -37,6 +37,7 @@ namespace NosCore.Instances.Abstractions
         void Fail();
     }
 
+    // One script object serves every run of its file, so per-run state belongs to the run.
     public interface IInstanceScript
     {
         ScriptedInstanceDefinition Definition { get; }
