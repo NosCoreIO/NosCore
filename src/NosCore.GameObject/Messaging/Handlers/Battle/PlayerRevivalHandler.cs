@@ -14,6 +14,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.FactionWarService;
 using NosCore.GameObject.Services.LandOfDeathService;
+using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking;
@@ -46,7 +47,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IScriptedInstanceService scriptedInstanceService,
-        ILandOfDeathService landOfDeathService, IFactionWarService factionWarService)
+        ILandOfDeathService landOfDeathService, IFactionWarService factionWarService, IQuestService questService)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -106,7 +107,10 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 if (player.MapInstance is { IsAct4: true } && evt.Killer is PlayerComponentBundle enemy
                     && enemy.CharacterId != player.CharacterId)
                 {
-                    await factionWarService.RecordKillAsync(enemy, player);
+                    if (await factionWarService.RecordKillAsync(enemy, player))
+                    {
+                        await questService.OnEnemyPlayerDefeatedAsync(enemy);
+                    }
                 }
                 else
                 {

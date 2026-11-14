@@ -16,6 +16,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.FactionWarService;
+using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -34,6 +35,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         private ClientSession _session;
         private ClientSession _killerSession;
         private Mock<IFactionWarService> _factionWar;
+        private Mock<IQuestService> _quests;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -42,6 +44,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             _session = await World.CreateSessionAsync();
             _killerSession = await World.CreateSessionAsync();
             _factionWar = World.Freeze<Mock<IFactionWarService>>();
+            _quests = World.Freeze<Mock<IQuestService>>();
             _handler = World.Create<PlayerRevivalHandler>();
         }
 
@@ -67,6 +70,40 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
                 .Then(DignityShouldBe_, (short)-50)
                 .And(NoKillShouldBeRecorded)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEnemyKillInGlacernonCountsForTheKillersQuests()
+        {
+            await new Spec("A kill the faction war counts also counts towards the killer's quests")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(TheCharacterIsInGlacernon)
+                .And(TheWarCountsTheKill_, true)
+                .WhenAsync(PlayerDiesKilledByOtherPlayer)
+                .Then(TheKillerShouldBeCreditedForQuests_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AKillBetweenAlliesInGlacernonCountsForNoQuest()
+        {
+            await new Spec("A kill the faction war does not count does not count towards any quest either")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(TheCharacterIsInGlacernon)
+                .And(TheWarCountsTheKill_, false)
+                .WhenAsync(PlayerDiesKilledByOtherPlayer)
+                .Then(TheKillerShouldBeCreditedForQuests_, 0)
+                .ExecuteAsync();
+        }
+
+        private void TheWarCountsTheKill_(bool counted) =>
+            _factionWar.Setup(w => w.RecordKillAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<PlayerComponentBundle>()))
+                .ReturnsAsync(counted);
+
+        private void TheKillerShouldBeCreditedForQuests_(int times)
+        {
+            var killer = _killerSession.Character.CharacterId;
+            _quests.Verify(q => q.OnEnemyPlayerDefeatedAsync(It.Is<PlayerComponentBundle>(p => p.CharacterId == killer)), Times.Exactly(times));
         }
 
         private void TheCharacterIsInGlacernon() => _session.Character.MapInstance.IsAct4 = true;

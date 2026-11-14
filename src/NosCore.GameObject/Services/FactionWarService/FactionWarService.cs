@@ -111,11 +111,11 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
         }
     }
 
-    public async Task RecordKillAsync(PlayerComponentBundle killer, PlayerComponentBundle victim)
+    public async Task<bool> RecordKillAsync(PlayerComponentBundle killer, PlayerComponentBundle victim)
     {
         if (killer.Faction == FactionType.Neutral || killer.Faction == victim.Faction)
         {
-            return;
+            return false;
         }
 
         Side? guardianCalled = null;
@@ -155,6 +155,7 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
         }
 
         await RefreshAsync();
+        return true;
     }
 
     public async Task<bool> GuardianDiedAsync(MonsterComponentBundle monster)
