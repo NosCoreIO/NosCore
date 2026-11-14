@@ -25,12 +25,15 @@ public abstract class KillQuestHandlerBase(ILogger logger, ILogLanguageLocalizer
 {
     public abstract QuestType QuestType { get; }
 
+    protected virtual bool Counts(PlayerComponentBundle character, NpcMonsterDto mob, QuestObjectiveDto objective) =>
+        objective.FirstData == mob.NpcMonsterVNum;
+
     public async Task OnMonsterKilledAsync(PlayerComponentBundle character, NpcMonsterDto mob, CharacterQuest quest)
     {
         var progressSnapshots = new List<(short MobVNum, int Current, int Required)>();
         foreach (var objective in quest.Quest.QuestObjectives)
         {
-            if (objective.FirstData != mob.NpcMonsterVNum)
+            if (!Counts(character, mob, objective))
             {
                 continue;
             }
@@ -46,7 +49,7 @@ public abstract class KillQuestHandlerBase(ILogger logger, ILogLanguageLocalizer
                 current = required;
                 quest.ObjectiveProgress[objective.QuestObjectiveId] = required;
             }
-            progressSnapshots.Add(((short)objective.FirstData, current, required));
+            progressSnapshots.Add((mob.NpcMonsterVNum, current, required));
         }
 
         if (progressSnapshots.Count == 0)

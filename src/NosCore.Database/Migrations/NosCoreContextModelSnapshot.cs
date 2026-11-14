@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261114142340_AddRaidCollectQuestItemEffect";
+    public override string LastMigrationId => "20261114161358_AddDefeatEnemiesQuestType";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -60,7 +60,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "penalty_type", new[] { "muted", "banned", "block_exp", "block_f_exp", "block_rep", "warning" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "portal_type", new[] { "ts_normal", "closed", "open", "miniland", "ts_end", "ts_end_closed", "exit", "exit_closed", "raid", "effect", "blue_raid", "dark_raid", "time_space", "shop_teleport", "map_portal" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "quest_reward_type", new[] { "none", "gold", "gold_per_monster", "experience", "experience_per_monster", "job_experience", "consecutive_item", "etc_main_item", "wear_item", "reputation", "gold_per_kill", "experience_per_kill", "job_experience_per_kill", "not_repeatable", "class_item", "hero_experience", "level", "level_and_job_level" });
-        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "quest_type", new[] { "hunt", "special_collect", "collect_in_raid", "brings", "capture_without_getting_the_monster", "capture", "times_space", "product", "number_of_kill", "target_reput", "ts_point", "dialog1", "collect_in_ts", "required", "wear", "needed", "collect", "transmit_gold", "go_to", "collect_map_entity", "use", "dialog2", "un_know", "inspect", "win_raid", "flower_quest" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "quest_type", new[] { "hunt", "special_collect", "collect_in_raid", "brings", "capture_without_getting_the_monster", "capture", "times_space", "product", "number_of_kill", "target_reput", "ts_point", "dialog1", "collect_in_ts", "required", "wear", "needed", "collect", "transmit_gold", "go_to", "collect_map_entity", "use", "dialog2", "un_know", "inspect", "win_raid", "flower_quest", "defeat_enemies" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "region_type", new[] { "en", "de", "fr", "it", "pl", "es", "ru", "cs", "tr" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "scripted_instance_type", new[] { "time_space", "raid", "raid_act4" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "static_bonus_type", new[] { "bazaar_medal_gold", "bazaar_medal_silver", "back_pack", "pet_basket", "pet_back_pack", "inventory_ticket_upgrade", "cuarry_bank_vip" });
