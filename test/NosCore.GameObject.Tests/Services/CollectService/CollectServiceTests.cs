@@ -21,8 +21,9 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Entities;
-using NosCore.Shared.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
@@ -40,6 +41,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         private Mock<Wolverine.IMessageBus> _messageBus;
         private GameObject.Services.CollectService.CollectService _service;
         private bool _started;
+        private readonly DropDto _drop = new() { VNum = ItemVNum, Amount = 1, MonsterVNum = ObjectVNum, DropChance = 100000 };
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -47,10 +49,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             var catalog = new Mock<INpcCombatCatalog>();
-            catalog.Setup(c => c.GetDrops(ObjectVNum)).Returns(new List<DropDto>
-            {
-                new() { VNum = ItemVNum, Amount = 1, MonsterVNum = ObjectVNum, DropChance = 100000 }
-            });
+            catalog.Setup(c => c.GetDrops(ObjectVNum)).Returns(new List<DropDto> { _drop });
             catalog.Setup(c => c.GetDrops(It.Is<short>(v => v != ObjectVNum))).Returns(new List<DropDto>());
             _messageBus = new Mock<Wolverine.IMessageBus>();
             _service = new GameObject.Services.CollectService.CollectService(catalog.Object,
@@ -104,6 +103,31 @@ namespace NosCore.GameObject.Tests.Services.CollectService
                 .And(TheReceivedMessageShouldSay_, 1)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ACollectThatOverflowsAStackShowsEverySlotItTouched()
+        {
+            await new Spec("What a collect adds beyond a full stack is shown in the slot it starts")
+                .Given(AMapObjectWhoseCollectFlagIs_, true)
+                .And(TheObjectGives_OfTheItem, 5)
+                .And(ThePlayerAlreadyHas_OfTheItem, 997)
+                .AndAsync(OpeningTheObject)
+                .And(SecondsPass_, 5)
+                .WhenAsync(SendingTheCollectGuri)
+                .Then(ThePlayerShouldHave_OfTheItem, 1002)
+                .And(TheBagShouldBeShownWithStacksOf_, new[] { 999, 3 })
+                .ExecuteAsync();
+        }
+
+        private void TheObjectGives_OfTheItem(int amount) => _drop.Amount = amount;
+
+        private void ThePlayerAlreadyHas_OfTheItem(int amount) =>
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                World.GenerateItemProvider().Create(ItemVNum, (short)amount), _session.Character.CharacterId));
+
+        private void TheBagShouldBeShownWithStacksOf_(int[] amounts) =>
+            CollectionAssert.AreEqual(amounts, _session.LastPackets.OfType<IvnPacket>()
+                .SelectMany(p => p.IvnSubPackets.NotNull()).Select(slot => (int)slot.RareAmount).OrderByDescending(a => a).ToArray());
 
         [TestMethod]
         public async Task ACollectBeforeTheBarEndsIsIgnored()

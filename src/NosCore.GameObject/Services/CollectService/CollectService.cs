@@ -65,14 +65,14 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
             var amount = (short)(drop.Amount > 0 ? drop.Amount : 1);
             var item = itemProvider.Create(drop.VNum, amount);
             var added = character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(item, character.CharacterId))?.FirstOrDefault();
-            if (added == null)
+                InventoryItemInstance.Create(item, character.CharacterId));
+            if (added is not { Count: > 0 })
             {
                 await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
                 return false;
             }
 
-            await character.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
+            await character.SendPacketAsync(added.GeneratePocketChange());
             await character.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                 2, drop.VNum.ToString(), amount));
         }

@@ -580,6 +580,26 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task TheLastPotionOfAStackEmptiesItsSlot()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", configure: c => c.Hp = 100);
+            await Harness.GiveAsync(player, WorldData.Potion, 1, pocket: NoscorePocketType.Main);
+            string told;
+            await using (var alice = await EnterAsync(player))
+            {
+                var drunk = alice.Mark();
+
+                await alice.SendAsync($"u_i {Player} {alice.CharacterId} {MainPocket} 0 0 0");
+
+                told = await alice.ExpectSinceAsync(drunk, AnySlot(MainPocket, 0), "the slot the potion was in");
+            }
+
+            await using var back = await Harness.ComeBackAsync(player);
+            Same(Array.Empty<string>(), Listed(back, MainPocket));
+            Assert.IsTrue(EmptySlot(MainPocket, 0)(told), $"the client is told the slot is empty: {told}");
+        }
+
+        [TestMethod]
         public async Task APotionIsNotUsedUpAtFullHp()
         {
             var player = await Harness.AddPlayerAsync("Alice");
