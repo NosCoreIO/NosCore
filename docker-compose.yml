@@ -69,8 +69,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # The master waits for the game data, which this server imports on first start.
       master:
-        condition: service_healthy
+        condition: service_started
     environment:
       - WEBAPI_PORT=5001
       - WEBAPI_HOST=http://world
@@ -90,7 +91,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 60s
+      start_period: 300s
     ports:
       - 5001:5001
       - 1337:1337
@@ -98,6 +99,7 @@ services:
       - noscore-network
     volumes:
       - ./configuration/:/app/configuration
+      - client-data:/app/build/net11.0/client-data
 
   login:
     container_name: noscore-login
@@ -148,6 +150,9 @@ services:
     volumes:
       - ./configuration/:/app/configuration
       - ./dats:/dats
+
+volumes:
+  client-data:
 
 networks:
   noscore-network:

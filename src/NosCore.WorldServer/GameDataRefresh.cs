@@ -84,7 +84,7 @@ namespace NosCore.WorldServer
             }
 
             using var parser = Process.Start(start)
-                ?? throw new DatabaseNotReadyException("The parser could not be started. Run it, then start the server again.");
+                ?? throw new DatabaseNotReadyException("The parser could not be started. Run it.");
             parser.WaitForExit();
         }
 

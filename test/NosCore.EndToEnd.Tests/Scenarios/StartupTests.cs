@@ -18,7 +18,6 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         [TestMethod]
         [DataRow("NosCore.MasterServer")]
         [DataRow("NosCore.LoginServer")]
-        [DataRow("NosCore.WorldServer")]
         [DataRow("NosCore.WebApi")]
         public async Task AServerOnADatabaseThatIsBehindSaysSoInsteadOfStarting(string server)
         {
@@ -30,7 +29,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var line = written.Single(l => l.Contains("migration behind this build", StringComparison.Ordinal));
             StringAssert.StartsWith(line, "The database is 1 migration behind this build (next: ");
-            StringAssert.EndsWith(line, "Run the parser to update it, then start the server again.");
+            StringAssert.Contains(line, "). Run the parser to update it.");
         }
     }
 }

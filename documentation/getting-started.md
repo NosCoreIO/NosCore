@@ -45,7 +45,7 @@ The first time, the world server finds an empty database and fills it before it 
 downloads the client's data files into `build/net11.0/client-data`, creates the `noscore`
 database, applies the migrations and imports items, monsters, maps, skills and quests. That
 takes two to three minutes, most of it the download. The master and login servers wait for it
-and print `Waiting for a world server or the parser to bring the database up to date` meanwhile.
+and print `Waiting for a world server to do it` meanwhile.
 It is ready when the world prints `Successfully Loaded!`.
 
 After a `git pull` there is nothing to run either. The world server imports again, from the
@@ -120,7 +120,7 @@ need the PostgreSQL from above and report themselves as not run without it.
 
 ## When something does not work
 
-- **A server keeps printing "Waiting for a world server or the parser".** No world server has
+- **A server keeps printing "Waiting for a world server to do it".** No world server has
   imported the game data yet. Start one, or run the parser.
 - **The maps have no monsters or NPCs.** There is no `packet.txt` in the folder of the last
   import; see step 3.

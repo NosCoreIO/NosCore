@@ -34,7 +34,7 @@ namespace NosCore.Database
             catch (DbException e)
             {
                 throw new DatabaseNotReadyException(
-                    $"The database cannot be read ({e.Message}). Run the parser to create it, then start the server again.", e);
+                    $"The database cannot be read ({e.Message}). Run the parser to create it.", e);
             }
 
             if (Describe(pending) is { } behind)
@@ -59,7 +59,7 @@ namespace NosCore.Database
                 {
                     if (e.Message != reported)
                     {
-                        Console.WriteLine($"Waiting for a world server or the parser to bring the database up to date. {e.Message}");
+                        Console.WriteLine($"{e.Message} Waiting for a world server to do it.");
                         reported = e.Message;
                     }
 
@@ -124,7 +124,7 @@ namespace NosCore.Database
         {
             if (import == null)
             {
-                return "The game data has not been imported. Run the parser, then start the server again.";
+                return "The game data has not been imported. Run the parser.";
             }
 
             var clientFiles = GameDataFingerprint.TryOfClientFiles(import.Folder);
@@ -135,9 +135,9 @@ namespace NosCore.Database
             }
 
             return folderSeen
-                ? $"The game data could not be imported again from {import.Folder}. Run the parser to see why, then start the server again."
+                ? $"The game data could not be imported again from {import.Folder}. Run the parser to see why."
                 : $"The game data was imported by another build of the parser, from {import.Folder}, which this server cannot read. " +
-                  "Run the parser again, then start the server again.";
+                  "Run the parser again.";
         }
 
         // False only when the server cannot be reached at all; a missing database still counts,
@@ -177,7 +177,7 @@ namespace NosCore.Database
         public static string? Describe(IReadOnlyList<string> pendingMigrations) => pendingMigrations.Count == 0
             ? null
             : $"The database is {pendingMigrations.Count} migration{(pendingMigrations.Count == 1 ? "" : "s")} behind this build " +
-              $"(next: {pendingMigrations[0]}). Run the parser to update it, then start the server again.";
+              $"(next: {pendingMigrations[0]}). Run the parser to update it.";
     }
 
     public sealed class DatabaseNotReadyException(string message, Exception? innerException = null)
