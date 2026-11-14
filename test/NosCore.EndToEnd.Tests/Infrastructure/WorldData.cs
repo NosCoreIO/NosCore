@@ -16,6 +16,7 @@ using NosCore.Database.Entities;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
+using FamilyUpgradeType = NosCore.Data.Enumerations.Family.FamilyUpgradeType;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
 {
@@ -23,6 +24,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
     // Two open maps joined by a portal, a miniland, a shopkeeper with one item to sell, a broker
     // to talk to, a chest and a weapon to hand out, what a new adventurer is given, a mount with its
     // booster, creatures to hit, and a market where players may keep a shop, with a grocer.
+
+    // to talk to, a family manager, a chest and a weapon to hand out, what a new adventurer is
+    // given, creatures to hit, and a market where players may keep a shop, with a grocer.
     // Characters are added by the scenarios.
     public static class WorldData
     {
@@ -111,6 +115,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short SteedStartCard = 51;
         public const short SteedEndCard = 52;
         public const int SteedCardTime = 30;
+
+        // Sells a family its warehouse, to families of the second level and above only.
+        public const int FamilyManager = 4;
+        private const short FamilyManagerVNum = 9;
+        private const byte FamilyShop = 48;
+        public const short FamilyWarehouse = 3002;
+        public const long FamilyWarehousePrice = 500;
+        public const byte FamilyWarehouseLevel = 2;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -275,6 +287,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new MapNpc { MapNpcId = Broker, MapId = Town, MapX = 76, MapY = 118, VNum = BrokerVNum, Dialog = BrokerDialog });
             await context.SaveChangesAsync();
             await SeedMarketAsync(context);
+            await SeedFamilyManagerAsync(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
             DatabaseReadiness.RecordGameDataImport(context);
@@ -332,6 +345,24 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 context.Add(new DignityLevel { DignityLevelId = level, MaxDignity = ceilings[level - 1] });
             }
+        }
+
+        private static async Task SeedFamilyManagerAsync(NosCoreContext context)
+        {
+            context.Add(new Item
+            {
+                VNum = FamilyWarehouse, Name = "familywarehouse", Type = NoscorePocketType.Etc, ItemType = ItemType.Main,
+                Price = FamilyWarehousePrice
+            });
+            context.Add(new NpcMonster { NpcMonsterVNum = FamilyManagerVNum, Name = "familymanager", Level = 1, MaxHp = 100 });
+            await context.SaveChangesAsync();
+            context.Add(new FamilyUpgrade
+            {
+                ItemVNum = FamilyWarehouse, FamilyLevelMinimum = FamilyWarehouseLevel, UpgradeType = FamilyUpgradeType.Warehouse
+            });
+            context.Add(new MapNpc { MapNpcId = FamilyManager, MapId = Town, MapX = 76, MapY = 108, VNum = FamilyManagerVNum });
+            context.Add(new Shop { MapNpcId = FamilyManager, MenuType = 0, ShopType = FamilyShop });
+            await context.SaveChangesAsync();
         }
 
         private static Item Worn(short vnum, EquipmentType slot, ItemType type) => new()
