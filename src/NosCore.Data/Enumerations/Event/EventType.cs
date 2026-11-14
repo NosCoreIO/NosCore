@@ -11,6 +11,7 @@ namespace NosCore.Data.Enumerations.Event
         InstantCombat,
         IceBreaker,
         LandOfDeath,
-        TalentArena
+        TalentArena,
+        Act4Ship
     }
 }

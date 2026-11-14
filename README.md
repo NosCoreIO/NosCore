@@ -57,6 +57,8 @@ dotnet run --project src/NosCore.DevHost
 
 It builds everything and starts the master, login and world servers together; Ctrl+C stops them. Each can also be started on its own from `build/net11.0`, in any order.
 
+To play Glacernon on a channel of its own, also start `ACT4_CHANNEL=true WORLD_PORT=1338 dotnet NosCore.WorldServer.dll` from `build/net11.0`.
+
 It needs the .NET 11 SDK and a PostgreSQL on `localhost:5432` (user `postgres`, password `password`). On first start the world server downloads the client's data files, creates the database and imports the game data, which takes two to three minutes; it imports again by itself whenever the build or the client files change. Monster, NPC and shop positions come from a packet capture you add yourself, as the guide explains.
 
 On Windows, `scripts\NosCore.cmd` does the same, `scripts\` has a `.cmd` for each server, and `docker-compose.yml` runs the same servers in containers.

@@ -82,6 +82,9 @@ namespace NosCore.Instances.Abstractions
 
         void Message(Game18NConstString message);
 
+        // For a line that takes one number, such as the minutes left.
+        void Message(Game18NConstString message, long argument);
+
         void Succeed();
 
         void Fail();

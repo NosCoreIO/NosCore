@@ -31,6 +31,7 @@ namespace NosCore.Parser.Parsers
             NrunRunnerType.GoToGlacerusCave,
             NrunRunnerType.GoToForgottenArchipelago,
             NrunRunnerType.ReturnFromMortazDesert,
+            NrunRunnerType.ReturnFromGlacernon,
         };
 
         public async Task InsertTeleportersAsync(List<string[]> packetList)

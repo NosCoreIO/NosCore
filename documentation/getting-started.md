@@ -49,11 +49,21 @@ The first import also creates two accounts, both with the password `test`:
 | `admin` | game master: can use the `$` commands (`$Help` lists them) |
 | `test` | ordinary player |
 
+To reach Glacernon on a channel of its own, as the game does, start a second world as the Act 4
+channel. It stays out of the channel list; the ship and Glacernon's NPCs move players to it and back.
+
+```bash
+ACT4_CHANNEL=true WORLD_PORT=1338 dotnet NosCore.WorldServer.dll
+```
+
+(`scripts\Act4WorldServer.cmd` on Windows.) Without it, Glacernon is played on the ordinary channel.
+
 | Server | Listens on | What it does |
 |---|---|---|
 | Master | 5000 (HTTP) | the one authority for everything shared between channels |
 | Login | 4000 | account check and channel list |
 | World | 1337 | one game channel |
+| World (`ACT4_CHANNEL=true`) | 1338 (`WORLD_PORT`) | optional: the Act 4 channel |
 | WebApi | 8080 (`API_PORT`) | optional: account login for the launcher |
 
 `dotnet NosCore.WebApi.dll` is only needed for clients that log in through

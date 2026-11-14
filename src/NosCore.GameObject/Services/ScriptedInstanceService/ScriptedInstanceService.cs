@@ -21,6 +21,8 @@ using Mapster;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -47,6 +49,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IAggroService _aggroService;
         private readonly IItemThrowService _itemThrowService;
         private readonly IDao<MapMonsterDto, int> _mapMonsters;
+        private readonly IDao<MapNpcDto, int> _mapNpcs;
+        private readonly IItemGenerationService _itemProvider;
         private readonly List<NpcMonsterDto> _npcMonsterList;
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
@@ -70,6 +74,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IAggroService aggroService,
             IItemThrowService itemThrowService,
             IDao<MapMonsterDto, int> mapMonsters,
+            IDao<MapNpcDto, int> mapNpcs,
+            IItemGenerationService itemProvider,
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
             IRandomProvider random,
@@ -87,6 +93,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _aggroService = aggroService;
             _itemThrowService = itemThrowService;
             _mapMonsters = mapMonsters;
+            _mapNpcs = mapNpcs;
+            _itemProvider = itemProvider;
             _npcMonsterList = npcMonsters;
             _mapChangeService = mapChangeService;
             _clock = clock;
@@ -216,6 +224,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     mapInstance.LoadMonsters(_mapMonsters.Where(m => m.MapId == room.VNum)?.ToList() ?? [], _npcMonsterList);
                 }
 
+                if (room.MapNpcs.Count > 0)
+                {
+                    LoadMapNpcs(mapInstance, room);
+                }
+
                 await _mapInstanceGeneratorService.Value.AddMapInstanceAsync(mapInstance);
                 await mapInstance.StartLifeAsync();
                 built[room.Key] = mapInstance;
@@ -229,6 +242,21 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             return run;
+        }
+
+        // The map's data often lists the same NPC several times over, so one per spot is kept.
+        private void LoadMapNpcs(MapInstance mapInstance, InstanceRoom room)
+        {
+            var npcs = (_mapNpcs.Where(n => n.MapId == room.VNum)?.ToList() ?? [])
+                .Where(n => room.MapNpcs.Contains(n.VNum))
+                .GroupBy(n => (n.VNum, n.MapX, n.MapY))
+                .Select(g => g.OrderBy(n => n.MapNpcId).First())
+                .ToList();
+            mapInstance.LoadNpcs(npcs, _npcMonsterList);
+            foreach (var npc in mapInstance.EnumerateNpcs())
+            {
+                npc.InitializeShopAndDialog([], null, [], _itemProvider);
+            }
         }
 
         public async Task TickAsync()

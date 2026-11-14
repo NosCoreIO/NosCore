@@ -43,7 +43,8 @@ namespace NosCore.GameObject.Services.MapChangeService
             ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus,
             ScriptedInstanceService.IScriptedInstanceService scriptedInstanceService,
             BattleService.IBattleStatsProvider battleStatsProvider,
-            FactionWarService.IFactionWarService factionWarService)
+            FactionWarService.IFactionWarService factionWarService,
+            ChannelService.IChannelService channelService)
         : IMapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -53,26 +54,23 @@ namespace NosCore.GameObject.Services.MapChangeService
                 return;
             }
 
-            Guid targetMapInstanceId;
-            if (mapId != null)
+            var mapInstance = mapId != null
+                ? mapInstanceAccessorService.GetBaseMapById((short)mapId)
+                : session.Character.MapInstance;
+            if (mapInstance == null)
             {
-                var mapInstance = mapInstanceAccessorService.GetBaseMapById((short)mapId);
-
-                if (mapInstance == null)
-                {
-                    logger.LogError(
-                        logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
-                    return;
-                }
-
-                targetMapInstanceId = mapInstance.MapInstanceId;
-            }
-            else
-            {
-                targetMapInstanceId = session.Character.MapInstanceId;
+                logger.LogError(
+                    logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
+                return;
             }
 
-            await ChangeMapInstanceAsync(session, targetMapInstanceId, mapX, mapY);
+            if (await channelService.TryMoveToHostAsync(session, mapInstance,
+                    mapX ?? session.Character.MapX, mapY ?? session.Character.MapY))
+            {
+                return;
+            }
+
+            await ChangeMapInstanceAsync(session, mapInstance.MapInstanceId, mapX, mapY);
         }
 
         public async Task ChangeMapInstanceAsync(ClientSession session, Guid mapInstanceId, int? mapX = null, int? mapY = null)

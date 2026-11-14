@@ -35,6 +35,9 @@ namespace NosCore.Core.Configuration
 
         public bool StartInMaintenance { get; set; }
 
+        // This world is the Act 4 channel: it hosts Glacernon and stays out of the channel list.
+        public bool Act4Channel { get; set; }
+
         [Required]
         public string? ServerName { get; set; }
 
