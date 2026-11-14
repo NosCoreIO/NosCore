@@ -135,6 +135,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void AChanceToReduceDamageJoinsTheChanceDamageRollsAsALoss()
+        {
+            var stats = StatsWith(Card(BCardEffect.IncreaseDamageDecreasingPropability, 100, 25));
+
+            CollectionAssert.AreEqual(new[] { new ChanceDamage(100, -25) }, stats.ChanceDamage?.ToArray());
+        }
+
+        [TestMethod]
         public void ADefencePercentReductionLowersEveryDefence()
         {
             var stats = StatsWith(Card(BCardEffect.DodgeAndDefencePercentDefenceReduced, 10));

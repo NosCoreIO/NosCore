@@ -247,9 +247,10 @@ public sealed class BattleStatsProvider(
             {
                 var effect = card.Effect();
                 if (effect is BCardEffect.CriticalDamageIncreasingPropability or BCardEffect.CriticalDamageReducingPropability
-                    or BCardEffect.IncreaseDamageIncreasingPropability)
+                    or BCardEffect.IncreaseDamageIncreasingPropability or BCardEffect.IncreaseDamageDecreasingPropability)
                 {
-                    var percent = effect == BCardEffect.CriticalDamageReducingPropability ? -card.SecondData : card.SecondData;
+                    var percent = effect is BCardEffect.CriticalDamageReducingPropability
+                        or BCardEffect.IncreaseDamageDecreasingPropability ? -card.SecondData : card.SecondData;
                     (totals.ChanceDamage ??= []).Add(new ChanceDamage(card.FirstData, percent));
                 }
                 else if (DamageTakenChances.TryGetValue(effect, out var taken))
