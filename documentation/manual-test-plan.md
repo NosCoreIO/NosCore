@@ -282,6 +282,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Gear with a hero XP bonus raises the hero XP of a kill by its percent
 - [ ] Gear with a reputation bonus raises the reputation a kill gives by its percent
 
+### Skill cooldown and mana cost bonuses
+
+- [ ] Wear amulet 4360 ("cooldowns -20%") and cast skill 203: its slot is ready again after about
+      8 s instead of 10 s
+- [ ] Wear amulet 4291 ("mana cost -30%"): a skill that costs 100 MP takes 70 MP off the bar
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,

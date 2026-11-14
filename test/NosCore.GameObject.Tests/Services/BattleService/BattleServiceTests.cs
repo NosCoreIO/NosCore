@@ -60,6 +60,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<NosCore.GameObject.Services.BattleService.ICaptureService>().Object,
                 _castDelay.Object,
                 _buffs.Object,
+                new NosCore.GameObject.Services.BattleService.SkillCastService(NodaTime.SystemClock.Instance, new Mock<NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService>().Object, new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object),
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 

@@ -75,6 +75,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 World.SessionRegistry, clock, new Mock<ICaptureService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.ICastDelayService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
+                new NosCore.GameObject.Services.BattleService.SkillCastService(clock, new Mock<NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService>().Object, World.Create<BuffService>()),
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             Assert.IsTrue(await service.Hit(session.Character, monster, new HitArguments { SkillId = 7 }));

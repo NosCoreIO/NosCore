@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Ecs.Interfaces;
+using NodaTime;
 using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -19,4 +19,7 @@ public interface ISkillCastService
     SkillCastRefusal Check(PlayerComponentBundle character, CharacterSkill skill, out int mpCost);
 
     void Spend(PlayerComponentBundle character, CharacterSkill skill, int mpCost);
+
+    // A skill's cooldown once the caster's buffs and gear have lengthened or shortened it.
+    Duration Cooldown(PlayerComponentBundle character, short cooldown);
 }

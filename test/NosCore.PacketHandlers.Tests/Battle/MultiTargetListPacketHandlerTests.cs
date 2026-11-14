@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 World.LogLanguageLocalizer,
                 _battleService.Object,
                 World.SessionRegistry,
-                new SkillCastService(World.Clock, _gear.Object),
+                new SkillCastService(World.Clock, _gear.Object, World.Create<BuffService>()),
                 World.DistanceCalculator,
                 new WalkService(World.Clock));
         }

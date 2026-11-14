@@ -9,10 +9,5 @@ namespace NosCore.GameObject.Services.BattleService
         public Instant? LastUse { get; set; }
 
         public required SkillDto Skill { get; set; }
-
-        public bool CanBeUsed(Instant now)
-        {
-            return LastUse == null || LastUse.Value.Plus(Duration.FromMilliseconds(Skill.Cooldown * 100)) < now;
-        }
     }
 }
