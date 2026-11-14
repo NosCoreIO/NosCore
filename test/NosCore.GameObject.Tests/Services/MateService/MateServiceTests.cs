@@ -22,8 +22,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
-using NosCore.Packets;
-using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
@@ -342,7 +340,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
-        public async Task ASpacedMateNameReachesTheClientAsOneFieldAsync()
+        public async Task AMateKeepsTheNameItsOwnerGaveItAsync()
         {
             var service = Build(new[]
             {
@@ -350,21 +348,14 @@ namespace NosCore.GameObject.Tests.Services.MateService
             }, Creature(ChickenVNum, "Chicken", 157, 10));
 
             var mate = (await service.LoadAsync(CharacterId))[0];
-            var serializer = new Serializer(typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract)
-                .ToList());
 
-            foreach (var packet in new IPacket[]
-                { mate.GenerateIn(RegionType.EN, 0, 0), mate.GenerateScp(RegionType.EN), mate.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object) })
-            {
-                var line = serializer.Serialize(new[] { packet }).TrimEnd();
-                StringAssert.Contains(line, "Joyeux^Mouton",
-                    $"the name has to travel as one field: {line}");
-            }
+            Assert.AreEqual("Joyeux Mouton", mate.GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Name);
+            Assert.AreEqual("Joyeux Mouton", mate.GenerateScp(RegionType.EN).Name);
+            Assert.AreEqual("Joyeux Mouton", mate.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object).Name);
         }
 
         [TestMethod]
-        public async Task APartnerWearingACardSendsTheFieldTheClientReadsAfterItAsync()
+        public async Task APartnerWearingACardSendsTheCardAndTheFieldTheClientReadsAfterItAsync()
         {
             var service = Build(new[]
             {
@@ -375,14 +366,14 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var wearing = new Mock<IInventoryService>();
             wearing.Setup(s => s.LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.FirstPartnerInventory))
                 .Returns(InventoryItemInstance.Create(card, CharacterId));
-            var serializer = new Serializer(new[] { typeof(ScnPacket) });
 
-            var withCard = serializer.Serialize(partner.GenerateScn(RegionType.EN, wearing.Object)).Split(' ');
-            var withoutCard = serializer.Serialize(partner.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object)).Split(' ');
+            var withCard = partner.GenerateScn(RegionType.EN, wearing.Object);
+            var withoutCard = partner.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object);
 
-            Assert.AreEqual("4324.0", withCard[40]);
-            Assert.AreEqual(47, withCard.Length);
-            Assert.AreEqual(46, withoutCard.Length);
+            PacketAssert.AreEqual(new ScnPacket.ScSpDetails { ItemId = 4324 }, withCard.SpDetails.NotNull());
+            Assert.AreEqual((byte)0, withCard.Unknown6);
+            Assert.IsNull(withoutCard.SpDetails);
+            Assert.IsNull(withoutCard.Unknown6);
         }
 
         [TestMethod]

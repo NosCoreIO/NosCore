@@ -26,10 +26,8 @@ using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.PacketHandlers.Shops;
-using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
@@ -171,7 +169,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await new Spec("The list shows all four extensions with their price, whatever the family level")
                 .GivenAsync(TheFamilyIsLevel_, (byte)2)
                 .WhenAsync(TheHeadOpensTheFamilyShop)
-                .Then(TheListShouldRead_, "n_inv 2 100 0 100 1.0.9694.1.500000 1.1.9695.1.2000000 1.2.9696.1.5000000 1.3.9697.1.10000000")
+                .Then(TheListShouldOfferEveryExtension)
                 .ExecuteAsync();
         }
 
@@ -421,11 +419,26 @@ namespace NosCore.PacketHandlers.Tests.Family
             }
         }
 
-        private void TheListShouldRead_(string expected)
+        private void TheListShouldOfferEveryExtension()
         {
-            var list = _head.LastPackets.OfType<NInvPacket>().Last();
-            Assert.AreEqual(expected, Serializer().Serialize(new[] { (IPacket)list }).TrimEnd());
+            PacketAssert.AreEqual(new NInvPacket
+            {
+                VisualType = VisualType.Npc,
+                VisualId = ManagerId,
+                Unknown = 0,
+                ShopKind = 100,
+                Items =
+                [
+                    Extension(0, 9694, 500000),
+                    Extension(1, 9695, 2000000),
+                    Extension(2, 9696, 5000000),
+                    Extension(3, 9697, 10000000),
+                ],
+            }, _head.LastPackets.OfType<NInvPacket>().Last());
         }
+
+        private static NInvItemSubPacket Extension(short slot, short vnum, int price) =>
+            new() { Type = PocketType.Main, Slot = slot, VNum = vnum, RareAmount = 1, Price = price };
 
         private async Task TheWarehouseShouldHave_(byte size) =>
             Assert.AreEqual(size, (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId)).NotNull().WarehouseSize);
@@ -456,9 +469,5 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.AreEqual(1, _head.LastPackets.OfType<Msgi2Packet>().Count(s => s.Message == Game18NConstString.PurchasedItemX));
             Assert.AreEqual(1, _published.Count);
         }
-
-        private static Serializer Serializer() => new(typeof(IPacket).Assembly.GetTypes()
-            .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract)
-            .ToList());
     }
 }

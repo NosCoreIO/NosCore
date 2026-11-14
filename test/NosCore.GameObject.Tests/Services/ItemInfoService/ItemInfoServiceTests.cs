@@ -21,9 +21,8 @@ using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SpecialistPointService;
 using NosCore.Data.StaticEntities;
-using NosCore.Packets;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.ItemInfoService
@@ -31,10 +30,6 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
     [TestClass]
     public class ItemInfoServiceTests
     {
-        private static readonly Serializer Serializer = new(typeof(IPacket).Assembly.GetTypes()
-            .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract)
-            .ToList());
-
         private readonly List<EquipmentOptionDto> _options = new();
         private readonly List<SkillDto> _skills = new();
         private GameObject.Services.ItemInfoService.ItemInfoService _service;
@@ -53,8 +48,8 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         private static WearableInstance Wearable(Item item) =>
             new(item, new Mock<ILogger<WearableInstance>>().Object, TestLocalizers.Log);
 
-        private string Info(IItemInstance instance) =>
-            Serializer.Serialize(new[] { _service.GenerateInfo(instance).NotNull() }).TrimEnd();
+        private T Info<T>(IItemInstance instance) where T : class =>
+            _service.GenerateInfo(instance) as T ?? throw new AssertFailedException($"Expected a {typeof(T).Name}.");
 
         [TestMethod]
         public void AWeaponShowsItsDamageWithTheInstanceBonusAdded()
@@ -70,7 +65,20 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             sword.DamageMaximum = 45;
             sword.HitRate = 41;
 
-            Assert.AreEqual("e_info 0 21 3 5 0 29 123 149 136 6 0 0 0 12180 -1 0 0 0 0 0", Info(sword));
+            PacketAssert.AreEqual(new EInfoWeaponPacket
+            {
+                Type = EInfoPacketType.WeaponDefault,
+                ItemVNum = 21,
+                Rare = 3,
+                Upgrade = 5,
+                LevelMinimum = 29,
+                DamageMinimum = 123,
+                DamageMaximum = 149,
+                HitRate = 136,
+                CriticalLuckRate = 6,
+                Price = 12180,
+                ShellOptions = [],
+            }, Info<EInfoWeaponPacket>(sword));
         }
 
         [TestMethod]
@@ -83,7 +91,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             sword.Upgrade = 10;
             sword.PityGauge = 35;
 
-            StringAssert.EndsWith(Info(sword), " 35");
+            Assert.AreEqual(35, Info<EInfoWeaponPacket>(sword).PityGauge);
         }
 
         [TestMethod]
@@ -96,7 +104,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             armour.Upgrade = 11;
             armour.PityGauge = 420;
 
-            StringAssert.EndsWith(Info(armour), " 420");
+            Assert.AreEqual(420, Info<EInfoArmorPacket>(armour).PityGauge);
         }
 
         [TestMethod]
@@ -107,7 +115,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
                 VNum = 41, ItemType = ItemType.Weapon, EquipmentSlot = EquipmentType.MainWeapon, Class = 4, MaximumAmmo = 100
             });
 
-            StringAssert.StartsWith(Info(bow), "e_info 1 41 ");
+            Assert.AreEqual(EInfoPacketType.MainWeaponArcher, Info<EInfoWeaponPacket>(bow).Type);
         }
 
         [TestMethod]
@@ -125,7 +133,20 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             armour.MagicDefence = 16;
             armour.BoundCharacterId = 7;
 
-            Assert.AreEqual("e_info 2 97 3 5 0 27 83 76 52 118 11340 -1 0 7 0 0 0", Info(armour));
+            PacketAssert.AreEqual(new EInfoArmorPacket
+            {
+                ItemVNum = 97,
+                Rare = 3,
+                Upgrade = 5,
+                LevelMinimum = 27,
+                CloseDefence = 83,
+                DistanceDefence = 76,
+                MagicDefence = 52,
+                DefenceDodge = 118,
+                Price = 11340,
+                BoundCharacterId = 7,
+                ShellOptions = [],
+            }, Info<EInfoArmorPacket>(armour));
         }
 
         [TestMethod]
@@ -139,7 +160,20 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             });
             gloves.Upgrade = 5;
 
-            Assert.AreEqual("e_info 3 412 76 7 12 5 8 42 0 42 0 37468 5 0 -1", Info(gloves));
+            PacketAssert.AreEqual(new EInfoAccessoryPacket
+            {
+                Type = EInfoPacketType.Hat,
+                ItemVNum = 412,
+                LevelMinimum = 76,
+                CloseDefence = 7,
+                DistanceDefence = 12,
+                MagicDefence = 5,
+                DefenceDodge = 8,
+                FireResistance = 42,
+                LightResistance = 42,
+                Price = 37468,
+                Upgrade = 5,
+            }, Info<EInfoAccessoryPacket>(gloves));
         }
 
         [TestMethod]
@@ -151,7 +185,12 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             });
             fairy.ElementRate = 4;
 
-            Assert.AreEqual("e_info 4 884 1 34 0 0 0 0 0", Info(fairy));
+            PacketAssert.AreEqual(new EInfoFairyPacket
+            {
+                ItemVNum = 884,
+                Element = ElementType.Fire,
+                ElementRate = 34,
+            }, Info<EInfoFairyPacket>(fairy));
         }
 
         [TestMethod]
@@ -165,11 +204,20 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             _options.Add(new EquipmentOptionDto { WearableInstanceId = ring.Id, Level = 2, Type = 1, Value = 120 });
             _options.Add(new EquipmentOptionDto { WearableInstanceId = Guid.NewGuid(), Level = 1, Type = 3, Value = 9 });
 
-            Assert.AreEqual("e_info 4 511 30 3 1 1 27300 1 2 120", Info(ring));
+            PacketAssert.AreEqual(new EInfoJewelryPacket
+            {
+                ItemVNum = 511,
+                LevelMinimum = 30,
+                MaxCellonLevel = 3,
+                MaxCellon = 1,
+                CellonOptionCount = 1,
+                Price = 27300,
+                CellonOptions = [new EInfoCellonOptionSubPacket { Type = 1, Level = 2, Value = 120 }],
+            }, Info<EInfoJewelryPacket>(ring));
         }
 
         [TestMethod]
-        public void ARingWithoutCellonsMatchesTheClientLayout()
+        public void ARingWithoutCellonsListsNone()
         {
             var ring = Wearable(new Item
             {
@@ -177,7 +225,15 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
                 MaxCellonLvl = 3, MaxCellon = 1, Price = 27300
             });
 
-            Assert.AreEqual("e_info 4 511 30 3 1 0 27300", Info(ring));
+            PacketAssert.AreEqual(new EInfoJewelryPacket
+            {
+                ItemVNum = 511,
+                LevelMinimum = 30,
+                MaxCellonLevel = 3,
+                MaxCellon = 1,
+                Price = 27300,
+                CellonOptions = [],
+            }, Info<EInfoJewelryPacket>(ring));
         }
 
         [TestMethod]
@@ -207,10 +263,26 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
                 SlDamage = 30,
             };
 
-            var info = Info(card);
-
-            StringAssert.StartsWith(info,
-                $"slinfo 0 902 3 40 35 7 0 0 0 0 0 0 0 3 3 11 8 0 1234 554000 823.824.825.826.827.828.829.830.831.832 {card.TransportId} 45 19 0 0 0 3 0 0 0 ");
+            PacketAssert.AreEqual(new SlInfoPacket
+            {
+                InventoryType = PocketType.Equipment,
+                ItemVnum = 902,
+                ItemMorph = 3,
+                SpLevel = 40,
+                LevelJobMinimum = 35,
+                ReputationMinimum = 7,
+                SpType = 3,
+                FireResistance = 3,
+                WaterResistance = 11,
+                LightResistance = 8,
+                Xp = 1234,
+                SpXpData = 554000,
+                Skill = "823.824.825.826.827.828.829.830.831.832",
+                TransportId = card.TransportId,
+                FreeSpPoints = 45,
+                SlHit = 19,
+                Upgrade = 3,
+            }, Info<SlInfoPacket>(card));
         }
 
         [TestMethod]
@@ -221,7 +293,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
                 SpLevel = 1,
             };
 
-            StringAssert.Contains(Info(card), " 15000 -1 ");
+            Assert.AreEqual("-1", Info<SlInfoPacket>(card).Skill);
         }
 
         [TestMethod]
@@ -236,7 +308,20 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             _options.Add(new EquipmentOptionDto { WearableInstanceId = sword.Id, Level = 2, Type = 15, Value = 12 });
             _options.Add(new EquipmentOptionDto { WearableInstanceId = sword.Id, Level = 1, Type = 1, Value = 50 });
 
-            Assert.AreEqual("e_info 0 299 0 0 0 70 0 0 0 0 0 0 0 100 -1 5 1 2 1.1.50 2.15.12 0 0", Info(sword));
+            PacketAssert.AreEqual(new EInfoWeaponPacket
+            {
+                ItemVNum = 299,
+                LevelMinimum = 70,
+                Price = 100,
+                ShellRarity = 5,
+                BoundCharacterId = 1,
+                ShellOptionCount = 2,
+                ShellOptions =
+                [
+                    new EInfoShellOptionSubPacket { Level = 1, Type = 1, Value = 50 },
+                    new EInfoShellOptionSubPacket { Level = 2, Type = 15, Value = 12 },
+                ],
+            }, Info<EInfoWeaponPacket>(sword));
         }
 
         [TestMethod]
@@ -250,7 +335,15 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             shell.Rare = 5;
             _options.Add(new EquipmentOptionDto { WearableInstanceId = shell.Id, Level = 1, Type = 1, Value = 50 });
 
-            Assert.AreEqual("e_info 9 565 60 5 200 1 1.1.50", Info(shell));
+            PacketAssert.AreEqual(new EInfoShellPacket
+            {
+                ItemVNum = 565,
+                Level = 60,
+                Rare = 5,
+                Price = 200,
+                ShellOptionCount = 1,
+                ShellOptions = [new EInfoShellOptionSubPacket { Level = 1, Type = 1, Value = 50 }],
+            }, Info<EInfoShellPacket>(shell));
         }
     }
 }

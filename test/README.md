@@ -68,6 +68,23 @@ Other ways to control a dependency:
   implementation, which is itself built from the world.
 - `World.Inject(instance)` hands over a specific object, such as a list of items or skills.
 
+## Asserting on a packet
+
+Compare a packet's values, not its serialized line. The wire format belongs to `NosCore.Packets`,
+which tests it there. `PacketAssert.AreEqual` compares every `[PacketIndex]` field, including
+sub-packets and lists, and names each field that differs:
+
+```csharp
+PacketAssert.AreEqual(new EInfoShellPacket
+{
+    ItemVNum = 565,
+    ShellOptionCount = 1,
+    ShellOptions = [new EInfoShellOptionSubPacket { Level = 1, Type = 1, Value = 50 }],
+}, packet);
+```
+
+When only one field matters to the test, assert on that property directly.
+
 ## Sessions and players
 
 - `World.CreateSessionAsync()` creates an account and a character, puts them on map 0 and
