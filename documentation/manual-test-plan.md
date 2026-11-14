@@ -2471,6 +2471,13 @@ arena) next to Tei Ken, the left NPC on the steps. Learned skills are needed to 
       their bench, their heart turns grey, the score goes up and the next fighter of their team
       comes in; a fighter who disconnects loses the round the same way
 - [ ] A round that runs out sends both fighters out with no point to either team
+- [ ] The fighter in the ring clicks a teammate's call button in the HUD: the caller flashes,
+      both teams' call counts drop by one, and the teammate is told for three seconds that they
+      will be called, then stands next to the caller for 30 seconds. While called they can hit
+      the opponent and be hit; afterwards, or once they fall, they go back to the bench
+- [ ] A team gets five calls a match; a teammate who has fallen, is already called, or a
+      fighter on the bench pressing the button calls nobody
+- [ ] Not verifiable yet: spectating a match by name (`taw`), which this client never sends
 - [ ] When a team has nobody left the result window shows WIN/LOSE with won rounds and lives;
       winners get 1 Gold Medal, losers 3 Silver Medals, each with a chat line
 - [ ] Ten seconds later (or after Close) everyone is back where they registered, the HUD is gone,

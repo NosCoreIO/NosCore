@@ -50,6 +50,10 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         public static readonly TimeSpan OpenLength = TimeSpan.FromHours(4);
         public static readonly TimeSpan SearchTime = TimeSpan.FromMinutes(5);
+        public const int CallsPerTeam = 5;
+        public static readonly TimeSpan CallDelay = TimeSpan.FromSeconds(3);
+        public static readonly TimeSpan CallLength = TimeSpan.FromSeconds(30);
+        private const int CallEffect = 4432;
         private static readonly TimeSpan Tick = TimeSpan.FromSeconds(1);
 
         private readonly SemaphoreSlim _lock = new(1, 1);
@@ -172,6 +176,11 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 _lock.Release();
             }
         }
+
+        public Task CallAsync(ClientSession session, byte calledIndex) =>
+            scriptedInstanceService.GetRun(session.Character.MapInstanceId) is { Host: Match match } run
+                ? run.RunHostAsync(() => match.CallAsync(run, session.Character, calledIndex))
+                : Task.CompletedTask;
 
         private async Task RunAsync()
         {
@@ -402,6 +411,21 @@ namespace NosCore.GameObject.Services.TalentArenaService
             };
         }
 
+        // The teammate a fighter in the ring brings in: the calledIndex-th of their teammates in
+        // fighting order, while that one is still in the match, on the bench and not already called.
+        public static long? CallTarget(IReadOnlyCollection<TalentArenaFighter> fighters, long callerId, byte calledIndex, int callsUsed)
+        {
+            var caller = fighters.FirstOrDefault(f => f.CharacterId == callerId);
+            if (caller is not { InRing: true, Defeated: false } || callsUsed >= CallsPerTeam)
+            {
+                return null;
+            }
+
+            var called = fighters.Where(f => f.Team == caller.Team && f.CharacterId != callerId).OrderBy(f => f.Order)
+                .ElementAtOrDefault(calledIndex);
+            return called is { Defeated: false, InRing: false, Called: false } ? called.CharacterId : null;
+        }
+
         private static ArenaTeamType Opponent(ArenaTeamType team) =>
             team == ArenaTeamType.Zenas ? ArenaTeamType.Erenia : ArenaTeamType.Zenas;
 
@@ -458,6 +482,16 @@ namespace NosCore.GameObject.Services.TalentArenaService
             public bool Defeated { get; set; }
 
             public bool Left { get; set; }
+
+            // Set while a teammate's call brings this fighter into the ring.
+            public Call? Call { get; set; }
+        }
+
+        private sealed class Call(TimeSpan arrivesAt)
+        {
+            public TimeSpan ArrivesAt { get; } = arrivesAt;
+
+            public TimeSpan? EndsAt { get; set; }
         }
 
         // One match: who fights for each side, in what order, and the score. The script decides
@@ -466,6 +500,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
             : IInstanceRunHost
         {
             private readonly Dictionary<ArenaTeamType, int> _wins = new() { [ArenaTeamType.Zenas] = 0, [ArenaTeamType.Erenia] = 0 };
+            private readonly Dictionary<ArenaTeamType, int> _calls = new() { [ArenaTeamType.Zenas] = 0, [ArenaTeamType.Erenia] = 0 };
 
             public string Name => "talent arena";
 
@@ -490,6 +525,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 foreach (var fighter in called)
                 {
                     fighter.InRing = true;
+                    fighter.Call = null;
                 }
 
                 run.Queue(() => StartBoutAsync(room, called));
@@ -524,6 +560,12 @@ namespace NosCore.GameObject.Services.TalentArenaService
             public async Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player)
             {
                 var fighter = fighters.Find(f => f.CharacterId == player.CharacterId);
+                if (fighter is { Call: not null })
+                {
+                    await EndCallAsync(run, fighter);
+                    return;
+                }
+
                 if (fighter is not { InRing: true, Defeated: false })
                 {
                     await StandUpAsync(run, player);
@@ -552,11 +594,120 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     fighter.Defeated = true;
                 }
 
+                foreach (var called in fighters.Where(f => f.Call != null).ToList())
+                {
+                    if (called.Call is { } call)
+                    {
+                        await AdvanceCallAsync(run, called, call);
+                    }
+                }
+
                 if (fighters.Any(f => f.InRing && !f.Defeated))
                 {
                     await run.BroadcastAsync(Bars());
                 }
             }
+
+            public async Task CallAsync(ScriptedInstanceRun run, PlayerComponentBundle player, byte calledIndex)
+            {
+                var caller = fighters.Find(f => f.CharacterId == player.CharacterId);
+                if (caller == null || !player.InTalentArenaRing)
+                {
+                    return;
+                }
+
+                var target = CallTarget(fighters.Select(f => new TalentArenaFighter(f.CharacterId, f.Team, f.Order, f.InRing,
+                    f.Defeated, f.Call != null)).ToList(), caller.CharacterId, calledIndex, _calls[caller.Team]);
+                var called = fighters.Find(f => f.CharacterId == target);
+                if (called == null || service.Session(called.CharacterId) is not { } session
+                    || !run.Rooms.Values.Contains(session.Character.MapInstanceId))
+                {
+                    return;
+                }
+
+                _calls[caller.Team]++;
+                called.Call = new Call(run.Elapsed + CallDelay);
+                await run.BroadcastAsync(player.GenerateEff(CallEffect));
+                await SendListsAsync(run);
+                await session.SendPacketAsync(Called((int)CallDelay.TotalSeconds));
+            }
+
+            private async Task AdvanceCallAsync(ScriptedInstanceRun run, Fighter called, Call call)
+            {
+                var caller = fighters.Find(f => f.Team == called.Team && f.InRing && !f.Defeated);
+                if (caller == null || service.Session(called.CharacterId) is not { } session
+                    || !run.Rooms.Values.Contains(session.Character.MapInstanceId))
+                {
+                    await EndCallAsync(run, called);
+                    return;
+                }
+
+                if (call.EndsAt is { } endsAt)
+                {
+                    if (run.Elapsed >= endsAt)
+                    {
+                        await EndCallAsync(run, called);
+                    }
+
+                    return;
+                }
+
+                var secondsLeft = (int)Math.Ceiling((call.ArrivesAt - run.Elapsed).TotalSeconds);
+                if (secondsLeft > 0)
+                {
+                    await session.SendPacketAsync(Called(secondsLeft));
+                    return;
+                }
+
+                if (service.Session(caller.CharacterId)?.Character is not { } callerPlayer)
+                {
+                    await EndCallAsync(run, called);
+                    return;
+                }
+
+                call.EndsAt = run.Elapsed + CallLength;
+                var player = session.Character;
+                player.InTalentArenaRing = true;
+                await player.TeleportAsync(callerPlayer.PositionX, callerPlayer.PositionY);
+                await run.BroadcastAsync(new TaTPacket { CharacterId = called.CharacterId, Seconds = (int)CallLength.TotalSeconds });
+                await session.SendPacketAsync(new TaStPacket { Type = TaStType.Nothing });
+            }
+
+            private async Task EndCallAsync(ScriptedInstanceRun run, Fighter called)
+            {
+                called.Call = null;
+                if (service.Session(called.CharacterId) is not { } session || !run.Rooms.Values.Contains(session.Character.MapInstanceId))
+                {
+                    return;
+                }
+
+                var player = session.Character;
+                player.InTalentArenaRing = false;
+                if (run.IsDown(player.CharacterId))
+                {
+                    await StandUpAsync(run, player);
+                }
+
+                var bench = Side(called.Team).Bench;
+                await player.TeleportAsync(bench.X, bench.Y);
+                await session.SendPacketAsync(new TaStPacket { Type = TaStType.Watch });
+            }
+
+            private async Task SendListsAsync(ScriptedInstanceRun run)
+            {
+                foreach (var session in run.Players())
+                {
+                    await session.SendPacketAsync(Lists(session.Character.TalentArenaTeam ?? ArenaTeamType.Zenas, TaWindowMode.Update));
+                }
+            }
+
+            private static MsgiPacket Called(int seconds) => new()
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.CalledByAnotherParticipant,
+                ArgumentType = 4,
+                Game18NArguments = { seconds },
+            };
 
             public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
             {
@@ -709,6 +860,8 @@ namespace NosCore.GameObject.Services.TalentArenaService
             {
                 Type = mode,
                 TeamType = team,
+                CallsLeft = CallsPerTeam - _calls[team],
+                OpponentCallsLeft = CallsPerTeam - _calls[Opponent(team)],
                 Fighters = Slots(team).Select(f => f == null || service.Session(f.CharacterId)?.Character is not { } p
                         ? new TaPSubPacket()
                         : new TaPSubPacket

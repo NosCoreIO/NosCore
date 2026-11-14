@@ -162,6 +162,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        // Lets a host change its own state from outside the run's triggers, such as from a packet.
+        public Task RunHostAsync(Func<Task> work)
+        {
+            return RunAsync(() =>
+            {
+                if (EndState == null)
+                {
+                    _pending.Add(work);
+                }
+
+                return Task.CompletedTask;
+            });
+        }
+
         // The script starts once the first player has finished entering, so what it summons
         // reaches a client that is already on the map.
         public Task EnteredAsync(ClientSession session, Guid mapInstanceId)
