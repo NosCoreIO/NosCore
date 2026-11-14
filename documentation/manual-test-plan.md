@@ -256,6 +256,11 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Kill the target with another character during the wind-up: the cast ends without a hit
 - [ ] A monster with a cast-time skill stops chasing while it winds up, then resumes
 
+### Buffs on a target
+
+- [ ] Have a second character drink an Attack Potion, then click them: the potion's icon shows
+      under their HP and MP bars. A permanent buff (a fairy booster) does not.
+
 ### Debuff resistance
 
 - [ ] Let a monster whose skill causes Blackout hit you: Blackout lands on every hit that

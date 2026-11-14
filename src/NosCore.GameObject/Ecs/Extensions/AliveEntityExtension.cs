@@ -9,6 +9,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -29,6 +30,7 @@ using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -110,7 +112,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                 CurrentMp = aliveEntity.Mp,
                 MaxHp = aliveEntity.MaxHp,
                 MaxMp = aliveEntity.MaxMp,
-                BuffIds = null
+                BuffIds = aliveEntity.BuffState()?.Values.Where(b => !b.Static).Select(b => b.CardId).ToList() is { Count: > 0 } buffs
+                    ? buffs
+                    : null
             };
         }
 
@@ -323,12 +327,19 @@ namespace NosCore.GameObject.Ecs.Extensions
         // A buff that raises the worn fairy's element shows the fairy in its boosted look.
         public static bool HasFairyElementBuff(this IAliveEntity aliveEntity)
         {
-            var buffs = aliveEntity is PlayerComponentBundle player
-                ? player.World.TryGetComponent<BuffStateComponent>(player.Entity)?.ActiveBuffs
-                : null;
+            var buffs = aliveEntity is PlayerComponentBundle ? aliveEntity.BuffState() : null;
             return buffs != null && buffs.Values.Any(buff =>
                 buff.BCards.Any(b => b.Effect() == BCardEffect.Type96IncreaseFairyElement));
         }
+
+        public static ConcurrentDictionary<short, BuffInstance>? BuffState(this IAliveEntity aliveEntity) =>
+            aliveEntity switch
+            {
+                PlayerComponentBundle p => p.World.TryGetComponent<BuffStateComponent>(p.Entity)?.ActiveBuffs,
+                MonsterComponentBundle m => m.World.TryGetComponent<BuffStateComponent>(m.Entity)?.ActiveBuffs,
+                NpcComponentBundle n => n.World.TryGetComponent<BuffStateComponent>(n.Entity)?.ActiveBuffs,
+                _ => null,
+            };
 
         public static CModePacket GenerateCMode(this IAliveEntity aliveEntity)
         {

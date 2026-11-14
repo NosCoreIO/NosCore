@@ -39,7 +39,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public async Task ApplyAsync(IAliveEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster, int overrideDuration = -1)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return;
@@ -98,7 +98,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             return;
         }
 
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return;
@@ -120,7 +120,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public async Task ApplyPermanentAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return;
@@ -143,7 +143,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public async Task ApplyStaticAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return;
@@ -166,7 +166,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public void RestoreStatic(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return;
@@ -201,7 +201,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public async Task RemoveAsync(IAliveEntity target, short cardId)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs != null && buffs.TryRemove(cardId, out var removed))
         {
             await SendIconRemovalAsync(target, removed);
@@ -210,7 +210,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public async Task RemoveBadAsync(IAliveEntity target, byte maxLevel)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return;
@@ -228,7 +228,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public async Task ClearAsync(IAliveEntity target)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null || buffs.IsEmpty)
         {
             return;
@@ -280,7 +280,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return EmptyBuffs;
@@ -292,13 +292,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public bool HasBuff(IAliveEntity target, short cardId)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         return buffs != null && buffs.ContainsKey(cardId);
     }
 
     public bool HasEffect(IAliveEntity target, BCardEffect effect)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null)
         {
             return false;
@@ -326,7 +326,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public async Task<IReadOnlyList<BuffInstance>> TickAsync(IAliveEntity target)
     {
-        var buffs = ResolveState(target);
+        var buffs = target.BuffState();
         if (buffs == null || buffs.IsEmpty)
         {
             return EmptyExpired;
@@ -537,17 +537,6 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     }
 
     private bool Rolls(int percent) => percent > 0 && randomProvider.Next(0, 100) < percent;
-
-    private static ConcurrentDictionary<short, BuffInstance>? ResolveState(IAliveEntity target)
-    {
-        return target switch
-        {
-            PlayerComponentBundle p => p.World.TryGetComponent<BuffStateComponent>(p.Entity)?.ActiveBuffs,
-            MonsterComponentBundle m => m.World.TryGetComponent<BuffStateComponent>(m.Entity)?.ActiveBuffs,
-            NpcComponentBundle n => n.World.TryGetComponent<BuffStateComponent>(n.Entity)?.ActiveBuffs,
-            _ => null,
-        };
-    }
 
     private static BuffType ClassifyBuffType(CardDto card) => card.BuffType;
 
