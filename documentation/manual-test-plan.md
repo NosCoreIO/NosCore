@@ -2227,9 +2227,9 @@ Set the `Script` column of a raid row (`Type` 1 in `ScriptedInstance`; the row o
 `raid-mother-cuby`, the raid shipped in `instances/`. It is opened by item 1127, for levels
 30 to 49 and teams of 5 to 15; the boss is 282 and its helpers 283, and dropping their `MaxHp`
 makes the run quick. Use five characters at level 30 to 49, called A to E below, all on one map.
-The client has no button that sends `mkraid` without the raid window (see "Not verifiable yet"),
-so "A starts" means the leader's session sends `mkraid 0 0`: lead with a headless character, or
-send the packet from a client build that can type raw packets.
+The raid's gate is the swirling portal its `ScriptedInstance` row places on a map (Mother Cuby's
+stands at the top of Jelly Entrance, 2510 at 20,5). "A starts" means A steps on that gate and
+confirms "Do you want to create the raid map?".
 
 - [ ] A uses the seal: "You are the raid leader" appears, the seal is gone from the inventory
 - [ ] A uses a second seal: "already in a raid" appears and the seal stays
@@ -2269,6 +2269,23 @@ send the packet from a client build that can type raw packets.
       question: B stays out of A's new team
 - [ ] With only A and B in the team, B disconnects before the start: A stays in the raid team
       and sees that B left
+- [ ] On Jelly Entrance the gate shows at the top of the path; Chicken Farm Path, whose raid row
+      has no script, shows none
+- [ ] D, in no raid team, steps on the gate: "A team must first be created for the raid." appears
+- [ ] B steps on the gate: "Team leader must lead the raid." appears. A team opened with another
+      raid's seal gets "The raid does not match the seal."
+- [ ] A uses the seal: the "Raid team" panel opens on the right with A alone, out of 15
+- [ ] B joins, then C leaves: every member's panel adds B, then drops C, with A first
+- [ ] Inside the raid, B dies once: B's line in every panel counts one death
+- [ ] The raid board opens on the server's `rl`, and no menu that sends `rl 0` has been found yet,
+      so the board checks below are run from a headless character's `rl` packets
+- [ ] A registers the team (`rl 1`): D, outside any team, sends `rl 0` and gets A's team with A's
+      name, level and class, the raid and the member count
+- [ ] D asks to join from the board (`rl 3 A`): D joins without an invitation and every panel adds D
+- [ ] A removes the team from the board: "Removed from the raid list." appears and D's board
+      no longer shows it; B trying the same is told only the leader can
+- [ ] A registers twice: "Already registered in the raid list." appears
+- [ ] A starts the raid: the team is gone from everyone's board
 
 ### Instant Combat
 
@@ -2764,10 +2781,6 @@ Recorded so nobody spends time hunting for them:
   unmodified client may grey the tab out first, in which case the refusal cannot be reached.
 - **Family experience from content** — time-spaces, raids and Instant Combat grant none yet;
   only member level-ups and achievement rewards move the bar.
-- **The raid party window and the raid list board** — the server keeps the team, but the
-  window listing its members (`rdlst`) and the board (`rl`) need packets NosCore.Packets does
-  not have yet, so neither opens in the client. Joining and leaving can only be watched through
-  the messages above until they do.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Options with nothing behind them yet** — family invites, pet and partner auto-revive,

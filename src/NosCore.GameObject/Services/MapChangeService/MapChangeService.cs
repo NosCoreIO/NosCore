@@ -228,6 +228,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
                     await session.SendPacketsAsync(scriptedInstanceService.GenerateWp(newMapInstance.Map.MapId));
+                    await session.SendPacketsAsync(scriptedInstanceService.GenerateRaidGates(newMapInstance.Map.MapId));
                 }
 
                 var minilandPortals = minilandProvider

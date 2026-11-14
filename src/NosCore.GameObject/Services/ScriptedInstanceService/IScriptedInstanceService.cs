@@ -9,6 +9,7 @@ using NosCore.Instances.Abstractions;
 using NosCore.Packets.ServerPackets.MiniMap;
 using System;
 using System.Collections.Generic;
+using NosCore.Packets.ServerPackets.Portals;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
@@ -22,6 +23,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         ScriptedInstance? GetNear(short mapId, short positionX, short positionY);
 
         IEnumerable<WpPacket> GenerateWp(short mapId);
+
+        IEnumerable<GpPacket> GenerateRaidGates(short mapId);
 
         Task<bool> LoadAsync(ScriptedInstance entrance);
 
