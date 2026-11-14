@@ -70,7 +70,7 @@ namespace NosCore.LoginServer
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
             var loginConfiguration = conf.Get<LoginConfiguration>()
                 ?? throw new InvalidOperationException("The LoginConfiguration section could not be read.");
-            DatabaseReadiness.EnsureUpToDate(loginConfiguration.Database.ConnectionString);
+            DatabaseReadiness.WaitUntilUpToDate(loginConfiguration.Database.ConnectionString);
             services.AddNosCoreContext(loginConfiguration.Database.ConnectionString);
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();

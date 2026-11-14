@@ -33,6 +33,7 @@ ENTRYPOINT ["dotnet", "NosCore.LoginServer.dll"]
 
 FROM base AS world
 COPY --from=build /out/world .
+RUN mkdir client-data && chown $APP_UID client-data
 USER $APP_UID
 EXPOSE 1337 5001
 ENTRYPOINT ["dotnet", "NosCore.WorldServer.dll"]

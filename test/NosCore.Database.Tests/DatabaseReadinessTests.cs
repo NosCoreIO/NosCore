@@ -25,7 +25,7 @@ namespace NosCore.Database.Tests
         {
             Assert.AreEqual(
                 "The database is 1 migration behind this build (next: 20261113061457_AddSpeedBoostDash). " +
-                "Run the parser to update it, then start the server again.",
+                "Run the parser to update it.",
                 DatabaseReadiness.Describe(["20261113061457_AddSpeedBoostDash"]));
         }
 
@@ -34,7 +34,7 @@ namespace NosCore.Database.Tests
         {
             Assert.AreEqual(
                 "The database is 2 migrations behind this build (next: First). " +
-                "Run the parser to update it, then start the server again.",
+                "Run the parser to update it.",
                 DatabaseReadiness.Describe(["First", "Second"]));
         }
 
@@ -51,7 +51,7 @@ namespace NosCore.Database.Tests
         public void ADatabaseNeverImportedIsToldToRunTheParser()
         {
             Assert.AreEqual(
-                "The game data has not been imported. Run the parser, then start the server again.",
+                "The game data has not been imported. Run the parser.",
                 DatabaseReadiness.DescribeGameData(null, ParserBuild));
         }
 
@@ -62,7 +62,7 @@ namespace NosCore.Database.Tests
             var import = Import(folder);
             File.WriteAllText(Path.Combine(folder, "Item.dat"), "changed");
             Assert.AreEqual(
-                $"The game data could not be imported again from {folder}. Run the parser to see why, then start the server again.",
+                $"The game data could not be imported again from {folder}. Run the parser to see why.",
                 DatabaseReadiness.DescribeGameData(import, ParserBuild));
         }
 
@@ -81,7 +81,7 @@ namespace NosCore.Database.Tests
             Assert.IsNull(DatabaseReadiness.DescribeGameData(import, ParserBuild));
             Assert.AreEqual(
                 $"The game data was imported by another build of the parser, from {import.Folder}, which this server cannot read. " +
-                "Run the parser again, then start the server again.",
+                "Run the parser again.",
                 DatabaseReadiness.DescribeGameData(import, "OTHER"));
         }
 

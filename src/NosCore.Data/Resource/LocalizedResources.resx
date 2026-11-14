@@ -250,8 +250,7 @@
     <value>{0} items parsed!</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Missing language</value>
-    <comment>insert missing type data</comment>
+    <value>{File} is missing: its texts are left untranslated in that language</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters Loaded!</value>
@@ -657,6 +656,12 @@
   </data>
   <data name="PARSING_FOLDER" xml:space="preserve">
     <value>Parsing non-interactively from {Folder}</value>
+  </data>
+  <data name="DOWNLOADING_CLIENT_FILES" xml:space="preserve">
+    <value>No folder given: downloading the client files into {Folder}</value>
+  </data>
+  <data name="PACKET_CAPTURE_MISSING" xml:space="preserve">
+    <value>{File} is missing: the maps get no monsters, NPCs, portals, shops or teleporters. Put a packet capture there and run the parser again to fill them.</value>
   </data>
   <data name="SPEED_BOOSTERS_PARSED" xml:space="preserve">
     <value>{Mounts} mounts get their Speed Booster effect</value>

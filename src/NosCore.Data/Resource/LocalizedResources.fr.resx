@@ -402,9 +402,6 @@
   <data name="INVITETYPE_UNKNOWN" xml:space="preserve">
     <value>Type d'invitation inconnue.</value>
   </data>
-  <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Pack de langue manquant</value>
-  </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Pas de propriété speciale sur l'équipement.</value>
   </data>

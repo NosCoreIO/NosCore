@@ -248,10 +248,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Â¡{0} Items Analizados!</value>
   </data>
-  <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Lenguaje faltante</value>
-    <comment>insert missing type data</comment>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Â¡{0} MapMonsters (Monstruos de los Mapas) Cargados!</value>
   </data>

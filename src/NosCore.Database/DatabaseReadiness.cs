@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Database.Entities;
 using Npgsql;
@@ -21,7 +22,7 @@ namespace NosCore.Database
     public static class DatabaseReadiness
     {
         private const int GameDataImportRow = 1;
-        private const long GameDataImportLockKey = 0x4E6F73436F726544;
+        private const int GameDataImportLockKey = 0x4E6F7343;
 
         public static void EnsureUpToDate(string connectionString)
         {
@@ -33,12 +34,37 @@ namespace NosCore.Database
             catch (DbException e)
             {
                 throw new DatabaseNotReadyException(
-                    $"The database cannot be read ({e.Message}). Run the parser to create it, then start the server again.", e);
+                    $"The database cannot be read ({e.Message}). Run the parser to create it.", e);
             }
 
             if (Describe(pending) is { } behind)
             {
                 throw new DatabaseNotReadyException(behind);
+            }
+        }
+
+        // Master and login start in any order with the world server, which imports the game data
+        // on a fresh database, so they wait for it rather than stop.
+        public static void WaitUntilUpToDate(string connectionString)
+        {
+            string? reported = null;
+            while (true)
+            {
+                try
+                {
+                    EnsureUpToDate(connectionString);
+                    return;
+                }
+                catch (DatabaseNotReadyException e)
+                {
+                    if (e.Message != reported)
+                    {
+                        Console.WriteLine($"{e.Message} Waiting for a world server to do it.");
+                        reported = e.Message;
+                    }
+
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
             }
         }
 
@@ -98,7 +124,7 @@ namespace NosCore.Database
         {
             if (import == null)
             {
-                return "The game data has not been imported. Run the parser, then start the server again.";
+                return "The game data has not been imported. Run the parser.";
             }
 
             var clientFiles = GameDataFingerprint.TryOfClientFiles(import.Folder);
@@ -109,18 +135,41 @@ namespace NosCore.Database
             }
 
             return folderSeen
-                ? $"The game data could not be imported again from {import.Folder}. Run the parser to see why, then start the server again."
+                ? $"The game data could not be imported again from {import.Folder}. Run the parser to see why."
                 : $"The game data was imported by another build of the parser, from {import.Folder}, which this server cannot read. " +
-                  "Run the parser again, then start the server again.";
+                  "Run the parser again.";
         }
 
-        // Held by whoever imports the game data again, so that servers starting together import it once.
+        // False only when the server cannot be reached at all; a missing database still counts,
+        // since the parser creates it.
+        public static bool CanConnect(string connectionString)
+        {
+            try
+            {
+                using var connection = new NpgsqlConnection(connectionString);
+                connection.Open();
+                return true;
+            }
+            catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.InvalidCatalogName)
+            {
+                return true;
+            }
+            catch (DbException)
+            {
+                return false;
+            }
+        }
+
+        // Held by whoever imports the game data, so that servers starting together import it once.
+        // Taken in the maintenance database, since the game database may not exist yet.
         public static IDisposable LockGameDataImport(string connectionString)
         {
-            var connection = new NpgsqlConnection(connectionString);
+            var target = new NpgsqlConnectionStringBuilder(connectionString);
+            var connection = new NpgsqlConnection(new NpgsqlConnectionStringBuilder(connectionString) { Database = "postgres" }.ConnectionString);
             connection.Open();
-            using var command = new NpgsqlCommand("SELECT pg_advisory_lock(@key)", connection) { CommandTimeout = 0 };
+            using var command = new NpgsqlCommand("SELECT pg_advisory_lock(@key, hashtext(@database))", connection) { CommandTimeout = 0 };
             command.Parameters.AddWithValue("key", GameDataImportLockKey);
+            command.Parameters.AddWithValue("database", target.Database ?? string.Empty);
             command.ExecuteNonQuery();
             return connection;
         }
@@ -128,7 +177,7 @@ namespace NosCore.Database
         public static string? Describe(IReadOnlyList<string> pendingMigrations) => pendingMigrations.Count == 0
             ? null
             : $"The database is {pendingMigrations.Count} migration{(pendingMigrations.Count == 1 ? "" : "s")} behind this build " +
-              $"(next: {pendingMigrations[0]}). Run the parser to update it, then start the server again.";
+              $"(next: {pendingMigrations[0]}). Run the parser to update it.";
     }
 
     public sealed class DatabaseNotReadyException(string message, Exception? innerException = null)

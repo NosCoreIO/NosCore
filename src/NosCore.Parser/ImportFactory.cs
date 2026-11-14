@@ -132,6 +132,12 @@ namespace NosCore.Parser
         public async Task ImportPacketsAsync()
         {
             var filePacket = $"{_folder}{Path.DirectorySeparatorChar}packet.txt";
+            if (!File.Exists(filePacket))
+            {
+                loggerFactory.CreateLogger<ImportFactory>().LogWarning(logLanguage[LogLanguageKey.PACKET_CAPTURE_MISSING], filePacket);
+                return;
+            }
+
             using var packetTxtStream =
                 new StreamReader(filePacket, Encoding.Default);
             var lines = (await packetTxtStream.ReadToEndAsync()).Split(
