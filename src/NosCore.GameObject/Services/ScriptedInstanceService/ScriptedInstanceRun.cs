@@ -138,9 +138,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        // The script starts once the first player has finished entering, so what it summons
+        // reaches a client that is already on the map.
         public Task EnteredAsync(ClientSession session, Guid mapInstanceId)
         {
-            return RunAsync(() =>
+            return RunAsync(async () =>
             {
                 var room = RoomOf(mapInstanceId);
                 if (room != null)
@@ -148,12 +150,16 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     _visited.Add(room.Value);
                 }
 
+                if (!_started && !_abandoned)
+                {
+                    _started = true;
+                    await CallScriptAsync(run => _script.OnFirstEnter(run));
+                }
+
                 if (_clockEndsAt is { } endsAt && EndState == null)
                 {
                     _pending.Add(() => session.SendPacketAsync(GenerateClock(endsAt)));
                 }
-
-                return Task.CompletedTask;
             });
         }
 

@@ -101,6 +101,19 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task TheFirstPlayerToFinishEnteringStartsTheScriptAsync()
+        {
+            var script = new Script();
+            var run = Run(script);
+            var session = await World.CreateSessionAsync();
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            await run.EnteredAsync(session, _second.MapInstanceId);
+
+            CollectionAssert.AreEqual(new[] { "enter" }, script.Calls);
+        }
+
+        [TestMethod]
         public async Task SummonedMonstersAppearInTheirRoomAsync()
         {
             var run = Run(new Script

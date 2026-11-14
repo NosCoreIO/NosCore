@@ -31,7 +31,7 @@ public class TimeSpace01 : InstanceScript
         if (room == _hall)
         {
             run.UnlockPortal(_hall, _lair);
-            run.Summon(_lair, new MonsterSpawn(200, new Spot(26, 33)));
+            run.Summon(_lair, new MonsterSpawn(60, new Spot(26, 33)));
             run.SetMonsterLocker(_lair, 1);
             return;
         }

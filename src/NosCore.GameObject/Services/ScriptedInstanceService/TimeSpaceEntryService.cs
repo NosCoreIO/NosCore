@@ -56,7 +56,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
             await mapChangeService.ChangeMapInstanceAsync(session, firstRoom,
                 definition.StartX, definition.StartY);
-            await run.StartAsync();
         }
 
         private static Task RefuseAsync(ClientSession session, Game18NConstString message)

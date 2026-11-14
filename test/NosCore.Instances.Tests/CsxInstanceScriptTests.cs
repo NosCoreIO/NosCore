@@ -85,7 +85,7 @@ namespace NosCore.Instances.Tests
 
             script.OnRoomCleared(run, 1);
 
-            CollectionAssert.AreEqual(new[] { "unlock(1->2)", "summon(2,200)", "monsterLocker(2,1)" }, run.Calls);
+            CollectionAssert.AreEqual(new[] { "unlock(1->2)", "summon(2,60)", "monsterLocker(2,1)" }, run.Calls);
         }
 
         [TestMethod]
