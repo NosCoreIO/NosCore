@@ -280,18 +280,9 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
 
             mate.StoreHealth();
-            await mapInstance.SendPacketAsync(mate.GenerateOut());
+            await mapInstance.SendPacketAsync(entity.GenerateOut());
             mapInstance.EcsWorld.DestroyEntity(entity.Handle);
             mate.Entity = null;
-        }
-
-        public static OutPacket GenerateOut(this Mate mate)
-        {
-            return new OutPacket
-            {
-                VisualType = VisualType.Npc,
-                VisualId = mate.MateTransportId
-            };
         }
 
         public static PstPacket GeneratePst(this Mate mate)

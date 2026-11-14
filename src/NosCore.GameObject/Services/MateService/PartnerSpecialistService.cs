@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkills));
-            await SendAsync(owner, partner.GenerateOut());
+            await SendAsync(owner, entity.GenerateOut());
             await SendAsync(owner, partner.GenerateIn(owner.AccountLanguage, entity.PositionX, entity.PositionY, partnerSkills));
         }
 

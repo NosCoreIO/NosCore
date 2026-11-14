@@ -243,20 +243,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
-        public async Task ADespawnNamesTheSameIdTheSpawnDidAsync()
-        {
-            // A mismatch leaves the pet drawn on everybody else's screen, silently.
-            var service = Build(new[]
-            {
-                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet }
-            }, Creature(ChickenVNum, "Chicken", 157, 10));
-
-            var mate = (await service.LoadAsync(CharacterId))[0];
-
-            Assert.AreEqual(mate.GenerateIn(RegionType.EN, 0, 0).VisualId, mate.GenerateOut().VisualId);
-        }
-
-        [TestMethod]
         public async Task OnlyOneMateOfEachTypeIsEverOutAsync()
         {
             // Two rows can claim one slot, and the second would spawn on top of the first.

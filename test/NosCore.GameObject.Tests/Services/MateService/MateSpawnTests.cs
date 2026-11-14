@@ -114,5 +114,15 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             Assert.AreEqual((156, 10), (entity.Hp, entity.Mp));
         }
+
+        [TestMethod]
+        public async Task ADespawnNamesTheSameIdTheSpawnDid()
+        {
+            await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
+            await _pet.DespawnAsync(_session.Character.MapInstance);
+
+            var packets = _session.Character.MapInstance.LastPackets;
+            Assert.AreEqual(packets.OfType<InPacket>().Single().VisualId, packets.OfType<OutPacket>().Single().VisualId);
+        }
     }
 }

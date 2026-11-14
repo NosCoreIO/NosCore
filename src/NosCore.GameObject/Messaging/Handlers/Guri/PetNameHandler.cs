@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             await owner.UseUpOneAsync(tag);
             if (mate.Entity is { } entity)
             {
-                await owner.MapInstance.SendPacketAsync(mate.GenerateOut());
+                await owner.MapInstance.SendPacketAsync(entity.GenerateOut());
                 await owner.MapInstance.SendPacketAsync(mate.GenerateIn(owner.AccountLanguage, entity.PositionX, entity.PositionY));
             }
 
