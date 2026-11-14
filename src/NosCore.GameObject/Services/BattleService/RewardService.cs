@@ -94,9 +94,18 @@ public sealed class RewardService(
             // kills credited to one player at once neither lose experience nor level up twice.
             await mapInstance.Executor.RunAsync(() => AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot));
             var topDamageDealer = FindTopDamageDealer(victim, hitSnapshot);
-            await SpawnDropsAsync(victim, mob, mapInstance, topDamageDealer);
+            var (doubleChance, noDropChance) = topDamageDealer is { } hunter ? DropChances(hunter) : (0, 0);
+            var dropsLoot = !Rolls(noDropChance);
+            if (dropsLoot)
+            {
+                await SpawnDropsAsync(victim, mob, mapInstance, topDamageDealer, doubleChance);
+            }
+
             await SpawnQuestDropsAsync(victim, mob, mapInstance, hitSnapshot);
-            await SpawnGoldAsync(victim, mob, mapInstance, topDamageDealer);
+            if (dropsLoot)
+            {
+                await SpawnGoldAsync(victim, mob, mapInstance, topDamageDealer);
+            }
             _ = killer;
         }
         finally
@@ -247,6 +256,29 @@ public sealed class RewardService(
         public int Experience, JobExperience, HeroExperience, Reputation;
     }
 
+    private static bool Rolls(int percent) => percent > 0 && RandomHelper.Instance.RandomNumber(0, 100) < percent;
+
+    private (int Double, int None) DropChances(PlayerComponentBundle player)
+    {
+        int doubleChance = 0, noDropChance = 0;
+        var cards = buffService.GetActiveBuffs(player).SelectMany(b => b.BCards)
+            .Concat(equipmentStatsService.Resolve(player).BCards ?? []);
+        foreach (var bCard in cards)
+        {
+            switch (bCard.Effect())
+            {
+                case BCardEffect.Type95DropX2Chance:
+                    doubleChance += BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                    break;
+                case BCardEffect.Type95NoDropChance:
+                    noDropChance += BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                    break;
+            }
+        }
+
+        return (doubleChance, noDropChance);
+    }
+
     private int GoldBonusPercent(PlayerComponentBundle player)
     {
         var percent = 0;
@@ -311,7 +343,7 @@ public sealed class RewardService(
     private long? NextOwner(IAliveEntity victim, PlayerComponentBundle? topDamageDealer) =>
         topDamageDealer is { } dealer ? groupLootService.AssignOwner(dealer, victim) : null;
 
-    private async Task SpawnDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, PlayerComponentBundle? topDamageDealer)
+    private async Task SpawnDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, PlayerComponentBundle? topDamageDealer, int doubleChance)
     {
         foreach (var drop in catalog.GetDrops(mob.NpcMonsterVNum))
         {
@@ -328,6 +360,14 @@ public sealed class RewardService(
                 var owner = mapInstance.MapInstanceType == MapInstanceType.LodInstance ? null : NextOwner(victim, topDamageDealer);
                 var dropped = mapItemGenerationService.Create(mapInstance, item, victim.PositionX, victim.PositionY, owner);
                 await mapInstance.SendPacketAsync(dropped.GenerateDrop());
+
+                // Only a drop assigned to the hunter, not one shared out to the group, can come twice.
+                if (owner is { } ownerId && ownerId == topDamageDealer?.CharacterId && Rolls(doubleChance))
+                {
+                    var again = mapItemGenerationService.Create(mapInstance,
+                        itemGenerationService.Create(drop.VNum, (short)drop.Amount), victim.PositionX, victim.PositionY, owner);
+                    await mapInstance.SendPacketAsync(again.GenerateDrop());
+                }
             }
             catch (System.Exception ex)
             {

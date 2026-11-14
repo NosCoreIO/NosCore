@@ -316,6 +316,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       monster
 - [ ] Gear that triggers on defence puts its card on you, or on the attacker, when you are hit
 
+### Double-drop and no-drop chances
+
+- [ ] With card 4324 ("no loot" 100%) on you, kill a Baby Dander: neither its item nor gold drops
+- [ ] Wear the costume wings 8879 (double drop 10%) and hunt alone: about one item drop in ten
+      lands twice; in a group sharing loot by turn, a drop given to someone else never doubles
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,

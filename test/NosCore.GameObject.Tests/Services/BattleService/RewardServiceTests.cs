@@ -179,6 +179,46 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ACertainDoubleDropChanceDropsTheItemTwice()
+        {
+            MonsterDrops(DroppableVNum, chance: 10000);
+            Wear(new BCardDto { Type = 95, SubType = 11, FirstData = 100 });
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            Assert.AreEqual(2, _map.GetMapItemBundles().Count(i => i.VNum == DroppableVNum));
+        }
+
+        [TestMethod]
+        public async Task ACertainNoDropChanceDropsNothing()
+        {
+            MonsterDrops(DroppableVNum, chance: 10000);
+            Wear(new BCardDto { Type = 95, SubType = 12, FirstData = 100 });
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            Assert.IsFalse(_map.GetMapItemBundles().Any(i => i.VNum is DroppableVNum or GoldVNum));
+        }
+
+        private void Wear(params BCardDto[] bCards)
+        {
+            var wearer = _first.Character.VisualId;
+            _equipment.Setup(e => e.Resolve(It.Is<IAliveEntity>(a => a.VisualId == wearer)))
+                .Returns(EquipmentStats.None with { BCards = bCards });
+        }
+
+        [TestMethod]
+        public async Task OnlyTheTopDamageDealersGearDecidesTheDrops()
+        {
+            MonsterDrops(DroppableVNum, chance: 10000);
+            Wear(new BCardDto { Type = 95, SubType = 12, FirstData = 100 });
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 99));
+
+            Assert.IsTrue(_map.GetMapItemBundles().Any(i => i.VNum == DroppableVNum));
+        }
+
+        [TestMethod]
         public async Task WornGoldBonusesRaiseTheGoldDropped()
         {
             _equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None with
