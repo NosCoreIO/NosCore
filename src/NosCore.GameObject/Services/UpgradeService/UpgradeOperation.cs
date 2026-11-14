@@ -51,6 +51,11 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
 
     public async Task<IReadOnlyList<IPacket>> ExecuteAsync(ClientSession session, UpgradePacket packet)
     {
+        if (session.Character.InExchangeOrShop)
+        {
+            return Array.Empty<IPacket>();
+        }
+
         var earlyReject = TryReject(session, packet);
         if (earlyReject is not null)
         {

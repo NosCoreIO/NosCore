@@ -578,6 +578,8 @@ window uses other ones, so the percentages the window shows are the check.
 - [ ] The gold scroll window (`wopen 43`) asks for half the gold and Cella Powder of the plain
       upgrade (40 000 gold and 110 Cella at +5), and the upgrade takes exactly that
 - [ ] Drag a ring or a fairy onto the upgrade window: the slot stays empty
+- [ ] With the upgrade window open, accept a trade: the upgrade window closes, and Teoman cannot
+      be talked to until the trade ends
 
 ### Specialist points
 
@@ -2511,6 +2513,9 @@ Recorded so nobody spends time hunting for them:
 
 - **Upgrading or rerolling a ring, necklace or fairy** — the client never puts one into the Item
   Upgrade window, so the server's refusal of such an `up_gr` only shows in the unit tests.
+- **Upgrading during a trade** — the client closes the upgrade window when a trade opens and does
+  not let the player talk to an NPC while trading, so the server's refusal of an `up_gr` sent
+  during a trade only shows in the unit tests.
 
 - **Being muted or banned while playing** — nothing writes a `PenaltyLog` row from inside the
   game yet. A mute given by hand applies from the next line; a ban given by hand only applies at

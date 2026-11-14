@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -333,9 +334,28 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task NothingIsUpgradedDuringATrade()
+        {
+            await new Spec("An upgrade sent while a trade is open is ignored and nothing is charged")
+                .Given(WearableAtUpgrade_, (byte)0)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillSucceed)
+                .And(TheCharacterIsTrading)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)0)
+                .And(CellonRemainingShouldBe_, (short)1000)
+                .And(GoldShouldBe_, 100_000L)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
         private void FairyAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, 0, EquipmentType.Fairy);
+
+        private void TheCharacterIsTrading() =>
+            _session.Character.Exchange = ExchangeData.Pair(_session.Character.VisualId, _session.Character.VisualId + 1).Initiator;
 
         private void PityGaugeIs_(short gauge) => ((WearableInstance)_wearable.ItemInstance).PityGauge = gauge;
 
