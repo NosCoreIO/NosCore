@@ -50,7 +50,9 @@ public sealed class DefeatEnemiesQuestHandler(ILogger<DefeatEnemiesQuestHandler>
             return false;
         }
 
+        // Read before the await, so only the defeat that met the last objective completes the quest.
+        var completed = quest.AreObjectivesComplete();
         await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-        return quest.AreObjectivesComplete();
+        return completed;
     }
 }
