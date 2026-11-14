@@ -50,14 +50,14 @@ namespace NosCore.PacketHandlers.Chat
             }
 
             message = message.Trim();
-            if (sessionRegistry.TryGetCharacter(s => s.VisualId == btkPacket.CharacterId, out var receiverSession))
+            var isHere = sessionRegistry.TryGetCharacter(s => s.VisualId == btkPacket.CharacterId, out var receiverSession);
+            if (isHere && !receiverSession.IsDisconnecting)
             {
                 await receiverSession.SendPacketAsync(session.Character.GenerateTalk(message));
                 return;
             }
 
-            var receiver = await subscriberCache.FindAsync(x => x.ConnectedCharacter?.Id == btkPacket.CharacterId);
-
+            var receiver = isHere ? null : await subscriberCache.FindAsync(x => x.ConnectedCharacter?.Id == btkPacket.CharacterId);
             if (receiver == null)
             {
                 await session.SendPacketAsync(new InfoiPacket

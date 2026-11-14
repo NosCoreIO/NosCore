@@ -9,6 +9,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,19 +26,30 @@ public sealed class SubscriberCacheService(IPubSubHub pubSubHub, IClock clock)
 
     private CachedSubscribers? _cached;
 
+    private readonly ConcurrentDictionary<long, byte> _departed = new();
+
     public async Task<Subscriber?> FindAsync(Func<Subscriber, bool> matches)
     {
         var now = clock.GetCurrentInstant();
         var cached = _cached;
-        if (cached != null && cached.ExpiresAt > now && cached.Subscribers.FirstOrDefault(matches) is { } known)
+        if (cached != null && cached.ExpiresAt > now && cached.Subscribers.FirstOrDefault(s => IsPresent(s) && matches(s)) is { } known)
         {
             return known;
         }
 
         var subscribers = await pubSubHub.GetSubscribersAsync();
+        foreach (var id in _departed.Keys.Where(id => subscribers.All(s => s.Id != id)))
+        {
+            _departed.TryRemove(id, out _);
+        }
+
         _cached = new CachedSubscribers(subscribers, now + CacheDuration);
-        return subscribers.FirstOrDefault(matches);
+        return subscribers.FirstOrDefault(s => IsPresent(s) && matches(s));
     }
+
+    public void Forget(long subscriberId) => _departed[subscriberId] = 0;
+
+    private bool IsPresent(Subscriber subscriber) => !_departed.ContainsKey(subscriber.Id);
 
     private sealed record CachedSubscribers(IReadOnlyList<Subscriber> Subscribers, Instant ExpiresAt);
 }
