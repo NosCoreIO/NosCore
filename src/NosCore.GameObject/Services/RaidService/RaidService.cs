@@ -12,6 +12,7 @@ using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Services.RaidService
 {
     public class RaidService(IScriptedInstanceService scriptedInstanceService, IMapChangeService mapChangeService,
             ISessionRegistry sessionRegistry, ISessionGroupFactory sessionGroupFactory, IIdService<Group> groupIdService,
-            IItemGenerationService itemProvider, IClock clock, ILogger<RaidService> logger,
+            IItemGenerationService itemProvider, IClock clock, Wolverine.IMessageBus messageBus, ILogger<RaidService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IRaidService
     {
@@ -378,6 +379,10 @@ namespace NosCore.GameObject.Services.RaidService
                 foreach (var member in run.Players().Where(s => s.HasPlayerEntity).ToList())
                 {
                     await RewardAsync(member, raid);
+                    if (raid.Definition is { } definition)
+                    {
+                        await messageBus.PublishAsync(new ScriptedInstanceSucceededEvent(member.Character, raid.Type, definition.Id));
+                    }
                 }
             }
 

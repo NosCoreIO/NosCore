@@ -49,6 +49,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
         private readonly IRandomProvider _random;
+        private readonly Wolverine.IMessageBus _messageBus;
 
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
@@ -69,11 +70,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
             IRandomProvider random,
+            Wolverine.IMessageBus messageBus,
             IOptions<WorldConfiguration> worldConfiguration,
             ILogger<ScriptedInstanceService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _scriptTimeout = worldConfiguration.Value.InstanceScriptTimeout;
+            _messageBus = messageBus;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _mapInstanceRegistry = mapInstanceRegistry;
             _scriptLoader = scriptLoader;
@@ -162,7 +165,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 ? MapInstanceType.TimeSpaceInstance
                 : MapInstanceType.RaidInstance;
 
-            return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService));
+            return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _messageBus));
         }
 
         public async Task<IInstanceScript?> LoadScriptAsync(string script)
