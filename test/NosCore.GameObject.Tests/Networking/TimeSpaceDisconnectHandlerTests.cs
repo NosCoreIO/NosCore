@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Networking
                 new TimeSpaceRunHost(new ScriptedInstance(), new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object)),
                 new EmptyScript(), new Dictionary<int, MapInstance> { [1] = room },
                 new Dictionary<short, NpcMonsterDto>(), new RandomProvider(), World.Clock,
-                World.SessionRegistry, NullLogger.Instance, World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
+                World.SessionRegistry, World.Create<NosCore.GameObject.Services.BattleService.AggroService>(), NullLogger.Instance, World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
             _scriptedInstances.Setup(s => s.GetRun(roomId)).Returns(run);
 
             await World.Create<TimeSpaceDisconnectHandler>().HandleDisconnectAsync(_session);

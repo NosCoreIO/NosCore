@@ -20,6 +20,7 @@ using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -42,6 +43,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IRandomProvider _random;
         private readonly IClock _clock;
         private readonly ISessionRegistry _sessionRegistry;
+        private readonly IAggroService _aggroService;
         private readonly ILogger _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
@@ -51,6 +53,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
+        private readonly Dictionary<int, long> _newestArrival = [];
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
         private int _nextPortalId;
@@ -64,8 +67,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public ScriptedInstanceRun(IInstanceRunHost host, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
-            IRandomProvider random, IClock clock, ISessionRegistry sessionRegistry, ILogger logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeSpan stepTimeout)
+            IRandomProvider random, IClock clock, ISessionRegistry sessionRegistry, IAggroService aggroService,
+            ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeSpan stepTimeout)
         {
             _stepTimeout = stepTimeout;
             _host = host;
@@ -75,6 +78,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _random = random;
             _clock = clock;
             _sessionRegistry = sessionRegistry;
+            _aggroService = aggroService;
             _logger = logger;
             _logLanguage = logLanguage;
             Rooms = rooms.ToDictionary(s => s.Key, s => s.Value.MapInstanceId);
@@ -122,7 +126,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Task BeginAsync()
         {
             _started = true;
-            _scriptStartedAt = _clock.GetCurrentInstant();
+            _scriptStartedAt = _clock.GetCurrentInstant().Minus(Duration.FromTimeSpan(_host.AlreadyElapsed));
             return CallScriptAsync(run => _script.OnFirstEnter(run));
         }
 
@@ -168,6 +172,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (room != null)
                 {
                     _visited.Add(room.Value);
+                    if (session.HasPlayerEntity)
+                    {
+                        _newestArrival[room.Value] = session.Character.CharacterId;
+                    }
                 }
 
                 if (!_started && !_abandoned && _host.StartsOnFirstEntry)
@@ -335,6 +343,57 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     return mapInstance.SendPacketAsync(monster.GenerateIn());
                 }));
             }
+        }
+
+        public void Hunt(int room, short vNum)
+        {
+            if (!_npcMonsters.TryGetValue(vNum, out var npcMonster))
+            {
+                _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, vNum);
+                return;
+            }
+
+            var mapInstance = _rooms[room];
+            var preyId = _newestArrival.TryGetValue(room, out var characterId) ? characterId : (long?)null;
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                var prey = PlayersOf(mapInstance).FirstOrDefault(p => p.CharacterId == preyId && p.IsAlive);
+                var (x, y) = prey is { } target
+                    ? (target.PositionX, target.PositionY)
+                    : mapInstance.Map.RandomWalkableCell(_random, 100) ?? ((short)0, (short)0);
+                var monster = mapInstance.SpawnMonster(npcMonster, x, y, true);
+                if (prey is { } hunted)
+                {
+                    _aggroService.AddThreat(monster, hunted, 1);
+                }
+
+                return mapInstance.SendPacketAsync(monster.GenerateIn());
+            }));
+        }
+
+        public void Dismiss(int room, short vNum)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, async () =>
+            {
+                foreach (var monster in mapInstance.EnumerateMonsters().Where(m => m.VNum == vNum && m.IsAlive).ToList())
+                {
+                    monster.IsAlive = false;
+                    _aggroService.Clear(monster);
+                    await mapInstance.SendPacketAsync(new OutPacket { VisualType = VisualType.Monster, VisualId = monster.VisualId });
+                }
+            }));
+        }
+
+        public void SetRates(int room, int experience, int drops)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                mapInstance.XpRate = experience;
+                mapInstance.DropRate = drops;
+                return Task.CompletedTask;
+            }));
         }
 
         public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true)
@@ -594,6 +653,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public bool OneSideStanding(int room) => run.OneSideStanding(room);
 
             public void SetPvp(int room, bool isPvp) => Do(() => run.SetPvp(room, isPvp));
+
+            public void Hunt(int room, short vNum) => Do(() => run.Hunt(room, vNum));
+
+            public void Dismiss(int room, short vNum) => Do(() => run.Dismiss(room, vNum));
+
+            public void SetRates(int room, int experience, int drops) => Do(() => run.SetRates(room, experience, drops));
 
             public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
                 Do(() => run.SpawnPortal(fromRoom, at, toRoom, arrival, locked));

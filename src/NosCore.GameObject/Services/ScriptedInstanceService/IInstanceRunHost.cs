@@ -8,6 +8,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -31,6 +32,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         // False when the host starts the script itself, for instance once a sign-up is over.
         bool StartsOnFirstEntry => true;
+
+        // How far into its timeline the script begins, for a run that joins an event already under way.
+        TimeSpan AlreadyElapsed => TimeSpan.Zero;
 
         // A player whose HP reached zero inside the run. They stay out of the fight until the run ends.
         Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) => Task.CompletedTask;

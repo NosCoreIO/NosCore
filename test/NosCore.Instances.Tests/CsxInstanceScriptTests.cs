@@ -49,6 +49,12 @@ namespace NosCore.Instances.Tests
         public void Summon(int room, params MonsterSpawn[] monsters) =>
             Calls.Add($"summon({room},{string.Join(",", monsters.Select(m => m.VNum))})");
 
+        public void Hunt(int room, short vNum) => Calls.Add($"hunt({room},{vNum})");
+
+        public void Dismiss(int room, short vNum) => Calls.Add($"dismiss({room},{vNum})");
+
+        public void SetRates(int room, int experience, int drops) => Calls.Add($"rates({room},{experience},{drops})");
+
         public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
             Calls.Add($"portal({fromRoom}->{toRoom},{(locked ? "locked" : "open")})");
 
@@ -229,6 +235,65 @@ namespace NosCore.Instances.Tests
             run.Decided = true;
             check(run);
             Assert.AreEqual("succeed", run.Calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task ALandOfDeathHuntsEveryFourMinutesFromHalfTime()
+        {
+            var script = await Loader().LoadAsync("land-of-death");
+            var run = new RecordingRun();
+
+            script.OnFirstEnter(run);
+
+            Assert.AreEqual("clock(60m)", run.Calls.Single());
+            CollectionAssert.AreEqual(
+                new[] { 30d, 31, 34, 35, 38, 39, 42, 43, 46, 47, 50, 51, 54, 55, 55, 58, 59 },
+                run.Scheduled.Select(s => s.At.TotalMinutes).OrderBy(m => m).ToArray());
+        }
+
+        [TestMethod]
+        public async Task ALandOfDeathDevilTriplesRatesUntilItLeaves()
+        {
+            var script = await Loader().LoadAsync("land-of-death");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+            run.Calls.Clear();
+
+            run.Scheduled.Single(s => s.At == TimeSpan.FromMinutes(30)).Step(run);
+            run.Scheduled.Single(s => s.At == TimeSpan.FromMinutes(31)).Step(run);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                "rates(1,3,3)",
+                "hunt(1,443)",
+                "message(FlyingFireDevilAppears)",
+                "rates(1,1,1)",
+                "dismiss(1,443)",
+                "message(FlyingFireDevilVanished)"
+            }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task ALandFirstReachedLateOnlyKeepsWhatIsLeft()
+        {
+            var script = await Loader().LoadAsync("land-of-death");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromMinutes(34.5) };
+
+            script.OnFirstEnter(run);
+
+            Assert.AreEqual("clock(25.5m)", run.Calls.Single());
+            Assert.AreEqual(34d, run.Scheduled.Min(s => s.At.TotalMinutes));
+        }
+
+        [TestMethod]
+        public async Task ALandOfDeathClosesWhenItsClockRunsOut()
+        {
+            var script = await Loader().LoadAsync("land-of-death");
+            var run = new RecordingRun();
+
+            script.OnTimeout(run);
+
+            CollectionAssert.AreEqual(new[] { "fail" }, run.Calls);
         }
 
         [TestMethod]

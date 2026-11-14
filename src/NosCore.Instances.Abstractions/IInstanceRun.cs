@@ -41,6 +41,15 @@ namespace NosCore.Instances.Abstractions
 
         void SetPvp(int room, bool isPvp);
 
+        // Brings the monster in beside the player who entered the room last and sets it on them.
+        void Hunt(int room, short vNum);
+
+        // Takes that monster's living copies out of the room.
+        void Dismiss(int room, short vNum);
+
+        // Multiplies what the room's monsters give in experience and drops.
+        void SetRates(int room, int experience, int drops);
+
         void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true);
 
         void UnlockPortal(int fromRoom, int toRoom);

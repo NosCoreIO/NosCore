@@ -10,7 +10,7 @@ namespace NosCore.Instances.Abstractions
 {
     public record InstanceGift(short VNum, short Amount);
 
-    public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY);
+    public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false);
 
     public record ScriptedInstanceDefinition
     {

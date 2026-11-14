@@ -2154,9 +2154,15 @@ level 55+ character in a family, standing next to the gatekeeper on map 98 (5,37
       no Saver, or no answer within 30 seconds says "You will be returned to the entrance of the Land
       of Death." and puts the character back next to the gatekeeper with 1 HP
 - [ ] With 5 minutes left "The Land of Death will be closed soon." shows
-- [ ] At the end, "You are now out of the Land of Death" shows and everyone is back on map 98
+- [ ] At the end, everyone is back on map 98 about 10 seconds later and "You are now out of the Land of
+      Death" shows
 - [ ] The portal at (172,171) leads back to map 98 at any time
 - [ ] However the character leaves, the clock disappears from the bottom left
+- [ ] Once the last member of a family has left, their land closes; the next member to go in finds
+      a fresh land, with the clock and the devil still on the event's time (entering during a hunt
+      brings the devil out at once)
+- [ ] The hunts, the rates and the closing warning come from `instances/land-of-death.csx`: changing
+      a time there and restarting the world server changes it in game
 
 ### Arena of Talents
 

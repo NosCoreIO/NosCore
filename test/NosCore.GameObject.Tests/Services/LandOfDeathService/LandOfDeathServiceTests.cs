@@ -81,22 +81,6 @@ namespace NosCore.GameObject.Tests.Services.LandOfDeathService
                 .ExecuteAsync();
         }
 
-        [TestMethod]
-        public async Task TheDevilHuntsEveryFourMinutesFromHalfTime()
-        {
-            await new Spec("The Flying Fire Devil comes out with 30 minutes left, then every 4 minutes")
-                .Then(TheHuntShouldStartAtMinutesLeft_, "30,26,22,18,14,10,6,2")
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task TheDevilLeavesAfterAMinute()
-        {
-            await new Spec("Each Flying Fire Devil leaves a minute after it came")
-                .Then(TheHuntShouldEndAtMinutesLeft_, "29,25,21,17,13,9,5,1")
-                .ExecuteAsync();
-        }
-
         private void TheCharacterIsInAFamily() => _session.Character.Family = new Family { FamilyId = 1, Name = "Testers" };
 
         private void TheCharacterIsLevel_(byte level) => _session.Character.Level = level;
@@ -119,21 +103,6 @@ namespace NosCore.GameObject.Tests.Services.LandOfDeathService
         {
             Assert.IsTrue(_canEnter);
             Assert.IsFalse(_session.LastPackets.OfType<MsgiPacket>().Any());
-        }
-
-        private static void TheHuntShouldStartAtMinutesLeft_(string minutes) =>
-            Assert.AreEqual(minutes, MinutesWhere(LandOfDeath.IsHuntStart));
-
-        private static void TheHuntShouldEndAtMinutesLeft_(string minutes) =>
-            Assert.AreEqual(minutes, MinutesWhere(LandOfDeath.IsHuntEnd));
-
-        private static string MinutesWhere(Func<TimeSpan, bool> predicate)
-        {
-            var times = Enumerable.Range(0, (int)(LandOfDeath.Length / LandOfDeath.ClockRefresh))
-                .Select(i => LandOfDeath.Length - LandOfDeath.ClockRefresh * i)
-                .Where(predicate)
-                .Select(t => t.TotalMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            return string.Join(",", times);
         }
     }
 }
