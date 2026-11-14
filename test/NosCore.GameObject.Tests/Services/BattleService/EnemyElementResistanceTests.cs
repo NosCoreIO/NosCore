@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.MonsterLevelDamageService;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Data.Enumerations.Buff;
 using NodaTime;
@@ -36,7 +37,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             // every attack miss and there would be no damage to compare.
             random.Setup(r => r.NextDouble()).Returns(0.99);
             random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(0);
-            return new DamageCalculator(random.Object);
+            return new DamageCalculator(random.Object, new MonsterLevelDamageService());
         }
 
         // Element 1 is fire on both sides, so the elemental step actually runs.
