@@ -64,11 +64,12 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
-        // A room that comes with the monsters its map has outside the instance.
-        public InstanceDefinitionBuilder WithMapRoom(short mapVNum, out int key)
+        // A room that comes with the monsters its map has outside the instance, and with those of its
+        // NPCs that are named, since a map shared by several instances places all their NPCs.
+        public InstanceDefinitionBuilder WithMapRoom(short mapVNum, out int key, params short[] npcVNums)
         {
             key = _rooms.Count + 1;
-            _rooms.Add(new InstanceRoom(key, mapVNum, 0, 0, KeepsMapMonsters: true));
+            _rooms.Add(new InstanceRoom(key, mapVNum, 0, 0, KeepsMapMonsters: true) { MapNpcs = npcVNums });
             return this;
         }
 

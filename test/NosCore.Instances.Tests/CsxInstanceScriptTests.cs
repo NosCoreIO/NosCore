@@ -87,6 +87,8 @@ namespace NosCore.Instances.Tests
 
         public void Message(Game18NConstString message) => Calls.Add($"message({message})");
 
+        public void Message(Game18NConstString message, long argument) => Calls.Add($"message({message},{argument})");
+
         public void Succeed() => Calls.Add("succeed");
 
         public void Fail() => Calls.Add("fail");
@@ -315,6 +317,52 @@ namespace NosCore.Instances.Tests
             script.OnTimeout(run);
 
             CollectionAssert.AreEqual(new[] { "fail" }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task TheShipBringsTheCaptainAboardAndOnlyHim()
+        {
+            var room = (await Loader().LoadAsync("act4-ship")).Definition.Rooms.Single();
+
+            Assert.AreEqual(148, room.VNum);
+            CollectionAssert.AreEquivalent(new short[] { 540, 613 }, room.MapNpcs.ToArray());
+        }
+
+        [TestMethod]
+        public async Task TheShipWarnsItsPassengersThenSails()
+        {
+            var script = await Loader().LoadAsync("act4-ship");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+
+            foreach (var (_, step) in run.Scheduled.OrderBy(s => s.At))
+            {
+                step(run);
+            }
+
+            CollectionAssert.AreEqual(new[] { 21d, 24, 24.5, 24 + 50 / 60d, 25 },
+                run.Scheduled.Select(s => s.At.TotalMinutes).OrderBy(m => m).ToArray());
+            CollectionAssert.AreEqual(new[]
+            {
+                "message(ShipLeaveInMinutes,4)",
+                "message(ShipLeaveInOneMinute)",
+                "message(ShipLeaveInThirtySeconds)",
+                "message(ShipLeaveInTenSeconds)",
+                "message(RaiseTheAnchor)",
+                "succeed"
+            }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task BoardingLateOnlyKeepsTheWarningsStillAhead()
+        {
+            var script = await Loader().LoadAsync("act4-ship");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromMinutes(24.2) };
+
+            script.OnFirstEnter(run);
+
+            CollectionAssert.AreEqual(new[] { 24.5, 24 + 50 / 60d, 25 },
+                run.Scheduled.Select(s => s.At.TotalMinutes).OrderBy(m => m).ToArray());
         }
 
         [TestMethod]

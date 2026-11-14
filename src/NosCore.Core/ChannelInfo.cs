@@ -24,5 +24,8 @@ namespace NosCore.Core
         public ServerType Type { get; set; }
         public bool IsMaintenance { get; set; }
         public byte ServerId { get; set; }
+
+        // The channel that hosts Glacernon; players only reach it through the game, never from the list.
+        public bool IsAct4 { get; set; }
     }
 }

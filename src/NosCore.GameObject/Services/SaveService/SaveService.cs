@@ -64,8 +64,10 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.Biography = character.Biography;
                 characterDto.Faction = character.Faction;
                 // Off a base map the saved position stays the last base-map one, so leaving an
-                // instance or a miniland after a relog still lands there.
-                if (character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
+                // instance or a miniland after a relog still lands there. A player sent to another
+                // channel already holds the destination map and spot.
+                if (character.MapInstance is { MapInstanceType: MapInstanceType.BaseMapInstance } map
+                    && map.Map.MapId == character.MapId)
                 {
                     character.MapX = character.PositionX;
                     character.MapY = character.PositionY;

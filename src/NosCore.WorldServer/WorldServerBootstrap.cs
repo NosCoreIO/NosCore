@@ -144,6 +144,7 @@ namespace NosCore.WorldServer
                     DisplayHost = configuration.Value.DisplayHost,
                     ServerId = configuration.Value.ServerId,
                     StartInMaintenance = configuration.Value.StartInMaintenance,
+                    IsAct4 = configuration.Value.Act4Channel,
                     Host = configuration.Value.Host ?? throw new InvalidOperationException("Host is not configured."),
                 };
             });

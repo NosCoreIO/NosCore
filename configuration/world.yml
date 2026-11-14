@@ -6,10 +6,14 @@ ServerName: S1-NosCore
 Host: ${HOST,127.0.0.1}
 Port: ${WORLD_PORT,1337}
 DisplayHost: 127.0.0.1
-DisplayPort: 1337
+DisplayPort: ${WORLD_PORT,1337}
 ConnectedAccountLimit: 100
 SceneOnCreate: false
 StartInMaintenance: false
+# A world started with ACT4_CHANNEL=true (and its own WORLD_PORT) is the Act 4 channel: it hosts
+# Glacernon, the ship sails there, and it stays out of the channel list. Without one, every
+# channel hosts Glacernon itself.
+Act4Channel: ${ACT4_CHANNEL,false}
 #0-3 English / International
 #4-7 German
 #8-11 French
@@ -56,6 +60,10 @@ Events:
 - Type: TalentArena
   At:
   - 18:00:00
+# Sails on the hour and half past; boarding opens 25 minutes before.
+- Type: Act4Ship
+  Every: 00:30:00
+  Offset: 00:00:00
 # BasicEquipments / BasicSkills are keyed first by class name, then by starter origin:
 #   CreateAndUpgrade : Adventurer creation (lvl 1) and Adventurer -> specialist upgrade
 #   Create56         : specialist direct-create on normal server

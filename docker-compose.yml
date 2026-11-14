@@ -101,6 +101,39 @@ services:
       - ./configuration/:/app/configuration
       - client-data:/app/build/net11.0/client-data
 
+  world-act4:
+    container_name: noscore-world-act4
+    depends_on:
+      db:
+        condition: service_healthy
+      master:
+        condition: service_healthy
+    environment:
+      - WORLD_PORT=1338
+      - ACT4_CHANNEL=true
+      - MASTER_HOST=http://master
+      - MASTER_PORT=${MASTER_PORT:-5000}
+      - DB_HOST=db
+      - HOST=127.0.0.1
+    build:
+      context: ./
+      dockerfile: deploy/Dockerfile
+      target: world
+    restart: unless-stopped
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 1338"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    ports:
+      - 1338:1338
+    networks:
+      - noscore-network
+    volumes:
+      - ./configuration/:/app/configuration
+
   login:
     container_name: noscore-login
     depends_on:

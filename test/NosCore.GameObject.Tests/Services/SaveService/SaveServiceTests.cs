@@ -379,6 +379,17 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         }
 
         [TestMethod]
+        public async Task SavingOnTheWayToAnotherChannelKeepsTheDestination()
+        {
+            await new Spec("Saving on the way to another channel keeps the destination map and spot")
+                .GivenAsync(CharacterIsOnBaseMapAtPosition_, (short)50, (short)60)
+                .And(CharacterIsHeadingTo_, (short)130, (short)12, (short)38)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedMapXYShouldBe_, (short)12, (short)38)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task SavingInsideMinilandKeepsPreviousMapXYValue()
         {
             await new Spec("Saving while on a non-base instance preserves the previously persisted MapX/Y")
@@ -393,13 +404,22 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task CharacterIsOnBaseMap()
         {
             Session.Character.MapInstance.MapInstanceType = MapInstanceType.BaseMapInstance;
+            Session.Character.MapId = Session.Character.MapInstance.Map.MapId;
         }
 
         private async Task CharacterIsOnBaseMapAtPosition_(short x, short y)
         {
             Session.Character.MapInstance.MapInstanceType = MapInstanceType.BaseMapInstance;
+            Session.Character.MapId = Session.Character.MapInstance.Map.MapId;
             Session.Character.PositionX = x;
             Session.Character.PositionY = y;
+        }
+
+        private void CharacterIsHeadingTo_(short mapId, short x, short y)
+        {
+            Session.Character.MapId = mapId;
+            Session.Character.MapX = x;
+            Session.Character.MapY = y;
         }
 
         private void CharacterPositionIs_(short x, short y)

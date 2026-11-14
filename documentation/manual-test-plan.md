@@ -3084,3 +3084,30 @@ A side needs 100 kills to fill its bar. Both characters need a family and level 
       (Hatus 185: a shell, Magic Eraser, 5 Rainbow Pearls, Hatus' Dark Lance, Abyss Bow, Infernal
       Staff, Small Obsidian of Completion, Turik's Essence, the spell gun or the Shadowheart card),
       and a weapon or armour from it carries the box's rarity
+
+## Act 4 channel and the ship to Glacernon
+
+Start a second world as the Act 4 channel (`ACT4_CHANNEL=true WORLD_PORT=1338`) next to the
+ordinary one. Use an angel with at least 50 000 gold in Port Alveus (map 145), beside Leika
+Passage (48,41). Boarding opens at :05 and :35, closes at :25 and :55, and the ship sails at :00
+and :30; `$Event Act4Ship` opens boarding at once.
+
+- [ ] The login channel list shows only the ordinary channel
+- [ ] Outside the boarding window, "Board Ship" > "Yes": "The ship hasn't returned yet."
+- [ ] Boarding just before :25 or :55 puts the player aboard; just after, "The ship hasn't returned
+      yet."
+- [ ] A neutral character: "Only those who have the Power of Protection can enter Glacernon."
+- [ ] Less than 50 000 gold: "You don't have enough gold" in chat, and the player stays ashore
+- [ ] During boarding: the angel is put on the ship (map 148) with Leika Passage and Fabian Frost
+      aboard; a demon boarding at the same time is on a deck of their own
+- [ ] Leika Passage aboard > "Leave Ship": back in Port Alveus where the player boarded
+- [ ] Four minutes before sailing, then one minute, 30 and 10 seconds: "The ship will leave in ..."
+      in the middle of the screen; at departure "Okay, we're setting off! Raise the anchor!"
+- [ ] Ten seconds later 50 000 gold are taken, the client shows the crossing and reconnects to
+      the Act 4 channel in the angel citadel (map 130); a demon lands in map 131
+- [ ] A passenger who spent their gold while waiting is put back in Port Alveus instead
+- [ ] On the Act 4 channel, the Leika Passage in the citadel > "Return to Port Alveus": the
+      client reconnects to the ordinary channel in Port Alveus
+- [ ] Log out in Glacernon and log in on the ordinary channel: the client moves straight to the
+      Act 4 channel, on the map the character left
+- [ ] Without an Act 4 channel running, the ship lands in the citadel on the same channel

@@ -72,6 +72,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
                 Id = id,
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
                 Type = data.ClientType,
+                IsAct4 = data.IsAct4,
+                ServerId = data.ServerId,
             };
             masterClientList.Channels.AddOrUpdate(channelKey, serv, (_, _) => serv);
             masterClientList.LastSeen[channelKey] = clock.GetCurrentInstant();

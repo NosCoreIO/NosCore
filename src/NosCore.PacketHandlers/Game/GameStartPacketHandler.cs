@@ -18,6 +18,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.GameObject.Services.CharacterRankingService;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ChannelService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
@@ -55,7 +56,8 @@ namespace NosCore.PacketHandlers.Game
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IBuffService buffService, IVitalityService vitalityService,
             ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService,
-            IRespawnService respawnService, IMinilandRegistry minilandRegistry, List<QuestDto> quests, IClock clock)
+            IRespawnService respawnService, IMinilandRegistry minilandRegistry, List<QuestDto> quests, IClock clock,
+            IChannelService channelService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -70,6 +72,13 @@ namespace NosCore.PacketHandlers.Game
             }
 
             session.GameStarted = true;
+
+            var character = session.Character;
+            if (character.Hp > 0 && character.MapInstance is { } map
+                && await channelService.TryMoveToHostAsync(session, map, character.MapX, character.MapY))
+            {
+                return;
+            }
 
             if (worldConfiguration.Value.WorldInformation)
             {
