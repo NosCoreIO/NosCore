@@ -80,6 +80,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<ICastDelayService>().Object,
                 _buffService.Object,
                 new SkillCastService(NodaTime.SystemClock.Instance, new Mock<GameObject.Services.EquipmentService.IEquipmentStatsService> { DefaultValue = DefaultValue.Empty }.Object, _buffService.Object),
+                new Mock<NosCore.GameObject.Services.BattleService.ISkillComboService>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 

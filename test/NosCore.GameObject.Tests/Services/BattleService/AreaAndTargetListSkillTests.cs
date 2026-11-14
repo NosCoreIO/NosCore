@@ -77,6 +77,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<NosCore.GameObject.Services.BattleService.ICastDelayService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
                 new NosCore.GameObject.Services.BattleService.SkillCastService(NodaTime.SystemClock.Instance, new Mock<NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService>().Object, new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object),
+                new Mock<NosCore.GameObject.Services.BattleService.ISkillComboService>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             _origin = new FakeEntity { Hp = 100, VisualId = 1 };
         }

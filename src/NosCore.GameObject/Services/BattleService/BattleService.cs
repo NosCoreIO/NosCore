@@ -49,6 +49,7 @@ namespace NosCore.GameObject.Services.BattleService
         ICastDelayService castDelayService,
         IBuffService buffService,
         ISkillCastService skillCastService,
+        ISkillComboService skillComboService,
         ILogger<BattleService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -70,6 +71,11 @@ namespace NosCore.GameObject.Services.BattleService
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
                 return false;
+            }
+
+            if (origin is PlayerComponentBundle player && skillComboService.Advance(player, skill.SkillVnum) is { } combo)
+            {
+                skill = skill with { AttackAnimation = combo.Animation, Effect = combo.Effect };
             }
 
             // A capture deals no damage: CaptureService sends its own animation and outcome, and a

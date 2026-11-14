@@ -444,6 +444,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new SkillResetComponent(new ConcurrentDictionary<long, Instant>()));
         _world.Add(entity, new FactionComponent(faction));
         _world.Add(entity, new WalkTrailComponent(0, 0));
+        _world.Add(entity, new SkillComboComponent(0, 0));
         return entity;
     }
 
@@ -495,6 +496,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new MinigameSessionComponent(null, Instant.MinValue, null));
         _world.Add(entity, skillResets);
         _world.Add(entity, faction);
+        _world.Add(entity, new SkillComboComponent(0, 0));
         return entity;
     }
 
