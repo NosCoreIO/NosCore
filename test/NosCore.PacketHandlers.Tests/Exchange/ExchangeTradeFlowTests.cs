@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
             RequestHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
                 Blacklist.Object, World.LogLanguageLocalizer, World.SessionRegistry,
-                CreateTransferService());
+                CreateTransferService(), Clock);
             ListHandler = new ExcListPacketHandler(Exchange, NullLogger<ExcListPacketHandler>.Instance,
                 World.LogLanguageLocalizer, World.SessionRegistry);
 
@@ -461,7 +461,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 .Returns(_heldTransfer.Task);
             _heldHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
                 Blacklist.Object, World.LogLanguageLocalizer, World.SessionRegistry,
-                transfer.Object);
+                transfer.Object, Clock);
         }
 
         private void RequesterConfirmsWhileTheTransferIsHeld()

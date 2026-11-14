@@ -21,6 +21,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using NodaTime;
 using System;
 using System.Linq;
 using System.Threading;
@@ -30,7 +31,7 @@ namespace NosCore.PacketHandlers.Exchange
 {
     public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger<ExchangeRequestPackettHandler> logger,
             IBlacklistHub blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry, ITransferService transferService)
+            ISessionRegistry sessionRegistry, ITransferService transferService, IClock clock)
         : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
@@ -89,6 +90,19 @@ namespace NosCore.PacketHandlers.Exchange
                         {
                             Message = Game18NConstString.CanNotTradeShopOwners
                         });
+                        return;
+                    }
+
+                    var now = clock.GetCurrentInstant();
+                    if (clientSession.Character.IsInCombat(now))
+                    {
+                        await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CanNotTradeDuringCombat });
+                        return;
+                    }
+
+                    if (target.IsInCombat(now))
+                    {
+                        await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CanNotTradeSomeoneInCombat });
                         return;
                     }
 
