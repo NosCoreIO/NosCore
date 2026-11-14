@@ -91,6 +91,27 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ABuffRunningOutOnAPlayerIsAnnounced()
+        {
+            await _service.ApplyAsync(_session.Character, Card, Array.Empty<BCardDto>(), null);
+            _clock.Advance(Duration.FromSeconds(10));
+            await _service.TickAsync(_session.Character);
+
+            _bus.Verify(b => b.PublishAsync(It.Is<BuffExpiredEvent>(e => e.CardId == Card.CardId), It.IsAny<Wolverine.DeliveryOptions>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task ABuffTakenOffEarlyIsNotAnnouncedAsRunOut()
+        {
+            await _service.ApplyAsync(_session.Character, Card, Array.Empty<BCardDto>(), null);
+            await _service.RemoveAsync(_session.Character, Card.CardId);
+            _clock.Advance(Duration.FromSeconds(10));
+            await _service.TickAsync(_session.Character);
+
+            _bus.Verify(b => b.PublishAsync(It.IsAny<BuffExpiredEvent>(), It.IsAny<Wolverine.DeliveryOptions>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task ABuffStillRunningSendsNothing()
         {
             await _service.ApplyAsync(_session.Character, Card, Array.Empty<BCardDto>(), null);

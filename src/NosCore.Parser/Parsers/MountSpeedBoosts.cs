@@ -8,10 +8,20 @@ using System.Collections.Generic;
 namespace NosCore.Parser.Parsers
 {
     // What a Speed Booster does on each mount, as the mount's English description lists it under "[With Speed Booster]".
+    // Left out: the buffs that come with "a certain chance", for which no description gives a figure, and what the
+    // server cannot do yet - the hiding of 5226 and 5228 in Glacernon and the Power Loader's Strobe Shield.
     public static class MountSpeedBoosts
     {
+        private const short Dizzy = 786;
+        private const short RedFlag = 853;
+        private const short DukesUp = 940;
+        private const short MagicEggshell = 1439;
+        private const short SteamBoost = 4223;
+        private const short DivineGallop = 4329;
+
         public static readonly IReadOnlyDictionary<short, MountSpeedBoost> All = new Dictionary<short, MountSpeedBoost>
         {
+            [1618] = new(Speed: -4, Duration: 10, RemovesDebuffsUpToLevel: 4),
             [1906] = new(Speed: 2, Duration: 3),
             [1907] = new(Speed: 2, Duration: 3),
             [1965] = new(Speed: 2, Duration: 3),
@@ -43,7 +53,7 @@ namespace NosCore.Parser.Parsers
             [5714] = new(Speed: 4, Duration: 2),
             [5743] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4),
             [5806] = new(Speed: 2, Duration: 4),
-            [5807] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4),
+            [5807] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4, RestoresHpPerLevel: 10),
             [5833] = new(Speed: 2, Duration: 3),
             [5834] = new(Speed: 4, Duration: 2, RemovesDebuffsUpToLevel: 4),
             [5914] = new(Speed: 2, Duration: 5),
@@ -78,24 +88,26 @@ namespace NosCore.Parser.Parsers
             [9140] = new(Speed: 4, Duration: 2),
             [9141] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4),
             [9145] = new(Speed: 2, Duration: 4),
-            [9146] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4),
-            [9149] = new(Speed: 3, Duration: 9, RemovesDebuffsUpToLevel: 4),
-            [9150] = new(Speed: 3, Duration: 9, RemovesDebuffsUpToLevel: 4),
-            [9220] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4),
-            [9221] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4),
+            [9146] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4, RestoresHpPerLevel: 10),
+            [9149] = new(Speed: 3, Duration: 9, RemovesDebuffsUpToLevel: 4, DodgeChance: 90, EndCard: Dizzy),
+            [9150] = new(Speed: 3, Duration: 9, RemovesDebuffsUpToLevel: 4, DodgeChance: 90, EndCard: Dizzy),
+            [9220] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4, StartCard: RedFlag),
+            [9221] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4, StartCard: RedFlag),
             [9274] = new(Speed: 2, Duration: 4),
-            [9276] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4),
+            [9276] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4, StartCard: DukesUp),
             [9278] = new(Speed: 2, Duration: 4),
-            [9286] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4),
-            [9443] = new(Speed: 2, Duration: 10, RemovesDebuffsUpToLevel: 4),
-            [9589] = new(Speed: 2, Duration: 10, RemovesDebuffsUpToLevel: 4),
+            [9286] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4, StartCard: DukesUp),
+            [9443] = new(Speed: 2, Duration: 10, RemovesDebuffsUpToLevel: 4, StartCard: MagicEggshell),
+            [9589] = new(Speed: 2, Duration: 10, RemovesDebuffsUpToLevel: 4, StartCard: MagicEggshell),
             [13414] = new(Speed: 2, Duration: 4),
-            [13415] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4, DashCells: 5),
+            [13415] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4, DashCells: 5, StartCard: SteamBoost),
             [13468] = new(Speed: 5, Duration: 8, RemovesDebuffsUpToLevel: 4),
-            [13752] = new(Speed: 4, Duration: 12, DashCells: 5),
+            [13752] = new(Speed: 4, Duration: 12, DashCells: 5, StartCard: DivineGallop),
         };
     }
 
-    public sealed record MountSpeedBoost(byte Speed, byte Duration, byte RestoresPerLevel = 0, byte RemovesDebuffsUpToLevel = 0,
-        bool TeleportsRandomly = false, byte DashCells = 0);
+    // StartCard is given when the booster is used and EndCard when the boost runs out.
+    public sealed record MountSpeedBoost(short Speed, byte Duration, byte RestoresPerLevel = 0, byte RemovesDebuffsUpToLevel = 0,
+        bool TeleportsRandomly = false, byte DashCells = 0, byte RestoresHpPerLevel = 0, byte DodgeChance = 0,
+        short StartCard = 0, short EndCard = 0);
 }

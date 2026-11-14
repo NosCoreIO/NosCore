@@ -31,9 +31,13 @@ namespace NosCore.Parser.Parsers
                 item.SpeedBoost = boost.Speed;
                 item.SpeedBoostDuration = boost.Duration;
                 item.SpeedBoostRestoresPerLevel = boost.RestoresPerLevel;
+                item.SpeedBoostRestoresHpPerLevel = boost.RestoresHpPerLevel;
                 item.SpeedBoostRemovesDebuffsUpToLevel = boost.RemovesDebuffsUpToLevel;
                 item.SpeedBoostTeleportsRandomly = boost.TeleportsRandomly;
                 item.SpeedBoostDashCells = boost.DashCells;
+                item.SpeedBoostDodgeChance = boost.DodgeChance;
+                item.SpeedBoostStartCardId = boost.StartCard;
+                item.SpeedBoostEndCardId = boost.EndCard;
                 item.SpeedBoostTeleportEffect = boost.TeleportsRandomly ? RandomTeleportEffect : (short)0;
                 boosted.Add(item);
             }

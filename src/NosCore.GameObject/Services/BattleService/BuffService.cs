@@ -346,6 +346,10 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         {
             await SendIconRemovalAsync(target, buff);
             await ApplyTimeoutBuffAsync(target, buff);
+            if (target is PlayerComponentBundle player && !buff.FromSkill)
+            {
+                await messageBus.PublishAsync(new BuffExpiredEvent(player, buff.CardId));
+            }
         }
 
         await PulseAsync(target, buffs, now);
