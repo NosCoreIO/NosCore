@@ -9,6 +9,7 @@ using NosCore.Algorithm.DignityService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
@@ -113,6 +114,29 @@ namespace NosCore.GameObject.Tests
                 .WhenAsync(Buying998ItemsAt1GoldEachAsync)
                 .Then(AllInventorySlotsShouldHave_Items, 999)
                 .And(GoldShouldBeDeducted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EachPieceOfEquipmentBoughtTakesItsOwnSlot()
+        {
+            await new Spec("Each piece of equipment bought takes its own slot")
+                .Given(CharacterHasGold_, 5000L)
+                .WhenAsync(Buying_WeaponsAt1000GoldEachAsync, 2)
+                .Then(TheEquipmentPocketShouldHold_SingleWeapons, 2)
+                .And(GoldShouldBeUnchangedAt_, 3000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EquipmentThatDoesNotFitIsNotSoldAtAll()
+        {
+            await new Spec("Equipment that does not fit is not sold at all")
+                .Given(CharacterHasGold_, 5000L)
+                .WhenAsync(Buying_WeaponsAt1000GoldEachAsync, 4)
+                .Then(ShouldReceiveNotEnoughSpaceMessage)
+                .And(TheEquipmentPocketShouldHold_SingleWeapons, 0)
+                .And(GoldShouldBeUnchangedAt_, 5000L)
                 .ExecuteAsync();
         }
 
@@ -361,6 +385,25 @@ namespace NosCore.GameObject.Tests
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = ItemBuilder.Create(1), Type = 0 });
             var shop = new Shop { ShopItems = list };
             await Session.Character.BuyAsync(shop, 0, 998, World.WorldConfiguration, ItemBuilder, World.Create<DignityService>());
+        }
+
+        private async Task Buying_WeaponsAt1000GoldEachAsync(int amount)
+        {
+            var itemBuilder = new ItemGenerationService(new List<ItemDto>
+                {
+                    new Item { Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon, VNum = 1, IsSoldable = true, Price = 1000 }
+                },
+                NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var shop = CreateShop(itemBuilder);
+            await Session.Character.BuyAsync(shop, 0, (short)amount, World.WorldConfiguration, itemBuilder, World.Create<DignityService>());
+        }
+
+        private void TheEquipmentPocketShouldHold_SingleWeapons(int count)
+        {
+            var weapons = Session.Character.InventoryService.Values
+                .Where(i => i.Type == NoscorePocketType.Equipment).ToList();
+            Assert.AreEqual(count, weapons.Count);
+            Assert.IsTrue(weapons.All(w => w.ItemInstance.Amount == 1));
         }
 
         private void ReputationShouldBeDeducted()
