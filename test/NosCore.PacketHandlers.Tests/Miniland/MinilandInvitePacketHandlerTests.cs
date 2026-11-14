@@ -128,6 +128,37 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         }
 
         [TestMethod]
+        public async Task APlayerWhoBlacklistedTheOwnerIsNotAsked()
+        {
+            World.BlacklistHub.Setup(s => s.GetBlacklistedAsync(_guestId)).ReturnsAsync(new List<CharacterRelationStatus>
+            {
+                new() { CharacterId = _owner.Character.CharacterId, RelationType = CharacterRelationType.Blocked }
+            });
+
+            await InviteAsync(_guest.Character.Name);
+
+            Assert.IsFalse(_guest.LastPackets.OfType<Dlgi2Packet>().Any());
+            Assert.AreEqual(Game18NConstString.AlreadyBlacklisted, LastInfo(_owner));
+            Assert.AreEqual(1, _owner.Character.InventoryService.CountItem(SeedOfPower));
+        }
+
+        [TestMethod]
+        public async Task APlayerTheOwnerBlacklistedIsNotAsked()
+        {
+            var ownerId = _owner.Character.CharacterId;
+            World.BlacklistHub.Setup(s => s.GetBlacklistedAsync(ownerId)).ReturnsAsync(
+                new List<CharacterRelationStatus>
+                {
+                    new() { CharacterId = _guestId, RelationType = CharacterRelationType.Blocked }
+                });
+
+            await InviteAsync(_guest.Character.Name);
+
+            Assert.IsFalse(_guest.LastPackets.OfType<Dlgi2Packet>().Any());
+            Assert.AreEqual(Game18NConstString.AlreadyBlacklisted, LastInfo(_owner));
+        }
+
+        [TestMethod]
         public async Task InvitingWithoutASeedIsRefused()
         {
             var seed = _owner.Character.InventoryService.Values.Single(s => s.ItemInstance.ItemVNum == SeedOfPower);

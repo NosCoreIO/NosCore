@@ -8,6 +8,7 @@ using NodaTime;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
@@ -22,7 +23,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland
 {
-    public class MinilandInvitePacketHandler(ISessionRegistry sessionRegistry, IMinilandService minilandService, IClock clock)
+    public class MinilandInvitePacketHandler(ISessionRegistry sessionRegistry, IMinilandService minilandService, IBlacklistHub blacklistHub,
+            IClock clock)
         : PacketHandler<MinilandInvitePacket>, IWorldPacketHandler
     {
 
@@ -56,6 +58,12 @@ namespace NosCore.PacketHandlers.Miniland
             if (target.CharacterId == character.CharacterId || target.MinilandInviteBlocked)
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.PlayerCanNotBeInvited });
+                return;
+            }
+
+            if (await blacklistHub.IsBlacklistedEitherWayAsync(character.CharacterId, target.CharacterId))
+            {
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.AlreadyBlacklisted });
                 return;
             }
 
