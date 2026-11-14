@@ -29,6 +29,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Dao.Interfaces;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
@@ -330,6 +331,16 @@ namespace NosCore.GameObject.Ecs.Extensions
             return new QstlistPacket(visualEntity.Quests.Values
                 .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(showDialog)).ToList());
         }
+
+        public static SqstPacket GenerateCompletedQuests(this PlayerComponentBundle visualEntity, byte block, NodaTime.Instant now) =>
+            SqstPacket.FromCompletedQuests(block, visualEntity.Quests.Values
+                .Where(q => q.IsDoneAt(now))
+                .Select(q => (int)q.QuestId));
+
+        public static IEnumerable<SqstPacket> GenerateCompletedQuests(this PlayerComponentBundle visualEntity, IEnumerable<QuestDto> quests,
+            NodaTime.Instant now) =>
+            Enumerable.Range(0, SqstPacket.BlockOf(quests.Select(q => (int)q.QuestId).DefaultIfEmpty().Max()) + 1)
+                .Select(block => visualEntity.GenerateCompletedQuests((byte)block, now));
 
         public static InEquipmentSubPacket GetEquipmentSubPacket(this PlayerComponentBundle visualEntity) => new()
         {

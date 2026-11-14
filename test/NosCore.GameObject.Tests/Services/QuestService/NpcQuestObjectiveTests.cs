@@ -57,6 +57,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             {
                 World.Create<Dialog1QuestHandler>(),
                 World.Create<Dialog2QuestHandler>(),
+                World.Create<NpcButtonQuestHandler>(),
                 World.Create<InspectQuestHandler>(),
                 World.Create<CollectMapEntityQuestHandler>(),
                 World.Create<TransmitGoldQuestHandler>(),
@@ -124,6 +125,26 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             await new Spec("The n_run 200 button naming another quest leaves the Dialog2 quest open")
                 .Given(CharacterHasQuest_With_, QuestType.Dialog2, new[] { Objective(QuestGiverVNum) })
                 .WhenAsync(PressingTheQuestButtonAt_For_, QuestGiverVNum, (short)9999)
+                .Then(QuestShouldBeOpen)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheDialogButtonCompletesAQuestWithoutObjectives()
+        {
+            await new Spec("The n_run 200 button completes a quest that has no objective")
+                .Given(CharacterHasQuest_With_, QuestType.UnKnow, Array.Empty<QuestObjectiveDto>())
+                .WhenAsync(PressingTheQuestButtonAt_For_, QuestGiverVNum, TrackedQuestIdPlaceholder)
+                .Then(QuestShouldBeComplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OpeningTheNpcAloneLeavesAQuestWithoutObjectivesOpen()
+        {
+            await new Spec("Opening the NPC without pressing the quest button leaves a quest without objectives open")
+                .Given(CharacterHasQuest_With_, QuestType.UnKnow, Array.Empty<QuestObjectiveDto>())
+                .WhenAsync(TalkingTo_, QuestGiverVNum)
                 .Then(QuestShouldBeOpen)
                 .ExecuteAsync();
         }

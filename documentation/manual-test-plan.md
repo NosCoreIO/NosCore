@@ -2501,6 +2501,18 @@ starting on its own. Put a level 60 character on the last step of chapter 11 nex
 - [ ] At level 50, picking "Level 56" does nothing
 - [ ] Finishing a chapter's last step does not start the next chapter until it is taken from its NPC
 
+### Quests the client knows are done
+
+The client only hides a finished quest's offer, and only shows a hand-in button that needs a
+finished quest, once the server has told it which quests are done. Put a level 90 character with
+quest 6818 done and quest 6819 open next to the fishing NPC (dialog 467), and open "Fishing Side
+Quest".
+
+- [ ] The list shows "Catch the Biggest Fish" with the hand-in tick, not the blue offer mark
+- [ ] Pressing it completes 6819: "Quest complete", and it leaves the quest window
+- [ ] After a relog the list still treats 6818 and 6819 as done
+- [ ] A daily quest done more than a day ago is offered again after a relog
+
 ### Rewards
 
 Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open

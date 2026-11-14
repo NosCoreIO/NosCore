@@ -23,6 +23,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.Data.StaticEntities;
+using NosCore.Packets.ServerPackets.Quest;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -102,7 +104,9 @@ namespace NosCore.PacketHandlers.Tests.Game
                 World.Create<NosCore.GameObject.Services.CharacterRankingService.CharacterRankingService>(),
                 new Mock<NosCore.GameObject.Services.WarehouseService.IPersonalWarehouseService>().Object,
                 RespawnService.Object,
-                Minilands.Object);
+                Minilands.Object,
+                [new QuestDto { QuestId = 1 }, new QuestDto { QuestId = 6042 }],
+                World.Clock);
         }
 
         [TestMethod]
@@ -306,6 +310,33 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             Session.GameStarted = false;
             Session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
+        }
+
+        [TestMethod]
+        public async Task GameStartTellsTheClientWhichQuestsAreDone()
+        {
+            await new Spec("Game start tells the client which quests are done")
+                .Given(CharacterIsReadyToStart)
+                .And(QuestIsDone_, 6041)
+                .WhenAsync(ExecutingGameStart)
+                .Then(EveryQuestBlockShouldBeSentWithOnlyQuest_Marked, 6041)
+                .ExecuteAsync();
+        }
+
+        private void QuestIsDone_(int questId) =>
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
+            {
+                QuestId = (short)questId,
+                CompletedOn = NodaTime.Instant.FromUnixTimeSeconds(0),
+                Quest = new NosCore.GameObject.Services.QuestService.Quest { QuestId = (short)questId, QuestObjectives = [] }
+            });
+
+        private void EveryQuestBlockShouldBeSentWithOnlyQuest_Marked(int questId)
+        {
+            var blocks = Session.LastPackets.OfType<SqstPacket>().ToList();
+            CollectionAssert.AreEqual(new byte[] { 0, 1, 2, 3, 4 }, blocks.Select(b => b.Type).ToList());
+            Assert.AreEqual(SqstPacket.FromCompletedQuests(4, [questId]).Bitmap, blocks[4].Bitmap);
+            Assert.IsTrue(blocks.Take(4).All(b => b.Bitmap == new string('0', 250)));
         }
 
         private void CharacterHasPositiveHp()
