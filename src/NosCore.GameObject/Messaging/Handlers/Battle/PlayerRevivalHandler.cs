@@ -73,9 +73,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                     return;
                 }
 
-                if (player.MapInstance?.MapInstanceType == MapInstanceType.IceBreakerInstance)
+                if (player.MapInstance?.MapInstanceType is MapInstanceType.IceBreakerInstance or MapInstanceType.RaidInstance)
                 {
-                    if (player.MapInstance is { } iceBreaker && scriptedInstanceService.GetRun(iceBreaker.MapInstanceId) is { } run)
+                    if (player.MapInstance is { } room && scriptedInstanceService.GetRun(room.MapInstanceId) is { } run)
                     {
                         await run.PlayerDownAsync(player);
                     }
@@ -145,24 +145,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 return;
             }
 
-            await player.OnMapAsync(() =>
-            {
-                player.Hp = 1;
-                player.Mp = 1;
-                player.IsAlive = true;
-                return Task.CompletedTask;
-            });
-            if (player.MapInstance is { } mapInstance)
-            {
-                await mapInstance.SendPacketAsync(new RevivePacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = player.VisualId,
-                    Data = 0,
-                });
-            }
-
-            await player.SendPacketAsync(player.GenerateStat());
+            await player.ReviveAsync(fully: false);
             await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
         }
     }

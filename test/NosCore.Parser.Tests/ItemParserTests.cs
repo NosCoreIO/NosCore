@@ -578,7 +578,7 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task ItemParser_RaidItemKeepsTheItemTypeOfItsIndexPocket()
+        public async Task ItemParser_RaidSealStaysInTheMainInventory()
         {
             var raidFlag = string.Join("\t", Enumerable.Repeat("0", 24)) + "\t1";
             CreateTestFile(CreateItemData(
@@ -591,7 +591,7 @@ namespace NosCore.Parser.Tests
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
-            Assert.AreEqual(NoscorePocketType.Raid, _savedItems[0].Type);
+            Assert.AreEqual(NoscorePocketType.Main, _savedItems[0].Type);
             Assert.AreEqual(ItemType.Special, _savedItems[0].ItemType);
             Assert.AreEqual((ItemEffectType)301, _savedItems[0].Effect);
         }

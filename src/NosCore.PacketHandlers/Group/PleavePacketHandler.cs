@@ -15,7 +15,10 @@ namespace NosCore.PacketHandlers.Group
     public class PleavePacketHandler(IGroupLeaveService groupLeaveService) : PacketHandler<PleavePacket>,
         IWorldPacketHandler
     {
+        // A raid team is left through rd, which keeps the raid's own rules.
         public override Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession) =>
-            groupLeaveService.LeaveAsync(clientSession.Character);
+            clientSession.Character.Group.Raid != null
+                ? Task.CompletedTask
+                : groupLeaveService.LeaveAsync(clientSession.Character);
     }
 }

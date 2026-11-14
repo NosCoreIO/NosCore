@@ -50,8 +50,8 @@ namespace NosCore.Parser.Parsers
                     source: "FLAG[20] + VNUM[1]", description: "Reputation price when FLAG[20] is set")
                 .Field(x => x.NameI18NKey, "NAME", 0, 2, s => s, "Localization key (zts##e)")
                 .Field(x => x.Type, chunk => ImportType(chunk),
-                    source: "FLAG[26] + DATA[0] + INDEX[0,1]",
-                    description: "Pocket type: FLAG[26]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map")
+                    source: "DATA[0] + INDEX[0,1]",
+                    description: "Pocket type: DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map")
                 .Field(x => x.ItemType, chunk => ImportItemType(chunk),
                     source: "INDEX[0,1]", description: "ItemType composite enum, built from the INDEX pocket even for Raid and Mount items")
                 .Field(x => x.ItemSubType, "INDEX", 0, 4, s => Convert.ToByte(s), "Subtype within item category")
@@ -161,7 +161,7 @@ namespace NosCore.Parser.Parsers
                 .Doc("FLAG", 19, "Unused", "0 on every item.")
                 .Doc("FLAG", 21, "ReputationPrice", "The shop tooltip labels the price \"Reputation\"; read into ReputPrice.")
                 .Doc("FLAG", 25, "Unused", "0 on every item.")
-                .Doc("FLAG", 26, "RaidItem", "Set on raid seals, raid boxes, chests and drops; routes the item to the Raid pocket.")
+                .Doc("FLAG", 26, "RaidItem", "Set on raid seals, raid boxes, chests and drops. The client keeps them in the main inventory.")
                 .Doc("INDEX", 2, "Pocket", "The pocket the item goes to (8, 9, 10 are Equipment, Main, Etc); read into Type.")
                 .Doc("INDEX", 3, "Category", "The kind of item within its pocket; read with the pocket into ItemType.");
         }
@@ -589,8 +589,6 @@ namespace NosCore.Parser.Parsers
 
         private NoscorePocketType ImportType(Dictionary<string, string[][]> chunks)
         {
-            var flag = chunks["FLAG"][0];
-            if (flag.Length > 26 && flag[26] == "1") return NoscorePocketType.Raid;
             if (chunks["DATA"][0][2] == "1000" && chunks["INDEX"][0][3] == "4")
             {
                 return NoscorePocketType.Mount;

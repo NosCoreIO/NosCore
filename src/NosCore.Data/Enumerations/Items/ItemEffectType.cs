@@ -36,6 +36,7 @@ namespace NosCore.Data.Enumerations.Items
         AncelloansBlessing = 208,
         FairyBooster = 250,
         FriendshipWings = 199,
+        RaidSeal = 301,
         ApplySkinPartner = 305,
         ChangeSpecialistWings = 650,
         ChangeFaction = 570,

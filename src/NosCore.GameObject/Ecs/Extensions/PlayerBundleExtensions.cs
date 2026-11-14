@@ -79,6 +79,29 @@ public static class PlayerBundleExtensions
         };
     }
 
+    // Back on their feet where they fell, either with full HP and MP or with one of each.
+    public static async Task ReviveAsync(this PlayerComponentBundle player, bool fully)
+    {
+        await player.OnMapAsync(() =>
+        {
+            player.Hp = fully ? player.MaxHp : 1;
+            player.Mp = fully ? player.MaxMp : 1;
+            player.IsAlive = true;
+            return Task.CompletedTask;
+        });
+        if (player.MapInstance is { } mapInstance)
+        {
+            await mapInstance.SendPacketAsync(new RevivePacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = player.VisualId,
+                Data = 0,
+            });
+        }
+
+        await player.SendPacketAsync(player.GenerateStat());
+    }
+
     // An emptied stack is gone from the inventory, and the client then needs the slot cleared.
     public static Task UseUpOneAsync(this PlayerComponentBundle player, InventoryItemInstance item)
     {

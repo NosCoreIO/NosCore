@@ -36,7 +36,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // How far into its timeline the script begins, for a run that joins an event already under way.
         TimeSpan AlreadyElapsed => TimeSpan.Zero;
 
-        // A player whose HP reached zero inside the run. They stay out of the fight until the run ends.
+        // A player whose HP reached zero inside the run. They stay out of the fight until the run
+        // ends, unless the host stands them up again.
         Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) => Task.CompletedTask;
 
         Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;

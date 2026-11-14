@@ -205,6 +205,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public bool IsDown(long characterId) => _down.Contains(characterId);
 
+        // For a host that brings a fallen player back; only call it from one of the host's hooks.
+        public void StoodUp(long characterId) => _down.Remove(characterId);
+
         public Task TickAsync()
         {
             return RunAsync(async () =>

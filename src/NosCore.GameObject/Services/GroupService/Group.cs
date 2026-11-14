@@ -9,6 +9,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -41,6 +42,14 @@ namespace NosCore.GameObject.Services.GroupService
         public long GroupId { get; set; } = -1;
 
         public GroupType Type { get; set; } = type;
+
+        // The raid a team was opened for, and its run once the leader has started it.
+        public ScriptedInstance? Raid { get; set; }
+
+        public ScriptedInstanceRun? RaidRun { get; set; }
+
+        // Who the raid team's leader has invited and has not answered yet.
+        public ConcurrentDictionary<long, byte> Invited { get; } = new();
 
         public bool IsGroupFull => Count >= (long)Type;
 

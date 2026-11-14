@@ -164,31 +164,9 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         public async Task ReturnToEntranceAsync(ClientSession session)
         {
             var player = session.Character;
-            await ReviveWithOneHpAsync(player);
+            await player.ReviveAsync(fully: false);
             await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
             await player.SendPacketAsync(Message(Game18NConstString.ReturnToEntranceLandOfDeath));
-        }
-
-        private static async Task ReviveWithOneHpAsync(PlayerComponentBundle player)
-        {
-            await player.OnMapAsync(() =>
-            {
-                player.Hp = 1;
-                player.Mp = 1;
-                player.IsAlive = true;
-                return Task.CompletedTask;
-            });
-            if (player.MapInstance is { } mapInstance)
-            {
-                await mapInstance.SendPacketAsync(new RevivePacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = player.VisualId,
-                    Data = 0,
-                });
-            }
-
-            await player.SendPacketAsync(player.GenerateStat());
         }
 
         public Task LeaveAsync(ClientSession session) =>
@@ -239,7 +217,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             var player = session.Character;
             if (!player.IsAlive)
             {
-                await ReviveWithOneHpAsync(player);
+                await player.ReviveAsync(fully: false);
             }
 
             await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);

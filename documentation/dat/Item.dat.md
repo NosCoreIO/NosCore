@@ -37,7 +37,7 @@
 | 23 | Parsed | Flag7 | Boolean | Headgear that also hides the mask; only changes what the client draws |
 | 24 | Parsed | Flag8 | Boolean | FLAG bit 23 (unknown) |
 | 25 | NonParsed | Unused |  | 0 on every item. |
-| 26 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops; routes the item to the Raid pocket. |
+| 26 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops. The client keeps them in the main inventory. |
 
 ## INDEX
 
@@ -104,7 +104,7 @@
 | ShellType | Nullable`1 | DATA[5] (shell only) | Shell kind, which decides the options it rolls |
 | Speed | Byte | DATA[varies] | Movement speed bonus / vehicle speed |
 | SpType | Byte | DATA[varies] (SP only) | SP transformation type |
-| Type | NoscorePocketType | FLAG[26] + DATA[0] + INDEX[0,1] | Pocket type: FLAG[26]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map |
+| Type | NoscorePocketType | DATA[0] + INDEX[0,1] | Pocket type: DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map |
 | WaitDelay | Int16 | DATA[varies] | Cooldown / use delay |
 | WaterResistance | Int16 | DATA[8] or DATA[16] | Water resistance; SP uses DATA[16] |
 | Width | Byte | DATA[3] (miniland only) | Miniland object footprint width |
