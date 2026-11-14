@@ -323,6 +323,19 @@ The cell must be within the skill's range plus one cell of the caster.
       drawn on the clicked cell before the hits, even when the area is empty
 - [ ] The skill icon comes back when the cooldown ends
 
+### Skills cast on yourself or an ally
+
+A skill whose target is the caster (Battle Cry, Shout of Morale, Spinning Hit) or a friendly
+player plays, costs its mana and goes on cooldown. Its hit type decides the rest.
+
+- [ ] As an Adventurer, use Shout of Morale (207): mana drops by its cost and its buff icon
+      appears beside the character's portrait
+- [ ] Use Spinning Hit (204) with two monsters next to you and one a few cells away: both
+      nearby monsters show damage, the far one does not, and the skill icon shows its cooldown
+- [ ] In a party, use a skill that buffs everyone around: a member standing close gets the buff,
+      a member far away does not
+- [ ] Use a skill meant for an ally on a monster: the cast is cancelled and nothing is spent
+
 ### Skills on a list of targets
 
 Some skills (Finishing Blow, 816) make the client send `mtlist` with the extra monsters it
