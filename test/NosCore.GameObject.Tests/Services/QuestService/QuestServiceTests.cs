@@ -341,6 +341,16 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task OnlyTheQuestJustTakenOpensItsDialog()
+        {
+            await new Spec("Only the quest just taken opens its dialog")
+                .Given(NonSecondaryQuestAlreadyActive)
+                .WhenAsync(AddingAnotherNonSecondaryQuest)
+                .Then(OnlyTheNewQuestShouldShowItsDialog)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AMainQuestIsRefusedWhenTheMainSlotsAreFull()
         {
             await new Spec("A main quest is refused when the five main slots are taken")
@@ -584,6 +594,13 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         {
             Assert.IsTrue(AddQuestResult);
             CollectionAssert.AreEquivalent(new byte[] { 0, 1 }, Session.Character.Quests.Values.Select(q => q.Slot).ToArray());
+        }
+
+        private void OnlyTheNewQuestShouldShowItsDialog()
+        {
+            var list = Session.LastPackets.OfType<NosCore.Packets.ServerPackets.Quest.QstlistPacket>().Last().QuestSubPackets;
+            Assert.IsTrue(list.Single(q => q?.QuestId == 10)?.QuestToShowInfo);
+            Assert.IsFalse(list.Single(q => q?.QuestId == 5)?.QuestToShowInfo);
         }
 
         private void TheMainQuestShouldNotBeAdded()

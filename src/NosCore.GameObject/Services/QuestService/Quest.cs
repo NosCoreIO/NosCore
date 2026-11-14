@@ -23,11 +23,13 @@ namespace NosCore.GameObject.Services.QuestService
 
         public byte Slot { get; set; }
 
-        // Main quests take the first five quest window slots and secondary quests the last five.
-        public static byte FreeSlot(IEnumerable<CharacterQuest> quests, bool secondary)
+        // Main quests take the first five quest window slots and secondary quests the last five. A quest that follows
+        // another through its link keeps that quest's slot.
+        public static byte FreeSlot(IEnumerable<CharacterQuest> quests, bool secondary, byte? previous = null)
         {
             var taken = TakenSlots(quests);
-            return (byte)SlotRange(secondary).Concat(Enumerable.Range(0, 10)).FirstOrDefault(s => !taken.Contains((byte)s));
+            var candidates = previous is { } slot ? new[] { (int)slot }.Concat(SlotRange(secondary)) : SlotRange(secondary);
+            return (byte)candidates.Concat(Enumerable.Range(0, 10)).FirstOrDefault(s => !taken.Contains((byte)s));
         }
 
         public static bool HasFreeSlot(IEnumerable<CharacterQuest> quests, bool secondary)

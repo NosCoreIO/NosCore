@@ -24,6 +24,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShopService;
@@ -326,10 +327,10 @@ namespace NosCore.GameObject.Ecs.Extensions
                 })));
         }
 
-        public static QstlistPacket GenerateQuestPacket(this PlayerComponentBundle visualEntity, bool showDialog = false)
+        public static QstlistPacket GenerateQuestPacket(this PlayerComponentBundle visualEntity, CharacterQuest? taken = null)
         {
             return new QstlistPacket(visualEntity.Quests.Values
-                .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(showDialog)).ToList());
+                .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(quest == taken)).ToList());
         }
 
         public static SqstPacket GenerateCompletedQuests(this PlayerComponentBundle visualEntity, byte block, NodaTime.Instant now) =>
