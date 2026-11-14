@@ -37,9 +37,10 @@ namespace NosCore.PacketHandlers.Tests.Mates
             var bare = (UpetPacket)Deserializer.Deserialize("u_pet 1135623 3 2045 664");
             var withCell = (UpetPacket)Deserializer.Deserialize("u_pet 1135623 3 2045 664 144 124");
 
-            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, 664), (bare.MateTransportId, bare.TargetType, bare.TargetId, bare.Unknown2));
-            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, 664),
-                (withCell.MateTransportId, withCell.TargetType, withCell.TargetId, withCell.Unknown2));
+            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, (short)664, (short?)null, (short?)null),
+                (bare.MateTransportId, bare.TargetType, bare.TargetId, bare.SkillVNum, bare.MapX, bare.MapY));
+            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, (short)664, (short?)144, (short?)124),
+                (withCell.MateTransportId, withCell.TargetType, withCell.TargetId, withCell.SkillVNum, withCell.MapX, withCell.MapY));
         }
 
         [TestMethod]

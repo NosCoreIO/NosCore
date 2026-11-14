@@ -91,8 +91,15 @@ namespace NosCore.GameObject.Ecs.Extensions
             ThirdSkill = SkillAt(skills, 2)
         };
 
-        private static short SkillAt(IReadOnlyList<SkillDto>? skills, int slot) =>
-            skills != null && slot < skills.Count ? skills[slot].SkillVNum : (short)0;
+        public static PetskiPacket GeneratePetski(this IReadOnlyList<SkillDto> skills) => new()
+        {
+            FirstSkillVNum = SkillAt(skills, 0, -1),
+            SecondSkillVNum = SkillAt(skills, 1, -1),
+            ThirdSkillVNum = SkillAt(skills, 2, -1)
+        };
+
+        private static short SkillAt(IReadOnlyList<SkillDto>? skills, int slot, short empty = 0) =>
+            skills != null && slot < skills.Count ? skills[slot].SkillVNum : empty;
 
         private static ScnPacket.ScSkillDetails? SkillDetails(IReadOnlyList<SkillDto>? skills, int slot) =>
             skills != null && slot < skills.Count

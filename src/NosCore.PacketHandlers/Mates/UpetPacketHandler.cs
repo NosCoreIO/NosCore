@@ -32,12 +32,12 @@ namespace NosCore.PacketHandlers.Mates
 
             // The fourth field is the skill pressed on the pet's bar, and none means a basic attack. A mate
             // is an ally of every player and npc, so a skill only goes for a monster.
-            if (packet.Unknown2 != 0)
+            if (packet.SkillVNum != 0)
             {
                 if (packet.TargetType == VisualType.Monster
                     && character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId) is { } monster)
                 {
-                    await petSkillService.CastAsync(character, packet.MateTransportId, packet.Unknown2, monster);
+                    await petSkillService.CastAsync(character, packet.MateTransportId, packet.SkillVNum, monster);
                 }
 
                 return;

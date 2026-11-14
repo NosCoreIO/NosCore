@@ -5,14 +5,17 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -29,6 +32,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class PetManagementHandlerTests
     {
+        private const short PetSkill = 664;
+
         private TestWorld World;
         private ClientSession _session;
         private Mock<IMinilandService> _miniland;
@@ -41,7 +46,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _session = await World.CreateSessionAsync();
             _session.Character.Level = 30;
             _miniland = World.Freeze<Mock<IMinilandService>>();
-            _handler = World.UseReal<IPartnerSpecialistService, PartnerSpecialistService>().Create<PetManagementHandler>();
+            World.Inject(new List<SkillDto> { new() { SkillVNum = PetSkill, SkillType = 5 } });
+            World.Inject(new List<NpcMonsterSkillDto> { new() { NpcMonsterVNum = 333, SkillVNum = PetSkill } });
+            _handler = World.UseReal<IPartnerSpecialistService, PartnerSpecialistService>()
+                .UseReal<INpcCombatCatalog, NpcCombatCatalog>()
+                .UseReal<IPetSkillBarService, PetSkillBarService>()
+                .Create<PetManagementHandler>();
         }
 
         private GameObject.Services.MateService.Mate Add(GameObject.Services.MateService.Mate mate)
@@ -86,6 +96,32 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             Assert.AreEqual((short)5, out1.MapX);
             Assert.IsNotNull(out1.Entity, "The replaced pet stays in the Miniland.");
             Assert.IsTrue(_session.LastPackets.OfType<PinitPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task APetJoiningTheTeamBringsItsSkillBar()
+        {
+            InOwnMiniland();
+            var home = Add(TestMates.Pet(_session.Character.CharacterId, false));
+            await home.SpawnAsync(_session.Character, _session.Character.MapInstance, 5, 5);
+
+            await RunAsync(2, home);
+
+            var bar = _session.LastPackets.OfType<PetskiPacket>().Last();
+            Assert.AreEqual((PetSkill, (short)-1, (short)-1), (bar.FirstSkillVNum, bar.SecondSkillVNum, bar.ThirdSkillVNum));
+        }
+
+        [TestMethod]
+        public async Task APetSentHomeTakesItsSkillBarAway()
+        {
+            InOwnMiniland();
+            var pet = Add(TestMates.Pet(_session.Character.CharacterId));
+            await pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 6, 7);
+
+            await RunAsync(4, pet);
+
+            var bar = _session.LastPackets.OfType<PetskiPacket>().Last();
+            Assert.AreEqual(((short)-1, (short)-1, (short)-1), (bar.FirstSkillVNum, bar.SecondSkillVNum, bar.ThirdSkillVNum));
         }
 
         [TestMethod]

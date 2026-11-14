@@ -1096,16 +1096,26 @@ and the items in the Etc bag.
 
 A pet whose creature has skills of its own casts them from its skill bar: an Otter (683) has
 Sushi Party and Smackeroo, a Baby Raptor Blue (806) Tail Sweep, a Baby Panda (1488) Panda Roll.
-The bar is not sent yet (see "Not verifiable yet"), so these wait for it. Have such a pet in the
-team and a second client on the map.
+Have such a pet in the team and a second client on the map. A skill centred on the pet itself,
+Sushi Party among them, does nothing yet.
 
-- [ ] With an Otter beside a monster, select the monster and press Smackeroo: the Otter plays
+- [ ] Log in with an Otter in the team: its skill bar shows Sushi Party then Smackeroo, and the
+      third slot is empty
+- [ ] With a pet that has no skill of its own (a Chicken, 333) in the team: no pet skill bar
+- [ ] With the Otter beside a monster, select the monster and press Smackeroo: the Otter plays
       the skill, the damage number shows on both screens, the monster's bar drops and the
       Otter's MP in the party panel goes down by 20
-- [ ] Press it again at once: nothing happens; 35 seconds after the first use it works again
+- [ ] The slot greys out when the skill is used and is usable again 35 seconds later; pressing
+      it in between does nothing
 - [ ] With less MP left than the skill costs: nothing happens
 - [ ] Select a monster across the map and press Smackeroo: the Otter does not hit it
 - [ ] Kill a monster with a pet skill: it collapses as it does from your own hits
+- [ ] Change map: the bar is still there
+- [ ] Send the Otter back to the Miniland: the bar goes away; take it out again: the bar is back
+      with every slot usable
+- [ ] In the Miniland, Company on a pet with other skills: the bar shows that pet's skills
+- [ ] Let a monster knock the Otter out: the bar goes away, and comes back with the Otter
+- [ ] Catch a monster with no pet out: no pet skill bar appears for it
 
 ### Food and snacks
 
@@ -2355,10 +2365,6 @@ Recorded so nobody spends time hunting for them:
   subtype 11, 100 % chance, the card as second value). With card 455 on the adventurer's basic
   attack, a Big Wild Pii Pod (level 32, 1 210 HP, 382 MP) shows a red 96 over its head 4, 8 and
   12 seconds after one hit, and its bars lose 96 HP and 22 MP each time.
-- **Pet skills, by playing** — the client only draws a pet's skill bar once the server has
-  listed the pet's skills, and it only orders a skill from that bar. The list is not sent yet,
-  so the checks under "Pet skills" cannot be run. The end-to-end scenarios send the order the
-  bar would and check the cast, the hit, the mana it costs and the cooldown.
 - **Resurrection Side Effects by playing** — nothing gives a character card 44 yet, so the
   check under "Debuffs that grow with the level" needs a `StaticBuff` row for the character
   (`CardId` 44, any `RemainingTime`) and a new login.

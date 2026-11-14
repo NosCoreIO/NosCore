@@ -71,10 +71,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short SlowSkillMp = 20;
 
         // A creature to own as a pet: it has mana, and one skill of its own for its skill bar that takes
-        // a moment to cast and a long time to come back.
+        // a moment to cast and three seconds to come back.
         public const short PetVNum = 8;
         public const short PetSkill = 220;
         public const short PetSkillMp = 40;
+        public const short PetSkillCooldown = 30;
 
         // Has something to say, so talking to it is answered, and stands away from the shopkeeper.
         public const int Broker = 2;
@@ -194,8 +195,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             // As the client data has them: skill type 5 is a skill for a NosMate's skill bar.
             context.Add(new Skill
             {
-                SkillVNum = PetSkill, Name = "skill220", CastId = 3, SkillType = 5, Type = 0, Range = 1, CastTime = 2, Cooldown = 300,
-                MpCost = PetSkillMp, Effect = 220, AttackAnimation = 12, CastAnimation = -1, CastEffect = -1
+                SkillVNum = PetSkill, Name = "skill220", CastId = 3, SkillType = 5, Type = 0, Range = 1, CastTime = 2,
+                Cooldown = PetSkillCooldown, MpCost = PetSkillMp, Effect = 220, AttackAnimation = 12, CastAnimation = -1, CastEffect = -1
             });
 
             // Creatures that stand still on the meadow: one that falls to any hit, one that does

@@ -18,6 +18,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const int Npc = 2;
         private const int Monster = 3;
         private const short SkillOfTheOwner = 200;
+        private const int PetManagement = 4;
+        private const int ConfirmSendBack = 5;
+        private const int SentBack = 6;
+        private const int SendBackBar = 3000;
+        private const string NoBar = "petski -1 -1 -1";
+        private const string EverySlotReady = "petsr -1";
+        private const string FirstSlotReady = "petsr 0";
+        private static readonly string BarOfThePet = $"petski {WorldData.PetSkill} -1 -1";
 
         // The owner stands a cell from the monster, which puts the pet that came in at her side on it.
         private static async Task<TestClient> EnterWithAPetAsync(string name)
@@ -54,6 +62,48 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             owner.SendAsync($"u_pet {pet} {Monster} {WorldData.SturdyMonster} {skill}");
 
         [TestMethod]
+        public async Task AnOwnerEnteringTheWorldIsShownTheSkillBarOfHerTeamPet()
+        {
+            await using var alice = await EnterWithAPetAsync("Alice");
+
+            await alice.ExpectSinceAsync(0, p => p == BarOfThePet, "the pet's skill bar");
+            await alice.ExpectSinceAsync(0, p => p == EverySlotReady, "every slot of it ready");
+        }
+
+        [TestMethod]
+        public async Task SendingThePetHomeTakesItsSkillBarAway()
+        {
+            await using var alice = await EnterWithAPetAsync("Alice");
+            var pet = await PetOfAsync(alice);
+            await alice.ExpectSinceAsync(0, p => p == BarOfThePet, "the pet's skill bar");
+            var sent = alice.Mark();
+
+            await alice.SendAsync($"n_run {PetManagement} {ConfirmSendBack} {Monster} {pet}");
+            await alice.ExpectSinceAsync(sent, p => p.StartsWith($"delay {SendBackBar} ", StringComparison.Ordinal), "the bar before it leaves");
+            await Task.Delay(SendBackBar + 200);
+            await alice.SendAsync($"n_run {PetManagement} {SentBack} {Monster} {pet}");
+
+            await alice.ExpectSinceAsync(sent, p => p == $"out {Npc} {pet}", "the pet leaving");
+            await alice.ExpectSinceAsync(sent, p => p == NoBar, "the skill bar going with it");
+        }
+
+        [TestMethod]
+        public async Task APetSkillIsReadyAgainOnceItHasCooledDown()
+        {
+            await using var alice = await EnterWithAPetAsync("Alice");
+            var pet = await PetOfAsync(alice);
+            var ordered = alice.Mark();
+            await OrderAsync(alice, pet, WorldData.PetSkill);
+            await alice.ExpectSinceAsync(ordered, HitBy(pet), "the first hit");
+
+            await alice.ExpectSinceAsync(ordered, p => p == FirstSlotReady, "the slot ready again");
+            var again = alice.Mark();
+            await OrderAsync(alice, pet, WorldData.PetSkill);
+
+            await alice.ExpectSinceAsync(again, HitBy(pet), "a second hit");
+        }
+
+        [TestMethod]
         public async Task APetUsesASkillOfItsOwnOnAMonsterAndEveryoneSeesIt()
         {
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 62, 62);
@@ -69,7 +119,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Assert.AreEqual(WorldData.PetSkill.ToString(CultureInfo.InvariantCulture), cast[^1], "the cast names the skill");
             var hit = (await bob.ExpectSinceAsync(watched, HitBy(pet), "the pet's hit")).Split(' ');
             Assert.AreEqual(WorldData.PetSkill.ToString(CultureInfo.InvariantCulture), hit[5], "the hit is the skill that was ordered");
-            Assert.AreEqual("300", hit[6], "with the skill's own cooldown");
+            Assert.AreEqual(WorldData.PetSkillCooldown.ToString(CultureInfo.InvariantCulture), hit[6], "with the skill's own cooldown");
 
             // pst <type> <id> <order> <hp %> <mp %> ...
             var bars = (await alice.ExpectSinceAsync(ordered,

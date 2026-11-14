@@ -31,6 +31,7 @@ using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Shared.Enumerations;
@@ -83,6 +84,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly BuffSystem _buffSystem = new();
         private readonly SkillResetSystem _skillResetSystem = new();
         private readonly List<(Entity Entity, long CastId)> _readySkills = new();
+        private readonly List<(long OwnerId, short Slot)> _readyPetSlots = new();
         private readonly List<(Entity Entity, VisualType VisualType)> _dueBuffs = new();
 
         public MapWorld EcsWorld { get; }
@@ -634,6 +636,25 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 catch (Exception e)
                 {
                     _logger.LogWarning(e, "Failed to reset cooldown for skill {CastId}", castId);
+                }
+            }
+
+            _readyPetSlots.Clear();
+            _skillResetSystem.TakeReadyPetSlots(EcsWorld, _clock.GetCurrentInstant(), _readyPetSlots);
+            foreach (var (ownerId, slot) in _readyPetSlots)
+            {
+                if (_sessionRegistry.GetSenderByCharacterId(ownerId) is not { } owner)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await owner.SendPacketAsync(new PetsrPacket { Slot = slot });
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Failed to reset cooldown for pet skill slot {Slot}", slot);
                 }
             }
         }
