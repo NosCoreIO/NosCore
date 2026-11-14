@@ -13,6 +13,7 @@ using Moq;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
@@ -43,12 +44,11 @@ namespace NosCore.GameObject.Tests.Networking
         {
             var room = _session.Character.MapInstance;
             var roomId = room.MapInstanceId;
-            var run = new ScriptedInstanceRun(new ScriptedInstance(), new EmptyScript(),
-                new Dictionary<int, MapInstance> { [1] = room },
-                new Dictionary<short, NpcMonsterDto>(), World.Clock,
-                World.SessionRegistry,
-                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, World.LogLanguageLocalizer,
-                TimeSpan.FromSeconds(30));
+            var run = new ScriptedInstanceRun(
+                new TimeSpaceRunHost(new ScriptedInstance(), new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object)),
+                new EmptyScript(), new Dictionary<int, MapInstance> { [1] = room },
+                new Dictionary<short, NpcMonsterDto>(), new RandomProvider(), World.Clock,
+                World.SessionRegistry, NullLogger.Instance, World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
             _scriptedInstances.Setup(s => s.GetRun(roomId)).Returns(run);
 
             await World.Create<TimeSpaceDisconnectHandler>().HandleDisconnectAsync(_session);

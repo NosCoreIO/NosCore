@@ -12,12 +12,11 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking;
-using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Event;
@@ -34,12 +33,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
     {
         private static readonly Duration ReturnDelay = Duration.FromSeconds(10);
 
+        private readonly IInstanceRunHost _host;
         private readonly IInstanceScript _script;
         private readonly IReadOnlyDictionary<int, MapInstance> _rooms;
         private readonly IReadOnlyDictionary<short, NpcMonsterDto> _npcMonsters;
+        private readonly IRandomProvider _random;
         private readonly IClock _clock;
         private readonly ISessionRegistry _sessionRegistry;
-        private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly ILogger _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
@@ -47,8 +47,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly List<Func<Task>> _pending = [];
         private readonly Dictionary<int, short> _lockers = [];
         private readonly HashSet<int> _visited = [];
-        private int _summoned;
-        private int _killed;
+        private readonly Dictionary<int, int> _aliveByRoom = [];
+        private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
+        private Instant? _scriptStartedAt;
         private int _nextPortalId;
         private bool _started;
         private Instant? _clockEndsAt;
@@ -58,28 +59,28 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private volatile bool _abandoned;
         private bool _endingApplied;
 
-        public ScriptedInstanceRun(ScriptedInstance entrance, IInstanceScript script,
+        public ScriptedInstanceRun(IInstanceRunHost host, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
-            IClock clock, ISessionRegistry sessionRegistry, Lazy<IMapChangeService> mapChangeService, ILogger logger,
+            IRandomProvider random, IClock clock, ISessionRegistry sessionRegistry, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeSpan stepTimeout)
         {
             _stepTimeout = stepTimeout;
-            Entrance = entrance;
+            _host = host;
             _script = script;
             _rooms = rooms;
             _npcMonsters = npcMonsters;
+            _random = random;
             _clock = clock;
             _sessionRegistry = sessionRegistry;
-            _mapChangeService = mapChangeService;
             _logger = logger;
             _logLanguage = logLanguage;
             Rooms = rooms.ToDictionary(s => s.Key, s => s.Value.MapInstanceId);
             StartedAt = clock.GetCurrentInstant();
         }
 
-        public ScriptedInstance Entrance { get; }
+        public IInstanceRunHost Host => _host;
 
-        public string Name => $"scripted instance {Entrance.ScriptedInstanceId}";
+        public string Name => _host.Name;
 
         public IReadOnlyDictionary<int, Guid> Rooms { get; }
 
@@ -90,15 +91,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public Instant StartedAt { get; }
 
-        public short ReturnMapId => Entrance.MapId;
-
-        public short ReturnX => Entrance.PositionX;
-
-        public short ReturnY => Entrance.PositionY;
-
         public EndStateType? EndState { get; private set; }
 
-        public TimeSpan Elapsed => (_clock.GetCurrentInstant() - StartedAt).ToTimeSpan();
+        public int MonstersSummoned { get; private set; }
+
+        public int MonstersKilled { get; private set; }
+
+        public int RoomsVisited => _visited.Count;
+
+        public TimeSpan Elapsed => _scriptStartedAt is { } startedAt
+            ? (_clock.GetCurrentInstant() - startedAt).ToTimeSpan()
+            : TimeSpan.Zero;
 
         public Task StartAsync()
         {
@@ -109,9 +112,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     return;
                 }
 
-                _started = true;
-                await CallScriptAsync(run => _script.OnFirstEnter(run));
+                await BeginAsync();
             });
+        }
+
+        private Task BeginAsync()
+        {
+            _started = true;
+            _scriptStartedAt = _clock.GetCurrentInstant();
+            return CallScriptAsync(run => _script.OnFirstEnter(run));
         }
 
         public Task MonsterKilledAsync(Guid mapInstanceId, short vNum)
@@ -124,7 +133,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     return;
                 }
 
-                _killed++;
+                MonstersKilled++;
+                _aliveByRoom[room.Value] = Math.Max(0, _aliveByRoom.GetValueOrDefault(room.Value) - 1);
                 if (_abandoned)
                 {
                     return;
@@ -159,8 +169,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
                 if (!_started && !_abandoned)
                 {
-                    _started = true;
-                    await CallScriptAsync(run => _script.OnFirstEnter(run));
+                    await BeginAsync();
                 }
 
                 if (_clockEndsAt is { } endsAt && EndState == null)
@@ -185,12 +194,80 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
+                while (EndState == null && !_abandoned && NextDueStep(now) is { } step)
+                {
+                    await CallScriptAsync(step);
+                }
+
                 if (_returnAt is { } returnAt && now >= returnAt)
                 {
                     _returnAt = null;
                     _pending.Add(ReturnEveryoneAsync);
                 }
             });
+        }
+
+        private Action<IInstanceRun>? NextDueStep(Instant now)
+        {
+            if (_scriptStartedAt is not { } startedAt)
+            {
+                return null;
+            }
+
+            var index = _scheduled.FindIndex(s => startedAt.Plus(s.At) <= now);
+            if (index < 0)
+            {
+                return null;
+            }
+
+            var step = _scheduled[index].Step;
+            _scheduled.RemoveAt(index);
+            return step;
+        }
+
+        public void At(TimeSpan elapsed, Action<IInstanceRun> step)
+        {
+            var at = Duration.FromTimeSpan(elapsed);
+            var index = _scheduled.FindIndex(s => s.At > at);
+            _scheduled.Insert(index < 0 ? _scheduled.Count : index, (at, step));
+        }
+
+        public void SummonWave(int room, byte wave)
+        {
+            var mapInstance = _rooms[room];
+            foreach (var line in _host.WaveMonsters(wave))
+            {
+                if (!_npcMonsters.TryGetValue(line.VNum, out var npcMonster))
+                {
+                    _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, line.VNum);
+                    continue;
+                }
+
+                for (var i = 0; i < line.Amount; i++)
+                {
+                    var (x, y) = mapInstance.Map.RandomWalkableCell(_random, 100) ?? (0, 0);
+                    Counted(room);
+                    _pending.Add(() => OnRoom(mapInstance, () =>
+                    {
+                        var monster = mapInstance.SpawnMonster(npcMonster, x, y, line.IsMoving);
+                        return mapInstance.SendPacketAsync(monster.GenerateIn());
+                    }));
+                }
+            }
+        }
+
+        public void DropWave(int room, byte wave)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () => _host.DropWaveAsync(mapInstance, wave)));
+        }
+
+        public int MonstersAlive(int room) => _aliveByRoom.GetValueOrDefault(room);
+
+        private void Counted(int room)
+        {
+            MonstersSummoned++;
+            _aliveByRoom[room] = _aliveByRoom.GetValueOrDefault(room) + 1;
         }
 
         public void Summon(int room, params MonsterSpawn[] monsters)
@@ -204,7 +281,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     continue;
                 }
 
-                _summoned++;
+                Counted(room);
                 _pending.Add(() => OnRoom(mapInstance, () =>
                 {
                     var monster = mapInstance.SummonMonster(npcMonster, spawn.At.X, spawn.At.Y, spawn.IsHostile);
@@ -282,19 +359,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             EndState = state;
             _clockEndsAt = null;
+            _scheduled.Clear();
             _returnAt = _clock.GetCurrentInstant().Plus(ReturnDelay);
-            var score = new ScorePacket
-            {
-                EndState = state,
-                MonsterKilled = (short)_killed,
-                RoomsVisited = (short)_visited.Count,
-                IsAllMonstersKilled = _killed >= _summoned,
-                IsNoNpcDead = true
-            };
             _pending.Add(() =>
             {
                 _endingApplied = true;
-                return BroadcastAsync(score);
+                return _host.EndedAsync(this, state);
             });
         }
 
@@ -322,10 +392,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return null;
         }
 
-        private IEnumerable<ClientSession> Players() =>
+        public IEnumerable<ClientSession> Players() =>
             _rooms.Values.SelectMany(room => _sessionRegistry.GetClientSessionsByMapInstance(room.MapInstanceId));
 
-        private async Task BroadcastAsync(IPacket packet)
+        public async Task BroadcastAsync(IPacket packet)
         {
             foreach (var room in _rooms.Values)
             {
@@ -337,7 +407,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         {
             foreach (var session in Players().ToList())
             {
-                await _mapChangeService.Value.ChangeMapAsync(session, ReturnMapId, ReturnX, ReturnY);
+                await _host.ReturnAsync(session);
             }
         }
 
@@ -454,7 +524,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
+            public void At(TimeSpan elapsed, Action<IInstanceRun> step) => Do(() => run.At(elapsed, step));
+
             public void Summon(int room, params MonsterSpawn[] monsters) => Do(() => run.Summon(room, monsters));
+
+            public void SummonWave(int room, byte wave) => Do(() => run.SummonWave(room, wave));
+
+            public void DropWave(int room, byte wave) => Do(() => run.DropWave(room, wave));
+
+            public int MonstersAlive(int room) => run.MonstersAlive(room);
 
             public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
                 Do(() => run.SpawnPortal(fromRoom, at, toRoom, arrival, locked));

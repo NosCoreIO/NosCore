@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Map;
+using NosCore.Instances.Abstractions;
 using NosCore.Packets.ServerPackets.MiniMap;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         Task<bool> LoadAsync(ScriptedInstance entrance);
 
         Task<ScriptedInstanceRun?> InstantiateAsync(ScriptedInstance entrance);
+
+        Task<IInstanceScript?> LoadScriptAsync(string script);
+
+        Task<ScriptedInstanceRun?> InstantiateAsync(IInstanceScript logic, MapInstanceType instanceType,
+            IInstanceRunHost host);
 
         ScriptedInstanceRun? GetRun(Guid mapInstanceId);
 

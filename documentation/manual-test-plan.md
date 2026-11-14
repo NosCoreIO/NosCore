@@ -2073,6 +2073,9 @@ countdown starts at :55). Use two characters on a base map.
       and gives level x 50 reputation, level x 1000 gold and level x 100 SP points
 - [ ] Ten seconds later everyone is back where they came from
 - [ ] Not clearing it in 15 minutes shows "Instant Combat time has elapsed" and gives nothing
+- [ ] The fight's timing comes from `instances/instant-combat.csx`: changing a wave's time there
+      and restarting the world server moves that wave
+- [ ] Leaving the room as its last player closes it; a new Instant Combat still starts afterwards
 
 ### Icebreaker
 

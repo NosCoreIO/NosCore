@@ -10,6 +10,7 @@ using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
@@ -62,6 +63,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private MapInstance _first;
         private MapInstance _second;
+        private IInstanceRunHost? _host;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -81,12 +83,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
 
         private ScriptedInstanceRun Run(Script script, TimeSpan? timeout = null) =>
-            new(new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, Logic = script },
+            new(_host ?? new TimeSpaceRunHost(
+                    new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, Logic = script },
+                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object)),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
-                World.Clock, World.SessionRegistry,
-                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, World.LogLanguageLocalizer, timeout ?? TimeSpan.FromSeconds(30));
+                new RandomProvider(), World.Clock, World.SessionRegistry, NullLogger.Instance, World.LogLanguageLocalizer,
+                timeout ?? TimeSpan.FromSeconds(30));
 
         [TestMethod]
         public async Task TheFirstEntryRunsTheScriptOnlyOnceAsync()
@@ -374,6 +378,82 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
 
             Assert.AreEqual(EndStateType.Success, run.EndState);
+        }
+    
+        private sealed class Host : IInstanceRunHost
+        {
+            public List<EndStateType> Endings { get; } = [];
+
+            public string Name => "test";
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) =>
+                wave == 1 ? [new WaveMonster(Grunt, 3, false)] : [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
+            {
+                Endings.Add(state);
+                return Task.CompletedTask;
+            }
+
+            public Task ReturnAsync(NosCore.GameObject.Networking.ClientSession.ClientSession session) =>
+                Task.CompletedTask;
+        }
+
+        [TestMethod]
+        public async Task AScheduledStepRunsOnceItsTimeHasComeAsync()
+        {
+            var script = new Script { Enter = r => r.At(TimeSpan.FromSeconds(5), s => s.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)))) };
+            var run = Run(script);
+            await run.StartAsync();
+
+            World.Clock.AdvanceSeconds(4);
+            await run.TickAsync();
+            Assert.AreEqual(0, _first.EnumerateMonsters().Count());
+
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+            await run.TickAsync();
+            Assert.AreEqual(1, _first.EnumerateMonsters().Count());
+        }
+
+        [TestMethod]
+        public async Task AWaveBringsInTheHostsMonstersAndCountsThemAsync()
+        {
+            _host = new Host();
+            var run = Run(new Script { Enter = r => r.SummonWave(2, 1) });
+            await run.StartAsync();
+
+            Assert.AreEqual(3, _second.EnumerateMonsters().Count());
+            Assert.AreEqual(3, run.MonstersAlive(2));
+
+            await run.MonsterKilledAsync(_second.MapInstanceId, Grunt);
+
+            Assert.AreEqual(2, run.MonstersAlive(2));
+            Assert.AreEqual(0, run.MonstersAlive(1));
+        }
+
+        [TestMethod]
+        public async Task TheEndingGoesToTheHostAndCancelsWhatIsStillScheduledAsync()
+        {
+            var host = new Host();
+            _host = host;
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.At(TimeSpan.FromSeconds(5), s => s.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1))));
+                    r.Succeed();
+                }
+            });
+            await run.StartAsync();
+
+            World.Clock.AdvanceSeconds(5);
+            await run.TickAsync();
+
+            CollectionAssert.AreEqual(new[] { EndStateType.Success }, host.Endings);
+            Assert.AreEqual(0, _first.EnumerateMonsters().Count());
         }
     }
 }

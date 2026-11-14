@@ -17,9 +17,21 @@ namespace NosCore.Instances.Abstractions
     // through here, so the engine behind it - csx today - stays swappable.
     public interface IInstanceRun
     {
+        // Time since the script started, which is when its first player finished entering.
         TimeSpan Elapsed { get; }
 
+        // Runs the step once the script has been going for that long, unless the run has ended.
+        void At(TimeSpan elapsed, Action<IInstanceRun> step);
+
         void Summon(int room, params MonsterSpawn[] monsters);
+
+        // Brings in the monsters the instance's own data lists for that wave, scattered over the room.
+        void SummonWave(int room, byte wave);
+
+        // Scatters the items the instance's own data lists for that wave over the room.
+        void DropWave(int room, byte wave);
+
+        int MonstersAlive(int room);
 
         void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true);
 

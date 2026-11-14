@@ -22,6 +22,8 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -40,10 +42,9 @@ namespace NosCore.GameObject.Services.InstantCombatService
     public class InstantCombatService(
         List<InstantCombatMonsterDto> monsters,
         List<InstantCombatDropDto> drops,
-        List<NpcMonsterDto> npcMonsters,
-        Lazy<IMapInstanceGeneratorService> mapInstanceGeneratorService,
         IMapInstanceRegistry mapInstanceRegistry,
         IMapChangeService mapChangeService,
+        IScriptedInstanceService scriptedInstanceService,
         ISessionRegistry sessionRegistry,
         IItemGenerationService itemGenerationService,
         IMapItemGenerationService mapItemGenerationService,
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
     {
         public const short MapId = 2004;
         public const int PlayersPerRoom = 50;
-        public const byte LastWave = 4;
+        public const string Script = "instant-combat";
 
         private static readonly (TimeSpan Before, Game18NConstString Delay, int Amount)[] Countdown =
         [
@@ -69,20 +70,9 @@ namespace NosCore.GameObject.Services.InstantCombatService
         private const byte DelayThenMessage = 10;
 
         private static readonly TimeSpan SignUpTime = TimeSpan.FromSeconds(30);
-        private static readonly TimeSpan ArrivalTime = TimeSpan.FromSeconds(10);
-        private static readonly TimeSpan ReturnTime = TimeSpan.FromSeconds(10);
-
-        // Seconds into the fight: each wave lands 160 s after the previous one, its leftovers are
-        // scattered 130 s after it lands, and the fight can be won once the last wave is out.
-        private const int FirstWaveSecond = 10;
-        private const int WaveInterval = 160;
-        private const int DropDelay = 130;
-        private const int WarningBeforeWave = 10;
-        private const int WinnableFromSecond = 720;
-        private const int ThirtySecondsLeftSecond = 870;
-        private const int DurationSeconds = 900;
 
         private int _running;
+        private IInstanceScript? _script;
         private volatile bool _signUpOpen;
 
         public bool IsRunning => Volatile.Read(ref _running) == 1;
@@ -137,8 +127,6 @@ namespace NosCore.GameObject.Services.InstantCombatService
                     .Select(chunk => new InstantCombatRoom(g.Key, chunk)));
         }
 
-        public static int WaveSecond(int wave) => FirstWaveSecond + wave * WaveInterval;
-
         private async Task RunAsync(bool withCountdown)
         {
             if (withCountdown)
@@ -176,140 +164,75 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 session.Character.IsWaitingForEvent = false;
             }
 
-            var baseMap = mapInstanceRegistry.GetBaseMapById(MapId);
             var brackets = monsters.Select(m => m.LevelMinimum).Distinct().ToList();
-            if (baseMap == null || brackets.Count == 0)
+            _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+            if (_script is not { } script || brackets.Count == 0)
             {
-                logger.LogError(logLanguage[LogLanguageKey.INSTANT_COMBAT_DATA_MISSING], MapId);
+                logger.LogError(logLanguage[LogLanguageKey.INSTANT_COMBAT_DATA_MISSING], Script);
                 return;
             }
 
-            var rooms = new List<Task>();
             foreach (var room in GroupIntoRooms(joining, brackets))
             {
-                var mapInstance = mapInstanceGeneratorService.Value.CreateMapInstance(baseMap.Map, Guid.NewGuid(), false,
-                    MapInstanceType.InstantCombatInstance);
-                await mapInstanceGeneratorService.Value.AddMapInstanceAsync(mapInstance);
-                await mapInstance.StartLifeAsync();
+                var run = await scriptedInstanceService.InstantiateAsync(script, MapInstanceType.InstantCombatInstance,
+                    new RoomHost(this, room.LevelMinimum));
+                if (run == null)
+                {
+                    return;
+                }
+
+                var arena = run.Rooms[script.Definition.Rooms[0].Key];
+                var mapInstance = mapInstanceRegistry.GetById(arena);
                 foreach (var player in room.Players)
                 {
-                    var (x, y) = RandomCell(mapInstance);
-                    await mapChangeService.ChangeMapInstanceAsync(player, mapInstance.MapInstanceId, x, y);
-                }
-
-                rooms.Add(RunRoomAsync(room.LevelMinimum, mapInstance));
-            }
-
-            await Task.WhenAll(rooms);
-        }
-
-        private async Task RunRoomAsync(byte levelMinimum, MapInstance mapInstance)
-        {
-            try
-            {
-                await Task.Delay(ArrivalTime);
-                var won = false;
-                for (var second = 0; second < DurationSeconds; second++)
-                {
-                    if (mapInstance.Sessions.Count == 0)
-                    {
-                        return;
-                    }
-
-                    await TickAsync(levelMinimum, mapInstance, second);
-                    if (second >= WinnableFromSecond && !mapInstance.EnumerateMonsters().Any(m => m.IsAlive))
-                    {
-                        won = true;
-                        break;
-                    }
-
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                }
-
-                if (won)
-                {
-                    await mapInstance.SendPacketAsync(Message(Game18NConstString.InstantCombatSuccess));
-                    foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId)
-                                 .Where(s => s.HasPlayerEntity && s.Character.IsAlive))
-                    {
-                        await RewardAsync(session.Character);
-                    }
-                }
-                else
-                {
-                    await mapInstance.SendPacketAsync(Message(Game18NConstString.InstantCombatElapsed));
-                }
-
-                await mapInstance.SendPacketAsync(Message(Game18NConstString.ReturnToStartingPositionTenSeconds));
-                await Task.Delay(ReturnTime);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e, logLanguage[LogLanguageKey.INSTANT_COMBAT_ROOM_FAILED], mapInstance.MapInstanceId);
-            }
-            finally
-            {
-                await mapInstanceGeneratorService.Value.RemoveMapAsync(mapInstance.MapInstanceId);
-            }
-        }
-
-        private async Task TickAsync(byte levelMinimum, MapInstance mapInstance, int second)
-        {
-            for (byte wave = 0; wave <= LastWave; wave++)
-            {
-                var waveSecond = WaveSecond(wave);
-                if (second == waveSecond - WarningBeforeWave)
-                {
-                    await mapInstance.SendPacketAsync(Message(Game18NConstString.MonstersAreApproaching));
-                }
-                else if (second == waveSecond)
-                {
-                    await SpawnWaveAsync(levelMinimum, wave, mapInstance);
-                    await mapInstance.SendPacketAsync(Message(Game18NConstString.MonsterHaveAppeared));
-                }
-                else if (second == waveSecond + DropDelay)
-                {
-                    await DropAsync(levelMinimum, wave, mapInstance);
-                }
-            }
-
-            if (second == ThirtySecondsLeftSecond)
-            {
-                await mapInstance.SendPacketAsync(Message(Game18NConstString.InstantCombatThirtySecondsRemaining));
-            }
-        }
-
-        private async Task SpawnWaveAsync(byte levelMinimum, byte wave, MapInstance mapInstance)
-        {
-            foreach (var line in monsters.Where(m => m.LevelMinimum == levelMinimum && m.Wave == wave))
-            {
-                var npcMonster = npcMonsters.Find(n => n.NpcMonsterVNum == line.NpcMonsterVNum);
-                if (npcMonster == null)
-                {
-                    continue;
-                }
-
-                for (var i = 0; i < line.Amount; i++)
-                {
-                    var (x, y) = RandomCell(mapInstance);
-                    var monster = mapInstance.SpawnMonster(npcMonster, x, y, line.IsMoving);
-                    await mapInstance.SendPacketAsync(monster.GenerateIn());
+                    var (x, y) = mapInstance == null ? ((short)0, (short)0) : RandomCell(mapInstance);
+                    await mapChangeService.ChangeMapInstanceAsync(player, arena, x, y);
                 }
             }
         }
 
-        private async Task DropAsync(byte levelMinimum, byte wave, MapInstance mapInstance)
+        private IEnumerable<WaveMonster> WaveMonsters(byte levelMinimum, byte wave) => monsters
+            .Where(m => m.LevelMinimum == levelMinimum && m.Wave == wave)
+            .Select(m => new WaveMonster(m.NpcMonsterVNum, m.Amount, m.IsMoving));
+
+        private async Task DropWaveAsync(MapInstance room, byte levelMinimum, byte wave)
         {
             foreach (var line in drops.Where(d => d.LevelMinimum == levelMinimum && d.Wave == wave))
             {
                 for (var i = 0; i < line.Piles; i++)
                 {
-                    var (x, y) = RandomCell(mapInstance);
+                    var (x, y) = RandomCell(room);
                     var item = itemGenerationService.Create(line.ItemVNum, line.Amount);
-                    var dropped = mapItemGenerationService.Create(mapInstance, item, x, y);
-                    await mapInstance.SendPacketAsync(dropped.GenerateDrop());
+                    var dropped = mapItemGenerationService.Create(room, item, x, y);
+                    await room.SendPacketAsync(dropped.GenerateDrop());
                 }
             }
+        }
+
+        private async Task RewardSurvivorsAsync(ScriptedInstanceRun run)
+        {
+            foreach (var session in run.Players().Where(s => s.HasPlayerEntity && s.Character.IsAlive).ToList())
+            {
+                await RewardAsync(session.Character);
+            }
+        }
+
+        private Task ReturnAsync(ClientSession session) =>
+            mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX,
+                session.Character.MapY);
+
+        private sealed class RoomHost(InstantCombatService service, byte levelMinimum) : IInstanceRunHost
+        {
+            public string Name => $"Instant Combat {levelMinimum}+";
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => service.WaveMonsters(levelMinimum, wave);
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => service.DropWaveAsync(room, levelMinimum, wave);
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) =>
+                state == EndStateType.Success ? service.RewardSurvivorsAsync(run) : Task.CompletedTask;
+
+            public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
         }
 
         private async Task RewardAsync(PlayerComponentBundle character)
