@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         IOptions<WorldConfiguration> worldConfiguration,
         IExperienceService experienceService,
         IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService, ISkillPointService skillPointService,
+        IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService,
         NosCore.GameObject.Services.ItemGenerationService.IItemGenerationService itemProvider,
         Services.SkillService.ISkillService skillService) : INrunEventHandler
     {
@@ -79,7 +80,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             }
 
             await session.ChangeClassAsync(classType, worldConfiguration, experienceService,
-                jobExperienceService, heroExperienceService, skillPointService, itemProvider, skillService);
+                jobExperienceService, heroExperienceService, spExperienceService, skillPointService, itemProvider, skillService);
         }
     }
 }

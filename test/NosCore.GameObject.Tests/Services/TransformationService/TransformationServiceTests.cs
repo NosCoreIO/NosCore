@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 World.Clock,
                 new Mock<IExperienceService>().Object,
                 new Mock<IJobExperienceService>().Object,
-                new Mock<IHeroExperienceService>().Object, new NosCore.Algorithm.SkillPointService.SkillPointService(),
+                new Mock<IHeroExperienceService>().Object, new NosCore.Algorithm.SpExperienceService.SpExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService(),
                 Logger,
                 World.LogLanguageLocalizer,
                 World.WorldConfiguration,

@@ -6,6 +6,7 @@
 
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.I18N;
@@ -24,7 +25,7 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetLevelCommandPacketHandler(IRemoteCharacterService remoteCharacterService,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService, ISkillPointService skillPointService, ISessionRegistry sessionRegistry,
+        IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService, ISessionRegistry sessionRegistry,
         IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
     {
@@ -32,7 +33,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService, skillPointService, sessionRegistry, gameLanguageLocalizer);
+                await session.Character.SetLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService, sessionRegistry, gameLanguageLocalizer);
                 return;
             }
 

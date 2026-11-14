@@ -2,6 +2,7 @@ using Mapster;
 using NosCore.GameObject.Ecs;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Dao.Interfaces;
@@ -25,7 +26,7 @@ namespace NosCore.GameObject.Services.SkillService
     public class SkillService(IDao<CharacterSkillDto, Guid> characterSkillDao, List<SkillDto> skills,
         IVitalityService vitalityService, IBattleStatsProvider battleStatsProvider,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService, ISkillPointService skillPointService) : ISkillService
+        IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService) : ISkillService
     {
         public async Task LoadSkill(PlayerComponentBundle character)
         {
@@ -259,7 +260,7 @@ namespace NosCore.GameObject.Services.SkillService
                 else
                 {
                     await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService,
-                        heroExperienceService, skillPointService));
+                        heroExperienceService, spExperienceService, skillPointService));
                 }
             }
 

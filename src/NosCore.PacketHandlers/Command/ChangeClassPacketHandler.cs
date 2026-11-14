@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
@@ -25,7 +26,7 @@ namespace NosCore.PacketHandlers.Command
 {
     public class ChangeClassPacketHandler(IRemoteCharacterService remoteCharacterService,
         IOptions<WorldConfiguration> worldConfiguration, IExperienceService experienceService,
-        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService,
+        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService,
         IItemGenerationService itemProvider,
         NosCore.GameObject.Services.SkillService.ISkillService skillService)
         : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
@@ -34,7 +35,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
-                await session.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService, skillPointService, itemProvider, skillService);
+                await session.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService, itemProvider, skillService);
                 return;
             }
 

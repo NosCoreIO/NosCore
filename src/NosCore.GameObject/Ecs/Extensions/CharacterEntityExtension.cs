@@ -8,6 +8,7 @@ using NosCore.Algorithm.DignityService;
 using NosCore.GameObject.Ecs;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data;
@@ -391,11 +392,11 @@ namespace NosCore.GameObject.Ecs.Extensions
             characterEntity.GenerateSay(localizer[LanguageKey.UPDATE_GOLD, characterEntity.AccountLanguage], SayColorType.Red);
 
         public static async Task SetJobLevelAsync(this PlayerComponentBundle characterEntity, byte jobLevel,
-            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService)
         {
             characterEntity.JobLevel = (byte)((characterEntity.Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             characterEntity.JobLevelXp = 0;
-            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
             await characterEntity.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
@@ -404,13 +405,13 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         public static async Task SetHeroLevelAsync(this PlayerComponentBundle characterEntity, byte level,
-            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService)
         {
             characterEntity.HeroLevel = level;
             characterEntity.HeroLevelXp = 0;
             await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
             await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
-            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
             await characterEntity.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,

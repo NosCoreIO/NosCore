@@ -192,7 +192,7 @@ namespace NosCore.GameObject.Services.ExperienceService
 
             if (!characterLeveledUp && !fairyLeveledUp)
             {
-                await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
+                await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
                 return;
             }
 
@@ -274,7 +274,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                 await player.SendPacketAsync(player.GeneratePairy(fairy));
             }
 
-            await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
+            await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
         }
     }
 }

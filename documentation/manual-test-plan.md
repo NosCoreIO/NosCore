@@ -632,6 +632,9 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       skill with no fairy worn
 - [ ] Open the character window while transformed and untransformed: attack, defence and
       the resistances move with the card, and the card counts for nothing until transformed
+- [ ] With a job level different from the card's level, open the Character window (P): while
+      transformed "Job level" shows the card's level and its experience, and the job level again
+      after untransforming
 
 ### Specialist card upgrade
 
