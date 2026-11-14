@@ -174,6 +174,17 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task ADailyQuestDoneEarlierTodayCannotBeTakenAgain()
+        {
+            await new Spec("A daily quest done a few hours ago waits for the next day")
+                .Given(DailyQuestCompletedHoursAgo)
+                .WhenAsync(AddingSameDailyQuest)
+                .Then(DailyQuestShouldBeHeldOnce)
+                .And(AddResultShouldBeFalse)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AddingNonSecondaryQuestWhenOneExistsShouldFail()
         {
             await new Spec("Adding non-secondary quest when one exists should fail")
@@ -359,6 +370,18 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 Quest = quest,
                 CompletedOn = World.Clock.GetCurrentInstant().Minus(NodaTime.Duration.FromDays(2))
             });
+        }
+
+        private void DailyQuestCompletedHoursAgo()
+        {
+            DailyQuestCompletedYesterday();
+            Session.Character.Quests.Values.Single(q => q.QuestId == 2).CompletedOn =
+                World.Clock.GetCurrentInstant().Minus(NodaTime.Duration.FromHours(3));
+        }
+
+        private void DailyQuestShouldBeHeldOnce()
+        {
+            Assert.AreEqual(1, Session.Character.Quests.Values.Count(q => q.QuestId == 2));
         }
 
         private async Task AddingSameDailyQuest()
