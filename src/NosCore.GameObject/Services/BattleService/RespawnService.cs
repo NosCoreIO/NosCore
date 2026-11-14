@@ -59,12 +59,13 @@ public sealed class RespawnService(
         return (mapId, x, y);
     }
 
-    public void SetRespawnPoint(PlayerComponentBundle character, short mapId, short x, short y)
+    public bool SetRespawnPoint(PlayerComponentBundle character, short mapId, short x, short y)
     {
         var respawnMapTypeId = ResolveRespawnMapTypeId(mapId);
-        if (!respawnMapTypeId.HasValue) return;
+        if (!respawnMapTypeId.HasValue) return false;
 
         Upsert(character, respawnMapTypeId.Value, mapId, x, y);
+        return true;
     }
 
     public (short MapId, short X, short Y)? GetReturnPoint(PlayerComponentBundle character, short mapId)

@@ -844,9 +844,11 @@ Two clients, A and B.
 
 ### Respawn point
 
-- [ ] Talk to a village NPC that offers to save the respawn point and confirm: the client's
-      own "This village is the designated place of revival." appears, in the client's
-      language
+- [ ] Talk to a village NPC whose dialog has "Set Respawn Point" and press it: a question asks
+      whether to make this village your place of revival, in the account's language
+- [ ] Cancel it: nothing is saved and no message appears
+- [ ] Confirm it: the client's own "This village is the designated place of revival." appears,
+      and after logging out the `Respawn` row for that map's group holds the NPC's map and cell
 - [ ] Die and choose to revive in the village: you come back at that NPC
 - [ ] Die and close the client without answering, then log in again: you stand at your place of
       revival with 1 HP and 1 MP, and no revival question is asked

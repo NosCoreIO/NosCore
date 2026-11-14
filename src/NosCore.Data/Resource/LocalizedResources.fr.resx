@@ -555,4 +555,7 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Cet événement est déjà en cours.</value>
   </data>
+  <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
+    <value>Veux-tu faire de ce village ton lieu de résurrection ?</value>
+  </data>
 </root>

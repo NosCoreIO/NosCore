@@ -6,6 +6,8 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -19,12 +21,10 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class SetPlaceOfRevivalHandler(IRespawnService respawnService, INpcDialogService npcDialogService)
+    public sealed class SetPlaceOfRevivalHandler(IRespawnService respawnService, INpcDialogService npcDialogService,
+        IGameLanguageLocalizer localizer)
         : INrunEventHandler
     {
-        private const short AskType = 2;
-        private const short ConfirmType = 1;
-
         public NrunRunnerType Runner => NrunRunnerType.SetPlaceOfRevival;
 
         public bool RequiresNpc => true;
@@ -37,7 +37,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return;
             }
 
-            if (packet.Type == AskType)
+            // The dialog button and the question's Yes send the same n_run, so the open window tells them apart.
+            if (!npcDialogService.IsOpenWith(character, npc, NpcDialogWindow.RevivalQuestion))
             {
                 npcDialogService.Open(character, npc, NpcDialogWindow.RevivalQuestion);
                 await session.SendPacketAsync(new QnaPacket
@@ -45,24 +46,21 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                     YesPacket = new NrunPacket
                     {
                         Runner = NrunRunnerType.SetPlaceOfRevival,
-                        Type = ConfirmType,
-                        VisualType = packet.VisualType,
-                        VisualId = packet.VisualId,
+                        Type = packet.Type,
+                        VisualType = VisualType.Npc,
+                        VisualId = npc.VisualId,
                     },
-                    Question = "#n_run^15^1^1 Do you want to save this location as your respawn point?",
+                    Question = localizer[LanguageKey.ASK_CHANGE_RESPAWN_LOCATION, character.AccountLanguage],
                 });
                 return;
             }
 
-            if (packet.Type != ConfirmType
-                || !npcDialogService.IsOpenWith(character, npc, NpcDialogWindow.RevivalQuestion))
+            npcDialogService.Open(character, npc, NpcDialogWindow.Conversation);
+            if (!respawnService.SetRespawnPoint(character, character.MapInstance.Map.MapId,
+                    npc.PositionX, npc.PositionY))
             {
                 return;
             }
-
-            npcDialogService.Open(character, npc, NpcDialogWindow.Conversation);
-            respawnService.SetRespawnPoint(character, character.MapInstance.Map.MapId,
-                npc.PositionX, npc.PositionY);
 
             await session.SendPacketAsync(new MsgiPacket
             {
