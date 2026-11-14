@@ -56,6 +56,7 @@ public readonly record struct EquipmentStats(
     // Applied to the whole maximum, gear included, rather than added to it.
     int SpecialistHpMpPercent = 0,
     IReadOnlyList<BattleService.Model.RaceDamage>? RaceDamage = null,
+    int MapBossDamagePercent = 0,
     BattleService.Model.PvpShellStats PvpShell = default)
 {
     public static EquipmentStats None => new() { BCards = System.Array.Empty<BCardDto>() };

@@ -651,6 +651,15 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         }
 
         [TestMethod]
+        public void BothWeaponsMapBossOptionsAddUp()
+        {
+            AddOption(Wear(EquipmentType.MainWeapon, MainWeaponVnum), WeaponShellOptionType.IncreasedDamageToMapBosses, 9);
+            AddOption(Wear(EquipmentType.SecondaryWeapon, SecondaryWeaponVnum), WeaponShellOptionType.IncreasedDamageToMapBosses, 4);
+
+            Assert.AreEqual(13, _service.Resolve(_session.Character).MapBossDamagePercent);
+        }
+
+        [TestMethod]
         public void AWeaponShellsDebuffOptionsBecomeChancesToInflictTheirCard()
         {
             var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);

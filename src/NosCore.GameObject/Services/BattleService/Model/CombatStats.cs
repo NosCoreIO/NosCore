@@ -80,7 +80,10 @@ public readonly record struct CombatStats(
     // Set on monsters only, so that race bonuses never match a player.
     MonsterRace? Race = null,
     byte RaceType = 0,
+    bool IsMapBoss = false,
     IReadOnlyList<RaceDamage>? RaceDamage = null,
+    // Percentage added to hits on map bosses.
+    int MapBossDamagePercent = 0,
     PvpShellStats PvpShell = default);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.

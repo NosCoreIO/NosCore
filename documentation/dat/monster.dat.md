@@ -170,7 +170,7 @@
 | 2 | Parsed | DontDrainHpAfterSeconds | Boolean | ETC bit 28 -> skips HP drain over time |
 | 2 | Parsed | HasDash | Boolean | ETC bit 9 -> has a dash skill |
 | 2 | Parsed | HasMode | Boolean | ETC bit 6 -> uses a MODE |
-| 2 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
+| 2 | Parsed | MonsterType | MonsterType | Categorisation (Boss when ETC bit 30 is set, Elite, Special or Unknown) |
 | 2 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 2 | Parsed | OnDefenseOnlyOnce | Boolean | ETC bit 8 -> defensive AI fires once |
 | 2 | Parsed | RegenerateHpOverTime | Boolean | ETC bit 10 -> passive HP regen |
@@ -369,10 +369,10 @@
 | 2 | Parsed | MagicDefence | Int16 | Magic defence |
 | 2 | Parsed | MaxHp | Int32 | Flat HP on top of the race and level baseline |
 | 2 | Parsed | MaxMp | Int32 | Flat MP on top of the race and level baseline |
-| 2 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
+| 2 | Parsed | MonsterType | MonsterType | Categorisation (Boss when ETC bit 30 is set, Elite, Special or Unknown) |
 | 2 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 2 | Parsed | Race | Byte | Race group (plant, animal, monster, dragon, …) |
-| 3 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
+| 3 | Parsed | MonsterType | MonsterType | Categorisation (Boss when ETC bit 30 is set, Elite, Special or Unknown) |
 | 3 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 3 | Parsed | RaceType | Byte | Subtype within the race group |
 
@@ -414,7 +414,7 @@
 |---:|---|---|---|---|
 | 2 | Parsed | BCards | ICollection`1 | BCards from BASIC (10 groups of 5) and CARD (4 groups of 5) |
 | 2 | Parsed | Drop | ICollection`1 | 20 group drops, vnum/chance/amount triples, merged with the per-monster drop DAO |
-| 2 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
+| 2 | Parsed | MonsterType | MonsterType | Categorisation (Boss when ETC bit 30 is set, Elite, Special or Unknown) |
 | 2 | Parsed | NpcMonsterSkill | ICollection`1 | Up to 5 NpcMonsterSkill entries (vnum/chance/force triples) |
 | 2 | Parsed | NpcMonsterVNum | Int16 | Monster vnum |
 

@@ -1839,6 +1839,9 @@ a Flamberge (`$CreateItem 299 5`), Rainbow Pearls (`$CreateItem 1429 20`) and a 
       "Increased Damage to Plants", then with the same weapon after the Magic Eraser: the range
       of damage numbers is higher by that percentage. The same weapon on a Kovolt, an animal or
       an undead monster changes nothing unless the shell names its race
+- [ ] Hit Ginseng on Chicken Farm Path with a weapon whose shell carries only "Increases Damage to
+      Map Bosses", then after the Magic Eraser: the damage numbers are higher by that percentage.
+      The same weapon on a Weak Toxi Dander next to it deals the same damage either way
 - [ ] Hit a monster with a weapon shell carrying Minor Bleeding, Bleeding, Heavy Bleeding,
       Blackout, Deadly Blackout or Freeze: now and then the debuff icon appears over the monster
       and, for bleeding, its HP keeps dropping between hits
