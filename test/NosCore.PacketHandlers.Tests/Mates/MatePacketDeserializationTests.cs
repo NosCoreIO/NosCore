@@ -60,6 +60,14 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         [TestMethod]
+        public void APetSkillReachesItsHandler()
+        {
+            var packet = new UpetPacket { MateTransportId = 1135623, TargetType = VisualType.Monster, TargetId = 2045, SkillVNum = 664 };
+
+            Assert.IsInstanceOfType(RoundTrip(packet), HandledBy(typeof(UpetPacketHandler)));
+        }
+
+        [TestMethod]
         public void APetsWholeSentenceIsRead()
         {
             var packet = (SayPPacket)RoundTrip(new SayPPacket { PetId = 1135623, Message = "good boy, sit" });

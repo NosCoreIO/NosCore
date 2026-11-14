@@ -17,7 +17,8 @@ namespace NosCore.GameObject.Services.SkillService
         // Strengthens the skill named in UpgradeSkill, which has to be known first.
         public static bool IsUpgrade(this SkillDto skill) => skill.SkillType == 2;
 
-        public static bool IsPartnerSkill(this SkillDto skill) => skill.SkillType == 5;
+        // A partner card's skills and a pet's own: the only kind a NosMate's skill bar holds.
+        public static bool IsMateSkill(this SkillDto skill) => skill.SkillType == 5;
 
         // Specialist card skills start at the pyjama card's class.
         public static bool IsSpecialist(this SkillDto skill) => skill.Class >= 32;
