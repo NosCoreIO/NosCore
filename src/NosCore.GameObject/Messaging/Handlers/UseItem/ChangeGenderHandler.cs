@@ -59,12 +59,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            character.Gender = character.Gender == GenderType.Female ? GenderType.Male : GenderType.Female;
-
-            await session.SendPacketAsync(character.GenerateEq());
-            await character.MapInstance.SendPacketAsync(character.GenerateIn(string.Empty));
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
-            await character.MapInstance.SendPacketAsync(character.GenerateEff(196));
+            await session.ChangeGenderAsync();
 
             await character.UseUpOneAsync(evt.InventoryItem);
             await session.SendPacketAsync(new MsgiPacket

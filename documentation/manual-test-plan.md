@@ -930,6 +930,8 @@ success, on the assumption that the window says "Appearance changed" itself.
       Cancel keeps the lamp
 - [ ] Confirm: the character's gender changes on screen, the gender-changed message appears and
       the lamp is gone
+- [ ] After the change the portrait at the top left shows the new gender too, the same as after
+      `$ChangeGender`; other players see the new look
 - [ ] Mounted, the lamp does nothing
 
 ### Wings of Friendship

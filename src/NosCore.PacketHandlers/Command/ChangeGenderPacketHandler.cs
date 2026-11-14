@@ -19,13 +19,7 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(ChangeGenderPacket _, ClientSession session)
         {
-            var character = session.Character;
-            character.Gender = character.Gender == GenderType.Female ? GenderType.Male : GenderType.Female;
-
-            await session.SendPacketAsync(character.GenerateEq());
-            await character.MapInstance.SendPacketAsync(character.GenerateIn(string.Empty));
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
-            await character.MapInstance.SendPacketAsync(character.GenerateEff(196));
+            await session.ChangeGenderAsync();
         }
     }
 }
