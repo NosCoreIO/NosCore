@@ -91,7 +91,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private ScriptedInstanceRun Run(Script script, TimeSpan? timeout = null) =>
             new(_host ?? new TimeSpaceRunHost(
                     new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, Logic = script },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _bus.Object),
+                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _bus.Object, World.Clock),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
