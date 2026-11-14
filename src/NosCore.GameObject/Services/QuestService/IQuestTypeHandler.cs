@@ -17,6 +17,8 @@ public interface IQuestTypeHandler
 {
     QuestType QuestType { get; }
 
+    bool CompletesWhenTaken(Quest quest) => false;
+
     Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest) => Task.FromResult(false);
 
     Task OnMonsterKilledAsync(PlayerComponentBundle character, NpcMonsterDto mob, CharacterQuest quest) => Task.CompletedTask;

@@ -2569,6 +2569,14 @@ Give a character quest 1509 (win time-space 1) and walk into time-space 1's ston
 - [ ] Leaving or failing the time-space keeps 1509 open
 - [ ] With quest 6160 open, winning the Mother Cuby raid completes it for every member still in the raid
 
+### Quests that only hand out their hand-in
+
+A level 80 character with quests 5000-5005 done talks to Harbour Guard Tom (NPC 1062, dialog 100).
+
+- [ ] Get Quest lists "Level 80 - Attack on the Harbour"; taking it shows "Quest complete!" and the quest
+  window moves straight on to "Conversation with Hamid" (quest 5006), instead of a 0/0 quest that never ends
+- [ ] The button is gone when the dialog is opened again, and talking to Hamid (NPC 1085) hands 5006 in
+
 ### Rewards
 
 Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open
