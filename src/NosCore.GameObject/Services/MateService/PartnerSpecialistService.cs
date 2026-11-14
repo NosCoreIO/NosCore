@@ -77,7 +77,6 @@ namespace NosCore.GameObject.Services.MateService
             entity.NextUsableAt[skill.SkillVNum] =
                 now.Plus(Duration.FromMilliseconds(Math.Max(MinimumSkillCooldownMs, skill.Cooldown * 100)));
             entity.Mp -= skill.MpCost;
-            partner.Mp = entity.Mp;
             await owner.SendPacketAsync(partner.GeneratePst());
             return true;
         }

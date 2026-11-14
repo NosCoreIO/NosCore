@@ -47,8 +47,7 @@ namespace NosCore.GameObject.Services.MateService
             if (owner.InventoryService.CountItem(seedOfPower) < SeedsRequired)
             {
                 mate.IsTeamMember = false;
-                mate.Hp = mate.MaxHp;
-                mate.Mp = mate.MaxMp;
+                mate.Refill();
                 await owner.SendPacketAsync(Message(Game18NConstString.NosMateDeadNoMorePowerSeed));
                 await owner.SendPacketsAsync(owner.GenerateMateRoster());
                 await owner.SendPacketAsync(owner.GeneratePinit());
@@ -91,8 +90,7 @@ namespace NosCore.GameObject.Services.MateService
         private static async Task ReviveAsync(PlayerComponentBundle owner, Mate mate, MapInstance mapInstance)
         {
             mate.RevivesAt = null;
-            mate.Hp = mate.MaxHp;
-            mate.Mp = mate.MaxMp;
+            mate.Refill();
             if (!mate.IsTeamMember || mate.Entity != null)
             {
                 return;

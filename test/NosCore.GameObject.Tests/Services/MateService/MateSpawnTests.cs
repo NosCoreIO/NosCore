@@ -78,5 +78,41 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             Assert.AreEqual(0, _session.Character.MapInstance.LastPackets.Count);
         }
+
+        [TestMethod]
+        public async Task AnOutMatesBarsReadItsEntity()
+        {
+            await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
+            var entity = _pet.Entity.NotNull();
+            entity.Hp = 78;
+
+            Assert.AreEqual(50, _pet.GeneratePst().HpLeft);
+        }
+
+        [TestMethod]
+        public async Task AMateKeepsTheHealthItLostWhileOut()
+        {
+            await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
+            var entity = _pet.Entity.NotNull();
+            entity.Hp = 40;
+            entity.Mp = 3;
+
+            await _pet.DespawnAsync(_session.Character.MapInstance);
+
+            Assert.AreEqual((40, 3), (_pet.Hp, _pet.Mp));
+        }
+
+        [TestMethod]
+        public async Task RefillingAnOutMateFillsItsEntity()
+        {
+            await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
+            var entity = _pet.Entity.NotNull();
+            entity.Hp = 1;
+            entity.Mp = 0;
+
+            _pet.Refill();
+
+            Assert.AreEqual((156, 10), (entity.Hp, entity.Mp));
+        }
     }
 }
