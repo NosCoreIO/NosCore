@@ -13,10 +13,12 @@ using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NosCore.Core.Configuration;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Networking.SessionGroup;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.Shared.AutoFixture
 {
@@ -46,7 +48,8 @@ namespace NosCore.Tests.Shared.AutoFixture
             this.Inject(clock);
             this.Inject<IClock>(clock);
 
-            var sessionRegistry = new SessionRegistry(NullLogger<SessionRegistry>.Instance);
+            var sessionRegistry = new SessionRegistry(NullLogger<SessionRegistry>.Instance,
+                this.Create<ILogLanguageLocalizer<LogLanguageKey>>());
             this.Inject(sessionRegistry);
             this.Inject<ISessionRegistry>(sessionRegistry);
 

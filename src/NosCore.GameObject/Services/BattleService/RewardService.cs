@@ -33,6 +33,8 @@ using NosCore.Algorithm.ExperienceShareService;
 using NosCore.Algorithm.MonsterGoldService;
 using NosCore.Algorithm.LevelPenaltyService;
 using NosCore.Algorithm.LowLevelBoostService;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -54,7 +56,7 @@ public sealed class RewardService(
     IMateProgressionService mateProgression,
     IBuffService buffService,
     IEquipmentStatsService equipmentStatsService,
-    ILogger<RewardService> logger) : IRewardService
+    ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill.
     private const int FairyXpRate = 1;
@@ -295,7 +297,7 @@ public sealed class RewardService(
             }
             catch (System.Exception ex)
             {
-                logger.LogWarning(ex, "Failed to spawn drop {VNum} from {Mob}", drop.VNum, mob.NpcMonsterVNum);
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.DROP_SPAWN_FAILED], drop.VNum, mob.NpcMonsterVNum);
             }
         }
     }
@@ -331,7 +333,7 @@ public sealed class RewardService(
         }
         catch (System.Exception ex)
         {
-            logger.LogWarning(ex, "Failed to spawn gold drop from {Mob}", mob.NpcMonsterVNum);
+            logger.LogWarning(ex, logLanguage[LogLanguageKey.GOLD_DROP_SPAWN_FAILED], mob.NpcMonsterVNum);
         }
     }
 

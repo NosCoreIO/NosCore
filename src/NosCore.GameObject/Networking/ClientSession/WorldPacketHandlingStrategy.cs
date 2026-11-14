@@ -83,7 +83,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
     {
         if (packet.KeepAliveId is not { } number)
         {
-            logger.LogWarning("Session {SessionId} sent a packet without a keep-alive number and was disconnected", session.SessionId);
+            logger.LogWarning(logLanguage[LogLanguageKey.MISSING_KEEPALIVE], session.SessionId);
             await session.DisconnectAsync();
             return false;
         }
@@ -168,7 +168,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         var isMfa = packet is GuriPacket guri && guri.Type == GuriPacketType.TextInput && guri.Argument == 3 && guri.VisualId == 0;
         if (session.IsAuthenticated && !session.MfaValidated && session.HasAccount && session.Account.MfaSecret != null && !isMfa)
         {
-            logger.LogWarning("Packet {Header} refused until MFA is validated", packet.Header);
+            logger.LogWarning(logLanguage[LogLanguageKey.PACKET_REFUSED_BEFORE_MFA], packet.Header);
             return false;
         }
 
@@ -210,7 +210,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         var character = session.Character;
         if (!character.IsAlive && (attr.Scopes & Scope.WhileDead) == 0 && attr is not CommandPacketHeaderAttribute)
         {
-            logger.LogDebug("Packet {Header} refused while dead", packet.Header);
+            logger.LogDebug(logLanguage[LogLanguageKey.PACKET_REFUSED_WHILE_DEAD], packet.Header);
             return false;
         }
 
@@ -222,7 +222,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
                 continue;
             }
 
-            logger.LogDebug("Packet {Header} refused while {State}", packet.Header, refusal.States & state);
+            logger.LogDebug(logLanguage[LogLanguageKey.PACKET_REFUSED_IN_STATE], packet.Header, refusal.States & state);
             if (refusal.Message is { } message)
             {
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = message });

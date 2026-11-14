@@ -30,6 +30,9 @@ using NosCore.Tests.Shared;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
 using MateStatsService = NosCore.GameObject.Services.MateService.MateStatsService;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
+using Moq;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 {
@@ -53,7 +56,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.MapInstance = World.GetBaseMap(1);
             _session.Character.Level = 30;
             var mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto>(),
-                new IdService<Mate>(1), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance);
+                new IdService<Mate>(1), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             _handler = new MateItemHandler(mateService, World.Create<MateStatsService>());
         }
 

@@ -68,14 +68,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (account.Authority < AuthorityType.User)
             {
-                _logger.LogWarning("World entry refused for {AccountName}: authority {Authority}", accountName, account.Authority);
+                _logger.LogWarning(logLanguage[LogLanguageKey.WORLD_ENTRY_REFUSED_AUTHORITY], accountName, account.Authority);
                 await clientSession.DisconnectAsync();
                 return;
             }
 
             if (account.Authority < AuthorityType.GameMaster && await channelHub.IsInMaintenanceAsync())
             {
-                _logger.LogWarning("World entry refused for {AccountName}: the channel is in maintenance", accountName);
+                _logger.LogWarning(logLanguage[LogLanguageKey.WORLD_ENTRY_REFUSED_MAINTENANCE], accountName);
                 await clientSession.DisconnectAsync();
                 return;
             }

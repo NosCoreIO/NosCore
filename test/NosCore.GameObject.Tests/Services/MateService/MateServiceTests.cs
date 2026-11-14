@@ -35,6 +35,8 @@ using MatePlacement = NosCore.GameObject.Services.MateService.MatePlacement;
 using MateStatsService = NosCore.GameObject.Services.MateService.MateStatsService;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
 using NosCore.Tests.Shared;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.MateService
 {
@@ -67,7 +69,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     rows.Where(predicate.Compile()));
 
             return new MateServiceImpl(dao.Object, creatures.ToList(),
-                new IdService<Mate>(2000000), new MateStatsService(new MateExperienceService(), new MateHpService(), new MateMpService(), new MateStatService()), NullLogger<MateServiceImpl>.Instance);
+                new IdService<Mate>(2000000), new MateStatsService(new MateExperienceService(), new MateHpService(), new MateMpService(), new MateStatService()), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

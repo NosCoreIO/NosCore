@@ -35,6 +35,8 @@ using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -67,7 +69,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             return new HitQueue(calculator.Object, stats.Object, new Mock<IBuffService>().Object,
                 new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object,
-                new Mock<ILogger<HitQueue>>().Object);
+                new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         private Task<HitOutcome> HitAsync(HitQueue queue) =>
@@ -88,7 +90,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());
             var regeneration = new RegenerationService(World.SessionRegistry, World.Clock,
                 equipment.Object, buffs.Object, new NosCore.GameObject.Services.SkillService.PassiveSkillService(new NpcCombatCatalog([], [], [])),
-                new RecoveryRateService(), NullLogger<RegenerationService>.Instance);
+                new RecoveryRateService(), NullLogger<RegenerationService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var lethal = Queue(1_000_000);
             var revived = 0;
 

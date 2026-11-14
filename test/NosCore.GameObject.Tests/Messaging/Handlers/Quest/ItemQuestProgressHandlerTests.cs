@@ -28,6 +28,8 @@ using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
 {
@@ -68,7 +70,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                     World.Create<UseQuestHandler>(),
                     World.Create<WearQuestHandler>()
                 },
-                NullLogger<ItemQuestProgressHandler>.Instance);
+                NullLogger<ItemQuestProgressHandler>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

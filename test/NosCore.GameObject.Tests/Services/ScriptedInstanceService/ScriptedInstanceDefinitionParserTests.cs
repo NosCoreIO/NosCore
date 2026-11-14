@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ServiceUnderTest = NosCore.GameObject.Services.ScriptedInstanceService.ScriptedInstanceService;
 using NosCore.Tests.Shared;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 {
@@ -156,7 +158,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6,
                     Type = ScriptedInstanceType.TimeSpace, Script = "<Definition><Globals>"
                 }
-            ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance);
+            ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             var entrance = service.GetAt(1, 5, 6);
 
@@ -178,7 +180,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                         </Globals></Definition>
                         """
                 }
-            ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance);
+            ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             var entrance = service.GetAt(1, 5, 6).NotNull();
 
@@ -195,7 +197,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6,
                     Type = ScriptedInstanceType.TimeSpace, LevelMinimum = 10, LevelMaximum = 99
                 }
-            ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance);
+            ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             var entrance = service.GetAt(1, 5, 6).NotNull();
 

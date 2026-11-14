@@ -171,7 +171,7 @@ namespace NosCore.Tests.Shared
             await world.MapNpcDao.TryInsertOrUpdateAsync(new MapNpcDto());
             await world.MapInstanceGeneratorService.InitializeAsync();
             await world.MapInstanceGeneratorService.AddMapInstanceAsync(new MapInstance((Map)world._maps[2], world.MinilandId, false,
-                MapInstanceType.NormalInstance, world.MapItemProvider, NullLogger<MapInstance>.Instance, world.Clock,
+                MapInstanceType.NormalInstance, world.MapItemProvider, NullLogger<MapInstance>.Instance, world.LogLanguageLocalizer, world.Clock,
                 world.MapChangeService, world.SessionGroupFactory, world.SessionRegistry, world.DistanceCalculator));
             return world;
         }

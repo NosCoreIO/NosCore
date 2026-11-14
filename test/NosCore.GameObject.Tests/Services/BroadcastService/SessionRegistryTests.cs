@@ -12,6 +12,8 @@ using SpecLight;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.BroadcastService
 {
@@ -25,7 +27,7 @@ namespace NosCore.GameObject.Tests.Services.BroadcastService
         public void Setup()
         {
             MockLogger = new Mock<ILogger<SessionRegistry>>();
-            Registry = new SessionRegistry(MockLogger.Object);
+            Registry = new SessionRegistry(MockLogger.Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

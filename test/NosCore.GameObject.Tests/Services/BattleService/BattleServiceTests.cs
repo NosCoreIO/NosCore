@@ -24,6 +24,8 @@ using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Wolverine;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -58,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<NosCore.GameObject.Services.BattleService.ICaptureService>().Object,
                 _castDelay.Object,
                 _buffs.Object,
-                NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance);
+                NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

@@ -34,6 +34,8 @@ using System.Collections.Generic;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Tests.Battle
 {
@@ -68,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, new Mock<Wolverine.IMessageBus>().Object);
 
             _handler = new RevivalPacketHandler(
-                new Mock<ILogger<RevivalPacketHandler>>().Object,
+                new Mock<ILogger<RevivalPacketHandler>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object,
                 _mapChangeService.Object,
                 _respawnService.Object,
                 _buffs,
@@ -343,7 +345,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             catalog.Setup(c => c.GetTriggeredCard(CardTrigger.ArenaRevival)).Returns(RevivalProtectionCard.Card);
             catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
             _handler = new RevivalPacketHandler(
-                new Mock<ILogger<RevivalPacketHandler>>().Object,
+                new Mock<ILogger<RevivalPacketHandler>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object,
                 _mapChangeService.Object,
                 _respawnService.Object,
                 buffs.Object,

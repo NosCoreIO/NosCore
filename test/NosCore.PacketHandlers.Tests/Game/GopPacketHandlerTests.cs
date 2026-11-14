@@ -23,6 +23,8 @@ using NosCore.GameObject.Ecs.Extensions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Tests.Game
 {
@@ -40,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
-            Handler = new GopPacketHandler(PubSubHub.Object, World.GroupLootService, NullLogger<GopPacketHandler>.Instance);
+            Handler = new GopPacketHandler(PubSubHub.Object, World.GroupLootService, NullLogger<GopPacketHandler>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

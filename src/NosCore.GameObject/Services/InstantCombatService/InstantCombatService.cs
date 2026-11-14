@@ -32,6 +32,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.InstantCombatService
 {
@@ -49,7 +51,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
         IInstantCombatRewardService rewardService,
         IFamilyContributionService familyContributionService,
         IOptions<WorldConfiguration> worldConfiguration,
-        ILogger<InstantCombatService> logger) : IInstantCombatService, ISingletonService
+        ILogger<InstantCombatService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IInstantCombatService, ISingletonService
     {
         public const short MapId = 2004;
         public const int PlayersPerRoom = 50;
@@ -102,7 +104,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Instant Combat failed");
+                    logger.LogError(e, logLanguage[LogLanguageKey.INSTANT_COMBAT_FAILED]);
                 }
                 finally
                 {
@@ -178,7 +180,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
             var brackets = monsters.Select(m => m.LevelMinimum).Distinct().ToList();
             if (baseMap == null || brackets.Count == 0)
             {
-                logger.LogError("Instant Combat needs map {MapId} and its waves imported by the parser", MapId);
+                logger.LogError(logLanguage[LogLanguageKey.INSTANT_COMBAT_DATA_MISSING], MapId);
                 return;
             }
 
@@ -243,7 +245,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Instant Combat room {MapInstanceId} failed", mapInstance.MapInstanceId);
+                logger.LogError(e, logLanguage[LogLanguageKey.INSTANT_COMBAT_ROOM_FAILED], mapInstance.MapInstanceId);
             }
             finally
             {

@@ -16,13 +16,15 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.DigestionService;
 
 public sealed class DigestionService(
     ISessionRegistry sessionRegistry,
     IClock clock,
-    ILogger<DigestionService> logger) : IDigestionService, ISingletonService
+    ILogger<DigestionService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IDigestionService, ISingletonService
 {
     public const int FoodCap = 600;
     public const int EatEffect = 6000;
@@ -43,13 +45,13 @@ public sealed class DigestionService(
                 }
                 catch (Exception ex)
                 {
-                    logger.LogWarning(ex, "Digestion tick failed for session {SessionId}", session.SessionId);
+                    logger.LogWarning(ex, logLanguage[LogLanguageKey.DIGESTION_SESSION_TICK_FAILED], session.SessionId);
                 }
             }
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Digestion tick failed for map {MapId}", mapInstance.Map.MapId);
+            logger.LogWarning(ex, logLanguage[LogLanguageKey.DIGESTION_MAP_TICK_FAILED], mapInstance.Map.MapId);
         }
     }
 

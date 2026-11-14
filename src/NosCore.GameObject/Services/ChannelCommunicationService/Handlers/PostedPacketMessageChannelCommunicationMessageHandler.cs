@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                             }
                             catch (Exception ex)
                             {
-                                logger.LogWarning(ex, "Hero message to {CharacterId} failed", c.CharacterId);
+                                logger.LogWarning(ex, logLanguage[LogLanguageKey.HERO_MESSAGE_FAILED], c.CharacterId);
                             }
                         }));
                     break;

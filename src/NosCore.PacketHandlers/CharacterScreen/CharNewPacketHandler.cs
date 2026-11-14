@@ -32,6 +32,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -40,7 +42,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService,
             IOptions<WorldConfiguration> worldConfiguration, IDao<CharacterSkillDto, Guid> characterSkillDao,
-            List<ItemDto> items, ILoggerFactory loggerFactory, IDaoTransactionScope daoTransactionScope)
+            List<ItemDto> items, ILoggerFactory loggerFactory, IDaoTransactionScope daoTransactionScope,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
         private readonly ILogger<CharNewPacketHandler> logger = loggerFactory.CreateLogger<CharNewPacketHandler>();
@@ -122,7 +125,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             catch (DbException e)
             {
-                logger.LogError(e, "The creation of {Name} was not committed", character.Name);
+                logger.LogError(e, logLanguage[LogLanguageKey.CHARACTER_CREATION_NOT_COMMITTED], character.Name);
                 return false;
             }
         }
@@ -191,7 +194,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     }
                     catch (InvalidOperationException e)
                     {
-                        logger.LogError(e, "The starter items of {Class} cannot be given; {Name} was not created", @class, characterName);
+                        logger.LogError(e, logLanguage[LogLanguageKey.STARTER_ITEMS_FAILED], @class, characterName);
                         await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CreationFailed });
                         return;
                     }
@@ -203,7 +206,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                     if (!await StoreAsync(chara, inventory, skillsToAdd))
                     {
-                        logger.LogError("{Name} could not be stored and was not created", characterName);
+                        logger.LogError(logLanguage[LogLanguageKey.CHARACTER_NOT_STORED], characterName);
                         await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CreationFailed });
                         return;
                     }

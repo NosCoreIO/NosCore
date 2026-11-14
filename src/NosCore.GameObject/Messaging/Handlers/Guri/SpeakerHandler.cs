@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex, "Speaker message to {CharacterId} failed", c.CharacterId);
+                        logger.LogWarning(ex, logLanguage[LogLanguageKey.SPEAKER_MESSAGE_FAILED], c.CharacterId);
                     }
                 }));
 

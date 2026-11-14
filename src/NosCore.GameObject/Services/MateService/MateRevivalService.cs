@@ -19,6 +19,8 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MateService
 {
@@ -27,7 +29,7 @@ namespace NosCore.GameObject.Services.MateService
         ISessionRegistry sessionRegistry,
         IClock clock,
         IPartnerSpecialistService partnerSpecialistService,
-        ILogger<MateRevivalService> logger) : IMateRevivalService, ISingletonService
+        ILogger<MateRevivalService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IMateRevivalService, ISingletonService
     {
         public const short SeedsRequired = 5;
         public static readonly Duration ReviveDelay = Duration.FromMinutes(3);
@@ -80,7 +82,7 @@ namespace NosCore.GameObject.Services.MateService
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex, "Reviving mate {MateId} failed", mate.MateId);
+                        logger.LogWarning(ex, logLanguage[LogLanguageKey.MATE_REVIVAL_FAILED], mate.MateId);
                     }
                 }
             }

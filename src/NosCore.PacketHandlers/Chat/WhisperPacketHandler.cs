@@ -28,10 +28,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class WhisperPacketHandler(ILogger<WhisperPacketHandler> logger, ISerializer packetSerializer,
+    public class WhisperPacketHandler(ILogger<WhisperPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISerializer packetSerializer,
             IBlacklistCacheService blacklistCache, ISubscriberCacheService subscriberCache,
             IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer,
@@ -124,7 +125,7 @@ namespace NosCore.PacketHandlers.Chat
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Whisper failed.");
+                logger.LogError(e, logLanguage[LogLanguageKey.WHISPER_FAILED]);
             }
         }
     }

@@ -9,10 +9,12 @@ using NosCore.Data.StaticEntities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
 {
-    public class SpeedBoostParser(IDao<ItemDto, short> itemDao, ILogger<SpeedBoostParser> logger)
+    public class SpeedBoostParser(IDao<ItemDto, short> itemDao, ILogger<SpeedBoostParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private const short RandomTeleportEffect = 3625;
 
@@ -37,7 +39,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await itemDao.TryInsertOrUpdateAsync(boosted);
-            logger.LogInformation("{Mounts} mounts get their Speed Booster effect", boosted.Count);
+            logger.LogInformation(logLanguage[LogLanguageKey.SPEED_BOOSTERS_PARSED], boosted.Count);
         }
     }
 }

@@ -12,6 +12,8 @@ using NosCore.Parser.Parsers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Tests
 {
@@ -35,7 +37,7 @@ namespace NosCore.Parser.Tests
             items.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<ItemDto>>()))
                 .Callback<IEnumerable<ItemDto>>(rows => _savedItems.AddRange(rows))
                 .ReturnsAsync(true);
-            _parser = new SpeedBoostParser(items.Object, NullLogger<SpeedBoostParser>.Instance);
+            _parser = new SpeedBoostParser(items.Object, NullLogger<SpeedBoostParser>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]

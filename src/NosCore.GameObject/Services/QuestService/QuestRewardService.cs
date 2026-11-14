@@ -27,6 +27,8 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Shared.Helpers;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.QuestService;
 
@@ -36,7 +38,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
         ISkillPointService skillPointService, IMonsterGoldService monsterGoldService, List<NpcMonsterDto> npcMonsters,
         ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer,
-        IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger)
+        IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     : IQuestRewardService
 {
     private const int WindowSlots = 4;
@@ -97,7 +99,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
             case QuestRewardType.ExperiencePerMonster:
                 if (HuntedMonsters(quest).FirstOrDefault().Monster is not { } hunted)
                 {
-                    logger.LogWarning("Quest {QuestId} pays experience per monster but hunts none", quest.QuestId);
+                    logger.LogWarning(logLanguage[LogLanguageKey.QUEST_EXPERIENCE_WITHOUT_MONSTER], quest.QuestId);
                     return null;
                 }
                 await experienceProgression.AddExperienceAsync(character, (long)hunted.Xp * reward.Amount, 0, 0, 0, 0);
@@ -168,7 +170,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
                 return null;
 
             default:
-                logger.LogWarning("Quest reward {RewardId} of type {Type} is not granted yet", reward.QuestRewardId, reward.RewardType);
+                logger.LogWarning(logLanguage[LogLanguageKey.QUEST_REWARD_TYPE_UNSUPPORTED], reward.QuestRewardId, reward.RewardType);
                 return null;
         }
     }
@@ -184,7 +186,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
 
         if (candidates.Count == 0)
         {
-            logger.LogWarning("Quest reward {RewardId} has no item for class {Class}", reward.QuestRewardId, character.Class);
+            logger.LogWarning(logLanguage[LogLanguageKey.QUEST_REWARD_NO_CLASS_ITEM], reward.QuestRewardId, character.Class);
             return null;
         }
 
@@ -194,7 +196,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(created, character.VisualId));
         if (added == null || added.Count == 0)
         {
-            logger.LogWarning("Quest reward {VNum}x{Amount} lost: inventory full for character {CharacterId}",
+            logger.LogWarning(logLanguage[LogLanguageKey.QUEST_REWARD_LOST_INVENTORY_FULL],
                 vnum, amount, character.CharacterId);
             return null;
         }

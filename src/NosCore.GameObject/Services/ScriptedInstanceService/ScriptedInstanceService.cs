@@ -19,6 +19,8 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.MiniMap;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
@@ -35,27 +37,31 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
         private readonly ILogger<ScriptedInstanceService> _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public ScriptedInstanceService(List<ScriptedInstanceDto> scriptedInstances,
             List<MapDto> maps,
             Lazy<IMapInstanceGeneratorService> mapInstanceGeneratorService,
             IMapInstanceRegistry mapInstanceRegistry,
             IClock clock,
-            ILogger<ScriptedInstanceService> logger)
+            ILogger<ScriptedInstanceService> logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _mapInstanceRegistry = mapInstanceRegistry;
             _clock = clock;
             _logger = logger;
+            _logLanguage = logLanguage;
             _mapsByVNum = maps.GroupBy(s => s.MapId).ToDictionary(s => s.Key, s => s.First());
 
             _byMap = scriptedInstances
-                .Select(row => Build(row, logger))
+                .Select(row => Build(row, logger, logLanguage))
                 .GroupBy(s => s.MapId)
                 .ToDictionary(s => s.Key, s => s.OrderBy(o => o.PositionY).ThenBy(o => o.PositionX).ToList());
         }
 
-        private static ScriptedInstance Build(ScriptedInstanceDto row, ILogger logger)
+        private static ScriptedInstance Build(ScriptedInstanceDto row, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             var instance = row.Adapt<ScriptedInstance>();
             try
@@ -66,7 +72,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             catch (Exception exception)
             {
                 logger.LogError(exception,
-                    "The script of ScriptedInstance {ScriptedInstanceId} on map {MapId} could not be read",
+                    logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE],
                     row.ScriptedInstanceId, row.MapId);
                 return instance;
             }
@@ -80,7 +86,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 // A door that was never imported: better said than silently unreachable.
                 _logger.LogError(
-                    "No instance entrance at {MapId} {PositionX},{PositionY} to attach {Label} to",
+                    _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_NO_ENTRANCE],
                     mapId, positionX, positionY, definition.Label);
                 return;
             }
@@ -125,7 +131,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (!_mapsByVNum.TryGetValue(room.VNum, out var map))
                 {
                     _logger.LogError(
-                        "Instance {ScriptedInstanceId} asks for map {VNum}, which does not exist",
+                        _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MAP_MISSING],
                         entrance.ScriptedInstanceId, room.VNum);
                     await RemoveRoomsAsync(built.Values);
                     return null;

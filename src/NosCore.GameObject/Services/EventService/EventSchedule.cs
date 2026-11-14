@@ -14,12 +14,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.EventService
 {
     // Starts each configured event's countdown so the event itself begins at its scheduled time.
     public sealed class EventSchedule(IEventService eventService, IClock clock,
-        IOptions<WorldConfiguration> worldConfiguration, ILogger<EventSchedule> logger) : BackgroundService
+        IOptions<WorldConfiguration> worldConfiguration, ILogger<EventSchedule> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -51,7 +53,7 @@ namespace NosCore.GameObject.Services.EventService
 
                 if (!eventService.TryStart(next.Event.Type, true))
                 {
-                    logger.LogWarning("{Event} is still running and was not started again", next.Event.Type);
+                    logger.LogWarning(logLanguage[LogLanguageKey.EVENT_STILL_RUNNING], next.Event.Type);
                 }
 
                 // Never fire the same slot twice.

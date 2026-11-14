@@ -61,7 +61,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         if (character.Speed < speed)
         {
             logger.LogWarning(
-                "walk dropped: server speed {ServerSpeed} < packet speed {PacketSpeed} for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY})",
+                logLanguage[LogLanguageKey.WALK_DROPPED_SPEED],
                 character.Speed, speed, character.VisualId,
                 character.PositionX, character.PositionY, x, y);
             return WalkResult.Refused;
@@ -70,7 +70,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         if (distance > character.Speed / 2)
         {
             logger.LogWarning(
-                "walk dropped: distance {Distance} > speed/2 ({HalfSpeed}) for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY}) packetSpeed={PacketSpeed}",
+                logLanguage[LogLanguageKey.WALK_DROPPED_DISTANCE],
                 distance, character.Speed / 2, character.VisualId,
                 character.PositionX, character.PositionY, x, y, speed);
             return WalkResult.Refused;
@@ -93,7 +93,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         if (!walkService.TryStep(character, x, y))
         {
             logger.LogWarning(
-                "walk dropped: character {VisualId} cannot reach ({ToX},{ToY}) from ({FromX},{FromY}) at speed {Speed} yet",
+                logLanguage[LogLanguageKey.WALK_DROPPED_UNREACHABLE],
                 character.VisualId, x, y, character.PositionX, character.PositionY, character.Speed);
             return WalkResult.Refused;
         }
@@ -115,7 +115,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         }
 
         logger.LogInformation(
-            "walk accepted: character {VisualId} wrote ({WrittenX},{WrittenY}); ECS now reads PositionX/Y=({StoredX},{StoredY}) MapX/Y=({StoredMapX},{StoredMapY})",
+            logLanguage[LogLanguageKey.WALK_ACCEPTED],
             character.VisualId, x, y,
             character.PositionX, character.PositionY,
             character.MapX, character.MapY);

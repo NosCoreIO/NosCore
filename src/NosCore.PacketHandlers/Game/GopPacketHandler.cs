@@ -17,10 +17,12 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class GopPacketHandler(IPubSubHub pubSubHub, IGroupLootService groupLootService, ILogger<GopPacketHandler> logger)
+    public class GopPacketHandler(IPubSubHub pubSubHub, IGroupLootService groupLootService, ILogger<GopPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<GopPacket>, IWorldPacketHandler
     {
         // The client ticks these to accept, so they are stored inverted as "blocked".
@@ -86,7 +88,7 @@ namespace NosCore.PacketHandlers.Game
                 });
                 if (!published)
                 {
-                    logger.LogWarning("The master server rejected the {Option} option of {CharacterId}", packet.Option, character.CharacterId);
+                    logger.LogWarning(logLanguage[LogLanguageKey.GAME_OPTION_REJECTED], packet.Option, character.CharacterId);
                 }
             }
 
