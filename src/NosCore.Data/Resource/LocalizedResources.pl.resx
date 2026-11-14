@@ -519,4 +519,7 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>To wydarzenie już trwa.</value>
   </data>
+  <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
+    <value>Czy chcesz ustawić tę wioskę jako miejsce ożywienia?</value>
+  </data>
 </root>

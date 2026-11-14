@@ -40,6 +40,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _respawnService = World.Freeze<Mock<IRespawnService>>();
+            _respawnService.Setup(r => r.SetRespawnPoint(It.IsAny<PlayerComponentBundle>(),
+                It.IsAny<short>(), It.IsAny<short>(), It.IsAny<short>())).Returns(true);
             _handler = World.Create<SetPlaceOfRevivalHandler>();
         }
 
@@ -52,12 +54,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
-        public async Task TypeTwoSendsConfirmationDialog()
+        public async Task TheNpcsButtonAsksForConfirmation()
         {
-            await new Spec("n_run Type=2 prompts a Qna dialog whose YesPacket is the Type=1 commit")
+            await new Spec("The dialog button asks a question whose Yes sends the same n_run back")
                 .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
-                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)2)
-                .Then(QnaWithYesPacketTypeOneShouldHaveBeenSent)
+                .WhenAsync(TheDialogButtonIsPressed)
+                .Then(TheQuestionShouldBeAskedInTheCharactersLanguage)
                 .And(RespawnPointShouldNotHaveBeenUpdated)
                 .And(NoConfirmationMsgShouldBeSent)
                 .ExecuteAsync();
@@ -66,7 +68,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [TestMethod]
         public async Task NullTargetIsIgnored()
         {
-            await new Spec("Type=1 with null target is a no-op: no respawn update, no confirmation msg")
+            await new Spec("A confirmation with no target is a no-op: no respawn update, no confirmation msg")
                 .WhenAsync(NrunIsHandledWithType_AndNullTarget, (short)1)
                 .Then(RespawnPointShouldNotHaveBeenUpdated)
                 .And(NoConfirmationMsgShouldBeSent)
@@ -76,7 +78,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [TestMethod]
         public async Task NonNpcTargetIsIgnored()
         {
-            await new Spec("Type=1 with a non-NpcComponentBundle target is a no-op")
+            await new Spec("A confirmation on a target that is not an NPC is a no-op")
                 .WhenAsync(NrunIsHandledWithType_AndGenericAliveTarget, (short)1)
                 .Then(RespawnPointShouldNotHaveBeenUpdated)
                 .And(NoConfirmationMsgShouldBeSent)
@@ -84,37 +86,39 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
-        public async Task TypeOneOnAnNpcSavesTheRespawnPoint()
+        public async Task ConfirmingSavesTheRespawnPoint()
         {
-            await new Spec("Type=1 on an NPC saves its position as the respawn point and confirms with the client's own message")
+            await new Spec("Confirming the question saves the NPC's position as the respawn point and confirms with the client's own message")
                 .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
-                .AndAsync(NrunIsHandledWithType_OnThatNpc, (short)2)
-                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
+                .AndAsync(TheDialogButtonIsPressed)
+                .WhenAsync(TheQuestionIsConfirmed)
                 .Then(RespawnPointShouldBeSetTo_And_, (short)5, (short)6)
                 .And(RevivalPlaceChangedShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ConfirmingWithoutTheQuestionIsIgnored()
+        public async Task ConfirmingOnAMapWithoutAPlaceOfRevivalSaysNothing()
         {
-            await new Spec("Type=1 without the NPC having asked the question saves nothing")
+            await new Spec("A map without a place of revival saves nothing, so no confirmation is sent")
                 .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
-                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
-                .Then(RespawnPointShouldNotHaveBeenUpdated)
-                .And(NoConfirmationMsgShouldBeSent)
+                .And(TheMapHasNoPlaceOfRevival)
+                .AndAsync(TheDialogButtonIsPressed)
+                .WhenAsync(TheQuestionIsConfirmed)
+                .Then(NoConfirmationMsgShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ConfirmingTwiceSavesOnce()
+        public async Task ConfirmingTwiceAsksAgain()
         {
-            await new Spec("One question allows one confirmation")
+            await new Spec("One question allows one confirmation; the same n_run afterwards asks again")
                 .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
-                .AndAsync(NrunIsHandledWithType_OnThatNpc, (short)2)
-                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
-                .AndAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
+                .AndAsync(TheDialogButtonIsPressed)
+                .WhenAsync(TheQuestionIsConfirmed)
+                .AndAsync(TheQuestionIsConfirmed)
                 .Then(RespawnPointShouldBeSetTo_And_, (short)5, (short)6)
+                .And(TheQuestionShouldBeAskedInTheCharactersLanguage)
                 .ExecuteAsync();
         }
 
@@ -137,12 +141,20 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
         }
 
-        private Task NrunIsHandledWithType_OnThatNpc(short type) =>
+        private void TheMapHasNoPlaceOfRevival() =>
+            _respawnService.Setup(r => r.SetRespawnPoint(It.IsAny<PlayerComponentBundle>(),
+                It.IsAny<short>(), It.IsAny<short>(), It.IsAny<short>())).Returns(false);
+
+        private Task TheDialogButtonIsPressed() => NrunIsHandledOnThatNpc();
+
+        private Task TheQuestionIsConfirmed() => NrunIsHandledOnThatNpc();
+
+        private Task NrunIsHandledOnThatNpc() =>
             _handler.HandleAsync(_session, _session.Character.MapInstance.GetNpcById(100),
                 new NrunPacket
                 {
                     Runner = NrunRunnerType.SetPlaceOfRevival,
-                    Type = type,
+                    Type = 0,
                     VisualType = VisualType.Npc,
                     VisualId = 100,
                 });
@@ -183,14 +195,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                     VisualId = 1,
                 });
 
-        private void QnaWithYesPacketTypeOneShouldHaveBeenSent()
+        private void TheQuestionShouldBeAskedInTheCharactersLanguage()
         {
             var qna = _session.LastPackets.OfType<QnaPacket>().LastOrDefault();
             Assert.IsNotNull(qna);
             var yes = qna.YesPacket as NrunPacket;
             Assert.IsNotNull(yes);
             Assert.AreEqual(NrunRunnerType.SetPlaceOfRevival, yes.Runner);
-            Assert.AreEqual<short?>(1, yes.Type);
+            Assert.AreEqual(VisualType.Npc, yes.VisualType);
+            Assert.AreEqual(100, yes.VisualId);
+            Assert.IsFalse(qna.Question?.Contains("n_run", System.StringComparison.Ordinal) ?? true);
         }
 
         private void RespawnPointShouldNotHaveBeenUpdated() =>

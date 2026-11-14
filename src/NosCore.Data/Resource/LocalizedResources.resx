@@ -889,4 +889,7 @@
   <data name="NRUN_WITHOUT_DIALOG" xml:space="preserve">
     <value>n_run {Runner} without an open dialog with NPC {VisualId}</value>
   </data>
+  <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
+    <value>Do you want to make this village your place of revival?</value>
+  </data>
 </root>

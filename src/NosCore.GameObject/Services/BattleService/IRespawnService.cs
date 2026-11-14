@@ -21,8 +21,8 @@ public interface IRespawnService
     (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, long? respawnMapTypeId);
 
     // Upserts the character's Respawn row for the MapType group to (mapId, x, y).
-    // No-op if the map has no RespawnMapTypeId.
-    void SetRespawnPoint(PlayerComponentBundle character, short mapId, short x, short y);
+    // Returns false, and saves nothing, when the map has no RespawnMapTypeId.
+    bool SetRespawnPoint(PlayerComponentBundle character, short mapId, short x, short y);
 
     // The point of return saved on a map of the same MapType group, or null if none was saved.
     (short MapId, short X, short Y)? GetReturnPoint(PlayerComponentBundle character, short mapId);

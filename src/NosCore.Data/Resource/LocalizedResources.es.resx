@@ -499,4 +499,7 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Este evento ya está en curso.</value>
   </data>
+  <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
+    <value>¿Quieres que esta aldea sea tu lugar de resurrección?</value>
+  </data>
 </root>

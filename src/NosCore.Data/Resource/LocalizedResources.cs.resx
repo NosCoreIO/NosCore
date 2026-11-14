@@ -563,4 +563,7 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Tato událost už probíhá.</value>
   </data>
+  <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
+    <value>Chceš z této vesnice udělat své místo oživení?</value>
+  </data>
 </root>

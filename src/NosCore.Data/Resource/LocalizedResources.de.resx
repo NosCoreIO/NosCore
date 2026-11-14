@@ -580,4 +580,7 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Dieses Event läuft bereits.</value>
   </data>
+  <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
+    <value>Möchtest du dieses Dorf zu deinem Ort der Wiederbelebung machen?</value>
+  </data>
 </root>
