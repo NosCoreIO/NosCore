@@ -6,6 +6,8 @@
 
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
@@ -39,6 +41,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ISessionRegistry _sessionRegistry;
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly ILogger _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         private readonly SemaphoreSlim _gate = new(1, 1);
         private readonly List<Func<Task>> _pending = [];
@@ -57,7 +60,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public ScriptedInstanceRun(ScriptedInstance entrance, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
             IClock clock, ISessionRegistry sessionRegistry, Lazy<IMapChangeService> mapChangeService, ILogger logger,
-            TimeSpan stepTimeout)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeSpan stepTimeout)
         {
             _stepTimeout = stepTimeout;
             Entrance = entrance;
@@ -68,13 +71,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _sessionRegistry = sessionRegistry;
             _mapChangeService = mapChangeService;
             _logger = logger;
+            _logLanguage = logLanguage;
             Rooms = rooms.ToDictionary(s => s.Key, s => s.Value.MapInstanceId);
             StartedAt = clock.GetCurrentInstant();
         }
 
         public ScriptedInstance Entrance { get; }
 
-        private string Name => $"scripted instance {Entrance.ScriptedInstanceId}";
+        public string Name => $"scripted instance {Entrance.ScriptedInstanceId}";
 
         public IReadOnlyDictionary<int, Guid> Rooms { get; }
 
@@ -195,8 +199,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 if (!_npcMonsters.TryGetValue(spawn.VNum, out var npcMonster))
                 {
-                    _logger.LogError("Instance {ScriptedInstanceId} summons monster {VNum}, which does not exist",
-                        Entrance.ScriptedInstanceId, spawn.VNum);
+                    _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, spawn.VNum);
                     continue;
                 }
 
@@ -352,15 +355,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             catch (TimeoutException)
             {
                 scope.Close();
-                _logger.LogError("The script of instance {ScriptedInstanceId} did not return within {Timeout}",
-                    Entrance.ScriptedInstanceId, _stepTimeout);
+                _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_SCRIPT_TIMED_OUT], Name, _stepTimeout);
                 throw new ScriptAbandonedException();
             }
             catch (Exception exception)
             {
                 scope.Close();
-                _logger.LogError(exception, "The script of instance {ScriptedInstanceId} failed",
-                    Entrance.ScriptedInstanceId);
+                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_SCRIPT_FAILED], Name);
                 throw new ScriptAbandonedException();
             }
         }
@@ -391,7 +392,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 catch (Exception exception)
                 {
                     _pending.Clear();
-                    _logger.LogError(exception, "{Instance} failed", Name);
+                    _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_FAILED], Name);
                     return;
                 }
 
@@ -415,13 +416,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
                 catch (TimeoutException)
                 {
-                    _logger.LogError("A step of {Instance} did not finish within {Timeout}", Name, _stepTimeout);
+                    _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_STEP_TIMED_OUT], Name, _stepTimeout);
                     _pending.Clear();
                     Abandon();
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, "A step of {Instance} failed", Name);
+                    _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_STEP_FAILED], Name);
                 }
             }
         }

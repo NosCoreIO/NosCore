@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Networking
                 new Dictionary<int, MapInstance> { [1] = room },
                 new Dictionary<short, NpcMonsterDto>(), World.Clock,
                 World.SessionRegistry,
-                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance,
+                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, World.LogLanguageLocalizer,
                 TimeSpan.FromSeconds(30));
             _scriptedInstances.Setup(s => s.GetRun(roomId)).Returns(run);
 

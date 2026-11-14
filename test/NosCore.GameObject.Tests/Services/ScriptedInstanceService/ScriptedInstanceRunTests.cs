@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
                 World.Clock, World.SessionRegistry,
-                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, timeout ?? TimeSpan.FromSeconds(30));
+                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, World.LogLanguageLocalizer, timeout ?? TimeSpan.FromSeconds(30));
 
         [TestMethod]
         public async Task TheFirstEntryRunsTheScriptOnlyOnceAsync()

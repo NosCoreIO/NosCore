@@ -145,7 +145,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 new System.Collections.Generic.Dictionary<int, MapInstance>(),
                 new System.Collections.Generic.Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
                 World.Clock, World.SessionRegistry,
-                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance,
+                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, World.LogLanguageLocalizer,
                 System.TimeSpan.FromSeconds(30));
 
         [TestMethod]

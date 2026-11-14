@@ -99,8 +99,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE],
-                    entrance.ScriptedInstanceId, entrance.MapId);
+                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE], entrance.Script);
                 return false;
             }
         }
@@ -148,7 +147,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 {
                     _logger.LogError(
                         _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MAP_MISSING],
-                        entrance.ScriptedInstanceId, room.VNum);
+                        $"scripted instance {entrance.ScriptedInstanceId}", room.VNum);
                     await RemoveRoomsAsync(built.Values.Select(s => s.MapInstanceId));
                     return null;
                 }
@@ -165,7 +164,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             var run = new ScriptedInstanceRun(entrance, entrance.Logic, built, _npcMonsters, _clock,
-                _sessionRegistry, _mapChangeService, _logger, _scriptTimeout);
+                _sessionRegistry, _mapChangeService, _logger, _logLanguage, _scriptTimeout);
             foreach (var id in run.Rooms.Values)
             {
                 _runsByRoom[id] = run;
@@ -184,8 +183,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, "The tick of instance {ScriptedInstanceId} failed",
-                        run.Entrance.ScriptedInstanceId);
+                    _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_TICK_FAILED], run.Name);
                 }
             }
         }
