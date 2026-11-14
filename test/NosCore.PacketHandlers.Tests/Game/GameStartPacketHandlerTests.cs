@@ -21,6 +21,7 @@ using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ChannelService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Data.StaticEntities;
@@ -52,6 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private GameStartPacketHandler Handler;
         private ClientSession Session;
         private Mock<IMapChangeService> MapChangeService;
+        private readonly Mock<IChannelService> ChannelService = new();
         private Mock<ISkillService> SkillService;
         private Mock<IBuffService> BuffService;
         private Mock<IQuestService> QuestService;
@@ -106,7 +108,32 @@ namespace NosCore.PacketHandlers.Tests.Game
                 RespawnService.Object,
                 Minilands.Object,
                 [new QuestDto { QuestId = 1 }, new QuestDto { QuestId = 6042 }],
-                World.Clock);
+                World.Clock,
+                ChannelService.Object);
+        }
+
+        [TestMethod]
+        public async Task GameStartOnAMapAnotherChannelHostsStopsAfterTheMove()
+        {
+            await new Spec("Game start on a map another channel hosts stops after the move")
+                .Given(CharacterIsReadyToStart)
+                .And(AnotherChannelHostsTheMap)
+                .WhenAsync(ExecutingGameStart)
+                .Then(MapChangeShouldNotBeCalled)
+                .And(QuestScriptShouldNotRun)
+                .ExecuteAsync();
+        }
+
+        private void AnotherChannelHostsTheMap()
+        {
+            var character = Session.Character;
+            var (map, x, y) = (character.MapInstance, character.MapX, character.MapY);
+            ChannelService.Setup(s => s.TryMoveToHostAsync(Session, map, x, y)).ReturnsAsync(true);
+        }
+
+        private void QuestScriptShouldNotRun()
+        {
+            QuestService.Verify(s => s.RunScriptAsync(It.IsAny<PlayerComponentBundle>()), Times.Never);
         }
 
         [TestMethod]

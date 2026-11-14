@@ -332,6 +332,52 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public async Task TheShipBringsTheCaptainAboardAndOnlyHim()
+        {
+            var room = (await LoadAsync("act4-ship")).Definition.Rooms.Single();
+
+            Assert.AreEqual(148, room.VNum);
+            CollectionAssert.AreEquivalent(new short[] { 540, 613 }, room.MapNpcs.ToArray());
+        }
+
+        [TestMethod]
+        public async Task TheShipWarnsItsPassengersThenSails()
+        {
+            var script = await LoadAsync("act4-ship");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+
+            foreach (var (_, step) in run.Scheduled.OrderBy(s => s.At))
+            {
+                step(run);
+            }
+
+            CollectionAssert.AreEqual(new[] { 21d, 24, 24.5, 24 + 50 / 60d, 25 },
+                run.Scheduled.Select(s => s.At.TotalMinutes).OrderBy(m => m).ToArray());
+            CollectionAssert.AreEqual(new[]
+            {
+                "message(ShipLeaveInMinutes,4)",
+                "message(ShipLeaveInOneMinute)",
+                "message(ShipLeaveInThirtySeconds)",
+                "message(ShipLeaveInTenSeconds)",
+                "message(RaiseTheAnchor)",
+                "succeed"
+            }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task BoardingLateOnlyKeepsTheWarningsStillAhead()
+        {
+            var script = await LoadAsync("act4-ship");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromMinutes(24.2) };
+
+            script.OnFirstEnter(run);
+
+            CollectionAssert.AreEqual(new[] { 24.5, 24 + 50 / 60d, 25 },
+                run.Scheduled.Select(s => s.At.TotalMinutes).OrderBy(m => m).ToArray());
+        }
+
+        [TestMethod]
         public async Task TheRaidIsOpenedByItsSealForATeamInItsLevelRange()
         {
             var definition = (await LoadAsync("raid-mother-cuby")).Definition;

@@ -14,7 +14,10 @@ namespace NosCore.Instances.Abstractions
     // cells apart below Entry in their fighting order.
     public record BoutSide(Spot Entry, Spot Bench, Spot Ring);
 
-    public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false);
+    public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false)
+    {
+        public IReadOnlyList<short> MapNpcs { get; init; } = [];
+    }
 
     public record ScriptedInstanceDefinition
     {

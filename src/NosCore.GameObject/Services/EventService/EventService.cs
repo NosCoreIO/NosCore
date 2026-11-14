@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.Enumerations.Event;
+using NosCore.GameObject.Services.Act4ShipService;
 using NosCore.GameObject.Services.IceBreakerService;
 using NosCore.GameObject.Services.InstantCombatService;
 using NosCore.GameObject.Services.LandOfDeathService;
@@ -16,7 +17,7 @@ namespace NosCore.GameObject.Services.EventService
 {
     public class EventService(IInstantCombatService instantCombatService, IIceBreakerService iceBreakerService,
         ILandOfDeathService landOfDeathService,
-        ITalentArenaService talentArenaService) : IEventService
+        ITalentArenaService talentArenaService, IAct4ShipService act4ShipService) : IEventService
     {
         public Duration CountdownLength(EventType type) => type switch
         {
@@ -24,6 +25,7 @@ namespace NosCore.GameObject.Services.EventService
             EventType.IceBreaker => Duration.FromTimeSpan(IceBreakerService.IceBreakerService.CountdownLength),
             EventType.LandOfDeath => Duration.Zero,
             EventType.TalentArena => Duration.Zero,
+            EventType.Act4Ship => Duration.FromTimeSpan(Act4ShipService.Act4ShipService.CountdownLength),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
         };
 
@@ -33,6 +35,7 @@ namespace NosCore.GameObject.Services.EventService
             EventType.IceBreaker => iceBreakerService.TryStart(withCountdown),
             EventType.LandOfDeath => landOfDeathService.TryStart(),
             EventType.TalentArena => talentArenaService.TryStart(),
+            EventType.Act4Ship => act4ShipService.TryStart(),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
         };
     }
