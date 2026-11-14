@@ -55,10 +55,10 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.JobLevel = character.JobLevel;
                 characterDto.JobLevelXp = character.JobLevelXp;
                 characterDto.HeroLevel = character.HeroLevel;
-                characterDto.HeroXp = character.HeroXp;
+                characterDto.HeroXp = character.HeroLevelXp;
                 characterDto.Gold = character.Gold;
                 account.BankMoney = character.BankGold;
-                characterDto.Reput = character.Reput;
+                characterDto.Reput = character.Reputation;
                 characterDto.Dignity = character.Dignity;
                 characterDto.Compliment = character.Compliment;
                 characterDto.Faction = character.Faction;

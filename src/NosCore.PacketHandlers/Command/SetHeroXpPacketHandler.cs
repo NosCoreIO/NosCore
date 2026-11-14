@@ -23,7 +23,7 @@ namespace NosCore.PacketHandlers.Command
     {
         public override Task ExecuteAsync(SetHeroXpPacket packet, ClientSession session)
         {
-            session.Character.HeroXp = packet.HeroXp < 0 ? 0 : packet.HeroXp;
+            session.Character.HeroLevelXp = packet.HeroXp < 0 ? 0 : packet.HeroXp;
             return session.SendPacketAsync(session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
         }
     }

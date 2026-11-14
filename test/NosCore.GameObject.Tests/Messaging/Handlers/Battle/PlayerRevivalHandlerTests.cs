@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
 
         private void VictimHasReputation_(long reput)
         {
-            _session.Character.Reput = reput;
+            _session.Character.Reputation = reput;
         }
 
         private async Task PlayerDiesWithoutKiller()
@@ -217,8 +217,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             Assert.AreEqual(expected, dlg.Question);
         }
 
-        private void VictimReputationShouldBe_(long expected) => Assert.AreEqual(expected, _session.Character.Reput);
+        private void VictimReputationShouldBe_(long expected) => Assert.AreEqual(expected, _session.Character.Reputation);
 
-        private void KillerReputationShouldBe_(long expected) => Assert.AreEqual(expected, _killerSession.Character.Reput);
+        private void KillerReputationShouldBe_(long expected) => Assert.AreEqual(expected, _killerSession.Character.Reputation);
     }
 }

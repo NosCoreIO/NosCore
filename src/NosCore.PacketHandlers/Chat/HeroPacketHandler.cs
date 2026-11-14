@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Chat
             }
 
             var character = session.Character;
-            if (!reputationRankingService.IsTopThree(character.CharacterId, character.Reput, session.Account.Authority))
+            if (!reputationRankingService.IsTopThree(character.CharacterId, character.Reputation, session.Account.Authority))
             {
                 await session.SendPacketAsync(character.GenerateSayi(SayColorType.Red, Game18NConstString.OnlyTheTopThreePlayers));
                 return;

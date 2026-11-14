@@ -317,7 +317,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private void CharacterHasHighReputation()
         {
-            Session.Character.Reput = 5000000;
+            Session.Character.Reputation = 5000000;
         }
 
         private void CharacterHasSpAndMismatchedFairyEquipped()

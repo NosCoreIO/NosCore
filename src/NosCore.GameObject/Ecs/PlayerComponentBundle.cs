@@ -58,18 +58,6 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
     public bool InExchangeOrShop => InShop || InExchange;
     public double StatOption => this.GenerateStatOption();
 
-    public long HeroXp
-    {
-        get => HeroLevelXp;
-        set => HeroLevelXp = value;
-    }
-
-    public long Reput
-    {
-        get => Reputation;
-        set => Reputation = value;
-    }
-
     public RegionType AccountLanguage => Account.Language;
 
     // IVisualEntity - VisualId and VisualType are generated

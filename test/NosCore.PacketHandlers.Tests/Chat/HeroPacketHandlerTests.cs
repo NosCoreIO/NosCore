@@ -117,7 +117,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void SenderIsNotTopThree() => SetRanking(false);
 
-        private void SenderHasReputation_(long reputation) => Session.Character.Reput = reputation;
+        private void SenderHasReputation_(long reputation) => Session.Character.Reputation = reputation;
 
         private void SetRanking(bool isTopThree) =>
             Ranking.Setup(x => x.IsTopThree(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<AuthorityType>()))

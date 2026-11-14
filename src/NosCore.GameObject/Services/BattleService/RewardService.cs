@@ -240,7 +240,7 @@ public sealed class RewardService(
         {
             return;
         }
-        player.Reput += mob.Level / 3;
+        player.Reputation += mob.Level / 3;
         await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
     }
 
