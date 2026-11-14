@@ -18,7 +18,5 @@ namespace NosCore.GameObject.Services.IceBreakerService
         bool TryStart(bool withCountdown);
 
         Task JoinAsync(ClientSession session);
-
-        Task FreezeAsync(PlayerComponentBundle player);
     }
 }

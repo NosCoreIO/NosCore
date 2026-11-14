@@ -10,6 +10,7 @@ using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -396,6 +397,102 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 Endings.Add(state);
                 return Task.CompletedTask;
             }
+
+            public Task ReturnAsync(NosCore.GameObject.Networking.ClientSession.ClientSession session) =>
+                Task.CompletedTask;
+        }
+
+        private async Task<NosCore.GameObject.Networking.ClientSession.ClientSession> PlayerInFirstRoomAsync()
+        {
+            var session = await World.CreateSessionAsync();
+            session.Character.MapInstance = _first;
+            World.SessionRegistry.UpdateCharacter(session.Channel?.Id ?? string.Empty, session.Character.CharacterId, _first.MapInstanceId);
+            return session;
+        }
+
+        [TestMethod]
+        public async Task TwoPlayersApartAreTwoSidesAsync()
+        {
+            var run = Run(new Script());
+            await PlayerInFirstRoomAsync();
+            await PlayerInFirstRoomAsync();
+
+            Assert.AreEqual(2, run.PlayersIn(1));
+            Assert.IsFalse(run.OneSideStanding(1));
+        }
+
+        [TestMethod]
+        public async Task AFallenPlayerIsOutOfTheFightAsync()
+        {
+            var run = Run(new Script());
+            await PlayerInFirstRoomAsync();
+            var fallen = await PlayerInFirstRoomAsync();
+
+            await run.PlayerDownAsync(fallen.Character);
+
+            Assert.IsTrue(run.IsDown(fallen.Character.CharacterId));
+            Assert.IsTrue(run.OneSideStanding(1));
+        }
+
+        [TestMethod]
+        public async Task AGroupLeftStandingIsOneSideAsync()
+        {
+            var run = Run(new Script());
+            var first = await PlayerInFirstRoomAsync();
+            var second = await PlayerInFirstRoomAsync();
+            var group = new NosCore.GameObject.Services.GroupService.Group(
+                NosCore.Data.Enumerations.Group.GroupType.Group, World.SessionGroupFactory);
+            first.Character.JoinGroup(group);
+            second.Character.JoinGroup(group);
+            Assert.IsTrue(run.OneSideStanding(1));
+
+            await PlayerInFirstRoomAsync();
+            Assert.IsFalse(run.OneSideStanding(1));
+        }
+
+        [TestMethod]
+        public async Task AnEndingClosesPvpAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.SetPvp(1, true)
+            });
+            await run.StartAsync();
+            Assert.IsTrue(_first.IsPvp);
+
+            await run.StartAsync();
+            run.Fail();
+            await run.TickAsync();
+
+            Assert.IsFalse(_first.IsPvp);
+        }
+
+        [TestMethod]
+        public async Task AHostThatStartsTheScriptItselfIsNotStartedByEntryAsync()
+        {
+            var script = new Script();
+            _host = new SelfStartingHost();
+            var run = Run(script);
+            var session = await World.CreateSessionAsync();
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            Assert.AreEqual(0, script.Calls.Count);
+
+            await run.StartAsync();
+            CollectionAssert.AreEqual(new[] { "enter" }, script.Calls);
+        }
+
+        private sealed class SelfStartingHost : IInstanceRunHost
+        {
+            public string Name => "test";
+
+            public bool StartsOnFirstEntry => false;
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) => Task.CompletedTask;
 
             public Task ReturnAsync(NosCore.GameObject.Networking.ClientSession.ClientSession session) =>
                 Task.CompletedTask;

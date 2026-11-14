@@ -33,6 +33,14 @@ namespace NosCore.Instances.Abstractions
 
         int MonstersAlive(int room);
 
+        int PlayersIn(int room);
+
+        // True once the players in the room who are still in the fight are all on one side,
+        // a group counting as one side.
+        bool OneSideStanding(int room);
+
+        void SetPvp(int room, bool isPvp);
+
         void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true);
 
         void UnlockPortal(int fromRoom, int toRoom);

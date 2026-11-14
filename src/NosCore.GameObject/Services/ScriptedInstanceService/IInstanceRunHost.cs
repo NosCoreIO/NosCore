@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
@@ -27,5 +28,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         Task EndedAsync(ScriptedInstanceRun run, EndStateType state);
 
         Task ReturnAsync(ClientSession session);
+
+        // False when the host starts the script itself, for instance once a sign-up is over.
+        bool StartsOnFirstEntry => true;
+
+        // A player whose HP reached zero inside the run. They stay out of the fight until the run ends.
+        Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) => Task.CompletedTask;
+
+        Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
     }
 }

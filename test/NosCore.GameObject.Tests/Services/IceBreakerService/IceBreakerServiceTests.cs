@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Tests.Services.IceBreakerService
     public class IceBreakerServiceTests
     {
         private TestWorld World;
-        private IIceBreakerService _service;
+        private IceBreaker _service;
         private ClientSession _attacker;
         private ClientSession _defender;
         private ClientSession _third;
@@ -84,25 +84,6 @@ namespace NosCore.GameObject.Tests.Services.IceBreakerService
         }
 
         [TestMethod]
-        public async Task TheLastPlayerStandingWins()
-        {
-            await new Spec("The fight is decided when one player is left standing")
-                .Then(TheFightBetween_ShouldBeDecided_, "attacker", true)
-                .And(TheFightBetween_ShouldBeDecided_, "attacker defender", false)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task AGroupLeftStandingWinsTogether()
-        {
-            await new Spec("The fight is decided when everyone standing is in the same group")
-                .Given(TheAttackerAndDefenderAreGrouped)
-                .Then(TheFightBetween_ShouldBeDecided_, "attacker defender", true)
-                .And(TheFightBetween_ShouldBeDecided_, "attacker defender third", false)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task NobodyJoinsOutsideTheSignUp()
         {
             await new Spec("Accepting the question once sign-up is over costs nothing")
@@ -152,17 +133,6 @@ namespace NosCore.GameObject.Tests.Services.IceBreakerService
 
         private void TheyShouldBeOpponents_(bool expected) =>
             Assert.AreEqual(expected, GameObject.Services.BattleService.BattleService.CanAttack(_attacker.Character, _defender.Character));
-
-        private void TheFightBetween_ShouldBeDecided_(string names, bool expected)
-        {
-            var players = names.Split(' ').Select(n => n switch
-            {
-                "attacker" => _attacker.Character,
-                "defender" => _defender.Character,
-                _ => _third.Character,
-            }).ToList();
-            Assert.AreEqual(expected, IceBreaker.IsDecided(players));
-        }
 
         private void TheDefenderHas_Gold(long gold) => _defender.Character.Gold = gold;
 
