@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Services.MateService
         ISessionRegistry sessionRegistry,
         IClock clock,
         IPartnerSpecialistService partnerSpecialistService,
+        IPetSkillBarService petSkillBarService,
         ILogger<MateRevivalService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IMateRevivalService, ISingletonService
     {
         public const short SeedsRequired = 5;
@@ -42,6 +43,7 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             await partnerSpecialistService.UntransformAsync(owner, mate);
+            await petSkillBarService.RefreshAsync(owner);
 
             var seedOfPower = itemCatalog.GetMaterialVNum(MaterialType.SeedOfPower);
             if (owner.InventoryService.CountItem(seedOfPower) < SeedsRequired)
@@ -87,7 +89,7 @@ namespace NosCore.GameObject.Services.MateService
             }
         }
 
-        private static async Task ReviveAsync(PlayerComponentBundle owner, Mate mate, MapInstance mapInstance)
+        private async Task ReviveAsync(PlayerComponentBundle owner, Mate mate, MapInstance mapInstance)
         {
             mate.RevivesAt = null;
             mate.Refill();
@@ -100,6 +102,7 @@ namespace NosCore.GameObject.Services.MateService
             await mate.SpawnAsync(owner, mapInstance, x, y);
             await owner.SendPacketAsync(mate.GenerateCond());
             await owner.SendPacketAsync(mate.GeneratePst());
+            await petSkillBarService.RefreshAsync(owner);
         }
 
         private static MsgiPacket Message(Game18NConstString message) => new()

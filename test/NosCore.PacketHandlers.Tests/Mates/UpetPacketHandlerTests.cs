@@ -15,6 +15,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -70,6 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             });
             _handler = World.UseReal<IMateAttackService, MateAttackService>()
                 .UseReal<INpcCombatCatalog, NpcCombatCatalog>()
+                .UseReal<IPetSkillBarService, PetSkillBarService>()
                 .UseReal<IPetSkillService, PetSkillService>()
                 .Create<UpetPacketHandler>();
 
@@ -138,7 +140,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task APetCastsASkillOfItsBar()
         {
             await new Spec("A team pet hits a monster with the skill of its bar the order names, spends the skill's mana and tells its owner")
-                .WhenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .Then(ThePetShouldHitTheMonsterWith_, PetSkill)
                 .And(ThePetShouldHave_Mp, StartingMp - 4)
                 .And(TheOwnerShouldSeeThePetsMana)
@@ -149,8 +151,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task ASkillThatIsNotOnThePetsBarIsRefused()
         {
             await new Spec("A pet uses neither another creature's skill nor one of its own that its bar does not hold")
-                .WhenAsync(ThePetIsOrderedToUse_, (int)SomeoneElsesSkill)
-                .AndAsync(ThePetIsOrderedToUse_, (int)MonsterSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, SomeoneElsesSkill)
+                .AndAsync(ThePetIsOrderedToUse_, MonsterSkill)
                 .Then(TheBattleServiceIsAsked_Times, 0)
                 .ExecuteAsync();
         }
@@ -159,7 +161,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task APetSkillNeedsEnoughMana()
         {
             await new Spec("A skill costing more mana than the pet has is not cast")
-                .WhenAsync(ThePetIsOrderedToUse_, (int)CostlyPetSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, CostlyPetSkill)
                 .Then(TheBattleServiceIsAsked_Times, 0)
                 .And(ThePetShouldHave_Mp, StartingMp)
                 .ExecuteAsync();
@@ -169,9 +171,9 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task APetSkillWaitsForItsCooldown()
         {
             await new Spec("A pet skill cannot be cast again before its own cooldown is over, whatever the basic attack's is")
-                .GivenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .GivenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .And(TimePasses_Milliseconds, 34000)
-                .WhenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .Then(TheBattleServiceIsAsked_Times, 1)
                 .And(ThePetShouldHave_Mp, StartingMp - 4)
                 .ExecuteAsync();
@@ -181,11 +183,24 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task APetSkillIsBackAfterItsCooldown()
         {
             await new Spec("A pet skill can be cast again once its cooldown is over")
-                .GivenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .GivenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .And(TimePasses_Milliseconds, 35000)
-                .WhenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .Then(TheBattleServiceIsAsked_Times, 2)
                 .And(ThePetShouldHave_Mp, StartingMp - 8)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheOwnerIsToldWhenTheSlotIsReadyAgain()
+        {
+            await new Spec("Once a pet skill has cooled down, the slot of the bar it sits in is handed to the map to tell the owner, once")
+                .GivenAsync(ThePetIsOrderedToUse_, PetSkill)
+                .And(TimePasses_Milliseconds, 34000)
+                .And(NoSlotIsReadyYet)
+                .When(TimePasses_Milliseconds, 1000)
+                .Then(TheMapShouldTellTheOwnerSlot_IsReady, (short)1)
+                .And(NoSlotIsReadyYet)
                 .ExecuteAsync();
         }
 
@@ -194,7 +209,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         {
             await new Spec("A monster beyond the skill's range from the pet is not hit")
                 .Given(TheMonsterStandsAt_, (short)15)
-                .WhenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .Then(TheBattleServiceIsAsked_Times, 0)
                 .ExecuteAsync();
         }
@@ -204,8 +219,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
         {
             await new Spec("A cast the fight refuses spends no mana and starts no cooldown")
                 .Given(TheFightRefusesTheNextCast)
-                .AndAsync(ThePetIsOrderedToUse_, (int)PetSkill)
-                .WhenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .AndAsync(ThePetIsOrderedToUse_, PetSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .Then(TheBattleServiceIsAsked_Times, 2)
                 .And(ThePetShouldHave_Mp, StartingMp - 4)
                 .ExecuteAsync();
@@ -225,7 +240,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         {
             await new Spec("A pet that is not in the team casts nothing")
                 .Given(ThePetIsNotInTheTeam)
-                .WhenAsync(ThePetIsOrderedToUse_, (int)PetSkill)
+                .WhenAsync(ThePetIsOrderedToUse_, PetSkill)
                 .Then(TheBattleServiceIsAsked_Times, 0)
                 .ExecuteAsync();
         }
@@ -248,12 +263,12 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .ReturnsAsync(false)
                 .ReturnsAsync(true);
 
-        private Task ThePetIsOrderedToUse_(int skillVNum) => _handler.ExecuteAsync(new UpetPacket
+        private Task ThePetIsOrderedToUse_(short skillVNum) => _handler.ExecuteAsync(new UpetPacket
         {
             MateTransportId = _pet.MateTransportId,
             TargetType = VisualType.Monster,
             TargetId = _monster.VisualId,
-            Unknown2 = skillVNum
+            SkillVNum = skillVNum
         }, _session);
 
         private Task ThePetIsOrderedToUseItsSkillOnItsOwner() => _handler.ExecuteAsync(new UpetPacket
@@ -261,7 +276,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             MateTransportId = _pet.MateTransportId,
             TargetType = VisualType.Player,
             TargetId = _session.Character.VisualId,
-            Unknown2 = PetSkill
+            SkillVNum = PetSkill
         }, _session);
 
         private async Task AnotherPlayerOrdersThePetToUseItsSkill()
@@ -272,7 +287,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 MateTransportId = _pet.MateTransportId,
                 TargetType = VisualType.Monster,
                 TargetId = _monster.VisualId,
-                Unknown2 = PetSkill
+                SkillVNum = PetSkill
             }, other);
         }
 
@@ -281,6 +296,18 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _pet.MateTransportId),
                 It.Is<IAliveEntity>(e => e.VisualType == VisualType.Monster && e.VisualId == _monster.VisualId),
                 It.Is<HitArguments>(a => a.Skill != null && a.Skill.SkillVNum == skill)), Times.Once);
+
+        private List<(long OwnerId, short Slot)> ReadySlots()
+        {
+            var ready = new List<(long OwnerId, short Slot)>();
+            new SkillResetSystem().TakeReadyPetSlots(_map.EcsWorld, World.Clock.GetCurrentInstant(), ready);
+            return ready;
+        }
+
+        private void NoSlotIsReadyYet() => Assert.AreEqual(0, ReadySlots().Count);
+
+        private void TheMapShouldTellTheOwnerSlot_IsReady(short slot) =>
+            CollectionAssert.AreEqual(new[] { (_session.Character.CharacterId, slot) }, ReadySlots());
 
         private void ThePetShouldHave_Mp(int mp)
         {

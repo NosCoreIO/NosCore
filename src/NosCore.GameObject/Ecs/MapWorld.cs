@@ -346,6 +346,7 @@ public class MapWorld : IDisposable
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
+            new SkillResetComponent(new ConcurrentDictionary<long, Instant>()),
             new MateStateComponent(mate, mate.CharacterId),
             new HitListComponent(new ConcurrentDictionary<Entity, int>())
         );
