@@ -219,7 +219,6 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateStat());
                 await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music));
                 await session.SendPacketAsync(character.GenerateCond());
-                await messageBus.PublishAsync(new MovementConditionChangedEvent(character));
                 await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
                 await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
                 await session.SendPacketAsync(character.GeneratePairy(fairy));
@@ -322,6 +321,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
 
                 await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance, currentMapInstance));
+                await messageBus.PublishAsync(new MovementConditionChangedEvent(character));
             }
             catch (Exception ex)
             {
