@@ -26,7 +26,7 @@ namespace NosCore.Parser
         MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
         PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
         ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, MountScrollParser mountScrollParser, SpeedBoostParser speedBoostParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
-        QuestPrizeParser questPrizeParser, QuestParser questParser, FamilyQuestParser familyQuestParser, ActParser actParser, ScriptParser scriptParser,
+        QuestPrizeParser questPrizeParser, QuestParser questParser, FamilyQuestParser familyQuestParser, ActParser actParser, ScriptParser scriptParser, ScriptOfferParser scriptOfferParser,
         ConstStringParser constStringParser, ScriptedInstanceParser scriptedInstanceParser, InstantCombatParser instantCombatParser,
         AccountParser accountParser, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
         IDao<I18NNpcMonsterTalkDto, int> i18NNpcMonsterTalkDao,
@@ -90,9 +90,10 @@ namespace NosCore.Parser
             return mapParser.InsertOrUpdateMapsAsync(_folder, _packetList);
         }
 
-        public Task ImportScriptsAsync()
+        public async Task ImportScriptsAsync()
         {
-            return scriptParser.InsertScriptsAsync(_folder);
+            await scriptParser.InsertScriptsAsync(_folder);
+            await scriptOfferParser.InsertScriptOffersAsync(_folder);
         }
 
         public async Task ImportQuestsAsync()

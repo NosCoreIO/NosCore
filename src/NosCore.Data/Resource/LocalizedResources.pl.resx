@@ -516,6 +516,12 @@
   <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
     <value>Załadowano: {0} FamilyQuests!</value>
   </data>
+  <data name="SCRIPT_OFFERS_PARSED" xml:space="preserve">
+    <value>{0} ScriptOffers Parsed!</value>
+  </data>
+  <data name="SCRIPT_OFFERS_LOADED" xml:space="preserve">
+    <value>{0} ScriptOffers Loaded!</value>
+  </data>
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>To wydarzenie już trwa.</value>
   </data>

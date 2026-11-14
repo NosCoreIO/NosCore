@@ -38,6 +38,8 @@ namespace NosCore.Database
 
         public virtual DbSet<Script>? Script { get; set; }
 
+        public virtual DbSet<ScriptOffer>? ScriptOffer { get; set; }
+
         public virtual DbSet<BazaarItem>? BazaarItem { get; set; }
 
         public virtual DbSet<BazaarOperation>? BazaarOperation { get; set; }
