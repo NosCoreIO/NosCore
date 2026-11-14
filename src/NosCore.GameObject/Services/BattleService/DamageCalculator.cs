@@ -136,9 +136,12 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var weapon = RollBaseDamage(context.MainWeaponMin, context.MainWeaponMax);
         // Signed: an attack debuff can take the rest below zero, and it must still count.
         var attack = RollSigned(context.MainMinDmg - context.MainWeaponMin, context.MainMaxDmg - context.MainWeaponMax);
-        // Magic bounds can be narrower than the weapon's own range, so the two rolls together
-        // must not leave the selected bounds.
-        attack = Math.Clamp(weapon + attack, context.MainMinDmg, Math.Max(context.MainMinDmg, context.MainMaxDmg)) - weapon;
+        if (context.Kind == AttackKind.Magical)
+        {
+            // Magic bounds can be narrower than the weapon's own range, so the two rolls together
+            // must not leave them.
+            attack = Math.Clamp(weapon + attack, context.MainMinDmg, Math.Max(context.MainMinDmg, context.MainMaxDmg)) - weapon;
+        }
 
         var defence = context.MonsterDefence;
         var upgrade = context.MainUpgrade - defender.DefenceUpgrade;
