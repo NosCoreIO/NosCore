@@ -109,7 +109,14 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 {
                     if (await factionWarService.RecordKillAsync(enemy, player))
                     {
-                        await questService.OnEnemyPlayerDefeatedAsync(enemy);
+                        try
+                        {
+                            await questService.OnEnemyPlayerDefeatedAsync(enemy);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogWarning(ex, logLanguage[LogLanguageKey.KILL_QUEST_PROGRESS_FAILED], enemy.CharacterId);
+                        }
                     }
                 }
                 else
