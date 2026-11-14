@@ -685,6 +685,11 @@ window uses other ones, so the percentages the window shows are the check.
       potion stays; reset without a potion: the matching message appears
 - [ ] A level 99 card at +15 has 410 points; at +20 it has 486, and attack can be raised
       past level 100 up to 120
+- [ ] Transformed with a Warrior card and 30 points, keep attacking a monster: the SP point
+      bar drops by 3 a second; once it is empty the transformation ends and the 30 second
+      cooldown starts
+- [ ] Stop attacking for more than 15 seconds while transformed: the bar stops dropping
+- [ ] With the basic points gone, the additional points are spent next
 
 ### Specialist card perfection
 
@@ -767,6 +772,9 @@ its window: Sellaim (274) is accepted, Solaris (273) is refused with "Please pla
 - [ ] Untransform and transform again, and relog: the wings stay
 - [ ] A second player who walks into the map, or logs in next to you, sees your specialist,
       its upgrade glow, its wings and your fairy
+- [ ] Transformed with Titan Wings (`$CreateItem 5372`): the Titan Wings buff icon appears
+      and max MP rises by 200; change to Archangel Wings (`5431`) and the icon swaps to
+      Archangel Wings; untransform and the icon goes away
 
 ### Costume fusion
 

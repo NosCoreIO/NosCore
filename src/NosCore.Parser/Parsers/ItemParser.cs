@@ -843,6 +843,19 @@ namespace NosCore.Parser.Parsers
                 ItemEffectType.AncelloansBlessing => 121,
                 ItemEffectType.HeatResistance => 340,
                 ItemEffectType.FairyBooster => 131,
+                // Each wing design's effect, as its item description lists it, is the card named after those wings.
+                ItemEffectType.ChangeSpecialistWings => item.EffectValue switch
+                {
+                    6 => 387,
+                    7 => 395,
+                    8 => 396,
+                    9 => 397,
+                    10 => 398,
+                    11 => 410,
+                    12 => 411,
+                    13 => 444,
+                    _ => 0
+                },
                 _ => 0
             };
             if (grantedCard != 0 && item.BCards?.Any(b => b.Type == (byte)BCardType.CardType.Buff) != true)

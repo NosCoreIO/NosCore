@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Options;
 using NodaTime;
+using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -36,12 +38,19 @@ public interface ISpecialistTransformationService
 
     Task<SpecialistPointsResult> SpendPointsAsync(ClientSession session, long? transportId, short damage,
         short defence, short element, short hp);
+
+    // Spends a second's worth of specialist points while the transformed character is fighting,
+    // and ends the transformation once both pools are empty.
+    Task DrainPointsAsync(ClientSession session);
 }
 
 public sealed class SpecialistTransformationService(IClock clock, ITransformationService transformationService,
-        ISpecialistCardService specialistCardService, IVitalityService vitalityService)
+        ISpecialistCardService specialistCardService, IVitalityService vitalityService,
+        IOptions<WorldConfiguration> worldConfiguration)
     : ISpecialistTransformationService
 {
+    private static readonly Duration CombatWindow = Duration.FromSeconds(15);
+
     public async Task<SpecialistTransformationResult> ToggleAsync(ClientSession session, bool barCompleted)
     {
         var character = session.Character;
@@ -124,5 +133,29 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
 
         await vitalityService.RefreshAndNotifyAsync(character);
         return new SpecialistPointsSpent(specialist);
+    }
+
+    public async Task DrainPointsAsync(ClientSession session)
+    {
+        var character = session.Character;
+        var now = clock.GetCurrentInstant();
+        if (!character.UseSp || character.IsVehicled || now - character.LastAttack > CombatWindow
+            || character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+                is not SpecialistInstance { Item.SpType: > 0 } specialist)
+        {
+            return;
+        }
+
+        var cost = specialist.Item.SpType;
+        var fromBasic = Math.Min(cost, character.SpPoint);
+        character.SpPoint -= fromBasic;
+        character.SpAdditionPoint = Math.Max(0, character.SpAdditionPoint - (cost - fromBasic));
+        if (character.SpPoint == 0 && character.SpAdditionPoint == 0)
+        {
+            character.LastSp = now;
+            await transformationService.RemoveSpAsync(session);
+        }
+
+        await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
     }
 }

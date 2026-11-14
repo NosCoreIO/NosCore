@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.TransformationService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -18,7 +19,7 @@ using NosCore.Packets.ServerPackets.UI;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class SpecialistWingsHandler
+    public sealed class SpecialistWingsHandler(ISpecialistWingsService specialistWingsService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -65,6 +66,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             sp.ItemInstance.Design = (short)item.EffectValue;
             character.MorphDesign = (short)item.EffectValue;
+            await specialistWingsService.RefreshAsync(character);
             await character.UseUpOneAsync(itemInstance);
             await character.MapInstance.SendPacketAsync(character.GenerateCMode());
             await session.SendPacketAsync(character.GenerateStat());
