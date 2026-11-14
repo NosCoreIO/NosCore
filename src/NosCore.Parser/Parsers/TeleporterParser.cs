@@ -43,10 +43,11 @@ namespace NosCore.Parser.Parsers
 
             foreach (var packet in packetList)
             {
-                if (packet.Length > 4 && packet[0] == "n_run" && TryGetTeleportRunner(packet[1], out var runner)
-                    && short.TryParse(packet[2], out var index) && int.TryParse(packet[4], out var npcId))
+                if (packet[0] == "n_run")
                 {
-                    pending = npcs.ContainsKey(npcId) ? (npcId, runner, index) : null;
+                    pending = packet.Length > 4 && TryGetTeleportRunner(packet[1], out var runner)
+                        && short.TryParse(packet[2], out var index) && int.TryParse(packet[4], out var npcId)
+                        && npcs.ContainsKey(npcId) ? (npcId, runner, index) : null;
                     continue;
                 }
 
