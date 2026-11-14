@@ -176,8 +176,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.SendAsync($"u_i {Player} {bob.CharacterId} {MainPocket} 0 0 0");
             await bob.ExpectAsync(p => p.StartsWith($"stat {100 + WorldData.PotionHp} ", StringComparison.Ordinal), "the HP after the potion");
 
-            var bar = (await alice.ExpectSinceAsync(drunk, p => p.StartsWith($"pst {Player} {bob.CharacterId} ", StringComparison.Ordinal), "Bob's bars")).Split(' ');
-            Assert.AreEqual(((100 + WorldData.PotionHp) * 100 / MostHp).ToString(CultureInfo.InvariantCulture), bar[4]);
+            // The bars come from a timer: one may be sent before the potion, and regeneration can add
+            // to his HP before the next, so the bar is only known to reach at least the potion's share.
+            var healed = (100 + WorldData.PotionHp) * 100 / MostHp;
+            await alice.ExpectSinceAsync(drunk,
+                p => p.StartsWith($"pst {Player} {bob.CharacterId} ", StringComparison.Ordinal)
+                    && int.Parse(p.Split(' ')[4], CultureInfo.InvariantCulture) >= healed,
+                $"Bob's bars at {healed}% or more");
         }
 
         [TestMethod]
