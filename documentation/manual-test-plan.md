@@ -2308,8 +2308,8 @@ dropping their `MaxHp` makes the run quick.
       with the stone's minimum level and no raw placeholder
 - [ ] About ten seconds later you are back beside the stone on the open world, and the clock
       is gone
-- [ ] Let the clock run out instead: the score shows a time-out and you are sent back the
-      same way
+- [ ] Let the clock run out instead: the score says "Failed because time ran out." and you
+      are sent back the same way
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
       from, not in a room, and the world log shows the run's rooms being removed and no
       failed disconnect step
@@ -2364,6 +2364,26 @@ lair's boss.
 - [ ] Walking away or attacking during the bar cancels it and the lever stays as it was
 - [ ] With `toggles: true`, a second pull switches the lever back and runs `OnButtonUsed` again
 - [ ] A second player who enters the room after the pull sees the lever already pulled
+
+### Time-space lives
+
+Copy `timespace-01.csx` to `timespace-lives.csx`, point the row's `Script` at it, and add
+`.WithLives(1)` to its definition. Leave the monsters' damage as it is and enter with a low HP
+character so they kill you.
+
+- [ ] The first death shows "Will be revived in 10 seconds." and you lie on the ground
+- [ ] Ten seconds later you stand up where you fell, at full HP and MP, still inside the run
+- [ ] The second death ends the run: the score window says "Failed because all vitality was
+      consumed." and you are sent back beside the stone
+- [ ] With `.WithLives(0)`, the first death ends the run the same way
+- [ ] Let the clock run out instead: the score window says "Failed because time ran out."
+- [ ] Not verifiable yet: giving up a started run. The client has no button that sends `escape`
+      inside a time-space (see above), so drive it from a headless player: they lose 20 dignity
+      (never below -1000), the client says dignity was reduced, the party loses a life, and a
+      party with no life left fails the run. Leaving before the run starts or after it ends
+      costs nothing
+- [ ] Not verifiable yet: the lives counter on the time-space HUD. The packet that draws it
+      (`minfo`) freezes this client
 
 ### Raids
 

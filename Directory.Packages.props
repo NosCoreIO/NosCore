@@ -43,7 +43,7 @@
     <PackageVersion Include="NosCore.Analyzers" Version="2.3.0" />
     <PackageVersion Include="NosCore.Dao" Version="6.1.0" />
     <PackageVersion Include="NosCore.Networking" Version="9.1.1" />
-    <PackageVersion Include="NosCore.Packets" Version="41.1.0" />
+    <PackageVersion Include="NosCore.Packets" Version="41.2.0" />
     <PackageVersion Include="NosCore.PathFinder" Version="3.0.0" />
     <PackageVersion Include="NosCore.ParserInputGenerator" Version="5.1.0" />
     <PackageVersion Include="NosCore.Shared" Version="7.0.0" />

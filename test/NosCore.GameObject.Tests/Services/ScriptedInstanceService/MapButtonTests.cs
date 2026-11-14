@@ -166,7 +166,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = _script },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<Wolverine.IMessageBus>().Object),
+                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<Wolverine.IMessageBus>().Object, World.Clock),
                 _script,
                 new Dictionary<int, MapInstance> { [1] = _room },
                 new Dictionary<short, NpcMonsterDto>(),

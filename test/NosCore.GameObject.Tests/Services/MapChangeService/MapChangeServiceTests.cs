@@ -145,7 +145,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             new(new GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance(),
                     new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object),
-                    new Mock<Wolverine.IMessageBus>().Object),
+                    new Mock<Wolverine.IMessageBus>().Object, World.Clock),
                 new EmptyScript(),
                 new System.Collections.Generic.Dictionary<int, MapInstance>(),
                 new System.Collections.Generic.Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
