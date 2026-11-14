@@ -25,33 +25,43 @@ namespace NosCore.GameObject.Services.MateService
 
             foreach (var mate in owner.Mates.Values.Where(s => s.IsTeamMember))
             {
-                var leveledUp = false;
-                mateStatsService.ApplyLevel(mate);
-                mate.Experience += experience;
-                // A mate stays below its owner: the client refuses a partner of the same level.
-                while (mate.XpLoad > 0 && mate.Experience >= mate.XpLoad && mate.Level + 1 < owner.Level)
-                {
-                    mate.Experience -= mate.XpLoad;
-                    mate.Level++;
-                    mateStatsService.ApplyLevel(mate);
-                    leveledUp = true;
-                }
-
-                mate.Experience = Math.Min(mate.Experience, mate.XpLoad);
-
-                if (leveledUp)
-                {
-                    if (mate.RefillAfterLevelUp() is { } entity)
-                    {
-                        await owner.MapInstance.SendPacketAsync(entity.GenerateEff(6));
-                        await owner.MapInstance.SendPacketAsync(entity.GenerateEff(198));
-                    }
-                }
-
-                await owner.SendPacketAsync(mate.MateType == MateType.Pet
-                    ? mate.GenerateScp(owner.AccountLanguage)
-                    : mate.GenerateScn(owner.AccountLanguage, owner.InventoryService));
+                await AddExperienceAsync(owner, mate, experience);
             }
+        }
+
+        public async Task AddExperienceAsync(PlayerComponentBundle owner, Mate mate, long experience)
+        {
+            if (experience <= 0)
+            {
+                return;
+            }
+
+            var leveledUp = false;
+            mateStatsService.ApplyLevel(mate);
+            mate.Experience += experience;
+            // A mate stays below its owner: the client refuses a partner of the same level.
+            while (mate.XpLoad > 0 && mate.Experience >= mate.XpLoad && mate.Level + 1 < owner.Level)
+            {
+                mate.Experience -= mate.XpLoad;
+                mate.Level++;
+                mateStatsService.ApplyLevel(mate);
+                leveledUp = true;
+            }
+
+            mate.Experience = Math.Min(mate.Experience, mate.XpLoad);
+
+            if (leveledUp)
+            {
+                if (mate.RefillAfterLevelUp() is { } entity)
+                {
+                    await owner.MapInstance.SendPacketAsync(entity.GenerateEff(6));
+                    await owner.MapInstance.SendPacketAsync(entity.GenerateEff(198));
+                }
+            }
+
+            await owner.SendPacketAsync(mate.MateType == MateType.Pet
+                ? mate.GenerateScp(owner.AccountLanguage)
+                : mate.GenerateScn(owner.AccountLanguage, owner.InventoryService));
         }
     }
 }

@@ -12,5 +12,7 @@ namespace NosCore.GameObject.Services.MateService
     public interface IMateProgressionService
     {
         Task AddExperienceAsync(PlayerComponentBundle owner, long experience);
+
+        Task AddExperienceAsync(PlayerComponentBundle owner, Mate mate, long experience);
     }
 }
