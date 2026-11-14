@@ -91,7 +91,10 @@ namespace NosCore.PacketHandlers.Battle
             // retry straight away.
             if (accepted)
             {
-                consumed?.Invoke();
+                if (consumed != null)
+                {
+                    await consumed();
+                }
                 if (moved)
                 {
                     await character.MapInstance.SendPacketAsync(character.GenerateMove(),
@@ -125,7 +128,7 @@ namespace NosCore.PacketHandlers.Battle
         // test fixtures without skill population) we defer rejection to BattleService
         // so the packet path stays permissive and SkillResolver produces a single
         // consistent "unknown skill" response.
-        private bool TryConsumeSkill(ClientSession session, long castId, IAliveEntity target, out System.Action? commit)
+        private bool TryConsumeSkill(ClientSession session, long castId, IAliveEntity target, out Func<Task>? commit)
         {
             commit = null;
             var character = session.Character;
@@ -145,7 +148,7 @@ namespace NosCore.PacketHandlers.Battle
                 return false;
             }
 
-            commit = () => skillCastService.Spend(character, skill, mpCost);
+            commit = () => skillCastService.SpendAsync(character, skill, mpCost);
             return true;
         }
 

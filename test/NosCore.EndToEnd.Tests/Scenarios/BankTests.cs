@@ -280,9 +280,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 var asked = alice.Mark();
 
                 await alice.SendAsync($"gbox {Deposit} 3 1");
+                await Task.Delay(TimeSpan.FromSeconds(1));
 
-                Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "gold" or "gb" or "s_memoi" or "s_memoi2",
-                    TimeSpan.FromSeconds(1)), "the bank does not answer");
+                Assert.AreEqual(string.Empty, string.Join(" / ", alice.Since(asked).Where(p => TestClient.HeaderOf(p) is "gold" or "gb" or "s_memoi" or "s_memoi2")),
+                    "the bank does not answer");
             }
 
             await using var back = await Harness.ComeBackAsync(player);

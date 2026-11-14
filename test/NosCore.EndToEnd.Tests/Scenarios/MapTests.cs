@@ -102,9 +102,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await SavedAtAsync(player, 81, 117);
 
-            await using var back = Harness.Client(player);
-            var entry = await back.EnterWorldAsync(player.Slot);
-            var at = entry.Single(p => TestClient.HeaderOf(p) == "at").Split(' ');
+            await using var back = await Harness.ComeBackAsync(player);
+            var at = back.Received.Single(p => TestClient.HeaderOf(p) == "at").Split(' ');
             Assert.AreEqual($"{WorldData.Town} 81 117", string.Join(' ', at.Skip(2).Take(3)));
         }
 

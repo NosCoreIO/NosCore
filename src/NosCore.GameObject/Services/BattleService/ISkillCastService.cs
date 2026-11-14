@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Ecs;
 
@@ -18,7 +19,8 @@ public interface ISkillCastService
 
     SkillCastRefusal Check(PlayerComponentBundle character, CharacterSkill skill, out int mpCost);
 
-    void Spend(PlayerComponentBundle character, CharacterSkill skill, int mpCost);
+    // Starts the cooldown and takes the mana, showing the caster the bar it leaves.
+    Task SpendAsync(PlayerComponentBundle character, CharacterSkill skill, int mpCost);
 
     // A skill's cooldown once the caster's buffs and gear have lengthened or shortened it.
     Duration Cooldown(PlayerComponentBundle character, short cooldown);

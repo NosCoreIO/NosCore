@@ -224,7 +224,6 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
                 await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
                 await session.SendPacketAsync(character.GeneratePairy(fairy));
-                await session.SendPacketsAsync(newMapInstance.GetMapItems(accountLanguage));
                 await session.SendPacketsAsync(newMapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
                 if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
@@ -289,9 +288,20 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await newMapInstance.SendPacketAsync(titInfoPacket);
                 newMapInstance.IsSleeping = false;
 
+                // On the map's executor no tick can respawn or move anything between the snapshot and
+                // the registration, so what the player is not shown here reaches them as a broadcast.
+                await newMapInstance.Executor.RunAsync(async () =>
+                {
+                    if (channelId != null)
+                    {
+                        newMapInstance.Sessions.Add(session.ConnectedChannel);
+                    }
+
+                    await session.SendPacketsAsync(newMapInstance.GetMapItems(accountLanguage));
+                });
+
                 if (channelId != null)
                 {
-                    newMapInstance.Sessions.Add(session.ConnectedChannel);
                     if (!invisible)
                     {
                         var prefix = authority == AuthorityType.Moderator

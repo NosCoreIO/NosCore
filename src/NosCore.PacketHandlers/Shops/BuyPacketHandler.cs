@@ -44,7 +44,19 @@ namespace NosCore.PacketHandlers.Shops
             switch (buyPacket.VisualType)
             {
                 case VisualType.Player:
-                    aliveEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == buyPacket.VisualId, out var buyer) ? buyer : null;
+                    if (!sessionRegistry.TryGetCharacter(s => s.VisualId == buyPacket.VisualId, out var seller))
+                    {
+                        aliveEntity = null;
+                        break;
+                    }
+
+                    // A seller on the way out has already left the map; what is still on the shelf goes home with them.
+                    if (seller.IsDisconnecting)
+                    {
+                        return Task.CompletedTask;
+                    }
+
+                    aliveEntity = seller;
                     break;
                 case VisualType.Npc:
                     aliveEntity = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == buyPacket.VisualId);

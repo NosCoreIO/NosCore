@@ -90,10 +90,12 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await EnterAsync(member, channel: 1);
             await using var alice = await EnterAsync(head);
             var dismissed = alice.Mark();
+            var told = bob.Mark();
 
             await alice.SendAsync($"%Familydismiss {member.Name}");
             await alice.ExpectSinceAsync(dismissed, p => p.StartsWith("infoi 301 ", StringComparison.Ordinal), "the dismissed notice");
             Assert.IsNull(await StoredMembershipAsync(member.CharacterId));
+            await bob.ExpectSinceAsync(told, p => p.StartsWith($"gidx 1 {bob.CharacterId} -1 ", StringComparison.Ordinal), "Bob told on his channel");
 
             var said = bob.Mark();
             await alice.SendAsync(":it is quiet here");
