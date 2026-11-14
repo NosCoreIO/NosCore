@@ -32,6 +32,7 @@ namespace NosCore.Data.Enumerations.Items
         DroppedSpRecharger = 150,
         PremiumSpRecharger = 151,
         CraftedSpRecharger = 152,
+        SelfIntroduction = 203,
         SpecialistMedal = 204,
         AncelloansBlessing = 208,
         FairyBooster = 250,

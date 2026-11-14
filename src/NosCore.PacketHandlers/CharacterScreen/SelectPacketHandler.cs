@@ -184,7 +184,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     now,
                     0,
                     0,
-                    now
+                    now,
+                    Biography: characterDto.Biography
                 );
 
                 mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);

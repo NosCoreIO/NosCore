@@ -23,5 +23,6 @@ public record struct PlayerStateComponent(
     bool IsWaitingForEvent = false,
     Instant ReviveAskedAt = default,
     ArenaTeamType? TalentArenaTeam = null,
-    bool InTalentArenaRing = false
+    bool InTalentArenaRing = false,
+    string? Biography = null
 );

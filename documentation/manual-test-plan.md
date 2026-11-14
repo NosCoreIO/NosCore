@@ -526,6 +526,15 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 
 ## Character
 
+### Character card and Self-Introduction
+
+- [ ] Right-click another player's portrait: the card opens and shows their family tag, or none
+      when they have no family
+- [ ] Use a Self-Introduction (1117), type a line and confirm: "Your self-introduction has been
+      registered", the item is used up, and the card shows the line
+- [ ] Type more than 60 characters: the card shows the first 60
+- [ ] Log out and back in: the card still shows the introduction
+
 ### Mounts
 
 - [ ] Mount a vehicle: a three-second bar runs, then the sprite changes **and** you move faster

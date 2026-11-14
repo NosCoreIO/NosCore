@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Ecs.Extensions
@@ -91,7 +92,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         [TestMethod]
         public void TheInfoCardCountsTheElementTheFairyHasGrown()
         {
-            var info = _session.Character.GenerateReqInfo();
+            var info = _session.Character.GenerateReqInfo(TestLocalizers.Game, RegionType.EN);
 
             Assert.AreEqual(50, info.ElementRate);
         }
