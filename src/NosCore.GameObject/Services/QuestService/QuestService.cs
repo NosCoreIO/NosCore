@@ -333,7 +333,8 @@ namespace NosCore.GameObject.Services.QuestService
                 CharacterId = character.VisualId,
                 Id = Guid.NewGuid(),
                 Quest = quest,
-                QuestId = quest.QuestId
+                QuestId = quest.QuestId,
+                Slot = CharacterQuest.FreeSlot(character.Quests.Values, quest.IsSecondary)
             };
             character.Quests.TryAdd(added.Id, added);
             if (questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.QuestType)?.CompletesWhenTaken(quest) == true)

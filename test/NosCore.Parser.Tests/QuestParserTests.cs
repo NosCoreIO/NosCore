@@ -192,6 +192,33 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task QuestParser_AQuestBelongsToTheLineOfTheFirstQuestOfItsChain()
+        {
+            CreateTestFile(CreateQuestData(questId: 2100, nextQuestId: 2101) + "\n#=======\n" +
+                           CreateQuestData(questId: 2101, nextQuestId: 2102) + "\n#=======\n" +
+                           CreateQuestData(questId: 2102) + "\n#=======\n" +
+                           CreateQuestData(questId: 5905));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            CollectionAssert.AreEqual(new short[] { 2100, 2100, 2100, 5905 },
+                _savedQuests.OrderBy(q => q.QuestId).Select(q => q.QuestLineId).ToArray());
+        }
+
+        [TestMethod]
+        public async Task QuestParser_QuestsLinkingToEachOtherStartTheirLineAtTheLowerId()
+        {
+            CreateTestFile(CreateQuestData(questId: 5030, nextQuestId: 5006) + "\n#=======\n" +
+                           CreateQuestData(questId: 5006, nextQuestId: 5030));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.IsTrue(_savedQuests.All(q => q.QuestLineId == 5006));
+        }
+
+        [TestMethod]
         public async Task QuestParser_HandlesEmptyFile()
         {
             CreateTestFile("");

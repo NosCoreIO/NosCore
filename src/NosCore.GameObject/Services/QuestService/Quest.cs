@@ -21,6 +21,16 @@ namespace NosCore.GameObject.Services.QuestService
 
         public NodaTime.Instant? ObjectivesCompletedOn { get; set; }
 
+        public byte Slot { get; set; }
+
+        // Main quests take the first five quest window slots and secondary quests the last five.
+        public static byte FreeSlot(IEnumerable<CharacterQuest> quests, bool secondary)
+        {
+            var taken = quests.Where(q => q.CompletedOn == null).Select(q => q.Slot).ToHashSet();
+            var preferred = Enumerable.Range(secondary ? 5 : 0, 5);
+            return (byte)preferred.Concat(Enumerable.Range(0, 10)).FirstOrDefault(s => !taken.Contains((byte)s));
+        }
+
         // A daily quest can be taken again once a day has passed, so it only counts as done until then.
         public bool IsDoneAt(NodaTime.Instant now) =>
             CompletedOn is { } done && (!Quest.IsDaily || done.Plus(NodaTime.Duration.FromDays(1)) > now);
@@ -61,8 +71,9 @@ namespace NosCore.GameObject.Services.QuestService
 
             return new QuestSubPacket
             {
+                QuestSlot = Slot,
                 QuestId = QuestId,
-                QuestLineId = QuestId,
+                QuestLineId = Quest.IsSecondary ? (short)0 : Quest.QuestLineId,
                 QuestType = Quest.QuestType,
                 Status = (byte)(AreObjectivesComplete() ? 1 : 0),
                 Objective1Current = pairs[0].Cur,
