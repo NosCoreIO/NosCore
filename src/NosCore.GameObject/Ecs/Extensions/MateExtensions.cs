@@ -232,6 +232,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             entity.MaxMp = mate.MaxMp;
             entity.Hp = Math.Min(entity.Hp, mate.MaxHp);
             entity.Mp = Math.Min(entity.Mp, mate.MaxMp);
+            mate.Hp = entity.Hp;
+            mate.Mp = entity.Mp;
         }
 
         public static Task SpawnAsync(this Mate mate, PlayerComponentBundle owner, MapInstance mapInstance,
