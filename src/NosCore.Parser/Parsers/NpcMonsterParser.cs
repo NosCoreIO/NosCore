@@ -345,54 +345,42 @@ namespace NosCore.Parser.Parsers
         }
 
 
-        private List<BCardDto> ImportBCards(Dictionary<string, string[][]> chunk)
+        // BASIC holds up to 10 passive BCards and CARD up to 4 triggered ones, kept apart by Slot.
+        // Each is a group of five: type, first value, second value, subtype index, third value.
+        private static List<BCardDto> ImportBCards(Dictionary<string, string[][]> chunk)
         {
-            var monstercards = new List<BCardDto>();
             var monstervnum = Convert.ToInt16(chunk["VNUM"][0][2]);
+            return ReadBCardGroups(monstervnum, chunk["BASIC"][0], 10, slotted: false)
+                .Concat(ReadBCardGroups(monstervnum, chunk["CARD"][0], 4, slotted: true))
+                .ToList();
+        }
 
-            for (var i = 0; i < 4; i++)
+        private static IEnumerable<BCardDto> ReadBCardGroups(short monstervnum, string[] row, int groups, bool slotted)
+        {
+            for (var i = 0; i < groups; i++)
             {
-                var type = (byte)int.Parse(chunk["CARD"][0][5 * i + 2]);
-                if ((type == 0) || (type == 255))
+                var column = 5 * i + 2;
+                var type = int.Parse(row[column]);
+                if (type is <= 0 or 255)
                 {
                     continue;
                 }
 
-                var first = int.Parse(chunk["CARD"][0][5 * i + 3]);
+                var first = int.Parse(row[column + 1]);
                 var value = EffectValue.Decode(first);
-                var itemCard = new BCardDto
+                yield return new BCardDto
                 {
                     NpcMonsterVNum = monstervnum,
-                    Type = type,
-                    SubType = (byte)(int.Parse(chunk["CARD"][0][5 * i + 5]) + 1 * 10 + 1
-                        + (first > 0 ? 0 : 1)),
+                    Type = (byte)type,
+                    SubType = (byte)((int.Parse(row[column + 3]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                     IsLevelScaled = value.IsLevelScaled,
                     IsLevelDivided = value.IsLevelDivided,
                     FirstData = (short)value.Value,
-                    SecondData = (short)(int.Parse(chunk["CARD"][0][5 * i + 4]) / 4),
-                    ThirdData = (short)(int.Parse(chunk["CARD"][0][5 * i + 6]) / 4),
-                    Slot = (byte)(i + 1)
+                    SecondData = (short)(int.Parse(row[column + 2]) / 4),
+                    ThirdData = (short)(int.Parse(row[column + 4]) / 4),
+                    Slot = slotted ? (byte)(i + 1) : (byte)0,
                 };
-                monstercards.Add(itemCard);
-
-                first = int.Parse(chunk["BASIC"][0][5 * i + 5]);
-                itemCard = new BCardDto
-                {
-                    NpcMonsterVNum = monstervnum,
-                    Type = type,
-                    SubType =
-                        (byte)((int.Parse(chunk["BASIC"][0][5 * i + 6]) + 1) * 10 + 1 + (first > 0 ? 0 : 1)),
-                    FirstData = (short)EffectValue.Decode(first).Value,
-                    SecondData = (short)(int.Parse(chunk["BASIC"][0][5 * i + 4]) / 4),
-                    ThirdData = (short)(int.Parse(chunk["BASIC"][0][5 * i + 3]) / 4),
-                    CastType = 1,
-                    IsLevelScaled = false,
-                    IsLevelDivided = false
-                };
-                monstercards.Add(itemCard);
             }
-
-            return monstercards;
         }
 
         private List<DropDto> ImportDrops(Dictionary<string, string[][]> chunk)

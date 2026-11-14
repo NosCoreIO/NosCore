@@ -505,6 +505,9 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Kill a monster whose entry has a negative experience column: the kill gives
       `max(0, base + column)`, where the base is 60 per level (70 from level 19). A column
       of -300 on a level 10 monster gives 300; a column of -700 gives 0
+- [ ] Hit a Brown Bushi (156) many times with the same attack: about 4 hits in 10 deal a fifth
+      of the usual damage, from its "40% chance that damage is reduced by 80%" passive. Any
+      monster whose BASIC row carries an effect behaves the same way
 
 ---
 

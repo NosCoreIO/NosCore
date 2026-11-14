@@ -76,7 +76,7 @@ namespace NosCore.Parser.Tests
             int hp = 0, int mp = 0, int xp = 0, int jxp = 0, byte armorLvl = 1, byte weaponLvl = 1, byte weaponType = 0,
             string weaponModifiers = "0\t0\t0\t0\t0", string armorModifiers = "0\t0\t0\t0", byte attackClass = 0,
             long etc = 0, string winfo = "0\t0\t0", string ainfo = "0\t0", string preatt = "0\t0\t0\t0\t0\t0",
-            string setting = "0\t0\t0\t0\t0\t0", string? mode = null)
+            string setting = "0\t0\t0\t0\t0\t0", string? mode = null, string? basic = null, string? card = null)
         {
             var zeros50 = string.Join("\t", Enumerable.Repeat("0", 50));
             var zeros20 = string.Join("\t", Enumerable.Repeat("0", 20));
@@ -103,8 +103,8 @@ namespace NosCore.Parser.Tests
                 $"\tARMOR\t{armorLvl}\t{armorModifiers}\r\n" +
                 $"\tSKILL\t{zeros15}\r\n" +
                 $"\tPARTNER\t{zeros20}\r\n" +
-                $"\tBASIC\t{zeros50}\r\n" +
-                $"\tCARD\t{zeros20}\r\n" +
+                $"\tBASIC\t{basic ?? zeros50}\r\n" +
+                $"\tCARD\t{card ?? zeros20}\r\n" +
                 $"\tMODE\t{mode ?? zeros32}\r\n" +
                 $"\tITEM\t{zeros60}\r\n" +
                 "#========================================================\r\n";
@@ -148,6 +148,25 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(MonsterType.Boss, _savedMonsters.Single(m => m.NpcMonsterVNum == 284).MonsterType);
             Assert.AreEqual(MonsterType.Unknown, _savedMonsters.Single(m => m.NpcMonsterVNum == 27).MonsterType);
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_ReadsEveryBasicGroupAndTheCardSubtypes()
+        {
+            var basic = string.Join("\t", new[] { "0", "0", "0", "0", "0", "11", "-380", "300", "1", "0" }
+                .Concat(Enumerable.Repeat("0", 40)));
+            var card = string.Join("\t", new[] { "26", "4", "12540", "1", "0" }.Concat(Enumerable.Repeat("0", 15)));
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(1490, "zts1490e", 60, basic: basic, card: card));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            var saved = new List<BCardDto>();
+            _bCardDaoMock.Setup(x => x.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<BCardDto>>()))
+                .Callback<IEnumerable<BCardDto>>(cards => saved.AddRange(cards))
+                .ReturnsAsync(true);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            CollectionAssert.AreEquivalent(new[] { "0 11/22 95 75", "1 26/21 1 3135" },
+                saved.Select(b => $"{b.Slot} {b.Type}/{b.SubType} {b.FirstData} {b.SecondData}").ToArray());
         }
 
         [TestMethod]
