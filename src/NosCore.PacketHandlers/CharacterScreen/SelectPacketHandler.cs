@@ -267,6 +267,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         }
                         return charquest;
                     }));
+                var slotted = new List<CharacterQuest>();
+                foreach (var open in character.Quests.Values.Where(q => q.CompletedOn == null).OrderBy(q => q.QuestId))
+                {
+                    open.Slot = CharacterQuest.FreeSlot(slotted, open.Quest.IsSecondary);
+                    slotted.Add(open);
+                }
                 character.QuicklistEntries = quickListEntriesDao
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<QuicklistEntryDto>();
                 character.StaticBonusList = staticBonusDao

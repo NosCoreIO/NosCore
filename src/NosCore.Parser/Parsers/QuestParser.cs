@@ -71,12 +71,31 @@ namespace NosCore.Parser.Parsers
             var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var quests = await parser.GetDtosAsync();
             KeepExistingIds(quests);
+            SetQuestLines(quests);
 
             await questDao.TryInsertOrUpdateAsync(quests);
             await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));
             await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective));
 
             _logger.LogInformation(logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
+        }
+
+        private static void SetQuestLines(List<QuestDto> quests)
+        {
+            var previous = quests.Where(q => q.NextQuestId is not null)
+                .GroupBy(q => q.NextQuestId.GetValueOrDefault())
+                .ToDictionary(g => g.Key, g => g.Min(q => q.QuestId));
+            foreach (var quest in quests)
+            {
+                var head = quest.QuestId;
+                var visited = new HashSet<short>();
+                while (visited.Add(head) && previous.TryGetValue(head, out var before))
+                {
+                    head = before;
+                }
+
+                quest.QuestLineId = previous.ContainsKey(head) ? visited.Min() : head;
+            }
         }
 
         // Child rows have no id in the file, so a re-import reuses the stored row with the same

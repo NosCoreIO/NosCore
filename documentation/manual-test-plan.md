@@ -2608,6 +2608,13 @@ Give a character quest 1509 (win time-space 1) and walk into time-space 1's ston
 - [ ] Leaving or failing the time-space keeps 1509 open
 - [ ] With quest 6160 open, winning the Mother Cuby raid completes it for every member still in the raid
 
+### Quest window
+
+A level 80 character has quests 2100 and 2101 done, and both 2102 (main line 2100) and 5006 (secondary) open.
+
+- [ ] After entering the game the quest window lists both "Attack on the Harbour" and "Dark Revenger"
+- [ ] Progress on one quest updates its own row and leaves the other one alone
+
 ### Quests that only hand out their hand-in
 
 A level 80 character with quests 5000-5005 done talks to Harbour Guard Tom (NPC 1062, dialog 100).

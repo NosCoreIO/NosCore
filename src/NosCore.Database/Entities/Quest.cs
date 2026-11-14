@@ -53,6 +53,9 @@ namespace NosCore.Database.Entities
         //this would create circular reference if it was FK
         public short? NextQuestId { get; set; }
 
+        // The first quest of the LINK chain this quest belongs to.
+        public short QuestLineId { get; set; }
+
         public bool IsDaily { get; set; }
 
         public bool AutoFinish { get; set; }
