@@ -18,14 +18,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IMapChangeService mapChangeService)
         : ITimeSpaceEntryService
     {
-        public Task ShowAsync(ClientSession session, ScriptedInstance entrance)
+        public async Task ShowAsync(ClientSession session, ScriptedInstance entrance)
         {
-            return session.SendPacketAsync(entrance.GenerateRbr());
+            await scriptedInstanceService.LoadAsync(entrance);
+            await session.SendPacketAsync(entrance.GenerateRbr());
         }
 
         public async Task EnterAsync(ClientSession session, ScriptedInstance entrance)
         {
             var character = session.Character;
+            if (!await scriptedInstanceService.LoadAsync(entrance))
+            {
+                await RefuseAsync(session, Game18NConstString.TimespaceDoesNotExist);
+                return;
+            }
 
             if (character.Level < entrance.EffectiveLevelMinimum
                 || character.Level > entrance.EffectiveLevelMaximum)

@@ -8,6 +8,7 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService;
@@ -30,6 +31,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
             aggroService.Clear(monster);
             if (!monster.Respawns) return Task.CompletedTask;
+
+            // Instance monsters are placed by the instance's script and stay dead.
+            if (monster.MapInstance.MapInstanceType is MapInstanceType.TimeSpaceInstance or MapInstanceType.RaidInstance)
+            {
+                return Task.CompletedTask;
+            }
 
             monster.RespawnAt = clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster));
             return Task.CompletedTask;

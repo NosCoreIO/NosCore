@@ -194,7 +194,7 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 character = session.Character;
 
-                if (abandonedRun != null)
+                if (abandonedRun != null && scriptedInstanceService.GetRun(mapInstanceId) != abandonedRun)
                 {
                     await scriptedInstanceService.DisposeIfEmptyAsync(abandonedRun);
                 }
@@ -224,7 +224,10 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketsAsync(newMapInstance.GetMapItems(accountLanguage));
                 await session.SendPacketsAsync(newMapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
-                await session.SendPacketsAsync(scriptedInstanceService.GenerateWp(newMapInstance.Map.MapId));
+                if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
+                {
+                    await session.SendPacketsAsync(scriptedInstanceService.GenerateWp(newMapInstance.Map.MapId));
+                }
 
                 var minilandPortals = minilandProvider
                     .GetMinilandPortals(characterId)

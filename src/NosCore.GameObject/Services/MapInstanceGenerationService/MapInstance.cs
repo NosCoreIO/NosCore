@@ -226,6 +226,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public int XpRate { get; set; }
 
         private readonly Lock _lifeLock = new();
+        private readonly Lock _summonLock = new();
         private CancellationTokenSource? _lifeCts;
         private Task? _lifeLoop;
 
@@ -373,6 +374,19 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 entries[x.MapNpcId] = new NpcComponentBundle(entity, EcsWorld);
             }
             _npcs = new ConcurrentDictionary<int, NpcComponentBundle>(entries);
+        }
+
+        public MonsterComponentBundle SummonMonster(NpcMonsterDto npcMonster, short x, short y, bool isHostile)
+        {
+            lock (_summonLock)
+            {
+                var id = _monsters.IsEmpty ? 1 : _monsters.Keys.Max() + 1;
+                var entity = EcsWorld.CreateMonster(id, npcMonster, this, x, y, 0, x, y,
+                    npcMonster.CanWalk, isHostile, false);
+                var monster = new MonsterComponentBundle(entity, EcsWorld);
+                _monsters[id] = monster;
+                return monster;
+            }
         }
 
         public NpcComponentBundle? GetNpcById(int mapNpcId) =>

@@ -704,13 +704,31 @@
     <value>{Event} is still running and was not started again</value>
   </data>
   <data name="SCRIPTED_INSTANCE_UNREADABLE" xml:space="preserve">
-    <value>The script of ScriptedInstance {ScriptedInstanceId} on map {MapId} could not be read</value>
-  </data>
-  <data name="SCRIPTED_INSTANCE_NO_ENTRANCE" xml:space="preserve">
-    <value>No instance entrance at {MapId} {PositionX},{PositionY} to attach {Label} to</value>
+    <value>The script {Script} could not be loaded</value>
   </data>
   <data name="SCRIPTED_INSTANCE_MAP_MISSING" xml:space="preserve">
-    <value>Instance {ScriptedInstanceId} asks for map {VNum}, which does not exist</value>
+    <value>{Instance} asks for map {VNum}, which does not exist</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_MONSTER_MISSING" xml:space="preserve">
+    <value>{Instance} summons monster {VNum}, which does not exist</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_SCRIPT_TIMED_OUT" xml:space="preserve">
+    <value>The script of {Instance} did not return within {Timeout}</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_SCRIPT_FAILED" xml:space="preserve">
+    <value>The script of {Instance} failed</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_FAILED" xml:space="preserve">
+    <value>{Instance} failed</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_STEP_TIMED_OUT" xml:space="preserve">
+    <value>A step of {Instance} did not finish within {Timeout}</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_STEP_FAILED" xml:space="preserve">
+    <value>A step of {Instance} failed</value>
+  </data>
+  <data name="SCRIPTED_INSTANCE_TICK_FAILED" xml:space="preserve">
+    <value>The tick of {Instance} failed</value>
   </data>
   <data name="QUEST_EXPERIENCE_WITHOUT_MONSTER" xml:space="preserve">
     <value>Quest {QuestId} pays experience per monster but hunts none</value>
