@@ -58,6 +58,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var packet = evt.Packet;
 
             var character = session.Character;
+            if (character.Shop != null)
+            {
+                return;
+            }
+
             if (packet.Mode is 0 or 1 && !character.IsVehicled)
             {
                 if (item.LevelMaximum > 0 && character.Level > item.LevelMaximum)
@@ -68,6 +73,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                         Message = Game18NConstString.LevelTooHigh
                     });
                     return;
+                }
+
+                if (character.IsSitting)
+                {
+                    await character.StandUpAsync();
                 }
 
                 await character.StartDelayAsync(new DelayPacket

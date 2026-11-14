@@ -123,6 +123,23 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task APlayerWithAShopOpenCannotMount()
+        {
+            _session.Character.Shop = new NosCore.GameObject.Services.ShopService.Shop();
+            await UsingTheVehicleWithMode_(1);
+            Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task ASittingPlayerStandsUpBeforeMounting()
+        {
+            _session.Character.IsSitting = true;
+            await UsingTheVehicleWithMode_(1);
+            Assert.IsFalse(_session.Character.IsSitting);
+            ABarShouldHaveBeenSent();
+        }
+
+        [TestMethod]
         public async Task ModeZeroDismountsAVehicledCharacter()
         {
             _session.Character.IsVehicled = true;

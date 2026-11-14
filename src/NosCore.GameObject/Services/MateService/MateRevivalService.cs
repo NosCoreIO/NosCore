@@ -91,7 +91,7 @@ namespace NosCore.GameObject.Services.MateService
         {
             mate.RevivesAt = null;
             mate.Refill();
-            if (!mate.IsTeamMember || mate.Entity != null)
+            if (!mate.IsTeamMember || mate.Entity != null || owner.IsVehicled)
             {
                 return;
             }

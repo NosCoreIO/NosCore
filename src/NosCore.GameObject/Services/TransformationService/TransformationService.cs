@@ -17,6 +17,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -178,6 +179,12 @@ namespace NosCore.GameObject.Services.TransformationService
             await mapInstance.SendPacketAsync(effPacket);
             await mapInstance.SendPacketAsync(cModePacket);
             await session.SendPacketAsync(condPacket);
+
+            // The team waits off the map while its owner rides.
+            foreach (var mate in character.Mates.Values.Where(m => m.IsTeamMember))
+            {
+                await mate.DespawnAsync(mapInstance);
+            }
         }
 
         public async Task RemoveVehicleAsync(ClientSession session)
@@ -218,6 +225,22 @@ namespace NosCore.GameObject.Services.TransformationService
 
             await session.SendPacketAsync(condPacket);
             await mapInstance.SendPacketAsync(cModePacket);
+
+            var team = character.Mates.Values.Where(m => m.IsTeamMember && m.RevivesAt == null && m.Entity == null).ToList();
+            foreach (var (mate, x, y) in MatePlacement.Arrange(character.PositionX, character.PositionY, mapInstance.Map, team))
+            {
+                await mate.SpawnAsync(character, mapInstance, x, y);
+            }
+
+            // Without a fresh party list the client keeps the returned mates marked as away.
+            await session.SendPacketAsync(character.GeneratePinit());
+            if (character.Group is { IsEmpty: false } group)
+            {
+                await session.SendPacketsAsync(group.GeneratePst());
+            }
+
+            await session.SendPacketsAsync(team.Select(m => m.GenerateCond()));
+            await session.SendPacketsAsync(team.Select(m => m.GeneratePst()));
         }
     }
 }
