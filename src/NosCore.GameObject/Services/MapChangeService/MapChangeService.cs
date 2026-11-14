@@ -30,6 +30,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.Messaging.Events;
 
 namespace NosCore.GameObject.Services.MapChangeService
 {
@@ -218,6 +219,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateStat());
                 await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music));
                 await session.SendPacketAsync(character.GenerateCond());
+                await messageBus.PublishAsync(new MovementConditionChangedEvent(character));
                 await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
                 await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
                 await session.SendPacketAsync(character.GeneratePairy(fairy));

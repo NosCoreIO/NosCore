@@ -41,7 +41,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             var partners = new Mock<IPartnerEquipmentService>();
 
             await new RemovePacketHandler(new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
-                    new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object, partners.Object)
+                    new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object, partners.Object,
+                    new Mock<Wolverine.IMessageBus>().Object)
                 .ExecuteAsync(new RemovePacket { InventorySlot = EquipmentType.Boots, Type = 1 }, session);
 
             partners.Verify(s => s.RemoveAsync(It.IsAny<PlayerComponentBundle>(), EquipmentType.Boots, 1), Times.Once);

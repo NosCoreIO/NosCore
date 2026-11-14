@@ -261,6 +261,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       (4012) and let a ranged monster hit you: each landed hit does a fifth less than without it
 - [ ] A melee-only reduction (4746) leaves a ranged monster's hits unchanged
 
+### Gear speed bonuses
+
+- [ ] Log in wearing a costume with "movement speed is increased by 2" (4245): the speed in `cond` is two
+      above the class speed, and walking is visibly faster
+- [ ] Take the costume off and put it back on: the speed drops and rises again without a relog
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
