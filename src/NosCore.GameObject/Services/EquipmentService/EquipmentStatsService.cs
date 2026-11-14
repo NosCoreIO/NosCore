@@ -129,13 +129,27 @@ public sealed class EquipmentStatsService(
             bcards.AddRange(cardCatalog.GetItemBCards(piece.ItemVNum));
             if (piece.Item.EquipmentSlot is EquipmentType.Necklace or EquipmentType.Ring or EquipmentType.Bracelet)
             {
-                var options = CellonOptions(piece);
+                var options = Options(piece);
                 bcards.AddRange(options.Select(CellonBCard).OfType<BCardDto>());
                 stats = stats with
                 {
                     MpConsumptionDecrease = stats.MpConsumptionDecrease
                         + options.Where(o => o.Type == (byte)CellonType.MpConsumption).Sum(o => o.Value),
                 };
+            }
+            else if (piece.Item.EquipmentSlot is EquipmentType.MainWeapon or EquipmentType.SecondaryWeapon)
+            {
+                var options = Options(piece);
+                bcards.AddRange(options.Select(WeaponShellBCard).OfType<BCardDto>());
+                stats = stats with
+                {
+                    MpConsumptionDecrease = stats.MpConsumptionDecrease
+                        + options.Where(o => o.Type == (byte)WeaponShellOptionType.ReducedMpConsumption).Sum(o => o.Value),
+                };
+            }
+            else if (piece.Item.EquipmentSlot is EquipmentType.Armor)
+            {
+                bcards.AddRange(Options(piece).Select(ArmorShellBCard).OfType<BCardDto>());
             }
 
             stats = stats with
@@ -217,25 +231,59 @@ public sealed class EquipmentStatsService(
         };
     }
 
-    private List<EquipmentOptionDto> CellonOptions(WearableInstance jewel) =>
-        jewel.EquipmentOptions ??= equipmentOptionDao.Where(o => o.WearableInstanceId == jewel.Id)?.ToList() ?? [];
+    // Cellons on jewellery and shells on weapons and armour share one store of options per instance.
+    private List<EquipmentOptionDto> Options(WearableInstance piece) =>
+        piece.EquipmentOptions ??= equipmentOptionDao.Where(o => o.WearableInstanceId == piece.Id)?.ToList() ?? [];
 
     // MP consumption has no effect card: it is read straight off the gear when a skill is paid for.
-    private static BCardDto? CellonBCard(EquipmentOptionDto option)
+    private static BCardDto? CellonBCard(EquipmentOptionDto option) => OptionBCard(option, (CellonType)option.Type switch
     {
-        BCardEffect? effect = (CellonType)option.Type switch
-        {
-            CellonType.Hp => BCardEffect.MaxHpmpMaximumHpIncreased,
-            CellonType.Mp => BCardEffect.MaxHpmpMaximumMpIncreased,
-            CellonType.HpRecovery => BCardEffect.RecoveryHpRecoveryIncreased,
-            CellonType.MpRecovery => BCardEffect.RecoveryMpRecoveryIncreased,
-            CellonType.CriticalDamageDecrease => BCardEffect.CriticalDamageFromCriticalDecreased,
-            _ => null,
-        };
-        return effect is { } e
+        CellonType.Hp => BCardEffect.MaxHpmpMaximumHpIncreased,
+        CellonType.Mp => BCardEffect.MaxHpmpMaximumMpIncreased,
+        CellonType.HpRecovery => BCardEffect.RecoveryHpRecoveryIncreased,
+        CellonType.MpRecovery => BCardEffect.RecoveryMpRecoveryIncreased,
+        CellonType.CriticalDamageDecrease => BCardEffect.CriticalDamageFromCriticalDecreased,
+        _ => null,
+    });
+
+    // Options without a case need a mechanic combat does not have yet, such as an effect on hit
+    // or a bonus against one monster race.
+    private static BCardDto? WeaponShellBCard(EquipmentOptionDto option) => OptionBCard(option, (WeaponShellOptionType)option.Type switch
+    {
+        WeaponShellOptionType.EnhancedDamage => BCardEffect.AttackPowerAllAttacksIncreased,
+        WeaponShellOptionType.IncreasedDamage => BCardEffect.DamageDamageIncreased,
+        WeaponShellOptionType.IncreasedCriticalChance => BCardEffect.CriticalInflictingIncreased,
+        WeaponShellOptionType.IncreasedCriticalDamage => BCardEffect.CriticalDamageIncreased,
+        WeaponShellOptionType.IncreasedFireElement => BCardEffect.ElementFireIncreased,
+        WeaponShellOptionType.IncreasedWaterElement => BCardEffect.ElementWaterIncreased,
+        WeaponShellOptionType.IncreasedLightElement => BCardEffect.ElementLightIncreased,
+        WeaponShellOptionType.IncreasedShadowElement => BCardEffect.ElementDarkIncreased,
+        WeaponShellOptionType.IncreasedAllElements => BCardEffect.ElementAllIncreased,
+        WeaponShellOptionType.IncreasedGold => BCardEffect.ItemIncreaseEarnedGold,
+        WeaponShellOptionType.IncreasedCombatExperience => BCardEffect.ItemExpIncreased,
+        WeaponShellOptionType.IncreasedJobExperience => BCardEffect.Type101IncreaseJXpGain,
+        _ => null,
+    });
+
+    private static BCardDto? ArmorShellBCard(EquipmentOptionDto option) => OptionBCard(option, (ArmorShellOptionType)option.Type switch
+    {
+        ArmorShellOptionType.EnhancedMeleeDefence => BCardEffect.DefenceMeleeIncreased,
+        ArmorShellOptionType.EnhancedRangedDefence => BCardEffect.DefenceRangedIncreased,
+        ArmorShellOptionType.EnhancedMagicDefence => BCardEffect.DefenceMagicalIncreased,
+        ArmorShellOptionType.IncreasedOverallDefence => BCardEffect.DodgeAndDefencePercentDefenceIncreased,
+        ArmorShellOptionType.ReducedCriticalChanceReceived => BCardEffect.CriticalReceivingDecreased,
+        ArmorShellOptionType.IncreasedFireResistance => BCardEffect.ElementResistanceFireIncreased,
+        ArmorShellOptionType.IncreasedWaterResistance => BCardEffect.ElementResistanceWaterIncreased,
+        ArmorShellOptionType.IncreasedLightResistance => BCardEffect.ElementResistanceLightIncreased,
+        ArmorShellOptionType.IncreasedShadowResistance => BCardEffect.ElementResistanceDarkIncreased,
+        ArmorShellOptionType.IncreasedAllResistances => BCardEffect.ElementResistanceAllIncreased,
+        _ => null,
+    });
+
+    private static BCardDto? OptionBCard(EquipmentOptionDto option, BCardEffect? effect) =>
+        effect is { } e
             ? new BCardDto { Type = e.Type(), SubType = e.SubType(), FirstData = option.Value }
             : null;
-    }
 
     // The equipment slot is the index in the pocket, which is why a weapon in the bag does
     // not count.

@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShellOptionService;
@@ -22,7 +23,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     // A shell dropped on a weapon or armour copies its options onto it and binds it.
     [UsedImplicitly]
-    public sealed class ShellHandler(IShellOptionService shellOptionService, IRandomNumberSource random)
+    public sealed class ShellHandler(IShellOptionService shellOptionService, IRandomNumberSource random,
+        IBattleStatsProvider battleStatsProvider)
     {
         private const byte WeaponShell = 0;
         private const double ReplaceChance = 0.5;
@@ -92,9 +94,14 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await shellOptionService.ClearAsync(equipment.Id);
             await shellOptionService.SaveAsync(equipment.Id, shellOptions);
             await shellOptionService.ClearAsync(shell.Id);
+            equipment.EquipmentOptions = null;
             equipment.BoundCharacterId = character.CharacterId;
             equipment.ShellRarity = (byte)shell.Rare;
             await SendAsync(evt, replacing ? Game18NConstString.OptionChanged : Game18NConstString.OptionHasBeenAdded);
+            if (targetType.ToNoscorePocketType() == NoscorePocketType.Wear)
+            {
+                await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
+            }
         }
 
         private static Task SendAsync(ItemUsedEvent evt, Game18NConstString message) =>

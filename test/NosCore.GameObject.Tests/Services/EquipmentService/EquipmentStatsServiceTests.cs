@@ -171,10 +171,16 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             return item;
         }
 
-        private void AddOption(IItemInstance jewel, CellonType type, int value) =>
+        private void AddOption(IItemInstance piece, CellonType type, int value) => AddOption(piece, (byte)type, value);
+
+        private void AddOption(IItemInstance piece, WeaponShellOptionType type, int value) => AddOption(piece, (byte)type, value);
+
+        private void AddOption(IItemInstance piece, ArmorShellOptionType type, int value) => AddOption(piece, (byte)type, value);
+
+        private void AddOption(IItemInstance piece, byte type, int value) =>
             _options.Add(new EquipmentOptionDto
             {
-                Id = Guid.NewGuid(), WearableInstanceId = jewel.Id, Level = 1, Type = (byte)type, Value = value
+                Id = Guid.NewGuid(), WearableInstanceId = piece.Id, Level = 1, Type = type, Value = value
             });
 
         [TestMethod]
@@ -498,6 +504,91 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             AddOption(necklace, CellonType.CriticalDamageDecrease, 15);
 
             Assert.AreEqual(-15, provider.GetStats(_session.Character).CriticalDamageReceived);
+        }
+
+        [TestMethod]
+        public void AWornWeaponsShellOptionsBecomeEffects()
+        {
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            AddOption(weapon, WeaponShellOptionType.EnhancedDamage, 80);
+            AddOption(weapon, WeaponShellOptionType.IncreasedDamage, 9);
+            AddOption(weapon, WeaponShellOptionType.IncreasedCriticalChance, 4);
+            AddOption(weapon, WeaponShellOptionType.IncreasedFireElement, 60);
+            AddOption(weapon, WeaponShellOptionType.IncreasedGold, 12);
+            AddOption(weapon, WeaponShellOptionType.IncreasedCombatExperience, 6);
+            AddOption(weapon, WeaponShellOptionType.IncreasedJobExperience, 7);
+            AddOption(weapon, WeaponShellOptionType.MinorBleeding, 3);
+
+            var effects = _service.Resolve(_session.Character).BCards
+                .ToDictionary(b => b.Effect(), b => b.FirstData);
+
+            Assert.AreEqual(80, effects[BCardEffect.AttackPowerAllAttacksIncreased]);
+            Assert.AreEqual(9, effects[BCardEffect.DamageDamageIncreased]);
+            Assert.AreEqual(4, effects[BCardEffect.CriticalInflictingIncreased]);
+            Assert.AreEqual(60, effects[BCardEffect.ElementFireIncreased]);
+            Assert.AreEqual(12, effects[BCardEffect.ItemIncreaseEarnedGold]);
+            Assert.AreEqual(6, effects[BCardEffect.ItemExpIncreased]);
+            Assert.AreEqual(7, effects[BCardEffect.Type101IncreaseJXpGain]);
+            Assert.AreEqual(7, effects.Count, "Bleeding on hit is not an effect card");
+        }
+
+        [TestMethod]
+        public void AWornArmoursShellOptionsBecomeEffects()
+        {
+            var armour = Wear(EquipmentType.Armor, ArmourVnum);
+            AddOption(armour, ArmorShellOptionType.EnhancedMeleeDefence, 70);
+            AddOption(armour, ArmorShellOptionType.IncreasedOverallDefence, 15);
+            AddOption(armour, ArmorShellOptionType.ReducedCriticalChanceReceived, 5);
+            AddOption(armour, ArmorShellOptionType.IncreasedWaterResistance, 8);
+            AddOption(armour, ArmorShellOptionType.IncreasedAllResistances, 3);
+
+            var effects = _service.Resolve(_session.Character).BCards
+                .ToDictionary(b => b.Effect(), b => b.FirstData);
+
+            Assert.AreEqual(70, effects[BCardEffect.DefenceMeleeIncreased]);
+            Assert.AreEqual(15, effects[BCardEffect.DodgeAndDefencePercentDefenceIncreased]);
+            Assert.AreEqual(5, effects[BCardEffect.CriticalReceivingDecreased]);
+            Assert.AreEqual(8, effects[BCardEffect.ElementResistanceWaterIncreased]);
+            Assert.AreEqual(3, effects[BCardEffect.ElementResistanceAllIncreased]);
+        }
+
+        [TestMethod]
+        public void AShellsReducedMpConsumptionAddsToTheJewels()
+        {
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            AddOption(weapon, WeaponShellOptionType.ReducedMpConsumption, 9);
+            var necklace = Wear(EquipmentType.Necklace, NecklaceVnum);
+            AddOption(necklace, CellonType.MpConsumption, 5);
+
+            Assert.AreEqual(14, _service.Resolve(_session.Character).MpConsumptionDecrease);
+        }
+
+        [TestMethod]
+        public void AShellsEnhancedDamageReachesTheCombatStats()
+        {
+            var buffs = new Mock<IBuffService>();
+            buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
+                .Returns(new List<BuffInstance>());
+            var provider = BattleStats.Provider(buffs.Object, _service);
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            AddOption(weapon, WeaponShellOptionType.EnhancedDamage, 80);
+            var withShell = provider.GetStats(_session.Character).MinHit;
+            _options.Clear();
+            ((WearableInstance)weapon).EquipmentOptions = null;
+
+            Assert.AreEqual(80, withShell - provider.GetStats(_session.Character).MinHit);
+        }
+
+        [TestMethod]
+        public void AShellInTheBagGivesNoOption()
+        {
+            var weapon = _items.Create(MainWeaponVnum, 1);
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(weapon, _session.Character.CharacterId),
+                NoscorePocketType.Equipment);
+            AddOption(weapon, WeaponShellOptionType.EnhancedDamage, 80);
+
+            Assert.AreEqual(0, _service.Resolve(_session.Character).BCards.Count);
         }
 
         [TestMethod]
