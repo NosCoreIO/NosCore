@@ -806,7 +806,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     await session.SendPacketAsync(new TaFcPacket { Side = ArenaSideType.Opponent, CharacterId = opponent?.CharacterId ?? 0 });
                     await session.SendPacketAsync(new TaStPacket
                     {
-                        Type = own?.CharacterId == session.Character.CharacterId ? TaStType.Nothing : TaStType.Watch,
+                        Type = own?.CharacterId == session.Character.CharacterId ? TaStType.Call : TaStType.Watch,
                     });
                     await session.SendPacketAsync(Scores(TaWindowMode.Update));
                     await session.SendPacketAsync(new TaSPacket());
