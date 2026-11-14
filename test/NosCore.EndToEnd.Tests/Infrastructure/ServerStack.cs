@@ -296,8 +296,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 }
             }
 
-            // The message bus reports every message it moves at debug level, about one a second.
+            // The message bus reports every message it moves at debug level, several a second.
             // That is left out everywhere; other debug lines only go to the recent tail.
+            private static readonly string[] BusChatter =
+            [
+                "message(s) from", "Successfully processed message", "Enqueued for sending", " from local://", " from postgresql://",
+                "Started processing", "Finished processing", "reply listener", "Sending requested reply"
+            ];
+
             private void Keep(string? line)
             {
                 if (line == null)
@@ -311,8 +317,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                     Output.Enqueue(line);
                 }
 
-                if (debug && (line.Contains("message(s) from", StringComparison.Ordinal)
-                        || line.Contains("Successfully processed message", StringComparison.Ordinal)))
+                if (debug && BusChatter.Any(phrase => line.Contains(phrase, StringComparison.Ordinal)))
                 {
                     return;
                 }
