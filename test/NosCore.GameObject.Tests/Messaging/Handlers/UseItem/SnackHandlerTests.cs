@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.EquipmentService;
 using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -50,6 +52,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.Mp = 1000;
             _cards = World.Freeze<Mock<ICardCatalog>>();
             _cards.Setup(c => c.GetItemBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
+            World.Freeze<Mock<IEquipmentStatsService>>()
+                .Setup(g => g.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
+            World.UseReal<IRecoveryBonusService, RecoveryBonusService>();
             _handler = World.Create<SnackHandler>();
         }
 

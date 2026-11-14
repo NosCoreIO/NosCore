@@ -322,6 +322,14 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Wear the costume wings 8879 (double drop 10%) and hunt alone: about one item drop in ten
       lands twice; in a group sharing loot by turn, a drop given to someone else never doubles
 
+### Recovery item bonuses
+
+- [ ] Wear amulet 4361 ("recovery items +40%") and, with at least 1400 HP and 1400 MP missing,
+      drink potion 1010 (1000 HP and MP): the bars rise by 1400 each instead of 1000
+- [ ] With the amulet on, a snack heals two fifths more HP and MP per tick
+- [ ] With the amulet on, a meal heals two fifths more HP and MP per tick, never above the usual
+      per-tick ceiling for meals
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
