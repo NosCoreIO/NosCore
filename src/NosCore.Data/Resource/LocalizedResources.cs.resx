@@ -244,9 +244,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Bylo Nahráno {0} Itemů</value>
   </data>
-  <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Chybý jazyk!</value>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MAPMONSTERS načteny</value>
   </data>

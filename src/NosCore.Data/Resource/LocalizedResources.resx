@@ -250,8 +250,7 @@
     <value>{0} items parsed!</value>
   </data>
   <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Missing language</value>
-    <comment>insert missing type data</comment>
+    <value>{File} is missing: its texts are left untranslated in that language</value>
   </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} MapMonsters Loaded!</value>

@@ -69,7 +69,7 @@ namespace NosCore.Parser.Parsers
                 }
                 catch (FileNotFoundException)
                 {
-                    logger.LogWarning(logLanguage[LogLanguageKey.LANGUAGE_MISSING]);
+                    logger.LogWarning(logLanguage[LogLanguageKey.LANGUAGE_MISSING], I18NTextFileName(file, region));
                 }
             }));
         }

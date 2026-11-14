@@ -284,10 +284,6 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è stato trovato alcun item.</value>
   </data>
-  <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Lingua mancante</value>
-    <comment>insert missing type data</comment>
-  </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Caricamento MapInstances...</value>
   </data>

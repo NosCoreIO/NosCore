@@ -246,9 +246,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Eşya işlendi.</value>
   </data>
-  <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Eksik dil dosyaları var: {0}</value>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>{0} Harita canavarları yüklendi!</value>
   </data>

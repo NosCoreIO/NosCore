@@ -246,9 +246,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items wprowadzono!</value>
   </data>
-  <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Brakujący język</value>
-  </data>
   <data name="MAPMONSTERS_LOADED" xml:space="preserve">
     <value>Załadowano: {0} MapMonsters!</value>
   </data>

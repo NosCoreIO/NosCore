@@ -288,10 +288,6 @@
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
   </data>
-  <data name="LANGUAGE_MISSING" xml:space="preserve">
-    <value>Перевод отсутствует</value>
-    <comment>insert missing type data</comment>
-  </data>
   <data name="LOADING_MAPINSTANCES" xml:space="preserve">
     <value>Загрузка MapInstances...</value>
   </data>
