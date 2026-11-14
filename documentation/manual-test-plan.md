@@ -301,6 +301,14 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Drink buff potion 1248 (max HP and MP +10%): the HP and MP bars' maximums rise by a tenth at
       once, and fall back when the buff ends
 
+### PvP attack and defence bonuses
+
+- [ ] Hit another player while wearing amulet 4359 ("attack in PvP +10%"): the damage shown is a
+      tenth above the same hit without it
+- [ ] Gear that raises defence in PvP lowers the damage another player deals by its percent, and
+      never by more than three quarters
+- [ ] The amulet changes nothing when hitting a monster
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,

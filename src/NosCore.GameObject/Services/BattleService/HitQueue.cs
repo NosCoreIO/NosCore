@@ -88,6 +88,14 @@ public sealed class HitQueue(
         return TryApplyHit(request);
     }
 
+    // Damage received in PvP is reduced by at most 75%.
+    private const int MaxPvpDefencePercent = 75;
+
+    public static int PvpDamage(int damage, CombatStats attacker, CombatStats defender) =>
+        (int)((long)damage / 2
+            * Math.Max(0, 100 + attacker.PvpAttackPercent) / 100
+            * (100 - Math.Min(MaxPvpDefencePercent, defender.PvpDefencePercent)) / 100);
+
     private static void Cancel(HitRequest request) =>
         request.Completion.TrySetResult(new HitOutcome(HitStatus.Cancelled, 0, SuPacketHitMode.SuccessAttack, false));
 
@@ -131,7 +139,7 @@ public sealed class HitQueue(
             var damage = damageCalculator.Calculate(attackerStats, defenderStats, request.Skill);
             if (isPvp)
             {
-                damage = damage with { Damage = damage.Damage / 2 };
+                damage = damage with { Damage = PvpDamage(damage.Damage, attackerStats, defenderStats) };
             }
 
             if (damage.HitMode == SuPacketHitMode.Miss || damage.Damage <= 0)

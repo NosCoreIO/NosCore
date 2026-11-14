@@ -65,6 +65,9 @@ public readonly record struct CombatStats(
     int CriticalDamageReceived = 0,
     // Percentage points added to the critical chance of whoever hits this entity.
     int CriticalReceivedChance = 0,
+    // Percentages applied only when a player hits a player: more damage dealt, less taken.
+    int PvpAttackPercent = 0,
+    int PvpDefencePercent = 0,
     // The worn weapons' own share of the attack above: an upgrade scales only this part.
     int WeaponMinHit = 0,
     int WeaponMaxHit = 0,
