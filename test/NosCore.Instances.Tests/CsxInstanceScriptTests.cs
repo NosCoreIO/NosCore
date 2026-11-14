@@ -87,6 +87,8 @@ namespace NosCore.Instances.Tests
 
         public void Message(Game18NConstString message) => Calls.Add($"message({message})");
 
+        public void Message(Game18NConstString message, long value) => Calls.Add($"message({message},{value})");
+
         public void Succeed() => Calls.Add("succeed");
 
         public void Fail() => Calls.Add("fail");
@@ -145,7 +147,7 @@ namespace NosCore.Instances.Tests
 
             script.OnRoomCleared(run, 2);
 
-            CollectionAssert.AreEqual(new[] { "message(TimeSpaceCompleted)", "succeed" }, run.Calls);
+            CollectionAssert.AreEqual(new[] { "message(TimeSpaceCompleted,1)", "succeed" }, run.Calls);
         }
 
         [TestMethod]

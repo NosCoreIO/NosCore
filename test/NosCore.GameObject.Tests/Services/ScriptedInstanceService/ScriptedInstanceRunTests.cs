@@ -19,6 +19,8 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using System;
 using System.Collections.Generic;
@@ -120,6 +122,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.EnteredAsync(session, _second.MapInstanceId);
 
             CollectionAssert.AreEqual(new[] { "enter" }, script.Calls);
+        }
+
+        [TestMethod]
+        public async Task AMessageWithANumberCarriesItAsItsArgumentAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Message(Game18NConstString.TimeSpaceCompleted, 30) });
+
+            await run.StartAsync();
+
+            var told = _first.LastPackets.OfType<MsgiPacket>().Single(packet => packet.Message == Game18NConstString.TimeSpaceCompleted);
+            Assert.AreEqual(4, told.ArgumentType);
+            Assert.AreEqual(30L, Convert.ToInt64(told.Game18NArguments.First()));
         }
 
         [TestMethod]

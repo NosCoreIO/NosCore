@@ -36,7 +36,7 @@ public class TimeSpace01 : InstanceScript
             return;
         }
 
-        run.Message(Game18NConstString.TimeSpaceCompleted);
+        run.Message(Game18NConstString.TimeSpaceCompleted, Definition.LevelMinimum);
         run.Succeed();
     }
 

@@ -2298,6 +2298,8 @@ dropping their `MaxHp` makes the run quick.
       room, where a single Weak Devil Vampire waits
 - [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
       the "Perfect" stamp when every summoned monster died
+- [ ] At the same moment the banner at the top reads "[1 Level ] Time-Space Stone complete",
+      with the stone's minimum level and no raw placeholder
 - [ ] About ten seconds later you are back beside the stone on the open world, and the clock
       is gone
 - [ ] Let the clock run out instead: the score shows a time-out and you are sent back the

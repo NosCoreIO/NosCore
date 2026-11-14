@@ -82,6 +82,9 @@ namespace NosCore.Instances.Abstractions
 
         void Message(Game18NConstString message);
 
+        // For a line that takes one number, such as the stone level in TimeSpaceCompleted.
+        void Message(Game18NConstString message, long value);
+
         void Succeed();
 
         void Fail();
