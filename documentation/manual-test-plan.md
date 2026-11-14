@@ -2654,6 +2654,17 @@ A level 80 character has quests 2100 and 2101 done, and both 2102 (main line 210
 - [ ] With 2102 open, Harbour Guard Tom still hands out "Level 80 - Attack on the Harbour" (a main quest no
   longer blocks other quests; only five open main or five open secondary quests do)
 
+### Raid collect quests
+
+A level 80 character has quest 2001 ("Give Pyjama a pillow!": 50 Chicken Feathers from Angry Chickens) open,
+with an Angry Chicken (vnum 340) nearby.
+
+- [ ] The quest window reads 0/50 after entering the game
+- [ ] Killing the chicken drops one Chicken Feathers on the ground; picking it up removes it from the ground,
+  the quest window reads 1/50 and the bag does not hold a feather
+- [ ] After 50 feathers no more drop and the quest is ready to hand in to the Pyjama Fairy
+- [ ] The count survives a relog
+
 ### Quests that only hand out their hand-in
 
 A level 80 character with quests 5000-5005 done talks to Harbour Guard Tom (NPC 1062, dialog 100).

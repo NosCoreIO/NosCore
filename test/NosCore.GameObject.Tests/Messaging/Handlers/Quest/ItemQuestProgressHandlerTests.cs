@@ -63,6 +63,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                 {
                     World.Create<GoToQuestHandler>(),
                     World.Create<CollectQuestHandler>(),
+                    World.Create<CollectInRaidQuestHandler>(),
                     World.Create<NeededQuestHandler>(),
                     World.Create<BringsQuestHandler>(),
                     World.Create<RequiredQuestHandler>(),
@@ -94,6 +95,29 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                 .And(TheCharacterCarries_Of_, 2, QuestItem)
                 .WhenAsync(TheCharacterReceives_, QuestItem)
                 .Then(TheQuestWindowShouldRead_Of_, 2, 5)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARaidCollectQuestCountsEachItemPickedUp()
+        {
+            await new Spec("A raid collect quest counts each item as it is picked up, out of the amount in its third column")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.CollectInRaid, 5, QuestItem)
+                .WhenAsync(TheCharacterReceives_, QuestItem)
+                .Then(TheQuestWindowShouldRead_Of_, 1, 5)
+                .And(TheQuestShouldNotBeCompleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastRaidItemCompletesTheQuest()
+        {
+            await new Spec("Picking up the last item a raid collect quest asks for completes it")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.CollectInRaid, 5, QuestItem)
+                .And(TheObjectiveAlreadyReads_, 4)
+                .WhenAsync(TheCharacterReceives_, QuestItem)
+                .Then(TheObjectiveShouldRead_, 5)
+                .And(TheQuestShouldBeCompleted)
                 .ExecuteAsync();
         }
 
@@ -354,7 +378,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         private void TheCharacterHasA_QuestFor_Of_(QuestType type, int amount, short vNum) =>
             GiveQuest(type, type switch
             {
-                QuestType.Collect => Objective(Monster, vNum, amount),
+                QuestType.Collect or QuestType.CollectInRaid => Objective(Monster, vNum, amount),
                 QuestType.Wear => Objective(-1, vNum, null),
                 _ => Objective(vNum, amount == 0 ? null : amount, null)
             });
@@ -384,6 +408,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
             };
             _session.Character.Quests.TryAdd(_quest.Id, _quest);
         }
+
+        private void TheObjectiveAlreadyReads_(int value) =>
+            _quest.ObjectiveProgress[_objective.QuestObjectiveId] = value;
 
         private void TheCharacterCarries_Of_(int amount, short vNum) =>
             _session.Character.InventoryService.AddItemToPocket(

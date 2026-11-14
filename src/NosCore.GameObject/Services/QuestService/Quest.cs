@@ -114,6 +114,7 @@ namespace NosCore.GameObject.Services.QuestService
             Packets.Enumerations.QuestType.CollectInTs => true,
             Packets.Enumerations.QuestType.Required => true,
             Packets.Enumerations.QuestType.Collect => true,
+            Packets.Enumerations.QuestType.CollectInRaid => true,
             Packets.Enumerations.QuestType.TransmitGold => true,
             _ => false
         };

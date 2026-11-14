@@ -61,6 +61,8 @@ namespace NosCore.Data.Enumerations.Items
         SpeedBooster = 998,
         BoxEffect = 999,
         Vehicle = 1000,
+        // A map item a raid collect quest counts when it is picked up; it never reaches the bag.
+        RaidCollectQuestItem = 2001,
         GoldNosMerchantUpgrade = 1003,
         SilverNosMerchantUpgrade = 1004,
         InventoryUpgrade = 1005,

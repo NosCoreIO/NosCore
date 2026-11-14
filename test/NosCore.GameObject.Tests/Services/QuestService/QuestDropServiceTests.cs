@@ -108,6 +108,23 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public void ARaidCollectQuestDropsOnEveryKill()
+        {
+            Collect(MonsterVNum, 2, chance: 2, QuestType.CollectInRaid);
+
+            CollectionAssert.AreEqual(new[] { QuestItem }, Roll().ToArray());
+        }
+
+        [TestMethod]
+        public void ARaidCollectQuestStopsDroppingOnceItsCounterIsFull()
+        {
+            var quest = Collect(MonsterVNum, 2, chance: 2, QuestType.CollectInRaid);
+            quest.ObjectiveProgress[quest.Quest.QuestObjectives[0].QuestObjectiveId] = 2;
+
+            Assert.AreEqual(0, Roll().Count);
+        }
+
+        [TestMethod]
         public void AHuntQuestDropsNothing()
         {
             Collect(MonsterVNum, 2, chance: 10000, QuestType.Hunt);
