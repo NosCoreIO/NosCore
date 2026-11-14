@@ -498,6 +498,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _pending.Add(() => BroadcastAsync(new MsgiPacket { Type = MessageType.Default, Message = message }));
         }
 
+        public void Message(Game18NConstString message, long value)
+        {
+            _pending.Add(() => BroadcastAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = message,
+                ArgumentType = 4,
+                Game18NArguments = { value }
+            }));
+        }
+
         public void Succeed() => End(EndStateType.Success);
 
         // Each player opens the reward chest of a successful run once.
@@ -737,6 +748,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void EndBout(int room) => Do(() => run.EndBout(room));
 
             public void Message(Game18NConstString message) => Do(() => run.Message(message));
+
+            public void Message(Game18NConstString message, long value) => Do(() => run.Message(message, value));
 
             public void Succeed() => Do(run.Succeed);
 
