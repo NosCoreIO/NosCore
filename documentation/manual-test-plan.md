@@ -267,6 +267,14 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       above the class speed, and walking is visibly faster
 - [ ] Take the costume off and put it back on: the speed drops and rises again without a relog
 
+### Gear attack bonuses
+
+- [ ] Log in wearing the hat costume 8900 ("All attacks +10%"): the attack shown in the character
+      window and in `sc` is a tenth above the value without it, for both the main and the
+      secondary weapon
+- [ ] Gear or a buff that raises the attack or defence level counts like that many extra upgrade
+      levels on the weapon or armour
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
