@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.InstantCombatRewardService;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -51,20 +49,22 @@ namespace NosCore.GameObject.Services.InstantCombatService
         IInstantCombatRewardService rewardService,
         IFamilyContributionService familyContributionService,
         IOptions<WorldConfiguration> worldConfiguration,
-        IGameLanguageLocalizer gameLanguageLocalizer,
         ILogger<InstantCombatService> logger) : IInstantCombatService, ISingletonService
     {
         public const short MapId = 2004;
         public const int PlayersPerRoom = 50;
         public const byte LastWave = 4;
 
-        private static readonly (TimeSpan Before, LanguageKey Message, int Amount)[] Countdown =
+        private static readonly (TimeSpan Before, Game18NConstString Delay, int Amount)[] Countdown =
         [
-            (TimeSpan.FromMinutes(5), LanguageKey.INSTANT_COMBAT_STARTS_IN_MINUTES, 5),
-            (TimeSpan.FromMinutes(1), LanguageKey.INSTANT_COMBAT_STARTS_IN_MINUTES, 1),
-            (TimeSpan.FromSeconds(30), LanguageKey.INSTANT_COMBAT_STARTS_IN_SECONDS, 30),
-            (TimeSpan.FromSeconds(10), LanguageKey.INSTANT_COMBAT_STARTS_IN_SECONDS, 10),
+            (TimeSpan.FromMinutes(5), Game18NConstString.InMinutes, 5),
+            (TimeSpan.FromMinutes(1), Game18NConstString.InMinutes, 1),
+            (TimeSpan.FromSeconds(30), Game18NConstString.InSeconds, 30),
+            (TimeSpan.FromSeconds(10), Game18NConstString.InSeconds, 10),
         ];
+
+        // The client formats the delay line with the first two arguments and puts it before the message.
+        private const byte DelayThenMessage = 10;
 
         private static readonly TimeSpan SignUpTime = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan ArrivalTime = TimeSpan.FromSeconds(10);
@@ -143,8 +143,8 @@ namespace NosCore.GameObject.Services.InstantCombatService
             {
                 for (var i = 0; i < Countdown.Length; i++)
                 {
-                    var (before, message, amount) = Countdown[i];
-                    await AnnounceAsync(message, amount);
+                    var (before, delay, amount) = Countdown[i];
+                    await AnnounceAsync(delay, amount);
                     await Task.Delay(i + 1 < Countdown.Length ? before - Countdown[i + 1].Before : before);
                 }
             }
@@ -341,18 +341,19 @@ namespace NosCore.GameObject.Services.InstantCombatService
 
         private static MsgiPacket Message(Game18NConstString message) => new() { Message = message };
 
-        // No Game18N line exists for this text, so it goes out as plain msg.
-#pragma warning disable 618
-        private async Task AnnounceAsync(LanguageKey message, int amount)
+        private async Task AnnounceAsync(Game18NConstString delay, int amount)
         {
-            foreach (var session in sessionRegistry.GetSessions(s => s.HasPlayerEntity))
+            foreach (var type in new[] { MessageType.Default, MessageType.Notification })
             {
-                var text = string.Format(gameLanguageLocalizer[message, session.Account.Language], amount);
-                await session.SendPacketAsync(new MsgPacket { Type = MessageType.Default, Message = text });
-                await session.SendPacketAsync(new MsgPacket { Type = MessageType.Notification, Message = text });
+                await sessionRegistry.BroadcastPacketAsync(new MsgiPacket
+                {
+                    Type = type,
+                    Message = Game18NConstString.InstantCombatWillBegin,
+                    ArgumentType = DelayThenMessage,
+                    Game18NArguments = { (int)delay, amount },
+                });
             }
         }
-#pragma warning restore 618
 
         private async Task BroadcastAsync(MsgiPacket message)
         {

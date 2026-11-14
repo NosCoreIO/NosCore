@@ -555,16 +555,4 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Cet événement est déjà en cours.</value>
   </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>Dans {0} minute(s) un combat instantané pour tous les niveaux va commencer.</value>
-  </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>Dans {0} secondes un combat instantané pour tous les niveaux va commencer.</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>Dans {0} minute(s) un Icebreaker pour les niveaux {1}-{2} va commencer.</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>Dans {0} secondes un Icebreaker pour les niveaux {1}-{2} va commencer.</value>
-  </data>
 </root>

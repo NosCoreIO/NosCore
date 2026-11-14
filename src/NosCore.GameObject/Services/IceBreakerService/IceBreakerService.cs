@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.IceBreakerRewardService;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -42,7 +40,6 @@ namespace NosCore.GameObject.Services.IceBreakerService
         IRandomProvider random,
         IIceBreakerRewardService rewardService,
         IOptions<WorldConfiguration> worldConfiguration,
-        IGameLanguageLocalizer gameLanguageLocalizer,
         ILogger<IceBreakerService> logger) : IIceBreakerService, ISingletonService
     {
         public const short MapId = 2005;
@@ -50,13 +47,17 @@ namespace NosCore.GameObject.Services.IceBreakerService
         public const long EntryFee = 500;
         public const byte FrozenEffect = 35;
 
-        private static readonly (TimeSpan Before, LanguageKey Message, int Amount)[] Countdown =
+        private static readonly (TimeSpan Before, Game18NConstString Delay, int Amount)[] Countdown =
         [
-            (TimeSpan.FromMinutes(5), LanguageKey.ICE_BREAKER_STARTS_IN_MINUTES, 5),
-            (TimeSpan.FromMinutes(1), LanguageKey.ICE_BREAKER_STARTS_IN_MINUTES, 1),
-            (TimeSpan.FromSeconds(30), LanguageKey.ICE_BREAKER_STARTS_IN_SECONDS, 30),
-            (TimeSpan.FromSeconds(10), LanguageKey.ICE_BREAKER_STARTS_IN_SECONDS, 10),
+            (TimeSpan.FromMinutes(5), Game18NConstString.InMinutes, 5),
+            (TimeSpan.FromMinutes(1), Game18NConstString.InMinutes, 1),
+            (TimeSpan.FromSeconds(30), Game18NConstString.InSeconds, 30),
+            (TimeSpan.FromSeconds(10), Game18NConstString.InSeconds, 10),
         ];
+
+        // The client formats the delay line with the first two arguments and puts it before the message,
+        // which it formats with the last two.
+        private const byte DelayThenTwoNumbers = 9;
 
         private static readonly TimeSpan SignUpTime = TimeSpan.FromSeconds(10);
         private static readonly TimeSpan[] PvpWarnings = [TimeSpan.Zero, TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(7)];
@@ -187,8 +188,8 @@ namespace NosCore.GameObject.Services.IceBreakerService
             {
                 for (var i = 0; i < Countdown.Length; i++)
                 {
-                    var (before, message, amount) = Countdown[i];
-                    await AnnounceAsync(message, amount, levelMinimum, levelMaximum);
+                    var (before, delay, amount) = Countdown[i];
+                    await AnnounceAsync(delay, amount, levelMinimum, levelMaximum);
                     await Task.Delay(i + 1 < Countdown.Length ? before - Countdown[i + 1].Before : before);
                 }
             }
@@ -361,19 +362,19 @@ namespace NosCore.GameObject.Services.IceBreakerService
 
         private static MsgiPacket Message(Game18NConstString message) => new() { Message = message };
 
-        // No Game18N line gives both the levels and the time left, so it goes out as plain msg.
-#pragma warning disable 618
-        private async Task AnnounceAsync(LanguageKey message, int amount, byte levelMinimum, byte levelMaximum)
+        private async Task AnnounceAsync(Game18NConstString delay, int amount, byte levelMinimum, byte levelMaximum)
         {
-            foreach (var session in sessionRegistry.GetSessions(s => s.HasPlayerEntity))
+            foreach (var type in new[] { MessageType.Default, MessageType.Notification })
             {
-                var text = string.Format(gameLanguageLocalizer[message, session.Account.Language], amount,
-                    levelMinimum, levelMaximum);
-                await session.SendPacketAsync(new MsgPacket { Type = MessageType.Default, Message = text });
-                await session.SendPacketAsync(new MsgPacket { Type = MessageType.Notification, Message = text });
+                await sessionRegistry.BroadcastPacketAsync(new MsgiPacket
+                {
+                    Type = type,
+                    Message = Game18NConstString.IceBreakerWillStartForLevels,
+                    ArgumentType = DelayThenTwoNumbers,
+                    Game18NArguments = { (int)delay, amount, levelMinimum, levelMaximum },
+                });
             }
         }
-#pragma warning restore 618
 
         private async Task BroadcastAsync(MsgiPacket message)
         {

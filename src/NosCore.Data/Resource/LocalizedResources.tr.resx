@@ -573,16 +573,4 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Bu etkinlik zaten devam ediyor.</value>
   </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>{0} dakika içinde tüm seviyeler için Instant Combat başlayacak.</value>
-  </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>{0} saniye içinde tüm seviyeler için Instant Combat başlayacak.</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>{0} dakika içinde {1}-{2} seviyeleri için Icebreaker başlayacak.</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>{0} saniye içinde {1}-{2} seviyeleri için Icebreaker başlayacak.</value>
-  </data>
 </root>

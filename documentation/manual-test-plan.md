@@ -2002,8 +2002,8 @@ required items, start room and coordinates). Stand on the stone.
 Run `$Event InstantCombat` as a GM to skip the countdown, or wait for the next even hour (the
 countdown starts at :55). Use two characters on a base map.
 
-- [ ] The countdown says "An Instant Combat for all levels will start in 5 minute(s).", then
-      1 minute, 30 seconds and 10 seconds, in the chat and as a notice
+- [ ] The countdown says "In 5 minute(s) Instant Combat will begin.", then 1 minute, 30 seconds
+      and 10 seconds, in the chat and as a notice, in the client's language
 - [ ] "An Instant Combat has started" shows and the join question appears as an icon; a second
       `$Event InstantCombat` answers that the event is already running
 - [ ] After 30 seconds whoever said yes is moved to the Instant Combat map; whoever did not has
@@ -2026,8 +2026,8 @@ Run `$Event IceBreaker` as a GM to skip the countdown, or wait for the next half
 starts at :25). The first run is for levels 1-25, then 20-40, 35-55, 50-70, 65-85 and 80-99. Use two
 characters in the bracket on a base map, each with at least 500 gold.
 
-- [ ] The countdown says "An Icebreaker for levels 1-25 will start in 5 minute(s).", then
-      1 minute, 30 seconds and 10 seconds, in the chat and as a notice
+- [ ] The countdown says "In 5 minute(s) 1~25 Icebreaker will start for all levels.", then
+      1 minute, 30 seconds and 10 seconds, in the chat and as a notice, in the client's language
 - [ ] "Icebreaker has started" shows; only characters in the bracket get the join question, which
       asks for 500 gold
 - [ ] Saying yes takes 500 gold and moves the character to the Icebreaker map at once; without
