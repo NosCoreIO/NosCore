@@ -2125,6 +2125,10 @@ characters in the bracket on a base map, each with at least 500 gold.
       where they came from and can move and attack again
 - [ ] After 10 minutes without a winner, "Icebreaker will end in 30 seconds" then "Icebreaker time
       has elapsed" show and nobody is rewarded
+- [ ] The warnings, the start of PvP and the ten-minute limit come from `instances/ice-breaker.csx`:
+      changing a time there and restarting the world server changes it in game
+- [ ] A frozen player who logs out does not stop the others' fight, and the last player leaving
+      the map closes it
 
 ### Land of Death
 

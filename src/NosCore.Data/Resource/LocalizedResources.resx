@@ -832,8 +832,8 @@
   <data name="ICE_BREAKER_FAILED" xml:space="preserve">
     <value>Icebreaker failed</value>
   </data>
-  <data name="ICE_BREAKER_MAP_MISSING" xml:space="preserve">
-    <value>Icebreaker needs map {MapId} imported by the parser</value>
+  <data name="ICE_BREAKER_SCRIPT_MISSING" xml:space="preserve">
+    <value>Icebreaker needs its script {Script}</value>
   </data>
   <data name="MISSING_KEEPALIVE" xml:space="preserve">
     <value>Session {SessionId} sent a packet without a keep-alive number and was disconnected</value>

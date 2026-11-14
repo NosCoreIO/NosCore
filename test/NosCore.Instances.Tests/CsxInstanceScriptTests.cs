@@ -36,6 +36,16 @@ namespace NosCore.Instances.Tests
 
         public int MonstersAlive(int room) => Alive;
 
+        public int Players { get; set; }
+
+        public bool Decided { get; set; }
+
+        public int PlayersIn(int room) => Players;
+
+        public bool OneSideStanding(int room) => Decided;
+
+        public void SetPvp(int room, bool isPvp) => Calls.Add($"pvp({room},{isPvp})");
+
         public void Summon(int room, params MonsterSpawn[] monsters) =>
             Calls.Add($"summon({room},{string.Join(",", monsters.Select(m => m.VNum))})");
 
@@ -163,6 +173,62 @@ namespace NosCore.Instances.Tests
                 "message(ReturnToStartingPositionTenSeconds)",
                 "succeed"
             }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task AnIcebreakerWithOnePlayerIsWonAtOnce()
+        {
+            var script = await Loader().LoadAsync("ice-breaker");
+            var run = new RecordingRun { Players = 1 };
+
+            script.OnFirstEnter(run);
+
+            CollectionAssert.AreEqual(new[] { "succeed" }, run.Calls);
+            Assert.AreEqual(0, run.Scheduled.Count);
+        }
+
+        [TestMethod]
+        public async Task AnIcebreakerOpensPvpAfterItsWarningsAndEndsAfterTenMinutes()
+        {
+            var script = await Loader().LoadAsync("ice-breaker");
+            var run = new RecordingRun { Players = 2 };
+
+            script.OnFirstEnter(run);
+            foreach (var (_, step) in run.Scheduled.OrderBy(s => s.At).ToList())
+            {
+                step(run);
+            }
+
+            CollectionAssert.AreEqual(new[] { 0d, 6, 13, 14, 584, 614 },
+                run.Scheduled.Take(6).Select(s => s.At.TotalSeconds).OrderBy(s => s).ToArray());
+            CollectionAssert.AreEqual(new[]
+            {
+                "message(PvpWillBeAvailable)",
+                "message(PvpWillBeAvailable)",
+                "message(PvpWillBeAvailable)",
+                "message(BeginAttack)",
+                "pvp(1,True)",
+                "message(IcebreakerWillEndInThirtySeconds)",
+                "message(IcebreakerTimeElapsed)",
+                "fail"
+            }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task AnIcebreakerIsWonOnceOneSideIsLeftStanding()
+        {
+            var script = await Loader().LoadAsync("ice-breaker");
+            var run = new RecordingRun { Players = 2, Elapsed = TimeSpan.FromSeconds(14) };
+            script.OnFirstEnter(run);
+            var beginAttack = run.Scheduled.Single(s => s.At == TimeSpan.FromSeconds(14)).Step;
+
+            beginAttack(run);
+            var check = run.Scheduled.Single(s => s.At == TimeSpan.FromSeconds(15)).Step;
+            Assert.IsFalse(run.Calls.Contains("succeed"));
+
+            run.Decided = true;
+            check(run);
+            Assert.AreEqual("succeed", run.Calls[^1]);
         }
 
         [TestMethod]

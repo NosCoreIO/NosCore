@@ -12,10 +12,10 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.IceBreakerService;
 using NosCore.GameObject.Services.LandOfDeathService;
 using NosCore.GameObject.Services.TalentArenaService;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power.
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
-        IMapChangeService mapChangeService, IIceBreakerService iceBreakerService,
+        IMapChangeService mapChangeService, IScriptedInstanceService scriptedInstanceService,
         ILandOfDeathService landOfDeathService,
         ITalentArenaService talentArenaService)
     {
@@ -75,7 +75,11 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
                 if (player.MapInstance?.MapInstanceType == MapInstanceType.IceBreakerInstance)
                 {
-                    await iceBreakerService.FreezeAsync(player);
+                    if (player.MapInstance is { } iceBreaker && scriptedInstanceService.GetRun(iceBreaker.MapInstanceId) is { } run)
+                    {
+                        await run.PlayerDownAsync(player);
+                    }
+
                     return;
                 }
 

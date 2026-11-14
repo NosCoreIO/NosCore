@@ -18,6 +18,8 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
@@ -35,7 +37,7 @@ using NosCore.Shared.I18N;
 namespace NosCore.GameObject.Services.IceBreakerService
 {
     public class IceBreakerService(
-        Lazy<IMapInstanceGeneratorService> mapInstanceGeneratorService,
+        IScriptedInstanceService scriptedInstanceService,
         IMapInstanceRegistry mapInstanceRegistry,
         IMapChangeService mapChangeService,
         ISessionRegistry sessionRegistry,
@@ -44,7 +46,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
         IOptions<WorldConfiguration> worldConfiguration,
         ILogger<IceBreakerService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IIceBreakerService, ISingletonService
     {
-        public const short MapId = 2005;
+        public const string Script = "ice-breaker";
         public const int MaxPlayers = 50;
         public const long EntryFee = 500;
         public const byte FrozenEffect = 35;
@@ -62,17 +64,9 @@ namespace NosCore.GameObject.Services.IceBreakerService
         private const byte DelayThenTwoNumbers = 9;
 
         private static readonly TimeSpan SignUpTime = TimeSpan.FromSeconds(10);
-        private static readonly TimeSpan[] PvpWarnings = [TimeSpan.Zero, TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(7)];
-        private static readonly TimeSpan BeforeAttack = TimeSpan.FromSeconds(1);
-        private static readonly TimeSpan ReturnTime = TimeSpan.FromSeconds(10);
 
-        // Nothing in the client data gives the length of the fight; ten minutes keeps two players who avoid
-        // each other from holding the map forever.
-        private const int FightSeconds = 600;
-        private const int LastWarningSeconds = 30;
-
-        private readonly ConcurrentDictionary<long, byte> _frozen = new();
         private int _running;
+        private IInstanceScript? _script;
         private int _bracket;
         private volatile MapInstance? _signUpMap;
 
@@ -102,7 +96,6 @@ namespace NosCore.GameObject.Services.IceBreakerService
                 finally
                 {
                     _signUpMap = null;
-                    _frozen.Clear();
                     Volatile.Write(ref _running, 0);
                 }
             });
@@ -143,7 +136,6 @@ namespace NosCore.GameObject.Services.IceBreakerService
 
         public async Task FreezeAsync(PlayerComponentBundle player)
         {
-            _frozen.TryAdd(player.CharacterId, 0);
             await player.OnMapAsync(() =>
             {
                 player.Hp = player.MaxHp;
@@ -174,14 +166,6 @@ namespace NosCore.GameObject.Services.IceBreakerService
             await player.SendPacketAsync(player.GenerateCond());
         }
 
-        // Group members fight on the same side, so the fight is over once every player left standing
-        // is in the same group.
-        public static bool IsDecided(IReadOnlyCollection<PlayerComponentBundle> standing)
-        {
-            return standing.Count <= 1 || standing.All(p => standing.All(o => o.CharacterId == p.CharacterId
-                || p.Group.ContainsKey(new Tuple<VisualType, long>(VisualType.Player, o.VisualId))));
-        }
-
         private async Task RunAsync(int bracket, bool withCountdown)
         {
             var levelMinimum = rewardService.GetLevelMinimum(bracket);
@@ -196,117 +180,86 @@ namespace NosCore.GameObject.Services.IceBreakerService
                 }
             }
 
-            var baseMap = mapInstanceRegistry.GetBaseMapById(MapId);
-            if (baseMap == null)
+            _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+            if (_script is not { } script)
             {
-                logger.LogError(logLanguage[LogLanguageKey.ICE_BREAKER_MAP_MISSING], MapId);
+                logger.LogError(logLanguage[LogLanguageKey.ICE_BREAKER_SCRIPT_MISSING], Script);
                 return;
             }
 
-            var mapInstance = mapInstanceGeneratorService.Value.CreateMapInstance(baseMap.Map, Guid.NewGuid(), false,
-                MapInstanceType.IceBreakerInstance);
-            await mapInstanceGeneratorService.Value.AddMapInstanceAsync(mapInstance);
-            await mapInstance.StartLifeAsync();
-            try
+            var run = await scriptedInstanceService.InstantiateAsync(script, MapInstanceType.IceBreakerInstance,
+                new RunHost(this, bracket));
+            if (run == null || mapInstanceRegistry.GetById(run.Rooms[script.Definition.Rooms[0].Key]) is not { } mapInstance)
             {
-                await BroadcastAsync(Message(Game18NConstString.IcebreakerStarted));
-                _signUpMap = mapInstance;
-                foreach (var session in sessionRegistry.GetSessions(s => s.HasPlayerEntity
-                             && s.Character.Level >= levelMinimum && s.Character.Level <= levelMaximum
-                             && s.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance))
+                return;
+            }
+
+            await BroadcastAsync(Message(Game18NConstString.IcebreakerStarted));
+            _signUpMap = mapInstance;
+            foreach (var session in sessionRegistry.GetSessions(s => s.HasPlayerEntity
+                         && s.Character.Level >= levelMinimum && s.Character.Level <= levelMaximum
+                         && s.Character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance))
+            {
+                await session.SendPacketAsync(new QnamliPacket
                 {
-                    await session.SendPacketAsync(new QnamliPacket
-                    {
-                        Type = QnamlType.IceBreaker,
-                        YesPacket = new NosCore.Packets.ClientPackets.UI.GuriPacket { Type = GuriPacketType.IceBreaker },
-                        Question = Game18NConstString.AskJoinIcebreaker,
-                        ArgumentType = 4,
-                        Game18NArguments = { EntryFee },
-                    });
+                    Type = QnamlType.IceBreaker,
+                    YesPacket = new NosCore.Packets.ClientPackets.UI.GuriPacket { Type = GuriPacketType.IceBreaker },
+                    Question = Game18NConstString.AskJoinIcebreaker,
+                    ArgumentType = 4,
+                    Game18NArguments = { EntryFee },
+                });
+            }
+
+            await Task.Delay(SignUpTime);
+            _signUpMap = null;
+            if (!await scriptedInstanceService.DisposeIfEmptyAsync(run))
+            {
+                await run.StartAsync();
+            }
+        }
+
+        private sealed class RunHost(IceBreakerService service, int bracket) : IInstanceRunHost
+        {
+            public string Name => service.NameOf(bracket);
+
+            public bool StartsOnFirstEntry => false;
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) =>
+                service.FreezeAsync(player);
+
+            public async Task TickAsync(ScriptedInstanceRun run)
+            {
+                foreach (var session in run.Players().Where(s => s.HasPlayerEntity && run.IsDown(s.Character.CharacterId)).ToList())
+                {
+                    await run.BroadcastAsync(session.Character.GenerateEff(FrozenEffect));
                 }
+            }
 
-                await Task.Delay(SignUpTime);
-                _signUpMap = null;
-
-                if (Players(mapInstance).Count > 1)
+            public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
+            {
+                if (state == EndStateType.Success)
                 {
-                    foreach (var warning in PvpWarnings)
+                    var winners = run.Players()
+                        .Where(s => s.HasPlayerEntity && !run.IsDown(s.Character.CharacterId))
+                        .Select(s => s.Character)
+                        .ToList();
+                    await run.BroadcastAsync(Message(winners.Count == 0
+                        ? Game18NConstString.EverybodyIsFrozen
+                        : Game18NConstString.IceBreakerOver));
+                    foreach (var winner in winners)
                     {
-                        await Task.Delay(warning);
-                        await mapInstance.SendPacketAsync(Message(Game18NConstString.PvpWillBeAvailable));
+                        await service.RewardAsync(bracket, winner);
                     }
-
-                    await Task.Delay(BeforeAttack);
-                    await mapInstance.SendPacketAsync(Message(Game18NConstString.BeginAttack));
-                    mapInstance.IsPvp = true;
-                    await FightAsync(bracket, mapInstance);
-                    mapInstance.IsPvp = false;
-                }
-                else
-                {
-                    await EndAsync(bracket, mapInstance, Players(mapInstance));
                 }
 
-                if (mapInstance.Sessions.Count > 0)
-                {
-                    await mapInstance.SendPacketAsync(Message(Game18NConstString.ReturnToStartingPosition));
-                    await Task.Delay(ReturnTime);
-                }
-            }
-            finally
-            {
-                _signUpMap = null;
-                await ThawAllAsync();
-                await mapInstanceGeneratorService.Value.RemoveMapAsync(mapInstance.MapInstanceId);
-            }
-        }
-
-        private async Task FightAsync(int bracket, MapInstance mapInstance)
-        {
-            for (var second = 0; second < FightSeconds; second++)
-            {
-                var players = Players(mapInstance);
-                if (players.Count == 0)
-                {
-                    return;
-                }
-
-                var standing = players.Where(p => !_frozen.ContainsKey(p.CharacterId)).ToList();
-                if (IsDecided(standing))
-                {
-                    await EndAsync(bracket, mapInstance, standing);
-                    return;
-                }
-
-                foreach (var frozen in players.Where(p => _frozen.ContainsKey(p.CharacterId)))
-                {
-                    await mapInstance.SendPacketAsync(frozen.GenerateEff(FrozenEffect));
-                }
-
-                if (second == FightSeconds - LastWarningSeconds)
-                {
-                    await mapInstance.SendPacketAsync(Message(Game18NConstString.IcebreakerWillEndInThirtySeconds));
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await run.BroadcastAsync(Message(Game18NConstString.ReturnToStartingPosition));
             }
 
-            await mapInstance.SendPacketAsync(Message(Game18NConstString.IcebreakerTimeElapsed));
-        }
-
-        private async Task EndAsync(int bracket, MapInstance mapInstance, IReadOnlyCollection<PlayerComponentBundle> winners)
-        {
-            if (winners.Count == 0)
-            {
-                await mapInstance.SendPacketAsync(Message(Game18NConstString.EverybodyIsFrozen));
-                return;
-            }
-
-            await mapInstance.SendPacketAsync(Message(Game18NConstString.IceBreakerOver));
-            foreach (var winner in winners)
-            {
-                await RewardAsync(bracket, winner);
-            }
+            public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
         }
 
         private async Task RewardAsync(int bracket, PlayerComponentBundle character)
@@ -328,33 +281,24 @@ namespace NosCore.GameObject.Services.IceBreakerService
             });
         }
 
-        private async Task ThawAllAsync()
-        {
-            foreach (var characterId in _frozen.Keys)
-            {
-                _frozen.TryRemove(characterId, out _);
-                if (sessionRegistry.GetSessionByCharacterId(characterId) is not { HasPlayerEntity: true } session)
-                {
-                    continue;
-                }
+        private string NameOf(int bracket) => $"Icebreaker {rewardService.GetLevelMinimum(bracket)}+";
 
-                var character = session.Character;
-                await character.OnMapAsync(() =>
-                {
-                    character.NoMove = false;
-                    character.NoAttack = false;
-                    return Task.CompletedTask;
-                });
-                await character.SendPacketAsync(character.GenerateCond());
-            }
+        private async Task ReturnAsync(ClientSession session)
+        {
+            await ThawAsync(session.Character);
+            await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX,
+                session.Character.MapY);
         }
 
-        private List<PlayerComponentBundle> Players(MapInstance mapInstance)
+        private async Task ThawAsync(PlayerComponentBundle character)
         {
-            return sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId)
-                .Where(s => s.HasPlayerEntity)
-                .Select(s => s.Character)
-                .ToList();
+            await character.OnMapAsync(() =>
+            {
+                character.NoMove = false;
+                character.NoAttack = false;
+                return Task.CompletedTask;
+            });
+            await character.SendPacketAsync(character.GenerateCond());
         }
 
         private (short X, short Y) RandomCell(MapInstance mapInstance)

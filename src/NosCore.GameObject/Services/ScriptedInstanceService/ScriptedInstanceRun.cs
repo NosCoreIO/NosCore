@@ -9,6 +9,7 @@ using NodaTime;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
@@ -21,6 +22,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,6 +50,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, short> _lockers = [];
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
+        private readonly HashSet<long> _down = [];
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
         private int _nextPortalId;
@@ -167,7 +170,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     _visited.Add(room.Value);
                 }
 
-                if (!_started && !_abandoned)
+                if (!_started && !_abandoned && _host.StartsOnFirstEntry)
                 {
                     await BeginAsync();
                 }
@@ -179,11 +182,31 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        public Task PlayerDownAsync(PlayerComponentBundle player)
+        {
+            return RunAsync(() =>
+            {
+                if (player.MapInstance is { } map && RoomOf(map.MapInstanceId) != null && EndState == null && _down.Add(player.CharacterId))
+                {
+                    _pending.Add(() => _host.PlayerDownAsync(this, player));
+                }
+
+                return Task.CompletedTask;
+            });
+        }
+
+        public bool IsDown(long characterId) => _down.Contains(characterId);
+
         public Task TickAsync()
         {
             return RunAsync(async () =>
             {
                 var now = _clock.GetCurrentInstant();
+                if (EndState == null && _started)
+                {
+                    _pending.Add(() => _host.TickAsync(this));
+                }
+
                 if (EndState == null && _clockEndsAt is { } endsAt && now >= endsAt)
                 {
                     _clockEndsAt = null;
@@ -263,6 +286,30 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         }
 
         public int MonstersAlive(int room) => _aliveByRoom.GetValueOrDefault(room);
+
+        public int PlayersIn(int room) => PlayersOf(_rooms[room]).Count();
+
+        public bool OneSideStanding(int room)
+        {
+            var standing = PlayersOf(_rooms[room]).Where(p => !_down.Contains(p.CharacterId)).ToList();
+            return standing.All(p => standing.All(o => o.CharacterId == p.CharacterId
+                || p.Group.ContainsKey(new Tuple<VisualType, long>(VisualType.Player, o.VisualId))));
+        }
+
+        public void SetPvp(int room, bool isPvp)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                mapInstance.IsPvp = isPvp;
+                return Task.CompletedTask;
+            }));
+        }
+
+        private IEnumerable<PlayerComponentBundle> PlayersOf(MapInstance room) =>
+            _sessionRegistry.GetClientSessionsByMapInstance(room.MapInstanceId)
+                .Where(s => s.HasPlayerEntity)
+                .Select(s => s.Character);
 
         private void Counted(int room)
         {
@@ -361,6 +408,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _clockEndsAt = null;
             _scheduled.Clear();
             _returnAt = _clock.GetCurrentInstant().Plus(ReturnDelay);
+            foreach (var room in _rooms.Values)
+            {
+                room.IsPvp = false;
+            }
+
             _pending.Add(() =>
             {
                 _endingApplied = true;
@@ -496,7 +548,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 {
                     _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_STEP_TIMED_OUT], Name, _stepTimeout);
                     _pending.Clear();
-                    Abandon();
+                    if (!_abandoned)
+                    {
+                        Abandon();
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -533,6 +588,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void DropWave(int room, byte wave) => Do(() => run.DropWave(room, wave));
 
             public int MonstersAlive(int room) => run.MonstersAlive(room);
+
+            public int PlayersIn(int room) => run.PlayersIn(room);
+
+            public bool OneSideStanding(int room) => run.OneSideStanding(room);
+
+            public void SetPvp(int room, bool isPvp) => Do(() => run.SetPvp(room, isPvp));
 
             public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
                 Do(() => run.SpawnPortal(fromRoom, at, toRoom, arrival, locked));
