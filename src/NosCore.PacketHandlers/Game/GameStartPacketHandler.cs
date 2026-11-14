@@ -36,6 +36,9 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using NodaTime;
+using NosCore.Data.StaticEntities;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
@@ -52,7 +55,7 @@ namespace NosCore.PacketHandlers.Game
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IBuffService buffService, IVitalityService vitalityService,
             ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService,
-            IRespawnService respawnService, IMinilandRegistry minilandRegistry)
+            IRespawnService respawnService, IMinilandRegistry minilandRegistry, List<QuestDto> quests, IClock clock)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -84,6 +87,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateSpPoint(worldConfiguration));
             await session.SendPacketAsync(session.Character.GenerateRsfi());
             await session.SendPacketAsync(session.Character.GenerateQuestPacket());
+            await session.SendPacketsAsync(session.Character.GenerateCompletedQuests(quests, clock.GetCurrentInstant()));
 
             if (session.Character.Hp <= 0)
             {

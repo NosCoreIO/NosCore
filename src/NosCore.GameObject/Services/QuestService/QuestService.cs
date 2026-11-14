@@ -318,7 +318,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
-            if (quest.IsDaily && charQues.Value?.CompletedOn?.Plus(Duration.FromDays(1)) > clock.GetCurrentInstant())
+            if (quest.IsDaily && charQues.Value?.IsDoneAt(clock.GetCurrentInstant()) == true)
             {
                 await character.SendPacketAsync(new MsgiPacket
                 {

@@ -21,6 +21,10 @@ namespace NosCore.GameObject.Services.QuestService
 
         public NodaTime.Instant? ObjectivesCompletedOn { get; set; }
 
+        // A daily quest can be taken again once a day has passed, so it only counts as done until then.
+        public bool IsDoneAt(NodaTime.Instant now) =>
+            CompletedOn is { } done && (!Quest.IsDaily || done.Plus(NodaTime.Duration.FromDays(1)) > now);
+
         public QstiPacket GenerateQstiPacket(bool showDialog)
         {
             return new QstiPacket(GenerateQuestSubPacket(showDialog));
