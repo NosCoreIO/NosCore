@@ -21,8 +21,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 {
     // The smallest world a server will run: no client files, only what the scenarios stand on.
     // Two open maps joined by a portal, a miniland, a shopkeeper with one item to sell, a broker
-    // to talk to, a chest and a weapon to hand out, what a new adventurer is given, and creatures
-    // to hit. Characters are added by the scenarios.
+    // to talk to, a chest and a weapon to hand out, what a new adventurer is given, creatures to
+    // hit, and a market where players may keep a shop, with a grocer. Characters are added by
+    // the scenarios.
     public static class WorldData
     {
         public const string Password = "test";
@@ -74,6 +75,28 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const int Broker = 2;
         public const short BrokerDialog = 1;
         private const short BrokerVNum = 5;
+
+        // The one map where players may keep a shop, with a portal in a far corner.
+        public const short Market = 3;
+        public const short MarketPortalX = 95;
+        public const short MarketPortalY = 5;
+
+        // Sells a seed, a blade, a token for reputation and a gem on its first shelf, and a
+        // trinket on its second.
+        public const int Grocer = 3;
+        private const short GrocerVNum = 8;
+        public const short GrocerX = 20;
+        public const short GrocerY = 20;
+        public const long BladePrice = 1000;
+        public const short Gem = 2027;
+        public const long GemPrice = 5000;
+        public const short Token = 2028;
+        public const long TokenReputation = 300;
+        public const short Trinket = 2030;
+        public const long TrinketPrice = 40;
+
+        // Worth something, yet neither sold to a shop nor handed to another player.
+        public const short Keepsake = 2029;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -221,6 +244,63 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await context.SaveChangesAsync();
             context.Add(new MapNpc { MapNpcId = Broker, MapId = Town, MapX = 76, MapY = 118, VNum = BrokerVNum, Dialog = BrokerDialog });
             await context.SaveChangesAsync();
+            await SeedMarketAsync(context);
+            SeedDignity(context);
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedMarketAsync(NosCoreContext context)
+        {
+            var market = OpenMap(Market, 100, 100);
+            market.ShopAllowed = true;
+            context.Add(market);
+            context.Add(new Portal
+            {
+                SourceMapId = Market, SourceX = MarketPortalX, SourceY = MarketPortalY,
+                DestinationMapId = Town, DestinationX = 60, DestinationY = 100,
+                Type = PortalType.Open
+            });
+            context.Add(new Item
+            {
+                VNum = Gem, Name = "gem", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, Price = GemPrice,
+                IsDroppable = true, IsSoldable = true, IsTradable = true
+            });
+            context.Add(new Item
+            {
+                VNum = Token, Name = "token", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, ReputPrice = TokenReputation,
+                IsDroppable = true, IsSoldable = true, IsTradable = true
+            });
+            context.Add(new Item
+            {
+                VNum = Keepsake, Name = "keepsake", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, Price = 100, IsDroppable = true
+            });
+            context.Add(new Item
+            {
+                VNum = Trinket, Name = "trinket", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, Price = TrinketPrice,
+                IsDroppable = true, IsSoldable = true, IsTradable = true
+            });
+            context.Add(new NpcMonster { NpcMonsterVNum = GrocerVNum, Name = "grocer", Level = 1, MaxHp = 100 });
+            await context.SaveChangesAsync();
+            context.Add(new MapNpc { MapNpcId = Grocer, MapId = Market, MapX = GrocerX, MapY = GrocerY, VNum = GrocerVNum });
+            var shelves = new Shop { MapNpcId = Grocer, MenuType = 0, ShopType = 0 };
+            context.Add(shelves);
+            await context.SaveChangesAsync();
+            context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Seed, Slot = 0, Type = 0 });
+            context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Blade, Slot = 1, Type = 0 });
+            context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Token, Slot = 2, Type = 0 });
+            context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Gem, Slot = 3, Type = 0 });
+            context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Trinket, Slot = 4, Type = 1 });
+            await context.SaveChangesAsync();
+        }
+
+        // The bands of dignity as the client names them, each by the highest value still in it.
+        private static void SeedDignity(NosCoreContext context)
+        {
+            short?[] ceilings = [100, -100, -201, -401, -601, -801];
+            for (byte level = 1; level <= ceilings.Length; level++)
+            {
+                context.Add(new DignityLevel { DignityLevelId = level, MaxDignity = ceilings[level - 1] });
+            }
         }
 
         private static Item Worn(short vnum, EquipmentType slot, ItemType type) => new()
