@@ -33,6 +33,8 @@ public interface IQuestTypeHandler
 
     Task<bool> OnMapEntityCollectedAsync(PlayerComponentBundle character, NpcMonsterDto mapObject, CharacterQuest quest) => Task.FromResult(false);
 
+    Task<bool> OnEnemyPlayerDefeatedAsync(PlayerComponentBundle character, CharacterQuest quest) => Task.FromResult(false);
+
     // Returns true once every objective is met; instanceId is the client's time-space or raid id.
     Task<bool> OnScriptedInstanceSucceededAsync(PlayerComponentBundle character, ScriptedInstanceType type, byte instanceId,
         CharacterQuest quest) => Task.FromResult(false);

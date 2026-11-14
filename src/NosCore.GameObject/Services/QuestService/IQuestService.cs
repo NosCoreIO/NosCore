@@ -22,6 +22,8 @@ namespace NosCore.GameObject.Services.QuestService
         // Kept apart from OnMonsterKilledAsync so a capture never credits a hunt or kill objective.
         Task OnMonsterCapturedAsync(PlayerComponentBundle character, NpcMonsterDto mob);
 
+        Task OnEnemyPlayerDefeatedAsync(PlayerComponentBundle character);
+
         Task<bool> AddQuestAsync(PlayerComponentBundle character, QuestActionType type, short questId);
 
         // Flips CompletedOn (if not already), sends the client-side UI packet
