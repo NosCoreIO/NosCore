@@ -343,6 +343,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Gear that raises defence in PvP lowers the damage another player deals by its percent, and
       never by more than three quarters
 - [ ] The amulet changes nothing when hitting a monster
+- [ ] A weapon shell with "Reduced Enemy Mana in PvP by %s per Hit": each hit on another player
+      takes that much off their MP bar, and nothing off a monster's
+- [ ] A weapon shell with "Increased Damage in PvP", "Reduces opponent's defence power in PvP" or a
+      "Reduced Enemy ... Resistance in PvP" line makes hits on another player stronger, and leaves
+      hits on a monster unchanged
+- [ ] A weapon shell with "Hit Everytime in PVP" never misses another player
 
 ### Buffs triggered by hits
 

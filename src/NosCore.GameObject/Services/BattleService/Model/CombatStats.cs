@@ -80,7 +80,8 @@ public readonly record struct CombatStats(
     // Set on monsters only, so that race bonuses never match a player.
     MonsterRace? Race = null,
     byte RaceType = 0,
-    IReadOnlyList<RaceDamage>? RaceDamage = null);
+    IReadOnlyList<RaceDamage>? RaceDamage = null,
+    PvpShellStats PvpShell = default);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
 public readonly record struct ChanceDamage(int Chance, int Percent);

@@ -86,6 +86,7 @@ public sealed class BattleStatsProvider(
             LightResistance = stats.LightResistance + gear.LightResistance,
             DarkResistance = stats.DarkResistance + gear.DarkResistance,
             RaceDamage = gear.RaceDamage,
+            PvpShell = gear.PvpShell,
         };
 
     private CombatStats ResolveBaseStats(IAliveEntity entity) => entity switch

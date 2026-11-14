@@ -151,6 +151,7 @@ public sealed class EquipmentStatsService(
                 {
                     MpConsumptionDecrease = stats.MpConsumptionDecrease
                         + options.Where(o => o.Type == (byte)WeaponShellOptionType.ReducedMpConsumption).Sum(o => o.Value),
+                    PvpShell = AddPvpShell(stats.PvpShell, options),
                 };
             }
             else if (piece.Item.EquipmentSlot is EquipmentType.Armor)
@@ -285,8 +286,32 @@ public sealed class EquipmentStatsService(
         WeaponShellOptionType.IncreasedGold => BCardEffect.ItemIncreaseEarnedGold,
         WeaponShellOptionType.IncreasedCombatExperience => BCardEffect.ItemExpIncreased,
         WeaponShellOptionType.IncreasedJobExperience => BCardEffect.Type101IncreaseJXpGain,
+        WeaponShellOptionType.PvpIncreasedDamage => BCardEffect.LeonaPassiveSkillAttackIncreasedInPvp,
         _ => null,
     });
+
+    // The PvP damage option is a plain PvP attack bonus and goes through WeaponShellBCard; the
+    // option that hits at 15% has no known meaning yet and is left out.
+    private static PvpShellStats AddPvpShell(PvpShellStats pvp, IReadOnlyCollection<EquipmentOptionDto> options)
+    {
+        int Sum(WeaponShellOptionType type) => options.Where(o => o.Type == (byte)type).Sum(o => o.Value);
+        bool Has(WeaponShellOptionType type) => options.Any(o => o.Type == (byte)type);
+        var all = Sum(WeaponShellOptionType.PvpReducedEnemyAllResistances);
+        return pvp with
+        {
+            EnemyDefenceReduction = pvp.EnemyDefenceReduction + Sum(WeaponShellOptionType.PvpReducedEnemyDefence),
+            EnemyFireResistance = pvp.EnemyFireResistance - Sum(WeaponShellOptionType.PvpReducedEnemyFireResistance) - all,
+            EnemyWaterResistance = pvp.EnemyWaterResistance - Sum(WeaponShellOptionType.PvpReducedEnemyWaterResistance) - all,
+            EnemyLightResistance = pvp.EnemyLightResistance - Sum(WeaponShellOptionType.PvpReducedEnemyLightResistance) - all,
+            EnemyDarkResistance = pvp.EnemyDarkResistance - Sum(WeaponShellOptionType.PvpReducedEnemyShadowResistance) - all,
+            AlwaysHits = pvp.AlwaysHits || Has(WeaponShellOptionType.PvpAlwaysHit),
+            MpDrain = pvp.MpDrain + Sum(WeaponShellOptionType.PvpDrainMp),
+            IgnoresFireResistance = pvp.IgnoresFireResistance || Has(WeaponShellOptionType.PvpIgnoreFireResistance),
+            IgnoresWaterResistance = pvp.IgnoresWaterResistance || Has(WeaponShellOptionType.PvpIgnoreWaterResistance),
+            IgnoresLightResistance = pvp.IgnoresLightResistance || Has(WeaponShellOptionType.PvpIgnoreLightResistance),
+            IgnoresDarkResistance = pvp.IgnoresDarkResistance || Has(WeaponShellOptionType.PvpIgnoreShadowResistance),
+        };
+    }
 
     // The levelled groups split plants, animals and monsters by RaceType; the other options name a
     // whole group. Vampires are counted as undead because they share its group.

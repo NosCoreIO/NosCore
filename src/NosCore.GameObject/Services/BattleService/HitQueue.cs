@@ -212,6 +212,11 @@ public sealed class HitQueue(
                 await buffService.InflictCardsAsync(target, request.Origin, request.Skill.BCards);
             }
 
+            if (isPvp && !killed && attackerStats.PvpShell.MpDrain > 0)
+            {
+                target.Mp = Math.Max(0, target.Mp - attackerStats.PvpShell.MpDrain);
+            }
+
             await onHitBuffService.TriggerAsync(request.Origin, target, killed);
             await damageLeechService.ApplyAsync(request.Origin, hpBefore - newHp);
 

@@ -554,6 +554,26 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         }
 
         [TestMethod]
+        public void AWornWeaponsPvpShellOptionsAreKeptForPlayerHits()
+        {
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            AddOption(weapon, WeaponShellOptionType.PvpIncreasedDamage, 8);
+            AddOption(weapon, WeaponShellOptionType.PvpReducedEnemyDefence, 5);
+            AddOption(weapon, WeaponShellOptionType.PvpReducedEnemyFireResistance, 6);
+            AddOption(weapon, WeaponShellOptionType.PvpReducedEnemyAllResistances, 2);
+            AddOption(weapon, WeaponShellOptionType.PvpAlwaysHit, 1);
+            AddOption(weapon, WeaponShellOptionType.PvpDrainMp, 40);
+            AddOption(weapon, WeaponShellOptionType.PvpIgnoreWaterResistance, 1);
+
+            var stats = _service.Resolve(_session.Character);
+
+            Assert.AreEqual(8, stats.BCards.Single(b => b.Effect() == BCardEffect.LeonaPassiveSkillAttackIncreasedInPvp).FirstData);
+            Assert.AreEqual(new PvpShellStats(EnemyDefenceReduction: 5, EnemyFireResistance: -8, EnemyWaterResistance: -2,
+                EnemyLightResistance: -2, EnemyDarkResistance: -2, AlwaysHits: true, MpDrain: 40,
+                IgnoresWaterResistance: true), stats.PvpShell);
+        }
+
+        [TestMethod]
         public void AShellsReducedMpConsumptionAddsToTheJewels()
         {
             var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
