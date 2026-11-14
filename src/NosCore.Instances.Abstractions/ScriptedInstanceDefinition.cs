@@ -24,11 +24,17 @@ namespace NosCore.Instances.Abstractions
 
         public byte LevelMaximum { get; init; }
 
+        public byte TeamSizeMinimum { get; init; }
+
+        public byte TeamSizeMaximum { get; init; }
+
         public short StartX { get; init; }
 
         public short StartY { get; init; }
 
         public IReadOnlyList<InstanceGift> RequiredItems { get; init; } = [];
+
+        public IReadOnlyList<InstanceGift> GiftItems { get; init; } = [];
 
         public IReadOnlyList<InstanceRoom> Rooms { get; init; } = [];
     }

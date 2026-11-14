@@ -25,6 +25,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         Task<bool> LoadAsync(ScriptedInstance entrance);
 
+        Task<ScriptedInstance?> GetRaidBySealAsync(short sealVNum);
+
         Task<ScriptedInstanceRun?> InstantiateAsync(ScriptedInstance entrance);
 
         Task<IInstanceScript?> LoadScriptAsync(string script);

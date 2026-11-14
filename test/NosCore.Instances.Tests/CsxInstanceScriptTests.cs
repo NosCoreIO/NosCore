@@ -297,6 +297,51 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public async Task TheRaidIsOpenedByItsSealForATeamInItsLevelRange()
+        {
+            var definition = (await Loader().LoadAsync("raid-mother-cuby")).Definition;
+
+            Assert.AreEqual(1127, definition.RequiredItems.Single().VNum);
+            Assert.AreEqual(30, definition.LevelMinimum);
+            Assert.AreEqual(49, definition.LevelMaximum);
+            Assert.AreEqual(5, definition.TeamSizeMinimum);
+            Assert.AreEqual(15, definition.TeamSizeMaximum);
+            Assert.AreEqual(4684, definition.GiftItems.Single().VNum);
+        }
+
+        [TestMethod]
+        public async Task TheRaidOpensOnItsEntranceWithTheBossWaitingInTheSquare()
+        {
+            var script = await Loader().LoadAsync("raid-mother-cuby");
+            var run = new RecordingRun();
+
+            script.OnFirstEnter(run);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                "clock(40m)",
+                "portal(1->2,open)",
+                "summon(2,282,283,283,283,283,283,283,283,283)",
+                "summon(2,167,167,167,167,167,167,167,167)",
+                "summon(2,168,168,168,168,168,168,168)",
+                "summon(2,169,169,169,169,169,169,169)",
+                "summon(2,170,170,170,170,170,170,170)"
+            }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task OnlyTheBossFallingWinsTheRaid()
+        {
+            var script = await Loader().LoadAsync("raid-mother-cuby");
+            var run = new RecordingRun();
+
+            script.OnMonsterKilled(run, 1, 283);
+            script.OnMonsterKilled(run, 1, 282);
+
+            CollectionAssert.AreEqual(new[] { "succeed" }, run.Calls);
+        }
+
+        [TestMethod]
         public async Task ABrokenScriptSaysSoAtLoad()
         {
             var dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());

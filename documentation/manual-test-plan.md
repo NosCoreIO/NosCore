@@ -2138,6 +2138,52 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Do the same with an `OnFirstEnter` that throws: the failure score comes at once and
       the world log shows the exception
 - [ ] Monsters killed inside a run do not respawn
+- [ ] Inside a run, the client's exit button (`rxit`) sends you back beside the stone, and a
+      run you were alone in is gone (entering again starts a new one)
+- [ ] Disconnect inside a run you were alone in, then log back in: you are on the open world,
+      not in a room
+
+### Raids
+
+Set the `Script` column of a raid row (`Type` 1 in `ScriptedInstance`; the row only carries the script) to
+`raid-mother-cuby`, the raid shipped in `instances/`. It is opened by item 1127, for levels
+30 to 49 and teams of 5 to 15; the boss is 282 and its helpers 283, and dropping their `MaxHp`
+makes the run quick. Use five characters at level 30 to 49, called A to E below, all on one map.
+
+- [ ] A uses the seal: "You are the raid leader" appears, the seal is gone from the inventory
+- [ ] A uses a second seal: "already in a raid" appears and the seal stays
+- [ ] B in a party with C uses a seal: "cannot create a raid while in a group" appears
+- [ ] A invites B (the client sends `rd 1 <B>`): B is asked to join A's team; accepting puts B in it and
+      A sees that B joined
+- [ ] B answers an invitation A never sent (e.g. from an old dialog): nothing happens
+- [ ] B leaves: B is told they are out and A sees that B left. A kicks C: C is told they were
+      kicked
+- [ ] A disbands the team before starting: every member is told the team was disbanded
+- [ ] A leaves while B and C stay: B becomes the leader and everyone is told
+- [ ] With only A and B, A starts: "too few raid members" appears and nobody moves
+- [ ] With D on another map, A starts: "all raid members should be on" appears
+- [ ] With E at level 20, A starts: "level does not match" appears
+- [ ] With A to E on A's map, A starts: all five land at the bottom of Jelly Entrance and a
+      40-minute clock appears; the portal at the top leads to Jelly Square, where Mother Cuby
+      waits in the middle among Cubys, with a pack of jellies in each corner
+- [ ] Killing a Cuby does nothing; killing Mother Cuby ends the raid: every member still inside
+      gets one Raid Box of Mother Cuby (4684) and a "received" line, the team is dissolved, and
+      about ten seconds later everyone is back on the map they started from
+- [ ] A member with a full inventory gets "Not enough space" instead of the box, and the others
+      still get theirs
+- [ ] B dies: "You will be revived in 20 seconds. You can only be revived once." appears, B
+      stays down for 20 seconds, then stands up with full HP and MP where they fell
+- [ ] B dies a second time: the message now says the next death takes B out of the raid, and B
+      stands up again 20 seconds later
+- [ ] B dies a third time: "You have used all your lives." appears, B is back on the map they
+      started from with 1 HP and out of the team, and the raid goes on for the others
+- [ ] Let the clock run out: the raid fails, nobody gets a box, the team is dissolved and
+      everyone is sent back
+- [ ] B presses the exit button inside the raid: B is back on the map they started from and out
+      of the team, and the raid goes on for the others
+- [ ] C disconnects inside the raid: the others see that C left; when the last member
+      disconnects, logging back in finds no raid room left
+- [ ] D, not invited, cannot get into the team by any button while the raid runs
 
 ### Instant Combat
 
@@ -2619,6 +2665,10 @@ Recorded so nobody spends time hunting for them:
   unmodified client may grey the tab out first, in which case the refusal cannot be reached.
 - **Family experience from content** — time-spaces, raids and Instant Combat grant none yet;
   only member level-ups and achievement rewards move the bar.
+- **The raid party window and the raid list board** — the server keeps the team, but the
+  window listing its members (`rdlst`) and the board (`rl`) need packets NosCore.Packets does
+  not have yet, so neither opens in the client. Joining and leaving can only be watched through
+  the messages above until they do.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Options with nothing behind them yet** — family invites, pet and partner auto-revive,

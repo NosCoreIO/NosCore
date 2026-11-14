@@ -118,6 +118,19 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
+        public async Task<ScriptedInstance?> GetRaidBySealAsync(short sealVNum)
+        {
+            foreach (var entrance in _byMap.Values.SelectMany(s => s).Where(s => s.Type == ScriptedInstanceType.Raid))
+            {
+                if (await LoadAsync(entrance) && entrance.Definition?.RequiredItems.Any(s => s.VNum == sealVNum) == true)
+                {
+                    return entrance;
+                }
+            }
+
+            return null;
+        }
+
         public IReadOnlyList<ScriptedInstance> GetByMap(short mapId)
         {
             return _byMap.TryGetValue(mapId, out var entrances) ? entrances : None;

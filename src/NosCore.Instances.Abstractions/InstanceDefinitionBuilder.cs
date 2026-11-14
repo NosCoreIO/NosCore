@@ -12,12 +12,15 @@ namespace NosCore.Instances.Abstractions
     {
         private readonly List<InstanceRoom> _rooms = [];
         private readonly List<InstanceGift> _required = [];
+        private readonly List<InstanceGift> _gifts = [];
 
         private byte _id;
         private string? _label;
         private string? _title;
         private byte _levelMinimum;
         private byte _levelMaximum;
+        private byte _teamSizeMinimum;
+        private byte _teamSizeMaximum;
         private short _startX;
         private short _startY;
 
@@ -30,6 +33,13 @@ namespace NosCore.Instances.Abstractions
         {
             _levelMinimum = minimum;
             _levelMaximum = maximum;
+            return this;
+        }
+
+        public InstanceDefinitionBuilder ForTeams(byte minimum, byte maximum)
+        {
+            _teamSizeMinimum = minimum;
+            _teamSizeMaximum = maximum;
             return this;
         }
 
@@ -61,6 +71,13 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        // What every player still inside receives when the run succeeds.
+        public InstanceDefinitionBuilder WithReward(short vNum, short amount)
+        {
+            _gifts.Add(new InstanceGift(vNum, amount));
+            return this;
+        }
+
         public ScriptedInstanceDefinition Build()
         {
             return new ScriptedInstanceDefinition
@@ -70,9 +87,12 @@ namespace NosCore.Instances.Abstractions
                 Title = _title,
                 LevelMinimum = _levelMinimum,
                 LevelMaximum = _levelMaximum,
+                TeamSizeMinimum = _teamSizeMinimum,
+                TeamSizeMaximum = _teamSizeMaximum,
                 StartX = _startX,
                 StartY = _startY,
                 RequiredItems = [.. _required],
+                GiftItems = [.. _gifts],
                 Rooms = [.. _rooms]
             };
         }

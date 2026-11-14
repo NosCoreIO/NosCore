@@ -784,6 +784,9 @@
   <data name="LAND_OF_DEATH_SCRIPT_MISSING" xml:space="preserve">
     <value>The Land of Death needs its script {Script}</value>
   </data>
+  <data name="RAID_REWARD_NO_ROOM" xml:space="preserve">
+    <value>{Raid} could not give item {VNum} to {CharacterId}: no room</value>
+  </data>
   <data name="WALK_DROPPED_SPEED" xml:space="preserve">
     <value>walk dropped: server speed {ServerSpeed} &lt; packet speed {PacketSpeed} for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY})</value>
   </data>
