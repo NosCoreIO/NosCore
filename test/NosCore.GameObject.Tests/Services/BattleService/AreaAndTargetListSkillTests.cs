@@ -22,6 +22,7 @@ using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -117,6 +118,37 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .And(TheCasterStandsAt_, (10, 11))
                 .When(TheCasterResolvesAGroundSkillOfTargetRange_At_, (byte)2, (10, 10))
                 .Then(NoPlayerShouldBeHit)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATeleportGroundSkillMovesTheCasterToTheCell()
+        {
+            await new Spec("A ground skill that teleports puts the caster on the cell before it lands there")
+                .Given(TheSkillResolvesWithCards_, new[] { TeleportCard })
+                .WhenAsync(CastingAtTheCell_, (6, 6))
+                .Then(TheCasterShouldStandAt_, (6, 6))
+                .And(TheMapShouldSeeTheTeleportBeforeTheLanding)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATeleportGroundSkillAimedAtAWallLeavesTheCasterInPlace()
+        {
+            await new Spec("A teleport onto a cell nobody can stand on does not move the caster")
+                .Given(TheSkillResolvesWithCards_, new[] { TeleportCard })
+                .WhenAsync(CastingAtTheCell_, (2, 3))
+                .Then(TheCasterShouldStandAt_, (2, 2))
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AGroundSkillWithoutTeleportLeavesTheCasterInPlace()
+        {
+            await new Spec("Any other ground skill leaves the caster where it stood")
+                .Given(TheSkillResolvesWithCards_, Array.Empty<BCardDto>())
+                .WhenAsync(CastingAtTheCell_, (6, 6))
+                .Then(TheCasterShouldStandAt_, (2, 2))
                 .ExecuteAsync();
         }
 
@@ -287,6 +319,36 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _targetResolver.Setup(r => r.ResolveArea(_origin, _map, 10, 10, It.IsAny<SkillInfo>()))
                 .Returns(new List<IAliveEntity> { Monster(10) });
+        }
+
+        private static readonly BCardDto TeleportCard = new() { Type = 76, SubType = 11 };
+
+        private void TheSkillResolvesWithCards_(BCardDto[] cards)
+        {
+            _origin.MapInstance = _map;
+            _origin.PositionX = 2;
+            _origin.PositionY = 2;
+            _skillResolver.Setup(r => r.Resolve(_origin, 1L)).Returns(GroundSkill(0) with
+            {
+                HitType = TargetHitType.SingleTargetHit, TargetType = SkillReach.GroundSkill, BCards = cards,
+            });
+        }
+
+        private async Task CastingAtTheCell_((int X, int Y) cell)
+        {
+            _targetResolver.Setup(r => r.ResolveArea(_origin, _map, It.IsAny<short>(), It.IsAny<short>(), It.IsAny<SkillInfo>()))
+                .Returns(new List<IAliveEntity>());
+            _accepted = await _service.HitArea(_origin, (short)cell.X, (short)cell.Y, new HitArguments { SkillId = 1 });
+        }
+
+        private void TheCasterShouldStandAt_((int X, int Y) cell) =>
+            Assert.AreEqual(((short)cell.X, (short)cell.Y), (_origin.PositionX, _origin.PositionY));
+
+        private void TheMapShouldSeeTheTeleportBeforeTheLanding()
+        {
+            var packets = _map.LastPackets.Where(p => p is TpPacket or BsPacket).ToList();
+            Assert.IsInstanceOfType<TpPacket>(packets[0]);
+            Assert.IsInstanceOfType<BsPacket>(packets[1]);
         }
 
         private void TheSkillResolvesAsSingleTarget()
