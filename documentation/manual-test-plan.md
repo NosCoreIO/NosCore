@@ -1361,6 +1361,9 @@ and 5 Apples.
 - [ ] A party of two ends: each of the two sees the party-disbanded message once
 - [ ] A types `$Party B` (or the client language's alias, such as `$Invitation B`): B gets the
       party invite, the same as from the menu. `$Party Nobody` answers "Unknown person."
+- [ ] A types `$Partylocation` (or the client language's alias) alone: the chat says A is not in
+      a party. In a party with B on a map, it names B with the map number; with B in a miniland or
+      another instance, it says B is somewhere unknown. `$Partylocation B` names only B.
 
 ### Leaving a party
 
