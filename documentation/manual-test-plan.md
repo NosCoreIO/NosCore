@@ -508,8 +508,9 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Hit a Brown Bushi (156) many times with the same attack: about 4 hits in 10 deal a fifth
       of the usual damage, from its "40% chance that damage is reduced by 80%" passive. Any
       monster whose BASIC row carries an effect behaves the same way
-- [ ] Kill a Pii Pod (45): two Piis (36) appear where it died. Monsters with a "chance of
-      summoning upon death" card, such as 2014, summon only that often
+- [ ] Kill a Spider Egg (1921): a Strong Magmaros (1918) appears where it died. A Soft Pii Pod
+      (45) summons two Soft Piis (36) the same way. Monsters with a "chance of summoning upon
+      death" card, such as the Lava Pit (2014), summon only that often
 
 ---
 
