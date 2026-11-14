@@ -146,6 +146,7 @@ public sealed class EquipmentStatsService(
                 var options = Options(piece);
                 bcards.AddRange(options.Select(WeaponShellBCard).OfType<BCardDto>());
                 raceDamage.AddRange(options.SelectMany(WeaponShellRaceDamage));
+                bcards.AddRange(options.Select(WeaponShellHitCard).OfType<BCardDto>());
                 stats = stats with
                 {
                     MpConsumptionDecrease = stats.MpConsumptionDecrease
@@ -268,8 +269,8 @@ public sealed class EquipmentStatsService(
         _ => null,
     });
 
-    // Options without a case need a mechanic combat does not have yet, such as an effect on hit.
     // The SL options raise the specialist card and the race options go to RaceDamage instead.
+    // The debuff options carry a card as well as a chance, so WeaponShellHitCard builds them.
     private static BCardDto? WeaponShellBCard(EquipmentOptionDto option) => OptionBCard(option, (WeaponShellOptionType)option.Type switch
     {
         WeaponShellOptionType.EnhancedDamage => BCardEffect.AttackPowerAllAttacksIncreased,
@@ -306,6 +307,31 @@ public sealed class EquipmentStatsService(
             WeaponShellOptionType.IncreasedDamageToSmallAnimals => [new(MonsterRace.Furry, null, option.Value)],
             _ => [],
         };
+    }
+
+    // The equipment family of each debuff: Minor Bleeding, Bleeding and Heavy Bleeding are cards
+    // 189 to 191, Blackout and Deadly Blackout 196 and 197, Freeze 200.
+    private static BCardDto? WeaponShellHitCard(EquipmentOptionDto option)
+    {
+        short? card = (WeaponShellOptionType)option.Type switch
+        {
+            WeaponShellOptionType.MinorBleeding => 189,
+            WeaponShellOptionType.Bleeding => 190,
+            WeaponShellOptionType.HeavyBleeding => 191,
+            WeaponShellOptionType.Blackout => 196,
+            WeaponShellOptionType.DeadlyBlackout => 197,
+            WeaponShellOptionType.Freeze => 200,
+            _ => null,
+        };
+        return card is { } id
+            ? new BCardDto
+            {
+                Type = BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack.Type(),
+                SubType = BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack.SubType(),
+                FirstData = option.Value,
+                SecondData = id,
+            }
+            : null;
     }
 
     private static BCardDto? ArmorShellBCard(EquipmentOptionDto option) => OptionBCard(option, (ArmorShellOptionType)option.Type switch

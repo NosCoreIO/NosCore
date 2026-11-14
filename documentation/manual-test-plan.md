@@ -1732,9 +1732,13 @@ a Flamberge (`$CreateItem 299 5`), Rainbow Pearls (`$CreateItem 1429 20`) and a 
 - [ ] A weapon shell with an SL option (SL damage, defence, element, energy or all) changes
       nothing until you transform; once transformed, the Character window's attack (or defence,
       element, HP/MP) is higher than with the same card and a weapon without the shell
-- [ ] Hit a Baby Dander (a low-level plant) with and without a weapon shell carrying "Increased
-      Damage to Plants": the damage numbers rise by that percentage. The same weapon on a
-      Kovolt, an animal or an undead monster changes nothing unless the shell names its race
+- [ ] Hit a Baby Dander (a low-level plant) several times with a weapon whose shell carries only
+      "Increased Damage to Plants", then with the same weapon after the Magic Eraser: the range
+      of damage numbers is higher by that percentage. The same weapon on a Kovolt, an animal or
+      an undead monster changes nothing unless the shell names its race
+- [ ] Hit a monster with a weapon shell carrying Minor Bleeding, Bleeding, Heavy Bleeding,
+      Blackout, Deadly Blackout or Freeze: now and then the debuff icon appears over the monster
+      and, for bleeding, its HP keeps dropping between hits
 
 ---
 
