@@ -324,9 +324,11 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 
 ### Recovery item bonuses
 
-- [ ] Wear amulet 4361 ("recovery items +40%") and drink potion 1010 (1000 HP and MP): the bars
-      rise by 1400 each instead of 1000
-- [ ] With the amulet on, a snack or a meal heals two fifths more per tick
+- [ ] Wear amulet 4361 ("recovery items +40%") and, with at least 1400 HP and 1400 MP missing,
+      drink potion 1010 (1000 HP and MP): the bars rise by 1400 each instead of 1000
+- [ ] With the amulet on, a snack heals two fifths more HP and MP per tick
+- [ ] With the amulet on, a meal heals two fifths more HP and MP per tick, never above the usual
+      per-tick ceiling for meals
 
 ### Stun, root and speed buffs
 
