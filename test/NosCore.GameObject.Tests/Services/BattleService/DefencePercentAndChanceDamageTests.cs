@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.DodgeChanceService;
 using NosCore.Algorithm.MonsterLevelDamageService;
+using NosCore.Algorithm.UpgradeBonusService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -191,7 +193,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 ChanceDamage = chanceDamage.Length == 0 ? null : chanceDamage
             };
             var defender = new CombatStats { Level = 1 };
-            return new DamageCalculator(random.Object, new MonsterLevelDamageService()).Calculate(attacker, defender, Melee).Damage;
+            return new DamageCalculator(random.Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService()).Calculate(attacker, defender, Melee).Damage;
         }
 
         [TestMethod]

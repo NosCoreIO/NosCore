@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.DodgeChanceService;
 using NosCore.Algorithm.MonsterLevelDamageService;
+using NosCore.Algorithm.UpgradeBonusService;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using System;
@@ -66,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             // skips it. That is what makes a landed hit here proof of an override.
             _random.Setup(r => r.NextDouble()).Returns(0);
             _random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(0);
-            _calculator = new DamageCalculator(_random.Object, new MonsterLevelDamageService());
+            _calculator = new DamageCalculator(_random.Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService());
         }
 
         [TestMethod]
@@ -104,7 +106,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var random = new Mock<IRandomProvider>();
             random.Setup(r => r.NextDouble()).Returns(0.99);
-            var calculator = new DamageCalculator(random.Object, new MonsterLevelDamageService());
+            var calculator = new DamageCalculator(random.Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService());
             var wideOpen = new CombatStats { Level = 1, DefenceDodge = 0, DistanceDefenceDodge = 0 };
 
             var landed = calculator.Calculate(Attacker(), wideOpen, Melee);
