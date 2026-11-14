@@ -1,6 +1,7 @@
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Ecs.Components;
 
@@ -20,5 +21,7 @@ public record struct PlayerStateComponent(
     string? SpeechBubble = null,
     Instant SpeechBubbleExpiresAt = default,
     bool IsWaitingForEvent = false,
-    Instant ReviveAskedAt = default
+    Instant ReviveAskedAt = default,
+    ArenaTeamType? TalentArenaTeam = null,
+    bool InTalentArenaRing = false
 );

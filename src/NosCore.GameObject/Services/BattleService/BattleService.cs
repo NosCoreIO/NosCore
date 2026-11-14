@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using NodaTime;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -348,10 +349,20 @@ namespace NosCore.GameObject.Services.BattleService
             if (target.NoAttack) return false;
             if (origin is PlayerComponentBundle attacker && target is PlayerComponentBundle defender)
             {
-                return Arena.AreOpponents(attacker, defender) || AreOpponentsOnPvpMap(attacker, defender);
+                return Arena.AreOpponents(attacker, defender) || AreTalentArenaOpponents(attacker, defender)
+                    || AreOpponentsOnPvpMap(attacker, defender);
             }
             if (AreAllies(origin, target)) return false;
             return true;
+        }
+
+        // Only the two fighters in the ring hit each other, and only once their round has started.
+        public static bool AreTalentArenaOpponents(PlayerComponentBundle attacker, PlayerComponentBundle defender)
+        {
+            return attacker.InTalentArenaRing && defender.InTalentArenaRing
+                && attacker.TalentArenaTeam != defender.TalentArenaTeam
+                && attacker.MapInstance?.MapInstanceType == MapInstanceType.TalentArenaMapInstance
+                && defender.MapInstance?.MapInstanceId == attacker.MapInstance.MapInstanceId;
         }
 
         public static bool AreOpponentsOnPvpMap(PlayerComponentBundle attacker, PlayerComponentBundle defender)

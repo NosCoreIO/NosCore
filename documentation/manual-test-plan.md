@@ -2083,6 +2083,35 @@ level 55+ character in a family, standing next to the gatekeeper on map 98 (5,37
 - [ ] The portal at (172,171) leads back to map 98 at any time
 - [ ] However the character leaves, the clock disappears from the bottom left
 
+### Arena of Talents
+
+Run `$Event TalentArena` as a GM, or wait for 18:00; it stays open four hours. Six level-80
+characters (levels within five of each other) stand in the Individual Arena (map 2006, marked as an
+arena) next to Tei Ken, the left NPC on the steps. Learned skills are needed to hit anybody.
+
+- [ ] Tei Ken offers "Register for Arena of Talents"; before the event it refuses, outside the arena
+      it says to register at the arena, and a character in a group is refused
+- [ ] Registering opens the Arena of Talents window with "Search for registered team" and a 5:00
+      clock; three characters within five levels become a team ("Found registered team")
+- [ ] Cancel alone closes the window; Cancel with teammates asks whether to leave first, and the
+      teammates are told who left and go back to searching
+- [ ] Two full teams whose average levels lie within five are matched: both go through the "Team
+      Arena" loading screen into their own copy of map 2015, on their team's bench
+- [ ] The HUD shows "Arena of Talents" with Zenas 0 vs 0 Erenia, both teams' fighters (own team on
+      top) and "Zenas" or "Erenia" in the chat
+- [ ] After 15 seconds the first fighter of each team is put in the ring, a countdown and
+      "START!!" play, the clock shows 5:00 and the current fighters' names turn gold
+- [ ] Before the countdown ends, and from the bench at any time, nobody can be hit; once it ends
+      the two ring fighters hit each other and the HP bars in the HUD follow
+- [ ] A fighter whose HP reaches zero: "X has defeated Y." shows, they stand up with full HP on
+      their bench, their heart turns grey, the score goes up and the next fighter of their team
+      comes in; a fighter who disconnects loses the round the same way
+- [ ] A round that runs out sends both fighters out with no point to either team
+- [ ] When a team has nobody left the result window shows WIN/LOSE with won rounds and lives;
+      winners get 1 Gold Medal, losers 3 Silver Medals, each with a chat line
+- [ ] Ten seconds later (or after Close) everyone is back where they registered, the HUD is gone,
+      and players can be hit only where they could before
+
 ---
 
 ## Quests

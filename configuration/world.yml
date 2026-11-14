@@ -53,6 +53,9 @@ Events:
   At:
   - 14:00:00
   - 19:00:00
+- Type: TalentArena
+  At:
+  - 18:00:00
 # BasicEquipments / BasicSkills are keyed first by class name, then by starter origin:
 #   CreateAndUpgrade : Adventurer creation (lvl 1) and Adventurer -> specialist upgrade
 #   Create56         : specialist direct-create on normal server

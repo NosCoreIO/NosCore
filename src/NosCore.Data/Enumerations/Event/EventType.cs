@@ -10,6 +10,7 @@ namespace NosCore.Data.Enumerations.Event
     {
         InstantCombat,
         IceBreaker,
-        LandOfDeath
+        LandOfDeath,
+        TalentArena
     }
 }
