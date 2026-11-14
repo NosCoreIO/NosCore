@@ -13,7 +13,6 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.LandOfDeathService;
-using NosCore.GameObject.Services.TalentArenaService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking;
@@ -44,8 +43,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IScriptedInstanceService scriptedInstanceService,
-        ILandOfDeathService landOfDeathService,
-        ITalentArenaService talentArenaService)
+        ILandOfDeathService landOfDeathService)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -73,7 +71,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                     return;
                 }
 
-                if (player.MapInstance?.MapInstanceType is MapInstanceType.IceBreakerInstance or MapInstanceType.RaidInstance)
+                if (player.MapInstance?.MapInstanceType is MapInstanceType.IceBreakerInstance or MapInstanceType.RaidInstance
+                    or MapInstanceType.TalentArenaMapInstance)
                 {
                     if (player.MapInstance is { } room && scriptedInstanceService.GetRun(room.MapInstanceId) is { } run)
                     {
@@ -86,12 +85,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 if (player.MapInstance?.MapInstanceType == MapInstanceType.LodInstance)
                 {
                     await landOfDeathService.AskReviveAsync(player);
-                    return;
-                }
-
-                if (player.MapInstance?.MapInstanceType == MapInstanceType.TalentArenaMapInstance)
-                {
-                    await talentArenaService.DefeatAsync(player);
                     return;
                 }
 

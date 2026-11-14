@@ -5,7 +5,6 @@
 //
 
 using System.Threading.Tasks;
-using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Services.TalentArenaService
@@ -21,7 +20,5 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         // A player who already has teammates is asked to confirm first.
         Task CancelAsync(ClientSession session, bool confirmed);
-
-        Task DefeatAsync(PlayerComponentBundle player);
     }
 }

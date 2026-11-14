@@ -450,6 +450,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _pending.Add(() => BroadcastAsync(GenerateClock(endsAt)));
         }
 
+        public void ShowCountdown(int room, TimeSpan length)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => _host.CountdownAsync(this, mapInstance, length));
+        }
+
+        public bool CallFighters(int room) => _host.CallFighters(this, _rooms[room]);
+
+        public void OpenBout(int room) => _host.OpenBout(this, _rooms[room]);
+
+        public int FightersStanding(int room) => _host.FightersStanding(this, _rooms[room]);
+
+        public void EndBout(int room) => _host.EndBout(this, _rooms[room]);
+
+        // Work a host starts from a script verb; it runs once the script's step has returned.
+        public void Queue(Func<Task> work) => _pending.Add(work);
+
         public void Message(Game18NConstString message)
         {
             _pending.Add(() => BroadcastAsync(new MsgiPacket { Type = MessageType.Default, Message = message }));
@@ -671,6 +688,21 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void SetMonsterLocker(int room, short count) => Do(() => run.SetMonsterLocker(room, count));
 
             public void StartClock(TimeSpan limit) => Do(() => run.StartClock(limit));
+
+            public void ShowCountdown(int room, TimeSpan length) => Do(() => run.ShowCountdown(room, length));
+
+            public bool CallFighters(int room)
+            {
+                var called = false;
+                Do(() => called = run.CallFighters(room));
+                return called;
+            }
+
+            public void OpenBout(int room) => Do(() => run.OpenBout(room));
+
+            public int FightersStanding(int room) => run.FightersStanding(room);
+
+            public void EndBout(int room) => Do(() => run.EndBout(room));
 
             public void Message(Game18NConstString message) => Do(() => run.Message(message));
 
