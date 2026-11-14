@@ -59,6 +59,22 @@ namespace NosCore.Instances.Abstractions
 
         void StartClock(TimeSpan limit);
 
+        // Shows the room a clock that ends nothing when it runs out.
+        void ShowCountdown(int room, TimeSpan length);
+
+        // Bouts set one fighter from each side against each other while the others wait.
+        // Sends each side's next fighter into the ring; false once a side has nobody left.
+        bool CallFighters(int room);
+
+        // Lets the fighters in the ring hit each other.
+        void OpenBout(int room);
+
+        // Fighters in the ring who are still on their feet.
+        int FightersStanding(int room);
+
+        // Sends the fighters still in the ring back to their bench with nobody winning the bout.
+        void EndBout(int room);
+
         void Message(Game18NConstString message);
 
         void Succeed();

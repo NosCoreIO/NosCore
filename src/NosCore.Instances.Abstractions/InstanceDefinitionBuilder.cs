@@ -13,6 +13,8 @@ namespace NosCore.Instances.Abstractions
         private readonly List<InstanceRoom> _rooms = [];
         private readonly List<InstanceGift> _required = [];
         private readonly List<InstanceGift> _gifts = [];
+        private readonly List<InstanceGift> _consolations = [];
+        private readonly List<BoutSide> _sides = [];
 
         private byte _id;
         private string? _label;
@@ -71,10 +73,24 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
-        // What every player still inside receives when the run succeeds.
+        // What every player still inside receives when the run succeeds; between two sides, what the winners receive.
         public InstanceDefinitionBuilder WithReward(short vNum, short amount)
         {
             _gifts.Add(new InstanceGift(vNum, amount));
+            return this;
+        }
+
+        // What the losing side receives when a run between two sides ends.
+        public InstanceDefinitionBuilder WithConsolation(short vNum, short amount)
+        {
+            _consolations.Add(new InstanceGift(vNum, amount));
+            return this;
+        }
+
+        // Sides are taken in order: the first is Zenas, the second Erenia.
+        public InstanceDefinitionBuilder WithSide(Spot entry, Spot bench, Spot ring)
+        {
+            _sides.Add(new BoutSide(entry, bench, ring));
             return this;
         }
 
@@ -93,6 +109,8 @@ namespace NosCore.Instances.Abstractions
                 StartY = _startY,
                 RequiredItems = [.. _required],
                 GiftItems = [.. _gifts],
+                ConsolationItems = [.. _consolations],
+                Sides = [.. _sides],
                 Rooms = [.. _rooms]
             };
         }

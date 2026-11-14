@@ -832,6 +832,9 @@
   <data name="ICE_BREAKER_SCRIPT_MISSING" xml:space="preserve">
     <value>Icebreaker needs its script {Script}</value>
   </data>
+  <data name="TALENT_ARENA_SCRIPT_MISSING" xml:space="preserve">
+    <value>The Arena of Talents needs its script {Script}</value>
+  </data>
   <data name="MISSING_KEEPALIVE" xml:space="preserve">
     <value>Session {SessionId} sent a packet without a keep-alive number and was disconnected</value>
   </data>

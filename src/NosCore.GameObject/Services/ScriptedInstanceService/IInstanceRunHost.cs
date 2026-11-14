@@ -6,8 +6,11 @@
 
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Networking;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Event;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -41,5 +44,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) => Task.CompletedTask;
 
         Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
+
+        Task CountdownAsync(ScriptedInstanceRun run, MapInstance room, TimeSpan length) =>
+            room.SendPacketAsync(new EventPacket
+            {
+                Type = EventPacketType.TSTimer,
+                Parameter = (int)(length.TotalMilliseconds / 100),
+                SecondParameter = (int)(length.TotalMilliseconds / 100),
+            });
+
+        // Bouts, for the hosts that keep fighters. These run inside a script step, so packets go
+        // through run.Queue.
+        bool CallFighters(ScriptedInstanceRun run, MapInstance room) => false;
+
+        void OpenBout(ScriptedInstanceRun run, MapInstance room) { }
+
+        int FightersStanding(ScriptedInstanceRun run, MapInstance room) => 0;
+
+        void EndBout(ScriptedInstanceRun run, MapInstance room) { }
     }
 }

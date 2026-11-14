@@ -10,6 +10,10 @@ namespace NosCore.Instances.Abstractions
 {
     public record InstanceGift(short VNum, short Amount);
 
+    // Where one side of a bout lines up, waits after a fall, and fights. Fighters line up two
+    // cells apart below Entry in their fighting order.
+    public record BoutSide(Spot Entry, Spot Bench, Spot Ring);
+
     public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false);
 
     public record ScriptedInstanceDefinition
@@ -35,6 +39,10 @@ namespace NosCore.Instances.Abstractions
         public IReadOnlyList<InstanceGift> RequiredItems { get; init; } = [];
 
         public IReadOnlyList<InstanceGift> GiftItems { get; init; } = [];
+
+        public IReadOnlyList<InstanceGift> ConsolationItems { get; init; } = [];
+
+        public IReadOnlyList<BoutSide> Sides { get; init; } = [];
 
         public IReadOnlyList<InstanceRoom> Rooms { get; init; } = [];
     }

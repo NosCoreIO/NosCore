@@ -2364,6 +2364,8 @@ arena) next to Tei Ken, the left NPC on the steps. Learned skills are needed to 
       winners get 1 Gold Medal, losers 3 Silver Medals, each with a chat line
 - [ ] Ten seconds later (or after Close) everyone is back where they registered, the HUD is gone,
       and players can be hit only where they could before
+- [ ] The match runs from `instances/talent-arena.csx`: setting its preparation to 30 seconds and
+      restarting the world server makes the first fighters wait 30 seconds, with the HUD clock to match
 
 ---
 

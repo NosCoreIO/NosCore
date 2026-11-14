@@ -64,6 +64,25 @@ namespace NosCore.Instances.Tests
 
         public void StartClock(TimeSpan limit) => Calls.Add($"clock({limit.TotalMinutes}m)");
 
+        public void ShowCountdown(int room, TimeSpan length) => Calls.Add($"countdown({room},{length.TotalSeconds}s)");
+
+        public Queue<bool> Fighters { get; } = new();
+
+        public int Standing { get; set; } = 2;
+
+        public bool CallFighters(int room)
+        {
+            var called = Fighters.Count > 0 && Fighters.Dequeue();
+            Calls.Add($"call({room},{called})");
+            return called;
+        }
+
+        public void OpenBout(int room) => Calls.Add($"open({room})");
+
+        public int FightersStanding(int room) => Standing;
+
+        public void EndBout(int room) => Calls.Add($"endBout({room})");
+
         public void Message(Game18NConstString message) => Calls.Add($"message({message})");
 
         public void Succeed() => Calls.Add("succeed");
@@ -307,6 +326,94 @@ namespace NosCore.Instances.Tests
             Assert.AreEqual(5, definition.TeamSizeMinimum);
             Assert.AreEqual(15, definition.TeamSizeMaximum);
             Assert.AreEqual(4684, definition.GiftItems.Single().VNum);
+        }
+
+        private static void RunNextStep(RecordingRun run)
+        {
+            var next = run.Scheduled.OrderBy(s => s.At).First();
+            run.Scheduled.Remove(next);
+            run.Elapsed = next.At;
+            next.Step(run);
+        }
+
+        [TestMethod]
+        public async Task TheArenaGivesFifteenSecondsBeforeTheFirstBout()
+        {
+            var script = await Loader().LoadAsync("talent-arena");
+            var run = new RecordingRun();
+
+            script.OnFirstEnter(run);
+
+            CollectionAssert.AreEqual(new[] { "countdown(1,15s)" }, run.Calls);
+            Assert.AreEqual(TimeSpan.FromSeconds(15), run.Scheduled.Single().At);
+            Assert.AreEqual(2, script.Definition.Sides.Count);
+        }
+
+        [TestMethod]
+        public async Task ABoutOpensFiveSecondsAfterTheFightersAreCalled()
+        {
+            var script = await Loader().LoadAsync("talent-arena");
+            var run = new RecordingRun();
+            run.Fighters.Enqueue(true);
+            script.OnFirstEnter(run);
+
+            while (!run.Calls.Contains("open(1)"))
+            {
+                RunNextStep(run);
+            }
+
+            CollectionAssert.AreEqual(new[] { "countdown(1,15s)", "call(1,True)", "countdown(1,305s)", "open(1)" }, run.Calls);
+            Assert.AreEqual(TimeSpan.FromSeconds(20), run.Elapsed);
+        }
+
+        [TestMethod]
+        public async Task AFallCallsTheNextFightersThreeSecondsLater()
+        {
+            var script = await Loader().LoadAsync("talent-arena");
+            var run = new RecordingRun();
+            run.Fighters.Enqueue(true);
+            run.Fighters.Enqueue(true);
+            script.OnFirstEnter(run);
+            RunNextStep(run);
+            RunNextStep(run);
+
+            run.Standing = 1;
+            RunNextStep(run);
+            RunNextStep(run);
+
+            Assert.AreEqual(TimeSpan.FromSeconds(20), run.Elapsed);
+            Assert.AreEqual("call(1,True)", run.Calls[^2]);
+        }
+
+        [TestMethod]
+        public async Task ABoutStillGoingAfterFiveMinutesEndsWithoutAWinner()
+        {
+            var script = await Loader().LoadAsync("talent-arena");
+            var run = new RecordingRun();
+            run.Fighters.Enqueue(true);
+            script.OnFirstEnter(run);
+
+            while (!run.Calls.Contains("endBout(1)"))
+            {
+                RunNextStep(run);
+            }
+
+            Assert.AreEqual(TimeSpan.FromSeconds(15 + 305), run.Elapsed);
+            RunNextStep(run);
+            CollectionAssert.AreEqual(new[] { "call(1,False)", "succeed" }, run.Calls.TakeLast(2).ToList());
+        }
+
+        [TestMethod]
+        public async Task TheMatchEndsOnceASideHasNobodyLeft()
+        {
+            var script = await Loader().LoadAsync("talent-arena");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+
+            RunNextStep(run);
+
+            CollectionAssert.AreEqual(new[] { "countdown(1,15s)", "call(1,False)", "succeed" }, run.Calls);
+            Assert.AreEqual(0, run.Scheduled.Count);
         }
 
         [TestMethod]
