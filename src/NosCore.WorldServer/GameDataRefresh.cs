@@ -64,6 +64,11 @@ namespace NosCore.WorldServer
         private static void RunParser(ParserRun run, string[] args)
         {
             var start = new ProcessStartInfo(DotnetHost()) { UseShellExecute = false };
+            // A published world server carries the parser without its own dependency manifest, and
+            // its own one lists every assembly the parser needs.
+            start.ArgumentList.Add("exec");
+            start.ArgumentList.Add("--depsfile");
+            start.ArgumentList.Add(Path.ChangeExtension(typeof(GameDataRefresh).Assembly.Location, ".deps.json"));
             start.ArgumentList.Add(typeof(ParserBootstrap).Assembly.Location);
             if (run.Folder != null)
             {
