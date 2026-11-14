@@ -112,9 +112,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 CurrentMp = aliveEntity.Mp,
                 MaxHp = aliveEntity.MaxHp,
                 MaxMp = aliveEntity.MaxMp,
-                BuffIds = aliveEntity.BuffState()?.Values.Where(b => !b.Static).Select(b => b.CardId).ToList() is { Count: > 0 } buffs
-                    ? buffs
-                    : null
+                BuffIds = aliveEntity.ShownBuffIds()
             };
         }
 
@@ -340,6 +338,12 @@ namespace NosCore.GameObject.Ecs.Extensions
                 NpcComponentBundle n => n.World.TryGetComponent<BuffStateComponent>(n.Entity)?.ActiveBuffs,
                 _ => null,
             };
+
+        // Permanent buffs (a fairy booster) have no icon on another player's bars.
+        public static List<short>? ShownBuffIds(this IAliveEntity aliveEntity) =>
+            aliveEntity.BuffState()?.Values.Where(b => !b.Static).Select(b => b.CardId).ToList() is { Count: > 0 } buffs
+                ? buffs
+                : null;
 
         public static CModePacket GenerateCMode(this IAliveEntity aliveEntity)
         {

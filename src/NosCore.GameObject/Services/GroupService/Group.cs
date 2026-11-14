@@ -91,8 +91,8 @@ namespace NosCore.GameObject.Services.GroupService
                 MpLoad = member.MaxMp,
                 Race = member.Race,
                 Gender = member is PlayerComponentBundle player ? player.Gender : GenderType.Male,
-                Morph = member.Morph,
-                BuffIds = null
+                Morph = member is PlayerComponentBundle { UseSp: false } ? (short)0 : member.Morph,
+                BuffIds = member.ShownBuffIds()?.ConvertAll(id => (int)id)
             }).ToList();
         }
 
