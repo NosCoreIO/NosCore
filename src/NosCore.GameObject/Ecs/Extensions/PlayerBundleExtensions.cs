@@ -496,7 +496,6 @@ public static class PlayerBundleExtensions
     }
 
     // The right-click info card for a player: class, level, family, worn gear, faction and PvP stats.
-    // Talent fields stay 0 until that system exists.
     public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
