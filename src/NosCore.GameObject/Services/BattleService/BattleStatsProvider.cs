@@ -312,6 +312,8 @@ public sealed class BattleStatsProvider(
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
             CriticalReceivedChance = stats.CriticalReceivedChance + totals.CritReceivedChance,
+            PvpAttackPercent = stats.PvpAttackPercent + totals.PvpAttack,
+            PvpDefencePercent = stats.PvpDefencePercent + totals.PvpDefence,
             ChanceDamage = totals.ChanceDamage ?? stats.ChanceDamage,
             ChanceDamageTaken = totals.ChanceDamageTaken ?? stats.ChanceDamageTaken,
         };
@@ -338,6 +340,7 @@ public sealed class BattleStatsProvider(
         public int FactorDefenceAll, FactorDefenceMelee, FactorDefenceRanged, FactorDefenceMagical;
         public int HitRate, HitRateMelee, HitRateRanged, Dodge, Morale;
         public int AttackLevel, DefenceLevel;
+        public int PvpAttack, PvpDefence;
         public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
         public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
@@ -386,6 +389,10 @@ public sealed class BattleStatsProvider(
             [BCardEffect.CriticalInflictingReduced] = (t, v) => t.CritInflicting -= v,
             [BCardEffect.CriticalDamageIncreased] = (t, v) => t.CritDamage += v,
             [BCardEffect.CriticalDamageIncreasedInflictingReduced] = (t, v) => t.CritDamage -= v,
+            [BCardEffect.LeonaPassiveSkillAttackIncreasedInPvp] = (t, v) => t.PvpAttack += v,
+            [BCardEffect.LeonaPassiveSkillAttackDecreasedInPvp] = (t, v) => t.PvpAttack -= v,
+            [BCardEffect.LeonaPassiveSkillDefenceIncreasedInPvp] = (t, v) => t.PvpDefence += v,
+            [BCardEffect.LeonaPassiveSkillDefenceDecreasedInPvp] = (t, v) => t.PvpDefence -= v,
             [BCardEffect.CriticalReceivingIncreased] = (t, v) => t.CritReceivedChance += v,
             [BCardEffect.CriticalReceivingDecreased] = (t, v) => t.CritReceivedChance -= v,
             [BCardEffect.CriticalDamageFromCriticalIncreased] = (t, v) => t.CritReceived += v,
