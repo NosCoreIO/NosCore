@@ -13,6 +13,9 @@ namespace NosCore.GameObject.Services.BattleService;
 public static class SkillReach
 {
     public const byte TargetedSkill = 0;
+    public const byte SelfSkill = 1;
+    public const byte AllySkill = 2;
+    public const byte GroundSkill = 3;
 
     // The target may have stepped once between the click and the packet arriving.
     private const int LatencyCells = 1;
@@ -20,12 +23,12 @@ public static class SkillReach
     // A skill without a range in its data is a melee one.
     private const int MeleeRange = 1;
 
-    // A targeted skill reaches its range; any other skill is centred on the caster, so the
+    // A targeted or ally skill reaches its range; any other skill is centred on the caster, so the
     // target it names has to stand inside its area. A monster's body area widens the reach,
     // so a large monster can be hit from its edge.
     public static bool IsInReach(byte targetType, byte range, byte targetRange, int distance, byte targetArea = 0)
     {
-        var reach = targetType == TargetedSkill ? Math.Max((int)range, MeleeRange) : targetRange;
+        var reach = targetType is TargetedSkill or AllySkill ? Math.Max((int)range, MeleeRange) : targetRange;
         return distance <= reach + LatencyCells + targetArea;
     }
 

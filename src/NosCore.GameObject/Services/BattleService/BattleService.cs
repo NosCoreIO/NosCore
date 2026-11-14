@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -52,6 +53,12 @@ namespace NosCore.GameObject.Services.BattleService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
+            if (origin is PlayerComponentBundle && CanCast(origin) && !IsStunned(origin)
+                && Resolve(origin, arguments) is { TargetType: not SkillReach.TargetedSkill and not SkillReach.GroundSkill } supportSkill)
+            {
+                return await CastOnSelfOrAllyAsync(origin, target, supportSkill);
+            }
+
             if (!CanAttack(origin, target) || IsStunned(origin))
             {
                 await CancelAsync(origin, target);
@@ -145,6 +152,86 @@ namespace NosCore.GameObject.Services.BattleService
 
             ScheduleCooldownReset(origin, skill);
             return true;
+        }
+
+        // A skill aimed at the caster or a friendly player: a buff for them, a buff for everyone
+        // around, or a blow to every enemy around the caster, by its hit type.
+        private async Task<bool> CastOnSelfOrAllyAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill)
+        {
+            var mapInstance = origin.MapInstance;
+            var recipient = skill.TargetType == SkillReach.AllySkill ? target : origin;
+            if (mapInstance == null || !recipient.IsAlive || !ReferenceEquals(recipient.MapInstance, mapInstance)
+                || CanAttack(origin, recipient) || !await CastAsync(origin, null, skill))
+            {
+                await CancelAsync(origin, target);
+                return false;
+            }
+
+            var aroundCaster = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleTargetHitCombo;
+            await mapInstance.SendPacketAsync(new SuPacket
+            {
+                VisualType = origin.VisualType,
+                VisualId = origin.VisualId,
+                TargetVisualType = recipient.VisualType,
+                TargetId = recipient.VisualId,
+                SkillVnum = skill.SkillVnum,
+                SkillCooldown = skill.Cooldown,
+                AttackAnimation = skill.AttackAnimation,
+                SkillEffect = skill.Effect,
+                PositionX = origin.PositionX,
+                PositionY = origin.PositionY,
+                TargetIsAlive = true,
+                HpPercentage = recipient.MaxHp > 0 ? (byte)(recipient.Hp * 100 / recipient.MaxHp) : (byte)0,
+                Damage = 0,
+                HitMode = aroundCaster ? SuPacketHitMode.NoDamageFail : SuPacketHitMode.NoDamageSuccess,
+                SkillTypeMinusOne = (int)skill.Type - 1,
+                TargetCurrentHp = recipient.Hp,
+                TargetMaxHp = recipient.MaxHp,
+            });
+
+            if (aroundCaster)
+            {
+                var presentation = new HitPresentation(origin.PositionX, origin.PositionY, true);
+                var targets = targetResolver.ResolveArea(origin, mapInstance, origin.PositionX, origin.PositionY, skill);
+                for (var i = 0; i < targets.Count; i++)
+                {
+                    await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
+                }
+            }
+            else
+            {
+                var recipients = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleAoeTargetHit
+                    ? FriendlyPlayersAround(origin, mapInstance, skill.TargetRange)
+                    : new[] { recipient };
+                foreach (var friendly in recipients)
+                {
+                    await buffService.InflictCardsAsync(friendly, origin, skill.BCards);
+                    if (skill.Duration > 0 && skill.BCards.Count > 0)
+                    {
+                        await buffService.ApplySkillBuffAsync(friendly, skill.SkillVnum, skill.Duration, skill.BCards, origin);
+                    }
+                }
+            }
+
+            ScheduleCooldownReset(origin, skill);
+            return true;
+        }
+
+        private IReadOnlyList<IAliveEntity> FriendlyPlayersAround(IAliveEntity origin, MapInstance mapInstance, byte range)
+        {
+            var players = new List<IAliveEntity> { origin };
+            foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
+            {
+                if (!session.HasPlayerEntity) continue;
+                var player = session.Character;
+                if (player.VisualId == origin.VisualId || !player.IsAlive || CanAttack(origin, player)) continue;
+                if (Math.Abs(player.PositionX - origin.PositionX) <= range && Math.Abs(player.PositionY - origin.PositionY) <= range)
+                {
+                    players.Add(player);
+                }
+            }
+
+            return players;
         }
 
         private async Task TryProcessHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, bool isPrimary,
