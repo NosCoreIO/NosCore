@@ -2275,6 +2275,11 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Monsters killed inside a run do not respawn
 - [ ] Inside a run, the client's exit button (`rxit`) sends you back beside the stone, and a
       run you were alone in is gone (entering again starts a new one)
+- [ ] An `escape` sent inside a run does the same as `rxit`: the player is back beside the
+      stone, and other players standing there see them reappear. Inside a raid it leaves the
+      raid team as `rxit` does; outside an instance it does nothing
+- [ ] Not verifiable yet: the button that sends `escape`. It belongs to the time-space room
+      map, which this client does not draw yet, so drive it from a second, headless player
 - [ ] Disconnect inside a run you were alone in, then log back in: you are on the open world,
       not in a room
 
