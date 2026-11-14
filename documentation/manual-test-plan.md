@@ -1092,6 +1092,11 @@ and the items in the Etc bag.
       the same for a partner
 - [ ] Pet food on a partner, or partner medicine on a pet: nothing happens and the item stays
 - [ ] Your hair does not change when you use any of these
+- [ ] Strange Pet Food (2325) on the level 5 pet: it drops to level 4, the pet window shows the
+      new level and lower stats, "Your NosMate eats the food very tentatively." shows, and the food
+      is used up. On a level 1 pet, or on a partner, nothing happens and the food stays
+- [ ] Strange Partner Food (2421) on the level 10 partner: it drops to level 9 with "Your partner
+      is eating the food very hesitantly."
 - [ ] Special Pet Food (2187): "The pet can collect items from now on." and the pet window shows
       the pick-up ability; a second one on the same pet stays in the bag
 - [ ] NosMate Summoning Book (2419) on a NosMate that cannot be summoned: it can be now; on one
