@@ -14,6 +14,8 @@ namespace NosCore.Instances.Abstractions
         private readonly List<InstanceGift> _required = [];
         private readonly List<InstanceGift> _gifts = [];
         private readonly List<InstanceGift> _consolations = [];
+        private readonly List<InstanceGift> _draws = [];
+        private readonly List<InstanceGift> _specials = [];
         private readonly List<BoutSide> _sides = [];
 
         private byte _id;
@@ -25,6 +27,9 @@ namespace NosCore.Instances.Abstractions
         private byte _teamSizeMaximum;
         private short _startX;
         private short _startY;
+        private long _gold;
+        private int _reputation;
+        private int _familyExperience;
 
         public static InstanceDefinitionBuilder Named(byte id, string label, string title)
         {
@@ -80,6 +85,38 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        // A time-space's reward chest: the gold and reputation it pays, the list one item is drawn
+        // from, and the special items given on top of the rewards above.
+        public InstanceDefinitionBuilder WithGold(long gold)
+        {
+            _gold = gold;
+            return this;
+        }
+
+        public InstanceDefinitionBuilder WithReputation(int reputation)
+        {
+            _reputation = reputation;
+            return this;
+        }
+
+        public InstanceDefinitionBuilder WithFamilyExperience(int experience)
+        {
+            _familyExperience = experience;
+            return this;
+        }
+
+        public InstanceDefinitionBuilder WithDraw(short vNum, short amount)
+        {
+            _draws.Add(new InstanceGift(vNum, amount));
+            return this;
+        }
+
+        public InstanceDefinitionBuilder WithSpecialReward(short vNum, short amount)
+        {
+            _specials.Add(new InstanceGift(vNum, amount));
+            return this;
+        }
+
         // What the losing side receives when a run between two sides ends.
         public InstanceDefinitionBuilder WithConsolation(short vNum, short amount)
         {
@@ -110,6 +147,11 @@ namespace NosCore.Instances.Abstractions
                 RequiredItems = [.. _required],
                 GiftItems = [.. _gifts],
                 ConsolationItems = [.. _consolations],
+                DrawItems = [.. _draws],
+                SpecialItems = [.. _specials],
+                Gold = _gold,
+                Reputation = _reputation,
+                FamilyExperience = _familyExperience,
                 Sides = [.. _sides],
                 Rooms = [.. _rooms]
             };

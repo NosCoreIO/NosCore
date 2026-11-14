@@ -26,6 +26,7 @@ using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -55,6 +56,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
+
+        private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
         private readonly Dictionary<int, long> _newestArrival = [];
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
@@ -496,6 +499,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         }
 
         public void Succeed() => End(EndStateType.Success);
+
+        // Each player opens the reward chest of a successful run once.
+        public bool TryOpenChest(long characterId) =>
+            EndState == EndStateType.Success && _chestsOpened.TryAdd(characterId, 0);
 
         public void Fail() => End(EndStateType.Fail);
 

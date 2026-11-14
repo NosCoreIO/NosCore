@@ -42,6 +42,16 @@ namespace NosCore.Instances.Abstractions
 
         public IReadOnlyList<InstanceGift> ConsolationItems { get; init; } = [];
 
+        public IReadOnlyList<InstanceGift> DrawItems { get; init; } = [];
+
+        public IReadOnlyList<InstanceGift> SpecialItems { get; init; } = [];
+
+        public long Gold { get; init; }
+
+        public int Reputation { get; init; }
+
+        public int FamilyExperience { get; init; }
+
         public IReadOnlyList<BoutSide> Sides { get; init; } = [];
 
         public IReadOnlyList<InstanceRoom> Rooms { get; init; } = [];
