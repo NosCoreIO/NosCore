@@ -24,8 +24,13 @@ namespace NosCore.PacketHandlers.Miniland
             switch (mlEditPacket.Type)
             {
                 case MinilandEditType.Intro:
-                    await clientSession.SendPacketAsync(new MlintroPacket { Intro = mlEditPacket.MinilandInfo });
-                    miniland.MinilandMessage = mlEditPacket.MinilandInfo;
+                    if (mlEditPacket.Introduction is not { } introduction)
+                    {
+                        return;
+                    }
+
+                    await clientSession.SendPacketAsync(new MlintroPacket { Intro = introduction });
+                    miniland.MinilandMessage = introduction;
                     await clientSession.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.MinilandChanged
@@ -33,7 +38,7 @@ namespace NosCore.PacketHandlers.Miniland
                     break;
 
                 case MinilandEditType.State:
-                    switch (mlEditPacket.Parameter)
+                    switch (mlEditPacket.State)
                     {
                         case MinilandState.Private:
                             await clientSession.SendPacketAsync(new MsgiPacket

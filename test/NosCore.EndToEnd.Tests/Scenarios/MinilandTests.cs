@@ -8,6 +8,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Database.Entities;
@@ -22,6 +23,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const int Player = 1;
         private const int Npc = 2;
         private const int EtcPocket = 2;
+        private const int EditIntroduction = 1;
         private const int EditState = 2;
         private const int Open = 0;
         private const int Locked = 2;
@@ -132,6 +134,43 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.SendAsync($"mjoin {Player} {alice.CharacterId}");
 
             await bob.ExpectSinceAsync(visited, p => p == "msg 0 Come in and rest", "the owner's message, spaces and all");
+        }
+
+        [TestMethod]
+        public async Task TheOwnerWritesANewIntroductionAndAVisitorIsShownIt()
+        {
+            await using var alice = await EnterAsync(await OwnerAsync());
+            await using var bob = await Harness.EnterAsync("Bob", x: 72, y: 116);
+            await BefriendAsync(alice, bob);
+            await GoHomeAsync(alice);
+            var written = alice.Mark();
+
+            // The client writes the text straight after the kind of change, spaces and all.
+            await alice.SendAsync($"mledit {EditIntroduction} Come in and rest");
+
+            await alice.ExpectSinceAsync(written, p => p == "mlintro Come^in^and^rest", "the introduction as the owner's window shows it");
+            var visited = bob.Mark();
+            await bob.SendAsync($"mjoin {Player} {alice.CharacterId}");
+            await bob.ExpectSinceAsync(visited, p => p == "msg 0 Come in and rest", "the introduction across the visitor's screen");
+            StringAssert.EndsWith(await bob.ExpectSinceAsync(visited, p => TestClient.HeaderOf(p) == "mlinfobr", "whose miniland it is"),
+                " Come^in^and^rest");
+        }
+
+        [TestMethod]
+        public async Task ANewIntroductionIsStoredWhenItsOwnerLeaves()
+        {
+            var owner = await OwnerAsync();
+            await using (var alice = await EnterAsync(owner))
+            {
+                await GoHomeAsync(alice);
+                await alice.SendAsync($"mledit {EditIntroduction} Back in five minutes");
+                await alice.ExpectAsync(p => p == "mlintro Back^in^five^minutes", "the introduction as the owner's window shows it");
+            }
+
+            await using var back = await Harness.ComeBackAsync(owner);
+            await using var context = Harness.Database.CreateContext();
+            Assert.AreEqual("Back in five minutes",
+                (await context.Set<Miniland>().AsNoTracking().SingleAsync(m => m.OwnerId == owner.CharacterId)).MinilandMessage);
         }
 
         [TestMethod]

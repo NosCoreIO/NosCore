@@ -832,6 +832,9 @@ Two clients, A and B.
       in: the object is not standing there, and it is still in the miniland inventory
 - [ ] Visit a miniland whose introduction has spaces in it: the line across the screen on
       entering reads with its spaces, as the introduction in the corner does
+- [ ] In your own miniland, write a new introduction with spaces in it: the "miniland changed"
+      notice appears, a visitor is shown the new text, and it is still there after you log out
+      and in again
 
 ### Respawn point
 
