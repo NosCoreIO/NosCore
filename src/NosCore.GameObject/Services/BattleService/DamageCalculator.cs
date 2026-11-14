@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.Algorithm.MonsterLevelDamageService;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -15,7 +16,7 @@ namespace NosCore.GameObject.Services.BattleService;
 // Player and monster damage. The calculator is stateless apart from RNG — all inputs come from the resolved CombatStats
 // of both sides plus the SkillInfo. Keeping this symmetrical lets the same function
 // service character→monster, monster→character and PvP damage.
-public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
+public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamageService monsterLevelDamageService) : IDamageCalculator
 {
     // Element matchup boosts: attackerElement x defenderElement → multiplier. 0 means
     // "no element".
@@ -121,7 +122,10 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             baseDamage += (int)(baseDamage * bonus);
         }
 
-        return Land(attacker, defender, context.Kind, baseDamage + elementalDamage, criticalBonus != null);
+        var landed = Land(attacker, defender, context.Kind, baseDamage + elementalDamage, criticalBonus != null);
+        return defender.IsPlayer
+            ? landed with { Damage = landed.Damage + monsterLevelDamageService.GetExtraDamage((byte)attacker.Level) }
+            : landed;
     }
 
     // A player's attack is the class table, the weapon scaled by its upgrade over the target's

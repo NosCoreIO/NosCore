@@ -121,6 +121,14 @@ same damage means only one of the two is being read.
 - [ ] Hit a monster with a class skill, then again once its upgrade is learned: the impact
       changes with the upgrade
 
+### A monster's hit on a player
+
+- [ ] A level 80 swordsman with no gear stands next to a level 60 monster (215): each of its
+      non-critical hits is about 180 more than the same monster does at level 44 or below,
+      roughly 460 to 560 instead of 265 to 390
+- [ ] A monster below level 45 adds nothing on top of its usual hit
+- [ ] A level 60 monster hitting another monster or an NPC adds nothing either
+
 ### Combo chains
 
 - [ ] With a class whose basic attack chains (skill 220 is the Swordsman's), attack the

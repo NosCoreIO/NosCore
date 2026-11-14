@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.MonsterLevelDamageService;
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -44,7 +45,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void MissWhenDodgeRollLanding()
         {
-            var calc = new DamageCalculator(Rng(doubles: new[] { 0.0 }).Object); // 0 * 100 = 0, <= 79 = dodge
+            var calc = new DamageCalculator(Rng(doubles: new[] { 0.0 }).Object, new MonsterLevelDamageService()); // 0 * 100 = 0, <= 79 = dodge
             var attacker = StatsBuilder.Default() with { HitRate = 0, Class = CharacterClassType.Swordsman };
             var defender = StatsBuilder.Default() with { DefenceDodge = 100 };
 
@@ -59,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             // Type 2 (magic) skill skips dodge entirely. Even with insane
             // defender dodge the hit lands.
-            var calc = new DamageCalculator(Rng(doubles: new[] { 0.0, 1.0 }, ints: new[] { 100 }).Object);
+            var calc = new DamageCalculator(Rng(doubles: new[] { 0.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService());
             var attacker = StatsBuilder.Default() with { Class = CharacterClassType.Mage, MinHit = 100, MaxHit = 100 };
             var defender = StatsBuilder.Default() with { DefenceDodge = 999 };
 
@@ -74,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             // Big armor, small hit — damage should floor (it is randomised in 1..5 when
             // total < 5 so we can't assert exact, but it must be positive).
-            var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 50, 3 }).Object);
+            var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 50, 3 }).Object, new MonsterLevelDamageService());
             var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 50, MaxHit = 50 };
             var defender = StatsBuilder.Default() with { Defence = 9999, DefenceDodge = 0 };
 
@@ -84,10 +85,27 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        [DataRow((byte)44, false, 0)]
+        [DataRow((byte)60, true, 180)]
+        [DataRow((byte)60, false, 0)]
+        public void AHighLevelMonsterAddsItsLevelDamageOnlyToAPlayer(byte level, bool defenderIsPlayer, int extra)
+        {
+            var attacker = StatsBuilder.Default() with { Level = level, Morale = 0, HitRate = 100, MinHit = 100, MaxHit = 100 };
+            var defender = StatsBuilder.Default() with { IsPlayer = defenderIsPlayer, Level = 0, DefenceDodge = 0 };
+
+            var result = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
+                .Calculate(attacker, defender, MeleeSkill);
+            var withoutLevel = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
+                .Calculate(attacker with { Level = 1 }, defender, MeleeSkill);
+
+            Assert.AreEqual(withoutLevel.Damage + extra, result.Damage);
+        }
+
+        [TestMethod]
         public void CriticalBoostsDamage()
         {
             // Hit roll 1.0 (no dodge), crit roll 0.0 (crit lands, critChance=100).
-            var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object);
+            var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService());
             var attacker = StatsBuilder.Default() with
             {
                 HitRate = 100, MinHit = 100, MaxHit = 100,
@@ -111,9 +129,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 CriticalChance = 100, CriticalRate = 200,
             };
 
-            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object)
+            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
-            var halved = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object)
+            var halved = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, StatsBuilder.Default() with { CriticalDamageReceived = -50 }, MeleeSkill);
 
             var baseDamage = full.Damage / 3;
@@ -130,9 +148,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 CriticalChance = 10, CriticalRate = 200,
             };
 
-            var plain = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object)
+            var plain = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
-            var exposed = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object)
+            var exposed = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, StatsBuilder.Default() with { CriticalReceivedChance = 20 }, MeleeSkill);
 
             Assert.AreEqual(SuPacketHitMode.SuccessAttack, plain.HitMode);
@@ -148,7 +166,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 CriticalChance = 30, CriticalRate = 200,
             };
 
-            var guarded = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object)
+            var guarded = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, StatsBuilder.Default() with { CriticalReceivedChance = -10 }, MeleeSkill);
 
             Assert.AreEqual(SuPacketHitMode.SuccessAttack, guarded.HitMode);
@@ -163,11 +181,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 ChanceDamageTaken = new[] { new ChanceDamageTaken(30, -50, null) },
             };
 
-            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object)
+            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
-            var halved = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.1 }, ints: new[] { 100 }).Object)
+            var halved = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.1 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, guarded, MeleeSkill);
-            var unlucky = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.5 }, ints: new[] { 100 }).Object)
+            var unlucky = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.5 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, guarded, MeleeSkill);
 
             Assert.AreEqual(full.Damage / 2, halved.Damage);
@@ -183,9 +201,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 ChanceDamageTaken = new[] { new ChanceDamageTaken(100, -50, AttackKind.Magical) },
             };
 
-            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object)
+            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
-            var melee = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.0 }, ints: new[] { 100 }).Object)
+            var melee = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService())
                 .Calculate(attacker, magicGuard, MeleeSkill);
 
             Assert.AreEqual(full.Damage, melee.Damage);
@@ -194,13 +212,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void MoraleAddsFlatDamage()
         {
-            var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);
+            var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object, new MonsterLevelDamageService());
             var without = calc.Calculate(
                 StatsBuilder.Default() with { HitRate = 100, MinHit = 10, MaxHit = 10, Morale = 10 },
                 StatsBuilder.Default() with { Level = 0 },
                 MeleeSkill);
 
-            var calc2 = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);
+            var calc2 = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object, new MonsterLevelDamageService());
             var with = calc2.Calculate(
                 StatsBuilder.Default() with { HitRate = 100, MinHit = 10, MaxHit = 10, Morale = 50 },
                 StatsBuilder.Default() with { Level = 0 },
@@ -212,8 +230,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void ElementBonusAddsDamage()
         {
-            var baseCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object);
-            var elementCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object);
+            var baseCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService());
+            var elementCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService());
             var skill = MeleeSkill with { Element = 1 };
 
             var baseline = baseCalc.Calculate(
@@ -232,8 +250,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AMonstersHitGetsNoFlatBonusFromItsClass()
         {
-            var advCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);
-            var otherCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);
+            var advCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object, new MonsterLevelDamageService());
+            var otherCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object, new MonsterLevelDamageService());
 
             var adv = advCalc.Calculate(
                 StatsBuilder.Default() with { HitRate = 100, MinHit = 10, MaxHit = 10, Class = CharacterClassType.Adventurer },
@@ -263,7 +281,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             };
 
         private static int Hit(CombatStats attacker, CombatStats defender, SkillInfo skill, double roll = 0.5) =>
-            new DamageCalculator(Rng(doubles: new[] { roll, roll }).Object).Calculate(attacker, defender, skill).Damage;
+            new DamageCalculator(Rng(doubles: new[] { roll, roll }).Object, new MonsterLevelDamageService()).Calculate(attacker, defender, skill).Damage;
 
         // A naked level 10 swordsman's basic attack does 32 to a chicken: 26 + 15 - 18 + (10 - 1).
         [TestMethod]
