@@ -84,11 +84,23 @@ public sealed class SkillResolver : ISkillResolver
         if (mob == null) return null;
 
         var resolvedSkill = ResolveNpcSkill(mob, castId);
-        if (resolvedSkill != null)
+        return resolvedSkill != null ? BuildInfo(resolvedSkill, null, castId) : BasicAttack(mob);
+    }
+
+    public SkillInfo? ResolveBasic(IAliveEntity caster)
+    {
+        if (caster is not INonPlayableEntity { NpcMonster: { } mob })
         {
-            return BuildInfo(resolvedSkill, null, castId);
+            return null;
         }
 
+        return mob.BasicSkill > 0 && _skillsByVnum.TryGetValue(mob.BasicSkill, out var basic)
+            ? BuildInfo(basic, null, 0)
+            : BasicAttack(mob);
+    }
+
+    private static SkillInfo BasicAttack(NpcMonsterDto mob)
+    {
         // No skill in the catalog and no BasicSkill vnum — but the monster still
         // needs to hit. The overwhelming majority of low-level mobs fall here
         // (melee wolf, rat, etc.) so we synthesise a minimal basic-attack SkillInfo

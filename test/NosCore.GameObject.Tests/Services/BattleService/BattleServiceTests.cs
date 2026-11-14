@@ -38,6 +38,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<IMessageBus> _bus;
         private Mock<ICastDelayService> _castDelay;
         private Mock<IBuffService> _buffs;
+        private Mock<ISummonService> _summons;
         private GameObject.Services.BattleService.BattleService _service;
 
         [TestInitialize]
@@ -50,6 +51,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _castDelay = new Mock<ICastDelayService>();
             _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>())).Returns(Task.CompletedTask);
             _buffs = new Mock<IBuffService>();
+            _summons = new Mock<ISummonService>();
             _service = new GameObject.Services.BattleService.BattleService(
                 _skillResolver.Object,
                 _targetResolver.Object,
@@ -62,6 +64,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _buffs.Object,
                 new NosCore.GameObject.Services.BattleService.SkillCastService(NodaTime.SystemClock.Instance, new Mock<NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService>().Object, new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object),
                 new Mock<NosCore.GameObject.Services.BattleService.ISkillComboService>().Object,
+                _summons.Object,
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
@@ -80,6 +83,23 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             cast.SetResult();
             Assert.IsTrue(await hit);
             _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task ACastSummonsItsAddsOnlyAfterItsHitsLanded()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            var skill = MakeSkill(TargetHitType.SingleTargetHit);
+            SetupLanding(origin, target, skill);
+            var order = new List<string>();
+            _hitQueue.Setup(q => q.EnqueueAsync(It.IsAny<HitRequest>())).Callback(() => order.Add("hit"))
+                .ReturnsAsync(new HitOutcome(HitStatus.Landed, 50, SuPacketHitMode.SuccessAttack, false));
+            _summons.Setup(s => s.SummonAsync(origin, skill.BCards)).Callback(() => order.Add("summon")).Returns(Task.CompletedTask);
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+
+            CollectionAssert.AreEqual(new[] { "hit", "summon" }, order);
         }
 
         [TestMethod]

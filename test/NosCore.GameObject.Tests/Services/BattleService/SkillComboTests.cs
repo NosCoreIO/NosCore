@@ -82,6 +82,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 buffService.Object,
                 new SkillCastService(NodaTime.SystemClock.Instance, new Mock<GameObject.Services.EquipmentService.IEquipmentStatsService> { DefaultValue = DefaultValue.Empty }.Object, buffService.Object),
                 new SkillComboService(Combos),
+                new Mock<ISummonService>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 

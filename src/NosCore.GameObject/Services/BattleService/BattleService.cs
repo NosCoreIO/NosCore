@@ -50,6 +50,7 @@ namespace NosCore.GameObject.Services.BattleService
         IBuffService buffService,
         ISkillCastService skillCastService,
         ISkillComboService skillComboService,
+        ISummonService summonService,
         ILogger<BattleService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -118,6 +119,8 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
+            // After the hits, so a cast never lands on the adds it calls.
+            await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
             return true;
         }
@@ -162,6 +165,8 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
+            // After the hits, so a cast never lands on the adds it calls.
+            await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
             return true;
         }
@@ -225,6 +230,8 @@ namespace NosCore.GameObject.Services.BattleService
                 }
             }
 
+            // After the hits, so a cast never lands on the adds it calls.
+            await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
             return true;
         }
@@ -386,7 +393,9 @@ namespace NosCore.GameObject.Services.BattleService
         // ct starts the cast animation, and the hit resolves once the cast time has passed and
         // both sides can still fight.
         private SkillInfo? Resolve(IAliveEntity origin, HitArguments arguments) =>
-            arguments.Skill is { } skill ? skillResolver.Describe(skill) : skillResolver.Resolve(origin, arguments.SkillId);
+            arguments.Skill is { } skill ? skillResolver.Describe(skill)
+            : arguments.BasicAttack ? skillResolver.ResolveBasic(origin)
+            : skillResolver.Resolve(origin, arguments.SkillId);
 
         // A cast at a cell is always announced with ct_n, cast time or not; a cast at an entity
         // only needs ct when there is a wind-up to show.

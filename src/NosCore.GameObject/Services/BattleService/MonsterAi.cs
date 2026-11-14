@@ -381,7 +381,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
                 CastId: dto.CastId,
                 SkillRange: Math.Max(1, (int)dto.Range),
                 CooldownMs: Math.Max(200, dto.Cooldown * 100),
-                CastTimeMs: dto.CastTime * 100);
+                CastTimeMs: dto.CastTime * 100,
+                Skill: dto);
         }
         return null;
     }
@@ -414,7 +415,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             return;
         }
 
-        var accepted = await battleService.Hit(entity, target, new HitArguments { SkillId = skill.CastId });
+        var accepted = await battleService.Hit(entity, target, Arguments(skill));
 
         if (accepted && cooldowns != null)
         {
@@ -426,7 +427,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     {
         try
         {
-            await battleService.Hit(entity, target, new HitArguments { SkillId = skill.CastId });
+            await battleService.Hit(entity, target, Arguments(skill));
         }
         catch (Exception ex)
         {
@@ -493,5 +494,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         return true;
     }
 
-    private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs, int CastTimeMs = 0);
+    private static HitArguments Arguments(ChosenSkill skill) =>
+        new() { SkillId = skill.CastId, Skill = skill.Skill, BasicAttack = skill.Skill == null };
+
+    private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs, int CastTimeMs = 0, SkillDto? Skill = null);
 }

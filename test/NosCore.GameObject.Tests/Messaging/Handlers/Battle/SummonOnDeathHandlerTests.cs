@@ -74,6 +74,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         }
 
         [TestMethod]
+        public async Task ASkillSummonCardSpawnsItsMonstersOnTheCaster()
+        {
+            await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(),
+                new[] { new BCardDto { Type = (byte)BCardType.CardType.Summons, SubType = 21, FirstData = 3, SecondData = PiiVnum } });
+
+            var summoned = _map.EnumerateMonsters().Where(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum).ToList();
+            Assert.AreEqual(3, summoned.Count);
+            Assert.IsTrue(summoned.All(m => m.PositionX == 4 && m.PositionY == 2));
+        }
+
+        [TestMethod]
         public async Task OtherDeathCardsSummonNothing()
         {
             DeathCards(new BCardDto { Type = (byte)BCardType.CardType.SpecialEffects, SubType = 11, FirstData = 10 });
@@ -83,7 +94,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             Assert.AreEqual(1, _map.EnumerateMonsters().Count());
         }
 
-        private SummonOnDeathHandler Handler() => new(_catalog.Object, _npcMonsters, _random.Object);
+        private SummonOnDeathHandler Handler() => new(_catalog.Object, new SummonService(_npcMonsters, _random.Object));
 
         private MonsterComponentBundle Pod() => _map.EnumerateMonsters().Single(m => m.NpcMonster?.NpcMonsterVNum == PodVnum);
 

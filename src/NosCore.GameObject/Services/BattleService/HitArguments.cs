@@ -18,5 +18,8 @@ public record HitArguments()
     // A skill the caller has already checked the caster may use, cast instead of the one SkillId resolves to.
     public SkillDto? Skill { get; set; }
 
+    // A non-player's basic attack, which a skill of its own sharing cast id 0 must not stand in for.
+    public bool BasicAttack { get; set; }
+
     public IReadOnlyList<IAliveEntity>? ListedTargets { get; set; }
 }

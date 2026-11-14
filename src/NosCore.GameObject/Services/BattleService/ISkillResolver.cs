@@ -17,5 +17,7 @@ public interface ISkillResolver
 {
     SkillInfo? Resolve(IAliveEntity caster, long castId);
 
+    SkillInfo? ResolveBasic(IAliveEntity caster);
+
     SkillInfo Describe(SkillDto skill);
 }
