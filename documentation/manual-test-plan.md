@@ -2999,6 +2999,32 @@ for example map 134. The war is per channel and starts at 0% on every server sta
       shows one death. A victim more than ten levels away gives the killer no points
 - [ ] A fall in Glacernon to a monster costs dignity as anywhere else
 
-Not verifiable yet: what happens at 100% (the guardian and the Act 4 raids) arrives with the
-Act 4 raids. The faction HUD bar does not draw either: the client applies `fc` to a window it
-only opens on its own, so check the bar values in the packet log instead of on screen.
+The faction HUD bar does not draw: the client applies `fc` to a window it only opens on its
+own, so check the bar values in the packet log instead of on screen.
+
+### Lord Mukraju and the Glacernon raids
+
+A side needs 100 kills to fill its bar. Both characters need a family and level 60 or more.
+
+- [ ] The angels' 100th kill: everyone in Glacernon reads "Lord Mukraju has appeared in the
+      Angel Camp", the angel bar goes back to 0% and `fc` shows the angel side in mode 1 with
+      300 seconds; Lord Mukraju (556) stands in the angel camp (map 132, 114/92)
+- [ ] Kills made while Mukraju is out do not move the angel bar
+- [ ] Left alone for five minutes, Mukraju disappears and the angel side is back in mode 0
+- [ ] Killing Mukraju: `fc` shows the angel side in mode 3 with 3600 seconds and one raid flag
+      set; on map 134 an angel sees a raid gate at 139/99, a demon does not
+- [ ] An angel without a family pressing the gate is told they are not authorised; one below
+      level 60 is told the entry level
+- [ ] Entering puts the angel in the raid's first map with `dg <raid> 1 <seconds> 0`; a second
+      family member arrives in the same run, a member of another family in a run of their own
+- [ ] Half an hour after Mukraju died, a portal to the boss room opens on the first map; from
+      then on "The enemies are getting reinforcements!" comes with six more guards every 90 s
+- [ ] A player who falls in the raid stands up again where they fell 20 seconds later
+- [ ] Killing the boss: "Congratulations! You defeated the boss!", gold, chicken, cellon and
+      potions are thrown around the boss, and everyone inside gets 10000 reputation and the
+      raid's box (882, 185, 942 or 999), then is sent back to map 134 at 139/100
+- [ ] The family cannot go back in until the next raid opens
+- [ ] After the hour the gate goes grey, players still inside are sent back, and the angel
+      side is back in mode 0
+
+Not verifiable yet: the raid box opens to nothing, since raid box contents are not imported.

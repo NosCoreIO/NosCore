@@ -16,6 +16,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
@@ -44,6 +45,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IClock _clock;
         private readonly ISessionRegistry _sessionRegistry;
         private readonly IAggroService _aggroService;
+        private readonly IItemThrowService _itemThrowService;
         private readonly ILogger _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
@@ -68,7 +70,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public ScriptedInstanceRun(IInstanceRunHost host, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
             IRandomProvider random, IClock clock, ISessionRegistry sessionRegistry, IAggroService aggroService,
-            ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeSpan stepTimeout)
+            IItemThrowService itemThrowService, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeSpan stepTimeout)
         {
             _stepTimeout = stepTimeout;
             _host = host;
@@ -79,6 +81,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _clock = clock;
             _sessionRegistry = sessionRegistry;
             _aggroService = aggroService;
+            _itemThrowService = itemThrowService;
             _logger = logger;
             _logLanguage = logLanguage;
             Rooms = rooms.ToDictionary(s => s.Key, s => s.Value.MapInstanceId);
@@ -308,6 +311,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         {
             var mapInstance = _rooms[room];
             _pending.Add(() => OnRoom(mapInstance, () => _host.DropWaveAsync(mapInstance, wave)));
+        }
+
+        public void Throw(int room, Spot around, params ItemPile[] piles)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () => _itemThrowService.ThrowAsync(mapInstance, around, piles)));
         }
 
         public int MonstersAlive(int room) => _aliveByRoom.GetValueOrDefault(room);
@@ -679,6 +688,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void SummonWave(int room, byte wave) => Do(() => run.SummonWave(room, wave));
 
             public void DropWave(int room, byte wave) => Do(() => run.DropWave(room, wave));
+
+            public void Throw(int room, Spot around, params ItemPile[] piles) => Do(() => run.Throw(room, around, piles));
 
             public int MonstersAlive(int room) => run.MonstersAlive(room);
 

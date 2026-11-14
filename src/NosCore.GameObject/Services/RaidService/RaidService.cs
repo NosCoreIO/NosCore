@@ -448,7 +448,7 @@ namespace NosCore.GameObject.Services.RaidService
             var character = member.Character;
             foreach (var gift in raid.Definition?.GiftItems ?? [])
             {
-                var item = itemProvider.Create(gift.VNum, gift.Amount);
+                var item = itemProvider.Create(gift.VNum, gift.Amount, 0, 0, gift.Design);
                 var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId))?.FirstOrDefault();
                 if (added == null)
                 {

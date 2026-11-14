@@ -33,7 +33,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             if (!monster.Respawns) return Task.CompletedTask;
 
             // Instance monsters are placed by the instance's script and stay dead.
-            if (monster.MapInstance.MapInstanceType is MapInstanceType.TimeSpaceInstance or MapInstanceType.RaidInstance)
+            if (monster.MapInstance.MapInstanceType is MapInstanceType.TimeSpaceInstance or MapInstanceType.RaidInstance
+                or MapInstanceType.Act4Instance)
             {
                 return Task.CompletedTask;
             }

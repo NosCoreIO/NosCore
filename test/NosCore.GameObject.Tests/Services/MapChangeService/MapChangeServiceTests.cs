@@ -150,7 +150,8 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 new System.Collections.Generic.Dictionary<int, MapInstance>(),
                 new System.Collections.Generic.Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
                 new GameObject.Services.BattleService.RandomProvider(), World.Clock, World.SessionRegistry,
-                World.Create<GameObject.Services.BattleService.AggroService>(), NullLogger.Instance, World.LogLanguageLocalizer, System.TimeSpan.FromSeconds(30));
+                World.Create<GameObject.Services.BattleService.AggroService>(),
+                World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance, World.LogLanguageLocalizer, System.TimeSpan.FromSeconds(30));
 
         [TestMethod]
         public async Task WalkingIntoTheNextRoomKeepsTheTimeSpaceRunning()

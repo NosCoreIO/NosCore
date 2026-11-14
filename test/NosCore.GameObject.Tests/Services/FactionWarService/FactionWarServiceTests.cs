@@ -4,12 +4,20 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NodaTime;
+using Moq;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FactionWarService;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Families;
@@ -26,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
         private ClientSession _angel;
         private ClientSession _demon;
         private ClientSession _elsewhere;
+        private MapInstance _camp;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -43,7 +52,72 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
             _demon.Character.Faction = FactionType.Demon;
             _angel.Character.Level = 50;
             _demon.Character.Level = 55;
+            _camp = glacernon;
+            var maps = World.Freeze<Mock<IMapInstanceAccessorService>>();
+            maps.Setup(m => m.GetBaseMapById(It.IsAny<short>())).Returns(glacernon);
+            maps.Setup(m => m.GetMapInstance(glacernon.MapInstanceId)).Returns(glacernon);
+            World.Inject(new List<NpcMonsterDto>
+            {
+                new() { NpcMonsterVNum = GameObject.Services.FactionWarService.FactionWarService.Mukraju, MaxHp = 1000, Level = 70 },
+            });
             _service = World.Create<GameObject.Services.FactionWarService.FactionWarService>();
+        }
+
+        [TestMethod]
+        public async Task AFullSideCallsLordMukraju()
+        {
+            await new Spec("At one hundred percent the side's bar empties and Lord Mukraju appears in its camp")
+                .WhenAsync(TheAngelKillsTheDemon_Times, 100)
+                .Then(TheAngelSideShouldBeIn_, Act4WarMode.Guardian)
+                .And(TheAngelSideShouldBeAt_, 0)
+                .And(LordMukrajuShouldStandInTheCamp_, true)
+                .And(GlacernonShouldBeToldMukrajuAppearedInTheAngelCamp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillsDoNotCountWhileMukrajuIsOut()
+        {
+            await new Spec("A side waiting on Lord Mukraju gains nothing from more kills")
+                .GivenAsync(TheAngelKillsTheDemon_Times, 100)
+                .WhenAsync(TheAngelKillsTheDemon_Times, 3)
+                .Then(TheAngelSideShouldBeAt_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingMukrajuOpensARaid()
+        {
+            await new Spec("Killing Lord Mukraju opens one of the four raids to his side for an hour")
+                .GivenAsync(TheAngelKillsTheDemon_Times, 100)
+                .WhenAsync(LordMukrajuIsKilled)
+                .Then(TheAngelSideShouldBeIn_, Act4WarMode.RaidOpen)
+                .And(TheHudShouldShowTheOpenRaidFor_Seconds, 3600)
+                .And(TheDemonSideShouldBeIn_, Act4WarMode.Gathering)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MukrajuLeavesWhenNotKilledInTime()
+        {
+            await new Spec("Lord Mukraju leaves after five minutes and the side starts gathering again")
+                .GivenAsync(TheAngelKillsTheDemon_Times, 100)
+                .WhenAsync(_MinutesPass, 5)
+                .Then(TheAngelSideShouldBeIn_, Act4WarMode.Gathering)
+                .And(LordMukrajuShouldStandInTheCamp_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheRaidClosesAfterAnHour()
+        {
+            await new Spec("An open raid closes after an hour and the side starts gathering again")
+                .GivenAsync(TheAngelKillsTheDemon_Times, 100)
+                .AndAsync(LordMukrajuIsKilled)
+                .WhenAsync(_MinutesPass, 60)
+                .Then(TheAngelSideShouldBeIn_, Act4WarMode.Gathering)
+                .And(NoRaidShouldBeOpenForTheAngels)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -57,11 +131,11 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
         }
 
         [TestMethod]
-        public async Task ProgressStopsAtFull()
+        public async Task ProgressCountsUpToTheRaid()
         {
-            await new Spec("A side never goes past one hundred percent")
-                .WhenAsync(TheAngelKillsTheDemon_Times, 101)
-                .Then(TheAngelSideShouldBeAt_, 10000)
+            await new Spec("A side one kill short of its raid stands at ninety-nine percent")
+                .WhenAsync(TheAngelKillsTheDemon_Times, 99)
+                .Then(TheAngelSideShouldBeAt_, 9900)
                 .ExecuteAsync();
         }
 
@@ -136,6 +210,44 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
                 await _service.RecordKillAsync(_angel.Character, _demon.Character);
             }
         }
+
+        private MonsterComponentBundle? Mukraju() => _camp.FindMonster(m =>
+            m.VNum == GameObject.Services.FactionWarService.FactionWarService.Mukraju && m.IsAlive);
+
+        private async Task LordMukrajuIsKilled()
+        {
+            Assert.IsTrue(Mukraju() is { } mukraju && await _service.GuardianDiedAsync(mukraju));
+        }
+
+        private async Task _MinutesPass(int minutes)
+        {
+            World.Clock.AdvanceMinutes(minutes);
+            await _service.TickAsync();
+        }
+
+        private void TheAngelSideShouldBeIn_(Act4WarMode mode) => Assert.AreEqual(mode, _service.Mode(FactionType.Angel));
+
+        private void TheDemonSideShouldBeIn_(Act4WarMode mode) => Assert.AreEqual(mode, _service.Mode(FactionType.Demon));
+
+        private void LordMukrajuShouldStandInTheCamp_(bool standing) => Assert.AreEqual(standing, Mukraju() != null);
+
+        private void GlacernonShouldBeToldMukrajuAppearedInTheAngelCamp() =>
+            Assert.IsTrue(_demon.LastPackets.OfType<MsgiPacket>().Any(m => m.Message == Game18NConstString.LordMukrajuHasAppearedInThe));
+
+        private void TheHudShouldShowTheOpenRaidFor_Seconds(int seconds)
+        {
+            var raid = _service.OpenRaid(FactionType.Angel);
+            Assert.IsNotNull(raid);
+            var angel = _service.GenerateFc(_angel.Character).Angel;
+            Assert.AreEqual((short)seconds, angel?.SecondsLeft);
+            Assert.AreEqual((short)seconds, angel?.TotalSeconds);
+            Assert.AreEqual(raid == Act4RaidType.Morcos, angel?.IsMorcos);
+            Assert.AreEqual(raid == Act4RaidType.Hatus, angel?.IsHatus);
+            Assert.AreEqual(raid == Act4RaidType.Calvina, angel?.IsCalvina);
+            Assert.AreEqual(raid == Act4RaidType.Berios, angel?.IsBerios);
+        }
+
+        private void NoRaidShouldBeOpenForTheAngels() => Assert.IsNull(_service.OpenRaid(FactionType.Angel));
 
         private void TheDemonHas_Points(int points) => _demon.Character.CharacterDto.Act4Points = points;
 

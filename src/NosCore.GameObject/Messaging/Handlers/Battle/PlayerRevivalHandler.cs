@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 }
 
                 if (player.MapInstance?.MapInstanceType is MapInstanceType.IceBreakerInstance or MapInstanceType.RaidInstance
-                    or MapInstanceType.TalentArenaMapInstance)
+                    or MapInstanceType.TalentArenaMapInstance or MapInstanceType.Act4Instance)
                 {
                     if (player.MapInstance is { } room && scriptedInstanceService.GetRun(room.MapInstanceId) is { } run)
                     {

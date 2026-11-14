@@ -74,9 +74,9 @@ namespace NosCore.Instances.Abstractions
         }
 
         // What every player still inside receives when the run succeeds; between two sides, what the winners receive.
-        public InstanceDefinitionBuilder WithReward(short vNum, short amount)
+        public InstanceDefinitionBuilder WithReward(short vNum, short amount, byte design = 0)
         {
-            _gifts.Add(new InstanceGift(vNum, amount));
+            _gifts.Add(new InstanceGift(vNum, amount, design));
             return this;
         }
 

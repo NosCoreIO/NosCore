@@ -291,6 +291,11 @@ namespace NosCore.WorldServer
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<DrainSpecialistPointsMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
                         TimeSpan.FromSeconds(1)));
+                    services.AddHostedService(sp => new RecurringMessagePublisher<TickFactionWarMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<TickFactionWarMessage>>>(),
+                        sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        TimeSpan.FromSeconds(1)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<TickTimeSpacesMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<TickTimeSpacesMessage>>>(),

@@ -93,7 +93,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
-                new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(), NullLogger.Instance, World.LogLanguageLocalizer,
+                new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(), World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
+                NullLogger.Instance, World.LogLanguageLocalizer,
                 timeout ?? TimeSpan.FromSeconds(30));
 
         [TestMethod]

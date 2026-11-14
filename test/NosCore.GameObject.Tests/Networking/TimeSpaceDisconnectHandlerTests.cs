@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Tests.Networking
                     new Mock<Wolverine.IMessageBus>().Object),
                 new EmptyScript(), new Dictionary<int, MapInstance> { [1] = room },
                 new Dictionary<short, NpcMonsterDto>(), new RandomProvider(), World.Clock,
-                World.SessionRegistry, World.Create<NosCore.GameObject.Services.BattleService.AggroService>(), NullLogger.Instance, World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
+                World.SessionRegistry, World.Create<NosCore.GameObject.Services.BattleService.AggroService>(), World.Create<NosCore.GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance, World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
             _scriptedInstances.Setup(s => s.GetRun(roomId)).Returns(run);
 
             await World.Create<TimeSpaceDisconnectHandler>().HandleDisconnectAsync(_session);

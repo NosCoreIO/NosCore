@@ -13,6 +13,8 @@ namespace NosCore.Instances.Abstractions
 
     public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true);
 
+    public readonly record struct ItemPile(short VNum, short Piles, int Amount);
+
     // The verbs a script may use. Everything a script can do to a running instance goes
     // through here, so the engine behind it - csx today - stays swappable.
     public interface IInstanceRun
@@ -30,6 +32,9 @@ namespace NosCore.Instances.Abstractions
 
         // Scatters the items the instance's own data lists for that wave over the room.
         void DropWave(int room, byte wave);
+
+        // Scatters each pile around the spot, the way a boss throws its loot when it falls.
+        void Throw(int room, Spot around, params ItemPile[] piles);
 
         int MonstersAlive(int room);
 

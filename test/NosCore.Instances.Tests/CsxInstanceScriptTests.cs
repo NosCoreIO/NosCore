@@ -34,6 +34,8 @@ namespace NosCore.Instances.Tests
 
         public void DropWave(int room, byte wave) => Calls.Add($"drop({room},{wave})");
 
+        public void Throw(int room, Spot around, params ItemPile[] piles) => Calls.Add($"throw({room},{piles.Length})");
+
         public int MonstersAlive(int room) => Alive;
 
         public int Players { get; set; }
@@ -502,6 +504,56 @@ namespace NosCore.Instances.Tests
             var second = await loader.LoadAsync("timespace-01");
 
             Assert.AreSame(first, second);
+        }
+
+        [TestMethod]
+        [DataRow("act4-morcos", (short)563, (short)882)]
+        [DataRow("act4-hatus", (short)577, (short)185)]
+        [DataRow("act4-calvina", (short)629, (short)942)]
+        [DataRow("act4-berios", (short)624, (short)999)]
+        public async Task AGlacernonRaidOpensItsBossDoorAtHalfTime(string name, short boss, short gift)
+        {
+            var script = await Loader().LoadAsync(name);
+            var run = new RecordingRun();
+
+            script.OnFirstEnter(run);
+
+            Assert.AreEqual("clock(60m)", run.Calls.First());
+            Assert.AreEqual($"summon(2,{boss})", run.Calls.Last());
+            Assert.AreEqual(30d, run.Scheduled.Min(s => s.At.TotalMinutes));
+            Assert.AreEqual(21, run.Scheduled.Count);
+            Assert.AreEqual(60, script.Definition.LevelMinimum);
+            Assert.AreEqual(gift, script.Definition.GiftItems.Single().VNum);
+            Assert.AreEqual(50, script.Definition.GiftItems.Single().Design);
+
+            run.Calls.Clear();
+            run.Scheduled.First(s => s.At == TimeSpan.FromMinutes(30)).Step(run);
+            Assert.IsTrue(run.Calls.Contains("portal(1->2,open)"));
+        }
+
+        [TestMethod]
+        public async Task AGlacernonRaidReachedLateKeepsOnlyTheGuardsStillToCome()
+        {
+            var script = await Loader().LoadAsync("act4-hatus");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromMinutes(45) };
+
+            script.OnFirstEnter(run);
+
+            Assert.AreEqual("clock(15m)", run.Calls.First());
+            Assert.IsTrue(run.Scheduled.All(s => s.At >= TimeSpan.FromMinutes(45) || s.At == TimeSpan.FromMinutes(30)));
+        }
+
+        [TestMethod]
+        public async Task TheGlacernonRaidBossThrowsItsLootAndEndsTheRaid()
+        {
+            var script = await Loader().LoadAsync("act4-morcos");
+            var run = new RecordingRun();
+
+            script.OnMonsterKilled(run, 2, 562);
+            Assert.AreEqual(0, run.Calls.Count);
+            script.OnMonsterKilled(run, 2, 563);
+
+            CollectionAssert.AreEqual(new[] { "message(CongratulationsKilledTheBoss)", "throw(2,5)", "succeed" }, run.Calls);
         }
     }
 }
