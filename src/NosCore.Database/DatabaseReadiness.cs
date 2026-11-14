@@ -7,9 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using NosCore.Database.Entities;
+using Npgsql;
 
 namespace NosCore.Database
 {
@@ -18,19 +20,15 @@ namespace NosCore.Database
     // query that meets a missing column.
     public static class DatabaseReadiness
     {
-        // Bump when a parser change has to be imported again before the world server can run on it.
-        public const int GameDataVersion = 5;
-
         private const int GameDataImportRow = 1;
+        private const long GameDataImportLockKey = 0x4E6F73436F726544;
 
         public static void EnsureUpToDate(string connectionString)
         {
-            var options = new DbContextOptionsBuilder<NosCoreContext>().UseNosCoreDatabase(connectionString).Options;
-            using var context = new NosCoreContext(options);
             List<string> pending;
             try
             {
-                pending = context.Database.GetPendingMigrations().ToList();
+                pending = PendingMigrations(connectionString);
             }
             catch (DbException e)
             {
@@ -44,41 +42,87 @@ namespace NosCore.Database
             }
         }
 
-        public static void EnsureGameDataImported(string connectionString)
+        public static bool IsUpToDate(string connectionString)
         {
-            var options = new DbContextOptionsBuilder<NosCoreContext>().UseNosCoreDatabase(connectionString).Options;
-            using var context = new NosCoreContext(options);
-            var imported = context.Set<GameDataImport>().AsNoTracking()
-                .FirstOrDefault(s => s.GameDataImportId == GameDataImportRow)?.Version;
-            if (DescribeGameData(imported) is { } stale)
+            try
             {
-                throw new DatabaseNotReadyException(stale);
+                return PendingMigrations(connectionString).Count == 0;
+            }
+            catch (DbException)
+            {
+                return false;
             }
         }
 
-        public static string? DescribeGameData(int? importedVersion) => importedVersion switch
+        private static List<string> PendingMigrations(string connectionString)
         {
-            null => "The game data has not been imported by this version of the parser. " +
-                    "Run the parser, then start the server again.",
-            < GameDataVersion => $"The game data was imported by an older parser (data version {importedVersion}, " +
-                                 $"this build needs {GameDataVersion}). Run the parser again, then start the server again.",
-            _ => null,
-        };
+            var options = new DbContextOptionsBuilder<NosCoreContext>().UseNosCoreDatabase(connectionString).Options;
+            using var context = new NosCoreContext(options);
+            return context.Database.GetPendingMigrations().ToList();
+        }
 
-        public static void RecordGameDataImport(DbContext context)
+        public static GameDataImport? ReadGameDataImport(string connectionString)
+        {
+            var options = new DbContextOptionsBuilder<NosCoreContext>().UseNosCoreDatabase(connectionString).Options;
+            using var context = new NosCoreContext(options);
+            try
+            {
+                return context.Set<GameDataImport>().AsNoTracking()
+                    .FirstOrDefault(s => s.GameDataImportId == GameDataImportRow);
+            }
+            catch (DbException)
+            {
+                return null;
+            }
+        }
+
+        public static void RecordGameDataImport(DbContext context, string parserBuild, string clientFiles, string folder)
         {
             var set = context.Set<GameDataImport>();
             var row = set.FirstOrDefault(s => s.GameDataImportId == GameDataImportRow);
             if (row == null)
             {
-                set.Add(new GameDataImport { GameDataImportId = GameDataImportRow, Version = GameDataVersion });
+                set.Add(new GameDataImport { GameDataImportId = GameDataImportRow, ParserBuild = parserBuild, ClientFiles = clientFiles, Folder = folder });
             }
             else
             {
-                row.Version = GameDataVersion;
+                row.ParserBuild = parserBuild;
+                row.ClientFiles = clientFiles;
+                row.Folder = folder;
             }
 
             context.SaveChanges();
+        }
+
+        public static string? DescribeGameData(GameDataImport? import, string parserBuild)
+        {
+            if (import == null)
+            {
+                return "The game data has not been imported. Run the parser, then start the server again.";
+            }
+
+            var clientFiles = GameDataFingerprint.TryOfClientFiles(import.Folder);
+            var folderSeen = clientFiles != null;
+            if (import.ParserBuild == parserBuild && (!folderSeen || import.ClientFiles == clientFiles))
+            {
+                return null;
+            }
+
+            return folderSeen
+                ? $"The game data could not be imported again from {import.Folder}. Run the parser to see why, then start the server again."
+                : $"The game data was imported by another build of the parser, from {import.Folder}, which this server cannot read. " +
+                  "Run the parser again, then start the server again.";
+        }
+
+        // Held by whoever imports the game data again, so that servers starting together import it once.
+        public static IDisposable LockGameDataImport(string connectionString)
+        {
+            var connection = new NpgsqlConnection(connectionString);
+            connection.Open();
+            using var command = new NpgsqlCommand("SELECT pg_advisory_lock(@key)", connection) { CommandTimeout = 0 };
+            command.Parameters.AddWithValue("key", GameDataImportLockKey);
+            command.ExecuteNonQuery();
+            return connection;
         }
 
         public static string? Describe(IReadOnlyList<string> pendingMigrations) => pendingMigrations.Count == 0

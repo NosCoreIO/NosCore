@@ -28,6 +28,7 @@
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.PacketHandlers\NosCore.PacketHandlers.csproj" />
     <ProjectReference Include="..\NosCore.Instances.Scripting\NosCore.Instances.Scripting.csproj" />
+    <ProjectReference Include="..\NosCore.Parser\NosCore.Parser.csproj" />
   </ItemGroup>
 
   <ItemGroup>

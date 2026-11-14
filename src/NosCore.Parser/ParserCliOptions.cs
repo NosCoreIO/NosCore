@@ -8,14 +8,17 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NosCore.Parser;
 
-public sealed record ParserCliOptions(string? Folder)
+public sealed record ParserCliOptions(string? Folder, bool SkipAccounts = false)
 {
+    public const string SkipAccountsFlag = "--skip-accounts";
+
     [MemberNotNullWhen(true, nameof(Folder))]
     public bool HasFolder => !string.IsNullOrWhiteSpace(Folder);
 
     public static ParserCliOptions Parse(string[] args)
     {
         string? folder = null;
+        var skipAccounts = false;
         for (var i = 0; i < args.Length; i++)
         {
             var arg = args[i];
@@ -27,7 +30,11 @@ public sealed record ParserCliOptions(string? Folder)
             {
                 folder = arg["--folder=".Length..];
             }
+            else if (arg == SkipAccountsFlag)
+            {
+                skipAccounts = true;
+            }
         }
-        return new ParserCliOptions(folder);
+        return new ParserCliOptions(folder, skipAccounts);
     }
 }

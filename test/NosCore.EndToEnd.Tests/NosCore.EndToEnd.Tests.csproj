@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\NosCore.Database\NosCore.Database.csproj" />
+    <ProjectReference Include="..\..\src\NosCore.Parser\NosCore.Parser.csproj" />
     <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\src\NosCore.LoginServer\NosCore.LoginServer.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\src\NosCore.WorldServer\NosCore.WorldServer.csproj" ReferenceOutputAssembly="false" />
