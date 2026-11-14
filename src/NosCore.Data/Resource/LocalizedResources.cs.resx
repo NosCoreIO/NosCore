@@ -274,6 +274,9 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Není ve vaší černé listině</value>
   </data>
+  <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
+    <value>Není ve vašem seznamu přátel</value>
+  </data>
   <data name="NO_DIGNITYLEVEL" xml:space="preserve">
     <value>V databázi není žádný DignityLevel! Spusťte parser, jinak budou ikony důstojnosti špatné.</value>
   </data>

@@ -40,6 +40,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private Mock<IPubSubHub> PubSubHub;
         private Mock<ISerializer> Serializer;
         private Mock<ISessionRegistry> SessionRegistry;
+        private SubscriberCacheService SubscriberCache;
+        private const long LeavingSessionId = 4242;
         private readonly ILogger<BtkPacketHandler> Logger = new Mock<ILogger<BtkPacketHandler>>().Object;
         private const long OfflineFriendId = 99998;
         private const long DifferentChannelFriendId = 99997;
@@ -64,6 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
             Serializer.Setup(x => x.Serialize(It.IsAny<IPacket[]>()))
                 .Returns("serialized");
 
+            SubscriberCache = World.Create<SubscriberCacheService>();
             var channel = new Channel { ChannelId = 1, ClientName = "TestChannel", Host = "localhost" };
 
             Handler = new BtkPacketHandler(
@@ -71,7 +74,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 Serializer.Object,
                 FriendHub.Object,
                 PubSubHub.Object,
-                World.Create<SubscriberCacheService>(),
+                SubscriberCache,
                 channel,
                 World.GameLanguageLocalizer,
                 SessionRegistry.Object);
@@ -119,6 +122,33 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 .And(FriendIsOnDifferentChannel)
                 .WhenAsync(SendingMessageToFriendOnDifferentChannelAsync)
                 .Then(MessageShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SendingMessageToFriendWhoIsLoggingOutShouldShowOfflineMessage()
+        {
+            await new Spec("Sending message to friend who is logging out should show offline message")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsFriend)
+                .And(FriendIsOnSameChannel)
+                .And(FriendIsLoggingOut)
+                .WhenAsync(SendingMessageToFriendAsync)
+                .Then(ShouldReceiveFriendOfflineMessage)
+                .And(FriendShouldNotReceiveMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SendingMessageToFriendWhoJustLeftThisChannelShouldShowOfflineMessage()
+        {
+            await new Spec("Sending message to friend who just left this channel should show offline message")
+                .Given(CharacterIsOnMap)
+                .And(DifferentChannelTargetIsFriend)
+                .And(FriendIsStillListedAfterLeavingThisChannel)
+                .WhenAsync(SendingMessageToFriendOnDifferentChannelAsync)
+                .Then(ShouldReceiveFriendOfflineMessage)
+                .And(NothingShouldBeSentViaPubSub)
                 .ExecuteAsync();
         }
 
@@ -200,6 +230,29 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 }));
         }
 
+        private void FriendIsLoggingOut()
+        {
+            FriendSession.Character.IsDisconnecting = true;
+        }
+
+        private void FriendIsStillListedAfterLeavingThisChannel()
+        {
+            SubscriberCache.Forget(LeavingSessionId);
+            PubSubHub.Setup(x => x.GetSubscribersAsync())
+                .Returns(Task.FromResult(new List<Subscriber>
+                {
+                    new Subscriber
+                    {
+                        Id = LeavingSessionId,
+                        ConnectedCharacter = new Data.WebApi.Character
+                        {
+                            Id = DifferentChannelFriendId,
+                            Name = "LeavingFriend"
+                        }
+                    }
+                }));
+        }
+
         private async Task SendingMessageToNonFriendAsync()
         {
             await Handler.ExecuteAsync(new BtkPacket
@@ -261,6 +314,16 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private void FriendShouldReceiveMessage()
         {
             Assert.IsTrue(FriendSession.LastPackets.Count > 0);
+        }
+
+        private void FriendShouldNotReceiveMessage()
+        {
+            Assert.AreEqual(0, FriendSession.LastPackets.Count);
+        }
+
+        private void NothingShouldBeSentViaPubSub()
+        {
+            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket>()), Times.Never);
         }
 
         private void MessageShouldBeSentViaPubSub()

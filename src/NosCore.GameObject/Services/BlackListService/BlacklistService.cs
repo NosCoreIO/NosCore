@@ -26,14 +26,10 @@ namespace NosCore.GameObject.Services.BlackListService
     {
         public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var accounts = await pubSubHub.GetWorldSubscribersAsync(channelHub);
-            var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId);
-            var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId);
-
-
-            if ((character == null) || (targetCharacter == null))
+            if (characterId == secondCharacterId
+                || characterDao.Where(s => s.CharacterId == secondCharacterId)?.Any() != true)
             {
-                throw new ArgumentException();
+                return LanguageKey.USER_NOT_CONNECTED;
             }
 
             var relations = characterRelationDao.Where(s => s.CharacterId == characterId)?

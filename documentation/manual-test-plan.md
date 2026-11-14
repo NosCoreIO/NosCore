@@ -1944,6 +1944,8 @@ Two characters, A and B, on the same channel, then on different channels.
 - [ ] A has several friends, some online, some not: the friend list shows each with its name
       and the right online state; a friend message to an online friend arrives, to an offline
       friend shows "friend offline"
+- [ ] B logs out while A has B's conversation window open; A's friend messages from then on,
+      including the first ones, each show "Friend is not online"
 - [ ] The blacklist window lists every blocked character by name
 
 ---
@@ -2843,6 +2845,9 @@ Recorded so nobody spends time hunting for them:
 
 - **Upgrading or rerolling a ring, necklace or fairy** — the client never puts one into the Item
   Upgrade window, so the server's refusal of such an `up_gr` only shows in the unit tests.
+- **Blacklisting or unfriending someone who is not there** — the client only offers Blacklist
+  on a visible character and Delete on a listed friend, so a `blins` for an offline character
+  or an `fdel` for someone who is no friend only shows in the unit tests and a packet log.
 - **Upgrading during a trade** — the client closes the upgrade window when a trade opens and does
   not let the player talk to an NPC while trading, so the server's refusal of an `up_gr` sent
   during a trade only shows in the unit tests.
