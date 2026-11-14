@@ -159,16 +159,36 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ARingCannotBeRarified()
+        {
+            await new Spec("A ring sent to the rarity window is left alone and nothing is charged")
+                .Given(RingAtRarity_, (sbyte)0)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(NoPacketsShouldHaveBeenReturned)
+                .And(WearableRarityShouldBe_, (sbyte)0)
+                .And(CellonRemainingShouldBe_, (short)100)
+                .And(GoldShouldBe_, 100_000L)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
-        private void WearableAtRarity_(sbyte rare)
+        private void WearableAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Armor);
+
+        private void RingAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Ring);
+
+        private void PlaceWearable(sbyte rare, EquipmentType slot)
         {
             var item = new Item
             {
                 VNum = ArmorVNum,
                 Type = NoscorePocketType.Equipment,
                 ItemType = ItemType.Armor,
-                EquipmentSlot = EquipmentType.Armor,
+                EquipmentSlot = slot,
             };
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
                 World.LogLanguageLocalizer)

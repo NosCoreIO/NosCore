@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Player;
@@ -218,6 +219,10 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
             outPackets.AddRange(session.Character.InventoryService.RemoveItemAmountByVNum(cost.VNum, cost.Amount));
         }
     }
+
+    // Only weapons and armour carry an upgrade level and a rarity.
+    protected static bool IsWeaponOrArmor(WearableInstance wearable) =>
+        wearable.Item.EquipmentSlot is EquipmentType.MainWeapon or EquipmentType.SecondaryWeapon or EquipmentType.Armor;
 
     protected static InventoryItemInstance? LoadSource(ClientSession session, UpgradePacket packet) =>
         session.Character.InventoryService.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);

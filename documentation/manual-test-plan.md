@@ -564,6 +564,7 @@ window uses other ones, so the percentages the window shows are the check.
       missing ingredients message and nothing is taken
 - [ ] The gold scroll window (`wopen 43`) asks for half the gold and Cella Powder of the plain
       upgrade (40 000 gold and 110 Cella at +5), and the upgrade takes exactly that
+- [ ] Drag a ring or a fairy onto the upgrade window: the slot stays empty
 
 ### Specialist points
 
@@ -2483,6 +2484,9 @@ Use a character that has never logged in before, or one whose points were spent 
 ## Not verifiable yet
 
 Recorded so nobody spends time hunting for them:
+
+- **Upgrading or rerolling a ring, necklace or fairy** — the client never puts one into the Item
+  Upgrade window, so the server's refusal of such an `up_gr` only shows in the unit tests.
 
 - **Being muted or banned while playing** — nothing writes a `PenaltyLog` row from inside the
   game yet. A mute given by hand applies from the next line; a ban given by hand only applies at
