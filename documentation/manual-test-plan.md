@@ -364,6 +364,16 @@ player plays, costs its mana and goes on cooldown. Its hit type decides the rest
       a member far away does not
 - [ ] Use a skill meant for an ally on a monster: the cast is cancelled and nothing is spent
 
+### Combo attacks
+
+A skill with combo rows (most basic attacks) changes its animation as the same skill keeps
+being used in a row.
+
+- [ ] Transformed into the Warrior specialist, let the basic attack run on a monster: the second
+      and third blows play different swings from the first, then the cycle starts over
+- [ ] Use another skill in the middle of the streak: the next basic attack starts again from
+      the first swing
+
 ### Skills on a list of targets
 
 Some skills (Finishing Blow, 816) make the client send `mtlist` with the extra monsters it
