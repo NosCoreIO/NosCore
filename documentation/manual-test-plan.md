@@ -36,6 +36,9 @@ even when its packets are covered here.
 | Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP | `FightTests` |
 | Loot: whose a drop is, loot in turn and shared loot, how far a drop can be picked up from | `LootTests` |
 | Minilands: entering, friends and strangers, locking, placing and taking away objects, what visitors see, invitations | `MinilandTests` |
+| Private shops: opening one and its refusals, browsing, buying, selling out, closing, what both sides keep | `PrivateShopTests` |
+| NPC shops: buying and its refusals, a full bag, selling, what cannot be sold, reputation prices | `NpcShopTests` |
+| Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
