@@ -24,6 +24,18 @@ namespace NosCore.Instances.Tests
 
         public TimeSpan Elapsed { get; set; }
 
+        public List<(TimeSpan At, Action<IInstanceRun> Step)> Scheduled { get; } = [];
+
+        public int Alive { get; set; }
+
+        public void At(TimeSpan elapsed, Action<IInstanceRun> step) => Scheduled.Add((elapsed, step));
+
+        public void SummonWave(int room, byte wave) => Calls.Add($"wave({room},{wave})");
+
+        public void DropWave(int room, byte wave) => Calls.Add($"drop({room},{wave})");
+
+        public int MonstersAlive(int room) => Alive;
+
         public void Summon(int room, params MonsterSpawn[] monsters) =>
             Calls.Add($"summon({room},{string.Join(",", monsters.Select(m => m.VNum))})");
 
@@ -108,6 +120,49 @@ namespace NosCore.Instances.Tests
             script.OnTimeout(run);
 
             CollectionAssert.AreEqual(new[] { "fail" }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task InstantCombatBringsItsWavesInOverTime()
+        {
+            var script = await Loader().LoadAsync("instant-combat");
+            var run = new RecordingRun();
+
+            script.OnFirstEnter(run);
+            foreach (var (_, step) in run.Scheduled.OrderBy(s => s.At))
+            {
+                step(run);
+            }
+
+            CollectionAssert.AreEqual(new[] { "wave(1,0)", "wave(1,1)", "wave(1,2)", "wave(1,3)", "wave(1,4)" },
+                run.Calls.Where(c => c.StartsWith("wave")).ToList());
+            CollectionAssert.AreEqual(new[] { "drop(1,0)", "drop(1,1)", "drop(1,2)", "drop(1,3)", "drop(1,4)" },
+                run.Calls.Where(c => c.StartsWith("drop")).ToList());
+            Assert.AreEqual("fail", run.Calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task InstantCombatIsWonOnceTheLastWaveIsOutAndEveryMonsterIsDead()
+        {
+            var script = await Loader().LoadAsync("instant-combat");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromSeconds(729) };
+
+            script.OnMonsterKilled(run, 1, 333);
+            Assert.AreEqual(0, run.Calls.Count);
+
+            run.Elapsed = TimeSpan.FromSeconds(730);
+            run.Alive = 1;
+            script.OnMonsterKilled(run, 1, 333);
+            Assert.AreEqual(0, run.Calls.Count);
+
+            run.Alive = 0;
+            script.OnMonsterKilled(run, 1, 333);
+            CollectionAssert.AreEqual(new[]
+            {
+                "message(InstantCombatSuccess)",
+                "message(ReturnToStartingPositionTenSeconds)",
+                "succeed"
+            }, run.Calls);
         }
 
         [TestMethod]

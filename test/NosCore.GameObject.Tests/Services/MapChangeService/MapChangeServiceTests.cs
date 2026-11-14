@@ -141,12 +141,14 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         private sealed class EmptyScript : NosCore.Instances.Abstractions.InstanceScript;
 
         private GameObject.Services.ScriptedInstanceService.ScriptedInstanceRun Run() =>
-            new(new GameObject.Services.ScriptedInstanceService.ScriptedInstance(), new EmptyScript(),
+            new(new GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost(
+                    new GameObject.Services.ScriptedInstanceService.ScriptedInstance(),
+                    new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object)),
+                new EmptyScript(),
                 new System.Collections.Generic.Dictionary<int, MapInstance>(),
                 new System.Collections.Generic.Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
-                World.Clock, World.SessionRegistry,
-                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, World.LogLanguageLocalizer,
-                System.TimeSpan.FromSeconds(30));
+                new GameObject.Services.BattleService.RandomProvider(), World.Clock, World.SessionRegistry,
+                NullLogger.Instance, World.LogLanguageLocalizer, System.TimeSpan.FromSeconds(30));
 
         [TestMethod]
         public async Task WalkingIntoTheNextRoomKeepsTheTimeSpaceRunning()

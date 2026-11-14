@@ -16,6 +16,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -41,6 +42,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ISessionRegistry _sessionRegistry;
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
+        private readonly IRandomProvider _random;
 
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
@@ -58,6 +60,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             ISessionRegistry sessionRegistry,
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
+            IRandomProvider random,
             IOptions<WorldConfiguration> worldConfiguration,
             ILogger<ScriptedInstanceService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
@@ -69,6 +72,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _sessionRegistry = sessionRegistry;
             _mapChangeService = mapChangeService;
             _clock = clock;
+            _random = random;
             _logger = logger;
             _logLanguage = logLanguage;
             _mapsByVNum = maps.GroupBy(s => s.MapId).ToDictionary(s => s.Key, s => s.First());
@@ -130,15 +134,34 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return null;
             }
 
+            var instanceType = entrance.Type == ScriptedInstanceType.TimeSpace
+                ? MapInstanceType.TimeSpaceInstance
+                : MapInstanceType.RaidInstance;
+
+            return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService));
+        }
+
+        public async Task<IInstanceScript?> LoadScriptAsync(string script)
+        {
+            try
+            {
+                return await _scriptLoader.LoadAsync(script).WaitAsync(_scriptTimeout);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE], script);
+                return null;
+            }
+        }
+
+        public async Task<ScriptedInstanceRun?> InstantiateAsync(IInstanceScript logic, MapInstanceType instanceType,
+            IInstanceRunHost host)
+        {
             var rooms = logic.Definition.Rooms;
             if (rooms.Count == 0)
             {
                 return null;
             }
-
-            var instanceType = entrance.Type == ScriptedInstanceType.TimeSpace
-                ? MapInstanceType.TimeSpaceInstance
-                : MapInstanceType.RaidInstance;
 
             var built = new Dictionary<int, MapInstance>();
             foreach (var room in rooms)
@@ -147,7 +170,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 {
                     _logger.LogError(
                         _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MAP_MISSING],
-                        $"scripted instance {entrance.ScriptedInstanceId}", room.VNum);
+                        host.Name, room.VNum);
                     await RemoveRoomsAsync(built.Values.Select(s => s.MapInstanceId));
                     return null;
                 }
@@ -163,8 +186,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 built[room.Key] = mapInstance;
             }
 
-            var run = new ScriptedInstanceRun(entrance, entrance.Logic, built, _npcMonsters, _clock,
-                _sessionRegistry, _mapChangeService, _logger, _logLanguage, _scriptTimeout);
+            var run = new ScriptedInstanceRun(host, logic, built, _npcMonsters, _random, _clock,
+                _sessionRegistry, _logger, _logLanguage, _scriptTimeout);
             foreach (var id in run.Rooms.Values)
             {
                 _runsByRoom[id] = run;

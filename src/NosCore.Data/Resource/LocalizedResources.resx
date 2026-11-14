@@ -806,10 +806,7 @@
     <value>Instant Combat failed</value>
   </data>
   <data name="INSTANT_COMBAT_DATA_MISSING" xml:space="preserve">
-    <value>Instant Combat needs map {MapId} and its waves imported by the parser</value>
-  </data>
-  <data name="INSTANT_COMBAT_ROOM_FAILED" xml:space="preserve">
-    <value>Instant Combat room {MapInstanceId} failed</value>
+    <value>Instant Combat needs its script {Script} and its waves imported by the parser</value>
   </data>
   <data name="BROADCAST_FAILED" xml:space="preserve">
     <value>Broadcast to {ChannelId} failed</value>
