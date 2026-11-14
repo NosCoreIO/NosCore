@@ -102,8 +102,6 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
-            await summonService.SummonAsync(origin, skill.BCards);
-
             var targets = targetResolver.Resolve(origin, target, skill);
             if (skill.HitsSeveral && arguments.ListedTargets is { Count: > 0 } listed)
             {
@@ -121,6 +119,8 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
+            // After the hits, so a cast never lands on the adds it calls.
+            await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
             return true;
         }
@@ -140,8 +140,6 @@ namespace NosCore.GameObject.Services.BattleService
                 await CancelAsync(origin, null);
                 return false;
             }
-
-            await summonService.SummonAsync(origin, skill.BCards);
 
             if (skill.BCards.Any(b => b.Effect() == BCardEffect.FairyXpIncreaseTeleportToLocation)
                 && mapInstance.Map.IsWalkable(mapX, mapY))
@@ -167,6 +165,8 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
+            // After the hits, so a cast never lands on the adds it calls.
+            await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
             return true;
         }
@@ -183,8 +183,6 @@ namespace NosCore.GameObject.Services.BattleService
                 await CancelAsync(origin, target);
                 return false;
             }
-
-            await summonService.SummonAsync(origin, skill.BCards);
 
             var aroundCaster = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleTargetHitCombo;
             await mapInstance.SendPacketAsync(new SuPacket
@@ -232,6 +230,8 @@ namespace NosCore.GameObject.Services.BattleService
                 }
             }
 
+            // After the hits, so a cast never lands on the adds it calls.
+            await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
             return true;
         }
