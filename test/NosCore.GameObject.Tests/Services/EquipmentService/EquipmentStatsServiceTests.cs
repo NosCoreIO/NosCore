@@ -518,7 +518,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             AddOption(weapon, WeaponShellOptionType.IncreasedGold, 12);
             AddOption(weapon, WeaponShellOptionType.IncreasedCombatExperience, 6);
             AddOption(weapon, WeaponShellOptionType.IncreasedJobExperience, 7);
-            AddOption(weapon, WeaponShellOptionType.MinorBleeding, 3);
+            AddOption(weapon, WeaponShellOptionType.IncreasedDamageToPlants, 3);
 
             var effects = _service.Resolve(_session.Character).BCards
                 .ToDictionary(b => b.Effect(), b => b.FirstData);
@@ -530,7 +530,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             Assert.AreEqual(12, effects[BCardEffect.ItemIncreaseEarnedGold]);
             Assert.AreEqual(6, effects[BCardEffect.ItemExpIncreased]);
             Assert.AreEqual(7, effects[BCardEffect.Type101IncreaseJXpGain]);
-            Assert.AreEqual(7, effects.Count, "Bleeding on hit is not an effect card");
+            Assert.AreEqual(7, effects.Count, "Race damage is not an effect card");
         }
 
         [TestMethod]
@@ -628,6 +628,20 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                 new RaceDamage(MonsterRace.HighLevel, MonsterRaceType.Plant, 12),
                 new RaceDamage(MonsterRace.Undead, null, 7),
             }, bonuses?.ToArray());
+        }
+
+        [TestMethod]
+        public void AWeaponShellsDebuffOptionsBecomeChancesToInflictTheirCard()
+        {
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            AddOption(weapon, WeaponShellOptionType.MinorBleeding, 4);
+            AddOption(weapon, WeaponShellOptionType.Freeze, 2);
+
+            var cards = _service.Resolve(_session.Character).BCards
+                .Where(c => c.Effect() == BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack);
+
+            CollectionAssert.AreEquivalent(new[] { "4 189", "2 200" },
+                cards.Select(c => $"{c.FirstData} {c.SecondData}").ToArray());
         }
 
         [TestMethod]
