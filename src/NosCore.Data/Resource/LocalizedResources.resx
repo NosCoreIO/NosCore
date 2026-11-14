@@ -760,9 +760,6 @@
   <data name="HIT_APPLY_FAILED" xml:space="preserve">
     <value>Failed to apply hit to entity {Handle}</value>
   </data>
-  <data name="REGENERATION_TICK_FAILED" xml:space="preserve">
-    <value>Regeneration tick failed for map {MapId}</value>
-  </data>
   <data name="DROP_SPAWN_FAILED" xml:space="preserve">
     <value>Failed to spawn drop {VNum} from {Mob}</value>
   </data>
