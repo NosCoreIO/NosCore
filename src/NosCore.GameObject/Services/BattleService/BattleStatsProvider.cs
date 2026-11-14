@@ -29,7 +29,8 @@ public sealed class BattleStatsProvider(
     EquipmentService.IEquipmentStatsService equipmentStatsService,
     IDamageService damageService,
     ISecondaryDamageService secondaryDamageService,
-    SkillService.IPassiveSkillService passiveSkillService) : IBattleStatsProvider
+    SkillService.IPassiveSkillService passiveSkillService,
+    INpcCombatCatalog npcCombatCatalog) : IBattleStatsProvider
 {
     public CombatStats GetStats(IAliveEntity entity)
     {
@@ -40,12 +41,19 @@ public sealed class BattleStatsProvider(
         // Flat equipment first: a card that raises attack by a percentage has to see the weapon.
         var withGear = ApplyEquipment(ResolveBaseStats(entity), gear);
 
-        var passives = entity is PlayerComponentBundle character
-            ? passiveSkillService.GetBCards(character)
-            : Array.Empty<BCardDto>();
+        var passives = entity switch
+        {
+            PlayerComponentBundle character => passiveSkillService.GetBCards(character),
+            INonPlayableEntity { NpcMonster: { } monster } and not MateComponentBundle => MonsterPassives(monster.NpcMonsterVNum),
+            _ => Array.Empty<BCardDto>(),
+        };
 
         return ApplyCards(withGear, buffService.GetActiveBuffs(entity), gear, passives, entity);
     }
+
+    // A monster's BASIC cards are always on; its CARD ones fire on triggers such as its death.
+    private IReadOnlyList<BCardDto> MonsterPassives(short vnum) =>
+        npcCombatCatalog.GetNpcBCards(vnum).Where(card => card.Slot == 0).ToArray();
 
     // Adds what the worn pieces carry.
     //

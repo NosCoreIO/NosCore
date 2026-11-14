@@ -14,7 +14,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     internal static class BattleStats
     {
         public static BattleStatsProvider Provider(IBuffService buffs, IEquipmentStatsService equipment,
-            NosCore.GameObject.Services.SkillService.IPassiveSkillService? passives = null)
+            NosCore.GameObject.Services.SkillService.IPassiveSkillService? passives = null,
+            INpcCombatCatalog? npcCombatCatalog = null)
         {
             var fixture = new NosCoreFixture();
             fixture.Inject(buffs);
@@ -22,6 +23,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             if (passives != null)
             {
                 fixture.Inject(passives);
+            }
+
+            if (npcCombatCatalog != null)
+            {
+                fixture.Inject(npcCombatCatalog);
             }
 
             return fixture.Create<BattleStatsProvider>();
