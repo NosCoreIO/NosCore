@@ -468,6 +468,51 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _lockers[room] = count;
         }
 
+        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(button, 1);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(button, MapButton.LastId);
+            var mapInstance = _rooms[room];
+            var placed = new MapButton
+            {
+                MapButtonId = button,
+                PositionX = at.X,
+                PositionY = at.Y,
+                OffVNum = offVNum,
+                OnVNum = onVNum,
+                Toggles = toggles
+            };
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                mapInstance.Buttons[button] = placed;
+                return mapInstance.SendPacketAsync(placed.GenerateIn());
+            }));
+        }
+
+        public Task UseButtonAsync(Guid mapInstanceId, int button)
+        {
+            return RunAsync(async () =>
+            {
+                var room = RoomOf(mapInstanceId);
+                if (room == null || EndState != null || _abandoned
+                    || !_rooms[room.Value].Buttons.TryGetValue(button, out var used)
+                    || (used.IsOn && !used.Toggles))
+                {
+                    return;
+                }
+
+                used.IsOn = !used.IsOn;
+                var mapInstance = _rooms[room.Value];
+                _pending.Add(() => OnRoom(mapInstance, async () =>
+                {
+                    await mapInstance.SendPacketAsync(used.GenerateOut());
+                    await mapInstance.SendPacketAsync(used.GenerateIn());
+                    await mapInstance.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.LeverHasBeenPulled });
+                }));
+                await CallScriptAsync(run => _script.OnButtonUsed(run, room.Value, button));
+            });
+        }
+
         public void StartClock(TimeSpan limit)
         {
             _clockLimit = Duration.FromTimeSpan(limit);
@@ -729,6 +774,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
 
             public void SetMonsterLocker(int room, short count) => Do(() => run.SetMonsterLocker(room, count));
+
+            public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
+                Do(() => run.PlaceButton(room, button, at, offVNum, onVNum, toggles));
 
             public void StartClock(TimeSpan limit) => Do(() => run.StartClock(limit));
 

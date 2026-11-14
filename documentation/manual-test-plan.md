@@ -2341,6 +2341,24 @@ definition `.WithGold(1000).WithReputation(50).WithReward(1012, 2).WithSpecialRe
 - [ ] Near the gold limit, the gold stops at the limit
 - [ ] Let the clock run out: the score has no chest to open and nothing is given
 
+### Time-space levers
+
+Copy `timespace-01.csx` to `timespace-lever.csx` and point the row's `Script` at it. In
+`OnFirstEnter`, drop the hall's monsters and add `run.PlaceButton(_hall, 1, new Spot(22, 31),
+1000, 1045);`. Override `OnButtonUsed` to call `run.UnlockPortal(_hall, _lair)` and summon the
+lair's boss.
+
+- [ ] Inside the run a lever stands at (22, 31), labelled "Pull Lever (Before)", and the portal
+      to the lair is locked
+- [ ] Clicking the lever from a few cells away walks you to it and shows a two second "Pulling
+      lever.." bar
+- [ ] When the bar ends, the lever turns into "Pull Lever (After)", the whole room sees "The
+      lever has been pulled." and the portal opens
+- [ ] Clicking the pulled lever again starts no bar
+- [ ] Walking away or attacking during the bar cancels it and the lever stays as it was
+- [ ] With `toggles: true`, a second pull switches the lever back and runs `OnButtonUsed` again
+- [ ] A second player who enters the room after the pull sees the lever already pulled
+
 ### Raids
 
 Set the `Script` column of a raid row (`Type` 1 in `ScriptedInstance`; the row only carries the script) to

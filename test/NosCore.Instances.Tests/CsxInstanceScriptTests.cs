@@ -64,6 +64,9 @@ namespace NosCore.Instances.Tests
 
         public void SetMonsterLocker(int room, short count) => Calls.Add($"monsterLocker({room},{count})");
 
+        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
+            Calls.Add($"button({room},{button},{at.X},{at.Y},{offVNum},{onVNum},{toggles})");
+
         public void StartClock(TimeSpan limit) => Calls.Add($"clock({limit.TotalMinutes}m)");
 
         public void ShowCountdown(int room, TimeSpan length) => Calls.Add($"countdown({room},{length.TotalSeconds}s)");

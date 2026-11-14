@@ -18,6 +18,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 await spChargerHandler.Handle(evt);
             });
             Handler = new GetPacketHandler(NullLogger<GetPacketHandler>.Instance, World.DistanceCalculator,
-                World.GroupLootService, World.LogLanguageLocalizer, Bus.Object);
+                World.GroupLootService, World.LogLanguageLocalizer, Bus.Object, World.Create<MapButtonService>());
         }
 
         [TestMethod]
