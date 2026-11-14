@@ -158,6 +158,10 @@ namespace NosCore.GameObject.Services.TransformationService
             character.IsVehicled = true;
             character.VehicleSpeed = vehicle.Speed;
             character.VehicleVNum = vehicle.VNum;
+            if (cardCatalog.GetItemCard(vehicle.VNum) is { } ridingCard)
+            {
+                await buffService.ApplyAsync(character, ridingCard, cardCatalog.GetCardBCards(ridingCard.CardId), character);
+            }
 
             // cond carries Speed, not VehicleSpeed, and Speed is written once at login from
             // the class table. Without this line the mount changes the sprite and nothing
@@ -207,6 +211,11 @@ namespace NosCore.GameObject.Services.TransformationService
             else
             {
                 character.Morph = 0;
+            }
+
+            if (cardCatalog.GetItemCard(character.VehicleVNum) is { } ridingCard)
+            {
+                await buffService.RemoveAsync(character, ridingCard.CardId);
             }
 
             character.IsVehicled = false;

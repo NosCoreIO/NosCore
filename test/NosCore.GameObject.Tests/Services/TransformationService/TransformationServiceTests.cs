@@ -30,6 +30,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private NosCore.GameObject.Services.BattleService.BuffService Buffs;
         private ClientSession Session;
         private const short BoostCardId = 336;
+        private const short MountWithABuff = 13752;
+        private const short RidingCardId = 4328;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -42,6 +44,9 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             World.Inject<NosCore.GameObject.Services.BattleService.IBuffService>(Buffs);
             var cards = World.Freeze<Mock<NosCore.GameObject.Services.BattleService.ICardCatalog>>();
             cards.Setup(c => c.IsGrantedBy(BoostCardId, NosCore.Data.Enumerations.Items.ItemEffectType.SpeedBooster)).Returns(true);
+            cards.Setup(c => c.GetItemCard(MountWithABuff))
+                .Returns(new NosCore.Data.StaticEntities.CardDto { CardId = RidingCardId, Duration = 30000 });
+            cards.Setup(c => c.GetCardBCards(RidingCardId)).Returns(new List<NosCore.Data.StaticEntities.BCardDto>());
             Service = new GameObject.Services.TransformationService.TransformationService(
                 World.Clock,
                 new Mock<IExperienceService>().Object,
@@ -154,6 +159,30 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             Session.Character.Morph = 100;
             Session.Character.MorphUpgrade = 10;
             Session.Character.MorphDesign = 5;
+        }
+
+        [TestMethod]
+        public async Task AMountWithARidingBuffGivesItWhileRidden()
+        {
+            await Riding(MountWithABuff);
+            Assert.IsTrue(Buffs.HasBuff(Session.Character, RidingCardId));
+
+            await Service.RemoveVehicleAsync(Session);
+            Assert.IsFalse(Buffs.HasBuff(Session.Character, RidingCardId));
+        }
+
+        [TestMethod]
+        public async Task AMountWithoutARidingBuffGivesNone()
+        {
+            await Riding(5196);
+
+            Assert.AreEqual(0, Buffs.GetActiveBuffs(Session.Character).Count);
+        }
+
+        private Task Riding(short vnum)
+        {
+            var mount = new GameObject.Services.ItemGenerationService.Item.Item { VNum = vnum, Speed = 20, Morph = 2432 };
+            return Service.ChangeVehicleAsync(Session, mount, mount);
         }
 
         private async Task RemovingSp()

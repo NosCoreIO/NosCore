@@ -2668,6 +2668,10 @@ Recorded so nobody spends time hunting for them:
 - [ ] The limited jeeps (9090 to 9094) show the colour of their name and the limited Black
       Unicorn (9085) is a unicorn.
 - [ ] A female character on the same mounts shows the female rider.
+- [ ] Ride a mount whose description says "You receive the buff ...": Power Loader (1618,
+      Stealth Field), 12th Anniversary Speedy Alpaca (5807, Shaggy Fur), Dasher (13468,
+      Operation Christmas), Chi Tu (13752, Best Horse Ever). The buff's icon appears in the
+      buff bar on mounting and goes on dismounting. A mount without such a line gives none.
 - [ ] Relog and repeat: the vehicle remains usable and is not consumed.
 
 Early or missing delay completion is covered by automated tests; a stock client
