@@ -4,12 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.TalentArenaService;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -25,6 +27,9 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
         private ClientSession _defender;
         private MapInstance _map;
         private TalentArena _service;
+        private readonly List<string> _fallen = new();
+        private readonly List<string> _called = new();
+        private int _callsUsed;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -107,6 +112,55 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AFighterInTheRingCallsTheChosenTeammate()
+        {
+            await new Spec("Each call button brings in the matching teammate, in fighting order")
+                .Then(A_CallingButton_ShouldBring_, "Z1", (byte)0, "Z2")
+                .And(A_CallingButton_ShouldBring_, "Z1", (byte)1, "Z3")
+                .And(A_CallingButton_ShouldBring_, "E1", (byte)1, "E3")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlyTheFighterInTheRingCanCall()
+        {
+            await new Spec("A fighter waiting on the bench cannot call anyone")
+                .Then(A_CallingButton_ShouldBring_, "Z2", (byte)0, (string?)null)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task FallenOrAlreadyCalledTeammatesCannotBeCalled()
+        {
+            await new Spec("A teammate who has fallen or is already coming cannot be called")
+                .Given(_HasFallen, "Z2")
+                .And(_IsAlreadyCalled, "Z3")
+                .Then(A_CallingButton_ShouldBring_, "Z1", (byte)0, (string?)null)
+                .And(A_CallingButton_ShouldBring_, "Z1", (byte)1, (string?)null)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATeamHasFiveCallsAMatch()
+        {
+            await new Spec("A team that has used its five calls cannot call again")
+                .Given(TheTeamHasUsed_Calls, 4)
+                .Then(A_CallingButton_ShouldBring_, "Z1", (byte)0, "Z2")
+                .When(TheTeamHasUsed_Calls, 5)
+                .Then(A_CallingButton_ShouldBring_, "Z1", (byte)0, (string?)null)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task CallingOutsideAMatchDoesNothing()
+        {
+            await new Spec("A call sent outside the arena ring is ignored")
+                .WhenAsync(TheAttackerCallsATeammateAsync)
+                .Then(NothingShouldBeSentToTheAttacker)
+                .ExecuteAsync();
+        }
+
         private void TheAttackerFightsFor_(ArenaTeamType team) => _attacker.Character.TalentArenaTeam = team;
 
         private void TheDefenderFightsFor_(ArenaTeamType team) => _defender.Character.TalentArenaTeam = team;
@@ -129,6 +183,27 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
                 .ToList();
             Assert.AreEqual(expected, TalentArena.Result(fighters));
         }
+
+        private void _HasFallen(string name) => _fallen.Add(name);
+
+        private void _IsAlreadyCalled(string name) => _called.Add(name);
+
+        private void TheTeamHasUsed_Calls(int calls) => _callsUsed = calls;
+
+        private void A_CallingButton_ShouldBring_(string caller, byte button, string? expected)
+        {
+            var names = new[] { ArenaTeamType.Zenas, ArenaTeamType.Erenia }
+                .SelectMany(team => Enumerable.Range(1, 3).Select(i => (Team: team, Order: (byte)(i - 1), Name: $"{team.ToString()[0]}{i}")))
+                .ToList();
+            var fighters = names.Select((f, id) => new TalentArenaFighter(id, f.Team, f.Order, f.Order == 0,
+                _fallen.Contains(f.Name), _called.Contains(f.Name))).ToList();
+            long? expectedId = expected == null ? null : names.FindIndex(f => f.Name == expected);
+            Assert.AreEqual(expectedId, TalentArena.CallTarget(fighters, names.FindIndex(f => f.Name == caller), button, _callsUsed));
+        }
+
+        private Task TheAttackerCallsATeammateAsync() => _service.CallAsync(_attacker, 0);
+
+        private void NothingShouldBeSentToTheAttacker() => Assert.IsFalse(_attacker.LastPackets.Any());
 
         private void OpeningTheArenaShouldSucceed() => Assert.IsTrue(_service.TryStart());
 
