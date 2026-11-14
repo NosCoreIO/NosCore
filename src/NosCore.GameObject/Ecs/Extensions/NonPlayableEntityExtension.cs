@@ -18,12 +18,14 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -34,6 +36,30 @@ namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class NonPlayableEntityExtension
     {
+        public static InPacket GenerateIn(this INonPlayableEntity entity, SpawnEffectType spawnEffect, short dialog = 0)
+        {
+            return new InPacket
+            {
+                VisualType = entity.VisualType,
+                VisualId = entity.VisualId,
+                VNum = entity.VNum == 0 ? string.Empty : entity.VNum.ToString(CultureInfo.InvariantCulture),
+                PositionX = entity.PositionX,
+                PositionY = entity.PositionY,
+                Direction = entity.Direction,
+                InNonPlayerSubPacket = new InNonPlayerSubPacket
+                {
+                    Dialog = dialog,
+                    InAliveSubPacket = new InAliveSubPacket
+                    {
+                        Hp = entity.MaxHp > 0 ? (int)(entity.Hp / (float)entity.MaxHp * 100) : 100,
+                        Mp = entity.MaxMp > 0 ? (int)(entity.Mp / (float)entity.MaxMp * 100) : 100
+                    },
+                    SpawnEffect = spawnEffect,
+                    IsSitting = entity.IsSitting,
+                }
+            };
+        }
+
         public static void InitializeShopAndDialog(this NpcComponentBundle bundle,
             IReadOnlyList<ShopDto> shopDtos, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto,
             IItemGenerationService itemProvider, IReadOnlyList<ShopSkill>? shopSkills = null)
