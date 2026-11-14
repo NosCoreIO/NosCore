@@ -309,6 +309,13 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       never by more than three quarters
 - [ ] The amulet changes nothing when hitting a monster
 
+### Buffs triggered by hits
+
+- [ ] Wear the hat costume 8900 and auto-attack a monster for a minute: now and then the hat's
+      own buff (card 4426) appears on your buff bar, and its debuff (card 4424) lands on the
+      monster
+- [ ] Gear that triggers on defence puts its card on you, or on the attacker, when you are hit
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
