@@ -34,5 +34,29 @@ namespace NosCore.Database.Tests
                 "Run the parser to update it, then start the server again.",
                 DatabaseReadiness.Describe(["First", "Second"]));
         }
+
+        [TestMethod]
+        public void AnImportOfThisVersionHasNothingToSay()
+        {
+            Assert.IsNull(DatabaseReadiness.DescribeGameData(DatabaseReadiness.GameDataVersion));
+        }
+
+        [TestMethod]
+        public void ADatabaseNeverImportedByThisParserIsToldToRunIt()
+        {
+            Assert.AreEqual(
+                "The game data has not been imported by this version of the parser. " +
+                "Run the parser, then start the server again.",
+                DatabaseReadiness.DescribeGameData(null));
+        }
+
+        [TestMethod]
+        public void AnOlderImportNamesBothVersions()
+        {
+            Assert.AreEqual(
+                $"The game data was imported by an older parser (data version 0, this build needs {DatabaseReadiness.GameDataVersion}). " +
+                "Run the parser again, then start the server again.",
+                DatabaseReadiness.DescribeGameData(0));
+        }
     }
 }

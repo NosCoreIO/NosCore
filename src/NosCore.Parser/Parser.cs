@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using NosCore.Database;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -20,7 +22,8 @@ namespace NosCore.Parser
         ILogger<Parser> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         ParserCliOptions cli,
-        IHostApplicationLifetime lifetime)
+        IHostApplicationLifetime lifetime,
+        DbContext context)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -116,6 +119,7 @@ namespace NosCore.Parser
             await factory.ImportRecipesAsync();
             await factory.ImportScriptsAsync().ConfigureAwait(false);
             await factory.ImportQuestsAsync().ConfigureAwait(false);
+            DatabaseReadiness.RecordGameDataImport(context);
         }
 
         private async Task RunPromptedImportsAsync()

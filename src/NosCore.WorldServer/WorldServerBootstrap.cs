@@ -94,6 +94,7 @@ namespace NosCore.WorldServer
             var worldConfiguration = conf.Get<WorldConfiguration>()
                 ?? throw new InvalidOperationException("The WorldConfiguration section could not be read.");
             DatabaseReadiness.EnsureUpToDate(worldConfiguration.Database.ConnectionString);
+            DatabaseReadiness.EnsureGameDataImported(worldConfiguration.Database.ConnectionString);
             services.AddNosCoreContext(worldConfiguration.Database.ConnectionString);
             services.AddOptions<WorldConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
