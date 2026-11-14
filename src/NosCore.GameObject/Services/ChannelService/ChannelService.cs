@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Services.ChannelService
             }
 
             var worlds = (await channelHttpClient.GetCommunicationChannels())
-                .Where(c => c.Type == ServerType.WorldServer && !c.IsMaintenance);
+                .Where(c => c.Type == ServerType.WorldServer && !c.IsMaintenance && c.ServerId == worldConfiguration.Value.ServerId);
             return act4Map
                 ? worlds.FirstOrDefault(c => c.IsAct4)
                 : worlds.Where(c => !c.IsAct4).OrderBy(c => c.Id).FirstOrDefault();

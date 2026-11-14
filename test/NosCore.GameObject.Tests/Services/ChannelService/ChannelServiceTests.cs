@@ -125,6 +125,16 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
         }
 
         [TestMethod]
+        public async Task AnAct4ChannelOfAnotherServerIsNotUsed()
+        {
+            await new Spec("An Act 4 channel of another server is not used")
+                .Given(OnlyAnotherServerHasAnAct4Channel)
+                .WhenAsync(AskingWhoHostsGlacernon)
+                .Then(ThisChannelShouldKeepThePlayer)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task TheAct4ChannelSendsOtherMapsToTheFirstOrdinaryChannel()
         {
             await new Spec("The Act 4 channel sends other maps to the first ordinary channel")
@@ -227,6 +237,17 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                     new() { Id = 3, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1339 },
                     new() { Id = 51, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1338, IsAct4 = true },
                     new() { Id = 2, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1337 },
+                });
+        }
+
+        private void OnlyAnotherServerHasAnAct4Channel()
+        {
+            World.WorldConfiguration.Value.ServerId = 1;
+            ChannelHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo>
+                {
+                    new() { Id = 2, ServerId = 1, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1337 },
+                    new() { Id = 51, ServerId = 2, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1338, IsAct4 = true },
                 });
         }
 
