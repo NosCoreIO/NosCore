@@ -275,6 +275,13 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Gear or a buff that raises the attack or defence level counts like that many extra upgrade
       levels on the weapon or armour
 
+### Gear experience bonuses
+
+- [ ] Wear the hat costume 4579 ("XP +10%") and kill a monster: the XP in `lev` rises by a tenth
+      more than without it (a 10 000 XP kill gives 11 000)
+- [ ] Gear with a hero XP bonus raises the hero XP of a kill by its percent
+- [ ] Gear with a reputation bonus raises the reputation a kill gives by its percent
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,

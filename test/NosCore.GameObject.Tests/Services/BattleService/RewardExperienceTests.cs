@@ -22,6 +22,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -40,6 +41,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private RewardService _service;
         private BuffService _buffs;
         private readonly Dictionary<long, (long Xp, long JobXp)> _awarded = new();
+        private readonly Dictionary<long, long> _heroAwarded = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -49,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var map = _session.Character.MapInstance;
             var creature = new NpcMonsterDto
             {
-                NpcMonsterVNum = 333, Level = 30, MaxHp = 100, Xp = 1000, JobXp = 100, Name = new I18NString(),
+                NpcMonsterVNum = 333, Level = 30, MaxHp = 100, Xp = 1000, JobXp = 100, HeroXp = 200, Name = new I18NString(),
             };
             _monster = new MonsterComponentBundle(
                 map.EcsWorld.CreateMonster(9001, creature, map, 12, 14, 2, 12, 14, false, true, false), map.EcsWorld);
@@ -57,8 +59,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var progression = new Mock<IExperienceProgressionService>();
             progression.Setup(p => p.AddExperienceAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>(),
                     It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()))
-                .Callback((PlayerComponentBundle player, long xp, long jobXp, long _, long _, int _) =>
-                    _awarded[player.CharacterId] = (xp, jobXp))
+                .Callback((PlayerComponentBundle player, long xp, long jobXp, long heroXp, long _, int _) =>
+                {
+                    _awarded[player.CharacterId] = (xp, jobXp);
+                    _heroAwarded[player.CharacterId] = heroXp;
+                })
                 .Returns(Task.CompletedTask);
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
@@ -93,6 +98,56 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await KillAsync((_session, 100));
 
             Assert.AreEqual((1050L, 105L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
+        public async Task WornGearWithAnExperienceBonusRaisesTheExperience()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 30;
+            WearBCards(new BCardDto { Type = 44, SubType = 11, FirstData = 10 });
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual((1100L, 110L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
+        public async Task AJobExperienceBonusRaisesOnlyTheJobExperience()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 30;
+            WearBCards(new BCardDto { Type = 101, SubType = 41, FirstData = 10 });
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual((1000L, 110L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
+        public async Task AHeroExperienceBonusRaisesTheHeroExperience()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 30;
+            WearBCards(new BCardDto { Type = 87, SubType = 21, FirstData = 15 });
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual(230L, _heroAwarded[_session.Character.CharacterId]);
+            Assert.AreEqual((1000L, 100L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
+        public async Task AFameBonusRaisesTheReputationEarned()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 30;
+            var before = _session.Character.Reputation;
+            WearBCards(new BCardDto { Type = 87, SubType = 11, FirstData = 20 });
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual(before + 12, _session.Character.Reputation);
         }
 
         [TestMethod]
@@ -149,6 +204,15 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             {
                 member.Character.JoinGroup(group);
             }
+        }
+
+        private void WearBCards(params BCardDto[] bCards)
+        {
+            var equipment = new Mock<IEquipmentStatsService>();
+            equipment.Setup(e => e.Resolve(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>()))
+                .Returns(EquipmentStats.None with { BCards = bCards });
+            World.Inject(equipment.Object);
+            _service = World.Create<RewardService>();
         }
 
         private Task KillAsync(params (ClientSession Session, int Damage)[] hits)
