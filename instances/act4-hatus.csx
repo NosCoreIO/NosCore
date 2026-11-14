@@ -38,7 +38,7 @@ public class HatusRaid : InstanceScript
             .StartingAt(14, 6)
             .WithRoom(137, out _entrance)
             .WithRoom(138, out _lair)
-            .WithReward(185, 1, 50)
+            .WithReward(185, 1, 50, randomRare: true)
             .Build();
     }
 

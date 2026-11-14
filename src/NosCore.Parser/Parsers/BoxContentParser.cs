@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
@@ -19,6 +20,9 @@ namespace NosCore.Parser.Parsers
     public class BoxContentParser(IDao<ItemDto, short> itemDao,
         IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<BoxContentParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
+        private const short LowestRare = -2;
+        private const short HighestRare = 8;
+
         public async Task InsertBoxContentsAsync()
         {
             var items = itemDao.LoadAll().ToDictionary(i => i.VNum);
@@ -38,6 +42,28 @@ namespace NosCore.Parser.Parsers
                     OriginalItemVNum = vnum,
                     ItemGeneratedVNum = c.VNum,
                     ItemGeneratedAmount = c.Amount,
+                    Probability = 1,
+                }));
+            }
+
+            foreach (var (vnum, contents) in RaidBoxes.All)
+            {
+                if (!items.TryGetValue(vnum, out var box) || contents.Any(c => !items.ContainsKey(c.VNum)))
+                {
+                    continue;
+                }
+
+                box.Effect = ItemEffectType.BoxEffect;
+                boxes.Add(box);
+                rolls.AddRange(contents.Select(c => new RollGeneratedItemDto
+                {
+                    OriginalItemVNum = vnum,
+                    OriginalItemDesign = RaidBoxes.Design,
+                    MinimumOriginalItemRare = LowestRare,
+                    MaximumOriginalItemRare = HighestRare,
+                    ItemGeneratedVNum = c.VNum,
+                    ItemGeneratedAmount = c.Amount,
+                    IsRareRandom = items[c.VNum].ItemType is ItemType.Weapon or ItemType.Armor,
                     Probability = 1,
                 }));
             }

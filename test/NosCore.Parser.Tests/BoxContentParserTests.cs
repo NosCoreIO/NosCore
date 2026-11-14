@@ -80,6 +80,26 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(0, _rolls.Count);
         }
 
+        [TestMethod]
+        public async Task ARaidBoxRollsAtTheRaidDesignAndHandsItsRarityToEquipment()
+        {
+            const short hatusBox = 185;
+            _items.Add(new ItemDto { VNum = hatusBox, ItemType = ItemType.Box });
+            _items.AddRange(new short[] { 565, 568, 571, 574, 577, 580, 583, 586, 1430, 1429, 2516, 2439, 9385 }
+                .Select(v => new ItemDto { VNum = v, ItemType = ItemType.Shell }));
+            _items.AddRange(new short[] { 199, 940, 941, 4979 }.Select(v => new ItemDto { VNum = v, ItemType = ItemType.Weapon }));
+
+            await _parser.InsertBoxContentsAsync();
+
+            Assert.AreEqual(ItemEffectType.BoxEffect, _savedItems.Single().Effect);
+            Assert.AreEqual(17, _rolls.Count);
+            Assert.IsTrue(_rolls.All(r => r.OriginalItemDesign == RaidBoxes.Design && r.MinimumOriginalItemRare == -2
+                && r.MaximumOriginalItemRare == 8 && r.Probability == 1));
+            CollectionAssert.AreEquivalent(new short[] { 199, 940, 941, 4979 },
+                _rolls.Where(r => r.IsRareRandom).Select(r => r.ItemGeneratedVNum).ToArray());
+            Assert.AreEqual(5, _rolls.Single(r => r.ItemGeneratedVNum == 1429).ItemGeneratedAmount);
+        }
+
         private void Items(params short[] vnums) => _items.AddRange(vnums.Select(v => new ItemDto { VNum = v }));
     }
 }

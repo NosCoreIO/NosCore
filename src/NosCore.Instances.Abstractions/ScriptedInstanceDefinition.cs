@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace NosCore.Instances.Abstractions
 {
-    public record InstanceGift(short VNum, short Amount, byte Design = 0);
+    public record InstanceGift(short VNum, short Amount, byte Design = 0, bool RandomRare = false);
 
     // Where one side of a bout lines up, waits after a fall, and fights. Fighters line up two
     // cells apart below Entry in their fighting order.

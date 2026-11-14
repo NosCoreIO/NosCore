@@ -38,7 +38,7 @@ public class MorcosRaid : InstanceScript
             .StartingAt(40, 177)
             .WithRoom(135, out _entrance)
             .WithRoom(136, out _lair)
-            .WithReward(882, 1, 50)
+            .WithReward(882, 1, 50, randomRare: true)
             .Build();
     }
 

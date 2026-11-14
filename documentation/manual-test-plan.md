@@ -3070,4 +3070,7 @@ A side needs 100 kills to fill its bar. Both characters need a family and level 
 - [ ] After the hour the gate goes grey, players still inside are sent back, and the angel
       side is back in mode 0
 
-Not verifiable yet: the raid box opens to nothing, since raid box contents are not imported.
+- [ ] The raid box arrives with a rarity between -2 and 6; opened, it gives one of its listed items
+      (Hatus 185: a shell, Magic Eraser, 5 Rainbow Pearls, Hatus' Dark Lance, Abyss Bow, Infernal
+      Staff, Small Obsidian of Completion, Turik's Essence, the spell gun or the Shadowheart card),
+      and a weapon or armour from it carries the box's rarity

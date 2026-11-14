@@ -40,7 +40,7 @@ public class CalvinaRaid : InstanceScript
             .StartingAt(26, 7)
             .WithRoom(139, out _entrance)
             .WithRoom(140, out _lair)
-            .WithReward(942, 1, 50)
+            .WithReward(942, 1, 50, randomRare: true)
             .Build();
     }
 
