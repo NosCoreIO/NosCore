@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using Moq;
 using NodaTime;
@@ -610,6 +611,23 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             Assert.AreEqual(without.MinHit + raised.Damage - own.Damage, with.MinHit);
             Assert.AreEqual(without.CloseDefence + raised.Defence - own.Defence, with.CloseDefence);
             Assert.IsTrue(with.MinHit > without.MinHit);
+        }
+
+        [TestMethod]
+        public void AWeaponShellsRaceOptionsBecomeRaceDamage()
+        {
+            var weapon = Wear(EquipmentType.MainWeapon, MainWeaponVnum);
+            AddOption(weapon, WeaponShellOptionType.IncreasedDamageToPlants, 12);
+            AddOption(weapon, WeaponShellOptionType.IncreasedDamageToUndead, 7);
+
+            var bonuses = _service.Resolve(_session.Character).RaceDamage;
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new RaceDamage(MonsterRace.LowLevel, MonsterRaceType.Plant, 12),
+                new RaceDamage(MonsterRace.HighLevel, MonsterRaceType.Plant, 12),
+                new RaceDamage(MonsterRace.Undead, null, 7),
+            }, bonuses?.ToArray());
         }
 
         [TestMethod]

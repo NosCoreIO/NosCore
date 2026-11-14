@@ -54,7 +54,8 @@ public readonly record struct EquipmentStats(
     // Percentage taken off every skill's MP cost.
     int MpConsumptionDecrease = 0,
     // Applied to the whole maximum, gear included, rather than added to it.
-    int SpecialistHpMpPercent = 0)
+    int SpecialistHpMpPercent = 0,
+    IReadOnlyList<BattleService.Model.RaceDamage>? RaceDamage = null)
 {
     public static EquipmentStats None => new() { BCards = System.Array.Empty<BCardDto>() };
 }

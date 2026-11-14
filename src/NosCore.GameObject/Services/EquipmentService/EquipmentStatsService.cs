@@ -13,10 +13,12 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Shared.Enumerations;
@@ -52,6 +54,7 @@ public sealed class EquipmentStatsService(
         // The effects are gathered along the way and handed over whole: the fold by type and
         // subtype already exists in BattleStatsProvider, and a second copy would drift from it.
         var bcards = new List<BCardDto>();
+        var raceDamage = new List<RaceDamage>();
 
         var main = Worn(character, EquipmentType.MainWeapon);
         if (main != null)
@@ -142,6 +145,7 @@ public sealed class EquipmentStatsService(
             {
                 var options = Options(piece);
                 bcards.AddRange(options.Select(WeaponShellBCard).OfType<BCardDto>());
+                raceDamage.AddRange(options.SelectMany(WeaponShellRaceDamage));
                 stats = stats with
                 {
                     MpConsumptionDecrease = stats.MpConsumptionDecrease
@@ -182,7 +186,11 @@ public sealed class EquipmentStatsService(
         }
 
         // Array.Empty so "nothing worn" compares equal to EquipmentStats.None.
-        return stats with { BCards = bcards.Count == 0 ? System.Array.Empty<BCardDto>() : bcards };
+        return stats with
+        {
+            BCards = bcards.Count == 0 ? System.Array.Empty<BCardDto>() : bcards,
+            RaceDamage = raceDamage.Count == 0 ? null : raceDamage,
+        };
     }
 
     // The card adds to both the melee and the ranged profile, since a transformed character
@@ -260,8 +268,8 @@ public sealed class EquipmentStatsService(
         _ => null,
     });
 
-    // Options without a case need a mechanic combat does not have yet, such as an effect on hit
-    // or a bonus against one monster race. The SL options raise the specialist card instead.
+    // Options without a case need a mechanic combat does not have yet, such as an effect on hit.
+    // The SL options raise the specialist card and the race options go to RaceDamage instead.
     private static BCardDto? WeaponShellBCard(EquipmentOptionDto option) => OptionBCard(option, (WeaponShellOptionType)option.Type switch
     {
         WeaponShellOptionType.EnhancedDamage => BCardEffect.AttackPowerAllAttacksIncreased,
@@ -278,6 +286,27 @@ public sealed class EquipmentStatsService(
         WeaponShellOptionType.IncreasedJobExperience => BCardEffect.Type101IncreaseJXpGain,
         _ => null,
     });
+
+    // The levelled groups split plants, animals and monsters by RaceType; the other options name a
+    // whole group. Vampires are counted as undead because they share its group.
+    private static IEnumerable<RaceDamage> WeaponShellRaceDamage(EquipmentOptionDto option)
+    {
+        IEnumerable<RaceDamage> Levelled(MonsterRaceType type) =>
+        [
+            new(MonsterRace.LowLevel, type, option.Value),
+            new(MonsterRace.HighLevel, type, option.Value),
+        ];
+
+        return (WeaponShellOptionType)option.Type switch
+        {
+            WeaponShellOptionType.IncreasedDamageToPlants => Levelled(MonsterRaceType.Plant),
+            WeaponShellOptionType.IncreasedDamageToAnimals => Levelled(MonsterRaceType.Animal),
+            WeaponShellOptionType.IncreasedDamageToMonsters => Levelled(MonsterRaceType.Monster),
+            WeaponShellOptionType.IncreasedDamageToUndead => [new(MonsterRace.Undead, null, option.Value)],
+            WeaponShellOptionType.IncreasedDamageToSmallAnimals => [new(MonsterRace.Furry, null, option.Value)],
+            _ => [],
+        };
+    }
 
     private static BCardDto? ArmorShellBCard(EquipmentOptionDto option) => OptionBCard(option, (ArmorShellOptionType)option.Type switch
     {
