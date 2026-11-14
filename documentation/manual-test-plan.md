@@ -2282,6 +2282,16 @@ character next to NPC 2541 with dialog 9771, whose first page offers daily quest
       handed out until the earlier one is done
 - [ ] A character below the quest's level gets the level-too-low message
 
+### Daily quests
+
+The quests whose title ends in "(Daily)" can be taken again once a day has passed since they were
+done. Use the "Quests offered in NPC dialogs" scene with daily quest 7516 already completed.
+
+- [ ] Done two days ago: pressing "Calm down!" hands the quest out again
+- [ ] Done three hours ago: "The quest can only be completed once per day." shows and no quest is added
+- [ ] A story quest done before (for example the rookie training quests 100 to 113) is never handed
+      out a second time
+
 ### Rewards
 
 Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open

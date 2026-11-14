@@ -86,7 +86,7 @@ namespace NosCore.Parser.Tests
             short questId = 1,
             int questType = 1,
             bool autoFinish = false,
-            bool isDaily = false,
+            short questLineId = -1,
             short? requiredQuestId = null,
             bool isSecondary = false,
             byte levelMin = 1,
@@ -101,7 +101,7 @@ namespace NosCore.Parser.Tests
             short? nextQuestId = null)
         {
             return $"BEGIN\r\n" +
-                   $"VNUM\t{questId}\t{questType}\t{(autoFinish ? "1" : "0")}\t{(isDaily ? "-1" : "0")}\t{requiredQuestId?.ToString() ?? "-1"}\t{(isSecondary ? "1" : "-1")}\r\n" +
+                   $"VNUM\t{questId}\t{questType}\t{(autoFinish ? "1" : "0")}\t{questLineId}\t{requiredQuestId?.ToString() ?? "-1"}\t{(isSecondary ? "1" : "-1")}\r\n" +
                    $"LEVEL\t{levelMin}\t{levelMax}\r\n" +
                    $"TITLE\t{title}\r\n" +
                    $"DESC\t{desc}\r\n" +
@@ -157,16 +157,25 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task QuestParser_ParsesDailyFlag()
+        public async Task QuestParser_ADailyQuestIsDaily()
         {
-            var content = CreateQuestData(questId: 1, isDaily: true);
-            CreateTestFile(content);
+            CreateTestFile(CreateQuestData(questId: 7516, questLineId: 1));
 
             var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestsAsync(_tempFolder);
 
-            Assert.AreEqual(1, _savedQuests.Count);
-            Assert.IsTrue(_savedQuests[0].IsDaily);
+            Assert.IsTrue(_savedQuests.Single().IsDaily);
+        }
+
+        [TestMethod]
+        public async Task QuestParser_AQuestOutsideAnyQuestLineIsNotDaily()
+        {
+            CreateTestFile(CreateQuestData(questId: 100, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.IsFalse(_savedQuests.Single().IsDaily);
         }
 
         [TestMethod]
