@@ -5,7 +5,9 @@
 //
 
 using System;
+using NosCore.Algorithm.DodgeChanceService;
 using NosCore.Algorithm.MonsterLevelDamageService;
+using NosCore.Algorithm.UpgradeBonusService;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -16,7 +18,8 @@ namespace NosCore.GameObject.Services.BattleService;
 // Player and monster damage. The calculator is stateless apart from RNG — all inputs come from the resolved CombatStats
 // of both sides plus the SkillInfo. Keeping this symmetrical lets the same function
 // service character→monster, monster→character and PvP damage.
-public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamageService monsterLevelDamageService) : IDamageCalculator
+public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamageService monsterLevelDamageService,
+    IUpgradeBonusService upgradeBonus, IDodgeChanceService dodgeChance) : IDamageCalculator
 {
     // Element matchup boosts: attackerElement x defenderElement → multiplier. 0 means
     // "no element".
@@ -64,14 +67,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
                     return new DamageResult(0, SuPacketHitMode.Miss);
                 }
 
-                var dodgeMultiplier = Math.Min(5.0, context.MonsterDodge / (double)(context.MainHitRate + 1));
-                // Cubic fit: the chance rises sharply once the attacker's hit rate falls behind
-                // the defender's dodge by about twice.
-                var chance = Math.Max(1.0,
-                    -0.25 * Math.Pow(dodgeMultiplier, 3)
-                    - 0.57 * Math.Pow(dodgeMultiplier, 2)
-                    + 25.3 * dodgeMultiplier
-                    - 1.41);
+                var chance = dodgeChance.GetDodgeChance(context.MonsterDodge, context.MainHitRate);
 
                 // RNG returns [0,100). A dodge lands if roll <= chance (chance is percent).
                 if (random.NextDouble() * 100 <= chance)
@@ -91,18 +87,16 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var baseDamage = RollBaseDamage(context.MainMinDmg, context.MainMaxDmg);
         baseDamage += morale - defender.Level;
 
-        // Weapon upgrade table: negative values pad defender's armour, positive values
-        // pad attacker's damage. Linear to ~+/-5 then accelerating, so a +10 weapon
-        // doubles damage.
+        // Whichever side is ahead on upgrades gets the bonus: the defender's armour or the attacker's damage.
         var monsterDefence = context.MonsterDefence;
         var upgrade = context.MainUpgrade - defender.DefenceUpgrade;
         if (upgrade < 0)
         {
-            monsterDefence += (int)(monsterDefence * NegativeUpgradeDefenceBonus(upgrade));
+            monsterDefence += (int)(monsterDefence * upgradeBonus.GetUpgradeBonus(-upgrade));
         }
         else if (upgrade > 0)
         {
-            baseDamage += (int)(baseDamage * PositiveUpgradeDamageBonus(upgrade));
+            baseDamage += (int)(baseDamage * upgradeBonus.GetUpgradeBonus(upgrade));
         }
 
         baseDamage -= monsterDefence;
@@ -142,11 +136,11 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var upgrade = context.MainUpgrade - defender.DefenceUpgrade;
         if (upgrade < 0)
         {
-            defence += (int)(defence * NegativeUpgradeDefenceBonus(upgrade));
+            defence += (int)(defence * upgradeBonus.GetUpgradeBonus(-upgrade));
         }
         else if (upgrade > 0)
         {
-            weapon += (int)(weapon * PositiveUpgradeDamageBonus(upgrade));
+            weapon += (int)(weapon * upgradeBonus.GetUpgradeBonus(upgrade));
         }
 
         attack += weapon + PlayerFlatAttack + SkillAttackBonus(skill, context.Kind, attacker.Level);
@@ -365,38 +359,6 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         // in-scope check always returns "far" so the penalty never triggers spuriously.
         return int.MaxValue;
     }
-
-    // Upgrade ladders. Negative upgrades
-    // buff the defender's armour, positive buff attacker damage. The table stops at ±10.
-    private static double NegativeUpgradeDefenceBonus(int upgrade) => upgrade switch
-    {
-        <= -10 => 2.0,
-        -9 => 1.2,
-        -8 => 0.9,
-        -7 => 0.65,
-        -6 => 0.54,
-        -5 => 0.43,
-        -4 => 0.32,
-        -3 => 0.22,
-        -2 => 0.15,
-        -1 => 0.1,
-        _ => 0.0,
-    };
-
-    private static double PositiveUpgradeDamageBonus(int upgrade) => upgrade switch
-    {
-        1 => 0.1,
-        2 => 0.15,
-        3 => 0.22,
-        4 => 0.32,
-        5 => 0.43,
-        6 => 0.54,
-        7 => 0.65,
-        8 => 0.9,
-        9 => 1.2,
-        >= 10 => 2.0,
-        _ => 0.0,
-    };
 
     private static int ComputeElementalDamage(CombatStats attacker, CombatStats defender, SkillInfo skill, int baseDamage)
     {
