@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -106,6 +107,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .Then(GenderShouldBe_, GenderType.Female)
                 .And(ItemStackCountShouldBe_, (short)0)
                 .And(Message_ShouldBeSent, Game18NConstString.GenderChanged)
+                .And(TheClientShouldBeToldTheNewGender_, GenderType.Female)
                 .ExecuteAsync();
         }
 
@@ -153,6 +155,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void Message_ShouldBeSent(Game18NConstString message) =>
             Assert.IsTrue(_session.LastPackets.OfType<MsgiPacket>().Any(m => m.Message == message));
+
+        private void TheClientShouldBeToldTheNewGender_(GenderType gender) =>
+            Assert.AreEqual(gender, _session.LastPackets.OfType<PSexPacket>().Single().Gender);
 
         private void TheChangeGenderQuestionShouldBeAsked()
         {
