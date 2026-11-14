@@ -35,6 +35,11 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
 
     public DamageResult Calculate(CombatStats attacker, CombatStats defender, SkillInfo skill)
     {
+        if (attacker.IsPlayer && defender.IsPlayer)
+        {
+            (attacker, defender) = WithPvpShell(attacker, defender);
+        }
+
         // Skill type 0=melee, 1=ranged, 2=magic, 3=special-class (class picks defence),
         // 5=same pattern as 3. NosTale uses this to decide which defence stat + which
         // of the attacker's (melee vs ranged) profiles applies.
@@ -388,6 +393,37 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var elementalDamage = (baseDamage + 100) * ((attacker.ElementRate + attacker.ElementRateSp) / 100.0);
         elementalDamage = elementalDamage / 100.0 * (100 - monsterResistance) * elementalBoost;
         return (int)Math.Max(0, elementalDamage);
+    }
+
+    // Each "ignores ... resistance in PvP" option works one hit in four.
+    private const int IgnoreResistanceChance = 25;
+
+    private (CombatStats Attacker, CombatStats Defender) WithPvpShell(CombatStats attacker, CombatStats defender)
+    {
+        var shell = attacker.PvpShell;
+        int Reduced(int defence) => defence * Math.Max(0, 100 - shell.EnemyDefenceReduction) / 100;
+        int Resistance(int resistance, bool ignores) =>
+            ignores && random.NextDouble() * 100 < IgnoreResistanceChance ? 0 : resistance;
+
+        return (
+            attacker with
+            {
+                EnemyFireResistance = attacker.EnemyFireResistance + shell.EnemyFireResistance,
+                EnemyWaterResistance = attacker.EnemyWaterResistance + shell.EnemyWaterResistance,
+                EnemyLightResistance = attacker.EnemyLightResistance + shell.EnemyLightResistance,
+                EnemyDarkResistance = attacker.EnemyDarkResistance + shell.EnemyDarkResistance,
+                GuaranteedHitChance = shell.AlwaysHits ? 100 : attacker.GuaranteedHitChance,
+            },
+            defender with
+            {
+                Defence = Reduced(defender.Defence),
+                DistanceDefence = Reduced(defender.DistanceDefence),
+                MagicDefence = Reduced(defender.MagicDefence),
+                FireResistance = Resistance(defender.FireResistance, shell.IgnoresFireResistance),
+                WaterResistance = Resistance(defender.WaterResistance, shell.IgnoresWaterResistance),
+                LightResistance = Resistance(defender.LightResistance, shell.IgnoresLightResistance),
+                DarkResistance = Resistance(defender.DarkResistance, shell.IgnoresDarkResistance),
+            });
     }
 
     private struct AttackContext
