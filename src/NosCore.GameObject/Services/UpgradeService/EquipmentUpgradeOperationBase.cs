@@ -78,7 +78,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
         var source = LoadSource(session, packet);
-        if (source?.ItemInstance is not WearableInstance wearable)
+        if (source?.ItemInstance is not WearableInstance wearable || !IsWeaponOrArmor(wearable))
         {
             return null;
         }

@@ -318,7 +318,24 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AFairyCannotBeUpgraded()
+        {
+            await new Spec("A fairy sent to the upgrade window is left alone and nothing is charged")
+                .Given(FairyAtUpgrade_, (byte)0)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillSucceed)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)0)
+                .And(CellonRemainingShouldBe_, (short)1000)
+                .And(GoldShouldBe_, 100_000L)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
+
+        private void FairyAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, 0, EquipmentType.Fairy);
 
         private void PityGaugeIs_(short gauge) => ((WearableInstance)_wearable.ItemInstance).PityGauge = gauge;
 
@@ -326,9 +343,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void HighRareWearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, 8);
 
-        private void PlaceWearable(byte upgrade, sbyte rare)
+        private void PlaceWearable(byte upgrade, sbyte rare, EquipmentType slot = EquipmentType.Armor)
         {
-            var item = new Item { VNum = ArmorVNum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor };
+            var item = new Item { VNum = ArmorVNum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor, EquipmentSlot = slot };
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
                 World.LogLanguageLocalizer)
             {
