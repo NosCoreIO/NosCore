@@ -11,10 +11,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Tests.Shared;
+using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
 {
@@ -23,59 +23,144 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
     {
         private const long FamilyId = 3;
         private const long CharacterId = 7;
+        private const string CharacterName = "Tester";
 
         private readonly List<(FamilyLogType Type, object[] Arguments)> _logs = new();
         private readonly List<IMessage> _published = new();
+        private TestWorld World;
         private Mock<IFamilyHub> _hub;
         private FamilyContributionService _service;
+        private bool _earned;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            _logs.Clear();
-            _published.Clear();
-            var logs = new Mock<IFamilyLogService>();
-            logs.Setup(s => s.AddAsync(FamilyId, It.IsAny<FamilyLogType>(), It.IsAny<object[]>()))
+            World = await TestWorld.CreateAsync();
+            World.Freeze<Mock<IFamilyLogService>>()
+                .Setup(s => s.AddAsync(FamilyId, It.IsAny<FamilyLogType>(), It.IsAny<object[]>()))
                 .Callback<long, FamilyLogType, object[]>((_, type, arguments) => _logs.Add((type, arguments)))
                 .Returns(Task.CompletedTask);
-            _hub = new Mock<IFamilyHub>();
+            _hub = World.Freeze<Mock<IFamilyHub>>();
             _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, It.IsAny<int>()))
                 .ReturnsAsync(new FamilyExperienceGain(1, false));
-            var pubSub = new Mock<IPubSubHub>();
-            pubSub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
-            _service = new FamilyContributionService(logs.Object, _hub.Object, pubSub.Object);
+            World.PubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
+            _service = World.Create<FamilyContributionService>();
         }
 
         [TestMethod]
         public async Task ReachingATenthLevelAbove20GivesTwentyTimesTheLevel()
         {
-            await _service.CharacterLevelledUpAsync(FamilyId, CharacterId, "Tester", 29, 30);
-
-            _hub.Verify(s => s.AddExperienceAsync(FamilyId, CharacterId, 600), Times.Once);
-            var log = _logs.Single(s => s.Type == FamilyLogType.FamilyXp);
-            CollectionAssert.AreEqual(new object[] { "Tester", 600 }, log.Arguments);
-            Assert.IsNull(((FamilyChangedData)_published.Single()).ReachedFamilyLevel);
+            await new Spec("A member reaching level 30 earns the family 600 experience")
+                .WhenAsync(TheMemberGoesFromLevel_To_, 29, 30)
+                .Then(TheFamilyShouldHaveEarned_Once, 600)
+                .And(TheHistoryShouldSayTheMemberEarned_, 600)
+                .And(TheMembersShouldBeShownTheFamilyAgainWithoutALevelUp)
+                .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task OtherLevelsGiveNothing()
         {
-            await _service.CharacterLevelledUpAsync(FamilyId, CharacterId, "Tester", 18, 20);
-            await _service.CharacterLevelledUpAsync(FamilyId, CharacterId, "Tester", 30, 31);
+            await new Spec("Level 20 and levels between two tenths earn the family nothing")
+                .WhenAsync(TheMemberGoesFromLevel_To_, 18, 20)
+                .AndAsync(TheMemberGoesFromLevel_To_, 30, 31)
+                .Then(TheFamilyShouldHaveEarnedNothing)
+                .And(NothingShouldBeWrittenOrShown)
+                .ExecuteAsync();
+        }
 
-            _hub.Verify(s => s.AddExperienceAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()), Times.Never);
+        [TestMethod]
+        public async Task EveryTenthLevelPassedInOneGoIsRewarded()
+        {
+            await new Spec("A member going from level 29 to 41 at once earns the family 600 and 800")
+                .WhenAsync(TheMemberGoesFromLevel_To_, 29, 41)
+                .Then(TheFamilyShouldHaveEarned_Once, 600)
+                .And(TheFamilyShouldHaveEarned_Once, 800)
+                .And(TheHistoryShouldHold_ExperienceLines, 2)
+                .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task AFamilyLevelUpIsLoggedAndAnnounced()
         {
-            _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, 800)).ReturnsAsync(new FamilyExperienceGain(4, true));
-
-            await _service.CharacterLevelledUpAsync(FamilyId, CharacterId, "Tester", 39, 40);
-
-            var log = _logs.Single(s => s.Type == FamilyLogType.FamilyLevelUp);
-            CollectionAssert.AreEqual(new object[] { (byte)4 }, log.Arguments);
-            Assert.AreEqual((byte)4, ((FamilyChangedData)_published.Single()).ReachedFamilyLevel);
+            await new Spec("A gain that fills the bar is written to the history and told to the members")
+                .Given(AGainOf_TakesTheFamilyToLevel_, 800, 4)
+                .WhenAsync(TheMemberGoesFromLevel_To_, 39, 40)
+                .Then(TheHistoryShouldSayTheFamilyReachedLevel_, 4)
+                .And(TheMembersShouldBeToldTheFamilyReachedLevel_, 4)
+                .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task WhatAMemberEarnsIsStoredWrittenAndShown()
+        {
+            await new Spec("Experience a member earns is added on the master, written to the history and shown")
+                .WhenAsync(TheMemberEarns_, 250)
+                .Then(TheFamilyShouldHaveEarned_Once, 250)
+                .And(TheHistoryShouldSayTheMemberEarned_, 250)
+                .And(TheMembersShouldBeShownTheFamilyAgainWithoutALevelUp)
+                .And(TheGainShouldBeReportedAs_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SomeoneTheMasterRefusesEarnsNothing()
+        {
+            await new Spec("A gain the master does not store is neither written to the history nor shown")
+                .Given(TheMasterStoresNothing)
+                .WhenAsync(TheMemberEarns_, 250)
+                .Then(NothingShouldBeWrittenOrShown)
+                .And(TheGainShouldBeReportedAs_, false)
+                .ExecuteAsync();
+        }
+
+        private void AGainOf_TakesTheFamilyToLevel_(int experience, int level) =>
+            _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, experience))
+                .ReturnsAsync(new FamilyExperienceGain((byte)level, true));
+
+        private void TheMasterStoresNothing() =>
+            _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, It.IsAny<int>()))
+                .ReturnsAsync((FamilyExperienceGain?)null);
+
+        private Task TheMemberGoesFromLevel_To_(int previous, int level) =>
+            _service.CharacterLevelledUpAsync(FamilyId, CharacterId, CharacterName, (byte)previous, (byte)level);
+
+        private async Task TheMemberEarns_(int experience) =>
+            _earned = await _service.ExperienceEarnedAsync(FamilyId, CharacterId, CharacterName, experience);
+
+        private void TheFamilyShouldHaveEarned_Once(int experience) =>
+            _hub.Verify(s => s.AddExperienceAsync(FamilyId, CharacterId, experience), Times.Once);
+
+        private void TheFamilyShouldHaveEarnedNothing() =>
+            _hub.Verify(s => s.AddExperienceAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()), Times.Never);
+
+        private void TheHistoryShouldSayTheMemberEarned_(int experience) =>
+            CollectionAssert.AreEqual(new object[] { CharacterName, experience },
+                _logs.Single(s => s.Type == FamilyLogType.FamilyXp).Arguments);
+
+        private void TheHistoryShouldHold_ExperienceLines(int count) =>
+            Assert.AreEqual(count, _logs.Count(s => s.Type == FamilyLogType.FamilyXp));
+
+        private void TheHistoryShouldSayTheFamilyReachedLevel_(int level) =>
+            CollectionAssert.AreEqual(new object[] { (byte)level },
+                _logs.Single(s => s.Type == FamilyLogType.FamilyLevelUp).Arguments);
+
+        private void TheMembersShouldBeShownTheFamilyAgainWithoutALevelUp()
+        {
+            var change = (FamilyChangedData)_published.Single();
+            Assert.AreEqual(FamilyId, change.FamilyId);
+            Assert.IsNull(change.ReachedFamilyLevel);
+        }
+
+        private void TheMembersShouldBeToldTheFamilyReachedLevel_(int level) =>
+            Assert.AreEqual((byte)level, ((FamilyChangedData)_published.Single()).ReachedFamilyLevel);
+
+        private void NothingShouldBeWrittenOrShown()
+        {
+            Assert.AreEqual(0, _logs.Count);
+            Assert.AreEqual(0, _published.Count);
+        }
+
+        private void TheGainShouldBeReportedAs_(bool earned) => Assert.AreEqual(earned, _earned);
     }
 }

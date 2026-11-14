@@ -15,6 +15,8 @@ namespace NosCore.GameObject.Services.FamilyService
     public class FamilyContributionService(IFamilyLogService familyLogService, IFamilyHub familyHub,
         IPubSubHub pubSubHub) : IFamilyContributionService
     {
+        // A history trace holds experience lines of 1 000, 5 000, 10 000, 50 000 and 100 000 only, and
+        // none of 600, 800 or 1 200 beside its level 30, 40 and 60 lines, so this amount is suspect.
         private const int ExperiencePerLevel = 20;
 
         private static bool IsRewardedLevel(int level) => level > 20 && level % 10 == 0;
@@ -26,21 +28,25 @@ namespace NosCore.GameObject.Services.FamilyService
 
             for (var reached = previousLevel + 1; reached <= level; reached++)
             {
-                if (!IsRewardedLevel(reached))
-                {
-                    continue;
-                }
-
-                var experience = ExperiencePerLevel * reached;
-                var gain = await familyHub.AddExperienceAsync(familyId, characterId, experience);
-                if (gain == null)
+                if (IsRewardedLevel(reached)
+                    && !await ExperienceEarnedAsync(familyId, characterId, characterName, ExperiencePerLevel * reached))
                 {
                     return;
                 }
-
-                await familyLogService.AddAsync(familyId, FamilyLogType.FamilyXp, characterName, experience);
-                await AnnounceAsync(familyId, gain);
             }
+        }
+
+        public async Task<bool> ExperienceEarnedAsync(long familyId, long characterId, string characterName, int experience)
+        {
+            var gain = await familyHub.AddExperienceAsync(familyId, characterId, experience);
+            if (gain == null)
+            {
+                return false;
+            }
+
+            await familyLogService.AddAsync(familyId, FamilyLogType.FamilyXp, characterName, experience);
+            await AnnounceAsync(familyId, gain);
+            return true;
         }
 
         public Task DailyMessageWrittenAsync(long familyId) => AdvanceAsync(familyId, null, FamilyQuestObjective.DailyMessage);

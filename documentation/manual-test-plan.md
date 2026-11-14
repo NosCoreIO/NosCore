@@ -27,6 +27,7 @@ even when its packets are covered here.
 | Two channels: the channel list, players apart, a whisper across, one account on one channel | `ChannelTests` |
 | Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival | `CombatTests` |
 | Families: founding and its conditions, chat on one channel and across two, inviting, leaving, disbanding, dismissing, the notice, the shout, deputies | `FamilyTests`, `FamilyManagementTests` |
+| Family experience: a member reaching level 30, the history lines, the level-up at the bar, what members on both channels are sent, a purchase the new level allows | `FamilyExperienceTests` |
 | NosBazaar: listing and its tax, finding, buying, taking back, packages, a changed price, its limits | `BazaarTests` |
 | Parcels: a gift taken from its parcel, taken once, thrown away | `ParcelTests` |
 | Warehouses: depositing and withdrawing, the pet basket, the family warehouse and its permissions | `WarehouseTests` |
@@ -2145,18 +2146,40 @@ windows"); the table shows the stored arguments:
 
 ### Family experience
 
-Same seeded family, with a member 100 XP short of level 30 and the family at
-level 1 with 79 800 / 80 000 experience.
+Same seeded family, with the head and a plain member both in the world and the head's family
+window open. Stage the member and the family with both characters logged out, since a character
+is saved when it leaves:
+`update "Character" set "Level" = 29, "LevelXp" = 1060199 where "Name" = '<member>';`
+`update "Family" set "FamilyLevel" = 1, "FamilyExperience" = 79800 where "Name" = 'Testers';`
+`update "FamilyCharacter" set "Experience" = 0 where "CharacterId" = <member>;`
+The member is then one experience point short of level 30 and the family 200 short of level 2
+(`79 800 / 80 000`). `$SetLevel 30` does not stand in for the kill: it sets the level without the
+member earning it and gives the family nothing. Any kill that gives the member experience will
+do; a monster ten or more levels below gives a tenth of its experience, so pick one that is
+worth at least 10.
 
-- [ ] Reaching level 30 writes type 4 with `<name>`, `600` and the history reads "<name> has
-      earned 600 action points!"; the family window's level bar moves on its own
-- [ ] When that fills the bar, every online member sees "Family level increased to 2!", the
-      history gains "Reached family level 2!" (type 5 with `2`) and the window shows level 2
-      with the remainder
+- [ ] Before the kill the family window shows level 1 with `79 800 / 80 000`
+- [ ] The member kills a monster and reaches level 30: the level bar in the family window of
+      both characters moves on its own to level 2 with `400 / 96 000`, without reopening it
+- [ ] Both read "Family level increased to 2!"; the member is sent it right after their own
+      "Your level has increased."
+- [ ] The history tab gains three lines, newest first, on both screens without reopening it:
+      "Reached family level 2!", "<member> has earned 600 action points!" and the member's
+      level 30 line; the table holds type 5 with `2`, type 4 with `<member>`, `600` and type 6
+      with `<member>`, `30`
+- [ ] The family window's member list shows 600 as the member's experience and 0 as the head's
+- [ ] With the family at `0 / 80 000` instead, the same kill only moves the bar to `600 / 80 000`
+      and writes the type 4 and type 6 lines: no level-up message, no type 5 line
 - [ ] Reaching 31, or 20, gives the family nothing; reaching 40 gives 800
-- [ ] Members on another channel see the new level too
-- [ ] Not verifiable yet: experience from time-spaces, raids and Instant Combat, which do not
-      exist yet
+- [ ] With the head on the second channel, the head's window, history and "Family level
+      increased to 2!" follow in the same way
+- [ ] What is gated on the family level follows: with the head next to Salim (see "Family
+      extensions") and carrying 500 000 gold, the first Family Warehouse row is refused before
+      the kill with "Your family level is insufficient."; after the kill, without logging out,
+      the same row is bought
+- [ ] Logging both characters out and in again shows the same level, bar and history
+- [ ] Not verifiable yet: experience from time-spaces and raids, which do not exist yet. Winning
+      an Instant Combat only counts toward the daily mission (see "Family missions")
 
 ### Family achievements
 
