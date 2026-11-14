@@ -14,7 +14,7 @@ public static class QuestObjectiveLayout
 {
     public static int? ItemVNum(this QuestObjectiveDto objective, QuestType type) => type switch
     {
-        QuestType.Collect or QuestType.Required or QuestType.Wear => objective.SecondData,
+        QuestType.Collect or QuestType.CollectInRaid or QuestType.Required or QuestType.Wear => objective.SecondData,
         _ => objective.FirstData
     };
 
@@ -27,7 +27,7 @@ public static class QuestObjectiveLayout
 
     public static int RequiredAmount(this QuestObjectiveDto objective, QuestType type) => (type switch
     {
-        QuestType.Collect or QuestType.Brings or QuestType.Required => objective.ThirdData,
+        QuestType.Collect or QuestType.CollectInRaid or QuestType.Brings or QuestType.Required => objective.ThirdData,
         _ => objective.SecondData
     }) ?? 0;
 }

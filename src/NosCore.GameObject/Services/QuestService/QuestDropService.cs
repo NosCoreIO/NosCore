@@ -25,14 +25,15 @@ public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropServ
         var drops = new List<short>();
         var ownDrops = catalog.GetDrops(mob.NpcMonsterVNum).Select(d => (int)d.VNum).ToHashSet();
         foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null
-                     && q.Quest.QuestType == QuestType.Collect))
+                     && q.Quest.QuestType is QuestType.Collect or QuestType.CollectInRaid))
         {
+            var type = quest.Quest.QuestType;
             foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.FirstData == mob.NpcMonsterVNum))
             {
-                if (objective.ItemVNum(QuestType.Collect) is not { } vNum
+                if (objective.ItemVNum(type) is not { } vNum
                     || ownDrops.Contains(vNum)
-                    || character.InventoryService.CountItem(vNum) >= objective.RequiredAmount(QuestType.Collect)
-                    || RandomHelper.Instance.RandomNumber(0, ChanceScale) >= (objective.FourthData ?? 0) * dropRate)
+                    || Held(character, quest, objective, vNum) >= objective.RequiredAmount(type)
+                    || !Rolls(type, objective, dropRate))
                 {
                     continue;
                 }
@@ -43,4 +44,14 @@ public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropServ
 
         return drops;
     }
+
+    private static int Held(PlayerComponentBundle character, CharacterQuest quest, QuestObjectiveDto objective, int vNum) =>
+        quest.Quest.QuestType == QuestType.CollectInRaid
+            ? quest.ObjectiveProgress.GetValueOrDefault(objective.QuestObjectiveId)
+            : character.InventoryService.CountItem(vNum);
+
+    // A raid collect quest's fourth column repeats the amount rather than giving a chance, so every kill drops one.
+    private static bool Rolls(QuestType type, QuestObjectiveDto objective, int dropRate) =>
+        type == QuestType.CollectInRaid
+        || RandomHelper.Instance.RandomNumber(0, ChanceScale) < (objective.FourthData ?? 0) * dropRate;
 }
