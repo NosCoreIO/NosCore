@@ -49,6 +49,19 @@ namespace NosCore.GameObject.Tests.Services.ItemGeneration
         }
 
         [TestMethod]
+        public async Task ABoxKeepsTheRarityItIsCreatedWith()
+        {
+            var world = await TestWorld.CreateAsync();
+            world.Inject(new List<ItemDto> { new Item { VNum = 185, Type = NoscorePocketType.Equipment, ItemType = ItemType.Box } });
+
+            var box = world.Create<GameObject.Services.ItemGenerationService.ItemGenerationService>().Create(185, 1, 5, 0, 50);
+
+            Assert.IsInstanceOfType<BoxInstance>(box);
+            Assert.AreEqual((sbyte)5, box.Rare);
+            Assert.AreEqual((byte)50, box.Design);
+        }
+
+        [TestMethod]
         public async Task AHeroicItemCountsTheRegularLevelsBeforeItsOwn()
         {
             var armour = await CreateAsync(EquipmentType.Armor, 7, 30, heroic: true);

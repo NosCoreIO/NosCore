@@ -83,6 +83,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                             return new BoxInstance(itemToCreate)
                             {
                                 Amount = amount,
+                                Rare = rare,
                                 Upgrade = upgrade,
                                 Design = design
                             };
