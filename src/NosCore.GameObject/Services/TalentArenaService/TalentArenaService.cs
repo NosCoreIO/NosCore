@@ -343,6 +343,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 await mapChangeService.ChangeMapInstanceAsync(session, ring, entry.X, (short)(entry.Y + fighter.Order * 2));
                 await session.SendPacketAsync(match.Scores(TaWindowMode.Open));
                 await session.SendPacketAsync(match.Lists(fighter.Team, TaWindowMode.Open));
+                await session.SendPacketAsync(new TaSvPacket { IsHidden = false });
                 await session.SendPacketAsync(new TaStPacket { Type = TaStType.Watch });
                 await session.SendPacketAsync(new TaPnPacket { Position = (byte)(fighter.Order + 1) });
                 await session.SendPacketAsync(new SayiPacket
@@ -766,6 +767,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
                 await session.SendPacketAsync(Scores(TaWindowMode.Close));
                 await session.SendPacketAsync(Lists(fighter.Team, TaWindowMode.Close));
+                await session.SendPacketAsync(new TaSvPacket { IsHidden = true });
                 await session.SendPacketAsync(new TeamArenaClosePacket());
                 await service.MapChange.ChangeMapInstanceAsync(session, fighter.ReturnMapInstanceId, fighter.ReturnX, fighter.ReturnY);
             }
