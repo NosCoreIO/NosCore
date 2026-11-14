@@ -113,6 +113,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         }
 
         [TestMethod]
+        public async Task PlacingAnObjectShowsTheMinigamePointsLeft()
+        {
+            MinilandObjectExists();
+            MinilandIsLocked();
+            _minilandProvider.GetMiniland(_session.Character.CharacterId).MinilandPoint = 1500;
+
+            await AddingMinilandObject();
+
+            var points = _session.LastPackets.OfType<NosCore.Packets.ServerPackets.Miniland.MinilandPointPacket>().Single();
+            Assert.AreEqual(1500, points.MinilandPoint);
+        }
+
+        [TestMethod]
         public async Task AddDuplicateObjectShouldFail()
         {
             await new Spec("Add duplicate object should fail")

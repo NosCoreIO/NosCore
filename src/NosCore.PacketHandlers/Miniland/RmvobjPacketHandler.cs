@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Miniland
 
             await clientSession.SendPacketAsync(minilandObject.GenerateEffect(true));
             await clientSession.SendPacketAsync(new MinilandPointPacket
-            { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 });
+            { MinilandPoint = minilandProvider.GetMiniland(clientSession.Character.CharacterId).MinilandPoint, Unknown = 100 });
             await clientSession.SendPacketAsync(minilandObject.GenerateMapDesignObject(true));
         }
     }
