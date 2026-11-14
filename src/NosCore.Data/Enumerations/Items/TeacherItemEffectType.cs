@@ -11,6 +11,7 @@ namespace NosCore.Data.Enumerations.Items
     {
         PetLevelUp = 11,
         PartnerLevelUp = 12,
+        PetNameTag = 13,
         PetPickUpTraining = 14,
         PetLevelDown = 16,
         MateSummoningBook = 17,
