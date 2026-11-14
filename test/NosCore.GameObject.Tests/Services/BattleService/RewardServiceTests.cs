@@ -29,6 +29,8 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.QuestService;
+using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -66,6 +68,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World.UseReal<IItemCatalog, ItemCatalog>();
             World.UseReal<IMateProgressionService, MateProgressionService>();
             World.UseReal<IBuffService, BuffService>();
+            World.UseReal<IQuestDropService, QuestDropService>();
             _equipment = World.Freeze<Mock<IEquipmentStatsService>>();
             _equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
             _service = World.Create<RewardService>();
@@ -135,6 +138,25 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(1, drops.Count);
             Assert.AreEqual((short)5, drops[0].PositionX);
             Assert.AreEqual((short)4, drops[0].PositionY);
+        }
+
+        [TestMethod]
+        public async Task AQuestItemDropsOnlyForTheAttackerCollectingIt()
+        {
+            _first.Character.Quests.TryAdd(System.Guid.NewGuid(), new CharacterQuest
+            {
+                QuestId = 1600,
+                Quest = new Quest
+                {
+                    QuestId = 1600, QuestType = QuestType.Collect,
+                    QuestObjectives = [new QuestObjectiveDto { QuestObjectiveId = System.Guid.NewGuid(), QuestId = 1600, FirstData = 1, SecondData = 1013, ThirdData = 1, FourthData = 10000 }],
+                },
+            });
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            var drop = _map.GetMapItemBundles().Single(i => i.VNum == 1013);
+            Assert.AreEqual(_first.Character.CharacterId, drop.OwnerId);
         }
 
         [TestMethod]

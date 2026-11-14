@@ -24,6 +24,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.EquipmentService;
@@ -56,6 +57,7 @@ public sealed class RewardService(
     IMateProgressionService mateProgression,
     IBuffService buffService,
     IEquipmentStatsService equipmentStatsService,
+    IQuestDropService questDropService,
     ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill.
@@ -93,6 +95,7 @@ public sealed class RewardService(
             await mapInstance.Executor.RunAsync(() => AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot));
             var topDamageDealer = FindTopDamageDealer(victim, hitSnapshot);
             await SpawnDropsAsync(victim, mob, mapInstance, topDamageDealer);
+            await SpawnQuestDropsAsync(victim, mob, mapInstance, hitSnapshot);
             await SpawnGoldAsync(victim, mob, mapInstance, topDamageDealer);
             _ = killer;
         }
@@ -298,6 +301,32 @@ public sealed class RewardService(
             catch (System.Exception ex)
             {
                 logger.LogWarning(ex, logLanguage[LogLanguageKey.DROP_SPAWN_FAILED], drop.VNum, mob.NpcMonsterVNum);
+            }
+        }
+    }
+
+    // A quest item drops for each attacker still collecting it, and only they may pick it up.
+    private async Task SpawnQuestDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, IReadOnlyDictionary<Entity, int> hitSnapshot)
+    {
+        foreach (var handle in hitSnapshot.Keys)
+        {
+            if (!TryFindPlayer(victim, handle, out var player))
+            {
+                continue;
+            }
+
+            foreach (var vNum in questDropService.RollDrops(player, mob, mapInstance.DropRate))
+            {
+                try
+                {
+                    var dropped = mapItemGenerationService.Create(mapInstance, itemGenerationService.Create(vNum, 1),
+                        victim.PositionX, victim.PositionY, player.CharacterId);
+                    await mapInstance.SendPacketAsync(dropped.GenerateDrop());
+                }
+                catch (System.Exception ex)
+                {
+                    logger.LogWarning(ex, logLanguage[LogLanguageKey.DROP_SPAWN_FAILED], vNum, mob.NpcMonsterVNum);
+                }
             }
         }
     }
