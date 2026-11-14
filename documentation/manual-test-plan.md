@@ -260,6 +260,9 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 
 - [ ] Have a second character drink an Attack Potion, then click them: the potion's icon shows
       under their HP and MP bars. A permanent buff (a fairy booster) does not.
+- [ ] Group with that character first: within a few seconds the same icon shows next to their
+      bar in the group window. Their portrait there shows their specialist only while they are
+      transformed.
 
 ### Debuff resistance
 
