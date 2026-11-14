@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using Moq;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using System.Collections.Generic;
@@ -42,11 +43,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         private ServiceUnderTest Create(List<ScriptedInstanceDto> entrances, List<MapDto> maps,
-            Mock<IMapInstanceGeneratorService> generator, Mock<IInstanceScriptLoader> loader)
+            Mock<IMapInstanceGeneratorService> generator, Mock<IInstanceScriptLoader> loader,
+            List<NpcMonsterDto>? npcMonsters = null)
         {
             World.Inject(entrances);
             World.Inject(maps);
-            World.Inject(new List<NpcMonsterDto>());
+            World.Inject(npcMonsters ?? new List<NpcMonsterDto>());
             World.Inject(new System.Lazy<IMapInstanceGeneratorService>(generator.Object));
             World.Inject(new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object));
             World.Inject(loader.Object);
@@ -159,7 +161,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         private (ServiceUnderTest Service, Mock<IMapInstanceGeneratorService> Generator, List<Guid> Removed)
-            BuildWithMaps(ScriptedInstanceDto entrance, params short[] existingMapVNums)
+            BuildWithMaps(ScriptedInstanceDto entrance, params short[] existingMapVNums) =>
+            BuildWithMaps(entrance, [], existingMapVNums);
+
+        private (ServiceUnderTest Service, Mock<IMapInstanceGeneratorService> Generator, List<Guid> Removed)
+            BuildWithMaps(ScriptedInstanceDto entrance, List<NpcMonsterDto> npcMonsters, params short[] existingMapVNums)
         {
             var removed = new List<Guid>();
             var generator = new Mock<IMapInstanceGeneratorService>();
@@ -182,12 +188,43 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var loader = new Mock<IInstanceScriptLoader>();
             loader.Setup(s => s.LoadAsync(TwoRooms)).ReturnsAsync(new TwoRoomScript());
             loader.Setup(s => s.LoadAsync(Broken)).ThrowsAsync(new InvalidOperationException("did not compile"));
-            return (Create([entrance], maps, generator, loader), generator, removed);
+            loader.Setup(s => s.LoadAsync(MapRooms)).ReturnsAsync(new MapRoomScript());
+            return (Create([entrance], maps, generator, loader, npcMonsters), generator, removed);
         }
 
         private const string TwoRooms = "two-rooms";
 
         private const string Broken = "broken";
+
+        private const string MapRooms = "map-rooms";
+
+        private sealed class MapRoomScript : InstanceScript
+        {
+            public MapRoomScript()
+            {
+                Definition = InstanceDefinitionBuilder.Named(1, "map-rooms", "map-rooms")
+                    .WithMapRoom(2004, out _)
+                    .WithRoom(2004, out _)
+                    .Build();
+            }
+        }
+
+        [TestMethod]
+        public async Task AMapRoomComesWithItsMapsMonstersAsync()
+        {
+            await World.MapMonsterDao.TryInsertOrUpdateAsync(new MapMonsterDto { MapMonsterId = 1, MapId = 2004, VNum = 58, MapX = 1, MapY = 1 });
+            await World.MapMonsterDao.TryInsertOrUpdateAsync(new MapMonsterDto { MapMonsterId = 2, MapId = 2005, VNum = 58, MapX = 1, MapY = 1 });
+            var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, MapRooms),
+                [new NpcMonsterDto { NpcMonsterVNum = 58, MaxHp = 10 }], 2004);
+            var built = new List<GameObject.Services.MapInstanceGenerationService.MapInstance>();
+            generator.Setup(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()))
+                .Callback<GameObject.Services.MapInstanceGenerationService.MapInstance>(built.Add).Returns(Task.CompletedTask);
+
+            var run = (await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull())).NotNull();
+
+            Assert.AreEqual(1, built.Single(m => m.MapInstanceId == run.Rooms[1]).EnumerateMonsters().Count());
+            Assert.AreEqual(0, built.Single(m => m.MapInstanceId == run.Rooms[2]).EnumerateMonsters().Count());
+        }
 
         private sealed class TwoRoomScript : InstanceScript
         {

@@ -9,6 +9,8 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Infastructure;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NodaTime;
 using System;
@@ -40,6 +42,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IMapInstanceRegistry _mapInstanceRegistry;
         private readonly IInstanceScriptLoader _scriptLoader;
         private readonly ISessionRegistry _sessionRegistry;
+        private readonly IAggroService _aggroService;
+        private readonly IDao<MapMonsterDto, int> _mapMonsters;
+        private readonly List<NpcMonsterDto> _npcMonsterList;
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
         private readonly IRandomProvider _random;
@@ -58,6 +63,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IMapInstanceRegistry mapInstanceRegistry,
             IInstanceScriptLoader scriptLoader,
             ISessionRegistry sessionRegistry,
+            IAggroService aggroService,
+            IDao<MapMonsterDto, int> mapMonsters,
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
             IRandomProvider random,
@@ -70,6 +77,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _mapInstanceRegistry = mapInstanceRegistry;
             _scriptLoader = scriptLoader;
             _sessionRegistry = sessionRegistry;
+            _aggroService = aggroService;
+            _mapMonsters = mapMonsters;
+            _npcMonsterList = npcMonsters;
             _mapChangeService = mapChangeService;
             _clock = clock;
             _random = random;
@@ -180,6 +190,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     map.Adapt<Map.Map>(), id, false, instanceType);
                 mapInstance.MapIndexX = room.IndexX;
                 mapInstance.MapIndexY = room.IndexY;
+                if (room.KeepsMapMonsters)
+                {
+                    mapInstance.LoadMonsters(_mapMonsters.Where(m => m.MapId == room.VNum)?.ToList() ?? [], _npcMonsterList);
+                }
 
                 await _mapInstanceGeneratorService.Value.AddMapInstanceAsync(mapInstance);
                 await mapInstance.StartLifeAsync();
@@ -187,7 +201,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             var run = new ScriptedInstanceRun(host, logic, built, _npcMonsters, _random, _clock,
-                _sessionRegistry, _logger, _logLanguage, _scriptTimeout);
+                _sessionRegistry, _aggroService, _logger, _logLanguage, _scriptTimeout);
             foreach (var id in run.Rooms.Values)
             {
                 _runsByRoom[id] = run;

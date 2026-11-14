@@ -47,6 +47,14 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        // A room that comes with the monsters its map has outside the instance.
+        public InstanceDefinitionBuilder WithMapRoom(short mapVNum, out int key)
+        {
+            key = _rooms.Count + 1;
+            _rooms.Add(new InstanceRoom(key, mapVNum, 0, 0, KeepsMapMonsters: true));
+            return this;
+        }
+
         public InstanceDefinitionBuilder Requiring(short vNum, short amount)
         {
             _required.Add(new InstanceGift(vNum, amount));

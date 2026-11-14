@@ -12,12 +12,10 @@ namespace NosCore.GameObject.Services.LandOfDeathService
 {
     public interface ILandOfDeathService
     {
-        bool IsRunning { get; }
-
         // The gate closes once the first Flying Fire Devil has gone, while the land itself stays open.
         bool IsGateOpen { get; }
 
-        // False when the Land of Death is already open on this channel.
+        // False when the gate is already open on this channel.
         bool TryStart();
 
         // Tells the player why they cannot go in, if they cannot.

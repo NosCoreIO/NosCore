@@ -6,123 +6,77 @@
 
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
-using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.LandOfDeathService
 {
-    // Every family gets its own copy of the land, made when its first member goes in. The Flying Fire
-    // Devil hunts the last player to arrive, and experience and drops are tripled while it is out.
+    // Every family gets its own land, made when its first member goes in and closed once its last
+    // member has left. What happens inside is the script's; this keeps the gate and the way in.
     public class LandOfDeathService(
-        List<NpcMonsterDto> npcMonsters,
-        IDao<MapMonsterDto, int> mapMonsters,
-        Lazy<IMapInstanceGeneratorService> mapInstanceGeneratorService,
-        IMapInstanceRegistry mapInstanceRegistry,
+        IScriptedInstanceService scriptedInstanceService,
         IMapChangeService mapChangeService,
         ISessionRegistry sessionRegistry,
-        IAggroService aggroService,
         IItemCatalog itemCatalog,
         IClock clock,
         ILogger<LandOfDeathService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : ILandOfDeathService, ISingletonService
     {
-        public const short MapId = 150;
+        public const string Script = "land-of-death";
         public const short EntranceX = 153;
         public const short EntranceY = 145;
         public const byte MinimumLevel = 55;
-        public const short FlyingFireDevilVNum = 443;
-        public const int HuntRate = 3;
 
-        public static readonly TimeSpan Length = TimeSpan.FromMinutes(60);
-        public static readonly TimeSpan HuntStart = TimeSpan.FromMinutes(30);
-        public static readonly TimeSpan HuntEvery = TimeSpan.FromMinutes(4);
-        public static readonly TimeSpan HuntStay = TimeSpan.FromMinutes(1);
-        public static readonly TimeSpan ClockRefresh = TimeSpan.FromSeconds(30);
-        public static readonly TimeSpan ClosingWarning = TimeSpan.FromMinutes(5);
+        // Until the first Flying Fire Devil has gone.
+        public static readonly TimeSpan GateOpenFor = TimeSpan.FromMinutes(31);
         public static readonly TimeSpan ReviveTimeout = TimeSpan.FromSeconds(30);
 
-        private const short DevilDefaultX = 154;
-        private const short DevilDefaultY = 140;
-
-        private readonly ConcurrentDictionary<long, MapInstance> _lands = new();
-        private readonly ConcurrentDictionary<Guid, long> _lastArrival = new();
-        private readonly ConcurrentDictionary<Guid, MonsterComponentBundle> _devils = new();
+        private readonly ConcurrentDictionary<long, ScriptedInstanceRun> _lands = new();
         private readonly SemaphoreSlim _landLock = new(1, 1);
-        private int _running;
-        private volatile bool _gateOpen;
-        private volatile bool _huntActive;
-        private TimeSpan _remaining;
+        private IInstanceScript? _script;
+        private Instant _openedAt;
+        private int _gateOpen;
 
-        public bool IsRunning => Volatile.Read(ref _running) == 1;
-
-        public bool IsGateOpen => _gateOpen;
-
-        public static bool IsHuntStart(TimeSpan remaining)
-        {
-            var hunted = HuntStart - remaining;
-            return hunted >= TimeSpan.Zero && remaining > TimeSpan.Zero && hunted.Ticks % HuntEvery.Ticks == 0;
-        }
-
-        public static bool IsHuntEnd(TimeSpan remaining)
-        {
-            var hunted = HuntStart - HuntStay - remaining;
-            return hunted >= TimeSpan.Zero && hunted.Ticks % HuntEvery.Ticks == 0;
-        }
+        public bool IsGateOpen => Volatile.Read(ref _gateOpen) == 1;
 
         public bool TryStart()
         {
-            if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
+            if (Interlocked.CompareExchange(ref _gateOpen, 1, 0) != 0)
             {
                 return false;
             }
 
+            _openedAt = clock.GetCurrentInstant();
             _ = Task.Run(async () =>
             {
-                try
-                {
-                    await RunAsync();
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, logLanguage[LogLanguageKey.LAND_OF_DEATH_FAILED]);
-                }
-                finally
-                {
-                    _gateOpen = false;
-                    _huntActive = false;
-                    await CloseAllAsync();
-                    Volatile.Write(ref _running, 0);
-                }
+                await Task.Delay(GateOpenFor);
+                Volatile.Write(ref _gateOpen, 0);
             });
             return true;
         }
@@ -164,29 +118,12 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 return;
             }
 
-            var land = await GetOrCreateLandAsync(family.FamilyId);
-            if (land == null)
+            if (await GetOrCreateLandAsync(family.FamilyId) is not { } land)
             {
                 return;
             }
 
-            _lastArrival[land.MapInstanceId] = session.Character.CharacterId;
-            await mapChangeService.ChangeMapInstanceAsync(session, land.MapInstanceId, EntranceX, EntranceY);
-            await session.SendPacketAsync(Clock(_remaining));
-
-            // A family arriving while the devil is out elsewhere gets its own devil straight away.
-            await _landLock.WaitAsync();
-            try
-            {
-                if (_huntActive && !_devils.ContainsKey(land.MapInstanceId))
-                {
-                    await land.Executor.RunAsync(() => StartHuntAsync(land));
-                }
-            }
-            finally
-            {
-                _landLock.Release();
-            }
+            await mapChangeService.ChangeMapInstanceAsync(session, land, EntranceX, EntranceY);
         }
 
         public async Task AskReviveAsync(PlayerComponentBundle player)
@@ -227,6 +164,13 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         public async Task ReturnToEntranceAsync(ClientSession session)
         {
             var player = session.Character;
+            await ReviveWithOneHpAsync(player);
+            await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
+            await player.SendPacketAsync(Message(Game18NConstString.ReturnToEntranceLandOfDeath));
+        }
+
+        private static async Task ReviveWithOneHpAsync(PlayerComponentBundle player)
+        {
             await player.OnMapAsync(() =>
             {
                 player.Hp = 1;
@@ -245,90 +189,37 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             }
 
             await player.SendPacketAsync(player.GenerateStat());
-            await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
-            await player.SendPacketAsync(Message(Game18NConstString.ReturnToEntranceLandOfDeath));
         }
 
-        private async Task RunAsync()
+        public Task LeaveAsync(ClientSession session) =>
+            session.SendPacketAsync(new EventPacket { Type = EventPacketType.ClearTimeSpaceUI });
+
+        private async Task<Guid?> GetOrCreateLandAsync(long familyId)
         {
-            _gateOpen = true;
-            var started = Stopwatch.GetTimestamp();
-            for (var step = 0; (_remaining = Length - ClockRefresh * step) > TimeSpan.Zero; step++)
-            {
-                var lands = _lands.Values.ToList();
-                foreach (var land in lands)
-                {
-                    await land.SendPacketAsync(Clock(_remaining));
-                }
-
-                if (IsHuntStart(_remaining) || IsHuntEnd(_remaining))
-                {
-                    await _landLock.WaitAsync();
-                    try
-                    {
-                        _huntActive = IsHuntStart(_remaining);
-                        if (!_huntActive)
-                        {
-                            _gateOpen = false;
-                        }
-                        // A land nobody has reached yet gets its devil from the entry path, on its first arrival.
-                        foreach (var land in _lands.Values.Where(l => !_huntActive
-                                     || sessionRegistry.GetClientSessionsByMapInstance(l.MapInstanceId).Any()))
-                        {
-                            await land.Executor.RunAsync(() => _huntActive ? StartHuntAsync(land) : EndHuntAsync(land));
-                        }
-                    }
-                    finally
-                    {
-                        _landLock.Release();
-                    }
-                }
-
-                if (_remaining == ClosingWarning)
-                {
-                    foreach (var land in lands)
-                    {
-                        await land.SendPacketAsync(Message(Game18NConstString.LandOfDeathCloseSoon));
-                    }
-                }
-
-                var wait = ClockRefresh * (step + 1) - Stopwatch.GetElapsedTime(started);
-                if (wait > TimeSpan.Zero)
-                {
-                    await Task.Delay(wait);
-                }
-            }
-        }
-
-        private async Task<MapInstance?> GetOrCreateLandAsync(long familyId)
-        {
-            if (_lands.TryGetValue(familyId, out var existing))
-            {
-                return existing;
-            }
-
             await _landLock.WaitAsync();
             try
             {
-                if (_lands.TryGetValue(familyId, out existing))
+                if (_lands.TryGetValue(familyId, out var existing) && Land(existing) is { } open)
                 {
-                    return existing;
+                    return open;
                 }
 
-                var baseMap = mapInstanceRegistry.GetBaseMapById(MapId);
-                if (baseMap == null)
+                _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+                if (_script is not { } script)
                 {
-                    logger.LogError(logLanguage[LogLanguageKey.LAND_OF_DEATH_MAP_MISSING], MapId);
+                    logger.LogError(logLanguage[LogLanguageKey.LAND_OF_DEATH_SCRIPT_MISSING], Script);
                     return null;
                 }
 
-                var land = mapInstanceGeneratorService.Value.CreateMapInstance(baseMap.Map, Guid.NewGuid(), false,
-                    MapInstanceType.LodInstance);
-                land.LoadMonsters(mapMonsters.Where(m => m.MapId == MapId)?.ToList() ?? [], npcMonsters);
-                await mapInstanceGeneratorService.Value.AddMapInstanceAsync(land);
-                await land.StartLifeAsync();
-                _lands[familyId] = land;
-                return land;
+                var run = await scriptedInstanceService.InstantiateAsync(script, MapInstanceType.LodInstance,
+                    new LandHost(this, clock, _openedAt));
+                if (run == null)
+                {
+                    return null;
+                }
+
+                _lands[familyId] = run;
+                return Land(run);
             }
             finally
             {
@@ -336,85 +227,38 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             }
         }
 
-        private async Task StartHuntAsync(MapInstance land)
+        // A land that has ended, or whose last player has left, is closed; the family's next arrival opens a new one.
+        private Guid? Land(ScriptedInstanceRun run)
         {
-            var npcMonster = npcMonsters.Find(m => m.NpcMonsterVNum == FlyingFireDevilVNum);
-            if (npcMonster == null)
-            {
-                logger.LogError(logLanguage[LogLanguageKey.LAND_OF_DEATH_MONSTER_MISSING], FlyingFireDevilVNum);
-                return;
-            }
-
-            var prey = _lastArrival.TryGetValue(land.MapInstanceId, out var characterId)
-                ? sessionRegistry.GetClientSessionsByMapInstance(land.MapInstanceId)
-                    .FirstOrDefault(s => s.HasPlayerEntity && s.Character.CharacterId == characterId)?.Character
-                : null;
-            var devil = land.SpawnMonster(npcMonster, prey?.PositionX ?? DevilDefaultX, prey?.PositionY ?? DevilDefaultY, true);
-            _devils[land.MapInstanceId] = devil;
-            land.XpRate = HuntRate;
-            land.DropRate = HuntRate;
-            await land.SendPacketAsync(devil.GenerateIn());
-            if (prey is { } target)
-            {
-                aggroService.AddThreat(devil, target, 1);
-            }
-
-            await land.SendPacketAsync(Message(Game18NConstString.FlyingFireDevilAppears));
+            var room = run.Rooms.Values.First();
+            return run.EndState == null && scriptedInstanceService.GetRun(room) == run ? room : null;
         }
 
-        private async Task EndHuntAsync(MapInstance land)
+        private async Task ReturnAsync(ClientSession session)
         {
-            land.XpRate = 1;
-            land.DropRate = 1;
-            if (_devils.TryRemove(land.MapInstanceId, out var devil) && devil.IsAlive)
+            var player = session.Character;
+            if (!player.IsAlive)
             {
-                devil.IsAlive = false;
-                aggroService.Clear(devil);
-                await land.SendPacketAsync(new OutPacket { VisualType = VisualType.Monster, VisualId = devil.VisualId });
+                await ReviveWithOneHpAsync(player);
             }
 
-            await land.SendPacketAsync(Message(Game18NConstString.FlyingFireDevilVanished));
+            await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
+            await player.SendPacketAsync(Message(Game18NConstString.OutOfLandOfDeath));
         }
 
-        private async Task CloseAllAsync()
+        private sealed class LandHost(LandOfDeathService service, IClock clock, Instant openedAt) : IInstanceRunHost
         {
-            foreach (var (familyId, land) in _lands.ToList())
-            {
-                try
-                {
-                    var players = sessionRegistry.GetClientSessionsByMapInstance(land.MapInstanceId).ToList();
-                    await mapInstanceGeneratorService.Value.RemoveMapAsync(land.MapInstanceId);
-                    foreach (var player in players)
-                    {
-                        await player.SendPacketAsync(Message(Game18NConstString.OutOfLandOfDeath));
-                    }
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, logLanguage[LogLanguageKey.LAND_OF_DEATH_CLOSE_FAILED], familyId);
-                }
-                finally
-                {
-                    _lands.TryRemove(familyId, out _);
-                    _lastArrival.TryRemove(land.MapInstanceId, out _);
-                    _devils.TryRemove(land.MapInstanceId, out _);
-                }
-            }
-        }
+            public string Name => Script;
 
-        public Task LeaveAsync(ClientSession session) =>
-            session.SendPacketAsync(new EventPacket { Type = EventPacketType.ClearTimeSpaceUI });
+            public TimeSpan AlreadyElapsed => (clock.GetCurrentInstant() - openedAt).ToTimeSpan();
 
-        private static EventPacket Clock(TimeSpan remaining)
-        {
-            var deciseconds = (int)(remaining.TotalMilliseconds / 100);
-            return new EventPacket
-            {
-                Type = EventPacketType.TSTimer,
-                IsDisabled = false,
-                Parameter = deciseconds,
-                SecondParameter = deciseconds,
-            };
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) => Task.CompletedTask;
+
+            public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
         }
 
         private static MsgiPacket Message(Game18NConstString message) => new() { Type = MessageType.Default, Message = message };

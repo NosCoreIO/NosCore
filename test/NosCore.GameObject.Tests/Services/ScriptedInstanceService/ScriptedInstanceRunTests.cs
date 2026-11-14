@@ -90,7 +90,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
-                new RandomProvider(), World.Clock, World.SessionRegistry, NullLogger.Instance, World.LogLanguageLocalizer,
+                new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(), NullLogger.Instance, World.LogLanguageLocalizer,
                 timeout ?? TimeSpan.FromSeconds(30));
 
         [TestMethod]
@@ -487,6 +487,84 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             public string Name => "test";
 
             public bool StartsOnFirstEntry => false;
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) => Task.CompletedTask;
+
+            public Task ReturnAsync(NosCore.GameObject.Networking.ClientSession.ClientSession session) =>
+                Task.CompletedTask;
+        }
+
+        [TestMethod]
+        public async Task AHunterIsSetOnTheLastPlayerToArriveAsync()
+        {
+            var run = Run(new Script());
+            var first = await PlayerInFirstRoomAsync();
+            var last = await PlayerInFirstRoomAsync();
+            last.Character.PositionX = 3;
+            last.Character.PositionY = 2;
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            await run.EnteredAsync(last, _first.MapInstanceId);
+
+            run.Hunt(1, Grunt);
+            await run.TickAsync();
+
+            var hunter = _first.EnumerateMonsters().Single();
+            Assert.AreEqual((short)3, hunter.PositionX);
+            Assert.AreEqual((short)2, hunter.PositionY);
+            Assert.AreEqual(last.Character.VisualId, World.Create<AggroService>().Current(hunter).TargetVisualId);
+        }
+
+        [TestMethod]
+        public async Task ADismissedMonsterLeavesTheRoomAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)))
+            });
+            await run.StartAsync();
+
+            run.Dismiss(1, Grunt);
+            await run.TickAsync();
+
+            Assert.IsFalse(_first.EnumerateMonsters().Single().IsAlive);
+        }
+
+        [TestMethod]
+        public async Task RatesApplyToTheirRoomOnlyAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SetRates(1, 3, 2) });
+
+            await run.StartAsync();
+
+            Assert.AreEqual(3, _first.XpRate);
+            Assert.AreEqual(2, _first.DropRate);
+            Assert.AreEqual(1, _second.XpRate);
+        }
+
+        [TestMethod]
+        public async Task ARunJoiningAnEventLateStartsPartWayThroughItsTimelineAsync()
+        {
+            _host = new LateHost();
+            var script = new Script { Enter = r => r.At(TimeSpan.FromMinutes(3), s => s.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)))) };
+            var run = Run(script);
+
+            await run.StartAsync();
+            Assert.AreEqual(TimeSpan.FromMinutes(5), run.Elapsed);
+
+            await run.TickAsync();
+            await run.TickAsync();
+            Assert.AreEqual(1, _first.EnumerateMonsters().Count());
+        }
+
+        private sealed class LateHost : IInstanceRunHost
+        {
+            public string Name => "test";
+
+            public TimeSpan AlreadyElapsed => TimeSpan.FromMinutes(5);
 
             public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
 
