@@ -101,6 +101,38 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void AttackAndDefenceLevelsAddToTheUpgrades()
+        {
+            var stats = StatsWith(
+                Card(BCardEffect.AttackPowerAttackLevelIncreased, 3),
+                Card(BCardEffect.AttackPowerAttackLevelDecreased, 1),
+                Card(BCardEffect.DefenceDefenceLevelDecreased, 2));
+
+            Assert.AreEqual(2, stats.MeleeUpgrade);
+            Assert.AreEqual(2, stats.RangedUpgrade);
+            Assert.AreEqual(-2, stats.DefenceUpgrade);
+        }
+
+        [TestMethod]
+        public void AnAllAttacksPercentRaisesTheAttackLikeACostumeBonus()
+        {
+            var stats = StatsWith(
+                Card(BCardEffect.Type103IncreaseAllAttack, 20),
+                Card(BCardEffect.Type103DecreaseAllAttack, 10));
+
+            Assert.AreEqual(55, stats.MinHit);
+            Assert.AreEqual(55, stats.MaxHit);
+        }
+
+        [TestMethod]
+        public void AChanceToIncreaseAttackPowerJoinsTheChanceDamageRolls()
+        {
+            var stats = StatsWith(Card(BCardEffect.IncreaseDamageIncreasingPropability, 15, 30));
+
+            CollectionAssert.AreEqual(new[] { new ChanceDamage(15, 30) }, stats.ChanceDamage?.ToArray());
+        }
+
+        [TestMethod]
         public void ADefencePercentReductionLowersEveryDefence()
         {
             var stats = StatsWith(Card(BCardEffect.DodgeAndDefencePercentDefenceReduced, 10));

@@ -242,9 +242,10 @@ public sealed class BattleStatsProvider(
             foreach (var card in source)
             {
                 var effect = card.Effect();
-                if (effect is BCardEffect.CriticalDamageIncreasingPropability or BCardEffect.CriticalDamageReducingPropability)
+                if (effect is BCardEffect.CriticalDamageIncreasingPropability or BCardEffect.CriticalDamageReducingPropability
+                    or BCardEffect.IncreaseDamageIncreasingPropability)
                 {
-                    var percent = effect == BCardEffect.CriticalDamageIncreasingPropability ? card.SecondData : -card.SecondData;
+                    var percent = effect == BCardEffect.CriticalDamageReducingPropability ? -card.SecondData : card.SecondData;
                     (totals.ChanceDamage ??= []).Add(new ChanceDamage(card.FirstData, percent));
                 }
                 else if (DamageTakenChances.TryGetValue(effect, out var taken))
@@ -277,6 +278,9 @@ public sealed class BattleStatsProvider(
         return stats with
         {
             Morale = stats.Morale + totals.Morale,
+            MeleeUpgrade = stats.MeleeUpgrade + totals.AttackLevel,
+            RangedUpgrade = stats.RangedUpgrade + totals.AttackLevel,
+            DefenceUpgrade = stats.DefenceUpgrade + totals.DefenceLevel,
             MinHit = ByFactor((int)((stats.MinHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)), totals.FactorAttackAll + totals.FactorAttackMelee),
             MaxHit = ByFactor((int)((stats.MaxHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)), totals.FactorAttackAll + totals.FactorAttackMelee),
             MinDistance = ByFactor((int)((stats.MinDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)), totals.FactorAttackAll + totals.FactorAttackRanged),
@@ -333,6 +337,7 @@ public sealed class BattleStatsProvider(
         public int FactorAttackAll, FactorAttackMelee, FactorAttackRanged;
         public int FactorDefenceAll, FactorDefenceMelee, FactorDefenceRanged, FactorDefenceMagical;
         public int HitRate, HitRateMelee, HitRateRanged, Dodge, Morale;
+        public int AttackLevel, DefenceLevel;
         public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
         public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
@@ -442,6 +447,15 @@ public sealed class BattleStatsProvider(
             [BCardEffect.DodgeAndDefencePercentDefenceReduced] = (t, v) => t.DefencePercent -= v,
 
             [BCardEffect.ItemAttackIncreased] = (t, v) => t.DamageAll += v,
+            [BCardEffect.Type103IncreaseAllAttack] = (t, v) => t.DamageAll += v,
+            [BCardEffect.Type103DecreaseAllAttack] = (t, v) => t.DamageAll -= v,
+
+            // Types 3 and 9 subtype 5 count in upgrade levels, the same scale as a weapon's or an
+            // armour's +N.
+            [BCardEffect.AttackPowerAttackLevelIncreased] = (t, v) => t.AttackLevel += v,
+            [BCardEffect.AttackPowerAttackLevelDecreased] = (t, v) => t.AttackLevel -= v,
+            [BCardEffect.DefenceDefenceLevelIncreased] = (t, v) => t.DefenceLevel += v,
+            [BCardEffect.DefenceDefenceLevelDecreased] = (t, v) => t.DefenceLevel -= v,
             [BCardEffect.ItemDefenceIncreased] = (t, v) => t.DefencePercent += v,
 
             [BCardEffect.MoraleMoraleIncreased] = (t, v) => t.Morale += v,
