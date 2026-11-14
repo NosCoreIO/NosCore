@@ -19,5 +19,8 @@ public interface ISpecialistCardService
     // False when nothing has been spent yet.
     bool TryResetPoints(SpecialistInstance specialist);
 
-    SpecialistPointBonus GetBonus(SpecialistInstance specialist);
+    // The boost adds SL levels on top of the card's own, as weapon shells do, up to the card's cap.
+    SpecialistPointBonus GetBonus(SpecialistInstance specialist, SpecialistLevelBoost boost = default);
 }
+
+public readonly record struct SpecialistLevelBoost(int Attack, int Defence, int Element, int HpMp);

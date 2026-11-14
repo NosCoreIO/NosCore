@@ -18,6 +18,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.EquipmentService;
@@ -112,7 +113,7 @@ public sealed class EquipmentStatsService(
             && inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
                 is SpecialistInstance specialist)
         {
-            stats = AddSpecialist(stats, specialist);
+            stats = AddSpecialist(stats, specialist, ShellLevelBoost(main, secondary));
         }
 
         foreach (var slot in Enum.GetValues<EquipmentType>())
@@ -186,10 +187,10 @@ public sealed class EquipmentStatsService(
 
     // The card adds to both the melee and the ranged profile, since a transformed character
     // attacks with the card's skills whatever the weapon.
-    private EquipmentStats AddSpecialist(EquipmentStats stats, SpecialistInstance specialist)
+    private EquipmentStats AddSpecialist(EquipmentStats stats, SpecialistInstance specialist, SpecialistLevelBoost boost)
     {
         var item = specialist.Item;
-        var points = specialistCardService.GetBonus(specialist);
+        var points = specialistCardService.GetBonus(specialist, boost);
         var minHit = Sum(specialist.DamageMinimum, item?.DamageMinimum) + points.Damage;
         var maxHit = Sum(specialist.DamageMaximum, item?.DamageMaximum) + points.Damage;
         var hitRate = Sum(specialist.HitRate, item?.HitRate) + points.HitRate;
@@ -231,6 +232,19 @@ public sealed class EquipmentStatsService(
         };
     }
 
+    private SpecialistLevelBoost ShellLevelBoost(params WearableInstance?[] weapons)
+    {
+        var options = weapons.OfType<WearableInstance>().SelectMany(Options).ToList();
+        int Sum(WeaponShellOptionType type) =>
+            options.Where(o => o.Type == (byte)type).Sum(o => o.Value);
+        var all = Sum(WeaponShellOptionType.IncreasedSlAll);
+        return new SpecialistLevelBoost(
+            Sum(WeaponShellOptionType.IncreasedSlDamage) + all,
+            Sum(WeaponShellOptionType.IncreasedSlDefence) + all,
+            Sum(WeaponShellOptionType.IncreasedSlElement) + all,
+            Sum(WeaponShellOptionType.IncreasedSlEnergy) + all);
+    }
+
     // Cellons on jewellery and shells on weapons and armour share one store of options per instance.
     private List<EquipmentOptionDto> Options(WearableInstance piece) =>
         piece.EquipmentOptions ??= equipmentOptionDao.Where(o => o.WearableInstanceId == piece.Id)?.ToList() ?? [];
@@ -247,7 +261,7 @@ public sealed class EquipmentStatsService(
     });
 
     // Options without a case need a mechanic combat does not have yet, such as an effect on hit
-    // or a bonus against one monster race.
+    // or a bonus against one monster race. The SL options raise the specialist card instead.
     private static BCardDto? WeaponShellBCard(EquipmentOptionDto option) => OptionBCard(option, (WeaponShellOptionType)option.Type switch
     {
         WeaponShellOptionType.EnhancedDamage => BCardEffect.AttackPowerAllAttacksIncreased,
