@@ -4,17 +4,12 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace NosCore.Parser;
 
 public sealed record ParserCliOptions(string? Folder, bool SkipAccounts = false, bool Interactive = false)
 {
     public const string SkipAccountsFlag = "--skip-accounts";
     public const string InteractiveFlag = "--interactive";
-
-    [MemberNotNullWhen(true, nameof(Folder))]
-    public bool HasFolder => !string.IsNullOrWhiteSpace(Folder);
 
     public static ParserCliOptions Parse(string[] args)
     {
