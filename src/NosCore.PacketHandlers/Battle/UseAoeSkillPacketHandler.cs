@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Battle
 
             if (await battleService.HitArea(character, packet.MapX, packet.MapY, new HitArguments { SkillId = packet.CastId }))
             {
-                skillCastService.Spend(character, skill, mpCost);
+                await skillCastService.SpendAsync(character, skill, mpCost);
             }
         }
 

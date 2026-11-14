@@ -7,10 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.EquipmentService;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -37,10 +39,16 @@ public sealed class SkillCastService(IClock clock, IEquipmentStatsService equipm
         return character.Mp < mpCost ? SkillCastRefusal.NotEnoughMp : SkillCastRefusal.None;
     }
 
-    public void Spend(PlayerComponentBundle character, CharacterSkill skill, int mpCost)
+    public Task SpendAsync(PlayerComponentBundle character, CharacterSkill skill, int mpCost)
     {
         skill.LastUse = clock.GetCurrentInstant();
+        if (mpCost <= 0)
+        {
+            return Task.CompletedTask;
+        }
+
         character.Mp = Math.Max(0, character.Mp - mpCost);
+        return character.SendPacketAsync(character.GenerateStat());
     }
 
     public Duration Cooldown(PlayerComponentBundle character, short cooldown)

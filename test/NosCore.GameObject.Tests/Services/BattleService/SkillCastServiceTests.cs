@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -13,6 +14,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.EquipmentService;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -61,11 +63,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public void AShortenedCooldownLetsTheSkillBeCastSooner()
+        public async Task AShortenedCooldownLetsTheSkillBeCastSooner()
         {
             WearBCards(new BCardDto { Type = 17, SubType = 42, FirstData = 50 });
             var skill = Skill(mpCost: 0);
-            _service.Spend(_session.Character, skill, 0);
+            await _service.SpendAsync(_session.Character, skill, 0);
 
             World.Clock.Advance(Duration.FromSeconds(6));
 
@@ -90,6 +92,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _service.Check(_session.Character, Skill(mpCost: 20), out var mpCost);
 
             Assert.AreEqual(15, mpCost);
+        }
+
+        [TestMethod]
+        public async Task SpendingManaShowsTheCasterTheBarItLeaves()
+        {
+            await _service.SpendAsync(_session.Character, Skill(mpCost: 20), 20);
+
+            Assert.AreEqual(980, _session.LastPackets.OfType<StatPacket>().Single().Mp);
         }
 
         private void WearBCards(params BCardDto[] bCards) =>
