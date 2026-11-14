@@ -2471,7 +2471,10 @@ arena) next to Tei Ken, the left NPC on the steps. Learned skills are needed to 
       their bench, their heart turns grey, the score goes up and the next fighter of their team
       comes in; a fighter who disconnects loses the round the same way
 - [ ] A round that runs out sends both fighters out with no point to either team
-- [ ] The fighter in the ring clicks a teammate's call button in the HUD: the caller flashes,
+- [ ] Every fighter gets a small window at the bottom left with two call buttons (II, III) and a
+      camera button; only the fighter in the ring has the call buttons lit, and the window is gone
+      after the match
+- [ ] The fighter in the ring double-clicks a teammate's call button: the caller flashes,
       their team's coins in the HUD lose one (grey), and the teammate is told for three seconds that they
       will be called, then stands next to the caller for 30 seconds. While called they can hit
       the opponent and be hit; afterwards, or once they fall, they go back to the bench
