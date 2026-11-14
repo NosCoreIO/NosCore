@@ -13,6 +13,7 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
+using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -31,6 +32,22 @@ public sealed class RespawnService(
         return mapTypes.Where(t => mapTypeIds.Contains(t.MapTypeId))
             .Select(t => t.RespawnMapTypeId)
             .FirstOrDefault(id => id.HasValue);
+    }
+
+    public long? ResolveRevivalMapTypeId(PlayerComponentBundle character)
+    {
+        if (character.MapInstance is { IsAct4: true })
+        {
+            switch (character.Faction)
+            {
+                case FactionType.Angel:
+                    return (long)RespawnType.Act4Angel;
+                case FactionType.Demon:
+                    return (long)RespawnType.Act4Demon;
+            }
+        }
+
+        return ResolveRespawnMapTypeId(character.MapId);
     }
 
     public (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, long? respawnMapTypeId)

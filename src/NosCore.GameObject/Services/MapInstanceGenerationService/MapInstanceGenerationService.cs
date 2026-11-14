@@ -49,7 +49,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             NosCore.GameObject.Services.SpeedCalculationService.ISpeedCalculationService speedCalculationService,
             NosCore.GameObject.Services.BattleService.IBattleStatsProvider battleStatsProvider,
             NosCore.GameObject.Services.BattleService.IHeatService heatService,
-            NosCore.GameObject.Services.MateService.IMateRevivalService mateRevivalService)
+            NosCore.GameObject.Services.MateService.IMateRevivalService mateRevivalService,
+            List<MapTypeMapDto> mapTypeMaps)
         : IMapInstanceGeneratorService
     {
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -106,12 +107,15 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
+            var act4Maps = mapTypeMaps.Where(m => m.MapTypeId is (short)MapTypeType.Act4 or (short)MapTypeType.Act42)
+                .Select(m => m.MapId).ToHashSet();
             var mapInstances = maps.Adapt<List<Map.Map>>().ToDictionary(
                 map => mapsdic[map.MapId],
                 map =>
                 {
                     var mapinstance = CreateMapInstance(map, mapsdic[map.MapId], map.ShopAllowed,
                         map.Arena != ArenaType.None ? MapInstanceType.ArenaInstance : MapInstanceType.BaseMapInstance);
+                    mapinstance.IsAct4 = act4Maps.Contains(map.MapId);
 
                     if (monsters.TryGetValue(map.MapId, out var monster))
                     {

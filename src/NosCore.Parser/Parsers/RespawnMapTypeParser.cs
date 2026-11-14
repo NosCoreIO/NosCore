@@ -77,6 +77,22 @@ namespace NosCore.Parser.Parsers
                     DefaultX = 66,
                     DefaultY = 70,
                     Name = "DefaultOasis"
+                },
+                new()
+                {
+                    RespawnMapTypeId = (long) RespawnType.Act4Angel,
+                    MapId = 130,
+                    DefaultX = 39,
+                    DefaultY = 42,
+                    Name = "Act4Angel"
+                },
+                new()
+                {
+                    RespawnMapTypeId = (long) RespawnType.Act4Demon,
+                    MapId = 131,
+                    DefaultX = 39,
+                    DefaultY = 42,
+                    Name = "Act4Demon"
                 }
             };
             await respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps);

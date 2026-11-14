@@ -451,7 +451,7 @@ namespace NosCore.GameObject.Services.BattleService
             if (origin is PlayerComponentBundle attacker && target is PlayerComponentBundle defender)
             {
                 return Arena.AreOpponents(attacker, defender) || AreTalentArenaOpponents(attacker, defender)
-                    || AreOpponentsOnPvpMap(attacker, defender);
+                    || AreOpponentsOnPvpMap(attacker, defender) || AreAct4Opponents(attacker, defender);
             }
             if (AreAllies(origin, target)) return false;
             return true;
@@ -472,6 +472,14 @@ namespace NosCore.GameObject.Services.BattleService
                 && attacker.MapInstance is { IsPvp: true } mapInstance
                 && defender.MapInstance?.MapInstanceId == mapInstance.MapInstanceId
                 && !attacker.Group.ContainsKey(new Tuple<VisualType, long>(VisualType.Player, defender.VisualId));
+        }
+
+        public static bool AreAct4Opponents(PlayerComponentBundle attacker, PlayerComponentBundle defender)
+        {
+            return attacker.MapInstance is { IsAct4: true } mapInstance
+                && defender.MapInstance?.MapInstanceId == mapInstance.MapInstanceId
+                && attacker.Faction != FactionType.Neutral && defender.Faction != FactionType.Neutral
+                && attacker.Faction != defender.Faction;
         }
 
         private static bool CanCast(IAliveEntity origin) => origin.IsAlive && !origin.NoAttack;

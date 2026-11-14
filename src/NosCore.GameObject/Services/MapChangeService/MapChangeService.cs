@@ -41,7 +41,8 @@ namespace NosCore.GameObject.Services.MapChangeService
             ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
             ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus,
             ScriptedInstanceService.IScriptedInstanceService scriptedInstanceService,
-            BattleService.IBattleStatsProvider battleStatsProvider)
+            BattleService.IBattleStatsProvider battleStatsProvider,
+            FactionWarService.IFactionWarService factionWarService)
         : IMapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -229,6 +230,11 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     await session.SendPacketsAsync(scriptedInstanceService.GenerateWp(newMapInstance.Map.MapId));
                     await session.SendPacketsAsync(scriptedInstanceService.GenerateRaidGates(newMapInstance.Map.MapId));
+                }
+
+                if (newMapInstance.IsAct4)
+                {
+                    await session.SendPacketAsync(factionWarService.GenerateFc(character));
                 }
 
                 var minilandPortals = minilandProvider

@@ -75,13 +75,15 @@ public class FactionEggHandlerTests
     public async Task ConfirmationChangesFactionAndConsumesOneEgg(FactionType previous, FactionType target)
     {
         _session.Character.Faction = previous;
+        _session.Character.MapInstance.IsAct4 = true;
         _item.ItemInstance.Item.EffectValue = (int)target;
         await UseAsync(1);
         Assert.AreEqual(target, _session.Character.Faction);
         Assert.AreEqual(0, _session.Character.CharacterDto.Act4Points);
         Assert.AreEqual((short)1, _item.ItemInstance.Amount);
         Assert.AreEqual(target, _session.LastPackets.OfType<FsPacket>().Single().Faction);
-        Assert.AreEqual(target, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().Faction);
+        Assert.AreEqual(target == FactionType.Angel ? InFactionType.Angel : InFactionType.Demon,
+            _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().Faction);
     }
 
     /// <summary>
@@ -203,10 +205,11 @@ public class FactionEggHandlerTests
                 }
             });
         _session.Character.MapInstance.Sessions = sessions.Object;
+        _session.Character.MapInstance.IsAct4 = true;
         await UseAsync(1);
         var appearance = observer.LastPackets.OfType<InPacket>().Single();
         Assert.AreEqual(_session.Character.VisualId, appearance.VisualId);
-        Assert.AreEqual(FactionType.Angel, appearance.InCharacterSubPacket.NotNull().Faction);
+        Assert.AreEqual(InFactionType.Angel, appearance.InCharacterSubPacket.NotNull().Faction);
     }
 
     [TestMethod]

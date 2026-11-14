@@ -213,6 +213,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         // Every player on the map may attack any player outside their group.
         public bool IsPvp { get; set; }
 
+        // Glacernon: angels and demons fight each other here, and nobody else.
+        public bool IsAct4 { get; set; }
+
         public byte MapIndexX { get; set; }
 
         public byte MapIndexY { get; set; }
