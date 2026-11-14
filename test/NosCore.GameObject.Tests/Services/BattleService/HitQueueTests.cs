@@ -219,7 +219,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             FirstData = percent
         };
 
-        private HitQueue QueueDealing(int ordinaryDamage)
+        private HitQueue QueueDealing(int ordinaryDamage, IDamageLeechService? leech = null)
         {
             var calc = new Mock<IDamageCalculator>();
             calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
@@ -227,8 +227,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
-                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object,
+                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object,
+                leech ?? new Mock<IDamageLeechService>().Object,
                 new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+        }
+
+        [TestMethod]
+        public async Task TheAttackerLeechesOnWhatTheTargetActuallyLost()
+        {
+            var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+            var leech = new Mock<IDamageLeechService>();
+
+            await QueueDealing(10, leech.Object).EnqueueAsync(Request(attacker, target) with
+            {
+                Skill = MakeSkill() with { BCards = new[] { PercentOfHp(50) } }
+            });
+
+            leech.Verify(l => l.ApplyAsync(attacker, 510), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AKillingBlowLeechesOnlyOnTheHpThatWasLeft()
+        {
+            var target = new FakeBattleEntity { Hp = 200, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+            var leech = new Mock<IDamageLeechService>();
+
+            await QueueDealing(1, leech.Object).EnqueueAsync(Request(attacker, target) with
+            {
+                Skill = MakeSkill() with { BCards = new[] { PercentOfHp(90) } }
+            });
+
+            leech.Verify(l => l.ApplyAsync(attacker, 200), Times.Once);
         }
 
         [TestMethod]

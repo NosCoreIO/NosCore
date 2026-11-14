@@ -151,6 +151,7 @@ public sealed class HitQueue(
             }
 
             // Damage proportional to HP rather than to the stats, on top of the blow.
+            var hpBefore = target.Hp;
             var newHp = target.Hp - damage.Damage - PercentageHpLoss(target, request.Skill.BCards);
             var overkill = 0;
             var killed = false;
@@ -212,7 +213,7 @@ public sealed class HitQueue(
             }
 
             await onHitBuffService.TriggerAsync(request.Origin, target, killed);
-            await damageLeechService.ApplyAsync(request.Origin, credited);
+            await damageLeechService.ApplyAsync(request.Origin, hpBefore - newHp);
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));
         }
