@@ -221,7 +221,6 @@ namespace NosCore.GameObject.Services.BattleService
                 case PlayerComponentBundle player:
                     return player.SendPacketAsync(player.GenerateStat());
                 case MateComponentBundle mate when sessionRegistry.TryGetCharacter(s => s.CharacterId == mate.OwnerId, out var owner):
-                    mate.Mate.Hp = mate.Hp;
                     return owner.SendPacketAsync(mate.Mate.GeneratePst());
                 default:
                     return Task.CompletedTask;

@@ -196,7 +196,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private void ThePartnerShouldHave_Mp(int mp)
         {
             Assert.AreEqual(mp, _partner.Entity.NotNull().Mp);
-            Assert.AreEqual(mp, _partner.Mp);
+            Assert.AreEqual(mp, _partner.CurrentMp());
         }
 
         private void ThePartnerShouldHaveHit_Times(int times) =>

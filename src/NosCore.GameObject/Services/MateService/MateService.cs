@@ -121,6 +121,7 @@ namespace NosCore.GameObject.Services.MateService
         {
             foreach (var mate in mates)
             {
+                mate.StoreHealth();
                 if (await mateDao.TryInsertOrUpdateAsync(mate.Adapt<MateDto>()) == null)
                 {
                     return false;

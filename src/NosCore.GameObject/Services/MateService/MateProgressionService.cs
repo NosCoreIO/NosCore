@@ -57,6 +57,8 @@ namespace NosCore.GameObject.Services.MateService
                     await owner.MapInstance.SendPacketAsync(entity.GenerateEff(6));
                     await owner.MapInstance.SendPacketAsync(entity.GenerateEff(198));
                 }
+
+                await owner.SendPacketAsync(mate.GeneratePst());
             }
 
             await owner.SendPacketAsync(mate.MateType == MateType.Pet

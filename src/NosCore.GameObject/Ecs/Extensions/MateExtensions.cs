@@ -57,9 +57,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                 WaterResistance = mate.NpcMonster.WaterResistance,
                 LightResistance = mate.NpcMonster.LightResistance,
                 DarkResistance = mate.NpcMonster.DarkResistance,
-                Hp = mate.Hp,
+                Hp = mate.CurrentHp(),
                 MaxHp = mate.MaxHp,
-                Mp = mate.Mp,
+                Mp = mate.CurrentMp(),
                 MaxMp = mate.MaxMp,
                 IsTeamMember = mate.IsTeamMember,
                 XpLoad = mate.XpLoad,
@@ -133,9 +133,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                 WaterResistance = mate.NpcMonster.WaterResistance,
                 LightResistance = mate.NpcMonster.LightResistance,
                 DarkResistance = mate.NpcMonster.DarkResistance,
-                Hp = mate.Hp,
+                Hp = mate.CurrentHp(),
                 HpMax = mate.MaxHp,
-                Mp = mate.Mp,
+                Mp = mate.CurrentMp(),
                 MpMax = mate.MaxMp,
                 IsTeamMember = mate.IsTeamMember,
                 LevelXp = (int)mate.XpLoad,
@@ -165,8 +165,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 {
                     InAliveSubPacket = new InAliveSubPacket
                     {
-                        Hp = Percent(mate.Hp, mate.MaxHp, 100),
-                        Mp = Percent(mate.Mp, mate.MaxMp, 100)
+                        Hp = Percent(mate.CurrentHp(), mate.MaxHp, 100),
+                        Mp = Percent(mate.CurrentMp(), mate.MaxMp, 100)
                     },
                     Dialog = 0,
                     Faction = 0,
@@ -198,11 +198,58 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
+        // While the mate is out its entity holds the live health; the mate keeps it while it is not.
+        public static int CurrentHp(this Mate mate) => mate.Entity?.Hp ?? mate.Hp;
+
+        public static int CurrentMp(this Mate mate) => mate.Entity?.Mp ?? mate.Mp;
+
+        public static void StoreHealth(this Mate mate)
+        {
+            if (mate.Entity is { } entity)
+            {
+                mate.Hp = entity.Hp;
+                mate.Mp = entity.Mp;
+            }
+        }
+
+        public static void Refill(this Mate mate)
+        {
+            if (mate.Entity is { } entity)
+            {
+                entity.Hp = entity.MaxHp;
+                entity.Mp = entity.MaxMp;
+                return;
+            }
+
+            mate.Hp = mate.MaxHp;
+            mate.Mp = mate.MaxMp;
+        }
+
         // A level gained refills the mate, and its entity on the map when it is out.
         public static Ecs.MateComponentBundle? RefillAfterLevelUp(this Mate mate)
         {
-            mate.Hp = mate.MaxHp;
-            mate.Mp = mate.MaxMp;
+            mate.ApplyLevelToEntity();
+            mate.Refill();
+            return mate.Entity;
+        }
+
+        // A level lost keeps what the mate had, cut down to what the lower level holds.
+        public static void FitToLevel(this Mate mate)
+        {
+            mate.Experience = Math.Min(mate.Experience, Math.Max(mate.XpLoad - 1, 0));
+            if (mate.ApplyLevelToEntity() is { } entity)
+            {
+                entity.Hp = Math.Min(entity.Hp, entity.MaxHp);
+                entity.Mp = Math.Min(entity.Mp, entity.MaxMp);
+                return;
+            }
+
+            mate.Hp = Math.Min(mate.Hp, mate.MaxHp);
+            mate.Mp = Math.Min(mate.Mp, mate.MaxMp);
+        }
+
+        private static Ecs.MateComponentBundle? ApplyLevelToEntity(this Mate mate)
+        {
             if (mate.Entity is not { } entity)
             {
                 return null;
@@ -211,29 +258,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             entity.Level = mate.Level;
             entity.MaxHp = mate.MaxHp;
             entity.MaxMp = mate.MaxMp;
-            entity.Hp = mate.Hp;
-            entity.Mp = mate.Mp;
             return entity;
-        }
-
-        // A level lost keeps what the mate had, cut down to what the lower level holds.
-        public static void FitToLevel(this Mate mate)
-        {
-            mate.Experience = Math.Min(mate.Experience, Math.Max(mate.XpLoad - 1, 0));
-            mate.Hp = Math.Min(mate.Hp, mate.MaxHp);
-            mate.Mp = Math.Min(mate.Mp, mate.MaxMp);
-            if (mate.Entity is not { } entity)
-            {
-                return;
-            }
-
-            entity.Level = mate.Level;
-            entity.MaxHp = mate.MaxHp;
-            entity.MaxMp = mate.MaxMp;
-            entity.Hp = Math.Min(entity.Hp, mate.MaxHp);
-            entity.Mp = Math.Min(entity.Mp, mate.MaxMp);
-            mate.Hp = entity.Hp;
-            mate.Mp = entity.Mp;
         }
 
         public static Task SpawnAsync(this Mate mate, PlayerComponentBundle owner, MapInstance mapInstance,
@@ -254,6 +279,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
+            mate.StoreHealth();
             await mapInstance.SendPacketAsync(mate.GenerateOut());
             mapInstance.EcsWorld.DestroyEntity(entity.Handle);
             mate.Entity = null;
@@ -275,8 +301,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Type = VisualType.Npc,
                 VisualId = mate.MateTransportId,
                 GroupOrder = (int)mate.MateType,
-                HpLeft = Percent(mate.Hp, mate.MaxHp, 0),
-                MpLeft = Percent(mate.Mp, mate.MaxMp, 0),
+                HpLeft = Percent(mate.CurrentHp(), mate.MaxHp, 0),
+                MpLeft = Percent(mate.CurrentMp(), mate.MaxMp, 0),
                 HpLoad = mate.MaxHp,
                 MpLoad = mate.MaxMp,
                 Race = 0,
