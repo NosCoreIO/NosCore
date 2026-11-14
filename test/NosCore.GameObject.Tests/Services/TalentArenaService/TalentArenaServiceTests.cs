@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -104,6 +105,16 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
         }
 
         [TestMethod]
+        public async Task AFinishedMatchIsCountedInTheFightersRecord()
+        {
+            await new Spec("The winning side gains a win, the losing side a loss, and a draw changes nothing")
+                .Then(Zenas_RecordAfter_Is_, ArenaResultType.ZenasWon, "1/0")
+                .And(Zenas_RecordAfter_Is_, ArenaResultType.EreniaWon, "0/1")
+                .And(Zenas_RecordAfter_Is_, ArenaResultType.Draw, "0/0")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task TheArenaOpensOnceAtATime()
         {
             await new Spec("The Arena of Talents cannot be opened twice")
@@ -173,6 +184,13 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
 
         private void TheyShouldBeOpponents_(bool expected) =>
             Assert.AreEqual(expected, GameObject.Services.BattleService.BattleService.CanAttack(_attacker.Character, _defender.Character));
+
+        private static void Zenas_RecordAfter_Is_(ArenaResultType result, string record)
+        {
+            var dto = new CharacterDto();
+            TalentArena.Record(dto, ArenaTeamType.Zenas, result);
+            Assert.AreEqual(record, $"{dto.TalentWin}/{dto.TalentLose}");
+        }
 
         private static void TheMatchWithDefeated_ShouldEndIn_(string defeated, ArenaResultType? expected)
         {

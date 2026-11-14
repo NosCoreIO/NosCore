@@ -496,7 +496,6 @@ public static class PlayerBundleExtensions
     }
 
     // The right-click info card for a player: class, level, family, worn gear, faction and PvP stats.
-    // Talent fields stay 0 until that system exists.
     public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
@@ -535,9 +534,9 @@ public static class PlayerBundleExtensions
             Act4Dead = player.CharacterDto.Act4Dead,
             Reputation = player.Reputation,
             Morph = 0,
-            TalentWin = 0,
-            TalentLose = 0,
-            TalentSurrender = 0,
+            TalentWin = player.CharacterDto.TalentWin,
+            TalentLose = player.CharacterDto.TalentLose,
+            TalentSurrender = player.CharacterDto.TalentSurrender,
             MasterPoints = 0,
             Compliments = player.Compliment,
             Act4Points = player.CharacterDto.Act4Points,
