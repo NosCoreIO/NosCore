@@ -10,6 +10,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.GroupService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -23,7 +24,7 @@ using Wolverine;
 namespace NosCore.PacketHandlers.Inventory
 {
     public class GetPacketHandler(ILogger<GetPacketHandler> logger, IHeuristic distanceCalculator, IGroupLootService groupLootService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus, IMapButtonService mapButtonService)
         : PacketHandler<GetPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
@@ -32,6 +33,11 @@ namespace NosCore.PacketHandlers.Inventory
             var mapItemNullable = mapInstance.TryGetMapItem(getPacket.VisualId);
             if (mapItemNullable == null)
             {
+                if (getPacket.PickerType == VisualType.Player)
+                {
+                    await mapButtonService.PressAsync(clientSession.Character, getPacket.VisualId);
+                }
+
                 return;
             }
 

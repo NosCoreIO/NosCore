@@ -226,6 +226,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public List<Portal> Portals { get; set; }
 
+        public ConcurrentDictionary<int, MapButton> Buttons { get; } = new();
+
         public bool ShopAllowed { get; }
 
         public int XpRate { get; set; }
@@ -423,6 +425,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var packets = new List<IPacket>();
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
+            packets.AddRange(Buttons.Values.Select(button => button.GenerateIn()));
 
             foreach (var s in _monsters.EnumerateValues())
             {
