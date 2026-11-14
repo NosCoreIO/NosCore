@@ -2255,6 +2255,18 @@ next to them.
 - [ ] Quest 1532 asks for items monsters 27 and 33 already drop for everyone: they still drop at
       their usual rate, not twice
 
+### Quests offered in NPC dialogs
+
+Many NPC dialogs have a button that hands out a quest (`n_run 3006 <quest>`). Put a level 90
+character next to NPC 2541 with dialog 9771, whose first page offers daily quest 7516.
+
+- [ ] Talk to the NPC and press "Calm down!": the quest's start dialog shows and "Chill Out! (Daily)"
+      appears in the quest window
+- [ ] Press the button again while holding the quest: nothing changes
+- [ ] A dialog quest that follows another one (its quest.dat VNUM names the earlier quest) is not
+      handed out until the earlier one is done
+- [ ] A character below the quest's level gets the level-too-low message
+
 ### Rewards
 
 Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open
