@@ -87,8 +87,8 @@ namespace NosCore.GameObject.Services.ChannelService
                 Mode = mode
             });
 
-            await authHttpClient.SetAwaitingChannelChangeAsync(clientSession.Account.Name, server.Id, clientSession.MfaValidated);
             await saveService.SaveAsync(clientSession);
+            await authHttpClient.SetAwaitingChannelChangeAsync(clientSession.Account.Name, server.Id, clientSession.MfaValidated);
             await clientSession.DisconnectAsync();
         }
     }
