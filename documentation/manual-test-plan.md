@@ -2925,14 +2925,39 @@ waits for its bar before sending the completion.
 - [ ] Outside a family, use Angel's Egg (Individual), item 1624: a confirmation asks
       about changing protection and resetting points. Cancel: faction, points and egg stay.
 - [ ] Confirm: protection changes to Angel and exactly one egg disappears. The faction
-      display updates; another character on the map sees the new faction.
+      display updates; in Glacernon, another character on the map sees the new faction.
 - [ ] Use another Angel egg: the already-Angel message appears and the egg stays.
 - [ ] Repeat with Demon's Egg (Individual), item 1625, from neutral and Angel protection;
       also switch from Demon to Angel. Contribution points reset only on a successful change.
 - [ ] Relog after each successful change: the faction and remaining egg count persist.
+- [ ] After a successful change, the player's info card shows 0 Act 4 kills, deaths and points.
 - [ ] Join a family and try either individual egg: the client explains that the family egg
       is required, with no consumption or faction change.
 - [ ] With the matching protection, try the faction ship's Corona crossing; the faction
       requirement accepts the character. Check the opposite faction's route remains refused.
 
 Family eggs (1626/1627) are not implemented by this feature.
+
+## Act 4 faction war
+
+Two characters, an angel and a demon (faction eggs 1624/1625), with `$Teleport` into Glacernon,
+for example map 134. The war is per channel and starts at 0% on every server start.
+
+- [ ] Entering any Glacernon map sends `fc` with both bars at 0% and the minutes left until
+      the monthly reset
+- [ ] In Glacernon each player sees the other with the angel or demon emblem; on a normal map
+      neither shows one
+- [ ] The angel attacks the demon in Glacernon and the hit lands; two angels cannot target each
+      other, nor can a neutral character hit either side
+- [ ] On a normal map the angel cannot hit the demon
+- [ ] The angel kills the demon: every player in Glacernon gets "<angel> has defeated <demon>"
+      in chat, green for angels and red for demons, and the angel bar of the HUD moves to 1%
+- [ ] The demon loses no dignity for that death; the death dialog's save-point answer sends
+      the demon to the demon citadel (map 131); an angel who falls is sent to map 130
+- [ ] Right-click the angel: the info card shows one Act 4 kill and two points; the demon's card
+      shows one death. A victim more than ten levels away gives the killer no points
+- [ ] A fall in Glacernon to a monster costs dignity as anywhere else
+
+Not verifiable yet: what happens at 100% (the guardian and the Act 4 raids) arrives with the
+Act 4 raids. The faction HUD bar does not draw either: the client applies `fc` to a window it
+only opens on its own, so check the bar values in the packet log instead of on screen.

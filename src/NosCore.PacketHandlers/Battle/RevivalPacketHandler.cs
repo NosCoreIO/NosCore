@@ -149,7 +149,7 @@ namespace NosCore.PacketHandlers.Battle
         private async Task ReviveAtSavePointAsync(ClientSession session)
         {
             var character = session.Character;
-            var respawnMapTypeId = respawnService.ResolveRespawnMapTypeId(character.MapId);
+            var respawnMapTypeId = respawnService.ResolveRevivalMapTypeId(character);
             var (mapId, x, y) = respawnService.GetRespawnLocation(character, respawnMapTypeId);
 
             RestoreLife(session, 100);

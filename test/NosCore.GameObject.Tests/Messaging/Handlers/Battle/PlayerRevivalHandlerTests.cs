@@ -14,6 +14,8 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Battle;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Services.FactionWarService;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -31,6 +33,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         private PlayerRevivalHandler _handler;
         private ClientSession _session;
         private ClientSession _killerSession;
+        private Mock<IFactionWarService> _factionWar;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -38,8 +41,46 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _killerSession = await World.CreateSessionAsync();
+            _factionWar = World.Freeze<Mock<IFactionWarService>>();
             _handler = World.Create<PlayerRevivalHandler>();
         }
+
+        [TestMethod]
+        public async Task AnEnemyKillInGlacernonCountsForTheWarInsteadOfCostingDignity()
+        {
+            await new Spec("Falling to an enemy in Glacernon costs no dignity and counts toward the faction war")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(TheCharacterIsInGlacernon)
+                .WhenAsync(PlayerDiesKilledByOtherPlayer)
+                .Then(DignityShouldBe_, (short)0)
+                .And(TheKillShouldBeRecorded)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFallInGlacernonWithoutAnEnemyStillCostsDignity()
+        {
+            await new Spec("Falling in Glacernon to anything but a player costs dignity as anywhere else")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(TheCharacterIsInGlacernon)
+                .WhenAsync(PlayerDiesWithoutKiller)
+                .Then(DignityShouldBe_, (short)-50)
+                .And(NoKillShouldBeRecorded)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterIsInGlacernon() => _session.Character.MapInstance.IsAct4 = true;
+
+        private void TheKillShouldBeRecorded()
+        {
+            var killer = _killerSession.Character.CharacterId;
+            var victim = _session.Character.CharacterId;
+            _factionWar.Verify(w => w.RecordKillAsync(It.Is<PlayerComponentBundle>(p => p.CharacterId == killer),
+                It.Is<PlayerComponentBundle>(p => p.CharacterId == victim)), Times.Once);
+        }
+
+        private void NoKillShouldBeRecorded() =>
+            _factionWar.Verify(w => w.RecordKillAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<PlayerComponentBundle>()), Times.Never);
 
         [TestMethod]
         public async Task NonPlayerVictimIsIgnored()

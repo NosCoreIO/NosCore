@@ -67,7 +67,8 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 World.SessionRegistry,
                 new Mock<Wolverine.IMessageBus>().Object,
                 ScriptedInstances.Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
+                new Mock<NosCore.GameObject.Services.FactionWarService.IFactionWarService>().Object);
         }
 
         [TestMethod]

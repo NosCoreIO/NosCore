@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.FactionWarService;
 using NosCore.GameObject.Services.LandOfDeathService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
@@ -36,6 +37,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     // on the spot instead. A fall in an Instant Combat is out of it: back where they came from with 1 HP.
     // A fall in an Icebreaker freezes the player where they stand until it ends.
     // A fall in the Land of Death offers to spend a Saver on the spot, or goes back to the entrance.
+    // A fall to an enemy in Glacernon costs no dignity and counts toward the faction war; reviving at
+    // the save point there means the faction's citadel.
     //
     // Dialog text id depends on level:
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
@@ -43,7 +46,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IScriptedInstanceService scriptedInstanceService,
-        ILandOfDeathService landOfDeathService)
+        ILandOfDeathService landOfDeathService, IFactionWarService factionWarService)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -100,7 +103,15 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                     return;
                 }
 
-                player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
+                if (player.MapInstance is { IsAct4: true } && evt.Killer is PlayerComponentBundle enemy
+                    && enemy.CharacterId != player.CharacterId)
+                {
+                    await factionWarService.RecordKillAsync(enemy, player);
+                }
+                else
+                {
+                    player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
+                }
 
                 if (evt.Killer is PlayerComponentBundle killer && killer.CharacterId != player.CharacterId
                     && player.Reputation >= 50000)

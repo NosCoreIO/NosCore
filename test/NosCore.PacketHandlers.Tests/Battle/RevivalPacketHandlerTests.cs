@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _session.Character.MapInstance = World.GetBaseMap(1);
             _mapChangeService = new Mock<IMapChangeService>();
             _respawnService = new Mock<IRespawnService>();
-            _respawnService.Setup(r => r.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns((long?)1);
+            _respawnService.Setup(r => r.ResolveRevivalMapTypeId(It.IsAny<PlayerComponentBundle>())).Returns((long?)1);
             _respawnService.Setup(r => r.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<long?>()))
                 .Returns(((short)1, (short)50, (short)60));
 

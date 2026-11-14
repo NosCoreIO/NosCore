@@ -378,7 +378,12 @@ public static class PlayerBundleExtensions
                 ReputIco = GetIcon(player),
                 Invisible = false,
                 MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
-                Faction = player.Faction,
+                Faction = player.MapInstance is { IsAct4: true } ? player.Faction switch
+                {
+                    FactionType.Angel => InFactionType.Angel,
+                    FactionType.Demon => InFactionType.Demon,
+                    _ => InFactionType.None,
+                } : InFactionType.None,
                 MorphUpgrade2 = player.UseSp ? (byte)player.MorphDesign : (byte)0,
                 Level = player.Level,
                 FamilyLevel = 0,
@@ -491,7 +496,7 @@ public static class PlayerBundleExtensions
     }
 
     // The right-click info card for a player: class, level, worn gear, faction and PvP stats.
-    // Family, talent and Act4 fields stay 0 until those systems exist.
+    // Family and talent fields stay 0 until those systems exist.
     public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player)
     {
         var inv = player.InventoryService;
@@ -523,8 +528,8 @@ public static class PlayerBundleExtensions
             HaveArmor = armor != null ? 1 : 0,
             ArmorRare = armor?.Rare ?? 0,
             ArmorUpgrade = armor?.Upgrade ?? 0,
-            Act4Kill = 0,
-            Act4Dead = 0,
+            Act4Kill = player.CharacterDto.Act4Kill,
+            Act4Dead = player.CharacterDto.Act4Dead,
             Reputation = player.Reputation,
             Morph = 0,
             TalentWin = 0,
@@ -532,7 +537,7 @@ public static class PlayerBundleExtensions
             TalentSurrender = 0,
             MasterPoints = 0,
             Compliments = player.Compliment,
-            Act4Points = 0,
+            Act4Points = player.CharacterDto.Act4Points,
             IsPvpPrimary = false,
             IsPvpSecondary = false,
             IsPvpArmor = false,

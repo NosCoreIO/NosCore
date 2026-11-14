@@ -16,6 +16,10 @@ public interface IRespawnService
     // save-point NPC in Act 5 doesn't overwrite the Act 1 save.
     long? ResolveRespawnMapTypeId(short mapId);
 
+    // Where a fallen character is sent back to: their faction's citadel on Act 4, otherwise the
+    // map's respawn group.
+    long? ResolveRevivalMapTypeId(PlayerComponentBundle character);
+
     // The (mapId, x, y) the character should respawn at for the given MapType group.
     // Falls back to the RespawnMapType catalog default (Nosville for Act 1).
     (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, long? respawnMapTypeId);

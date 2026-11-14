@@ -18,6 +18,8 @@ namespace NosCore.Data.Enumerations.Interaction
         ReturnAct5 = 4,
         DefaultAct6 = 5,
         DefaultAct62 = 6,
-        DefaultOasis = 7
+        DefaultOasis = 7,
+        Act4Angel = 8,
+        Act4Demon = 9
     }
 }

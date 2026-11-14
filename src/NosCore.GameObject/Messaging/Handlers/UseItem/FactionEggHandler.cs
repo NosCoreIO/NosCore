@@ -83,6 +83,8 @@ public sealed class FactionEggHandler
 
         character.Faction = faction;
         character.CharacterDto.Act4Points = 0;
+        character.CharacterDto.Act4Kill = 0;
+        character.CharacterDto.Act4Dead = 0;
         await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
         await session.SendPacketAsync(character.GenerateFaction());
         await character.MapInstance.SendPacketAsync(character.GenerateIn(string.Empty));
