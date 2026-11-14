@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private ClientSession _session;
         private Mock<IBuffService> _buffs;
-        private readonly Mock<IVitalityService> _vitality = new();
+        private Mock<IVitalityService> _vitality;
         private BuffPotionHandler _handler;
         private InventoryItemInstance _potion;
 
@@ -48,10 +48,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _buffs = new Mock<IBuffService>();
-            var catalog = new Mock<ICardCatalog>();
-            catalog.Setup(c => c.GetItemBCards(AttackPotionVNum)).Returns(PotionBCards);
-            _handler = new BuffPotionHandler(_buffs.Object, catalog.Object, _vitality.Object);
+            _buffs = World.Freeze<Mock<IBuffService>>();
+            World.Freeze<Mock<ICardCatalog>>().Setup(c => c.GetItemBCards(AttackPotionVNum)).Returns(PotionBCards);
+            _vitality = World.Freeze<Mock<IVitalityService>>();
+            _handler = World.Create<BuffPotionHandler>();
         }
 
         [TestMethod]
