@@ -131,6 +131,11 @@ public static class PlayerBundleExtensions
     public static bool CanSitDown(this PlayerComponentBundle player, Instant now) =>
         now - player.LastAttack >= SitLockAfterAttack;
 
+    private static readonly Duration CombatWindow = Duration.FromSeconds(20);
+
+    public static bool IsInCombat(this PlayerComponentBundle player, Instant now) =>
+        now - player.LastAttack < CombatWindow || now - player.LastDamaged < CombatWindow;
+
     public static IEnumerable<IPacket> GenerateMateRoster(this PlayerComponentBundle player) =>
         new IPacket[] { new PclearPacket() }
             .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage, player.InventoryService));

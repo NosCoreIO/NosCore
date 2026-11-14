@@ -124,6 +124,41 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task AskingToTradeRightAfterAttackingIsRefused()
+        {
+            await new Spec("A player who attacked in the last 20 seconds cannot ask to trade")
+                .Given(TargetAllowsExchange)
+                .And(TheRequesterAttacked_SecondsAgo, 19)
+                .WhenAsync(RequestingExchange)
+                .Then(ShouldBeTold_, Game18NConstString.CanNotTradeDuringCombat)
+                .And(TargetShouldNotBeAsked)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AskingSomeoneWhoWasJustHitIsRefused()
+        {
+            await new Spec("A player hit in the last 20 seconds cannot be asked to trade")
+                .Given(TargetAllowsExchange)
+                .And(TheTargetWasHit_SecondsAgo, 5)
+                .WhenAsync(RequestingExchange)
+                .Then(ShouldBeTold_, Game18NConstString.CanNotTradeSomeoneInCombat)
+                .And(TargetShouldNotBeAsked)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TwentySecondsAfterTheLastHitTradingIsAllowedAgain()
+        {
+            await new Spec("Twenty seconds after the last attack a trade can be asked for again")
+                .Given(TargetAllowsExchange)
+                .And(TheRequesterAttacked_SecondsAgo, 20)
+                .WhenAsync(RequestingExchange)
+                .Then(TargetShouldBeAskedToTrade)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task CancellingExchangeShouldCloseExchange()
         {
             await new Spec("Cancelling exchange should close exchange")
@@ -189,6 +224,18 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             ExchangeService.Setup(x => x.CancelExchange(It.IsAny<PlayerComponentBundle>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
+
+        private void TheRequesterAttacked_SecondsAgo(int seconds) =>
+            Session.Character.LastAttack = World.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds);
+
+        private void TheTargetWasHit_SecondsAgo(int seconds) =>
+            TargetSession.Character.LastDamaged = World.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds);
+
+        private void ShouldBeTold_(Game18NConstString message) =>
+            Assert.AreEqual(message, Session.LastPackets.OfType<InfoiPacket>().Single().Message);
+
+        private void TargetShouldNotBeAsked() =>
+            Assert.IsFalse(TargetSession.LastPackets.OfType<Dlgi2Packet>().Any());
 
         private async Task RequestingExchange()
         {

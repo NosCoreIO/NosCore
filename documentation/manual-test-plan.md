@@ -1463,6 +1463,9 @@ Two characters, A and B, on the same map, both with exchange allowed in the opti
 - [ ] A requests, B waits more than 30 seconds before accepting: no window opens
 - [ ] B puts A on the blacklist; A requests a trade: A sees "B is blocking trades." and B gets
       no dialog. Remove A from the blacklist and the request goes through
+- [ ] A monster hits A; A requests a trade: A sees "Cannot trade during combat." and B gets no
+      dialog. Twenty seconds after A's last hit or attack the request goes through
+- [ ] A monster hits B; A requests a trade: A sees "Cannot trade with someone in combat."
 - [ ] A offers 1 000 gold and B confirms; A changes the offer to 500 and confirms: the trade does
       not complete until B confirms again, and then 500 gold moves
 - [ ] A offers part of a stack B already holds (5 of 10 Seeds of Power into B's 10): B's stack
