@@ -145,6 +145,7 @@ namespace NosCore.Tests.Shared
             QuicklistEntryDao = Dao<QuicklistEntry, QuicklistEntryDto, Guid>();
 
             Fixture.Inject(ItemList);
+            Fixture.Inject(new List<MountMapSpeedDto>());
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
             Fixture.Freeze<Mock<IMinilandService>>()

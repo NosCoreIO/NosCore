@@ -661,6 +661,9 @@
   <data name="MOUNT_SCROLLS_PARSED" xml:space="preserve">
     <value>{Scrolls} mount scrolls draw from {Rolls} mounts</value>
   </data>
+  <data name="MOUNT_MAP_SPEEDS_PARSED" xml:space="preserve">
+    <value>{Rows} map speed bonuses imported for {Mounts} mounts</value>
+  </data>
   <data name="INSTANT_COMBAT_PARSED" xml:space="preserve">
     <value>{Monsters} Instant Combat monster lines and {Drops} drop lines imported</value>
   </data>

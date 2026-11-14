@@ -88,6 +88,8 @@ namespace NosCore.Database
 
         public virtual DbSet<MinigameScore>? MinigameScore { get; set; }
 
+        public virtual DbSet<MountMapSpeed>? MountMapSpeed { get; set; }
+
         public virtual DbSet<InstantCombatDrop>? InstantCombatDrop { get; set; }
 
         public virtual DbSet<InstantCombatMonster>? InstantCombatMonster { get; set; }
@@ -514,6 +516,12 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MinigameReward>()
+                .HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemVNum)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MountMapSpeed>()
                 .HasOne(e => e.Item)
                 .WithMany()
                 .HasForeignKey(e => e.ItemVNum)

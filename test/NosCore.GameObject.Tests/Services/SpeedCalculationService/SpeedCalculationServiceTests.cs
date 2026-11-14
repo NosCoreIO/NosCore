@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
@@ -155,6 +156,41 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
             character.InventoryService[costume.ItemInstanceId] = costume;
 
             Assert.AreEqual(14, SpeedCalculationService.CalculateSpeed(character));
+        }
+
+        [TestMethod]
+        public async Task AMountRidesFasterOnAMapOfItsRegion()
+        {
+            const short mountVNum = 5232;
+            var character = (await World.CreateSessionAsync()).Character;
+            World.Inject(new List<MountMapSpeedDto>
+            {
+                new() { MountMapSpeedId = 1, ItemVNum = mountVNum, MapId = character.MapInstance.Map.MapId, Speed = 2 },
+            });
+            var service = World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>();
+            character.IsVehicled = true;
+            character.VehicleVNum = mountVNum;
+            character.VehicleSpeed = 21;
+
+            Assert.AreEqual(23, service.CalculateSpeed(character));
+        }
+
+        [TestMethod]
+        public async Task AMountRidesAtItsOwnSpeedOutsideItsRegion()
+        {
+            const short mountVNum = 5232;
+            var character = (await World.CreateSessionAsync()).Character;
+            World.Inject(new List<MountMapSpeedDto>
+            {
+                new() { MountMapSpeedId = 1, ItemVNum = mountVNum, MapId = (short)(character.MapInstance.Map.MapId + 1), Speed = 2 },
+                new() { MountMapSpeedId = 2, ItemVNum = 5234, MapId = character.MapInstance.Map.MapId, Speed = 2 },
+            });
+            var service = World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>();
+            character.IsVehicled = true;
+            character.VehicleVNum = mountVNum;
+            character.VehicleSpeed = 21;
+
+            Assert.AreEqual(21, service.CalculateSpeed(character));
         }
 
         private static BCardDto Move(BCardEffect effect, int value) =>

@@ -173,6 +173,7 @@ namespace NosCore.Data.Enumerations.I18N
         PARSING_FOLDER,
         SPEED_BOOSTERS_PARSED,
         MOUNT_SCROLLS_PARSED,
+        MOUNT_MAP_SPEEDS_PARSED,
         INSTANT_COMBAT_PARSED,
         BOX_CONTENTS_PARSED,
         LIFE_TICK_FAILED,
