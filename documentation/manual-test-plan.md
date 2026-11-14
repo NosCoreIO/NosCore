@@ -1205,6 +1205,18 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Food and a snack eaten together both heal
 - [ ] At full HP, food and snacks are still used up
 
+### NosMate beads
+
+`$CreateItem 335` gives a partner bead and `$CreateItem 348` a pet bead.
+
+- [ ] Use a bead outside your Miniland and confirm: "Can only be used in the Miniland." shows and
+      the bead stays
+- [ ] Use the partner bead in your own Miniland: it first asks whether to take the partner out,
+      and after confirming the bead is gone, the partner stands in the Miniland at the bead's level
+      and the "partner is out of the bead" message shows
+- [ ] Do the same with the pet bead: the pet comes out, and it is still there after relogging
+- [ ] Answer no to the question: nothing happens and the bead stays
+
 ### Ordering NosMates
 
 Have a pet and a partner out, and a second client on the same map watching.
