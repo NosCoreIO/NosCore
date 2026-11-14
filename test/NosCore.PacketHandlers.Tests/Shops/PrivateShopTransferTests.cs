@@ -17,6 +17,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Shops;
+using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
@@ -133,6 +134,22 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         private void TheBuyerHasADignityOf_(short dignity) => _buyer.Character.Dignity = dignity;
+
+        [TestMethod]
+        public async Task TheOwnerSeesTheRunningTotalAndTheStockLeft()
+        {
+            await new Spec("The owner sees the running total and the stock left")
+                .GivenAsync(TheOwnerOpensTheShop)
+                .WhenAsync(TheBuyerBuys_FromShopSlot_, (short)2, (short)1)
+                .Then(TheOwnerShouldReceiveTheSellList_, "sell_list 200 1.2.1")
+                .ExecuteAsync();
+        }
+
+        private void TheOwnerShouldReceiveTheSellList_(string wire)
+        {
+            var sellList = _owner.LastPackets.OfType<SellListPacket>().Single();
+            Assert.AreEqual(wire, new Serializer(new[] { typeof(SellListPacket) }).Serialize(sellList));
+        }
 
         [TestMethod]
         public async Task BuyingEquipmentKeepsItsOptions()

@@ -22,6 +22,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
+using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.QuestService;
@@ -627,6 +628,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             InventoryItemInstance? sellerSlot = null;
             NoscorePocketType sellerType = default;
             short sellerSlotIndex = 0;
+            SellListSubPacket? soldLine = null;
             List<InventoryItemInstance>? delivered = null;
             IItemInstance? persisted = null;
             using (await shop.Lock.AcquireAsync())
@@ -721,6 +723,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                         owner.Gold += sellAmount;
                         shop.Sell += sellAmount;
                         item.Amount = (short)((item.Amount ?? 0) - amount);
+                        soldLine = new SellListSubPacket { Slot = item.Slot, Amount = amount, SellAmount = item.Amount ?? 0 };
                         if (item.Amount <= 0)
                         {
                             shop.ShopItems.TryRemove(item.Slot, out _);
@@ -752,6 +755,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
             await owner.SendPacketAsync(sellerSlot.GeneratePocketChange(sellerType.ToPocketType(), sellerSlotIndex));
             await owner.SendPacketAsync(owner.GenerateGold());
+            await owner.SendPacketAsync(new SellListPacket { ValueSold = shop.Sell, SellListSubPacket = [soldLine] });
             if (closed)
             {
                 await SendShopClosedAsync(owner);
