@@ -206,6 +206,14 @@ parser) after a change to how these are read.
       bonus at all, the effect does not stand in for a fairy
 - [ ] An effect that lowers the fairy's element makes the same skill hit softer
 
+### Fairy Booster look and the info card
+
+- [ ] Wear a fairy and use a Fairy Booster (1296): the fairy floating behind the character
+      switches to its boosted look at once, for you and for anyone on the map
+- [ ] When the booster ends or is removed, the fairy goes back to its normal look
+- [ ] Right-click a player whose fairy has grown past its base element: the info card shows the
+      base element plus what the fairy has grown, the same figure as the fairy's tooltip
+
 ### Casting range
 
 A targeted skill reaches its range plus one cell, measured on the truncated diagonal

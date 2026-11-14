@@ -151,6 +151,11 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         await ReplaceSameGroupAsync(target, buffs, card);
         RestoreStatic(target, card, bCards, duration);
+        if (buffs.TryGetValue(card.CardId, out var applied))
+        {
+            await NotifyMovementAsync(target, applied);
+        }
+
         await target.SendPacketAsync(new VbPacket
         {
             CardId = card.CardId,
@@ -519,6 +524,11 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 or BCardEffect.MoveMovementSpeedIncreased or BCardEffect.MoveMovementSpeedDecreased))
         {
             await messageBus.PublishAsync(new MovementConditionChangedEvent(target));
+        }
+
+        if (buff.BCards.Any(b => b.Effect() == BCardEffect.Type96IncreaseFairyElement))
+        {
+            await messageBus.PublishAsync(new FairyLookChangedEvent(target));
         }
     }
 
