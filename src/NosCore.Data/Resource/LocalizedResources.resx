@@ -646,16 +646,4 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>This event is already running.</value>
   </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>An Instant Combat for all levels will start in {0} minute(s).</value>
-  </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>An Instant Combat for all levels will start in {0} seconds.</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>An Icebreaker for levels {1}-{2} will start in {0} minute(s).</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>An Icebreaker for levels {1}-{2} will start in {0} seconds.</value>
-  </data>
 </root>

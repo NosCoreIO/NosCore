@@ -579,16 +579,4 @@
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>Это событие уже идёт.</value>
   </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>Через {0} мин. начнётся Instant Combat для всех уровней.</value>
-  </data>
-  <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>Через {0} сек. начнётся Instant Combat для всех уровней.</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_MINUTES" xml:space="preserve">
-    <value>Через {0} мин. начнётся Icebreaker для уровней {1}-{2}.</value>
-  </data>
-  <data name="ICE_BREAKER_STARTS_IN_SECONDS" xml:space="preserve">
-    <value>Через {0} сек. начнётся Icebreaker для уровней {1}-{2}.</value>
-  </data>
 </root>

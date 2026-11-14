@@ -106,8 +106,16 @@ the decided design, not a migration in flight:
    wired by `NosCore.Parser`. Game data belongs in the database, not in a generated C#
    table — a table cannot be regenerated when the client updates.
 4. **Behaviour** — what happens when an effect fires? → a service in `NosCore.GameObject`.
-5. A **player-facing string**? → a `LanguageKey` plus every `.resx` under
+5. A **player-facing string**? → the client's own text first: a `Game18NConstString` sent
+   through an i18n packet (`msgi`, `sayi`, `infoi`, `qnai`, `modali`, `s_memoi` and their `2`
+   variants). The client already holds a translation of almost every line, so search
+   `conststring` (or the comments in `Game18NConstString.verified.cs`) before writing one.
+   Lines the client builds from two texts, such as "In 5 minute(s)" followed by an event
+   announcement, come from an `ArgumentType` of `msgi`, not from a new string. Only when the
+   client has no equivalent does it become a `LanguageKey` plus every `.resx` under
    `NosCore.Data/Resource/`, never a literal.
+6. A **log message**? → a `LogLanguageKey` plus every `.resx`, never an English literal.
+   Keep the structured placeholders (`{SessionId}`) in the resource text.
 
 **Never derive logic from description text.** Item, card and skill descriptions are
 translations that change between client versions, so no parser or service may read them
