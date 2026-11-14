@@ -57,9 +57,11 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                     new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,
                     new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
                     World.Create<NosCore.GameObject.Services.BattleService.BuffService>(),
-                    new Mock<NosCore.GameObject.Services.BattleService.ICardCatalog>().Object),
+                    new Mock<NosCore.GameObject.Services.BattleService.ICardCatalog>().Object,
+                    new Mock<ISpecialistWingsService>().Object),
                 new SpecialistCardService(new SpecialistPointService()),
-                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
+                World.WorldConfiguration);
         }
 
         [TestMethod]
@@ -108,6 +110,94 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .WhenAsync(SpendingPointsWithAnotherTransportId)
                 .Then(TheCardShouldHaveNoPointsSpent)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task FightingWhileTransformedSpendsTheCardsCostEachSecond()
+        {
+            await new Spec("Fighting while transformed spends the card's cost each second")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardCostsThreePointsASecond)
+                .And(CharacterHas_SpPointsAnd_AdditionalPoints, 10, 0)
+                .And(CharacterAttackedJustNow)
+                .WhenAsync(ASecondPasses)
+                .Then(CharacterShouldHave_SpPointsAnd_AdditionalPoints, 7, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AdditionalPointsAreSpentOnceTheBasicOnesRunOut()
+        {
+            await new Spec("Additional points are spent once the basic ones run out")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardCostsThreePointsASecond)
+                .And(CharacterHas_SpPointsAnd_AdditionalPoints, 1, 10)
+                .And(CharacterAttackedJustNow)
+                .WhenAsync(ASecondPasses)
+                .Then(CharacterShouldHave_SpPointsAnd_AdditionalPoints, 0, 8)
+                .And(CharacterShouldBeTransformed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PointsAreKeptOnceTheFightIsOver()
+        {
+            await new Spec("Points are kept fifteen seconds after the last attack")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardCostsThreePointsASecond)
+                .And(CharacterHas_SpPointsAnd_AdditionalPoints, 10, 0)
+                .And(CharacterAttackedSixteenSecondsAgo)
+                .WhenAsync(ASecondPasses)
+                .Then(CharacterShouldHave_SpPointsAnd_AdditionalPoints, 10, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RunningOutOfPointsEndsTheTransformation()
+        {
+            await new Spec("Running out of points ends the transformation")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardCostsThreePointsASecond)
+                .And(CharacterHas_SpPointsAnd_AdditionalPoints, 0, 2)
+                .And(CharacterAttackedJustNow)
+                .WhenAsync(ASecondPasses)
+                .Then(CharacterShouldHave_SpPointsAnd_AdditionalPoints, 0, 0)
+                .And(CharacterShouldNotBeTransformed)
+                .ExecuteAsync();
+        }
+
+        private void TheCardCostsThreePointsASecond()
+        {
+            WornCard().Item.SpType = 3;
+        }
+
+        private void CharacterHas_SpPointsAnd_AdditionalPoints(int basic, int additional)
+        {
+            Session.Character.SpPoint = basic;
+            Session.Character.SpAdditionPoint = additional;
+        }
+
+        private void CharacterAttackedJustNow()
+        {
+            Session.Character.LastAttack = World.Clock.GetCurrentInstant();
+        }
+
+        private void CharacterAttackedSixteenSecondsAgo()
+        {
+            Session.Character.LastAttack = World.Clock.GetCurrentInstant();
+            World.Clock.AdvanceSeconds(16);
+        }
+
+        private Task ASecondPasses() => Service.DrainPointsAsync(Session);
+
+        private void CharacterShouldHave_SpPointsAnd_AdditionalPoints(int basic, int additional)
+        {
+            Assert.AreEqual(basic, Session.Character.SpPoint);
+            Assert.AreEqual(additional, Session.Character.SpAdditionPoint);
         }
 
         private SpecialistInstance WornCard() =>

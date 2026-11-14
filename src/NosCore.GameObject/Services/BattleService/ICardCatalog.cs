@@ -30,6 +30,9 @@ public interface ICardCatalog
     /// <summary>Whether that Card is the one granted by items with that effect.</summary>
     bool IsGrantedBy(short cardId, ItemEffectType effect);
 
+    /// <summary>The Card a specialist wears with that wing design, or null if the design has none.</summary>
+    CardDto? GetSpecialistWingsCard(short design);
+
     /// <summary>The Card the server applies when that situation arises, or null if none.</summary>
     CardDto? GetTriggeredCard(CardTrigger trigger);
 }

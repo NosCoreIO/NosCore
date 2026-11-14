@@ -59,7 +59,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 new Mock<GameObject.Services.SkillService.ISkillService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
                 Buffs,
-                cards.Object);
+                cards.Object,
+                new Mock<ISpecialistWingsService>().Object);
         }
 
         [TestMethod]

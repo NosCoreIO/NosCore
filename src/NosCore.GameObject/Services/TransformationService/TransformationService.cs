@@ -41,7 +41,8 @@ namespace NosCore.GameObject.Services.TransformationService
             SkillService.ISkillService skillService,
             BattleService.IBattleStatsProvider battleStatsProvider,
             BattleService.IBuffService buffService,
-            BattleService.ICardCatalog cardCatalog)
+            BattleService.ICardCatalog cardCatalog,
+            ISpecialistWingsService specialistWingsService)
         : ITransformationService
     {
         public async Task RemoveSpAsync(ClientSession session)
@@ -53,6 +54,7 @@ namespace NosCore.GameObject.Services.TransformationService
             character.MorphDesign = 0;
 
             await skillService.UnloadSpecialistSkillsAsync(character);
+            await specialistWingsService.RefreshAsync(character);
             character.SpCooldown = 30;
 
             var characterId = character.CharacterId;
@@ -127,6 +129,7 @@ namespace NosCore.GameObject.Services.TransformationService
             character.MorphDesign = (byte)sp.Design;
 
             await skillService.LoadSpecialistSkillsAsync(character, sp.Item.Morph, sp.SpLevel);
+            await specialistWingsService.RefreshAsync(character);
 
             var characterId2 = character.CharacterId;
             var mapInstance = character.MapInstance;
