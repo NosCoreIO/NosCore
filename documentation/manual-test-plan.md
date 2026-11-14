@@ -3089,11 +3089,13 @@ A side needs 100 kills to fill its bar. Both characters need a family and level 
 
 Start a second world as the Act 4 channel (`ACT4_CHANNEL=true WORLD_PORT=1338`) next to the
 ordinary one. Use an angel with at least 50 000 gold in Port Alveus (map 145), beside Leika
-Passage (48,41). Boarding opens at :05 and :35 and the ship sails at :00 and :30; `$Event Act4Ship`
-opens boarding at once.
+Passage (48,41). Boarding opens at :05 and :35, closes at :25 and :55, and the ship sails at :00
+and :30; `$Event Act4Ship` opens boarding at once.
 
 - [ ] The login channel list shows only the ordinary channel
 - [ ] Outside the boarding window, "Board Ship" > "Yes": "The ship hasn't returned yet."
+- [ ] Boarding just before :25 or :55 puts the player aboard; just after, "The ship hasn't returned
+      yet."
 - [ ] A neutral character: "Only those who have the Power of Protection can enter Glacernon."
 - [ ] Less than 50 000 gold: "You don't have enough gold" in chat, and the player stays ashore
 - [ ] During boarding: the angel is put on the ship (map 148) with Leika Passage and Fabian Frost
