@@ -70,7 +70,7 @@ namespace NosCore.Database.Entities
 
         public short CModeVNum { get; set; }
 
-        public byte CellMinRange { get; set; }
+        public short CellMinRange { get; set; }
 
         public int Midgard { get; set; }
 
@@ -165,7 +165,7 @@ namespace NosCore.Database.Entities
 
         public bool NoAggresiveIcon { get; set; }
 
-        public byte NoticeRange { get; set; }
+        public short NoticeRange { get; set; }
 
         public virtual ICollection<NpcMonsterSkill> NpcMonsterSkill { get; set; }
 
@@ -217,7 +217,7 @@ namespace NosCore.Database.Entities
 
         public int SpawnMobOrColor { get; set; }
 
-        public sbyte SpriteSize { get; set; }
+        public short SpriteSize { get; set; }
 
         public byte CellSize { get; set; }
 

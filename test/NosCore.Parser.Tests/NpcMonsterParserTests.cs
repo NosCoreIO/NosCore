@@ -74,7 +74,8 @@ namespace NosCore.Parser.Tests
         private static string BuildMonster(short vnum, string name, byte level, byte race = 0, byte raceType = 0,
             int hp = 0, int mp = 0, int xp = 0, int jxp = 0, byte armorLvl = 1, byte weaponLvl = 1, byte weaponType = 0,
             string weaponModifiers = "0\t0\t0\t0\t0", string armorModifiers = "0\t0\t0\t0", byte attackClass = 0,
-            long etc = 0, string winfo = "0\t0\t0", string ainfo = "0\t0")
+            long etc = 0, string winfo = "0\t0\t0", string ainfo = "0\t0", string preatt = "0\t0\t0\t0\t0\t0",
+            string setting = "0\t0\t0\t0\t0\t0", string? mode = null)
         {
             var zeros50 = string.Join("\t", Enumerable.Repeat("0", 50));
             var zeros20 = string.Join("\t", Enumerable.Repeat("0", 20));
@@ -89,8 +90,8 @@ namespace NosCore.Parser.Tests
                 $"\tATTRIB\t0\t0\t0\t0\t0\t0\r\n" +
                 $"\tHP/MP\t{hp}\t{mp}\r\n" +
                 $"\tEXP\t{xp}\t{jxp}\r\n" +
-                $"\tPREATT\t0\t0\t0\t0\t0\t0\r\n" +
-                $"\tSETTING\t0\t0\t0\t0\t0\t0\r\n" +
+                $"\tPREATT\t{preatt}\r\n" +
+                $"\tSETTING\t{setting}\r\n" +
                 $"\tETC\t{etc}\t0\t0\t0\t0\t0\t0\t0\r\n" +
                 $"\tPETINFO\t0\t0\t0\t0\r\n" +
                 $"\tEFF\t0\t0\t0\r\n" +
@@ -103,7 +104,7 @@ namespace NosCore.Parser.Tests
                 $"\tPARTNER\t{zeros20}\r\n" +
                 $"\tBASIC\t{zeros50}\r\n" +
                 $"\tCARD\t{zeros20}\r\n" +
-                $"\tMODE\t{zeros32}\r\n" +
+                $"\tMODE\t{mode ?? zeros32}\r\n" +
                 $"\tITEM\t{zeros60}\r\n" +
                 "#========================================================\r\n";
         }
@@ -219,6 +220,24 @@ namespace NosCore.Parser.Tests
             var monster = _savedMonsters.Single();
             Assert.AreEqual(0, monster.Xp);
             Assert.AreEqual(0, monster.JobXp);
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_ImportsABossWhoseSizeAndRangesOutgrowAByte()
+        {
+            var mode = string.Join("\t", Enumerable.Repeat("0", 29).Append("462").Append("0").Append("0"));
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(563, "zts649e", 80, race: 3,
+                weaponLvl: 80, weaponType: 25, weaponModifiers: "420\t500\t100\t-40\t100", preatt: "1\t0\t1000\t0\t36000",
+                setting: "563\t0\t0\t250\t2\t0", mode: mode));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            var monster = _savedMonsters.Single();
+            Assert.AreEqual(250, monster.SpriteSize);
+            Assert.AreEqual(1000, monster.NoticeRange);
+            Assert.AreEqual(462, monster.CellMinRange);
+            Assert.AreEqual(0, monster.CriticalChance);
         }
     }
 }

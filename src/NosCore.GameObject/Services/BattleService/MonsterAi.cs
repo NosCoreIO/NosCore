@@ -203,7 +203,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         var map = entity.MapInstance;
         if (map == null) return null;
 
-        var range = (int)Math.Max(entity.NpcMonster.NoticeRange, (byte)1);
+        var range = (int)Math.Max(entity.NpcMonster.NoticeRange, (short)1);
         IAliveEntity? best = null;
         var bestDistance = double.MaxValue;
 
@@ -263,7 +263,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         var map = entity.MapInstance;
         if (map == null) return null;
 
-        var range = (int)Math.Max(entity.NpcMonster.NoticeRange, (byte)1);
+        var range = (int)Math.Max(entity.NpcMonster.NoticeRange, (short)1);
         if (entity.VisualType == VisualType.Npc)
         {
             foreach (var npc in map.EnumerateNpcs())
