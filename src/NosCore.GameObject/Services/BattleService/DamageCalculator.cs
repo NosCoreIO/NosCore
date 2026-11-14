@@ -205,7 +205,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
             }
         }
 
-        return damage * (100 + percent) / 100;
+        return (int)((long)damage * (100 + percent) / 100);
     }
 
     private int RollChanceDamage(CombatStats attacker, int damage)
@@ -224,7 +224,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
             }
         }
 
-        return damage * (100 + percent) / 100;
+        return (int)((long)damage * (100 + percent) / 100);
     }
 
     private int RollChanceDamageTaken(CombatStats defender, AttackKind kind, int damage)
