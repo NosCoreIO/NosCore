@@ -147,6 +147,54 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         [TestMethod]
+        public async Task OfferingMoreThanIsHeldClosesTheShopWindow()
+        {
+            await new Spec("Offering more than is held closes the shop window")
+                .Given(CharacterHasTradableItemsWithAmount_, 1)
+                .WhenAsync(CreatingShop)
+                .Then(TheShopWindowShouldBeClosed)
+                .And(ShopShouldNotBeCreated)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANegativePriceClosesTheShopWindow()
+        {
+            await new Spec("A negative price closes the shop window")
+                .Given(CharacterHasTradableItemsWithAmount_, 3)
+                .WhenAsync(CreatingShopWithANegativePrice)
+                .Then(TheShopWindowShouldBeClosed)
+                .And(ShopShouldNotBeCreated)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasTradableItemsWithAmount_(int value)
+        {
+            var itemBuilder = new ItemGenerationService(new List<ItemDto>
+            {
+                new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            for (short slot = 0; slot < 3; slot++)
+            {
+                Session.Character.InventoryService.AddItemToPocket(
+                    InventoryItemInstance.Create(itemBuilder.Create(1, (short)value), 0), NoscorePocketType.Etc, slot);
+            }
+
+            Session.Character.MapInstance = World.GetBaseMap(1);
+        }
+
+        private Task CreatingShopWithANegativePrice() =>
+            MShopPacketHandler.ExecuteAsync(new MShopPacket
+            {
+                Type = CreateShopPacketType.Open,
+                ItemList = new List<MShopItemSubPacket?> { new() { Type = PocketType.Etc, Slot = 0, Amount = 1, Price = -1 } },
+                Name = "TEST SHOP"
+            }, Session);
+
+        private void TheShopWindowShouldBeClosed() =>
+            Assert.IsTrue(Session.LastPackets.OfType<ShopEndPacket>().Any());
+
+        [TestMethod]
         public async Task ClickingAnOpenShopListsItsItems()
         {
             await new Spec("Clicking an open shop lists its items")

@@ -87,14 +87,9 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        if (inv.ItemInstance.Amount < item.Amount || item.Amount <= 0)
+                        if (inv.ItemInstance.Amount < item.Amount || item.Amount <= 0 || item.Price < 0)
                         {
-                            //todo log
-                            return;
-                        }
-
-                        if (item.Price < 0)
-                        {
+                            await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                             return;
                         }
 
