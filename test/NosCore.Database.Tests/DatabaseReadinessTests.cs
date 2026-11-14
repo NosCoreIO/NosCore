@@ -5,6 +5,9 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Database.Entities;
+using System;
+using System.IO;
 
 namespace NosCore.Database.Tests
 {
@@ -35,28 +38,79 @@ namespace NosCore.Database.Tests
                 DatabaseReadiness.Describe(["First", "Second"]));
         }
 
+        private const string ParserBuild = "BUILD";
+
         [TestMethod]
-        public void AnImportOfThisVersionHasNothingToSay()
+        public void AnImportByThisParserBuildFromTheSameFilesHasNothingToSay()
         {
-            Assert.IsNull(DatabaseReadiness.DescribeGameData(DatabaseReadiness.GameDataVersion));
+            var folder = ClientFolder();
+            Assert.IsNull(DatabaseReadiness.DescribeGameData(Import(folder), ParserBuild));
         }
 
         [TestMethod]
-        public void ADatabaseNeverImportedByThisParserIsToldToRunIt()
+        public void ADatabaseNeverImportedIsToldToRunTheParser()
         {
             Assert.AreEqual(
-                "The game data has not been imported by this version of the parser. " +
-                "Run the parser, then start the server again.",
-                DatabaseReadiness.DescribeGameData(null));
+                "The game data has not been imported. Run the parser, then start the server again.",
+                DatabaseReadiness.DescribeGameData(null, ParserBuild));
         }
 
         [TestMethod]
-        public void AnOlderImportNamesBothVersions()
+        public void ChangedClientFilesMakeTheImportStale()
         {
+            var folder = ClientFolder();
+            var import = Import(folder);
+            File.WriteAllText(Path.Combine(folder, "Item.dat"), "changed");
             Assert.AreEqual(
-                $"The game data was imported by an older parser (data version 0, this build needs {DatabaseReadiness.GameDataVersion}). " +
+                $"The game data could not be imported again from {folder}. Run the parser to see why, then start the server again.",
+                DatabaseReadiness.DescribeGameData(import, ParserBuild));
+        }
+
+        [TestMethod]
+        public void AnotherParserBuildMakesTheImportStale()
+        {
+            var folder = ClientFolder();
+            Assert.IsNotNull(DatabaseReadiness.DescribeGameData(Import(folder), "OTHER"));
+        }
+
+        [TestMethod]
+        public void AnUnreadableFolderIsOnlyCheckedAgainstTheParserBuild()
+        {
+            var import = Import(ClientFolder());
+            import.Folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+            Assert.IsNull(DatabaseReadiness.DescribeGameData(import, ParserBuild));
+            Assert.AreEqual(
+                $"The game data was imported by another build of the parser, from {import.Folder}, which this server cannot read. " +
                 "Run the parser again, then start the server again.",
-                DatabaseReadiness.DescribeGameData(0));
+                DatabaseReadiness.DescribeGameData(import, "OTHER"));
         }
+
+        [TestMethod]
+        public void TheParserBuildCoversTheNosCoreAssembliesItRuns()
+        {
+            Assert.AreEqual(
+                GameDataFingerprint.OfParser(typeof(DatabaseReadiness).Assembly),
+                GameDataFingerprint.OfParser(typeof(DatabaseReadiness).Assembly));
+            Assert.AreNotEqual(
+                GameDataFingerprint.OfParser(typeof(DatabaseReadiness).Assembly),
+                GameDataFingerprint.OfParser(typeof(DatabaseReadinessTests).Assembly));
+        }
+
+        private static string ClientFolder()
+        {
+            var folder = Path.Combine(Path.GetTempPath(), "noscore-client-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(Path.Combine(folder, "map"));
+            File.WriteAllText(Path.Combine(folder, "Item.dat"), "item");
+            File.WriteAllText(Path.Combine(folder, "map", "1"), "map");
+            return folder;
+        }
+
+        private static GameDataImport Import(string folder) => new()
+        {
+            GameDataImportId = 1,
+            ParserBuild = ParserBuild,
+            ClientFiles = GameDataFingerprint.OfClientFiles(folder),
+            Folder = folder,
+        };
     }
 }

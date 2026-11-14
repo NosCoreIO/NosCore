@@ -62,9 +62,10 @@ namespace NosCore.Parser
                 throw new DirectoryNotFoundException($"Folder not found: {folder}");
             }
             logger.LogInformation(logLanguage[LogLanguageKey.PARSING_FOLDER], folder);
+            var clientFiles = GameDataFingerprint.OfClientFiles(folder);
             factory.SetFolder(folder);
             await factory.ImportPacketsAsync().ConfigureAwait(false);
-            await RunFullImportAsync().ConfigureAwait(false);
+            await RunFullImportAsync(folder, clientFiles).ConfigureAwait(false);
         }
 
         private async Task RunInteractiveAsync(CancellationToken stoppingToken)
@@ -80,12 +81,13 @@ namespace NosCore.Parser
                 key = Console.ReadKey(true);
             }
 
+            var clientFiles = GameDataFingerprint.TryOfClientFiles(folder ?? string.Empty);
             factory.SetFolder(folder ?? string.Empty);
             await factory.ImportPacketsAsync().ConfigureAwait(false);
 
             if (inputRedirected || key.KeyChar != 'n')
             {
-                await RunFullImportAsync().ConfigureAwait(false);
+                await RunFullImportAsync(folder ?? string.Empty, clientFiles ?? string.Empty).ConfigureAwait(false);
                 await Task.Delay(5000, stoppingToken).ConfigureAwait(false);
                 return;
             }
@@ -94,9 +96,15 @@ namespace NosCore.Parser
             await Task.Delay(5000, stoppingToken).ConfigureAwait(false);
         }
 
-        private async Task RunFullImportAsync()
+        // The client files are fingerprinted before they are read, so a file replaced mid-import
+        // makes the next start import again.
+        private async Task RunFullImportAsync(string folder, string clientFiles)
         {
-            await factory.ImportAccountsAsync().ConfigureAwait(false);
+            if (!cli.SkipAccounts)
+            {
+                await factory.ImportAccountsAsync().ConfigureAwait(false);
+            }
+
             await factory.ImportMapsAsync().ConfigureAwait(false);
             await factory.ImportRespawnMapTypeAsync().ConfigureAwait(false);
             await factory.ImportMapTypeAsync().ConfigureAwait(false);
@@ -119,7 +127,8 @@ namespace NosCore.Parser
             await factory.ImportRecipesAsync();
             await factory.ImportScriptsAsync().ConfigureAwait(false);
             await factory.ImportQuestsAsync().ConfigureAwait(false);
-            DatabaseReadiness.RecordGameDataImport(context);
+            DatabaseReadiness.RecordGameDataImport(context, GameDataFingerprint.OfParser(typeof(Parser).Assembly),
+                clientFiles, Path.GetFullPath(folder));
         }
 
         private async Task RunPromptedImportsAsync()

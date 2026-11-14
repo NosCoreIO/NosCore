@@ -17,6 +17,16 @@ namespace NosCore.Database.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int GameDataImportId { get; set; }
 
-        public int Version { get; set; }
+        // GameDataFingerprint.OfParser of the parser that ran the import.
+        [Required]
+        public required string ParserBuild { get; set; }
+
+        // GameDataFingerprint.OfClientFiles of the folder it read.
+        [Required]
+        public required string ClientFiles { get; set; }
+
+        // Where the parser read the client files, so the world server can import them again.
+        [Required]
+        public required string Folder { get; set; }
     }
 }
