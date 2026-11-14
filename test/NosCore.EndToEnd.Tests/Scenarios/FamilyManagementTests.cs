@@ -133,14 +133,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.SendAsync("%Notice raid at nine");
 
-            var info = await bob.ExpectSinceAsync(noticed, FamilyInfo(family.Name, head.Name, 3, Member), "the family with its notice");
+            var threeMembers = FamilyInfo(family.Name, head.Name, 3, Member);
             // The notice ends the line, with its spaces written as carets.
-            StringAssert.EndsWith(info, " raid^at^nine");
+            await bob.ExpectSinceAsync(noticed, p => threeMembers(p) && p.EndsWith(" raid^at^nine", StringComparison.Ordinal),
+                "the family with its notice");
             Assert.AreEqual("raid at nine", (await StoredFamilyAsync(family.FamilyId)).FamilyMessage);
 
             await using var carol = Harness.Client(later);
-            var entry = await carol.EnterWorldAsync(later.Slot);
-            Assert.IsTrue(entry.Any(p => TestClient.HeaderOf(p) == "ginfo" && p.EndsWith(" raid^at^nine", StringComparison.Ordinal)),
+            var entering = carol.Mark();
+            await carol.EnterWorldAsync(later.Slot);
+            await carol.ExpectSinceAsync(entering,
+                p => TestClient.HeaderOf(p) == "ginfo" && p.EndsWith(" raid^at^nine", StringComparison.Ordinal),
                 "a member who enters later is shown it too");
         }
 
