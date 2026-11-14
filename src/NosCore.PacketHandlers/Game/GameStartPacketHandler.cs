@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.CharacterRankingService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.SkillService;
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Game
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IBuffService buffService, IVitalityService vitalityService,
             ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService,
-            IRespawnService respawnService)
+            IRespawnService respawnService, IMinilandRegistry minilandRegistry)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -142,7 +143,11 @@ namespace NosCore.PacketHandlers.Game
             //            }
             session.Character.LoadExpensions();
             await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration));
-            //            Session.SendPacket(Session.Character.GenerateMlinfo());
+            if (minilandRegistry.GetByCharacterId(session.Character.CharacterId) is { } miniland)
+            {
+                await session.SendPacketAsync(miniland.GenerateMlinfo());
+            }
+
             //            Session.SendPacket("zzim");
             await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Character.Name)
             {

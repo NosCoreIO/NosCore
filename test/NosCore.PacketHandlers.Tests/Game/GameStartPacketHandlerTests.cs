@@ -55,6 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private Mock<IQuestService> QuestService;
         private readonly Mock<NosCore.GameObject.Services.BattleService.IRespawnService> RespawnService = new();
         private readonly Mock<ILogger<GameStartPacketHandler>> Logger = new();
+        private readonly Mock<NosCore.GameObject.Services.MinilandService.IMinilandRegistry> Minilands = new();
         private TaskCompletionSource ScriptRun;
         private Task GameStart;
 
@@ -100,7 +101,21 @@ namespace NosCore.PacketHandlers.Tests.Game
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 World.Create<NosCore.GameObject.Services.CharacterRankingService.CharacterRankingService>(),
                 new Mock<NosCore.GameObject.Services.WarehouseService.IPersonalWarehouseService>().Object,
-                RespawnService.Object);
+                RespawnService.Object,
+                Minilands.Object);
+        }
+
+        [TestMethod]
+        public async Task GameStartTellsTheOwnerTheirMinilandPoints()
+        {
+            var characterId = Session.Character.CharacterId;
+            Minilands.Setup(m => m.GetByCharacterId(characterId))
+                .Returns(new NosCore.GameObject.Services.MinilandService.Miniland { MinilandPoint = 1500 });
+            CharacterIsReadyToStart();
+
+            await ExecutingGameStart();
+
+            Assert.AreEqual(1500, Session.LastPackets.OfType<NosCore.Packets.ServerPackets.Miniland.MlinfoPacket>().Single().MinilandPoint);
         }
 
         [TestMethod]

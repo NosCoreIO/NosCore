@@ -1580,6 +1580,13 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 - [ ] Try the same from inside a time-space or an arena: the client's "cannot be used here"
       line appears and you stay where you are
 
+### Miniland points
+
+- [ ] Log in and, before entering the miniland, open the Mini-Land window (menu, house icon):
+      the theme, intro, visitors and Make Point are already filled in
+- [ ] Place or remove an object in the locked miniland: Make Point keeps showing the production
+      points left for the day, not the object's own points
+
 ### Personal warehouse, pet basket and partner backpack
 
 `/mnt/project-files/pet-backpack/scene.sh` gives the tester potions, a Miniland Bell and a
