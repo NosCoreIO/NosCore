@@ -17,6 +17,7 @@ using NosCore.Database.Entities;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
+using NosCore.Data.Enumerations.Interaction;
 using FamilyUpgradeType = NosCore.Data.Enumerations.Family.FamilyUpgradeType;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
@@ -384,6 +385,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             context.Add(new MapNpc { MapNpcId = FamilyManager, MapId = Town, MapX = 76, MapY = 108, VNum = FamilyManagerVNum });
             context.Add(new Shop { MapNpcId = FamilyManager, MenuType = 0, ShopType = FamilyShop });
+            context.Add(new ShopTypeService { ShopTypeServiceId = 1, ShopType = FamilyShop, Service = NpcService.FamilyManager });
             await context.SaveChangesAsync();
         }
 
