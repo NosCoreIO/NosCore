@@ -63,7 +63,8 @@ namespace NosCore.Parser.Parsers
                     Direction = inPacket.Direction ?? 0,
                     Dialog = npcTalks.ContainsKey(npc.Dialog) ? npc.Dialog : null,
                     IsSitting = npc.IsSitting,
-                    IsDisabled = false
+                    IsDisabled = false,
+                    Season = SeasonalNpcs.All.TryGetValue(vnum, out var season) ? season : null,
                 };
 
                 if (npcs.Any(i => i.MapNpcId == npctest.MapNpcId))
@@ -86,7 +87,7 @@ namespace NosCore.Parser.Parsers
         }
 
         private static object Fields(MapNpcDto npc) => (npc.MapId, npc.VNum, npc.MapX, npc.MapY, npc.Effect, npc.EffectDelay,
-            npc.IsMoving, npc.Direction, npc.Dialog, npc.IsSitting, npc.IsDisabled);
+            npc.IsMoving, npc.Direction, npc.Dialog, npc.IsSitting, npc.IsDisabled, npc.Season);
 
         private async Task DeleteCopiesAsync(List<int> copies)
         {

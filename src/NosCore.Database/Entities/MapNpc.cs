@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.Event;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
@@ -52,6 +53,9 @@ namespace NosCore.Database.Entities
         public short VNum { get; set; }
 
         public byte Direction { get; set; }
+
+        // Set for an NPC that only stands in the world while its season is switched on.
+        public SeasonType? Season { get; set; }
 
         public virtual ICollection<Recipe> Recipe { get; set; }
 

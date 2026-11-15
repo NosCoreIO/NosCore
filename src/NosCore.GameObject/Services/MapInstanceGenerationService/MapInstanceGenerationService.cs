@@ -30,6 +30,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
@@ -52,6 +54,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             NosCore.GameObject.Services.BattleService.IHeatService heatService,
             NosCore.GameObject.Services.MateService.IMateRevivalService mateRevivalService,
             List<MapTypeMapDto> mapTypeMaps,
+            IOptions<WorldConfiguration> worldConfiguration,
             TimeProvider time,
             NosCore.GameObject.Services.MateService.IMateLoyaltyService mateLoyaltyService)
         : IMapInstanceGeneratorService
@@ -93,7 +96,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var monsters = mapMonsters.LoadAll().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
-            var npcs = mapNpcs.LoadAll().GroupBy(u => u.MapId)
+            var seasons = worldConfiguration.Value.Seasons;
+            var npcs = mapNpcs.LoadAll().Where(u => u.Season is not { } season || seasons.Contains(season)).GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
             var recipeItems = recipeItemDtos.GroupBy(s => s.RecipeId).ToDictionary(s => s.Key, s => s.ToList());

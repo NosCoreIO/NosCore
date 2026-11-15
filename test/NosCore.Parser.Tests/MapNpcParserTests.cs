@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Event;
 
 namespace NosCore.Parser.Tests
 {
@@ -217,6 +218,21 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(1, _savedNpcs.Count);
         }
+
+        [TestMethod]
+        public async Task MapNpcParser_TagsASeasonalNpcWithItsSeason()
+        {
+            _npcMonsterDaoMock.Setup(x => x.LoadAll()).Returns(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1515 } });
+            var packets = new List<IPacket> { Captured.Arrival(1), Captured.Npc(1515, 3039, 42, 117) };
+
+            await Parser().InsertMapNpcsAsync(packets);
+
+            Assert.AreEqual(SeasonType.Halloween, _savedNpcs.Single().Season);
+        }
+
+        private MapNpcParser Parser() => new(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+            new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+            new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
 
         [TestMethod]
         public async Task MapNpcParser_HandlesEmptyPacketList()

@@ -9,6 +9,7 @@ using NosCore.Shared.Configuration;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NosCore.Data.Enumerations.Event;
 
 namespace NosCore.Core.Configuration
 {
@@ -69,6 +70,9 @@ namespace NosCore.Core.Configuration
         public Dictionary<string, Dictionary<StarterOrigin, List<short>>> BasicSkills { get; set; } = new();
 
         public List<ScheduledEventConfiguration> Events { get; set; } = new();
+
+        // The seasons whose NPCs stand in this world's maps.
+        public List<SeasonType> Seasons { get; set; } = new();
 
 #pragma warning restore CA2227 // Collection properties should be read only
     }

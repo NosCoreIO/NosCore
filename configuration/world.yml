@@ -44,6 +44,8 @@ MaxBankGoldAmount: 100000000000
 MaxSpPoints: 10000
 MaxAdditionalSpPoints: 1000000
 AllClassAvailableOnCreate: false
+# NPCs of a season (Easter, Halloween) only stand in the world while their season is listed here.
+Seasons: []
 # Each channel runs its own events. An event starts at the listed times of day (At), or every
 # Every from midnight shifted by Offset; its countdown runs before. A GM can start one with $Event.
 Events:
