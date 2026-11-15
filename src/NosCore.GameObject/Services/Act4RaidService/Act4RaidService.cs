@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -46,6 +47,7 @@ namespace NosCore.GameObject.Services.Act4RaidService
         IItemGenerationService itemProvider,
         IClock clock,
         IRandomProvider random,
+        Wolverine.IMessageBus messageBus,
         ILogger<Act4RaidService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IAct4RaidService, ISingletonService
     {
         public const int Reputation = 10000;
@@ -54,6 +56,7 @@ namespace NosCore.GameObject.Services.Act4RaidService
         private const int GateReach = 2;
         private static readonly Duration ReviveDelay = Duration.FromSeconds(20);
         private static readonly Duration UrgentFrom = Duration.FromMinutes(30);
+        private static readonly Duration QuickWin = Duration.FromMinutes(10);
         private const int LowestRare = -2;
         private const int HighestRare = 6;
 
@@ -78,7 +81,7 @@ namespace NosCore.GameObject.Services.Act4RaidService
 
             if (character.Family is not { } family)
             {
-                await character.SendPacketAsync(Message(Game18NConstString.NotAuthorised));
+                await character.SendPacketAsync(Message(Game18NConstString.FamilyMemberOnlyEnterDungeon));
                 return true;
             }
 
@@ -156,7 +159,7 @@ namespace NosCore.GameObject.Services.Act4RaidService
                 }
 
                 var run = await scriptedInstanceService.InstantiateAsync(script, MapInstanceType.Act4Instance,
-                    new RaidHost(this, clock, raid, openedAt, script.Definition));
+                    new RaidHost(this, clock, familyId, raid, openedAt, script.Definition));
                 if (run == null)
                 {
                     return null;
@@ -171,8 +174,10 @@ namespace NosCore.GameObject.Services.Act4RaidService
             }
         }
 
-        private async Task RewardAsync(ScriptedInstanceRun run, ScriptedInstanceDefinition definition)
+        private async Task RewardAsync(RaidHost host, ScriptedInstanceRun run, ScriptedInstanceDefinition definition)
         {
+            await messageBus.PublishAsync(new GlacernonRaidWonEvent(host.FamilyId, host.Raid,
+                clock.GetCurrentInstant() - host.StartedAt <= QuickWin, !host.LostSomeone));
             foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
             {
                 var character = session.Character;
@@ -222,14 +227,22 @@ namespace NosCore.GameObject.Services.Act4RaidService
 
         private static MsgiPacket Message(Game18NConstString message) => new() { Type = MessageType.Default, Message = message };
 
-        private sealed class RaidHost(Act4RaidService service, IClock clock, Act4RaidType raid, Instant openedAt,
+        private sealed class RaidHost(Act4RaidService service, IClock clock, long familyId, Act4RaidType raid, Instant openedAt,
             ScriptedInstanceDefinition definition) : IInstanceRunHost
         {
             public Instant OpenedAt { get; } = openedAt;
 
+            public Instant StartedAt { get; } = clock.GetCurrentInstant();
+
+            public long FamilyId { get; } = familyId;
+
+            public Act4RaidType Raid { get; } = raid;
+
+            public bool LostSomeone { get; private set; }
+
             public ConcurrentDictionary<long, Instant> RevivesAt { get; } = new();
 
-            public string Name => Script(raid);
+            public string Name => Script(Raid);
 
             public TimeSpan AlreadyElapsed => (clock.GetCurrentInstant() - OpenedAt).ToTimeSpan();
 
@@ -238,12 +251,13 @@ namespace NosCore.GameObject.Services.Act4RaidService
             public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
 
             public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) =>
-                state == EndStateType.Success ? service.RewardAsync(run, definition) : Task.CompletedTask;
+                state == EndStateType.Success ? service.RewardAsync(this, run, definition) : Task.CompletedTask;
 
             public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
 
             public Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player)
             {
+                LostSomeone = true;
                 RevivesAt[player.CharacterId] = clock.GetCurrentInstant().Plus(ReviveDelay);
                 return Task.CompletedTask;
             }

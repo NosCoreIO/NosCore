@@ -74,6 +74,10 @@ namespace NosCore.Parser.Parsers
                 (FamilyQuestKind.Mission, 1, 4) => FamilyQuestObjective.InstantCombat,
                 (FamilyQuestKind.Mission, 1, 3) => FamilyQuestObjective.Raid,
                 (FamilyQuestKind.Mission, 1, 9) or (FamilyQuestKind.Achievement, 3, _) => FamilyQuestObjective.HeroicRaid,
+                (FamilyQuestKind.Mission, 1, 2) or (FamilyQuestKind.Achievement, 2, 0) => FamilyQuestObjective.GlacernonRaid,
+                (FamilyQuestKind.Achievement, 2, 1) => FamilyQuestObjective.GlacernonRaidBoss,
+                (FamilyQuestKind.Mission, 1, 5) => FamilyQuestObjective.GlacernonRaidInTenMinutes,
+                (FamilyQuestKind.Mission, 1, 6) => FamilyQuestObjective.GlacernonRaidWithoutLoss,
                 _ => null
             };
 

@@ -2411,8 +2411,8 @@ Open the family window's Missions button and pick "Daily Challenges" in the filt
       member's win does
 - [ ] A raid win writes nothing to the family history: its "Raid" line is for Glacernon family
       raids
-- [ ] Not verifiable yet: Rainbow Battle and Glacernon missions, and the hardcore raid missions
-      and achievements, which have no hardcore raid to count them yet
+- [ ] Not verifiable yet: Rainbow Battle missions, and the hardcore raid missions and
+      achievements, which have no hardcore raid to count them yet
 
 ---
 
@@ -3285,8 +3285,8 @@ A side needs 100 kills to fill its bar. Both characters need a family and level 
 - [ ] Left alone for five minutes, Mukraju disappears and the angel side is back in mode 0
 - [ ] Killing Mukraju: `fc` shows the angel side in mode 3 with 3600 seconds and one raid flag
       set; on map 134 an angel sees a raid gate at 139/99, a demon does not
-- [ ] An angel without a family pressing the gate is told they are not authorised; one below
-      level 60 is told the entry level
+- [ ] An angel without a family pressing the gate reads "Only players who are members of a
+      family can enter the raid dungeon."; one below level 60 is told the entry level
 - [ ] Entering puts the angel in the raid's first map with `dg <raid> 1 <seconds> 0`; a second
       family member arrives in the same run, a member of another family in a run of their own
 - [ ] Half an hour after Mukraju died, a portal to the boss room opens on the first map; from
@@ -3296,6 +3296,14 @@ A side needs 100 kills to fill its bar. Both characters need a family and level 
       potions are thrown around the boss, and everyone inside gets 10000 reputation and the
       raid's box (882, 185, 942 or 999), then is sent back to map 134 at 139/100
 - [ ] The family cannot go back in until the next raid opens
+- [ ] The family history (Family tab > Update) gains "Raid  Mastered family raid: [Shadow]" for
+      Hatus ([Fire] Morcos, [Water] Calvinas, [Light] Berios), once per win however many members
+      were inside
+- [ ] The first Hatus win shows "Family <name> unlocked achievement: Defeat Lord Hatus" and the
+      family bar grows by 5 000 ("[Daily] Defeat 1x Family Raid Boss") + 10 000 (the achievement),
+      plus 1 000 when the boss fell within ten minutes of the family's first entry and 1 000 when
+      no member fell inside; "Defeat 10 Family Raid Bosses in Glacernon" and "Defeat Lord Hatus
+      10 Times" stand at 1
 - [ ] After the hour the gate goes grey, players still inside are sent back, and the angel
       side is back in mode 0
 

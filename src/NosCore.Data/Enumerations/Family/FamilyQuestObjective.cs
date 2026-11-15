@@ -13,6 +13,10 @@ namespace NosCore.Data.Enumerations.Family
         DailyMessage = 1,
         InstantCombat = 2,
         Raid = 3,
-        HeroicRaid = 4
+        HeroicRaid = 4,
+        GlacernonRaid = 5,
+        GlacernonRaidBoss = 6,
+        GlacernonRaidInTenMinutes = 7,
+        GlacernonRaidWithoutLoss = 8
     }
 }
