@@ -313,9 +313,9 @@ public sealed class BattleStatsProvider(
             CriticalRate = stats.CriticalRate + totals.CritDamage,
             DistanceCriticalChance = stats.DistanceCriticalChance + totals.CritInflicting,
             DistanceCriticalRate = stats.DistanceCriticalRate + totals.CritDamage,
-            Defence = ByPercent(ByFactor(stats.Defence + totals.DefenceAll + totals.DefenceMelee, totals.FactorDefenceAll + totals.FactorDefenceMelee), totals.DefencePercent),
-            DistanceDefence = ByPercent(ByFactor(stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged, totals.FactorDefenceAll + totals.FactorDefenceRanged), totals.DefencePercent),
-            MagicDefence = ByPercent(ByFactor(stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical, totals.FactorDefenceAll + totals.FactorDefenceMagical), totals.DefencePercent),
+            Defence = totals.DefenceNullified ? 0 : ByPercent(ByFactor(stats.Defence + totals.DefenceAll + totals.DefenceMelee, totals.FactorDefenceAll + totals.FactorDefenceMelee), totals.DefencePercent),
+            DistanceDefence = totals.DefenceNullified ? 0 : ByPercent(ByFactor(stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged, totals.FactorDefenceAll + totals.FactorDefenceRanged), totals.DefencePercent),
+            MagicDefence = totals.DefenceNullified ? 0 : ByPercent(ByFactor(stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical, totals.FactorDefenceAll + totals.FactorDefenceMagical), totals.DefencePercent),
             DefenceDodge = stats.DefenceDodge + totals.Dodge,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + totals.Dodge,
             // "All" adds to each of the four rather than living in a fifth field: the
@@ -358,6 +358,7 @@ public sealed class BattleStatsProvider(
         public int FactorDefenceAll, FactorDefenceMelee, FactorDefenceRanged, FactorDefenceMagical;
         public int HitRate, HitRateMelee, HitRateRanged, Dodge, Morale;
         public int AttackLevel, DefenceLevel;
+        public bool DefenceNullified;
         public int PvpAttack, PvpDefence;
         public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
         public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
@@ -393,6 +394,8 @@ public sealed class BattleStatsProvider(
             [BCardEffect.AttackPowerRangedAttacksDecreased] = (t, v) => t.AttackRanged -= v,
             [BCardEffect.AttackPowerMagicalAttacksIncreased] = (t, v) => t.AttackMagical += v,
             [BCardEffect.AttackPowerMagicalAttacksDecreased] = (t, v) => t.AttackMagical -= v,
+
+            [BCardEffect.SpecialDefenceAllDefenceNullified] = (t, _) => t.DefenceNullified = true,
 
             [BCardEffect.DamageDamageIncreased] = (t, v) => t.DamageAll += v,
             [BCardEffect.DamageDamageDecreased] = (t, v) => t.DamageAll -= v,
