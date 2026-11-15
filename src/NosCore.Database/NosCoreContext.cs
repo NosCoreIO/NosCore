@@ -94,6 +94,10 @@ namespace NosCore.Database
 
         public virtual DbSet<ShopTypeService>? ShopTypeService { get; set; }
 
+        public virtual DbSet<NpcExchange>? NpcExchange { get; set; }
+
+        public virtual DbSet<NpcExchangeMaterial>? NpcExchangeMaterial { get; set; }
+
         public virtual DbSet<InstantCombatDrop>? InstantCombatDrop { get; set; }
 
         public virtual DbSet<InstantCombatMonster>? InstantCombatMonster { get; set; }
@@ -186,13 +190,21 @@ namespace NosCore.Database
 
         public virtual DbSet<NpcTalk>? NpcTalk { get; set; }
 
+        private const int MaxEnumLabelLength = 63;
+
         static void HasPostgresEnum(ModelBuilder modelBuilder, Type type)
         {
 #pragma warning disable CS0618
             var translator = NpgsqlConnection.GlobalTypeMapper.DefaultNameTranslator;
 #pragma warning restore CS0618
-            modelBuilder.HasPostgresEnum(translator.TranslateTypeName(type.Name), Enum.GetNames(type)
-                .Select(x => translator.TranslateMemberName(x)).ToArray());
+            var labels = Enum.GetNames(type).Select(x => translator.TranslateMemberName(x)).ToArray();
+            // Postgres refuses labels over 63 bytes, and the columns hold the number, not the label.
+            if (labels.Any(l => l.Length > MaxEnumLabelLength))
+            {
+                return;
+            }
+
+            modelBuilder.HasPostgresEnum(translator.TranslateTypeName(type.Name), labels);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -500,6 +512,21 @@ namespace NosCore.Database
                 .HasMany(e => e.RecipeItem)
                 .WithOne(e => e.Item)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Item>()
+                .HasMany(e => e.NpcExchange)
+                .WithOne(e => e.Item)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Item>()
+                .HasMany(e => e.NpcExchangeMaterial)
+                .WithOne(e => e.Item)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<NpcExchange>()
+                .HasMany(e => e.NpcExchangeMaterial)
+                .WithOne(e => e.NpcExchange)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Item>()
                 .HasMany(e => e.ItemInstances)

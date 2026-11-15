@@ -29,6 +29,8 @@ namespace NosCore.Database.Entities
             RollGeneratedItem = new HashSet<RollGeneratedItem>();
             RollGeneratedItem2 = new HashSet<RollGeneratedItem>();
             RecipeItem = new HashSet<RecipeItem>();
+            NpcExchange = new HashSet<NpcExchange>();
+            NpcExchangeMaterial = new HashSet<NpcExchangeMaterial>();
             ShopItem = new HashSet<ShopItem>();
             BCards = new HashSet<BCard>();
             ItemInstances = new HashSet<ItemInstance>();
@@ -195,6 +197,10 @@ namespace NosCore.Database.Entities
         public virtual ICollection<RecipeItem> RecipeItem { get; set; }
 
         public virtual ICollection<Recipe> ScrollRecipe { get; set; }
+
+        public virtual ICollection<NpcExchange> NpcExchange { get; set; }
+
+        public virtual ICollection<NpcExchangeMaterial> NpcExchangeMaterial { get; set; }
 
         public short ReduceOposantResistance { get; set; }
 
