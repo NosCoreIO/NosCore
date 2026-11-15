@@ -8,6 +8,8 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
@@ -50,17 +52,17 @@ namespace NosCore.Parser.Parsers
             return maps.Values.ToList();
         }
 
-        public async Task InsertOrUpdateMapsAsync(string folder, List<string[]> packetList)
+        public async Task InsertOrUpdateMapsAsync(string folder, IReadOnlyList<IPacket> packets)
         {
             var dictionaryId = await ParseDatAsync(folder);
             var folderMap = folder + _folderMap;
-            var dictionaryMusic = packetList.Where(o => o[0].Equals("at") && (o.Length > 7))
-                .GroupBy(x => x[2])
-                .ToDictionary(x => x.Key, x => x.First()[7]);
+            var dictionaryMusic = packets.OfType<AtPacket>()
+                .GroupBy(x => x.MapId)
+                .ToDictionary(x => x.Key, x => x.First().Music);
             var maps = new DirectoryInfo(folderMap).GetFiles().Select(file => new MapDto
             {
                 NameI18NKey = dictionaryId.FirstOrDefault(s => s.MapId == int.Parse(file.Name))?.NameI18NKey ?? string.Empty,
-                Music = dictionaryMusic.TryGetValue(file.Name, out var value) ? int.Parse(value) : 0,
+                Music = dictionaryMusic.TryGetValue(short.Parse(file.Name), out var value) ? value : 0,
                 MapId = short.Parse(file.Name),
                 Data = File.ReadAllBytes(file.FullName),
                 ShopAllowed = short.Parse(file.Name) == 147,

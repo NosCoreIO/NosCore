@@ -9,6 +9,8 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
 using System;
@@ -19,8 +21,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // Which items the family manager sells only shows in its "n_inv ... {vnum}|{state}|{slot}" list;
-    // what each one requires is in that item's DATA line.
+    // Which items the family manager sells only shows in its shop's family list; what each one
+    // requires is in that item's DATA line.
     public class FamilyUpgradeParser(IDao<FamilyUpgradeDto, short> familyUpgradeDao, ILoggerFactory loggerFactory,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
@@ -36,14 +38,12 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.UpgradeLevel, "DATA", 0, 5, s => Convert.ToByte(s), "Position in its line, 0 first");
         }
 
-        public async Task InsertFamilyUpgradesAsync(string folder, List<string[]> packetList)
+        public async Task InsertFamilyUpgradesAsync(string folder, IReadOnlyList<IPacket> packets)
         {
-            var listed = packetList
-                .Where(packet => packet.Length > 4 && packet[0] == "n_inv")
-                .SelectMany(packet => packet.Skip(4))
-                .Select(entry => entry.Split('|'))
-                .Where(entry => entry.Length == 3 && short.TryParse(entry[0], out _))
-                .Select(entry => short.Parse(entry[0]))
+            var listed = packets.OfType<NInvPacket>()
+                .SelectMany(packet => packet.FamilySkills ?? [])
+                .OfType<NInvFamilySkillSubPacket>()
+                .Select(entry => entry.SkillId)
                 .ToHashSet();
             if (listed.Count == 0)
             {

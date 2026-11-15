@@ -13,7 +13,10 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
@@ -34,24 +37,23 @@ namespace NosCore.Parser.Parsers
             NrunRunnerType.ReturnFromGlacernon,
         };
 
-        public async Task InsertTeleportersAsync(List<string[]> packetList)
+        public async Task InsertTeleportersAsync(IReadOnlyList<IPacket> packets)
         {
             var npcs = mapNpcDao.LoadAll().ToDictionary(s => s.MapNpcId);
             var stored = teleporterDao.LoadAll().ToList();
             var captured = new Dictionary<(int MapNpcId, NrunRunnerType Runner, short Index), TeleporterDto>();
             (int MapNpcId, NrunRunnerType Runner, short Index)? pending = null;
 
-            foreach (var packet in packetList)
+            foreach (var packet in packets)
             {
-                if (packet[0] == "n_run")
+                if (packet is NrunPacket nrun)
                 {
-                    pending = packet.Length > 4 && TryGetTeleportRunner(packet[1], out var runner)
-                        && short.TryParse(packet[2], out var index) && int.TryParse(packet[4], out var npcId)
-                        && npcs.ContainsKey(npcId) ? (npcId, runner, index) : null;
+                    pending = TeleportRunners.Contains(nrun.Runner) && nrun is { Type: { } index, VisualId: { } npcId }
+                        && npcs.ContainsKey((int)npcId) ? ((int)npcId, nrun.Runner, index) : null;
                     continue;
                 }
 
-                if (packet.Length <= 5 || packet[0] != "at" || pending == null)
+                if (packet is not AtPacket at || pending == null)
                 {
                     continue;
                 }
@@ -63,16 +65,15 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
-                var mapId = short.Parse(packet[2]);
                 captured[key] = new TeleporterDto
                 {
                     MapNpcId = key.MapNpcId,
                     Runner = key.Runner,
                     Index = key.Index,
-                    MapId = mapId,
-                    MapX = short.Parse(packet[3]),
-                    MapY = short.Parse(packet[4]),
-                    Type = mapId == npcs[key.MapNpcId].MapId ? TeleporterType.TeleporterOnMap : TeleporterType.Teleporter,
+                    MapId = at.MapId,
+                    MapX = at.PositionX,
+                    MapY = at.PositionY,
+                    Type = at.MapId == npcs[key.MapNpcId].MapId ? TeleporterType.TeleporterOnMap : TeleporterType.Teleporter,
                 };
             }
 
@@ -123,12 +124,6 @@ namespace NosCore.Parser.Parsers
 
             await teleporterDao.TryInsertOrUpdateAsync(teleporters);
             logger.LogInformation(logLanguage[LogLanguageKey.TELEPORTERS_PARSED], teleporters.Count);
-        }
-
-        private static bool TryGetTeleportRunner(string value, out NrunRunnerType runner)
-        {
-            runner = (NrunRunnerType)(short.TryParse(value, out var raw) ? raw : 0);
-            return TeleportRunners.Contains(runner);
         }
     }
 }

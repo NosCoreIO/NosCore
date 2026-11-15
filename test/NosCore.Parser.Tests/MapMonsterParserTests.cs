@@ -10,6 +10,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -59,10 +60,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapMonsterParser_ParsesSingleMonster()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "3", "1", "1001", "100", "100", "2", "100", "0" }
+                Captured.Arrival(1),
+                Captured.Monster(1, 1001, 100, 100, 2)
             };
 
             var parser = new MapMonsterParser(_mapMonsterDaoMock.Object, _npcMonsterDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -79,11 +80,11 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapMonsterParser_ParsesMultipleMonsters()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "3", "1", "1001", "100", "100", "2", "100", "0" },
-                new[] { "in", "3", "2", "1002", "110", "110", "3", "100", "0" }
+                Captured.Arrival(1),
+                Captured.Monster(1, 1001, 100, 100, 2),
+                Captured.Monster(2, 1002, 110, 110, 3)
             };
 
             var parser = new MapMonsterParser(_mapMonsterDaoMock.Object, _npcMonsterDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -95,11 +96,11 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapMonsterParser_SkipsDuplicateMapMonsterId()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "3", "1", "1001", "100", "100", "2", "100", "0" },
-                new[] { "in", "3", "1", "1001", "110", "110", "3", "100", "0" }
+                Captured.Arrival(1),
+                Captured.Monster(1, 1001, 100, 100, 2),
+                Captured.Monster(1, 1001, 110, 110, 3)
             };
 
             var parser = new MapMonsterParser(_mapMonsterDaoMock.Object, _npcMonsterDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -111,10 +112,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapMonsterParser_SkipsUnknownMonsterVNum()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "3", "999", "1001", "100", "100", "2", "100", "0" }
+                Captured.Arrival(1),
+                Captured.Monster(999, 1001, 100, 100, 2)
             };
 
             var parser = new MapMonsterParser(_mapMonsterDaoMock.Object, _npcMonsterDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -126,7 +127,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapMonsterParser_HandlesEmptyPacketList()
         {
-            var packets = new List<string[]>();
+            var packets = new List<IPacket>();
 
             var parser = new MapMonsterParser(_mapMonsterDaoMock.Object, _npcMonsterDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapMonsterAsync(packets);

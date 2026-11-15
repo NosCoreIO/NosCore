@@ -8,6 +8,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.I18N;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -15,7 +16,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser
@@ -33,9 +33,9 @@ namespace NosCore.Parser
         IDao<I18NNpcMonsterDto, int> i18NNpcMonsterDao, IDao<I18NMapPointDataDto, int> i18NMapPointDataDao,
         IDao<I18NMapIdDataDto, int> i18NMapIdDataDao,
         IDao<I18NItemDto, int> i18NItemDao, IDao<I18NBCardDto, int> i18NbCardDao,
-        IDao<I18NCardDto, int> i18NCardDao, IDao<I18NActDescDto, int> i18NActDescDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        IDao<I18NCardDto, int> i18NCardDao, IDao<I18NActDescDto, int> i18NActDescDao, PacketTrace packetTrace, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        private readonly List<string[]> _packetList = new();
+        private List<IPacket> _packets = [];
         private string _folder = "";
 
         public Task ImportAccountsAsync()
@@ -51,43 +51,43 @@ namespace NosCore.Parser
         public async Task ImportMapNpcsAsync()
         {
             await npcTalkParser.ParseAsync(_folder);
-            await mapNpcParser.InsertMapNpcsAsync(_packetList);
+            await mapNpcParser.InsertMapNpcsAsync(_packets);
         }
 
         public Task ImportMapMonstersAsync()
         {
-            return mapMonsterParser.InsertMapMonsterAsync(_packetList);
+            return mapMonsterParser.InsertMapMonsterAsync(_packets);
         }
 
         public Task ImportShopsAsync()
         {
-            return shopParser.InsertShopsAsync(_packetList);
+            return shopParser.InsertShopsAsync(_packets);
         }
 
         public Task ImportTeleportersAsync()
         {
-            return teleporterParser.InsertTeleportersAsync(_packetList);
+            return teleporterParser.InsertTeleportersAsync(_packets);
         }
 
         public async Task ImportShopItemsAsync()
         {
-            await shopItemParser.InsertShopItemsAsync(_packetList);
-            await familyUpgradeParser.InsertFamilyUpgradesAsync(_folder, _packetList);
+            await shopItemParser.InsertShopItemsAsync(_packets);
+            await familyUpgradeParser.InsertFamilyUpgradesAsync(_folder, _packets);
         }
 
         public Task ImportShopSkillsAsync()
         {
-            return shopSkillParser.InsertShopSkillsAsync(_packetList);
+            return shopSkillParser.InsertShopSkillsAsync(_packets);
         }
 
         public Task ImportRecipesAsync()
         {
-            return recipeParser.InsertRecipesAsync(_packetList);
+            return recipeParser.InsertRecipesAsync(_packets);
         }
 
         public Task ImportMapsAsync()
         {
-            return mapParser.InsertOrUpdateMapsAsync(_folder, _packetList);
+            return mapParser.InsertOrUpdateMapsAsync(_folder, _packets);
         }
 
         public async Task ImportScriptsAsync()
@@ -139,17 +139,7 @@ namespace NosCore.Parser
                 return;
             }
 
-            using var packetTxtStream =
-                new StreamReader(filePacket, Encoding.Default);
-            var lines = (await packetTxtStream.ReadToEndAsync()).Split(
-                new[] { "\r\n", "\r", "\n" },
-                StringSplitOptions.None
-            );
-            foreach (var line in lines)
-            {
-                var linesave = line.Split(' ');
-                _packetList.Add(linesave);
-            }
+            _packets = await packetTrace.ReadAsync(filePacket);
         }
 
         public Task ImportSkillsAsync()
@@ -165,12 +155,12 @@ namespace NosCore.Parser
 
         public Task ImportPortalsAsync()
         {
-            return portalParser.InsertPortalsAsync(_packetList);
+            return portalParser.InsertPortalsAsync(_packets);
         }
 
         public Task ImportScriptedInstancesAsync()
         {
-            return scriptedInstanceParser.InsertScriptedInstancesAsync(_packetList);
+            return scriptedInstanceParser.InsertScriptedInstancesAsync(_packets);
         }
 
         public async Task ImportI18NAsync()

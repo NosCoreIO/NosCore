@@ -77,6 +77,7 @@ namespace NosCore.Parser
             containerBuilder.RegisterType<MateMpService>().As<IMateMpService>().SingleInstance();
             containerBuilder.RegisterType<MonsterStatService>().As<IMonsterStatService>().SingleInstance();
             containerBuilder.RegisterType<ImportFactory>();
+            containerBuilder.RegisterType<PacketTrace>();
             var registerDatabaseObject = typeof(ParserBootstrap).GetMethod(nameof(RegisterDatabaseObject));
 
             foreach (var mapping in Database.Hosting.PersistenceModule.DiscoverDaoMappings())

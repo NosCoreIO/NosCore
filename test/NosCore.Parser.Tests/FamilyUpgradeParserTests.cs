@@ -11,6 +11,9 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using SpecLight;
@@ -26,13 +29,17 @@ namespace NosCore.Parser.Tests
     public class FamilyUpgradeParserTests
     {
         // The family manager's list from a packet trace, and a normal shop's list for contrast.
-        private const string FamilyShopTrace = "n_inv 2 2089 0 9679|2|0 9680|2|1 9681|2|2 9682|2|3 9683|2|4 9684|2|5 9685|2|6 9686|2|7 9687|2|8 9688|2|9 9689|2|10 9690|2|11 9691|2|12 9692|2|13 9693|2|14 9694|2|15 9695|2|16 9696|2|17 9697|2|18";
-        private const string ItemShopTrace = "n_inv 2 2080 0 100 1.0.1084.-1.3000 1.1.1085.-1.5000";
+        private static readonly IPacket FamilyShopTrace = Captured.FamilyShop(2089,
+            9679, 9680, 9681, 9682, 9683, 9684, 9685, 9686, 9687, 9688, 9689, 9690, 9691, 9692, 9693, 9694, 9695, 9696, 9697);
+
+        private static readonly IPacket ItemShopTrace = Captured.ItemShop(2080,
+            new NInvItemSubPacket { Type = PocketType.Main, Slot = 0, VNum = 1084, Price = 3000 },
+            new NInvItemSubPacket { Type = PocketType.Main, Slot = 1, VNum = 1085, Price = 5000 });
 
         private string _folder;
         private List<FamilyUpgradeDto> _saved;
         private FamilyUpgradeParser _parser;
-        private readonly List<string[]> _packets = new();
+        private readonly List<IPacket> _packets = new();
 
         [TestInitialize]
         public void Setup()
@@ -91,7 +98,7 @@ namespace NosCore.Parser.Tests
             "zts2e\r\n" +
             "\tEND";
 
-        private void ThePacketTraceHolds_(string line) => _packets.Add(line.Split(' '));
+        private void ThePacketTraceHolds_(IPacket packet) => _packets.Add(packet);
 
         private Task ParsingFamilyUpgrades() => _parser.InsertFamilyUpgradesAsync(_folder, _packets);
 

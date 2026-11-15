@@ -672,6 +672,9 @@
   <data name="PACKET_CAPTURE_MISSING" xml:space="preserve">
     <value>{File} is missing: the maps get no monsters, NPCs, portals, shops or teleporters. Put a packet capture there and run the parser again to fill them.</value>
   </data>
+  <data name="PACKET_CAPTURE_UNREADABLE" xml:space="preserve">
+    <value>{Count} lines of {File} could not be read and were skipped.</value>
+  </data>
   <data name="SPEED_BOOSTERS_PARSED" xml:space="preserve">
     <value>{Mounts} mounts get their Speed Booster effect</value>
   </data>
