@@ -395,6 +395,18 @@ namespace NosCore.GameObject.Services.QuestService
             }
         }
 
+        public async Task OnEnemyPlayerDefeatedAsync(PlayerComponentBundle character)
+        {
+            foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null).ToList())
+            {
+                var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
+                if (handler != null && await handler.OnEnemyPlayerDefeatedAsync(character, quest))
+                {
+                    await CompleteQuestAsync(character, quest);
+                }
+            }
+        }
+
         public async Task CompleteQuestAsync(PlayerComponentBundle character, CharacterQuest quest)
         {
             quest.ObjectivesCompletedOn ??= clock.GetCurrentInstant();

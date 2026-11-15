@@ -468,6 +468,51 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task DefeatingAnEnemyPlayerCountsTowardsAnAct4DefeatQuest()
+        {
+            await new Spec("Defeating a player of the other faction counts towards a quest to defeat enemies in Glacernon")
+                .Given(CharacterHasADefeatQuestNeedingTwoEnemiesInGlacernon)
+                .WhenAsync(DefeatingAnEnemyPlayer)
+                .Then(ObjectiveProgressShouldBe_, 1)
+                .And(ObjectivesShouldBeIncomplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastEnemyPlayerCompletesAnAct4DefeatQuest()
+        {
+            await new Spec("The second enemy player defeated completes a quest to defeat two enemies in Glacernon")
+                .Given(CharacterHasADefeatQuestNeedingTwoEnemiesInGlacernon)
+                .WhenAsync(DefeatingAnEnemyPlayer)
+                .AndAsync(DefeatingAnEnemyPlayer)
+                .Then(ObjectivesShouldBeComplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEnemyPlayerDoesNotCountTowardsATimeSpaceDefeatQuest()
+        {
+            await new Spec("Defeating an enemy player does not count towards a quest to defeat enemies in a time-space")
+                .Given(CharacterHasADefeatQuestNeedingTwoKillsInATimeSpace)
+                .WhenAsync(DefeatingAnEnemyPlayer)
+                .Then(ObjectiveProgressShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasADefeatQuestNeedingTwoEnemiesInGlacernon()
+        {
+            var objective = new QuestObjectiveDto { QuestObjectiveId = Guid.NewGuid(), FirstData = 9998, SecondData = 2 };
+            _trackedQuest = new CharacterQuest
+            {
+                QuestId = 7525,
+                Quest = new Quest { QuestId = 7525, QuestType = QuestType.DefeatEnemies, QuestObjectives = [objective] },
+            };
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), _trackedQuest);
+        }
+
+        private Task DefeatingAnEnemyPlayer() => Service.OnEnemyPlayerDefeatedAsync(Session.Character);
+
         private void CharacterHasADefeatQuestNeedingTwoKillsInATimeSpace()
         {
             var objective = new QuestObjectiveDto { QuestObjectiveId = Guid.NewGuid(), FirstData = 9999, SecondData = 2 };

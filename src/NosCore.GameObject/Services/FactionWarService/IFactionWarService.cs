@@ -30,7 +30,8 @@ public interface IFactionWarService
     // The gate to the player's side's raid, while it is open and the player stands on its map.
     GpPacket? GenerateRaidGate(PlayerComponentBundle player);
 
-    Task RecordKillAsync(PlayerComponentBundle killer, PlayerComponentBundle victim);
+    // Returns false when the two players are not enemies, so the kill counts for nothing.
+    Task<bool> RecordKillAsync(PlayerComponentBundle killer, PlayerComponentBundle victim);
 
     // True when the monster was a side's Lord Mukraju, whose death opens that side's raid.
     Task<bool> GuardianDiedAsync(MonsterComponentBundle monster);
