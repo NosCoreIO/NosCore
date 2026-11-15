@@ -78,7 +78,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // A creature to own as a pet: it has mana, and one skill of its own for its skill bar that takes
         // a moment to cast and three seconds to come back.
-        public const short PetVNum = 8;
+        public const short PetVNum = 10;
         public const short PetSkill = 220;
         public const short PetSkillMp = 40;
         public const short PetSkillCooldown = 30;

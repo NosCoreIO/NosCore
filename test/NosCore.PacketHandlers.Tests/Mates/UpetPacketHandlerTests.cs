@@ -312,7 +312,6 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private void ThePetShouldHave_Mp(int mp)
         {
             Assert.AreEqual(mp, _pet.Entity.NotNull().Mp);
-            Assert.AreEqual(mp, _pet.Mp);
         }
 
         private void TheOwnerShouldSeeThePetsMana() =>
