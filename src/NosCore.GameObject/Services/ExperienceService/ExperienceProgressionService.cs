@@ -202,7 +202,7 @@ namespace NosCore.GameObject.Services.ExperienceService
             {
                 vitalityService.Refresh(player);
 
-                // Full heal on any character / SP / job / hero level-up (trace `stat 256 256 78 78`).
+                // Any level-up, of the character, its specialist, job or hero level, heals fully.
                 player.Hp = player.MaxHp;
                 player.Mp = player.MaxMp;
 

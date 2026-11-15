@@ -128,12 +128,8 @@ namespace NosCore.PacketHandlers.Game
                 });
             }
 
-            //            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
             await session.SendPacketAsync(session.Character.GenerateFd());
             await session.SendPacketAsync(session.Character.GenerateStat());
-            //            Session.SendPacket("rage 0 250000");
-            //            Session.SendPacket("rank_cool 0 0 18000");
-            //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
             if (session.Character.BazaarMedal != null)
             {
                 await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.NosMerchantActive));
@@ -141,19 +137,6 @@ namespace NosCore.PacketHandlers.Game
 
             await warehouseService.SendCarriedStoragesAsync(session);
 
-            //            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.CleftOfDarkness))
-            //            {
-            //                Session.SendPacket("bc 0 0 0");
-            //            }
-            //            if (specialistInstance != null)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateSpPoint());
-            //            }
-            //            Session.SendPacket("scr 0 0 0 0 0 0");
-            //            for (int i = 0; i < 10; i++)
-            //            {
-            //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
-            //            }
             session.Character.LoadExpensions();
             await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration));
             if (minilandRegistry.GetByCharacterId(session.Character.CharacterId) is { } miniland)
@@ -161,7 +144,6 @@ namespace NosCore.PacketHandlers.Game
                 await session.SendPacketAsync(miniland.GenerateMlinfo());
             }
 
-            //            Session.SendPacket("zzim");
             await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Character.Name)
             {
                 VisualId = session.Character.VisualId,
@@ -170,11 +152,8 @@ namespace NosCore.PacketHandlers.Game
                 ClientLanguage = session.Account.Language,
                 ServerLanguage = worldConfiguration.Value.Language
             });
-            //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
             await session.SendPacketsAsync(session.Character.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket()));
-            //            // sqst bf
-            //            Session.SendPacket("act6");
             await session.SendPacketAsync(session.Character.GenerateFaction());
             // p_clear wipes one panel holding both the party and the mate list, so both bursts
             // have to follow it rather than straddle it.
@@ -185,7 +164,6 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketsAsync(session.Character.Group.GeneratePst());
             await session.SendPacketsAsync(session.Character.Mates.Values
                 .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));
-            //            Session.Character.GenerateStartupInventory();
 
             var familyInfo = session.Character.GenerateGInfo(familyExperienceService);
             if (familyInfo != null)
@@ -201,7 +179,6 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateSki(useSpecialist: false));
             await session.SendPacketsAsync(session.Character.GenerateQuicklist());
 
-            //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
             await session.Character.SendFinfoAsync(friendHttpClient, pubSubHub, packetSerializer, true);
 
@@ -212,35 +189,10 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(rankings.GenerateReputationList());
             await session.SendPacketAsync(rankings.GenerateCombatPointsList());
 
-            //            Session.Character.LastPVPRevive = SystemTime.Now;
 
-            //            long? familyId = _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == Session.Character.CharacterId)?.FamilyId;
-            //            if (familyId != null)
-            //            {
-            //                Session.Character.Family = ServerManager.Instance.FamilyList.FirstOrDefault(s => s.FamilyId == familyId.Value);
-            //            }
 
-            //            if (Session.Character.Family != null && Session.Character.FamilyCharacter != null)
-            //            {
-            //                Session.SendPacket(Session.Character.GenerateGInfo());
-            //                Session.SendPackets(Session.Character.GetFamilyHistory());
-            //                Session.SendPacket(Session.Character.GenerateFamilyMember());
-            //                Session.SendPacket(Session.Character.GenerateFamilyMemberMessage());
-            //                Session.SendPacket(Session.Character.GenerateFamilyMemberExp());
-            //                if (!string.IsNullOrWhiteSpace(Session.Character.Family.FamilyMessage))
-            //                {
-            //                    Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo("--- Family IMessage ---\n" + Session.Character.Family.FamilyMessage));
-            //                }
-            //            }
 
-            //            IEnumerable<PenaltyLogDTO> warning = _penaltyDao.Where(s => s.AccountId == Session.Character.AccountId).Where(p => p.Penalty == PenaltyType.Warning);
-            //            IEnumerable<PenaltyLogDTO> penaltyLogDtos = warning as IList<PenaltyLogDTO> ?? warning.ToList();
-            //            if (penaltyLogDtos.Any())
-            //            {
-            //                Session.SendPacket(UserInterfaceHelper.Instance.GenerateInfo(string.Format(Language.Instance.GetMessageFromKey("WARNING_INFO"), penaltyLogDtos.Count())));
-            //            }
 
-            //            // finfo - friends info
             var mails = await mailHttpClient.GetMails(-1, session.Character.CharacterId, false);
             await session.GenerateMailAsync(mails);
 
@@ -262,12 +214,7 @@ namespace NosCore.PacketHandlers.Game
 
             await buffService.ShowStaticAsync(session.Character);
 
-            //            Session.Character.DeleteTimeout();
 
-            //            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.Act4 || m.MapTypeId == (short)MapTypeEnum.Act42))
-            //            {
-            //                Session.Character.ConnectAct4();
-            //            }
         }
 
         // A character that left the world dead is back on its feet at its save point, barely alive.
