@@ -799,6 +799,18 @@ shop type differs from the one its dialog opens.
       Alchemist's tab for the card upgrade (`n_run 12 9`) and SP Perfection (`n_run 12 41`) open there
       and nowhere else
 
+### Upgrading a fixed item with the Amulet of Reinforcement
+
+Scene: `SHOPTYPE=3 FIXED=1 AMULET=284 sh /mnt/project-files/rarify-amulets/scene.sh` (a +2 fixed sword,
+the Amulet of Reinforcement worn with 3 uses, Teoman's upgrade tab).
+
+- [ ] Without the amulet, upgrading the fixed sword is refused with "This item has a fixed level."
+- [ ] With the amulet, the upgrade goes through: a success says "Amulet of Reinforcing was used for
+      fixed levels." and the sword is no longer fixed; each attempt on a fixed item spends a use
+- [ ] Upgrading an item that is not fixed leaves the amulet's uses alone
+- [ ] After the last use the chat says "CAUTION: The amulet's protection has expired." and the
+      amulet slot is empty
+
 ### Specialist points
 
 - [ ] Wear a level 60 specialist card and right-click the SP button by the portrait: the card

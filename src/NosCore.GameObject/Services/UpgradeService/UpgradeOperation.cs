@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -236,6 +237,32 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
 
     protected static IPacket RefreshSource(UpgradeContext ctx, bool destroyed = false) =>
         (destroyed ? null : ctx.Source).GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
+
+    protected static InventoryItemInstance? WornAmulet(ClientSession session, params ItemEffectType[] effects) =>
+        session.Character.InventoryService.LoadBySlotAndType(EquipmentType.Amulet, NoscorePocketType.Wear) is { } amulet
+        && Array.IndexOf(effects, amulet.ItemInstance.Item.Effect) >= 0
+            ? amulet
+            : null;
+
+    // Spends one of a worn amulet's uses and takes it off with the last one; true when it expired.
+    protected static bool SpendAmuletUse(ClientSession session, InventoryItemInstance amulet)
+    {
+        amulet.ItemInstance.DurabilityPoint--;
+        if (amulet.ItemInstance.DurabilityPoint > 0)
+        {
+            return false;
+        }
+
+        session.Character.InventoryService.RemoveItemAmountFromInventory(1, amulet.ItemInstanceId);
+        return true;
+    }
+
+    protected static async Task AnnounceExpiredAmuletAsync(ClientSession session, List<IPacket> playerPackets)
+    {
+        await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());
+        playerPackets.Add(session.Character.GenerateEquipment());
+        playerPackets.Add(session.Character.GenerateSayi(SayColorType.Red, Game18NConstString.AmuletExpired));
+    }
 
     protected static Task BroadcastEffectAsync(ClientSession session, int effectId) =>
         session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEff(effectId));

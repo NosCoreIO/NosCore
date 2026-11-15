@@ -31,6 +31,9 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // One roll against the item's upgrade level: the top of the range succeeds, the bottom fixes the
 // item at its level, and what is left fails. A failure destroys the item unless a scroll is
 // spent, in which case the item is kept and not fixed.
+//
+// A worn Amulet of Reinforcement lets a fixed item be upgraded again, spending one of its uses per
+// attempt; a success releases the fixed level. It does not protect against destruction.
 public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
         IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
     : UpgradeOperation(random, localizer)
@@ -67,7 +70,8 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     protected override IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet)
     {
         var source = LoadSource(session, packet);
-        if (source?.ItemInstance is not WearableInstance wearable || wearable.IsFixed != true)
+        if (source?.ItemInstance is not WearableInstance wearable || wearable.IsFixed != true
+            || WornReinforcementAmulet(session) is not null)
         {
             return null;
         }
@@ -119,7 +123,10 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
             Source: source,
             Target: null,
             GoldCost: equipmentUpgradeService.GetGoldCost(upgrade) / GoldAndCellaDivisor,
-            MaterialCosts: materials);
+            MaterialCosts: materials,
+            ExtraData: wearable.IsFixed == true && WornReinforcementAmulet(session) is { } amulet
+                ? new ReinforcementState(amulet)
+                : null);
     }
 
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
@@ -145,6 +152,45 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         var wearable = (WearableInstance)ctx.Source.ItemInstance;
         wearable.Upgrade = (byte)(wearable.Upgrade + 1);
         wearable.PityGauge = 0;
+        if (ctx.ExtraData is ReinforcementState)
+        {
+            wearable.IsFixed = false;
+        }
+    }
+
+    protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
+    {
+        if (ctx.ExtraData is ReinforcementState state)
+        {
+            state.AmuletExpired = SpendAmuletUse(session, state.Amulet);
+        }
+    }
+
+    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
+        UpgradeOutcome outcome, List<IPacket> playerPackets)
+    {
+        await base.EmitOutcomeEffectsAsync(session, ctx, outcome, playerPackets);
+        if (ctx.ExtraData is ReinforcementState { AmuletExpired: true })
+        {
+            await AnnounceExpiredAmuletAsync(session, playerPackets);
+        }
+    }
+
+    protected override SayiPacket? BuildSay(ClientSession session, UpgradeContext ctx, UpgradeOutcome outcome,
+        Game18NConstString message) =>
+        base.BuildSay(session, ctx, outcome,
+            outcome == UpgradeOutcome.Success && ctx.ExtraData is ReinforcementState
+                ? Game18NConstString.AmuletReinforcingUsedFixedLevels
+                : message);
+
+    private static InventoryItemInstance? WornReinforcementAmulet(ClientSession session) =>
+        WornAmulet(session, ItemEffectType.ReinforcementAmulet);
+
+    private sealed class ReinforcementState(InventoryItemInstance amulet)
+    {
+        public InventoryItemInstance Amulet { get; } = amulet;
+
+        public bool AmuletExpired { get; set; }
     }
 
     // Every roll that does not succeed fills the item's gauge, whether the item is fixed, saved

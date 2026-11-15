@@ -177,16 +177,9 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
     {
         var state = ctx.Data<RarifyRollState>();
-        if (state.Amulet is not { } amulet)
+        if (state.Amulet is { } amulet)
         {
-            return;
-        }
-
-        amulet.ItemInstance.DurabilityPoint--;
-        if (amulet.ItemInstance.DurabilityPoint <= 0)
-        {
-            session.Character.InventoryService.RemoveItemAmountFromInventory(1, amulet.ItemInstanceId);
-            state.AmuletExpired = true;
+            state.AmuletExpired = SpendAmuletUse(session, amulet);
         }
     }
 
@@ -194,26 +187,17 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         UpgradeOutcome outcome, List<IPacket> playerPackets)
     {
         await base.EmitOutcomeEffectsAsync(session, ctx, outcome, playerPackets);
-        if (!ctx.Data<RarifyRollState>().AmuletExpired)
+        if (ctx.Data<RarifyRollState>().AmuletExpired)
         {
-            return;
+            await AnnounceExpiredAmuletAsync(session, playerPackets);
         }
-
-        await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());
-        playerPackets.Add(session.Character.GenerateEquipment());
-        playerPackets.Add(session.Character.GenerateSayi(SayColorType.Red, Game18NConstString.AmuletExpired));
     }
 
     private bool SavedByAmulet(UpgradeContext ctx, UpgradeOutcome outcome) =>
         outcome == UpgradeOutcome.ProtectedSave && !IsProtected && ctx.Data<RarifyRollState>().Amulet is not null;
 
     private static InventoryItemInstance? WornBettingAmulet(ClientSession session) =>
-        session.Character.InventoryService.LoadBySlotAndType(EquipmentType.Amulet, NoscorePocketType.Wear) is
-        {
-            ItemInstance.Item.Effect: ItemEffectType.RedAmulet or ItemEffectType.BlueAmulet,
-        } amulet
-            ? amulet
-            : null;
+        WornAmulet(session, ItemEffectType.RedAmulet, ItemEffectType.BlueAmulet);
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {
