@@ -114,8 +114,9 @@ public class TimeSpace21 : InstanceScript
     {
         if (room == _room3 && button == 1)
         {
-            r.Message(Game18NConstString.ThisObjectHasNotBeenUsedYet);
             r.UnlockPortal(_room3, _room4);
+            r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(Game18NConstString.NewGoal);
         }
         else if (room == _room4 && button == 1)
         {

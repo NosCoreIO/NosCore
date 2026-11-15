@@ -220,7 +220,6 @@ public class TimeSpace15 : InstanceScript
         }
         else if (room == _room8)
         {
-            r.Message(Game18NConstString.AsgobasInstantCombatAboutToStart);
             r.Dialog(_room8, 6190);
         }
         else if (room == _room9)
