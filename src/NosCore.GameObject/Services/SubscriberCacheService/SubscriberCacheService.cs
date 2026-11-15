@@ -19,37 +19,42 @@ namespace NosCore.GameObject.Services.SubscriberCacheService;
 // For packets a player can repeat at will. A subscriber found in the kept list is answered
 // from it; one that is missing may have logged in since, so the hub is asked before it counts
 // as absent. Anything that must see a logout the moment it happens asks the hub directly.
+// A session that left is hidden only until the master has had time to drop it: a player sent
+// to another channel keeps their session id there, and must be found again.
 public sealed class SubscriberCacheService(IPubSubHub pubSubHub, IClock clock)
     : ISubscriberCacheService, ISingletonService
 {
     public static readonly Duration CacheDuration = Duration.FromSeconds(3);
 
+    public static readonly Duration DepartureDuration = Duration.FromSeconds(10);
+
     private CachedSubscribers? _cached;
 
-    private readonly ConcurrentDictionary<long, byte> _departed = new();
+    private readonly ConcurrentDictionary<long, Instant> _departed = new();
 
     public async Task<Subscriber?> FindAsync(Func<Subscriber, bool> matches)
     {
         var now = clock.GetCurrentInstant();
         var cached = _cached;
-        if (cached != null && cached.ExpiresAt > now && cached.Subscribers.FirstOrDefault(s => IsPresent(s) && matches(s)) is { } known)
+        if (cached != null && cached.ExpiresAt > now && cached.Subscribers.FirstOrDefault(s => IsPresent(s, now) && matches(s)) is { } known)
         {
             return known;
         }
 
         var subscribers = await pubSubHub.GetSubscribersAsync();
-        foreach (var id in _departed.Keys.Where(id => subscribers.All(s => s.Id != id)))
+        foreach (var id in _departed.Where(d => d.Value <= now || subscribers.All(s => s.Id != d.Key)).Select(d => d.Key))
         {
             _departed.TryRemove(id, out _);
         }
 
         _cached = new CachedSubscribers(subscribers, now + CacheDuration);
-        return subscribers.FirstOrDefault(s => IsPresent(s) && matches(s));
+        return subscribers.FirstOrDefault(s => IsPresent(s, now) && matches(s));
     }
 
-    public void Forget(long subscriberId) => _departed[subscriberId] = 0;
+    public void Forget(long subscriberId) => _departed[subscriberId] = clock.GetCurrentInstant() + DepartureDuration;
 
-    private bool IsPresent(Subscriber subscriber) => !_departed.ContainsKey(subscriber.Id);
+    private bool IsPresent(Subscriber subscriber, Instant now) =>
+        !_departed.TryGetValue(subscriber.Id, out var hiddenUntil) || hiddenUntil <= now;
 
     private sealed record CachedSubscribers(IReadOnlyList<Subscriber> Subscribers, Instant ExpiresAt);
 }
