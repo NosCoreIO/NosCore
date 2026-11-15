@@ -187,6 +187,11 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
     private DamageResult Land(CombatStats attacker, CombatStats defender, AttackKind kind, int damage, bool isCritical)
     {
         var totalDamage = RollChanceDamageTaken(defender, kind, RollChanceDamage(attacker, ApplyRaceDamage(attacker, defender, damage)));
+        if (isCritical)
+        {
+            totalDamage = totalDamage * (100 + attacker.FinalCriticalDamagePercent + defender.FinalCriticalDamageTakenPercent) / 100;
+        }
+
         if (totalDamage < 5)
         {
             totalDamage = random.Next(1, 6);

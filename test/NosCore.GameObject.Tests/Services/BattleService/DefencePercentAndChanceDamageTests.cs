@@ -91,6 +91,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void FinalCriticalDamageCardsAddUpOnEachSide()
+        {
+            var stats = StatsWith(
+                Card(BCardEffect.CountFinalCriticalDamageIncreased, 25),
+                Card(BCardEffect.CountCriticalDamageReduced, 5),
+                Card(BCardEffect.CountCriticalDamageTakenIncreased, 3),
+                Card(BCardEffect.CountCriticalDamageTakenReduced, 10));
+
+            Assert.AreEqual(20, stats.FinalCriticalDamagePercent);
+            Assert.AreEqual(-7, stats.FinalCriticalDamageTakenPercent);
+        }
+
+        [TestMethod]
         public void AChanceToTakeLessDamageKeepsItsChancePercentAndKind()
         {
             var stats = StatsWith(

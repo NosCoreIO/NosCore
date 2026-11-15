@@ -194,6 +194,41 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(baseDamage * 2, halved.Damage);
         }
 
+        [DataTestMethod]
+        [DataRow(20, 0, 120)]
+        [DataRow(0, -25, 75)]
+        [DataRow(20, -25, 95)]
+        public void FinalCriticalPercentagesScaleTheWholeCriticalHit(int dealt, int taken, int expectedPercent)
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 100, CriticalRate = 200,
+            };
+
+            var plain = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var scaled = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker with { FinalCriticalDamagePercent = dealt },
+                    StatsBuilder.Default() with { FinalCriticalDamageTakenPercent = taken }, MeleeSkill);
+
+            Assert.AreEqual(plain.Damage * expectedPercent / 100, scaled.Damage);
+        }
+
+        [TestMethod]
+        public void FinalCriticalPercentagesLeaveANormalHitAlone()
+        {
+            var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 100, MaxHit = 100 };
+
+            var plain = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var scaled = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker with { FinalCriticalDamagePercent = 50 }, StatsBuilder.Default(), MeleeSkill);
+
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, scaled.HitMode);
+            Assert.AreEqual(plain.Damage, scaled.Damage);
+        }
+
         [TestMethod]
         public void ADefenderMoreLikelyToReceiveCriticalsTurnsAMissedCriticalRollIntoACritical()
         {

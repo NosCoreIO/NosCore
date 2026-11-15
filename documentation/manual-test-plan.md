@@ -380,6 +380,14 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       monster with a 20% critical chance hit you: no hit lands as a critical; take it off and about
       one landed hit in five is critical again
 
+### Final critical damage — BCard type 38 subtypes 31/32 and 41/42
+
+- [ ] With card 1679 ("final damage from critical hits +25%") on you, your critical hits on a monster
+      are a quarter higher than without it (`/mnt/project-files/bcard-effects/reset-crit.sh` makes
+      every hit of key 1 critical on a defenceless Large Dander: about 150 instead of 120)
+- [ ] With card 1689 ("when defending, critical damage reduced by 25%") on you, a monster's critical
+      hits on you are a quarter lower; its normal hits are unchanged
+
 ### Chance-based damage taken
 
 - [ ] Wear an armour with "there is a 100% chance that damage from ranged attacks is reduced by 20%"
@@ -440,6 +448,10 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       own buff (card 4426) appears on your buff bar, and its debuff (card 4424) lands on the
       monster
 - [ ] Gear that triggers on defence puts its card on you, or on the attacker, when you are hit
+- [ ] A buff that hits back (card 144: "the attacker has a 100% chance of receiving" stun 372,
+      BCard type 48 subtypes 41 and 51) stuns the monster that hits you
+      (`/mnt/project-files/bcard-effects/reset-onhit.sh` puts it on Tester next to a hostile Large
+      Dander): the monster hits about once every four seconds instead of every second
 
 ### Double-drop and no-drop chances
 

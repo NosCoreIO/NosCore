@@ -30,7 +30,8 @@ public sealed class OnHitBuffService(IBuffService buffService, IEquipmentStatsSe
         }
 
         await InflictAsync(attacker, attacker, attackerCards, BCardEffect.ChanceReceivingXBuffOnAttack);
-        await InflictAsync(attacker, defender, defenderCards, BCardEffect.ChanceCausingXBuffOnEnemyOnDefence);
+        await InflictAsync(attacker, defender, defenderCards, BCardEffect.ChanceCausingXBuffOnEnemyOnDefence,
+            BCardEffect.SecondSpCardCastBuffOnAttacker, BCardEffect.SecondSpCardChanceCausingXBuffOnAttacker);
     }
 
     private List<BCardDto> Cards(IAliveEntity entity) =>
@@ -38,9 +39,9 @@ public sealed class OnHitBuffService(IBuffService buffService, IEquipmentStatsSe
             .Concat(equipmentStatsService.Resolve(entity).BCards ?? [])
             .ToList();
 
-    private Task InflictAsync(IAliveEntity target, IAliveEntity caster, List<BCardDto> cards, BCardEffect effect)
+    private Task InflictAsync(IAliveEntity target, IAliveEntity caster, List<BCardDto> cards, params BCardEffect[] effects)
     {
-        var chances = cards.Where(c => c.Effect() == effect)
+        var chances = cards.Where(c => effects.Contains(c.Effect()))
             .Select(c => new BCardDto
             {
                 Type = BCardEffect.BuffChanceCausing.Type(),

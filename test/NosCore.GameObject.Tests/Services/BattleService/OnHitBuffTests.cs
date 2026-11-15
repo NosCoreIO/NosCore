@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -81,6 +82,23 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _service.TriggerAsync(_attacker.Character, _defender.Character, false);
 
             VerifyInflicted(_defender, _defender, 5, 101);
+        }
+
+        [DataTestMethod]
+        [DataRow(BCardEffect.SecondSpCardCastBuffOnAttacker)]
+        [DataRow(BCardEffect.SecondSpCardChanceCausingXBuffOnAttacker)]
+        public async Task ADefenderBuffCanInflictACardOnTheAttacker(BCardEffect effect)
+        {
+            var id = _defender.Character.VisualId;
+            _buffs.Setup(b => b.GetActiveBuffs(It.Is<IAliveEntity>(e => e.VisualId == id))).Returns(new List<BuffInstance>
+            {
+                new(144, BuffType.Good, null, Instant.MinValue, Instant.MaxValue,
+                    [new BCardDto { Type = effect.Type(), SubType = effect.SubType(), FirstData = 100, SecondData = 372 }]),
+            });
+
+            await _service.TriggerAsync(_attacker.Character, _defender.Character, true);
+
+            VerifyInflicted(_attacker, _defender, 100, 372);
         }
 
         [TestMethod]
