@@ -39,8 +39,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private TestWorld World;
         private const short BoxVNum = 1013;
         private const short RewardVNum = 1012;
+        private const short SwordsmanReward = 1012;
+        private const short MageReward = 1015;
         private ClientSession _session;
         private Mock<IDao<RollGeneratedItemDto, short>> _rollDao;
+        private Mock<IItemCatalog> _catalog;
         private BoxEffectHandler _handler;
         private InventoryItemInstance _item;
 
@@ -50,6 +53,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _rollDao = World.Freeze<Mock<IDao<RollGeneratedItemDto, short>>>();
+            _catalog = World.Freeze<Mock<IItemCatalog>>();
+            _catalog.Setup(c => c.GetItem(SwordsmanReward)).Returns(new Item { VNum = SwordsmanReward, Class = 1 << (byte)CharacterClassType.Swordsman });
+            _catalog.Setup(c => c.GetItem(MageReward)).Returns(new Item { VNum = MageReward, Class = 1 << (byte)CharacterClassType.Mage });
             _handler = World.Create<BoxEffectHandler>();
         }
 
@@ -119,6 +125,75 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .And(ItemReceivedShouldBeSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ASetIsGivenWhole()
+        {
+            await new Spec("Every line of the rolled set is given, each with its own Rdi")
+                .Given(BoxInInventoryWithEffect_, ItemEffectType.BoxEffect)
+                .And(RollPoolIs_, new List<RollGeneratedItemDto>
+                {
+                    Row(SwordsmanReward, 0),
+                    Row(MageReward, 0),
+                })
+                .WhenAsync(UsingTheItem)
+                .Then(BoxStackCountShouldBe_, (short)0)
+                .And(InventoryShouldContain_, SwordsmanReward)
+                .And(InventoryShouldContain_, MageReward)
+                .And(RdiPacketsShouldBeSent_, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AClassBoxGivesTheSetTheOpenerCanWear()
+        {
+            await new Spec("A class box only rolls among the sets fitting the opener's class")
+                .Given(BoxInInventoryWithEffect_, ItemEffectType.ClassBox)
+                .And(CharacterClassIs_, CharacterClassType.Mage)
+                .And(RollPoolIs_, new List<RollGeneratedItemDto>
+                {
+                    Row(SwordsmanReward, 0),
+                    Row(MageReward, 1),
+                })
+                .WhenAsync(UsingTheItem)
+                .Then(InventoryShouldContain_, MageReward)
+                .And(InventoryShouldNotContain_, SwordsmanReward)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AClassBoxNoSetFitsStillGivesOne()
+        {
+            await new Spec("An opener no set fits still gets one of them")
+                .Given(BoxInInventoryWithEffect_, ItemEffectType.ClassBox)
+                .And(CharacterClassIs_, CharacterClassType.Adventurer)
+                .And(RollPoolIs_, new List<RollGeneratedItemDto>
+                {
+                    Row(SwordsmanReward, 0),
+                    Row(MageReward, 1),
+                })
+                .WhenAsync(UsingTheItem)
+                .Then(BoxStackCountShouldBe_, (short)0)
+                .And(RdiPacketsShouldBeSent_, 1)
+                .ExecuteAsync();
+        }
+
+        private static RollGeneratedItemDto Row(short vnum, short group) => new()
+        {
+            OriginalItemVNum = BoxVNum,
+            ItemGeneratedVNum = vnum,
+            ItemGeneratedAmount = 1,
+            Probability = 1,
+            RollGroup = group,
+        };
+
+        private void CharacterClassIs_(CharacterClassType characterClass) => _session.Character.Class = characterClass;
+
+        private void InventoryShouldNotContain_(short vnum) =>
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(vnum));
+
+        private void RdiPacketsShouldBeSent_(int count) =>
+            Assert.AreEqual(count, _session.LastPackets.OfType<RdiPacket>().Count());
 
         private void BoxInInventoryWithEffect_(ItemEffectType effect)
         {

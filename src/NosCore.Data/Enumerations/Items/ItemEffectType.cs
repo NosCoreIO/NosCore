@@ -38,6 +38,8 @@ namespace NosCore.Data.Enumerations.Items
         FairyBooster = 250,
         FriendshipWings = 199,
         RaidSeal = 301,
+        // A raid's reward box sold or handed out apart from the raid; EffectValue is that raid's number.
+        SimpleRaidBox = 304,
         ApplySkinPartner = 305,
         ChangeSpecialistWings = 650,
         ChangeFaction = 570,
@@ -52,6 +54,8 @@ namespace NosCore.Data.Enumerations.Items
         ReinforcementAmulet = 793,
         Heroic = 794,
         RandomHeroic = 795,
+        // Rolls only among the sets the opener can wear; an opener no set fits rolls among them all.
+        ClassBox = 827,
         AttackAmulet = 932,
         DefenseAmulet = 933,
         // Fireworks and similar toys: show the item's EffectValue on the user.

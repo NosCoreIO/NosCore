@@ -1177,6 +1177,12 @@ Needs two characters on the same channel. The commending one must be level 31 or
       legendary too
 - [ ] Double-click an Angel's Feather Random Box (5749): one stack from 10 to 999 feathers arrives
 - [ ] Double-click a Simple Raid Box of Lord Hatus (9878): one item from the Hatus box arrives
+- [ ] As a Mage, double-click Specialist Box 8 (13477): the Archmage Specialist Card arrives; as an
+      Adventurer, any one of its four cards arrives
+- [ ] As a woman, double-click the Fourth Mysterious Treasure Chest (1463): one women's costume and
+      its matching hat arrive together, each with its own "received" line
+- [ ] Double-click the Simple Reward Chest for the Defensive Battle (9912): one item of the
+      Defensive Battle reward chest (4663) arrives
 
 ### Perfume
 
