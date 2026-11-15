@@ -46,7 +46,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             await run.BroadcastAsync(new ScorePacket
             {
                 EndState = state,
+                Points = run.Points,
+                DrawItemsCount = (byte)(entrance.Definition?.DrawItems.Count ?? 0),
                 MonsterKilled = (short)run.MonstersKilled,
+                RemainingNpc = (byte)run.NpcsSummoned,
                 RoomsVisited = (short)run.RoomsVisited,
                 IsAllMonstersKilled = run.MonstersKilled >= run.MonstersSummoned,
                 IsNoNpcDead = true

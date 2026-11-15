@@ -48,8 +48,13 @@ namespace NosCore.Instances.Tests
 
         public void SetPvp(int room, bool isPvp) => Calls.Add($"pvp({room},{isPvp})");
 
-        public void Summon(int room, params MonsterSpawn[] monsters) =>
+        public List<MonsterSpawn> Summoned { get; } = [];
+
+        public void Summon(int room, params MonsterSpawn[] monsters)
+        {
+            Summoned.AddRange(monsters);
             Calls.Add($"summon({room},{string.Join(",", monsters.Select(m => m.VNum))})");
+        }
 
         public void Hunt(int room, short vNum) => Calls.Add($"hunt({room},{vNum})");
 
@@ -57,10 +62,48 @@ namespace NosCore.Instances.Tests
 
         public void SetRates(int room, int experience, int drops) => Calls.Add($"rates({room},{experience},{drops})");
 
-        public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
-            Calls.Add($"portal({fromRoom}->{toRoom},{(locked ? "locked" : "open")})");
+        public List<(int From, int To, bool Locked)> Portals { get; } = [];
 
-        public void UnlockPortal(int fromRoom, int toRoom) => Calls.Add($"unlock({fromRoom}->{toRoom})");
+        public HashSet<(int From, int To)> Unlocked { get; } = [];
+
+        public List<(int Room, bool Locked)> Exits { get; } = [];
+
+        public HashSet<int> UnlockedExits { get; } = [];
+
+        public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true)
+        {
+            Portals.Add((fromRoom, toRoom, locked));
+            Calls.Add($"portal({fromRoom}->{toRoom},{(locked ? "locked" : "open")})");
+        }
+
+        public void UnlockPortal(int fromRoom, int toRoom)
+        {
+            Unlocked.Add((fromRoom, toRoom));
+            Calls.Add($"unlock({fromRoom}->{toRoom})");
+        }
+
+        public void SpawnExit(int room, Spot at, bool locked = true)
+        {
+            Exits.Add((room, locked));
+            Calls.Add($"exit({room},{(locked ? "locked" : "open")})");
+        }
+
+        public void UnlockExit(int room)
+        {
+            UnlockedExits.Add(room);
+            Calls.Add($"unlockExit({room})");
+        }
+
+        public void SummonNpcs(int room, params NpcSpawn[] npcs) =>
+            Calls.Add($"npcs({room},{string.Join(",", npcs.Select(m => m.VNum))})");
+
+        public void AddClockTime(TimeSpan extra) => Calls.Add($"addClock({extra.TotalSeconds}s)");
+
+        public void StartRoomClock(int room, TimeSpan length) => Calls.Add($"roomClock({room},{length.TotalSeconds}s)");
+
+        public void StopRoomClock(int room) => Calls.Add($"stopRoomClock({room})");
+
+        public void Dialog(int room, int dialog) => Calls.Add($"dialog({room},{dialog})");
 
         public void SetMonsterLocker(int room, short count) => Calls.Add($"monsterLocker({room},{count})");
 

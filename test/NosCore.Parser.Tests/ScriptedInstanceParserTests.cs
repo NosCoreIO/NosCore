@@ -212,5 +212,37 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(0, _saved.Count);
         }
+
+        [TestMethod]
+        public async Task ATimeSpaceEntranceRunsTheScriptNamedAfterItsTimeSpaceAsync()
+        {
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(121, 26, (WpPortalType)4, 31, 99, 21)));
+
+            Assert.AreEqual("timespace-21", _saved.Single().Script);
+        }
+
+        [TestMethod]
+        public async Task AnEntranceStoredWithoutAScriptGetsItsTimeSpaceScriptAsync()
+        {
+            _existing.Add(new ScriptedInstanceDto { ScriptedInstanceId = 7, MapId = 1, PositionX = 121, PositionY = 26 });
+
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(121, 26, (WpPortalType)4, 31, 99, 21)));
+
+            Assert.AreEqual("timespace-21", _saved.Single().Script);
+        }
+
+        [TestMethod]
+        public async Task ARaidEntranceGetsNoTimeSpaceScriptAsync()
+        {
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(2500, 79, 108),
+                Captured.Portal(24, 3, 4996, PortalType.Raid)));
+
+            Assert.IsNull(_saved.Single().Script);
+        }
     }
 }

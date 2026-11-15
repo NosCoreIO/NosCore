@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.ServerPackets.MiniMap;
 using System;
@@ -38,6 +39,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IInstanceRunHost host);
 
         ScriptedInstanceRun? GetRun(Guid mapInstanceId);
+
+        // True when the player stood on the open exit of the run they are in.
+        Task<bool> UseExitAsync(ClientSession session);
 
         Task<bool> DisposeIfEmptyAsync(ScriptedInstanceRun run);
 

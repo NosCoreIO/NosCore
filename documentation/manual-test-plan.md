@@ -2587,9 +2587,11 @@ Open the family window's Missions button and pick "Daily Challenges" in the filt
 
 ### Time-space entrances
 
-No time-space ships in the seed data, so add one: a `ScriptedInstance` row with `Type` 0
-(time-space) on a map you can reach, its `Script` naming a file in the world server's
-`instances/` folder without the extension (`timespace-01` runs `instances/timespace-01.csx`).
+The parser points every time-space stone it imports at `timespace-<id>`, the time-space id
+the stone announces, so `timespace-1.csx` runs the level 5 stone. A stone
+without a matching file stays shut. For a test stone anywhere else, add a `ScriptedInstance`
+row with `Type` 0 (time-space) on a map you can reach, its `Script` naming a file in the world
+server's `instances/` folder without the extension (`timespace-01` runs `instances/timespace-01.csx`).
 The script holds the level range, required items, rooms and start coordinates. Stand on the
 stone.
 
@@ -2652,6 +2654,32 @@ dropping their `MaxHp` makes the run quick.
       map, which this client does not draw yet, so drive it from a second, headless player
 - [ ] Disconnect inside a run you were alone in, then log back in: you are on the open world,
       not in a room
+
+### Logged time-spaces
+
+`instances/timespace-0.csx` to `timespace-13.csx` hold the time-spaces for levels 1 to 23, rebuilt
+from a packet log of each run. `timespace-1` ("The Time-Space", level 5) is the shortest: point a
+test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
+
+- [ ] The panel shows "The Time-Space", level 5, the two draw items (2015, 2023), the special
+      item (202) and the bonus item (3)
+- [ ] Entering shows "The mission starts as soon as you enter the first room." and a 300 second
+      clock; walking east into the second room opens NPC talk 6000
+- [ ] In the third room a single monster stands next to a NosVille soldier; killing it brings the
+      next one, four in all, and the last kill opens the east portal with "A door has opened."
+- [ ] Clearing the fourth room adds 100 seconds to the clock, and clearing the sixth adds 80
+- [ ] In the last room the exit stays shut until the lever is pulled; pulling it shows "The lever
+      has been pulled." and opens the exit, and walking onto it shows Mission Clear
+- [ ] Letting the clock run out shows Mission Fail with "Failed because time ran out."
+- [ ] In `timespace-3`, the room with two keys opens the east portal for one key and the west
+      portal for the other
+- [ ] In `timespace-11`, the third room shows a red five-minute clock and brings a wave of
+      monsters every 30 seconds; when the clock runs out the monsters leave and both portals open
+- [ ] In `timespace-9` and `timespace-13`, killing the last room's monsters ends the run with
+      Mission Clear without an exit portal
+- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on.
+      In `timespace-3` the key you did not pick should vanish; it stays, and picking it opens the
+      other portal too
 
 ### Time-space reward chest
 

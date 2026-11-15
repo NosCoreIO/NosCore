@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Messaging.Events
 {
     // Published for each player still inside when a time-space or raid run is won. InstanceId is the
     // client's id for it, as the rbr window and the quest data use it.
-    public sealed record ScriptedInstanceSucceededEvent(PlayerComponentBundle Character, ScriptedInstanceType Type, byte InstanceId)
+    public sealed record ScriptedInstanceSucceededEvent(PlayerComponentBundle Character, ScriptedInstanceType Type, short InstanceId)
         : IPlayerEvent
     {
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
