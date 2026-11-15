@@ -2772,7 +2772,7 @@ dropping their `MaxHp` makes the run quick.
 
 ### Logged time-spaces
 
-`instances/timespace-0.csx` to `timespace-13.csx` hold the time-spaces for levels 1 to 23, rebuilt
+`instances/timespace-0.csx` to `timespace-23.csx` hold the time-spaces for levels 1 to 33, rebuilt
 from a packet log of each run. `timespace-1` ("The Time-Space", level 5) is the shortest: point a
 test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 
@@ -2796,7 +2796,12 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       monsters every 30 seconds; when the clock runs out the monsters leave and both portals open
 - [ ] In `timespace-9` and `timespace-13`, killing the last room's monsters ends the run with
       Mission Clear without an exit portal
-- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on
+- [ ] In `timespace-16`, using the seal in the last room starts a red one-minute clock with waves of
+      monsters; when it runs out the monsters leave and the exit opens
+- [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
+- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
+      guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders
+      in the log, which NosCore does not do yet
 
 ### Time-space reward chest
 
