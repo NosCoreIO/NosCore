@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.ArenaService
 {
@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Services.ArenaService
 
         public static long EntryCost(short type) => EntryFee * (1 + type);
 
-        public static (short X, short Y)? RandomFightingCell(Map.Map map)
+        public static (short X, short Y)? RandomFightingCell(Map.Map map, IRandomProvider random)
         {
             var cells = new List<(short X, short Y)>();
             for (short y = 0; y < map.Height; y++)
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Services.ArenaService
                 }
             }
 
-            return cells.Count == 0 ? null : cells[RandomHelper.Instance.RandomNumber(0, cells.Count)];
+            return cells.Count == 0 ? null : cells[random.Next(0, cells.Count)];
         }
 
         // Players only ever fight each other inside an arena, and never a member of their own group.

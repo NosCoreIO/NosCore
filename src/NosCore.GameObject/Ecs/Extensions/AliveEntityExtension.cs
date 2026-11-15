@@ -28,13 +28,13 @@ using NosCore.Packets.ServerPackets.Shop;
 using NosCore.PathFinder.Interfaces;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
 
 
 namespace NosCore.GameObject.Ecs.Extensions
@@ -116,7 +116,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity, IHeuristic distanceCalculator, IClock clock)
+        public static Task MoveAsync(this INonPlayableEntity nonPlayableEntity, IHeuristic distanceCalculator, IClock clock, IRandomProvider random)
         {
             if (!nonPlayableEntity.IsAlive)
             {
@@ -130,7 +130,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
             var time = (clock.GetCurrentInstant().Minus(nonPlayableEntity.LastMove)).TotalMilliseconds;
 
-            if (!(time > RandomHelper.Instance.RandomNumber(400, 3200)))
+            if (!(time > random.Next(400, 3200)))
             {
                 return Task.CompletedTask;
             }
@@ -138,8 +138,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             var mapX = nonPlayableEntity.MapX;
             var mapY = nonPlayableEntity.MapY;
             if (!nonPlayableEntity.MapInstance.Map.GetFreePosition(ref mapX, ref mapY,
-                (byte)RandomHelper.Instance.RandomNumber(0, 3),
-                (byte)RandomHelper.Instance.RandomNumber(0, 3)))
+                (byte)random.Next(0, 3),
+                (byte)random.Next(0, 3), random))
             {
                 return Task.CompletedTask;
             }

@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 new Item { Type = NoscorePocketType.Costume, VNum = 4075, Name = Name("Wedding Dress", "Robe de mariee") },
             };
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(new ItemCatalog(Items),
-                NullLoggerFactory.Instance, TestLocalizers.Log, new RarityPointService());
+                NullLoggerFactory.Instance, TestLocalizers.Log, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             Inventory = new GameObject.Services.InventoryService.InventoryService(new ItemCatalog(Items),
                 Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 48, MaxItemAmount = 999 }),
                 NullLogger<GameObject.Services.InventoryService.InventoryService>.Instance);

@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                         Probability = 100,
                     },
                 });
-            var boxHandler = new BoxEffectHandler(ItemProvider, Mock.Of<IItemCatalog>(), rollDao.Object);
+            var boxHandler = new BoxEffectHandler(ItemProvider, Mock.Of<IItemCatalog>(), rollDao.Object, new NosCore.GameObject.Services.BattleService.RandomProvider());
             Bus = new InlineOrDeferredMessageBus<ItemUsedEvent>(evt => boxHandler.Handle(evt));
             Handler = new UseItemPacketHandler(Bus.Object);
         }

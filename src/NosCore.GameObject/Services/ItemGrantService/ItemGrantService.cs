@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.ItemGrantService;
 
@@ -31,7 +32,7 @@ public interface IItemGrantService
 
 public sealed class ItemGrantService(ILogger<ItemGrantService> logger, IItemCatalog itemCatalog,
         IOptions<WorldConfiguration> worldConfiguration, IItemGenerationService itemProvider,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRarityPointService rarityPoints)
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRarityPointService rarityPoints, IRandomProvider random)
     : IItemGrantService
 {
     public ItemGrantResult Grant(PlayerComponentBundle character, short vnum, short? designOrAmount, byte? upgradeArgument)
@@ -116,7 +117,7 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, IItemCata
                 case EquipmentType.Armor:
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
-                    wearable.SetRarityPoint(rarityPoints);
+                    wearable.SetRarityPoint(rarityPoints, random);
                     break;
                 case EquipmentType.Boots:
                 case EquipmentType.Gloves:

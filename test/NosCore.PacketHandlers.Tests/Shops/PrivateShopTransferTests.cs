@@ -37,6 +37,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
@@ -72,7 +73,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = ItemVNum, IsTradable = true },
                 new Item { Type = NoscorePocketType.Equipment, VNum = WeaponVNum, ItemType = ItemType.Weapon, IsTradable = true }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             _mShop = World.Create<MShopPacketHandler>();
 
             _owner.Character.MapInstance = World.GetBaseMap(1);
@@ -92,7 +93,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _itemInstanceDao = new Dao<NosCore.Database.Entities.ItemInstance, IItemInstanceDto?, Guid>(
                 NullLogger<Dao<NosCore.Database.Entities.ItemInstance, IItemInstanceDto?, Guid>>.Instance,
                 World.DbContextBuilder);
-            _options = new ShellOptionService(new ShellService(), new Mock<IRandomNumberSource>().Object, _optionDao);
+            _options = new ShellOptionService(new ShellService(), new Mock<IRandomProvider>().Object, _optionDao);
 
             _buyer.Character.Gold = 10_000;
             _secondBuyer.Character.Gold = 10_000;

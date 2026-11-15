@@ -27,9 +27,9 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quest;
-using NosCore.Shared.Helpers;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.QuestService;
 
@@ -39,7 +39,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService,
         ISkillPointService skillPointService, IMonsterGoldService monsterGoldService, List<NpcMonsterDto> npcMonsters,
         ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer,
-        IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random)
     : IQuestRewardService
 {
     private const int WindowSlots = 4;
@@ -191,7 +191,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
             return null;
         }
 
-        var vnum = candidates[RandomHelper.Instance.RandomNumber(0, candidates.Count)];
+        var vnum = candidates[random.Next(0, candidates.Count)];
         var amount = (short)Math.Max(1, reward.Amount);
         var created = itemGenerationService.Create(vnum, amount);
         var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(created, character.VisualId));
@@ -220,7 +220,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
     private long RollGold(byte monsterLevel, int monsters)
     {
         var (min, max) = monsterGoldService.GetGoldDrop(monsterLevel);
-        return Enumerable.Range(0, monsters).Sum(_ => (long)RandomHelper.Instance.RandomNumber(min, max + 1));
+        return Enumerable.Range(0, monsters).Sum(_ => (long)random.Next(min, max + 1));
     }
 
     private List<(NpcMonsterDto Monster, int Kills)> HuntedMonsters(CharacterQuest quest)

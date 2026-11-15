@@ -11,11 +11,12 @@ using JetBrains.Annotations;
 using NosCore.Algorithm.SpUpgradeService;
 using NosCore.Core.I18N;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 [UsedImplicitly]
-public sealed class SpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class SpUpgradeOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
@@ -27,7 +28,7 @@ public sealed class SpUpgradeOperation(IRandomNumberSource random, IGameLanguage
 }
 
 [UsedImplicitly]
-public sealed class SpUpgradeProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class SpUpgradeProtectedOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
@@ -39,7 +40,7 @@ public sealed class SpUpgradeProtectedOperation(IRandomNumberSource random, IGam
 }
 
 [UsedImplicitly]
-public sealed class SpUpgradeProtected2Operation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class SpUpgradeProtected2Operation(IRandomProvider random, IGameLanguageLocalizer localizer,
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {

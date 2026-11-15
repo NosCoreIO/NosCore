@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
@@ -70,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _saveService = new Mock<ISaveService>();
             _optionDao = new Dao<EquipmentOption, EquipmentOptionDto, Guid>(
                 NullLogger<Dao<EquipmentOption, EquipmentOptionDto, Guid>>.Instance, World.DbContextBuilder);
-            _options = new ShellOptionService(new ShellService(), new Mock<IRandomNumberSource>().Object, _optionDao);
+            _options = new ShellOptionService(new ShellService(), new Mock<IRandomProvider>().Object, _optionDao);
         }
 
         [TestMethod]

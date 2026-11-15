@@ -22,6 +22,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
@@ -30,7 +31,7 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // moons and gold are spent on every attempt; souls only on a success. A protection scroll is
 // spent on every attempt and turns a destroyed soul into a plain failure.
 public abstract class SpUpgradeOperationBase(
-    IRandomNumberSource random,
+    IRandomProvider random,
     IGameLanguageLocalizer localizer,
     ISpUpgradeService spUpgradeService,
     IItemCatalog itemCatalog)

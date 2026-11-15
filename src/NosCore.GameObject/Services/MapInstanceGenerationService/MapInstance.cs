@@ -36,7 +36,6 @@ using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -74,6 +73,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMapChangeService _mapChangeService;
         private readonly ISessionRegistry _sessionRegistry;
         private readonly IHeuristic _distanceCalculator;
+        private readonly IRandomProvider _random;
         private readonly IMonsterAi? _monsterAi;
         private readonly IBuffService? _buffService;
         private readonly IRegenerationService? _regenerationService;
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IClock clock, IMapChangeService mapChangeService,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator, IRandomProvider random,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
             IVitalityService? vitalityService = null,
             IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null,
@@ -131,6 +131,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _mapChangeService = mapChangeService;
             _sessionRegistry = sessionRegistry;
             _distanceCalculator = distanceCalculator;
+            _random = random;
             _monsterAi = monsterAi;
             _buffService = buffService;
             _regenerationService = regenerationService;
@@ -290,7 +291,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             short mapX = 0;
             short mapY = 0;
             var niceSpot = false;
-            var orderedPossibilities = possibilities.OrderBy(_ => RandomHelper.Instance.RandomNumber()).ToList();
+            var orderedPossibilities = possibilities.OrderBy(_ => _random.Next(0, 100)).ToList();
             for (var i = 0; (i < orderedPossibilities.Count) && !niceSpot; i++)
             {
                 mapX = (short)(session.Character.PositionX + orderedPossibilities[i].X);
@@ -581,7 +582,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 try
                 {
-                    await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger, _logLanguage);
+                    await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _random, _logger, _logLanguage);
                 }
                 catch (Exception e)
                 {
@@ -593,7 +594,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 try
                 {
-                    await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger, _logLanguage);
+                    await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _random, _logger, _logLanguage);
                 }
                 catch (Exception e)
                 {

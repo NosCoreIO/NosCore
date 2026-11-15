@@ -5,8 +5,8 @@
 //
 
 using NosCore.GameObject.Map;
-using NosCore.Shared.Helpers;
 using System.Collections.Generic;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.MateService
 {
@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Services.MateService
         }
 
         // A mate that never stood in the Miniland gets a spot in its open middle.
-        public static (short X, short Y) MinilandSpot(Mate mate, Map.Map map)
+        public static (short X, short Y) MinilandSpot(Mate mate, Map.Map map, IRandomProvider random)
         {
             if ((mate.MapX != 0 || mate.MapY != 0) && map.IsWalkable(mate.MapX, mate.MapY))
             {
@@ -41,8 +41,8 @@ namespace NosCore.GameObject.Services.MateService
 
             for (var attempt = 0; attempt < 20; attempt++)
             {
-                var x = (short)RandomHelper.Instance.RandomNumber(5, 16);
-                var y = (short)RandomHelper.Instance.RandomNumber(3, 14);
+                var x = (short)random.Next(5, 16);
+                var y = (short)random.Next(3, 14);
                 if (map.IsWalkable(x, y))
                 {
                     mate.MapX = x;

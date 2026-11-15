@@ -39,6 +39,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using UseObjPacket = NosCore.Packets.ClientPackets.Miniland.UseObjPacket;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 {
@@ -66,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                     { MinigameScoreId = (short)(10 + level), MinigameType = MinigameType.Sawmill, Level = (byte)level, MaximumScore = max })
                 .ToList(),
             [new MinigameRewardDto { MinigameRewardId = 0, MinigameVNum = 3000, Level = 0, ItemVNum = 1269, Amount = 1 }],
-            new RandomNumberSource());
+            new RandomProvider());
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -97,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _itemProvider = new ItemGenerationService(
                 new ItemCatalog(MinilandItems),
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer, new RarityPointService());
+                World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider,
                 new PersonalWarehouseService(new WarehouseTransferService(_warehouseHubMock.Object, _itemInstanceDaoMock.Object,
                     new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _itemProvider, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object)),

@@ -12,13 +12,14 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.UpgradeService;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.MinilandService
 {
     [TestClass]
     public class MinigameRewardServiceTests
     {
-        private readonly Mock<IRandomNumberSource> _random = new();
+        private readonly Mock<IRandomProvider> _random = new();
 
         private MinigameRewardService Service => new(
             new[] { 999, 4999, 7999, 11999, 15999, 1000000 }

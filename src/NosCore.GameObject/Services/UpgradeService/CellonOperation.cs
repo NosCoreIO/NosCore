@@ -26,6 +26,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // the jewel fills up.
 [UsedImplicitly]
 public sealed class CellonOperation(
-    IRandomNumberSource random,
+    IRandomProvider random,
     IGameLanguageLocalizer localizer,
     IDao<EquipmentOptionDto, Guid> equipmentOptionDao,
     ICellonService cellonService)

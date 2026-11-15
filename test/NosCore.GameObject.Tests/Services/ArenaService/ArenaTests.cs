@@ -132,7 +132,7 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
         {
             for (var i = 0; i < 50; i++)
             {
-                var cell = Arena.RandomFightingCell(_map.Map);
+                var cell = Arena.RandomFightingCell(_map.Map, new NosCore.GameObject.Services.BattleService.RandomProvider());
                 Assert.IsNotNull(cell);
                 Assert.AreNotEqual((2, 1), ((int)cell.Value.X, (int)cell.Value.Y));
                 Assert.AreNotEqual((3, 1), ((int)cell.Value.X, (int)cell.Value.Y));

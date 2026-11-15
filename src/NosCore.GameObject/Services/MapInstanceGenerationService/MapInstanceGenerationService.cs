@@ -41,6 +41,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IItemGenerationService itemProvider, IHeuristic distanceCalculator,
+            NosCore.GameObject.Services.BattleService.IRandomProvider random,
             NosCore.GameObject.Services.BattleService.IMonsterAi monsterAi,
             NosCore.GameObject.Services.BattleService.IBuffService buffService,
             NosCore.GameObject.Services.BattleService.IRegenerationService regenerationService,
@@ -170,7 +171,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService,
                 loggerFactory.CreateLogger<MapInstance>(), logLanguage, clock,
-                mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, monsterAi, buffService, regenerationService, vitalityService, digestionService, speedCalculationService, battleStatsProvider, heatService, mateRevivalService, time);
+                mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, random, monsterAi, buffService, regenerationService, vitalityService, digestionService, speedCalculationService, battleStatsProvider, heatService, mateRevivalService, time);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)

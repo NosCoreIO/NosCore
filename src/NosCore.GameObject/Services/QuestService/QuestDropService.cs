@@ -10,11 +10,10 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Services.QuestService;
 
-public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropService
+public sealed class QuestDropService(INpcCombatCatalog catalog, IRandomProvider random) : IQuestDropService
 {
     // The rate is read per 10 000 like monster drops: the rows at 10 000 are bosses that
     // always drop, but rows of 25 items at 100 make for long hunts, so the scale is doubtful.
@@ -57,7 +56,7 @@ public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropServ
             : character.InventoryService.CountItem(vNum);
 
     // A raid collect quest's fourth column repeats the amount rather than giving a chance, so every kill drops one.
-    private static bool Rolls(QuestType type, QuestObjectiveDto objective, int dropRate) =>
+    private bool Rolls(QuestType type, QuestObjectiveDto objective, int dropRate) =>
         type == QuestType.CollectInRaid
-        || RandomHelper.Instance.RandomNumber(0, ChanceScale) < (objective.FourthData ?? 0) * dropRate;
+        || random.Next(0, ChanceScale) < (objective.FourthData ?? 0) * dropRate;
 }

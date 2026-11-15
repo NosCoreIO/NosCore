@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                 World.LogLanguageLocalizer,
                 World.GameLanguageLocalizer,
                 World.SessionRegistry,
-                new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object, new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new()));
+                new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object, new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new(), new NosCore.GameObject.Services.BattleService.RandomProvider()));
         }
 
         [TestMethod]

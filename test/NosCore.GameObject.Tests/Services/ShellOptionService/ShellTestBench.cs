@@ -22,6 +22,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.ShellOptionService
 {
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
 
         public List<EquipmentOptionDto> Options { get; } = new();
 
-        public Mock<IRandomNumberSource> Random { get; } = new();
+        public Mock<IRandomProvider> Random { get; } = new();
 
         public GameObject.Services.ShellOptionService.ShellOptionService Service { get; }
 

@@ -10,11 +10,12 @@ using JetBrains.Annotations;
 using NosCore.Algorithm.EquipmentUpgradeService;
 using NosCore.Core.I18N;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 [UsedImplicitly]
-public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class UpgradeItemOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
     : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService, itemCatalog)
 {
@@ -24,7 +25,7 @@ public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLangua
 }
 
 [UsedImplicitly]
-public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class UpgradeItemProtectedOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
     : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService, itemCatalog)
 {
@@ -34,7 +35,7 @@ public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IG
 }
 
 [UsedImplicitly]
-public sealed class UpgradeItemGoldScrollOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class UpgradeItemGoldScrollOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
     : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService, itemCatalog)
 {

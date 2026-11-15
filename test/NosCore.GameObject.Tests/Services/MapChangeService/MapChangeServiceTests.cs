@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 ScriptedInstances.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
                 new Mock<NosCore.GameObject.Services.FactionWarService.IFactionWarService>().Object,
-                ChannelService.Object);
+                ChannelService.Object, new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         [TestMethod]

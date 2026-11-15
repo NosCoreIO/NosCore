@@ -9,11 +9,11 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.Helpers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
         private int RarityPoints(IRarityPointService rarityPoints) =>
             rarityPoints.GetRarityPoint((sbyte)Rare, (byte)(Item.IsHeroic ? 95 + Item.LevelMinimum : Item.LevelMinimum));
 
-        public void SetRarityPoint(IRarityPointService rarityPoints)
+        public void SetRarityPoint(IRarityPointService rarityPoints, IRandomProvider random)
         {
             switch (Item.EquipmentSlot)
             {
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
                         {
                             for (var i = 0; i < point; i++)
                             {
-                                var rndn = RandomHelper.Instance.RandomNumber(0, 3);
+                                var rndn = random.Next(0, 3);
                                 if (rndn == 0)
                                 {
                                     Concentrate++;
@@ -111,7 +111,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 
                         for (var i = 0; i < point; i++)
                         {
-                            var rndn = RandomHelper.Instance.RandomNumber(0, 3);
+                            var rndn = random.Next(0, 3);
                             if (rndn == 0)
                             {
                                 DefenceDodge++;

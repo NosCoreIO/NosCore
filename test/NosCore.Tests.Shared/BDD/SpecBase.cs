@@ -26,6 +26,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.Tests.Shared.BDD
 {
@@ -55,7 +56,7 @@ namespace NosCore.Tests.Shared.BDD
             ItemProvider = new ItemGenerationService(
                 new ItemCatalog(DefaultItems),
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer, new RarityPointService());
+                World.LogLanguageLocalizer, new RarityPointService(), new RandomProvider());
         }
 
         protected void CharacterHasGold(long gold) => Session.Character.Gold = gold;

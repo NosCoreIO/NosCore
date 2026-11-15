@@ -8,8 +8,7 @@ using System;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// Abstraction over System.Random so dice rolls in combat are mockable. The default
-// instance uses a thread-safe shared Random.
+// Every roll goes through this so tests can fix the outcome.
 public interface IRandomProvider
 {
     int Next(int minInclusive, int maxExclusive);

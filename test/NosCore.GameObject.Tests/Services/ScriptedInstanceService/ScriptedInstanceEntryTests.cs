@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(
                 new ItemCatalog(new List<ItemDto> { new() { VNum = SeedVnum, Type = NoscorePocketType.Etc } }),
-                NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+                NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         private static ScriptedInstance Needing(short amount) => new()

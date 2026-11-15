@@ -143,7 +143,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(new ItemCatalog(Catalog), NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer, new RarityPointService());
+                World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             _options = new List<EquipmentOptionDto>();
             _optionReads = 0;
             var optionDao = new Mock<IDao<EquipmentOptionDto, Guid>>();

@@ -14,14 +14,13 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.Helpers;
 
 namespace NosCore.GameObject.Services.BattleService;
 
 public sealed class RespawnService(
     List<MapTypeMapDto> mapTypeMaps,
     List<MapTypeDto> mapTypes,
-    List<RespawnMapTypeDto> respawnMapTypes) : IRespawnService, ISingletonService
+    List<RespawnMapTypeDto> respawnMapTypes, IRandomProvider random) : IRespawnService, ISingletonService
 {
     private const int SpawnJitter = 3;
 
@@ -71,8 +70,8 @@ public sealed class RespawnService(
             baseY = catalog?.DefaultY ?? 116;
         }
 
-        var x = (short)(baseX + RandomHelper.Instance.RandomNumber(-SpawnJitter, SpawnJitter + 1));
-        var y = (short)(baseY + RandomHelper.Instance.RandomNumber(-SpawnJitter, SpawnJitter + 1));
+        var x = (short)(baseX + random.Next(-SpawnJitter, SpawnJitter + 1));
+        var y = (short)(baseY + random.Next(-SpawnJitter, SpawnJitter + 1));
         return (mapId, x, y);
     }
 

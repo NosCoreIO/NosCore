@@ -16,13 +16,14 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 // An event card is upgraded in a window its own scroll opens, and the scroll is the only thing
 // the attempt costs. The odds are the ones of a plain card upgrade.
 public abstract class EventSpUpgradeOperationBase(
-    IRandomNumberSource random,
+    IRandomProvider random,
     IGameLanguageLocalizer localizer,
     ISpUpgradeService spUpgradeService,
     IItemCatalog itemCatalog)
@@ -53,7 +54,7 @@ public abstract class EventSpUpgradeOperationBase(
 }
 
 [UsedImplicitly]
-public sealed class ChickenSpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class ChickenSpUpgradeOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
@@ -61,7 +62,7 @@ public sealed class ChickenSpUpgradeOperation(IRandomNumberSource random, IGameL
 }
 
 [UsedImplicitly]
-public sealed class PyjamaSpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class PyjamaSpUpgradeOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
@@ -69,7 +70,7 @@ public sealed class PyjamaSpUpgradeOperation(IRandomNumberSource random, IGameLa
 }
 
 [UsedImplicitly]
-public sealed class PirateSpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class PirateSpUpgradeOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {

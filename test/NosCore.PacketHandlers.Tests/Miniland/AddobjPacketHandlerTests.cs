@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _itemProvider = new ItemGenerationService(
                 new ItemCatalog(MinilandItems),
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer, new RarityPointService());
+                World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         [TestMethod]

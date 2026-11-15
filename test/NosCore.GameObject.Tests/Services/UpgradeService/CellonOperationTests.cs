@@ -28,6 +28,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
@@ -41,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short CellonVNum = 1017;
 
         private ClientSession _session;
-        private Mock<IRandomNumberSource> _random;
+        private Mock<IRandomProvider> _random;
         private Mock<IDao<EquipmentOptionDto, Guid>> _optionDao;
         private List<EquipmentOptionDto> _existingOptions;
         private List<EquipmentOptionDto> _persisted;
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _random = new Mock<IRandomNumberSource>();
+            _random = new Mock<IRandomProvider>();
             _existingOptions = new List<EquipmentOptionDto>();
             _persisted = new List<EquipmentOptionDto>();
 

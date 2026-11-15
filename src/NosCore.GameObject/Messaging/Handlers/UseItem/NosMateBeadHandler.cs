@@ -27,13 +27,14 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using MateModel = NosCore.GameObject.Services.MateService.Mate;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class NosMateBeadHandler(IDao<MateDto, long> mateDao, IMateService mateService,
         IMinilandService minilandService, List<NpcMonsterDto> npcMonsters,
-        IPartnerSkillCatalog partnerSkillCatalog)
+        IPartnerSkillCatalog partnerSkillCatalog, IRandomProvider random)
     {
         private const byte PartnerSubType = 1;
         private const short NewMateLoyalty = 1000;
@@ -170,7 +171,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var mate = mateService.Adopt(row, monster, owner.Mates.Values);
             owner.Mates[mate.MateTransportId] = mate;
-            var (x, y) = MatePlacement.MinilandSpot(mate, owner.MapInstance.Map);
+            var (x, y) = MatePlacement.MinilandSpot(mate, owner.MapInstance.Map, random);
             await mate.SpawnAsync(owner, owner.MapInstance, x, y);
 
             await session.SendPacketAsync(owner.InventoryService.LoadBySlotAndType(source.Slot, source.Type)

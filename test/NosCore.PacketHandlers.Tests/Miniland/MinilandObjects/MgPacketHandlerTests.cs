@@ -40,6 +40,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 {
@@ -74,7 +75,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .Select(level => new MinigameRewardDto
                     { MinigameRewardId = (short)level, MinigameVNum = 3000, Level = (byte)level, ItemVNum = 1269, Amount = 2 })
                 .ToList(),
-            new RandomNumberSource());
+            new RandomProvider());
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -103,7 +104,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _itemProvider = new ItemGenerationService(
                 new ItemCatalog(MinilandItems),
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer, new RarityPointService());
+                World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             World.Inject(_mailHub.Object);
             _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider, MinigameRewards, World.Clock,
                 new ItemCatalog(MinilandItems), World.Create<ItemDeliveryService>());

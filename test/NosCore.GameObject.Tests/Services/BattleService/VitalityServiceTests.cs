@@ -81,7 +81,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(new ItemCatalog(Catalog), NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer, new RarityPointService());
+                World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
 
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());

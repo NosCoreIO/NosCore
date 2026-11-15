@@ -20,12 +20,13 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
     public sealed class GoToArenaHandler(IMapChangeService mapChangeService, IMapInstanceRegistry mapInstanceRegistry,
-        IClock clock) : INrunEventHandler
+        IClock clock, IRandomProvider random) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.GoToArena;
 
@@ -63,7 +64,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return;
             }
 
-            var cell = Arena.RandomFightingCell(arena.Map);
+            var cell = Arena.RandomFightingCell(arena.Map, random);
             if (cell == null)
             {
                 return;

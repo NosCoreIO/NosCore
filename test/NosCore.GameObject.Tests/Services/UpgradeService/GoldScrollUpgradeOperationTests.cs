@@ -25,6 +25,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short GoldScrollVNum = 5369;
 
         private ClientSession _session;
-        private Mock<IRandomNumberSource> _random;
+        private Mock<IRandomProvider> _random;
         private IUpgradeOperation _operation;
         private IReadOnlyList<IPacket> _result;
 
@@ -49,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _random = new Mock<IRandomNumberSource>();
+            _random = new Mock<IRandomProvider>();
             _operation = new UpgradeItemGoldScrollOperation(_random.Object,
                 World.GameLanguageLocalizer, new EquipmentUpgradeService(), UpgradeMaterials.Catalog());
         }

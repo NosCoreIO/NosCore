@@ -119,6 +119,9 @@ namespace NosCore.Tests.Shared
             FriendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
             BlacklistHub = Fixture.Freeze<Mock<IBlacklistHub>>();
             BlacklistHub.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
+            // Every roll lands on its lowest value unless a test scripts its own.
+            Random = Fixture.Freeze<Mock<GameObject.Services.BattleService.IRandomProvider>>();
+            Random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns((int min, int _) => min);
 
             var options = new DbContextOptionsBuilder<NosCoreContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -178,7 +181,7 @@ namespace NosCore.Tests.Shared
             await world.MapInstanceGeneratorService.InitializeAsync();
             await world.MapInstanceGeneratorService.AddMapInstanceAsync(new MapInstance((Map)world._maps[2], world.MinilandId, false,
                 MapInstanceType.NormalInstance, world.MapItemProvider, NullLogger<MapInstance>.Instance, world.LogLanguageLocalizer, world.Clock,
-                world.MapChangeService, world.SessionGroupFactory, world.SessionRegistry, world.DistanceCalculator));
+                world.MapChangeService, world.SessionGroupFactory, world.SessionRegistry, world.DistanceCalculator, world.Random.Object));
             return world;
         }
 
@@ -215,6 +218,8 @@ namespace NosCore.Tests.Shared
         }
 
         public TestClock Clock { get; }
+
+        public Mock<GameObject.Services.BattleService.IRandomProvider> Random { get; }
         public SessionRegistry SessionRegistry { get; }
         public IOptions<WorldConfiguration> WorldConfiguration { get; }
         public ILogLanguageLocalizer<LogLanguageKey> LogLanguageLocalizer { get; }

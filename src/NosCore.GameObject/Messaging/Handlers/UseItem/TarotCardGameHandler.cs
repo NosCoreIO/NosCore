@@ -15,12 +15,12 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class TarotCardGameHandler(IItemGenerationService itemProvider, IItemCatalog itemCatalog)
+    public sealed class TarotCardGameHandler(IItemGenerationService itemProvider, IItemCatalog itemCatalog, IRandomProvider random)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             var dealt = Enumerable.Range(0, game.EffectValue)
-                .Select(_ => deck[RandomHelper.Instance.RandomNumber(0, deck.Count)].VNum)
+                .Select(_ => deck[random.Next(0, deck.Count)].VNum)
                 .GroupBy(vnum => vnum)
                 .Select(g => itemProvider.Create(g.Key, (short)g.Count()))
                 .ToList();
