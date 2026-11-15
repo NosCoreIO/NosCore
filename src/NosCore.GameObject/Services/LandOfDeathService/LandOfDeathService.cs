@@ -75,7 +75,12 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             _openedAt = clock.GetCurrentInstant();
             _ = Task.Run(async () =>
             {
-                await Task.Delay(GateOpenFor);
+                _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+                if (_script != null)
+                {
+                    await Task.Delay(GateOpenFor);
+                }
+
                 Volatile.Write(ref _gateOpen, 0);
             });
             return true;
@@ -185,7 +190,6 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
                 if (_script is not { } script)
                 {
-                    logger.LogError(logLanguage[LogLanguageKey.LAND_OF_DEATH_SCRIPT_MISSING], Script);
                     return null;
                 }
 
