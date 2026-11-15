@@ -1246,6 +1246,11 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] Drink the last potion of a stack: its slot is drawn empty at once
 - [ ] Use one of a stack of two NosMerchant medals or backpacks: the slot shows 1 straight away,
       not 2
+- [ ] Use Pet Basket (10 Days) 1278 and Inventory Expansion Ticket (Permanent) 9143
+      (`/mnt/project-files/hardcoded-tables/reset-upgrades.sh`): each asks "Use the item.", says its
+      effect is activated and is used up; the pet basket ends 10 days later, the ticket never
+- [ ] Use a second knapsack or ticket of the same kind while one is active: it stays in the
+      inventory
 
 ### Resting in combat
 
