@@ -229,7 +229,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     LoadMapNpcs(mapInstance, room);
                 }
 
-                await _mapInstanceGeneratorService.Value.AddMapInstanceAsync(mapInstance);
+                // A room only has the portals its script spawns; its map's world exits would let a
+                // player walk out without going through the run's own exit.
+                await _mapInstanceGeneratorService.Value.AddMapInstanceAsync(mapInstance, withMapPortals: false);
                 await mapInstance.StartLifeAsync();
                 built[room.Key] = mapInstance;
             }
