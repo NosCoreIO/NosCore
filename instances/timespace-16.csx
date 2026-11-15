@@ -233,7 +233,6 @@ public class TimeSpace16 : InstanceScript
             r.AddClockTime(TimeSpan.FromSeconds(80));
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(Game18NConstString.NewGoal);
-            r.Message(Game18NConstString.IcebreakerTimeElapsed);
         }
         else if (room == _room10 && button == 1)
         {

@@ -2871,6 +2871,9 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       and brings the character back 10 seconds later; the run fails only once its lives are spent
 - [ ] In `timespace-21`, walking onto the exit before beating Tom shows "You still have an incomplete
       mission."; after beating him the same exit gives Mission Clear
+- [ ] In `timespace-18`, the room with the locked exit shows a red one-minute clock and "The enemies are
+      getting reinforcements!" with a wave of knights on entry and again 30 seconds later; when the
+      minute ends the west door and the south door of the room before it open
 - [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
       guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders

@@ -130,24 +130,7 @@ public class TimeSpace18 : InstanceScript
         r.SpawnPortal(_room11, new(1, 15), _room10, new(28, 15));
         r.SpawnExit(_room12, new(28, 15));
         r.SpawnPortal(_room12, new(1, 15), _room11, new(28, 15));
-        r.Summon(_room12,
-            new MonsterSpawn(338, new(20, 15)),
-            new MonsterSpawn(338, new(11, 20)),
-            new MonsterSpawn(338, new(11, 22)),
-            new MonsterSpawn(338, new(12, 20)),
-            new MonsterSpawn(338, new(13, 10)),
-            new MonsterSpawn(338, new(13, 22)),
-            new MonsterSpawn(338, new(14, 20)),
-            new MonsterSpawn(338, new(15, 10)),
-            new MonsterSpawn(338, new(16, 20)),
-            new MonsterSpawn(338, new(11, 20)),
-            new MonsterSpawn(338, new(11, 22)),
-            new MonsterSpawn(338, new(12, 20)),
-            new MonsterSpawn(338, new(13, 10)),
-            new MonsterSpawn(338, new(13, 22)),
-            new MonsterSpawn(338, new(14, 20)),
-            new MonsterSpawn(338, new(15, 10)),
-            new MonsterSpawn(338, new(16, 20)));
+        r.Summon(_room12, new MonsterSpawn(338, new(20, 15)));
         r.SpawnPortal(_room13, new(14, 1), _room11, new(14, 28));
         r.SpawnPortal(_room13, new(14, 28), _room14, new(14, 1), locked: false);
         r.Summon(_room13,
@@ -220,6 +203,17 @@ public class TimeSpace18 : InstanceScript
         else if (room == _room12)
         {
             r.Dialog(_room12, 6097);
+            r.StartRoomClock(_room12, TimeSpan.FromSeconds(60));
+            Reinforce(r);
+            r.At(r.Elapsed + TimeSpan.FromSeconds(30), Reinforce);
+            r.At(r.Elapsed + TimeSpan.FromSeconds(60), r =>
+            {
+                r.UnlockPortal(_room12, _room11);
+                r.UnlockPortal(_room11, _room13);
+                r.Message(Game18NConstString.ADoorHasOpened);
+                r.Message(Game18NConstString.QuickMissionComplete);
+                r.StopRoomClock(_room12);
+            });
         }
         else if (room == _room13)
         {
@@ -269,11 +263,26 @@ public class TimeSpace18 : InstanceScript
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(Game18NConstString.QuickMissionComplete);
         }
-        else if (room == _room12)
+    }
+
+    // Room 12 holds the party for a minute while two waves come through it.
+    private void Reinforce(IInstanceRun r)
+    {
+        if (r.PlayersIn(_room12) == 0)
         {
-            r.UnlockPortal(_room11, _room13);
-            r.UnlockPortal(_room12, _room11);
+            return;
         }
+
+        r.Message(Game18NConstString.EnemiesReinforcements);
+        r.Summon(_room12,
+            new MonsterSpawn(338, new(11, 20)),
+            new MonsterSpawn(338, new(11, 22)),
+            new MonsterSpawn(338, new(12, 20)),
+            new MonsterSpawn(338, new(13, 10)),
+            new MonsterSpawn(338, new(13, 22)),
+            new MonsterSpawn(338, new(14, 20)),
+            new MonsterSpawn(338, new(15, 10)),
+            new MonsterSpawn(338, new(16, 20)));
     }
 
     public override void OnExitReached(IInstanceRun r, int room) => r.Succeed();
