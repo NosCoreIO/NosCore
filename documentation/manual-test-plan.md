@@ -1228,6 +1228,9 @@ Needs two characters on the same channel. The commending one must be level 31 or
       opens) and a costume in the costume inventory
 - [ ] Open a partner's page (P) and right-click its card and its weapon
 - [ ] At an NPC shop, right-click an item for sale: its info window opens
+- [ ] In a trade, have the other player offer a weapon, a costume and a hat, then right-click
+      each of their cells: each opens the info window of that item, in the order offered
+- [ ] Open another player's shop and right-click each item on its shelf: its info window opens
 - [ ] Open one card's specialist window, close it, then right-click a different card: in the
       browser client the second window did not open although its slinfo arrived. Check
       whether the game client does the same

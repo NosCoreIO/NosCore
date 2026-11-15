@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Exchange
             }
 
             var subPacketList = new List<ServerExcListSubPacket?>();
-            var offer = new Dictionary<InventoryItemInstance, short>();
+            var offer = new OrderedDictionary<InventoryItemInstance, short>();
 
             var hasTarget = sessionRegistry.TryGetCharacter(s =>
                 (s.VisualId == targetId.Value) &&

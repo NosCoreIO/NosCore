@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -20,7 +21,7 @@ using NosCore.Data.Enumerations.Character;
 namespace NosCore.PacketHandlers.Inventory
 {
     public class EquipmentInfoPacketHandler(IItemInfoService itemInfoService, IItemCatalog itemCatalog,
-            IItemGenerationService itemProvider)
+            IItemGenerationService itemProvider, ISessionRegistry sessionRegistry)
         : PacketHandler<EquipmentInfoPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(EquipmentInfoPacket packet, ClientSession clientSession)
@@ -48,6 +49,14 @@ namespace NosCore.PacketHandlers.Inventory
                     : null,
                 // An NPC shop sends the item's VNum as the slot.
                 EquipmentInfoType.NpcShop => itemCatalog.GetItem(packet.Slot) == null ? null : itemProvider.Create(packet.Slot),
+                // The slot is the cell of the partner's offer, in the order it was offered.
+                EquipmentInfoType.Exchange => character.Exchange is { } exchange && exchange.PartnerId == packet.ShopOwnerId
+                    ? exchange.Partner.ExchangeItems.Keys.ElementAtOrDefault(packet.Slot)?.ItemInstance
+                    : null,
+                EquipmentInfoType.PersonalShop => sessionRegistry.TryGetCharacter(
+                        s => s.VisualId == packet.ShopOwnerId && s.MapInstanceId == character.MapInstanceId, out var owner)
+                    ? owner.Shop?.ShopItems.Values.FirstOrDefault(i => i.Slot == packet.Slot)?.ItemInstance
+                    : null,
                 _ => null
             };
 
