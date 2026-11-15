@@ -2586,8 +2586,8 @@ character so they kill you.
 
 ### Raids
 
-Set the `Script` column of a raid row (`Type` 1 in `ScriptedInstance`; the row only carries the script) to
-`raid-mother-cuby`, the raid shipped in `instances/`. It is opened by item 1127, for levels
+The parser gives each known raid gate (`Type` 1 in `ScriptedInstance`) its script from `instances/`.
+The checks below use Mother Cuby, `raid-mother-cuby`. It is opened by item 1127, for levels
 30 to 49 and teams of 5 to 15; the boss is 282 and its helpers 283, and dropping their `MaxHp`
 makes the run quick. Use five characters at level 30 to 49, called A to E below, all on one map.
 The raid's gate is the swirling portal its `ScriptedInstance` row places on a map (Mother Cuby's
@@ -2654,8 +2654,8 @@ confirms "Do you want to create the raid map?".
 
 #### Ginseng
 
-Seal 1128, levels 40 to 59, gate at the top of Ginseng Entrance (2520 at 25,1). Dropping
-`MaxHp` of the Ginseng (284) makes the end quick.
+Seal 1128, levels 40 to 59, gate at the top of Ginseng Entrance (2520 at 25,1). Raise A to E to
+levels 40 to 59 first. Dropping `MaxHp` of the Ginseng (284) makes the end quick.
 
 - [ ] A starts at the gate: the team lands in the south-west of the field (2521) with a two-hour
       clock, among the field's monsters, with nineteen levers spread over the map
@@ -2669,7 +2669,8 @@ Seal 1128, levels 40 to 59, gate at the top of Ginseng Entrance (2520 at 25,1). 
 
 #### Glacerus
 
-Seal 5512, levels 80 to 99, gate on Water Grotto (2587 at 12,43).
+Seal 5512, levels 80 to 99, gate on Water Grotto (2587 at 12,43). Raise A to E to levels 80
+to 99 first.
 
 - [ ] A starts at the gate: the team lands at the bottom of the grotto (2588) with a one-hour clock
 - [ ] The portal at the top (13,7) stays shut until the lever at (13,21) is pulled
