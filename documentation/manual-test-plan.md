@@ -1403,6 +1403,8 @@ under half health first.
 - [ ] Open the pet window: the list stays, it does not empty
 - [ ] Change map: the pet comes along and stays in the party panel
 - [ ] Log out and back in: every pet, its level and loyalty are still there
+- [ ] Not verifiable yet: the HP and MP values a pet's party bars carry; the client draws the
+      bars from the percentages and shows neither number, even on hover
 - [ ] With a second client on the map, log out: your pet disappears from their screen too
 - [ ] Open the page of a level 48 Baron Scratch (2682): its maximum HP reads 10638 and its
       maximum MP 708, not the creature's own 657/60

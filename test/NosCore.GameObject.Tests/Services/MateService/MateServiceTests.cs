@@ -226,7 +226,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
-        public async Task TheHealthBarCarriesTheMateTypeWhereAPlayerCarriesAPartyPositionAsync()
+        public async Task TheHealthBarCarriesTheMateTypeAndTheHpItHasLeftAsync()
         {
             var service = Build(new[]
             {
@@ -240,7 +240,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             Assert.AreEqual(VisualType.Npc, packet.Type);
             Assert.AreEqual((int)MateType.Partner, packet.GroupOrder);
             Assert.AreEqual(50, packet.HpLeft);
-            Assert.AreEqual(mate.MaxHp, packet.HpLoad);
+            Assert.AreEqual(mate.MaxHp / 2, packet.HpLoad);
         }
 
         [TestMethod]
