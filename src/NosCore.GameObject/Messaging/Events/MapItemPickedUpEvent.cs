@@ -7,6 +7,7 @@
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ServerPackets.Inventory;
 
 namespace NosCore.GameObject.Messaging.Events
 {
@@ -22,5 +23,13 @@ namespace NosCore.GameObject.Messaging.Events
         GetPacket Packet) : IPlayerEvent
     {
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
+
+        // The player or the pet that picked the item up.
+        public ServerGetPacket GenerateGet() => new()
+        {
+            VisualType = Packet.PickerType,
+            VisualId = Packet.PickerId,
+            ItemId = VisualId
+        };
     }
 }

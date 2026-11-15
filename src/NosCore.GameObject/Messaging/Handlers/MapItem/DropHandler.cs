@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                 await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                     2, inv.ItemInstance.ItemVNum.ToString(), amount));
                 await session.SendPacketAsync(session.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
-                await mapInstance.SendPacketAsync(session.Character.GenerateGet(visualId));
+                await mapInstance.SendPacketAsync(evt.GenerateGet());
 
                 if (mapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {

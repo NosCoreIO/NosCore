@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                 return;
             }
 
-            await mapInstance.SendPacketAsync(character.GenerateGet(evt.VisualId));
+            await mapInstance.SendPacketAsync(evt.GenerateGet());
             await messageBus.PublishAsync(new ItemsReceivedEvent(character, evt.VNum, evt.Amount));
         }
     }
