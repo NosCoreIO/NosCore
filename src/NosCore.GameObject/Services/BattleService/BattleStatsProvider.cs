@@ -327,6 +327,7 @@ public sealed class BattleStatsProvider(
             DarkResistance = stats.DarkResistance + totals.ResistAll + totals.ResistDark,
             ElementRate = stats.ElementRate + elementFlatBonus,
             GuaranteedHitChance = stats.GuaranteedHitChance + totals.GuaranteedHit,
+            OnyxDragonChance = stats.OnyxDragonChance + totals.OnyxDragon,
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
             CriticalReceivedChance = stats.CriticalReceivedChance + totals.CritReceivedChance,
@@ -365,6 +366,7 @@ public sealed class BattleStatsProvider(
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
         public int FairyElement;
         public int GuaranteedHit, GuaranteedDodge;
+        public int OnyxDragon;
         public int DefencePercent;
         public List<ChanceDamage>? ChanceDamage;
         public List<ChanceDamageTaken>? ChanceDamageTaken;
@@ -493,6 +495,7 @@ public sealed class BattleStatsProvider(
             // carries no meaning of its own and both add - and in the data no skill
             // declares one with a negative value anyway.
             [BCardEffect.GuarantedDodgeRangedAttackAttackHitChance] = (t, v) => t.GuaranteedHit += v,
+            [BCardEffect.StealBuffChanceSummonOnyxDragon] = (t, v) => t.OnyxDragon += v,
             [BCardEffect.GuarantedDodgeRangedAttackAttackHitChanceNegated] = (t, v) => t.GuaranteedHit += v,
             [BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropability] = (t, v) => t.GuaranteedDodge += v,
             [BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropabilityNegated] = (t, v) => t.GuaranteedDodge += v,

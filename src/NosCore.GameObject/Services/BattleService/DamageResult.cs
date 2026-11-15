@@ -8,4 +8,5 @@ using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-public record DamageResult(int Damage, SuPacketHitMode HitMode);
+// OnyxDragon: an Onyx Dragon strikes after the hit for half of its damage.
+public record DamageResult(int Damage, SuPacketHitMode HitMode, bool OnyxDragon = false);

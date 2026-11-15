@@ -350,7 +350,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         }
 
         // A monster brought in while the map runs; it stays down once killed.
-        public MonsterComponentBundle SpawnMonster(NpcMonsterDto npcMonster, short positionX, short positionY, bool isMoving)
+        public MonsterComponentBundle SpawnMonster(NpcMonsterDto npcMonster, short positionX, short positionY, bool isMoving,
+            bool isHostile = true)
         {
             lock (_spawnLock)
             {
@@ -361,7 +362,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     this,
                     positionX, positionY, 0,
                     positionX, positionY,
-                    isMoving && npcMonster.CanWalk, true, false, respawns: false);
+                    isMoving && npcMonster.CanWalk, isHostile, false, respawns: false);
                 var monster = new MonsterComponentBundle(entity, EcsWorld);
                 _monsters[monsterId] = monster;
                 return monster;
@@ -404,6 +405,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return monster;
             }
         }
+
+        public bool RemoveMonster(MonsterComponentBundle monster) =>
+            _monsters.TryRemove((int)monster.VisualId, out _) && EcsWorld.DestroyEntity(monster.Handle);
 
         public NpcComponentBundle? GetNpcById(int mapNpcId) =>
             _npcs.TryGetValue(mapNpcId, out var n) ? n : null;

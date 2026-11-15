@@ -21,4 +21,6 @@ public sealed record HitOutcome(
     HitStatus Status,
     int Damage,
     SuPacketHitMode HitMode,
-    bool Killed);
+    bool Killed,
+    // The extra blow an Onyx Dragon adds, already taken from the target's HP.
+    int OnyxDamage = 0);

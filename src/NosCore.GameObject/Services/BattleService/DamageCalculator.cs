@@ -194,7 +194,8 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
 
         return new DamageResult(
             Math.Max(1, totalDamage),
-            isCritical ? SuPacketHitMode.CriticalAttack : SuPacketHitMode.SuccessAttack);
+            isCritical ? SuPacketHitMode.CriticalAttack : SuPacketHitMode.SuccessAttack,
+            attacker.IsPlayer && attacker.OnyxDragonChance > 0 && random.NextDouble() * 100 < attacker.OnyxDragonChance);
     }
 
     private static int ApplyRaceDamage(CombatStats attacker, CombatStats defender, int damage)
