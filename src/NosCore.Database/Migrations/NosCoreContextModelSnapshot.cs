@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115024502_WidenRollGeneratedAmount";
+    public override string LastMigrationId => "20261115032624_AddMonsterChatter";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -712,6 +712,22 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasIndex("SkillVNum");
 
                 b.ToTable("CharacterSkill");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.ChatterLine", b =>
+            {
+                b.Property<short>("ChatterLineId")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("ChatterGroup")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Message")
+                    .HasColumnType("smallint");
+
+                b.HasKey("ChatterLineId");
+
+                b.ToTable("ChatterLine");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.Combo", b =>
@@ -2302,6 +2318,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.Property<byte>("CellSize")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("ChatterGroup")
                     .HasColumnType("smallint");
 
                 b.Property<short>("CloseDefence")

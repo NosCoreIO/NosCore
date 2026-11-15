@@ -43,6 +43,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private MapInstance _map;
         private Mock<IBattleService> _battle;
         private AggroService _aggro;
+        private Mock<IMonsterChatterService> _chatter;
         private MonsterAi _ai;
 
         [TestInitialize]
@@ -57,6 +58,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _battle = new Mock<IBattleService>();
             AcceptSwings(true);
             _aggro = World.Create<AggroService>();
+            _chatter = new Mock<IMonsterChatterService>();
             _ai = new MonsterAi(
                 _battle.Object,
                 _aggro,
@@ -65,6 +67,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 World.DistanceCalculator,
                 new Mock<INpcCombatCatalog>().Object,
                 new Mock<IRandomProvider>().Object,
+                _chatter.Object,
                 World.Clock,
                 new Dictionary<short, SkillDto>(),
                 NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
@@ -81,6 +84,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<IHeuristic>().Object,
                 new Mock<INpcCombatCatalog>().Object,
                 new Mock<IRandomProvider>().Object,
+                new Mock<IMonsterChatterService>().Object,
                 new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
                 new Dictionary<short, SkillDto>(),
                 new Mock<ILogger<MonsterAi>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
@@ -112,6 +116,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(acted);
             SwingsAtThePlayer(Times.Never());
             Assert.AreEqual((short)4, monster.PositionY, "Speed / 2 = 3 cells: (4,1) -> (4,4)");
+        }
+
+        [TestMethod]
+        public async Task AMonsterShoutsOnceWhenItNoticesAPlayer()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 5);
+
+            await _ai.TickAsync(monster);
+            await _ai.TickAsync(monster);
+
+            _chatter.Verify(c => c.ShoutAsync(monster), Times.Once());
         }
 
         [TestMethod]
@@ -265,7 +281,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             pathfinding.Setup(p => p.ForMap(It.IsAny<GameObject.Map.Map>())).Returns(pathfinder.Object);
             var ai = new MonsterAi(_battle.Object, _aggro, pathfinding.Object, World.SessionRegistry,
                 World.DistanceCalculator, new Mock<INpcCombatCatalog>().Object,
-                new Mock<IRandomProvider>().Object, World.Clock, new Dictionary<short, SkillDto>(),
+                new Mock<IRandomProvider>().Object, _chatter.Object, World.Clock, new Dictionary<short, SkillDto>(),
                 NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var monster = SpawnMonster(4, 1);
             PlacePlayer(4, 5);
@@ -376,7 +392,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             random.Setup(r => r.Next(0, 10)).Returns(9);
             var ai = new MonsterAi(_battle.Object, _aggro,
                 World.Create<GameObject.Services.PathfindingService.PathfindingService>(), World.SessionRegistry,
-                World.DistanceCalculator, catalog.Object, random.Object, World.Clock,
+                World.DistanceCalculator, catalog.Object, random.Object, _chatter.Object, World.Clock,
                 new Dictionary<short, SkillDto> { [50] = new() { SkillVNum = 50, CastId = 3, Range = 2, Cooldown = 100, CastTime = 10 } },
                 NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var cast = new TaskCompletionSource<bool>();

@@ -513,6 +513,13 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Pull a monster that spawns against the right or bottom border, run out of its range and
       let it walk home: it walks back and the server log shows no `AI tick failed`
 
+### Monster chatter
+
+- [ ] Walk up to a hostile Fox on Chicken Farm Path: when it notices you a speech bubble reads
+      "Keee!!! Keeee!!!!", "Grrrrrrrrrrr..." or "Ggggggggggrrrrrrrrrrrrrrrr!"
+- [ ] A monster without a chatter group (Baby Dander) charges without a bubble
+- [ ] A Fox that keeps fighting you shouts again only after its aggro runs out (about 20 s)
+
 ### Monster stats
 
 The parser derives each monster's HP, MP, defences, dodge, damage, hit rate and critical

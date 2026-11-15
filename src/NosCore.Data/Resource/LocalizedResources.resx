@@ -651,6 +651,12 @@
   <data name="SCRIPT_OFFERS_LOADED" xml:space="preserve">
     <value>{0} ScriptOffers Loaded!</value>
   </data>
+  <data name="CHATTER_LINES_PARSED" xml:space="preserve">
+    <value>{0} ChatterLines Parsed!</value>
+  </data>
+  <data name="CHATTER_LINES_LOADED" xml:space="preserve">
+    <value>{0} ChatterLines Loaded!</value>
+  </data>
   <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
     <value>This event is already running.</value>
   </data>
