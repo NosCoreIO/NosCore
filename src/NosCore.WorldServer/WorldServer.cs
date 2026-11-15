@@ -39,7 +39,7 @@ namespace NosCore.WorldServer
 
             ConsoleHelper.AppendTitle($@" - Port : {worldConfiguration.Value.Port}");
             var connectTask = channelHubClient.BindUntilConnectedAsync(channel, logger, logLanguage);
-            await Task.WhenAny(connectTask, networkManager.RunServerAsync());
+            await Task.WhenAny(connectTask, networkManager.RunServerAsync(stoppingToken));
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)

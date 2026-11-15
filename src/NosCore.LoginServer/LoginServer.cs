@@ -45,7 +45,7 @@ namespace NosCore.LoginServer
             }
             var connectTask = channelHubClient.BindUntilConnectedAsync(channel, logger, logLanguage);
 
-            await Task.WhenAny(connectTask, networkManager.RunServerAsync());
+            await Task.WhenAny(connectTask, networkManager.RunServerAsync(stoppingToken));
         }
     }
 }
