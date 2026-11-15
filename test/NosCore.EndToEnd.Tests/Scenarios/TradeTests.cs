@@ -8,38 +8,52 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Exchanges;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class TradeTests
     {
+        private static ExchangeRequestPacket Request(RequestExchangeType type, TestClient other) =>
+            new() { RequestType = type, VisualId = other.CharacterId };
+
+        private static Func<ServerExcListPacket, bool> Offer(TestClient trader, long gold) =>
+            packet => packet.VisualType == VisualType.Player && packet.VisualId == trader.CharacterId
+                && packet.Gold == gold && packet.BankGold == 0;
+
         [TestMethod]
         public async Task GoldOfferedInATradeChangesHands()
         {
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116, configure: c => c.Gold = 1000);
             await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
 
-            await alice.SendAsync($"req_exc 1 {bob.CharacterId}");
-            await bob.ExpectAsync(p => p.StartsWith($"dlgi2 #req_exc^2^{alice.CharacterId} ", StringComparison.Ordinal), "the trade invitation");
-            await bob.SendAsync($"req_exc 2 {alice.CharacterId}");
-            await alice.ExpectAsync("exc_list");
-            await bob.ExpectAsync("exc_list");
+            await alice.SendAsync(Request(RequestExchangeType.Requested, bob));
+            await bob.ExpectAsync<Dlgi2Packet>(p => p.YesPacket is ExchangeRequestPacket { RequestType: RequestExchangeType.List } yes
+                && yes.VisualId == alice.CharacterId, "the trade invitation");
+            await bob.SendAsync(Request(RequestExchangeType.List, alice));
+            await alice.ExpectAsync<ServerExcListPacket>();
+            await bob.ExpectAsync<ServerExcListPacket>();
 
-            await alice.SendAsync("exc_list 400 0");
-            await bob.ExpectAsync(p => p.StartsWith($"exc_list 1 {alice.CharacterId} 400 0", StringComparison.Ordinal), "Alice's offer");
-            await bob.SendAsync("exc_list 0 0");
-            await alice.ExpectAsync(p => p.StartsWith($"exc_list 1 {bob.CharacterId} 0 0", StringComparison.Ordinal), "Bob's offer");
+            await alice.SendAsync(new ExcListPacket { Gold = 400, BankGold = 0 });
+            await bob.ExpectAsync<ServerExcListPacket>(Offer(alice, 400), "Alice's offer");
+            await bob.SendAsync(new ExcListPacket { Gold = 0, BankGold = 0 });
+            await alice.ExpectAsync<ServerExcListPacket>(Offer(bob, 0), "Bob's offer");
 
-            // 176 tells Alice the trade waits for the other side.
-            await alice.SendAsync("req_exc 3");
-            await alice.ExpectAsync(p => p.StartsWith("infoi 176 ", StringComparison.Ordinal), "infoi 176");
-            await bob.SendAsync("req_exc 3");
+            await alice.SendAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Confirmed });
+            await alice.ExpectAsync<InfoiPacket>(p => p.Message == Game18NConstString.TradeWaitingConfirm, "the wait for the other side");
+            await bob.SendAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Confirmed });
 
-            await alice.ExpectAsync(p => p == "gold 600 0", "Alice's gold");
-            await alice.ExpectAsync(p => p == "exc_close 1", "the trade closing");
-            await bob.ExpectAsync(p => p == "gold 400 0", "Bob's gold");
-            await bob.ExpectAsync(p => p == "exc_close 1", "the trade closing");
+            await alice.ExpectAsync<GoldPacket>(p => p is { Gold: 600, Unknown: 0 }, "Alice's gold");
+            await alice.ExpectAsync<ExcClosePacket>(p => p.Type == ExchangeResultType.Success, "the trade closing");
+            await bob.ExpectAsync<GoldPacket>(p => p is { Gold: 400, Unknown: 0 }, "Bob's gold");
+            await bob.ExpectAsync<ExcClosePacket>(p => p.Type == ExchangeResultType.Success, "the trade closing");
             Assert.AreEqual(600, (await Harness.StoredAsync(alice.CharacterId)).Gold, "a settled trade is stored at once");
             Assert.AreEqual(400, (await Harness.StoredAsync(bob.CharacterId)).Gold);
         }
@@ -51,14 +65,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
 
             var asked = alice.Mark();
-            await alice.SendAsync($"req_exc 1 {bob.CharacterId}");
-            await bob.ExpectAsync("dlgi2");
-            await bob.SendAsync($"req_exc 5 {alice.CharacterId}");
+            await alice.SendAsync(Request(RequestExchangeType.Requested, bob));
+            await bob.ExpectAsync<Dlgi2Packet>();
+            await bob.SendAsync(Request(RequestExchangeType.Declined, alice));
 
-            // 178 is the client's line for a trade the other side cancelled.
-            await alice.ExpectAsync(p => p.StartsWith($"sayi 1 {alice.CharacterId} 10 178 ", StringComparison.Ordinal), "sayi 178");
-            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "exc_list" or "gold", TimeSpan.FromSeconds(1)),
-                "no trade window opens and no gold moves");
+            await alice.ExpectAsync<SayiPacket>(p => p.VisualId == alice.CharacterId && p.Type == SayColorType.Yellow
+                && p.Message == Game18NConstString.TradeCancelled2, "the cancelled trade");
+            Assert.IsTrue(await alice.NoneSinceAsync<ServerExcListPacket>(asked, null, TimeSpan.FromSeconds(1)), "no trade window opens");
+            Assert.IsTrue(await alice.NoneSinceAsync<GoldPacket>(asked, null, TimeSpan.Zero), "no gold moves");
         }
     }
 }

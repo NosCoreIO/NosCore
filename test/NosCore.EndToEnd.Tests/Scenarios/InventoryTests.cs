@@ -14,33 +14,52 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class InventoryTests
     {
-        private const int EquipmentPocket = 0;
-        private const int MainPocket = 1;
-        private const int EtcPocket = 2;
-        private const int CostumePocket = 7;
-        private const int Player = 1;
-        private const int MainWeaponSlot = 0;
-        private const int HatSlot = 2;
-        private const int FairySlot = 10;
-        private const int MostInASlot = 999;
-        private const int BagSlots = 48;
+        private const short MostInASlot = 999;
+        private const short BagSlots = 48;
 
-        // ivn <pocket> <slot>.<vnum>.<amount, or rare for equipment>.<upgrade>...
-        private static Func<string, bool> Slot(int pocket, int slot, int vnum, int amount) =>
-            packet => packet.StartsWith($"ivn {pocket} {slot}.{vnum}.{amount}.", StringComparison.Ordinal);
+        private static bool IsEmpty(IvnSubPacket slot) => slot.VNum is 0 or -1;
 
-        private static Func<string, bool> EmptySlot(int pocket, int slot) =>
-            packet => packet.StartsWith($"ivn {pocket} {slot}.", StringComparison.Ordinal)
-                && packet.Split(' ')[2].Split('.')[1] is "0" or "-1";
+        private static Func<IvnPacket, bool> Slot(PocketType pocket, short slot, short vnum, short amount) =>
+            packet => packet.Type == pocket && packet.IvnSubPackets?.Any(item => item.Slot == slot && item.VNum == vnum && item.RareAmount == amount) == true;
 
-        private static Func<string, bool> AnySlot(int pocket, int slot) =>
-            packet => packet.StartsWith($"ivn {pocket} {slot}.", StringComparison.Ordinal);
+        private static Func<IvnPacket, bool> EmptySlot(PocketType pocket, short slot) =>
+            packet => packet.Type == pocket && packet.IvnSubPackets?.FirstOrDefault()?.Slot == slot && IsEmpty(packet.IvnSubPackets[0]);
+
+        private static Func<IvnPacket, bool> AnySlot(PocketType pocket, short slot) =>
+            packet => packet.Type == pocket && packet.IvnSubPackets?.FirstOrDefault()?.Slot == slot;
+
+        private static UseItemPacket Use(TestClient user, PocketType pocket) =>
+            new() { VisualType = VisualType.Player, VisualId = user.CharacterId, Type = pocket, Slot = 0, Mode = 0, Parameter = 0 };
+
+        private static Func<EqPacket, bool> LookOf(TestClient who) => packet => packet.VisualId == who.CharacterId;
+
+        private static Func<DropPacket, bool> SeedsDropped => packet => packet.VNum == WorldData.Seed;
+
+        private static GetPacket PickUp(TestClient picker, long drop) =>
+            new() { PickerType = VisualType.Player, PickerId = picker.CharacterId, VisualId = drop, IsDelayed = 0 };
+
+        private static BiPacket Destroy(RequestDeletionType? option = null) => new() { PocketType = PocketType.Etc, Slot = 0, Option = option };
+
+        private static EquipmentSubPacket Blade(short rare, short upgrade) =>
+            new() { EquipmentType = EquipmentType.MainWeapon, VNum = WorldData.Blade, Rare = rare, Upgrade = upgrade, Unknown = 0 };
 
         private static async Task<TestClient> EnterAsync(Player player)
         {
@@ -58,17 +77,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             return client;
         }
 
-        // What a pocket holds as the server lists it on entering: "slot.vnum.amount" for each slot,
-        // the amount being the rarity in the equipment pocket.
-        private static string[] Listed(TestClient client, int pocket) =>
-            client.Received.Where(p => p.StartsWith($"inv {pocket}", StringComparison.Ordinal))
-                .SelectMany(p => p.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(2))
-                .Select(slot => slot.Split('.'))
-                .OrderBy(slot => int.Parse(slot[0], CultureInfo.InvariantCulture))
-                .Select(slot => string.Join('.', slot.Take(3)))
+        // What a pocket holds as the server lists it on entering, the amount being the rarity in the
+        // equipment pocket.
+        private static (int Slot, int VNum, int Amount)[] Listed(TestClient client, PocketType pocket) =>
+            client.Received.OfType<InvPacket>().Where(p => p.Type == pocket)
+                .SelectMany(p => p.IvnSubPackets ?? [])
+                .OrderBy(slot => slot.Slot)
+                .Select(slot => ((int)slot.Slot, (int)slot.VNum, (int)slot.RareAmount))
                 .ToArray();
 
-        private static async Task<string[]> StoredAsync(long characterId, NoscorePocketType pocket)
+        private static async Task<(int Slot, int VNum, int Amount)[]> StoredAsync(long characterId, NoscorePocketType pocket)
         {
             await using var context = Harness.Database.CreateContext();
             var rows = await context.Set<InventoryItemInstance>().AsNoTracking()
@@ -76,13 +94,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 .OrderBy(i => i.Slot)
                 .Select(i => new { i.Slot, i.ItemInstance.ItemVNum, i.ItemInstance.Amount })
                 .ToArrayAsync();
-            return rows.Select(r => $"{r.Slot}.{r.ItemVNum}.{r.Amount}").ToArray();
+            return rows.Select(r => ((int)r.Slot, (int)r.ItemVNum, (int)r.Amount)).ToArray();
         }
 
-        private static void Same(string[] expected, string[] actual, string? what = null) =>
+        private static void Same((int Slot, int VNum, int Amount)[] expected, (int Slot, int VNum, int Amount)[] actual, string? what = null) =>
             Assert.AreEqual(string.Join(' ', expected), string.Join(' ', actual), what);
 
-        private static int Hp(string stat) => int.Parse(stat.Split(' ')[1], CultureInfo.InvariantCulture);
+        private static void Same((int Slot, int VNum)[] expected, (int Slot, int VNum)[] actual, string? what = null) =>
+            Assert.AreEqual(string.Join(' ', expected), string.Join(' ', actual), what);
+
+        private static void Same(int[] expected, int[] actual, string? what = null) =>
+            Assert.AreEqual(string.Join(' ', expected), string.Join(' ', actual), what);
 
         [TestMethod]
         public async Task AStackMovedToAnEmptySlotLeavesItsOldSlotEmpty()
@@ -93,14 +115,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mvi {EtcPocket} 0 5 3");
+                await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 5, DestinationSlot = 3 });
 
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 3, WorldData.Seed, 5), "the stack in its new slot");
-                await alice.ExpectSinceAsync(moved, EmptySlot(EtcPocket, 0), "the emptied slot");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 3, WorldData.Seed, 5), "the stack in its new slot");
+                await alice.ExpectSinceAsync(moved, EmptySlot(PocketType.Etc, 0), "the emptied slot");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"3.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(3, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
         }
 
         [TestMethod]
@@ -112,15 +134,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mvi {EtcPocket} 0 2 1");
+                await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 2, DestinationSlot = 1 });
 
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 1, WorldData.Seed, 2), "the two split off");
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 0, WorldData.Seed, 3), "the three left behind");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 1, WorldData.Seed, 2), "the two split off");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 0, WorldData.Seed, 3), "the three left behind");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Seed}.3", $"1.{WorldData.Seed}.2" }, Listed(back, EtcPocket));
-            Same(new[] { $"0.{WorldData.Seed}.3", $"1.{WorldData.Seed}.2" },
+            Same([(0, WorldData.Seed, 3), (1, WorldData.Seed, 2)], Listed(back, PocketType.Etc));
+            Same([(0, WorldData.Seed, 3), (1, WorldData.Seed, 2)],
                 await StoredAsync(player.CharacterId, NoscorePocketType.Etc));
         }
 
@@ -134,15 +156,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mvi {EtcPocket} 0 5 1");
+                await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 5, DestinationSlot = 1 });
 
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 1, WorldData.Seed, 12), "the merged stack");
-                await alice.ExpectSinceAsync(moved, EmptySlot(EtcPocket, 0), "the emptied slot");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 1, WorldData.Seed, 12), "the merged stack");
+                await alice.ExpectSinceAsync(moved, EmptySlot(PocketType.Etc, 0), "the emptied slot");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"1.{WorldData.Seed}.12" }, Listed(back, EtcPocket));
-            Same(new[] { $"1.{WorldData.Seed}.12" }, await StoredAsync(player.CharacterId, NoscorePocketType.Etc));
+            Same([(1, WorldData.Seed, 12)], Listed(back, PocketType.Etc));
+            Same([(1, WorldData.Seed, 12)], await StoredAsync(player.CharacterId, NoscorePocketType.Etc));
         }
 
         [TestMethod]
@@ -154,10 +176,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterAsync(player);
             var moved = alice.Mark();
 
-            await alice.SendAsync($"mvi {EtcPocket} 0 2 1");
+            await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 2, DestinationSlot = 1 });
 
-            await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 1, WorldData.Seed, 9), "the stack that grew");
-            await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 0, WorldData.Seed, 3), "the stack that shrank");
+            await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 1, WorldData.Seed, 9), "the stack that grew");
+            await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 0, WorldData.Seed, 3), "the stack that shrank");
         }
 
         [TestMethod]
@@ -170,15 +192,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mvi {EtcPocket} 0 600 1");
+                await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 600, DestinationSlot = 1 });
 
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 1, WorldData.Seed, MostInASlot), "the full stack");
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 0, WorldData.Seed, 600 + 700 - MostInASlot), "what did not fit");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 1, WorldData.Seed, MostInASlot), "the full stack");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 0, WorldData.Seed, 600 + 700 - MostInASlot), "what did not fit");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Seed}.{600 + 700 - MostInASlot}", $"1.{WorldData.Seed}.{MostInASlot}" },
-                Listed(back, EtcPocket));
+            Same([(0, WorldData.Seed, 600 + 700 - MostInASlot), (1, WorldData.Seed, MostInASlot)],
+                Listed(back, PocketType.Etc));
         }
 
         [TestMethod]
@@ -191,10 +213,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var moved = alice.Mark();
 
             // Five are asked for and nine would fit.
-            await alice.SendAsync($"mvi {EtcPocket} 0 5 1");
+            await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 5, DestinationSlot = 1 });
 
-            await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 1, WorldData.Seed, 995), "the stack that grew by five");
-            await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 0, WorldData.Seed, 595), "the stack that shrank by five");
+            await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 1, WorldData.Seed, 995), "the stack that grew by five");
+            await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 0, WorldData.Seed, 595), "the stack that shrank by five");
         }
 
         [TestMethod]
@@ -206,14 +228,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mvi {EtcPocket} 0 9 1");
+                await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 9, DestinationSlot = 1 });
 
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 0, WorldData.Seed, 5), "the stack where it was");
-                await alice.ExpectSinceAsync(moved, EmptySlot(EtcPocket, 1), "the slot still empty");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 0, WorldData.Seed, 5), "the stack where it was");
+                await alice.ExpectSinceAsync(moved, EmptySlot(PocketType.Etc, 1), "the slot still empty");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
         }
 
         [TestMethod]
@@ -225,13 +247,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mvi {EtcPocket} 0 5 {BagSlots}");
+                await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 5, DestinationSlot = (byte)BagSlots });
 
-                await alice.ExpectSinceAsync(moved, Slot(EtcPocket, 0, WorldData.Seed, 5), "the stack where it was");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 0, WorldData.Seed, 5), "the stack where it was");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
         }
 
         [TestMethod]
@@ -242,19 +264,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(player, WorldData.Pebble, 3, slot: 5);
             await using (var alice = await EnterAsync(player))
             {
-                await alice.SendAsync($"isort {EtcPocket}");
+                await alice.SendAsync(new ISortPacket { PocketType = PocketType.Etc });
 
-                var sorted = (await alice.ExpectAsync("ivn")).Split(' ');
-                Assert.AreEqual(EtcPocket.ToString(CultureInfo.InvariantCulture), sorted[1]);
-                Same(new[] { $"0.{WorldData.Pebble}.3", $"1.{WorldData.Seed}.5" },
-                    sorted.Skip(2).Take(2).Select(slot => string.Join('.', slot.Split('.').Take(3))).ToArray());
-                Same(new[] { "5", "9" }, sorted.Skip(4).Select(slot => slot.Split('.')[0]).ToArray(),
-                    "the slots they left are sent as well");
-                Assert.IsTrue(sorted.Skip(4).All(slot => slot.Split('.')[1] is "0" or "-1"), "and are empty");
+                var sorted = await alice.ExpectAsync<IvnPacket>();
+                var slots = sorted.IvnSubPackets ?? [];
+                Assert.AreEqual(PocketType.Etc, sorted.Type);
+                Same([(0, WorldData.Pebble, 3), (1, WorldData.Seed, 5)], slots.Take(2).Select(slot => ((int)slot.Slot, (int)slot.VNum, (int)slot.RareAmount)).ToArray());
+                Same([5, 9], slots.Skip(2).Select(slot => (int)slot.Slot).ToArray(), "the slots they left are sent as well");
+                Assert.IsTrue(slots.Skip(2).All(IsEmpty), "and are empty");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Pebble}.3", $"1.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(0, WorldData.Pebble, 3), (1, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
         }
 
         [TestMethod]
@@ -262,18 +283,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await Harness.AddPlayerAsync("Alice");
             await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1, Rare = 5 },
-                NoscorePocketType.Wear, MainWeaponSlot);
+                NoscorePocketType.Wear, (short)EquipmentType.MainWeapon);
             await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
             await using (var alice = await EnterAsync(player))
             {
-                // 8 is no pocket a client names; the head is slot 2 of what is worn.
-                await alice.SendAsync($"mvi 8 {MainWeaponSlot} 1 {HatSlot}");
+                // 8 is no pocket a client names.
+                await alice.SendAsync(new MviPacket { InventoryType = (PocketType)8, Slot = (short)EquipmentType.MainWeapon, Amount = 1, DestinationSlot = (byte)EquipmentType.Hat });
                 await alice.WalkAsync(80, 117);
-                await bob.ExpectAsync(p => p.StartsWith($"mv {Player} {alice.CharacterId} 80 117 ", StringComparison.Ordinal), "the step after it");
+                await bob.ExpectAsync<MovePacket>(p => p is { VisualType: VisualType.Player, MapX: 80, MapY: 117 } && p.VisualEntityId == alice.CharacterId, "the step after it");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"{MainWeaponSlot}.{WorldData.Blade}.1" }, await StoredAsync(player.CharacterId, NoscorePocketType.Wear));
+            Same([((int)EquipmentType.MainWeapon, (int)WorldData.Blade, 1)], await StoredAsync(player.CharacterId, NoscorePocketType.Wear));
         }
 
         [TestMethod]
@@ -284,26 +305,24 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var dropper = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
             await Harness.GiveAsync(dropper, WorldData.Seed, 5);
             await using var bob = await EnterAsync(dropper);
-            IReadOnlyList<string> told;
+            IReadOnlyList<IPacket> told;
             await using (var alice = await EnterAsync(owner))
             {
-                await bob.SendAsync($"put {EtcPocket} 0 5");
-                var drop = await alice.ExpectAsync(p => p.StartsWith($"drop {WorldData.Seed} ", StringComparison.Ordinal), "the drop");
+                await bob.SendAsync(new PutPacket { PocketType = PocketType.Etc, Slot = 0, Amount = 5 });
+                var drop = await alice.ExpectAsync(SeedsDropped, "the drop");
                 var picked = alice.Mark();
 
-                await alice.SendAsync($"get {Player} {alice.CharacterId} {drop.Split(' ')[2]} 0");
+                await alice.SendAsync(PickUp(alice, drop.VisualId));
 
-                await alice.ExpectSinceAsync(picked, Slot(EtcPocket, 0, WorldData.Seed, MostInASlot), "the stack filled up");
+                await alice.ExpectSinceAsync(picked, Slot(PocketType.Etc, 0, WorldData.Seed, MostInASlot), "the stack filled up");
                 // The pick-up is shown to the map once the bag has been sent.
-                await alice.ExpectSinceAsync(picked, p => p.StartsWith($"get {Player} {alice.CharacterId} ", StringComparison.Ordinal), "the pick-up");
+                await alice.ExpectSinceAsync<ServerGetPacket>(picked, p => p.VisualType == VisualType.Player && p.VisualId == alice.CharacterId, "the pick-up");
                 told = alice.Since(picked);
             }
 
             await using var back = await Harness.ComeBackAsync(owner);
-            Same(new[] { $"0.{WorldData.Seed}.{MostInASlot}", $"1.{WorldData.Seed}.3" }, Listed(back, EtcPocket));
-            Assert.IsTrue(told.Where(p => p.StartsWith($"ivn {EtcPocket} ", StringComparison.Ordinal))
-                    .SelectMany(p => p.Split(' ').Skip(2)).Any(slot => slot.StartsWith($"1.{WorldData.Seed}.3.", StringComparison.Ordinal)),
-                "the client is told of the rest, in a slot of its own");
+            Same([(0, WorldData.Seed, MostInASlot), (1, WorldData.Seed, 3)], Listed(back, PocketType.Etc));
+            Assert.IsTrue(told.OfType<IvnPacket>().Any(Slot(PocketType.Etc, 1, WorldData.Seed, 3)), "the client is told of the rest, in a slot of its own");
         }
 
         [TestMethod]
@@ -319,16 +338,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(dropper, WorldData.Seed, 5);
             await using var bob = await EnterAsync(dropper);
             await using var alice = await EnterAsync(owner);
-            await bob.SendAsync($"put {EtcPocket} 0 5");
-            var dropId = (await alice.ExpectAsync(p => p.StartsWith($"drop {WorldData.Seed} ", StringComparison.Ordinal), "the drop")).Split(' ')[2];
+            await bob.SendAsync(new PutPacket { PocketType = PocketType.Etc, Slot = 0, Amount = 5 });
+            var dropId = (await alice.ExpectAsync(SeedsDropped, "the drop")).VisualId;
             var refused = alice.Mark();
 
-            await alice.SendAsync($"get {Player} {alice.CharacterId} {dropId} 0");
+            await alice.SendAsync(PickUp(alice, dropId));
 
-            await alice.ExpectSinceAsync(refused, p => TestClient.HeaderOf(p) == "msgi", "the refusal");
+            await alice.ExpectSinceAsync<MsgiPacket>(refused, null, "the refusal");
             var picked = bob.Mark();
-            await bob.SendAsync($"get {Player} {bob.CharacterId} {dropId} 0");
-            await bob.ExpectSinceAsync(picked, Slot(EtcPocket, 0, WorldData.Seed, 5), "the five still there to pick up");
+            await bob.SendAsync(PickUp(bob, dropId));
+            await bob.ExpectSinceAsync(picked, Slot(PocketType.Etc, 0, WorldData.Seed, 5), "the five still there to pick up");
         }
 
         [TestMethod]
@@ -342,22 +361,20 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var worn = alice.Mark();
 
-                await alice.SendAsync("wear 0 0");
+                await alice.SendAsync(new WearPacket { InventorySlot = 0, PartnerSlot = 0 });
 
-                await alice.ExpectSinceAsync(worn, EmptySlot(EquipmentPocket, 0), "the emptied bag slot");
-                var equipment = await alice.ExpectSinceAsync(worn, p => TestClient.HeaderOf(p) == "equip", "what is worn");
-                CollectionAssert.Contains(equipment.Split(' '), $"{MainWeaponSlot}.{WorldData.Blade}.5.7.0");
-                var seen = (await bob.ExpectAsync(p => p.StartsWith($"eq {alice.CharacterId} ", StringComparison.Ordinal), "Alice's look")).Split(' ');
-                Assert.AreEqual(WorldData.Blade.ToString(CultureInfo.InvariantCulture), seen[7].Split('.')[2], "the weapon in her hand");
-                // Upgrade and rarity of the weapon, written without a separator.
-                Assert.AreEqual("75", seen[8]);
+                await alice.ExpectSinceAsync(worn, EmptySlot(PocketType.Equipment, 0), "the emptied bag slot");
+                var equipment = await alice.ExpectSinceAsync<EquipPacket>(worn, null, "what is worn");
+                PacketAssert.AreEqual(Blade(5, 7), equipment.MainWeapon);
+                var seen = await bob.ExpectAsync(LookOf(alice), "Alice's look");
+                Assert.AreEqual(WorldData.Blade, seen.EqSubPacket?.MainWeapon, "the weapon in her hand");
+                Assert.AreEqual(((byte?)7, (sbyte)5), (seen.WeaponUpgradeRarePacket?.Upgrade, seen.WeaponUpgradeRarePacket?.Rare ?? 0));
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(Array.Empty<string>(), Listed(back, EquipmentPocket));
-            CollectionAssert.Contains(back.Received.Single(p => TestClient.HeaderOf(p) == "equip").Split(' '),
-                $"{MainWeaponSlot}.{WorldData.Blade}.5.7.0");
-            Same(new[] { $"{MainWeaponSlot}.{WorldData.Blade}.1" }, await StoredAsync(player.CharacterId, NoscorePocketType.Wear));
+            Same([], Listed(back, PocketType.Equipment));
+            PacketAssert.AreEqual(Blade(5, 7), back.Received.OfType<EquipPacket>().Single().MainWeapon);
+            Same([((int)EquipmentType.MainWeapon, (int)WorldData.Blade, 1)], await StoredAsync(player.CharacterId, NoscorePocketType.Wear));
         }
 
         [TestMethod]
@@ -365,30 +382,27 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await Harness.AddPlayerAsync("Alice");
             await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1, Rare = 5, Upgrade = 7 },
-                NoscorePocketType.Wear, MainWeaponSlot);
+                NoscorePocketType.Wear, (short)EquipmentType.MainWeapon);
             await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
             await using (var alice = await EnterAsync(player))
             {
-                CollectionAssert.Contains(alice.Received.Single(p => TestClient.HeaderOf(p) == "equip").Split(' '),
-                    $"{MainWeaponSlot}.{WorldData.Blade}.5.7.0");
-                var arrival = (await bob.ExpectAsync(p => p.StartsWith($"in {Player} ", StringComparison.Ordinal)
-                    && p.Split(' ')[4] == alice.CharacterId.ToString(CultureInfo.InvariantCulture), "Alice arriving")).Split(' ');
-                Assert.IsTrue(arrival.Any(field => field.Split('.') is [_, _, var weapon, ..] && weapon == WorldData.Blade.ToString(CultureInfo.InvariantCulture)
-                    && field.Count(c => c == '.') >= 8), "she arrives with the weapon in her hand");
+                PacketAssert.AreEqual(Blade(5, 7), alice.Received.OfType<EquipPacket>().Single().MainWeapon);
+                var arrival = await bob.ExpectAsync<InPacket>(p => p.VisualType == VisualType.Player && p.VisualId == alice.CharacterId, "Alice arriving");
+                Assert.AreEqual(WorldData.Blade, arrival.InCharacterSubPacket?.Equipment?.MainWeapon, "she arrives with the weapon in her hand");
                 var removed = alice.Mark();
 
-                await alice.SendAsync($"remove {MainWeaponSlot} 0");
+                await alice.SendAsync(new RemovePacket { InventorySlot = EquipmentType.MainWeapon, Type = 0 });
 
-                await alice.ExpectSinceAsync(removed, Slot(EquipmentPocket, 0, WorldData.Blade, 5), "the weapon in the bag");
-                var equipment = await alice.ExpectSinceAsync(removed, p => TestClient.HeaderOf(p) == "equip", "what is worn");
-                Assert.IsFalse(equipment.Contains($".{WorldData.Blade}.", StringComparison.Ordinal), "nothing is worn any more");
-                var seen = (await bob.ExpectAsync(p => p.StartsWith($"eq {alice.CharacterId} ", StringComparison.Ordinal), "Alice's look")).Split(' ');
-                Assert.AreEqual("-1", seen[7].Split('.')[2], "the empty hand");
+                await alice.ExpectSinceAsync(removed, Slot(PocketType.Equipment, 0, WorldData.Blade, 5), "the weapon in the bag");
+                var equipment = await alice.ExpectSinceAsync<EquipPacket>(removed, null, "what is worn");
+                Assert.IsNull(equipment.MainWeapon?.VNum, "nothing is worn any more");
+                var seen = await bob.ExpectAsync(LookOf(alice), "Alice's look");
+                Assert.IsNull(seen.EqSubPacket?.MainWeapon, "the empty hand");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Blade}.5" }, Listed(back, EquipmentPocket));
-            Same(Array.Empty<string>(), await StoredAsync(player.CharacterId, NoscorePocketType.Wear));
+            Same([(0, WorldData.Blade, 5)], Listed(back, PocketType.Equipment));
+            Same([], await StoredAsync(player.CharacterId, NoscorePocketType.Wear));
         }
 
         [TestMethod]
@@ -399,15 +413,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
             await using var alice = await EnterAsync(player);
 
-            await alice.SendAsync("wear 0 0");
+            await alice.SendAsync(new WearPacket { InventorySlot = 0, PartnerSlot = 0 });
 
-            var seen = (await bob.ExpectAsync(p => p.StartsWith($"eq {alice.CharacterId} ", StringComparison.Ordinal), "Alice's look")).Split(' ');
-            Assert.AreEqual(WorldData.Hat.ToString(CultureInfo.InvariantCulture), seen[7].Split('.')[0], "the hat on her head");
+            var seen = await bob.ExpectAsync(LookOf(alice), "Alice's look");
+            Assert.AreEqual(WorldData.Hat, seen.EqSubPacket?.Hat, "the hat on her head");
 
-            await alice.SendAsync($"remove {HatSlot} 0");
+            await alice.SendAsync(new RemovePacket { InventorySlot = EquipmentType.Hat, Type = 0 });
 
-            seen = (await bob.ExpectAsync(p => p.StartsWith($"eq {alice.CharacterId} ", StringComparison.Ordinal), "Alice's look")).Split(' ');
-            Assert.AreEqual("-1", seen[7].Split('.')[0], "the bare head");
+            seen = await bob.ExpectAsync(LookOf(alice), "Alice's look");
+            Assert.IsNull(seen.EqSubPacket?.Hat, "the bare head");
         }
 
         [TestMethod]
@@ -419,16 +433,19 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
             await using var alice = await EnterAsync(player);
 
-            await alice.SendAsync("wear 0 0");
+            await alice.SendAsync(new WearPacket { InventorySlot = 0, PartnerSlot = 0 });
 
-            // pairy <type> <id> <move> <element> <rate> <morph>: the fairy's own rate on top of its item's.
-            Assert.AreEqual($"pairy {Player} {alice.CharacterId} 4 1 {WorldData.FairyElementRate + 12} 0", await bob.ExpectAsync("pairy"));
+            // The fairy's own rate on top of its item's.
+            PacketAssert.AreEqual(new PairyPacket
+            {
+                VisualType = VisualType.Player, VisualId = alice.CharacterId, FairyMoveType = 4, Element = ElementType.Fire, ElementRate = WorldData.FairyElementRate + 12, Morph = 0,
+            }, await bob.ExpectAsync<PairyPacket>());
             var removed = alice.Mark();
 
-            await alice.SendAsync($"remove {FairySlot} 0");
+            await alice.SendAsync(new RemovePacket { InventorySlot = EquipmentType.Fairy, Type = 0 });
 
-            Assert.AreEqual($"pairy {Player} {alice.CharacterId} 0 0 0 0", await bob.ExpectAsync("pairy"));
-            await alice.ExpectSinceAsync(removed, Slot(EquipmentPocket, 0, WorldData.Fairy, 0), "the fairy in the bag");
+            PacketAssert.AreEqual(new PairyPacket { VisualType = VisualType.Player, VisualId = alice.CharacterId }, await bob.ExpectAsync<PairyPacket>());
+            await alice.ExpectSinceAsync(removed, Slot(PocketType.Equipment, 0, WorldData.Fairy, 0), "the fairy in the bag");
         }
 
         [TestMethod]
@@ -441,14 +458,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var worn = bob.Mark();
 
-                await alice.SendAsync($"u_i {Player} {alice.CharacterId} {EtcPocket} 0 0 0");
+                await alice.SendAsync(Use(alice, PocketType.Etc));
 
-                Assert.IsTrue(await bob.NoneSinceAsync(worn, p => p.StartsWith($"eq {alice.CharacterId} ", StringComparison.Ordinal),
-                    TimeSpan.FromSeconds(1)), "nothing changes in what she wears");
+                Assert.IsTrue(await bob.NoneSinceAsync(worn, LookOf(alice), TimeSpan.FromSeconds(1)), "nothing changes in what she wears");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
         }
 
         [TestMethod]
@@ -456,7 +472,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await Harness.AddPlayerAsync("Alice");
             await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1, Rare = 5 },
-                NoscorePocketType.Wear, MainWeaponSlot);
+                NoscorePocketType.Wear, (short)EquipmentType.MainWeapon);
             for (short slot = 0; slot < BagSlots; slot++)
             {
                 await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Hat, Amount = 1 }, NoscorePocketType.Equipment, slot);
@@ -466,16 +482,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var removed = alice.Mark();
 
-                await alice.SendAsync($"remove {MainWeaponSlot} 0");
+                await alice.SendAsync(new RemovePacket { InventorySlot = EquipmentType.MainWeapon, Type = 0 });
 
-                await alice.ExpectSinceAsync(removed, p => TestClient.HeaderOf(p) == "msgi", "the refusal");
-                Assert.IsFalse(alice.Since(removed).Any(p => TestClient.HeaderOf(p) == "ivn"), "the bag does not change");
+                await alice.ExpectSinceAsync<MsgiPacket>(removed, null, "the refusal");
+                Assert.IsFalse(alice.Since<IvnPacket>(removed).Any(), "the bag does not change");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            CollectionAssert.Contains(back.Received.Single(p => TestClient.HeaderOf(p) == "equip").Split(' '),
-                $"{MainWeaponSlot}.{WorldData.Blade}.5.0.0");
-            Assert.AreEqual(BagSlots, Listed(back, EquipmentPocket).Length);
+            PacketAssert.AreEqual(Blade(5, 0), back.Received.OfType<EquipPacket>().Single().MainWeapon);
+            Assert.AreEqual(BagSlots, Listed(back, PocketType.Equipment).Length);
         }
 
         [TestMethod]
@@ -487,25 +502,25 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mve {EquipmentPocket} 0 {CostumePocket} 2");
+                await alice.SendAsync(new MvePacket { InventoryType = PocketType.Equipment, Slot = 0, DestinationInventoryType = PocketType.Costume, DestinationSlot = 2 });
 
-                await alice.ExpectSinceAsync(moved, AnySlot(CostumePocket, 2), "the costume pocket");
-                StringAssert.StartsWith(alice.Since(moved).First(AnySlot(CostumePocket, 2)), $"ivn {CostumePocket} 2.{WorldData.CostumeHat}.");
-                await alice.ExpectSinceAsync(moved, EmptySlot(EquipmentPocket, 0), "the emptied bag slot");
+                var costume = await alice.ExpectSinceAsync(moved, AnySlot(PocketType.Costume, 2), "the costume pocket");
+                Assert.AreEqual(WorldData.CostumeHat, costume.IvnSubPackets?[0].VNum);
+                await alice.ExpectSinceAsync(moved, EmptySlot(PocketType.Equipment, 0), "the emptied bag slot");
                 var back = alice.Mark();
 
-                await alice.SendAsync($"mve {CostumePocket} 2 {EquipmentPocket} 3");
+                await alice.SendAsync(new MvePacket { InventoryType = PocketType.Costume, Slot = 2, DestinationInventoryType = PocketType.Equipment, DestinationSlot = 3 });
 
-                await alice.ExpectSinceAsync(back, Slot(EquipmentPocket, 3, WorldData.CostumeHat, 0), "the costume in the bag again");
-                await alice.ExpectSinceAsync(back, EmptySlot(CostumePocket, 2), "the emptied costume slot");
+                await alice.ExpectSinceAsync(back, Slot(PocketType.Equipment, 3, WorldData.CostumeHat, 0), "the costume in the bag again");
+                await alice.ExpectSinceAsync(back, EmptySlot(PocketType.Costume, 2), "the emptied costume slot");
 
-                await alice.SendAsync($"mve {EquipmentPocket} 3 {CostumePocket} 1");
-                await alice.ExpectAsync(AnySlot(CostumePocket, 1), "the costume pocket");
+                await alice.SendAsync(new MvePacket { InventoryType = PocketType.Equipment, Slot = 3, DestinationInventoryType = PocketType.Costume, DestinationSlot = 1 });
+                await alice.ExpectAsync(AnySlot(PocketType.Costume, 1), "the costume pocket");
             }
 
             await using var again = await Harness.ComeBackAsync(player);
-            Same(new[] { $"1.{WorldData.CostumeHat}.1" }, await StoredAsync(player.CharacterId, NoscorePocketType.Costume));
-            Same(Array.Empty<string>(), Listed(again, EquipmentPocket));
+            Same([(1, WorldData.CostumeHat, 1)], await StoredAsync(player.CharacterId, NoscorePocketType.Costume));
+            Same([], Listed(again, PocketType.Equipment));
         }
 
         [TestMethod]
@@ -514,32 +529,31 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var player = await Harness.AddPlayerAsync("Alice");
             await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.CostumeHat, Amount = 1 }, NoscorePocketType.Equipment);
             await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.CostumeHat, Amount = 1 }, NoscorePocketType.Costume);
-            string[] toldBag;
-            string[] toldCostumes;
+            (int, int)[] toldBag;
+            (int, int)[] toldCostumes;
             await using (var alice = await EnterAsync(player))
             {
                 var moved = alice.Mark();
 
-                await alice.SendAsync($"mve {EquipmentPocket} 0 {CostumePocket} 0");
+                await alice.SendAsync(new MvePacket { InventoryType = PocketType.Equipment, Slot = 0, DestinationInventoryType = PocketType.Costume, DestinationSlot = 0 });
 
-                await alice.ExpectSinceAsync(moved, AnySlot(CostumePocket, 0), "the costume slot");
-                await alice.ExpectSinceAsync(moved, AnySlot(EquipmentPocket, 0), "the bag slot");
-                toldBag = Held(alice.Since(moved).Last(AnySlot(EquipmentPocket, 0)));
-                toldCostumes = Held(alice.Since(moved).Last(AnySlot(CostumePocket, 0)));
+                await alice.ExpectSinceAsync(moved, AnySlot(PocketType.Costume, 0), "the costume slot");
+                await alice.ExpectSinceAsync(moved, AnySlot(PocketType.Equipment, 0), "the bag slot");
+                toldBag = Held(alice.Since<IvnPacket>(moved).Last(AnySlot(PocketType.Equipment, 0)));
+                toldCostumes = Held(alice.Since<IvnPacket>(moved).Last(AnySlot(PocketType.Costume, 0)));
             }
 
             // Whether the two swap or the move is refused, the client must be told what the server kept.
             await using var back = await Harness.ComeBackAsync(player);
-            Same(Listed(back, EquipmentPocket).Select(slot => string.Join('.', slot.Split('.').Take(2))).ToArray(), toldBag,
+            Same(Listed(back, PocketType.Equipment).Select(slot => (slot.Slot, slot.VNum)).ToArray(), toldBag,
                 "the bag as the client was told against the bag as it is");
-            Same(Listed(back, CostumePocket).Select(slot => string.Join('.', slot.Split('.').Take(2))).ToArray(), toldCostumes,
+            Same(Listed(back, PocketType.Costume).Select(slot => (slot.Slot, slot.VNum)).ToArray(), toldCostumes,
                 "the costume pocket as the client was told against the pocket as it is");
         }
 
-        // "slot.vnum" for what an ivn says a slot holds, nothing when it says the slot is empty.
-        private static string[] Held(string ivn) =>
-            ivn.Split(' ').Skip(2).Select(slot => slot.Split('.')).Where(slot => slot[1] is not ("0" or "-1"))
-                .Select(slot => $"{slot[0]}.{slot[1]}").ToArray();
+        // What an ivn says the slots hold, leaving out those it says are empty.
+        private static (int, int)[] Held(IvnPacket ivn) =>
+            (ivn.IvnSubPackets ?? []).Where(slot => !IsEmpty(slot)).Select(slot => ((int)slot.Slot, (int)slot.VNum)).ToArray();
 
         [TestMethod]
         public async Task APotionRestoresHpAndIsUsedUp()
@@ -548,18 +562,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(player, WorldData.Potion, 3, pocket: NoscorePocketType.Main);
             await using (var alice = await EnterAsync(player))
             {
-                Assert.AreEqual(100, Hp(alice.Received.Last(p => TestClient.HeaderOf(p) == "stat")));
+                Assert.AreEqual(100, alice.Received.OfType<StatPacket>().Last().Hp);
                 var drunk = alice.Mark();
 
-                await alice.SendAsync($"u_i {Player} {alice.CharacterId} {MainPocket} 0 0 0");
+                await alice.SendAsync(Use(alice, PocketType.Main));
 
-                await alice.ExpectSinceAsync(drunk, Slot(MainPocket, 0, WorldData.Potion, 2), "the two potions left");
-                var stat = await alice.ExpectSinceAsync(drunk, p => TestClient.HeaderOf(p) == "stat", "the HP after the potion");
-                Assert.AreEqual(100 + WorldData.PotionHp, Hp(stat));
+                await alice.ExpectSinceAsync(drunk, Slot(PocketType.Main, 0, WorldData.Potion, 2), "the two potions left");
+                var stat = await alice.ExpectSinceAsync<StatPacket>(drunk, null, "the HP after the potion");
+                Assert.AreEqual(100 + WorldData.PotionHp, stat.Hp);
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Potion}.2" }, Listed(back, MainPocket));
+            Same([(0, WorldData.Potion, 2)], Listed(back, PocketType.Main));
             Assert.IsTrue((await Harness.StoredAsync(player.CharacterId)).Hp >= 100 + WorldData.PotionHp, "the restored HP is stored");
         }
 
@@ -569,14 +583,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var player = await Harness.AddPlayerAsync("Alice", configure: c => c.Hp = 200);
             await Harness.GiveAsync(player, WorldData.Potion, 2, pocket: NoscorePocketType.Main);
             await using var alice = await EnterAsync(player);
-            var most = int.Parse(alice.Received.Last(p => TestClient.HeaderOf(p) == "stat").Split(' ')[2], CultureInfo.InvariantCulture);
+            var most = (int)alice.Received.OfType<StatPacket>().Last().HpMaximum;
             Assert.IsTrue(most < 200 + WorldData.PotionHp, "the potion would overfill");
             var drunk = alice.Mark();
 
-            await alice.SendAsync($"u_i {Player} {alice.CharacterId} {MainPocket} 0 0 0");
+            await alice.SendAsync(Use(alice, PocketType.Main));
 
-            await alice.ExpectSinceAsync(drunk, Slot(MainPocket, 0, WorldData.Potion, 1), "the potion left");
-            Assert.AreEqual(most, Hp(await alice.ExpectSinceAsync(drunk, p => TestClient.HeaderOf(p) == "stat", "the HP after the potion")));
+            await alice.ExpectSinceAsync(drunk, Slot(PocketType.Main, 0, WorldData.Potion, 1), "the potion left");
+            Assert.AreEqual(most, (await alice.ExpectSinceAsync<StatPacket>(drunk, null, "the HP after the potion")).Hp);
         }
 
         [TestMethod]
@@ -584,19 +598,19 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await Harness.AddPlayerAsync("Alice", configure: c => c.Hp = 100);
             await Harness.GiveAsync(player, WorldData.Potion, 1, pocket: NoscorePocketType.Main);
-            string told;
+            IvnPacket told;
             await using (var alice = await EnterAsync(player))
             {
                 var drunk = alice.Mark();
 
-                await alice.SendAsync($"u_i {Player} {alice.CharacterId} {MainPocket} 0 0 0");
+                await alice.SendAsync(Use(alice, PocketType.Main));
 
-                told = await alice.ExpectSinceAsync(drunk, AnySlot(MainPocket, 0), "the slot the potion was in");
+                told = await alice.ExpectSinceAsync(drunk, AnySlot(PocketType.Main, 0), "the slot the potion was in");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(Array.Empty<string>(), Listed(back, MainPocket));
-            Assert.IsTrue(EmptySlot(MainPocket, 0)(told), $"the client is told the slot is empty: {told}");
+            Same([], Listed(back, PocketType.Main));
+            Assert.IsTrue(EmptySlot(PocketType.Main, 0)(told), $"the client is told the slot is empty: {Wire.Serialize(told)}");
         }
 
         [TestMethod]
@@ -608,14 +622,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var drunk = alice.Mark();
 
-                await alice.SendAsync($"u_i {Player} {alice.CharacterId} {MainPocket} 0 0 0");
+                await alice.SendAsync(Use(alice, PocketType.Main));
 
-                Assert.IsTrue(await alice.NoneSinceAsync(drunk, p => TestClient.HeaderOf(p) == "ivn", TimeSpan.FromSeconds(1)),
+                Assert.IsTrue(await alice.NoneSinceAsync<IvnPacket>(drunk, null, TimeSpan.FromSeconds(1)),
                     "no potion leaves the bag");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Potion}.3" }, Listed(back, MainPocket));
+            Same([(0, WorldData.Potion, 3)], Listed(back, PocketType.Main));
         }
 
         [TestMethod]
@@ -629,16 +643,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 var dropped = alice.Mark();
                 var seen = bob.Mark();
 
-                await alice.SendAsync($"put {EtcPocket} 0 9");
+                await alice.SendAsync(new PutPacket { PocketType = PocketType.Etc, Slot = 0, Amount = 9 });
 
-                await alice.ExpectSinceAsync(dropped, p => p.StartsWith($"sayi {Player} {alice.CharacterId} ", StringComparison.Ordinal), "the refusal");
-                Assert.IsTrue(await bob.NoneSinceAsync(seen, p => p.StartsWith($"drop {WorldData.Seed} ", StringComparison.Ordinal),
-                    TimeSpan.FromSeconds(1)), "nothing lies on the map");
-                Assert.IsFalse(alice.Since(dropped).Any(p => TestClient.HeaderOf(p) == "ivn"), "the bag does not change");
+                await alice.ExpectSinceAsync<SayiPacket>(dropped, p => p.VisualType == VisualType.Player && p.VisualId == alice.CharacterId, "the refusal");
+                Assert.IsTrue(await bob.NoneSinceAsync(seen, SeedsDropped, TimeSpan.FromSeconds(1)), "nothing lies on the map");
+                Assert.IsFalse(alice.Since<IvnPacket>(dropped).Any(), "the bag does not change");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
         }
 
         [TestMethod]
@@ -651,16 +664,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var dropped = alice.Mark();
 
-                await alice.SendAsync($"put {EtcPocket} 0 5");
+                await alice.SendAsync(new PutPacket { PocketType = PocketType.Etc, Slot = 0, Amount = 5 });
 
-                await alice.ExpectSinceAsync(dropped, EmptySlot(EtcPocket, 0), "the emptied slot");
-                var drop = await bob.ExpectAsync(p => p.StartsWith($"drop {WorldData.Seed} ", StringComparison.Ordinal), "the drop");
-                Assert.AreEqual("5", drop.Split(' ')[5], "five were dropped");
+                await alice.ExpectSinceAsync(dropped, EmptySlot(PocketType.Etc, 0), "the emptied slot");
+                var drop = await bob.ExpectAsync(SeedsDropped, "the drop");
+                Assert.AreEqual(5, drop.Amount, "five were dropped");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(Array.Empty<string>(), Listed(back, EtcPocket));
-            Same(Array.Empty<string>(), await StoredAsync(player.CharacterId, NoscorePocketType.Etc));
+            Same([], Listed(back, PocketType.Etc));
+            Same([], await StoredAsync(player.CharacterId, NoscorePocketType.Etc));
         }
 
         [TestMethod]
@@ -672,19 +685,23 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var asked = alice.Mark();
 
-                await alice.SendAsync($"b_i {EtcPocket} 0");
-                StringAssert.StartsWith(await alice.ExpectAsync("dlgi"), $"dlgi #b_i^{EtcPocket}^0^1 #b_i^{EtcPocket}^0^5 ");
-                await alice.SendAsync($"b_i {EtcPocket} 0 1");
-                StringAssert.StartsWith(await alice.ExpectAsync("dlgi"), $"dlgi #b_i^{EtcPocket}^0^2 #b_i^{EtcPocket}^0^5 ");
-                Assert.IsFalse(alice.Since(asked).Any(p => TestClient.HeaderOf(p) == "ivn"), "nothing is destroyed while it is only asked");
+                await alice.SendAsync(Destroy());
+                var first = await alice.ExpectAsync<DlgiPacket>();
+                PacketAssert.AreEqual(Destroy(RequestDeletionType.Requested), first.YesPacket as BiPacket);
+                PacketAssert.AreEqual(Destroy(RequestDeletionType.Declined), first.NoPacket as BiPacket);
+                await alice.SendAsync(Destroy(RequestDeletionType.Requested));
+                var second = await alice.ExpectAsync<DlgiPacket>();
+                PacketAssert.AreEqual(Destroy(RequestDeletionType.Confirmed), second.YesPacket as BiPacket);
+                PacketAssert.AreEqual(Destroy(RequestDeletionType.Declined), second.NoPacket as BiPacket);
+                Assert.IsFalse(alice.Since<IvnPacket>(asked).Any(), "nothing is destroyed while it is only asked");
 
-                await alice.SendAsync($"b_i {EtcPocket} 0 2");
+                await alice.SendAsync(Destroy(RequestDeletionType.Confirmed));
 
-                await alice.ExpectAsync(EmptySlot(EtcPocket, 0), "the emptied slot");
+                await alice.ExpectAsync(EmptySlot(PocketType.Etc, 0), "the emptied slot");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same(Array.Empty<string>(), Listed(back, EtcPocket));
+            Same([], Listed(back, PocketType.Etc));
         }
     }
 }

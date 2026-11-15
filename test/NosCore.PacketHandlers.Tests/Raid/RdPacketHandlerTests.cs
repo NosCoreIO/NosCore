@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Raid
         [TestMethod]
         public async Task ALeaderNamingAPlayerInvitesThem()
         {
-            await new Spec("A team leader's rd 1 with no answer invites the named player")
+            await new Spec("A team leader's raid invitation invites the named player")
                 .Given(TheSessionLeadsARaidTeam)
                 .WhenAsync(TheSessionSends_, new RdPacket { Type = 1, CharacterId = Other })
                 .Then(TheRaidServiceWasAskedTo_, "invite")
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Raid
         [TestMethod]
         public async Task AnsweringAnInvitationJoins()
         {
-            await new Spec("A player outside any team answering rd 1 joins the leader")
+            await new Spec("A player outside any team answering a raid invitation joins the leader")
                 .WhenAsync(TheSessionSends_, new RdPacket { Type = 1, CharacterId = Other, Parameter = 1 })
                 .Then(TheRaidServiceWasAskedTo_, "join")
                 .ExecuteAsync();
@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Raid
         [TestMethod]
         public async Task LeaveKickAndDisbandReachTheirRules()
         {
-            await new Spec("rd 2, 3 and 4 leave, kick and disband")
+            await new Spec("The raid list leaves, kicks and disbands")
                 .WhenAsync(TheSessionSends_, new RdPacket { Type = 2, CharacterId = Other })
                 .AndAsync(TheSessionSends_, new RdPacket { Type = 3, CharacterId = Other })
                 .AndAsync(TheSessionSends_, new RdPacket { Type = 4, CharacterId = Other })

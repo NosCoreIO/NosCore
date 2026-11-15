@@ -11,6 +11,12 @@ using NodaTime;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
@@ -25,11 +31,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.EnterWorldAsync(bobPlayer.Slot);
             await using var alice = await Harness.EnterAsync("Alice");
 
-            await alice.SendAsync($"/{bobPlayer.Name} see you at the portal");
+            await alice.SendAsync(new WhisperPacket { Message = $"{bobPlayer.Name} see you at the portal" });
 
-            var heard = await bob.ExpectAsync("spk");
-            StringAssert.StartsWith(heard, $"spk 1 {alice.CharacterId} ");
-            StringAssert.Contains(heard, "see you at the portal");
+            var heard = await bob.ExpectAsync<SpeakPacket>();
+            Assert.AreEqual((VisualType.Player, alice.CharacterId), (heard.VisualType, heard.VisualId));
+            StringAssert.Contains(heard.Message, "see you at the portal");
         }
 
         [TestMethod]
@@ -40,13 +46,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = Harness.Client(bobPlayer);
 
             // The first whisper makes the channel read who is online; Bob arrives after that.
-            await alice.SendAsync($"/{bobPlayer.Name} are you there yet");
-            await alice.ExpectAsync("infoi2");
+            await alice.SendAsync(new WhisperPacket { Message = $"{bobPlayer.Name} are you there yet" });
+            await alice.ExpectAsync<Infoi2Packet>();
             await bob.EnterWorldAsync(bobPlayer.Slot);
-            await alice.SendAsync($"/{bobPlayer.Name} there you are");
+            await alice.SendAsync(new WhisperPacket { Message = $"{bobPlayer.Name} there you are" });
 
-            var heard = await bob.ExpectAsync("spk");
-            StringAssert.Contains(heard, "there you are");
+            var heard = await bob.ExpectAsync<SpeakPacket>();
+            StringAssert.Contains(heard.Message, "there you are");
         }
 
         [TestMethod]
@@ -54,10 +60,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             await using var alice = await Harness.EnterAsync("Alice");
 
-            await alice.SendAsync("/Nobody are you there");
+            await alice.SendAsync(new WhisperPacket { Message = "Nobody are you there" });
 
-            // 2 is the client's "%s is not playing."
-            await alice.ExpectAsync(p => p.StartsWith("infoi2 ", StringComparison.Ordinal) && p.EndsWith(" Nobody", StringComparison.Ordinal),
+            await alice.ExpectAsync<Infoi2Packet>(p => p.Message == Game18NConstString.IsNotPlaying && p.Game18NArguments.Contains("Nobody"),
                 "the not-playing notice");
         }
 
@@ -82,12 +87,25 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
 
             var said = bob.Mark();
-            await alice.SendAsync("say hello");
+            await alice.SendAsync(new ClientSayPacket { Message = "hello" });
 
-            // 221 is the client's "<I am serving a penalty.>", 566 its "Remaining punishment: %d minutes".
-            await bob.ExpectAsync(p => p == $"sayi 1 {alice.CharacterId} 1 221 0 0 0 0 0", "the penalty bubble");
-            await alice.ExpectAsync(p => p == $"sayi 1 {alice.CharacterId} 11 566 4 30 0 0 0", "the minutes left");
-            Assert.IsTrue(await bob.NoneSinceAsync(said, p => TestClient.HeaderOf(p) == "say", TimeSpan.FromSeconds(1)),
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = alice.CharacterId,
+                Type = SayColorType.BubbleOnly,
+                Message = Game18NConstString.IAmUnderPenalty,
+            }, await bob.ExpectAsync<SayiPacket>(p => p.Message == Game18NConstString.IAmUnderPenalty, "the penalty bubble"));
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = alice.CharacterId,
+                Type = SayColorType.Red,
+                Message = Game18NConstString.RemainingPunishment,
+                ArgumentType = 4,
+                Game18NArguments = { 30 },
+            }, await alice.ExpectAsync<SayiPacket>(p => p.Message == Game18NConstString.RemainingPunishment, "the minutes left"));
+            Assert.IsTrue(await bob.NoneSinceAsync<SayPacket>(said, null, TimeSpan.FromSeconds(1)),
                 "the words themselves are sent to nobody");
         }
     }

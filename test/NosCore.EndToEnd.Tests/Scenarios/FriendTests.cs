@@ -7,54 +7,75 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.CommandPackets;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.ClientPackets.Commands;
+using NosCore.Packets.ClientPackets.Exchanges;
+using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Relations;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class FriendTests
     {
-        private const int Player = 1;
-        private const int Accept = 1;
-        private const int Decline = 2;
-        private const int Declined = 238;
-        private const int Registered = 239;
-        private const int RefusesRequests = 242;
-        private const int WantsToBeAFriend = 243;
-        private const int AlreadyAFriend = 937;
-        private const int Blacklisted = 1764;
-        private const int AFriendCannotBeBlacklisted = 1769;
-        private const int NowBlacklisted = 1770;
-        private const int WaitBeforeInvitingAgain = 2359;
+        private static Func<InfoiPacket, bool> Told(Game18NConstString message) => packet => packet.Message == message;
 
+        private static FinsPacket Request(FinsPacketType type, TestClient other) => new() { Type = type, CharacterId = other.CharacterId };
 
-        private static Func<string, bool> Told(int message) =>
-            packet => packet.Split(' ') is ["infoi", var id, ..] && id == message.ToString(CultureInfo.InvariantCulture);
+        private static Func<Dlgi2Packet, bool> Asked(TestClient by) =>
+            packet => packet.YesPacket is FinsPacket { Type: FinsPacketType.Accepted } yes && yes.CharacterId == by.CharacterId
+                && packet.NoPacket is FinsPacket { Type: FinsPacketType.Rejected } no && no.CharacterId == by.CharacterId
+                && packet.Question == Game18NConstString.AskBecomeFriend;
 
-        private static Func<string, bool> Asked(TestClient by) =>
-            packet => packet.StartsWith($"dlgi2 #fins^{Accept}^{by.CharacterId} #fins^{Decline}^{by.CharacterId} {WantsToBeAFriend} ", StringComparison.Ordinal);
+        private static List<FinitSubPacket?> FriendsIn(FinitPacket finit) => finit.SubPackets ?? [];
 
-        private static Func<string, bool> Friends => packet => TestClient.HeaderOf(packet) == "finit";
+        private static List<BlinitSubPacket?> BlacklistedIn(BlinitPacket blinit) => blinit.SubPackets ?? [];
 
-        private static Func<string, bool> Blacklist => packet => TestClient.HeaderOf(packet) == "blinit";
+        private static List<FinitSubPacket?> Friends(params (long Id, string Name, bool Online)[] friends) =>
+            friends.Select(friend => (FinitSubPacket?)new FinitSubPacket
+            {
+                CharacterId = friend.Id, RelationType = CharacterRelationType.Friend, IsOnline = friend.Online, CharacterName = friend.Name
+            }).ToList();
 
-        // finit <id|relation|online|name>...
-        private static string[] FriendsIn(string finit) => finit.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
+        private static List<BlinitSubPacket?> Blacklisted(params TestClient[] players) =>
+            players.Select(player => (BlinitSubPacket?)new BlinitSubPacket { RelatedCharacterId = player.CharacterId, CharacterName = NameOf(player) })
+                .ToList();
 
-        // blinit <id|name>...
-        private static string[] BlacklistedIn(string blinit) => blinit.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
+        private static string NameOf(TestClient client) => client.Received.OfType<CInfoPacket>().First().Name ?? string.Empty;
 
-        private static string NameOf(TestClient client) => client.Received.First(p => TestClient.HeaderOf(p) == "c_info").Split(' ')[1];
+        private static Func<FinfoPacket, bool> Online(Player friend, bool online) =>
+            packet => packet.FriendList?.SingleOrDefault() is { } entry
+                && entry.CharacterId == friend.CharacterId && entry.IsConnected == online && entry.CharacterName == friend.Name;
 
-        private static Func<string, bool> Whisper(TestClient from, string words) =>
-            packet => packet.StartsWith($"spk {Player} {from.CharacterId} ", StringComparison.Ordinal) && packet.Contains(words, StringComparison.Ordinal);
+        private static Func<SpeakPacket, bool> Whisper(TestClient from, string words) =>
+            packet => packet.VisualType == VisualType.Player && packet.VisualId == from.CharacterId && packet.Message?.Contains(words, StringComparison.Ordinal) == true;
+
+        private static WhisperPacket WhisperTo(string name, string words) => new() { Message = $"{name} {words}" };
+
+        private static bool IsRegistration(IPacket packet) => packet is FinitPacket or InfoiPacket { Message: Game18NConstString.Registered };
+
+        private static Func<Dlgi2Packet, bool> InvitedToAGroupBy(TestClient other) =>
+            packet => packet.YesPacket is PjoinPacket { RequestType: GroupRequestType.Accepted } yes && yes.CharacterId == other.CharacterId;
+
+        private static Func<Dlgi2Packet, bool> OfferedATradeBy(TestClient other) =>
+            packet => packet.YesPacket is ExchangeRequestPacket { RequestType: RequestExchangeType.List } yes && yes.VisualId == other.CharacterId;
+
+        private static bool IsARefusal(IPacket packet) => packet is InfoiPacket or Infoi2Packet or SayiPacket;
 
         // The lists of friends and of the blacklisted are sent a moment after the character is in
         // the world; a scenario starts once they have arrived, so that it reads its own.
@@ -64,7 +85,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             try
             {
                 await client.EnterWorldAsync(player.Slot);
-                await client.ExpectSinceAsync(0, Blacklist, "the blacklist sent on entering");
+                await client.ExpectSinceAsync<BlinitPacket>(0, null, "the blacklist sent on entering");
             }
             catch
             {
@@ -96,22 +117,20 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static async Task BefriendAsync(TestClient asker, TestClient asked)
         {
             var request = asked.Mark();
-            await asker.SendAsync($"fins {Accept} {asked.CharacterId}");
+            await asker.SendAsync(Request(FinsPacketType.Accepted, asked));
             await asked.ExpectSinceAsync(request, Asked(asker), "the friend request");
             var hers = asker.Mark();
             var his = asked.Mark();
-            await asked.SendAsync($"fins {Accept} {asker.CharacterId}");
-            await asker.ExpectSinceAsync(hers, p => Friends(p) && FriendsIn(p).Any(f => f.StartsWith($"{asked.CharacterId}|", StringComparison.Ordinal)),
-                "the new friend in the list");
-            await asked.ExpectSinceAsync(his, p => Friends(p) && FriendsIn(p).Any(f => f.StartsWith($"{asker.CharacterId}|", StringComparison.Ordinal)),
-                "the new friend in the other list");
+            await asked.SendAsync(Request(FinsPacketType.Accepted, asker));
+            await asker.ExpectSinceAsync<FinitPacket>(hers, p => FriendsIn(p).Any(f => f?.CharacterId == asked.CharacterId), "the new friend in the list");
+            await asked.ExpectSinceAsync<FinitPacket>(his, p => FriendsIn(p).Any(f => f?.CharacterId == asker.CharacterId), "the new friend in the other list");
         }
 
         private static async Task BlacklistAsync(TestClient who, TestClient whom)
         {
             var listed = who.Mark();
-            await who.SendAsync($"blins {whom.CharacterId}");
-            await who.ExpectSinceAsync(listed, p => Blacklist(p) && BlacklistedIn(p).Any(b => b.StartsWith($"{whom.CharacterId}|", StringComparison.Ordinal)),
+            await who.SendAsync(new BlInsPacket { CharacterId = whom.CharacterId });
+            await who.ExpectSinceAsync<BlinitPacket>(listed, p => BlacklistedIn(p).Any(b => b?.RelatedCharacterId == whom.CharacterId),
                 "the blacklist with the other in it");
         }
 
@@ -123,11 +142,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var asking = alice.Mark();
             var request = bob.Mark();
 
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
 
             var asked = await bob.ExpectSinceAsync(request, Asked(alice), "the friend request");
-            Assert.AreEqual($"dlgi2 #fins^{Accept}^{alice.CharacterId} #fins^{Decline}^{alice.CharacterId} {WantsToBeAFriend} 1 {NameOf(alice)} 0 0 0", asked);
-            Assert.IsTrue(await alice.NoneSinceAsync(asking, p => Friends(p) || Told(Registered)(p), TimeSpan.FromSeconds(1)),
+            PacketAssert.AreEqual(new Dlgi2Packet
+            {
+                YesPacket = Request(FinsPacketType.Accepted, alice),
+                NoPacket = Request(FinsPacketType.Rejected, alice),
+                Question = Game18NConstString.AskBecomeFriend,
+                ArgumentType = 1,
+                Game18NArguments = { NameOf(alice) },
+            }, asked);
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asking, IsRegistration, TimeSpan.FromSeconds(1)),
                 "nothing is registered yet");
             Same([], await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
@@ -138,17 +164,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await ArriveAsync("Alice", WorldData.Market, 60, 32);
             await using var bob = await ArriveAsync("Bob", WorldData.Market, 61, 32);
             var request = bob.Mark();
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
             await bob.ExpectSinceAsync(request, Asked(alice), "the friend request");
             var hers = alice.Mark();
             var his = bob.Mark();
 
-            await bob.SendAsync($"fins {Accept} {alice.CharacterId}");
+            await bob.SendAsync(Request(FinsPacketType.Accepted, alice));
 
-            await alice.ExpectSinceAsync(hers, Told(Registered), "the notice to her");
-            await bob.ExpectSinceAsync(his, Told(Registered), "the notice to him");
-            Same(new[] { $"{bob.CharacterId}|0|1|{NameOf(bob)}" }, FriendsIn(await alice.ExpectSinceAsync(hers, Friends, "her list")));
-            Same(new[] { $"{alice.CharacterId}|0|1|{NameOf(alice)}" }, FriendsIn(await bob.ExpectSinceAsync(his, Friends, "his list")));
+            await alice.ExpectSinceAsync(hers, Told(Game18NConstString.Registered), "the notice to her");
+            await bob.ExpectSinceAsync(his, Told(Game18NConstString.Registered), "the notice to him");
+            PacketAssert.AreEqual(Friends((bob.CharacterId, NameOf(bob), true)), FriendsIn(await alice.ExpectSinceAsync<FinitPacket>(hers, null, "her list")));
+            PacketAssert.AreEqual(Friends((alice.CharacterId, NameOf(alice), true)), FriendsIn(await bob.ExpectSinceAsync<FinitPacket>(his, null, "his list")));
             Same(new[] { "first:Friend", "second:Friend" }, await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
 
@@ -158,16 +184,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await ArriveAsync("Alice", WorldData.Market, 60, 34);
             await using var bob = await ArriveAsync("Bob", WorldData.Market, 61, 34);
             var request = bob.Mark();
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
             await bob.ExpectSinceAsync(request, Asked(alice), "the friend request");
             var hers = alice.Mark();
             var his = bob.Mark();
 
-            await bob.SendAsync($"fins {Decline} {alice.CharacterId}");
+            await bob.SendAsync(Request(FinsPacketType.Rejected, alice));
 
-            await alice.ExpectSinceAsync(hers, Told(Declined), "the notice that he declined");
-            Assert.IsTrue(await bob.NoneSinceAsync(his, p => Friends(p) || Told(Registered)(p), TimeSpan.FromSeconds(1)), "nothing is registered");
-            Assert.IsFalse(alice.Since(hers).Any(p => Friends(p) || Told(Registered)(p)), "nothing is registered for her either");
+            await alice.ExpectSinceAsync(hers, Told(Game18NConstString.YouAreBlocked), "the notice that he declined");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(his, IsRegistration, TimeSpan.FromSeconds(1)), "nothing is registered");
+            Assert.IsFalse(alice.Since(hers).Any(IsRegistration), "nothing is registered for her either");
             Same([], await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
 
@@ -183,13 +209,12 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 left = bob.Mark();
             }
 
-            // finfo <id.online.name>
-            await bob.ExpectSinceAsync(left, p => p == $"finfo {leaver.CharacterId}.0.{leaver.Name}", "her going offline");
+            await bob.ExpectSinceAsync(left, Online(leaver, false), "her going offline");
             var returned = bob.Mark();
             await using var back = await Harness.ComeBackAsync(leaver);
 
-            await bob.ExpectSinceAsync(returned, p => p == $"finfo {leaver.CharacterId}.1.{leaver.Name}", "her coming online");
-            Same(new[] { $"{bob.CharacterId}|0|1|{NameOf(bob)}" }, FriendsIn(await back.ExpectSinceAsync(0, Friends, "her list on coming back")));
+            await bob.ExpectSinceAsync(returned, Online(leaver, true), "her coming online");
+            PacketAssert.AreEqual(Friends((bob.CharacterId, NameOf(bob), true)), FriendsIn(await back.ExpectSinceAsync<FinitPacket>(0, null, "her list on coming back")));
         }
 
         [TestMethod]
@@ -204,11 +229,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                     await BefriendAsync(alice, bob);
                 }
 
-                await alice.ExpectAsync(p => p == $"finfo {leaver.CharacterId}.0.{leaver.Name}", "his going offline");
+                await alice.ExpectAsync(Online(leaver, false), "his going offline");
             }
 
             await using var back = await Harness.ComeBackAsync(stayer);
-            Same(new[] { $"{leaver.CharacterId}|0|0|{leaver.Name}" }, FriendsIn(await back.ExpectSinceAsync(0, Friends, "her list on coming back")));
+            PacketAssert.AreEqual(Friends((leaver.CharacterId, leaver.Name, false)), FriendsIn(await back.ExpectSinceAsync<FinitPacket>(0, null, "her list on coming back")));
         }
 
         [TestMethod]
@@ -222,15 +247,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 var hers = alice.Mark();
                 var his = bob.Mark();
 
-                await alice.SendAsync($"fdel {bob.CharacterId}");
+                await alice.SendAsync(new FdelPacket { CharacterId = bob.CharacterId });
 
-                Same([], FriendsIn(await alice.ExpectSinceAsync(hers, Friends, "her list")));
-                Same([], FriendsIn(await bob.ExpectSinceAsync(his, Friends, "his list")));
+                Assert.AreEqual(0, FriendsIn(await alice.ExpectSinceAsync<FinitPacket>(hers, null, "her list")).Count);
+                Assert.AreEqual(0, FriendsIn(await bob.ExpectSinceAsync<FinitPacket>(his, null, "his list")).Count);
                 Same([], await RelationsAsync(alice.CharacterId, bob.CharacterId));
             }
 
             await using var back = await Harness.ComeBackAsync(deleter);
-            Same([], FriendsIn(await back.ExpectSinceAsync(0, Friends, "her list on coming back")));
+            Assert.AreEqual(0, FriendsIn(await back.ExpectSinceAsync<FinitPacket>(0, null, "her list on coming back")).Count);
         }
 
         [TestMethod]
@@ -243,15 +268,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await BefriendAsync(alice, bob);
             }
 
-            await alice.ExpectAsync(p => p == $"finfo {away.CharacterId}.0.{away.Name}", "his going offline");
+            await alice.ExpectAsync(Online(away, false), "his going offline");
             var hers = alice.Mark();
 
-            await alice.SendAsync($"fdel {away.CharacterId}");
+            await alice.SendAsync(new FdelPacket { CharacterId = away.CharacterId });
 
-            Same([], FriendsIn(await alice.ExpectSinceAsync(hers, Friends, "her list")));
+            Assert.AreEqual(0, FriendsIn(await alice.ExpectSinceAsync<FinitPacket>(hers, null, "her list")).Count);
             Same([], await RelationsAsync(alice.CharacterId, away.CharacterId));
             await using var back = await Harness.ComeBackAsync(away);
-            Same([], FriendsIn(await back.ExpectSinceAsync(0, Friends, "his list on coming back")));
+            Assert.AreEqual(0, FriendsIn(await back.ExpectSinceAsync<FinitPacket>(0, null, "his list on coming back")).Count);
         }
 
         [TestMethod]
@@ -260,14 +285,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await ArriveAsync("Alice", WorldData.Market, 60, 46);
             await using var bob = await ArriveAsync("Bob", WorldData.Market, 61, 46);
             var request = bob.Mark();
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
             await bob.ExpectSinceAsync(request, Asked(alice), "the friend request");
             var again = alice.Mark();
             var second = bob.Mark();
 
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
 
-            await alice.ExpectSinceAsync(again, Told(WaitBeforeInvitingAgain), "the notice to wait");
+            await alice.ExpectSinceAsync(again, Told(Game18NConstString.CannotSendInvite), "the notice to wait");
             Assert.IsTrue(await bob.NoneSinceAsync(second, Asked(alice), TimeSpan.FromSeconds(1)), "he is not asked twice");
         }
 
@@ -280,9 +305,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var again = alice.Mark();
             var second = bob.Mark();
 
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
 
-            await alice.ExpectSinceAsync(again, Told(AlreadyAFriend), "the notice");
+            await alice.ExpectSinceAsync(again, Told(Game18NConstString.RegisteredAsFriend), "the notice");
             Assert.IsTrue(await bob.NoneSinceAsync(second, Asked(alice), TimeSpan.FromSeconds(1)), "he is not asked again");
             Same(new[] { "first:Friend", "second:Friend" }, await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
@@ -295,9 +320,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var asking = alice.Mark();
             var request = bob.Mark();
 
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
 
-            await alice.ExpectSinceAsync(asking, p => p.StartsWith($"infoi2 {RefusesRequests} 1 {NameOf(bob)}", StringComparison.Ordinal), "the notice that he refuses requests");
+            await alice.ExpectSinceAsync<Infoi2Packet>(asking, p => p.Message == Game18NConstString.HAsFriendRequestBlocked && p.ArgumentType == 1
+                && Equals(p.Game18NArguments[0], NameOf(bob)), "the notice that he refuses requests");
             Assert.IsTrue(await bob.NoneSinceAsync(request, Asked(alice), TimeSpan.FromSeconds(1)), "he is not asked");
         }
 
@@ -310,16 +336,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var listed = alice.Mark();
 
-                await alice.SendAsync($"blins {bob.CharacterId}");
+                await alice.SendAsync(new BlInsPacket { CharacterId = bob.CharacterId });
 
-                await alice.ExpectSinceAsync(listed, Told(NowBlacklisted), "the notice");
-                Same(new[] { $"{bob.CharacterId}|{NameOf(bob)}" }, BlacklistedIn(await alice.ExpectSinceAsync(listed, Blacklist, "her blacklist")));
+                await alice.ExpectSinceAsync(listed, Told(Game18NConstString.CharacterBlacklisted), "the notice");
+                PacketAssert.AreEqual(Blacklisted(bob), BlacklistedIn(await alice.ExpectSinceAsync<BlinitPacket>(listed, null, "her blacklist")));
                 Same(new[] { "first:Blocked" }, await RelationsAsync(alice.CharacterId, bob.CharacterId));
             }
 
             await using var back = await Harness.ComeBackAsync(lister);
-            Same(new[] { $"{bob.CharacterId}|{NameOf(bob)}" }, BlacklistedIn(await back.ExpectSinceAsync(0, Blacklist, "her blacklist on coming back")));
-            Same([], FriendsIn(await back.ExpectSinceAsync(0, Friends, "her friends on coming back")), "the blacklist is no friend list");
+            PacketAssert.AreEqual(Blacklisted(bob), BlacklistedIn(await back.ExpectSinceAsync<BlinitPacket>(0, null, "her blacklist on coming back")));
+            Assert.AreEqual(0, FriendsIn(await back.ExpectSinceAsync<FinitPacket>(0, null, "her friends on coming back")).Count, "the blacklist is no friend list");
         }
 
         [TestMethod]
@@ -330,9 +356,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await BlacklistAsync(alice, bob);
             var again = alice.Mark();
 
-            await alice.SendAsync($"blins {bob.CharacterId}");
+            await alice.SendAsync(new BlInsPacket { CharacterId = bob.CharacterId });
 
-            await alice.ExpectSinceAsync(again, Told(Blacklisted), "the notice");
+            await alice.ExpectSinceAsync(again, Told(Game18NConstString.AlreadyBlacklisted), "the notice");
             Same(new[] { "first:Blocked" }, await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
 
@@ -344,10 +370,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await BefriendAsync(alice, bob);
             var refused = alice.Mark();
 
-            await alice.SendAsync($"blins {bob.CharacterId}");
+            await alice.SendAsync(new BlInsPacket { CharacterId = bob.CharacterId });
 
-            await alice.ExpectSinceAsync(refused, Told(AFriendCannotBeBlacklisted), "the refusal");
-            Assert.IsTrue(await alice.NoneSinceAsync(refused, Blacklist, TimeSpan.FromSeconds(1)), "the blacklist does not change");
+            await alice.ExpectSinceAsync(refused, Told(Game18NConstString.CannotBlackListFriend), "the refusal");
+            Assert.IsTrue(await alice.NoneSinceAsync<BlinitPacket>(refused, null, TimeSpan.FromSeconds(1)), "the blacklist does not change");
             Same(new[] { "first:Friend", "second:Friend" }, await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
 
@@ -361,14 +387,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await BlacklistAsync(alice, bob);
                 var removed = alice.Mark();
 
-                await alice.SendAsync($"bldel {bob.CharacterId}");
+                await alice.SendAsync(new BlDelPacket { CharacterId = bob.CharacterId });
 
-                Same([], BlacklistedIn(await alice.ExpectSinceAsync(removed, Blacklist, "her blacklist")));
+                Assert.AreEqual(0, BlacklistedIn(await alice.ExpectSinceAsync<BlinitPacket>(removed, null, "her blacklist")).Count);
                 Same([], await RelationsAsync(alice.CharacterId, bob.CharacterId));
             }
 
             await using var back = await Harness.ComeBackAsync(lister);
-            Same([], BlacklistedIn(await back.ExpectSinceAsync(0, Blacklist, "her blacklist on coming back")));
+            Assert.AreEqual(0, BlacklistedIn(await back.ExpectSinceAsync<BlinitPacket>(0, null, "her blacklist on coming back")).Count);
         }
 
         [TestMethod]
@@ -378,10 +404,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await ArriveAsync("Bob", WorldData.Market, 61, 62);
             var asked = alice.Mark();
 
-            await alice.SendAsync($"bldel {bob.CharacterId}");
+            await alice.SendAsync(new BlDelPacket { CharacterId = bob.CharacterId });
 
-            var answer = await alice.ExpectSinceAsync(asked, p => TestClient.HeaderOf(p) == "info", "the answer");
-            Assert.IsFalse(answer.Split(' ', 2)[1].All(c => char.IsUpper(c) || c == '_'), $"a sentence, not the name of one: {answer}");
+            var answer = (await alice.ExpectSinceAsync<InfoPacket>(asked, null, "the answer")).Message ?? string.Empty;
+            Assert.IsFalse(answer.All(c => char.IsUpper(c) || c == '_'), $"a sentence, not the name of one: {answer}");
         }
 
         [TestMethod]
@@ -393,16 +419,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var hers = alice.Mark();
             var his = bob.Mark();
 
-            await bob.SendAsync($"/{NameOf(alice)} can you hear me");
+            await bob.SendAsync(WhisperTo(NameOf(alice), "can you hear me"));
 
-            await bob.ExpectSinceAsync(his, Told(Blacklisted), "the refusal to him");
+            await bob.ExpectSinceAsync(his, Told(Game18NConstString.AlreadyBlacklisted), "the refusal to him");
             Assert.IsTrue(await alice.NoneSinceAsync(hers, Whisper(bob, "can you hear me"), TimeSpan.FromSeconds(1)), "she hears nothing");
             hers = alice.Mark();
             his = bob.Mark();
 
-            await alice.SendAsync($"/{NameOf(bob)} not a word");
+            await alice.SendAsync(WhisperTo(NameOf(bob), "not a word"));
 
-            await alice.ExpectSinceAsync(hers, Told(Blacklisted), "the refusal to her");
+            await alice.ExpectSinceAsync(hers, Told(Game18NConstString.AlreadyBlacklisted), "the refusal to her");
             Assert.IsTrue(await bob.NoneSinceAsync(his, Whisper(alice, "not a word"), TimeSpan.FromSeconds(1)), "he hears nothing");
         }
 
@@ -413,14 +439,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await ArriveAsync("Bob", WorldData.Market, 61, 66);
             await BlacklistAsync(alice, bob);
             var his = bob.Mark();
-            await bob.SendAsync($"/{NameOf(alice)} can you hear me");
-            await bob.ExpectSinceAsync(his, Told(Blacklisted), "the refusal");
+            await bob.SendAsync(WhisperTo(NameOf(alice), "can you hear me"));
+            await bob.ExpectSinceAsync(his, Told(Game18NConstString.AlreadyBlacklisted), "the refusal");
             var removed = alice.Mark();
-            await alice.SendAsync($"bldel {bob.CharacterId}");
-            await alice.ExpectSinceAsync(removed, Blacklist, "her blacklist");
+            await alice.SendAsync(new BlDelPacket { CharacterId = bob.CharacterId });
+            await alice.ExpectSinceAsync<BlinitPacket>(removed, null, "her blacklist");
             var hers = alice.Mark();
 
-            await bob.SendAsync($"/{NameOf(alice)} and now");
+            await bob.SendAsync(WhisperTo(NameOf(alice), "and now"));
 
             await alice.ExpectSinceAsync(hers, Whisper(bob, "and now"), "his whisper");
         }
@@ -439,9 +465,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var hers = back.Mark();
             var his = bob.Mark();
 
-            await bob.SendAsync($"/{lister.Name} are you back");
+            await bob.SendAsync(WhisperTo(lister.Name, "are you back"));
 
-            await bob.ExpectSinceAsync(his, Told(Blacklisted), "the refusal");
+            await bob.ExpectSinceAsync(his, Told(Game18NConstString.AlreadyBlacklisted), "the refusal");
             Assert.IsTrue(await back.NoneSinceAsync(hers, Whisper(bob, "are you back"), TimeSpan.FromSeconds(1)), "she hears nothing");
         }
 
@@ -454,16 +480,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var hers = alice.Mark();
             var his = bob.Mark();
 
-            await bob.SendAsync($"fins {Accept} {alice.CharacterId}");
+            await bob.SendAsync(Request(FinsPacketType.Accepted, alice));
 
-            await bob.ExpectSinceAsync(his, Told(Blacklisted), "the refusal to him");
+            await bob.ExpectSinceAsync(his, Told(Game18NConstString.AlreadyBlacklisted), "the refusal to him");
             Assert.IsTrue(await alice.NoneSinceAsync(hers, Asked(bob), TimeSpan.FromSeconds(1)), "she is not asked");
             hers = alice.Mark();
             his = bob.Mark();
 
-            await alice.SendAsync($"fins {Accept} {bob.CharacterId}");
+            await alice.SendAsync(Request(FinsPacketType.Accepted, bob));
 
-            await alice.ExpectSinceAsync(hers, Told(Blacklisted), "the refusal to her");
+            await alice.ExpectSinceAsync(hers, Told(Game18NConstString.AlreadyBlacklisted), "the refusal to her");
             Assert.IsTrue(await bob.NoneSinceAsync(his, Asked(alice), TimeSpan.FromSeconds(1)), "he is not asked");
             Same(new[] { "first:Blocked" }, await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
@@ -477,18 +503,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var hers = alice.Mark();
             var his = bob.Mark();
 
-            await bob.SendAsync($"pjoin 1 {alice.CharacterId}");
+            await bob.SendAsync(new PjoinPacket { RequestType = GroupRequestType.Invited, CharacterId = alice.CharacterId });
 
-            await bob.ExpectSinceAsync(his, Told(Blacklisted), "the refusal to him");
-            Assert.IsTrue(await alice.NoneSinceAsync(hers, p => p.Contains($"#pjoin^3^{bob.CharacterId}", StringComparison.Ordinal), TimeSpan.FromSeconds(1)),
+            await bob.ExpectSinceAsync(his, Told(Game18NConstString.AlreadyBlacklisted), "the refusal to him");
+            Assert.IsTrue(await alice.NoneSinceAsync(hers, InvitedToAGroupBy(bob), TimeSpan.FromSeconds(1)),
                 "she is not asked");
             hers = alice.Mark();
             his = bob.Mark();
 
-            await alice.SendAsync($"pjoin 1 {bob.CharacterId}");
+            await alice.SendAsync(new PjoinPacket { RequestType = GroupRequestType.Invited, CharacterId = bob.CharacterId });
 
-            await alice.ExpectSinceAsync(hers, Told(Blacklisted), "the refusal to her");
-            Assert.IsTrue(await bob.NoneSinceAsync(his, p => p.Contains($"#pjoin^3^{alice.CharacterId}", StringComparison.Ordinal), TimeSpan.FromSeconds(1)),
+            await alice.ExpectSinceAsync(hers, Told(Game18NConstString.AlreadyBlacklisted), "the refusal to her");
+            Assert.IsTrue(await bob.NoneSinceAsync(his, InvitedToAGroupBy(alice), TimeSpan.FromSeconds(1)),
                 "he is not asked");
         }
 
@@ -501,18 +527,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var hers = alice.Mark();
             var his = bob.Mark();
 
-            await bob.SendAsync($"req_exc 1 {alice.CharacterId}");
+            await bob.SendAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Requested, VisualId = alice.CharacterId });
 
-            await bob.ExpectSinceAsync(his, p => TestClient.HeaderOf(p) is "infoi" or "infoi2" or "sayi", "the refusal to him");
-            Assert.IsTrue(await alice.NoneSinceAsync(hers, p => p.StartsWith($"dlgi2 #req_exc^2^{bob.CharacterId} ", StringComparison.Ordinal), TimeSpan.FromSeconds(1)),
+            await bob.ExpectSinceAsync<IPacket>(his, IsARefusal, "the refusal to him");
+            Assert.IsTrue(await alice.NoneSinceAsync(hers, OfferedATradeBy(bob), TimeSpan.FromSeconds(1)),
                 "she is not asked");
             hers = alice.Mark();
             his = bob.Mark();
 
-            await alice.SendAsync($"req_exc 1 {bob.CharacterId}");
+            await alice.SendAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Requested, VisualId = bob.CharacterId });
 
-            await alice.ExpectSinceAsync(hers, p => TestClient.HeaderOf(p) is "infoi" or "infoi2" or "sayi", "the refusal to her");
-            Assert.IsTrue(await bob.NoneSinceAsync(his, p => p.StartsWith($"dlgi2 #req_exc^2^{alice.CharacterId} ", StringComparison.Ordinal), TimeSpan.FromSeconds(1)),
+            await alice.ExpectSinceAsync<IPacket>(hers, IsARefusal, "the refusal to her");
+            Assert.IsTrue(await bob.NoneSinceAsync(his, OfferedATradeBy(alice), TimeSpan.FromSeconds(1)),
                 "he is not asked");
         }
 
@@ -527,10 +553,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var hers = alice.Mark();
             var his = bob.Mark();
 
-            await alice.SendAsync($"%Familyinvite {NameOf(bob)}");
+            await alice.SendAsync(new FamilyInvitePacket { CharacterName = NameOf(bob) });
 
-            await alice.ExpectSinceAsync(hers, Told(Blacklisted), "the refusal");
-            Assert.IsTrue(await bob.NoneSinceAsync(his, p => TestClient.HeaderOf(p) == "dlgi2", TimeSpan.FromSeconds(1)), "he is not asked");
+            await alice.ExpectSinceAsync(hers, Told(Game18NConstString.AlreadyBlacklisted), "the refusal");
+            Assert.IsTrue(await bob.NoneSinceAsync<Dlgi2Packet>(his, null, TimeSpan.FromSeconds(1)), "he is not asked");
         }
 
         [TestMethod]
@@ -540,9 +566,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await ArriveAsync("Bob", WorldData.Market, 61, 78);
             var listed = alice.Mark();
 
-            await alice.SendAsync($"$bl {NameOf(bob)}");
+            await alice.SendAsync(new BlPacket { CharacterName = NameOf(bob) });
 
-            Same(new[] { $"{bob.CharacterId}|{NameOf(bob)}" }, BlacklistedIn(await alice.ExpectSinceAsync(listed, Blacklist, "her blacklist")));
+            PacketAssert.AreEqual(Blacklisted(bob), BlacklistedIn(await alice.ExpectSinceAsync<BlinitPacket>(listed, null, "her blacklist")));
             Same(new[] { "first:Blocked" }, await RelationsAsync(alice.CharacterId, bob.CharacterId));
         }
 
@@ -553,7 +579,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await ArriveAsync("Bob", WorldData.Market, 61, 80);
             var request = bob.Mark();
 
-            await alice.SendAsync($"$fl {NameOf(bob)}");
+            await alice.SendAsync(new FlCommandPacket { CharacterName = NameOf(bob) });
 
             await bob.ExpectSinceAsync(request, Asked(alice), "the friend request");
         }

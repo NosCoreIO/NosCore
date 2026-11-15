@@ -8,6 +8,13 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Login;
+using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
@@ -23,7 +30,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var reply = await client.LoginAsync();
 
-            Assert.AreEqual(2, reply.Channels.Count, reply.Raw);
+            Assert.AreEqual(2, reply.Channels.Count, reply.ToString());
             Assert.AreNotEqual(reply.Channels[0].Port, reply.Channels[1].Port);
         }
 
@@ -35,9 +42,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
 
-            Assert.IsTrue(await bob.NoneSinceAsync(arrived, p => p.StartsWith("in 1 Alice", StringComparison.Ordinal), TimeSpan.FromSeconds(1)),
+            Assert.IsTrue(await bob.NoneSinceAsync<InPacket>(arrived, p => p.VisualType == VisualType.Player && p.VisualId == alice.CharacterId, TimeSpan.FromSeconds(1)),
                 "a player on the other channel is not shown");
-            Assert.IsTrue(await alice.NoneSinceAsync(0, p => p.StartsWith("in 1 Bob", StringComparison.Ordinal), TimeSpan.Zero));
+            Assert.IsTrue(await alice.NoneSinceAsync<InPacket>(0, p => p.VisualType == VisualType.Player && p.VisualId == bob.CharacterId, TimeSpan.Zero));
         }
 
         [TestMethod]
@@ -48,11 +55,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.EnterWorldAsync(bobPlayer.Slot);
             await using var alice = await Harness.EnterAsync("Alice");
 
-            await alice.SendAsync($"/{bobPlayer.Name} are you on channel two");
+            await alice.SendAsync(new WhisperPacket { Message = $"{bobPlayer.Name} are you on channel two" });
 
-            var heard = await bob.ExpectAsync("spk");
-            StringAssert.StartsWith(heard, $"spk 1 {alice.CharacterId} ");
-            StringAssert.Contains(heard, "are you on channel two");
+            var heard = await bob.ExpectAsync<SpeakPacket>();
+            Assert.AreEqual((VisualType.Player, alice.CharacterId), (heard.VisualType, heard.VisualId));
+            StringAssert.Contains(heard.Message, "are you on channel two");
         }
 
         [TestMethod]
@@ -65,7 +72,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var reply = await second.LoginAsync();
 
-            Assert.AreEqual("failc 4", reply.Refusal);
+            PacketAssert.AreEqual(new FailcPacket { Type = LoginFailType.AlreadyConnected }, reply.Refusal);
         }
     }
 }

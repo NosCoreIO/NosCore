@@ -170,9 +170,8 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     // Slots that are consumed regardless of outcome (e.g. sum's target slot).
     protected virtual void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx) { }
 
-    // Emit visual effects for the roll outcome. Equipment/Rarify broadcast `eff 3004/3005` to
-    // the map and emit nothing to the player; Sum overrides to emit the `guri 19 ... 1324/1332`
-    // sparkle animation to the player and broadcast a `guri 6` ground explosion. Default: nothing.
+    // Equipment and rarify broadcast their outcome effect to the map and send nothing to the player;
+    // sum overrides this with a sparkle for the player and a ground explosion for the map.
     protected virtual Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
         UpgradeOutcome outcome, List<IPacket> playerPackets) =>
         OutcomeEffect(outcome) is { } effectId ? BroadcastEffectAsync(session, effectId) : Task.CompletedTask;

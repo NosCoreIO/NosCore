@@ -115,7 +115,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task ThePartnerButtonStartsTheTransformationBar()
         {
-            await new Spec("psl 0 starts a five-second bar that ends in psl 1, and the partner dances")
+            await new Spec("Calling up a partner's specialist starts a five-second bar, and the partner dances")
                 .GivenAsync(APartnerIsOut)
                 .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
                 .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task Psl1WithoutAFinishedBarIsIgnored()
         {
-            await new Spec("psl 1 sent before the bar has run its length does not transform the partner")
+            await new Spec("Finishing before the bar has run its length does not transform the partner")
                 .GivenAsync(APartnerIsOut)
                 .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
                 .AndAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
@@ -181,7 +181,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task ThePartnerButtonTurnsATransformedPartnerBack()
         {
-            await new Spec("psl 0 on a transformed partner turns it back and starts a 30 second cooldown")
+            await new Spec("Calling up a transformed partner turns it back and starts a 30 second cooldown")
                 .GivenAsync(APartnerIsOut)
                 .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
                 .AndAsync(ThePartnerIsTransformed)
@@ -223,7 +223,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task APartnerWithoutASpecialistCardCannotTransform()
         {
-            await new Spec("psl 0 for a partner without a specialist card says none is equipped")
+            await new Spec("Calling up a partner without a specialist card says none is equipped")
                 .GivenAsync(APartnerIsOut)
                 .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
                 .Then(TheOwnerShouldBeTold_, Game18NConstString.NoSpecialistCardEquipped)

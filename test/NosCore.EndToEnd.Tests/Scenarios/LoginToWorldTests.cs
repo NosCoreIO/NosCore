@@ -8,6 +8,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Login;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
@@ -21,8 +27,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var reply = await client.LoginAsync();
 
-            Assert.IsNotNull(reply.World, reply.Raw);
-            Assert.AreNotEqual(0, reply.Session);
+            Assert.IsNotNull(reply.World, reply.ToString());
+            Assert.AreNotEqual(0, reply.Accepted?.SessionId);
         }
 
         [TestMethod]
@@ -33,7 +39,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var reply = await client.LoginAsync();
 
             Assert.IsNull(reply.World);
-            Assert.AreEqual("failc 5", reply.Refusal);
+            PacketAssert.AreEqual(new FailcPacket { Type = LoginFailType.AccountOrPasswordWrong }, reply.Refusal);
         }
 
         [TestMethod]
@@ -44,9 +50,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await client.ConnectAsync();
 
-            var listed = client.Received.Single(p => TestClient.HeaderOf(p) == "clist").Split(' ');
-            Assert.AreEqual(player.Slot.ToString(), listed[1]);
-            Assert.AreEqual(player.Name, listed[2]);
+            var listed = client.Received.OfType<ClistPacket>().Single();
+            Assert.AreEqual(player.Slot, listed.Slot);
+            Assert.AreEqual(player.Name, listed.Name);
         }
 
         [TestMethod]
@@ -58,8 +64,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var entry = await client.EnterWorldAsync(player.Slot);
 
             Assert.AreEqual(player.CharacterId, client.CharacterId);
-            Assert.AreEqual($"at {player.CharacterId} {WorldData.Town} 85 120", string.Join(' ', At(entry).Take(5)));
-            Assert.IsTrue(entry.Any(p => TestClient.HeaderOf(p) == "stat"), "the character's HP and MP are sent");
+            var at = entry.OfType<AtPacket>().Single();
+            Assert.AreEqual((player.CharacterId, WorldData.Town, (short)85, (short)120), (at.CharacterId, at.MapId, at.PositionX, at.PositionY));
+            Assert.IsTrue(entry.OfType<StatPacket>().Any(), "the character's HP and MP are sent");
         }
 
         [TestMethod]
@@ -72,10 +79,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var reply = await second.LoginAsync();
 
-            Assert.AreEqual("failc 4", reply.Refusal);
+            PacketAssert.AreEqual(new FailcPacket { Type = LoginFailType.AlreadyConnected }, reply.Refusal);
         }
-
-        private static string[] At(System.Collections.Generic.IEnumerable<string> packets) =>
-            packets.Single(p => TestClient.HeaderOf(p) == "at").Split(' ');
     }
 }

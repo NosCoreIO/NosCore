@@ -10,6 +10,8 @@ using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.Mates;
 using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Mates;
+using NosCore.Packets.Interfaces;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Mates
@@ -20,21 +22,51 @@ namespace NosCore.PacketHandlers.Tests.Mates
     {
         private static readonly Deserializer Deserializer = new(PacketTypes.World());
 
+        private static readonly Serializer Serializer = new(PacketTypes.World());
+
+        private static IPacket RoundTrip(IPacket packet) => Deserializer.Deserialize(Serializer.Serialize(packet));
+
         [TestMethod]
-        [DataRow("ptctl 1 2 1135623 50 132 1135626 49 133 1135623 9", typeof(PtctlPacketHandler))]
-        [DataRow("say_p 1135623 good boy", typeof(SayPPacketHandler))]
-        [DataRow("suctl 200 0 1135623 3 2045", typeof(SuCtlPacketHandler))]
-        public void TheClientsLineReachesItsHandler(string line, Type handler)
+        public void PartnerControlReachesItsHandler()
         {
-            Assert.IsInstanceOfType(Deserializer.Deserialize(line), handler.BaseType.NotNull().GetGenericArguments()[0]);
+            var packet = new PtctlPacket
+            {
+                MapType = 1,
+                Amount = 2,
+                Mates =
+                [
+                    new PtctlSubPacket { VisualId = 1135623, PositionX = 50, PositionY = 132 },
+                    new PtctlSubPacket { VisualId = 1135626, PositionX = 49, PositionY = 133 },
+                ],
+                VisualId = 1135623,
+                Speed = 9,
+            };
+
+            Assert.IsInstanceOfType(RoundTrip(packet), HandledBy(typeof(PtctlPacketHandler)));
+        }
+
+        [TestMethod]
+        public void APetsSpeechReachesItsHandler()
+        {
+            Assert.IsInstanceOfType(RoundTrip(new SayPPacket { PetId = 1135623, Message = "good boy" }), HandledBy(typeof(SayPPacketHandler)));
+        }
+
+        [TestMethod]
+        public void APartnerSkillReachesItsHandler()
+        {
+            var packet = new SuCtlPacket { CastId = 200, MateTransportId = 1135623, TargetType = VisualType.Monster, TargetId = 2045 };
+
+            Assert.IsInstanceOfType(RoundTrip(packet), HandledBy(typeof(SuCtlPacketHandler)));
         }
 
         [TestMethod]
         public void APetsWholeSentenceIsRead()
         {
-            var packet = (SayPPacket)Deserializer.Deserialize("say_p 1135623 good boy, sit");
+            var packet = (SayPPacket)RoundTrip(new SayPPacket { PetId = 1135623, Message = "good boy, sit" });
 
             Assert.AreEqual((1135623L, "good boy, sit"), (packet.PetId, packet.Message));
         }
+
+        private static Type HandledBy(Type handler) => handler.BaseType.NotNull().GetGenericArguments()[0];
     }
 }

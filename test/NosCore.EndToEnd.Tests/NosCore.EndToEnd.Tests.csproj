@@ -11,6 +11,11 @@
     <PackageReference Include="MSTest.TestAdapter" />
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="NosCore.Algorithm" />
+    <PackageReference Include="NosCore.Packets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\NosCore.Tests.Shared\PacketAssert.cs" Link="Infrastructure\PacketAssert.cs" />
   </ItemGroup>
 
   <ItemGroup>

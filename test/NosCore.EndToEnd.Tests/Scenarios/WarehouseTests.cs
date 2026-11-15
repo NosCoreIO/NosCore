@@ -13,27 +13,59 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.UI;
+using NosCore.Packets.ClientPackets.Warehouse;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Warehouse;
+using NosCore.Tests.Shared;
+using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class WarehouseTests
     {
-        private const int EquipmentPocket = 0;
-        private const int EtcPocket = 2;
-        private const int PetBasket = 201;
+        private static Func<IvnPacket, bool> Bag(int slot, int amount) =>
+            packet => packet.Type == PocketType.Etc
+                && packet.IvnSubPackets?.Single() is { } item && item.Slot == slot && item.VNum == WorldData.Seed && item.RareAmount == amount;
 
-        private static Func<string, bool> Bag(int slot, int amount) =>
-            packet => packet.StartsWith($"ivn {EtcPocket} {slot}.{WorldData.Seed}.{amount}.", StringComparison.Ordinal);
+        private static Func<IvnPacket, bool> EmptyBagSlot(int slot) =>
+            packet => packet.Type == PocketType.Etc
+                && packet.IvnSubPackets?.Single() is { VNum: 0, RareAmount: 0 } item && item.Slot == slot;
 
-        private static Func<string, bool> EmptyBagSlot(int slot) =>
-            packet => packet.StartsWith($"ivn {EtcPocket} {slot}.0.0.", StringComparison.Ordinal);
+        private static WarehouseSubPacket Seeds(short slot, short amount) =>
+            new() { Slot = slot, VNum = WorldData.Seed, Type = PocketType.Etc, Amount = amount, Rare = 0, Upgrade = 0 };
 
-        // stash <slot>.<vnum>.<pocket>.<amount>.<rare>.<upgrade>
-        private static string Stored(int slot, int amount) => $"stash {slot}.{WorldData.Seed}.{EtcPocket}.{amount}.0.0";
+        private static WarehouseSubPacket Nothing(short slot) =>
+            new() { Slot = slot, VNum = 0, Type = PocketType.Equipment, Amount = 0, Rare = 0, Upgrade = 0 };
 
-        private static string EmptyStorageSlot(int slot) => $"stash {slot}.0.0.0.0.0";
+        private static Func<StashClientPacket, bool> Stored(short slot, short amount) => Shows(Seeds(slot, amount));
+
+        private static Func<StashClientPacket, bool> EmptyStorageSlot(short slot) => Shows(Nothing(slot));
+
+        private static Func<StashClientPacket, bool> Shows(WarehouseSubPacket expected) =>
+            packet => packet.Items?.Count == 1 && PacketAssert.Matches(expected, packet.Items[0]);
+
+        private static Func<FStashClientPacket, bool> FamilyStored(short slot, short amount) =>
+            packet => packet.Items?.Count == 1 && PacketAssert.Matches(Seeds(slot, amount), packet.Items[0]);
+
+        private static DepositPacket Deposit(byte slot, short amount, byte newSlot, PocketType pocket = PocketType.Etc) =>
+            new() { Inventory = pocket, Slot = slot, Amount = amount, NewSlot = newSlot, PartnerBackpack = false };
+
+        private static WithdrawPacket Withdraw(short slot, short amount) => new() { Slot = slot, Amount = amount, PetBackpack = false };
+
+        private static FDepositPacket FamilyDeposit(byte slot, short amount, byte newSlot) =>
+            new() { Inventory = PocketType.Etc, Slot = slot, Amount = amount, NewSlot = newSlot, Unknown = 0 };
+
+        private static FWithdrawPacket FamilyWithdraw(short slot, short amount) => new() { Slot = slot, Amount = amount, Unknown = 0 };
+
+        private static bool MovesAnything(IPacket packet) => packet is IvnPacket or StashClientPacket;
+
+        private static bool MovesAnythingOfTheFamily(IPacket packet) => packet is IvnPacket or FStashClientPacket;
 
         // Seeds in the bag and, unless the scenario is about not having one, a chest to keep them in.
         private static async Task<Player> OwnerAsync(short seeds, bool chest = true)
@@ -100,10 +132,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterAsync(player);
             var deposited = alice.Mark();
 
-            await alice.SendAsync($"deposit {EtcPocket} 0 3 1 0");
+            await alice.SendAsync(Deposit(0, 3, 1));
 
             await alice.ExpectSinceAsync(deposited, Bag(0, 2), "the two left in the bag");
-            await alice.ExpectSinceAsync(deposited, p => p == Stored(1, 3), "the three in the warehouse");
+            await alice.ExpectSinceAsync(deposited, Stored(1, 3), "the three in the warehouse");
             CollectionAssert.AreEqual(new[] { ((short)1, (short)3) }, await StoredInWarehouseAsync(player.CharacterId));
         }
 
@@ -114,10 +146,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterAsync(player);
             var deposited = alice.Mark();
 
-            await alice.SendAsync($"deposit {EtcPocket} 0 5 0 0");
+            await alice.SendAsync(Deposit(0, 5, 0));
 
             await alice.ExpectSinceAsync(deposited, EmptyBagSlot(0), "the emptied bag slot");
-            await alice.ExpectSinceAsync(deposited, p => p == Stored(0, 5), "the five in the warehouse");
+            await alice.ExpectSinceAsync(deposited, Stored(0, 5), "the five in the warehouse");
             CollectionAssert.AreEqual(new[] { ((short)0, (short)5) }, await StoredInWarehouseAsync(player.CharacterId));
             Assert.AreEqual(0, await StoredInBagAsync(player.CharacterId), "nothing is left in the stored bag");
         }
@@ -127,21 +159,21 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await OwnerAsync(5);
             await using var alice = await EnterAsync(player);
-            await alice.SendAsync($"deposit {EtcPocket} 0 5 0 0");
-            await alice.ExpectAsync(p => p == Stored(0, 5), "the five in the warehouse");
+            await alice.SendAsync(Deposit(0, 5, 0));
+            await alice.ExpectAsync(Stored(0, 5), "the five in the warehouse");
             var withdrawn = alice.Mark();
 
-            await alice.SendAsync("withdraw 0 2 0");
+            await alice.SendAsync(Withdraw(0, 2));
 
             await alice.ExpectSinceAsync(withdrawn, Bag(0, 2), "the two back in the bag");
-            await alice.ExpectSinceAsync(withdrawn, p => p == Stored(0, 3), "the three left in the warehouse");
+            await alice.ExpectSinceAsync(withdrawn, Stored(0, 3), "the three left in the warehouse");
             CollectionAssert.AreEqual(new[] { ((short)0, (short)3) }, await StoredInWarehouseAsync(player.CharacterId));
 
             var emptied = alice.Mark();
-            await alice.SendAsync("withdraw 0 3 0");
+            await alice.SendAsync(Withdraw(0, 3));
 
             await alice.ExpectSinceAsync(emptied, Bag(0, 5), "all five back in the bag");
-            await alice.ExpectSinceAsync(emptied, p => p == EmptyStorageSlot(0), "the emptied warehouse slot");
+            await alice.ExpectSinceAsync(emptied, EmptyStorageSlot(0), "the emptied warehouse slot");
             Assert.AreEqual(0, (await StoredInWarehouseAsync(player.CharacterId)).Length);
         }
 
@@ -151,8 +183,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var player = await OwnerAsync(5);
             await using var alice = await EnterAsync(player);
 
-            await alice.SendAsync($"deposit {EtcPocket} 0 3 0 0");
-            await alice.ExpectAsync(p => p == Stored(0, 3), "the three in the warehouse");
+            await alice.SendAsync(Deposit(0, 3, 0));
+            await alice.ExpectAsync(Stored(0, 3), "the three in the warehouse");
 
             Assert.AreEqual(3, (await StoredInWarehouseAsync(player.CharacterId)).Sum(s => s.Amount));
             Assert.AreEqual(2, await StoredInBagAsync(player.CharacterId), "the stored bag holds what was not deposited");
@@ -163,11 +195,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await OwnerAsync(5);
             await using var alice = await EnterAsync(player);
-            await alice.SendAsync($"deposit {EtcPocket} 0 5 0 0");
-            await alice.ExpectAsync(p => p == Stored(0, 5), "the five in the warehouse");
+            await alice.SendAsync(Deposit(0, 5, 0));
+            await alice.ExpectAsync(Stored(0, 5), "the five in the warehouse");
 
-            await alice.SendAsync("withdraw 0 5 0");
-            await alice.ExpectAsync(p => p == EmptyStorageSlot(0), "the emptied warehouse slot");
+            await alice.SendAsync(Withdraw(0, 5));
+            await alice.ExpectAsync(EmptyStorageSlot(0), "the emptied warehouse slot");
 
             Assert.AreEqual(0, (await StoredInWarehouseAsync(player.CharacterId)).Length);
             Assert.AreEqual(5, await StoredInBagAsync(player.CharacterId), "the stored bag holds what was taken out");
@@ -179,15 +211,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var player = await OwnerAsync(5);
             await using (var alice = await EnterAsync(player))
             {
-                await alice.SendAsync($"deposit {EtcPocket} 0 5 2 0");
-                await alice.ExpectAsync(p => p == Stored(2, 5), "the five in the warehouse");
+                await alice.SendAsync(Deposit(0, 5, 2));
+                await alice.ExpectAsync(Stored(2, 5), "the five in the warehouse");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Assert.IsFalse(back.Received.Any(p => p.StartsWith($"inv {EtcPocket} ", StringComparison.Ordinal) && p.Contains($".{WorldData.Seed}.", StringComparison.Ordinal)),
+            Assert.IsFalse(back.Received.OfType<InvPacket>().Any(p => p.Type == PocketType.Etc && p.IvnSubPackets?.Any(item => item.VNum == WorldData.Seed) == true),
                 "the bag no longer holds them");
             var withdrawn = back.Mark();
-            await back.SendAsync("withdraw 2 5 0");
+            await back.SendAsync(Withdraw(2, 5));
 
             await back.ExpectSinceAsync(withdrawn, Bag(0, 5), "all five back in the bag");
         }
@@ -203,12 +235,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }
 
             await using var alice = await EnterAsync(player);
-            await alice.SendAsync($"deposit {EtcPocket} 0 5 3 0");
-            await alice.ExpectAsync(p => p == Stored(3, 5), "the five in the warehouse");
+            await alice.SendAsync(Deposit(0, 5, 3));
+            await alice.ExpectAsync(Stored(3, 5), "the five in the warehouse");
 
-            await alice.SendAsync($"guri {PetBasket} 0");
+            await alice.SendAsync(new GuriPacket { Type = GuriPacketType.PetBasket, Argument = 0 });
 
-            Assert.AreEqual($"stash_all {WorldData.ChestSlots} 3.{WorldData.Seed}.{EtcPocket}.5.0.0", await alice.ExpectAsync("stash_all"));
+            PacketAssert.AreEqual(new StashAllPacket { WarehouseSize = WorldData.ChestSlots, Items = [Seeds(3, 5)] },
+                await alice.ExpectAsync<StashAllPacket>());
         }
 
         [TestMethod]
@@ -219,14 +252,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 NoscorePocketType.Equipment);
             await using var alice = await EnterAsync(player);
 
-            await alice.SendAsync($"deposit {EquipmentPocket} 0 1 0 0");
-            await alice.ExpectAsync(p => p == $"stash 0.{WorldData.Blade}.{EquipmentPocket}.1.5.7", "the weapon in the warehouse");
+            await alice.SendAsync(Deposit(0, 1, 0, PocketType.Equipment));
+            await alice.ExpectAsync(Shows(new WarehouseSubPacket
+            {
+                Slot = 0, VNum = WorldData.Blade, Type = PocketType.Equipment, Amount = 1, Rare = 5, Upgrade = 7
+            }), "the weapon in the warehouse");
             var withdrawn = alice.Mark();
-            await alice.SendAsync("withdraw 0 1 0");
+            await alice.SendAsync(Withdraw(0, 1));
 
             // In the equipment pocket a slot reads slot.vnum.rarity.upgrade.
-            await alice.ExpectSinceAsync(withdrawn, p => p.StartsWith($"ivn {EquipmentPocket} 0.{WorldData.Blade}.5.7.", StringComparison.Ordinal),
-                "the weapon as it was");
+            await alice.ExpectSinceAsync<IvnPacket>(withdrawn, p => p.Type == PocketType.Equipment
+                && p.IvnSubPackets?.Single() is { Slot: 0, RareAmount: 5, UpgradeDesign: 7 } item && item.VNum == WorldData.Blade, "the weapon as it was");
         }
 
         [TestMethod]
@@ -243,20 +279,19 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await EnterAsync(member);
             var deposited = alice.Mark();
 
-            await alice.SendAsync($"f_deposit {EtcPocket} 0 5 1 0");
+            await alice.SendAsync(FamilyDeposit(0, 5, 1));
 
             await alice.ExpectSinceAsync(deposited, EmptyBagSlot(0), "the emptied bag slot");
-            await alice.ExpectSinceAsync(deposited, p => p == $"f_stash 1.{WorldData.Seed}.{EtcPocket}.5.0.0", "the five in the family warehouse");
+            await alice.ExpectSinceAsync(deposited, FamilyStored(1, 5), "the five in the family warehouse");
             CollectionAssert.AreEqual(new[] { ((short)1, (short)5) }, await StoredInFamilyWarehouseAsync(family.FamilyId));
 
-            // 1600 is the n_run that opens the family warehouse.
-            await bob.SendAsync("n_run 1600");
-            Assert.AreEqual($"f_stash_all 4 1.{WorldData.Seed}.{EtcPocket}.5.0.0", await bob.ExpectAsync("f_stash_all"));
+            await bob.SendAsync(new NrunPacket { Runner = NrunRunnerType.OpenFamilyWarehouse });
+            PacketAssert.AreEqual(new FStashAllPacket { WarehouseSize = 4, Items = [Seeds(1, 5)] }, await bob.ExpectAsync<FStashAllPacket>());
             var withdrawn = bob.Mark();
-            await bob.SendAsync("f_withdraw 1 2 0");
+            await bob.SendAsync(FamilyWithdraw(1, 2));
 
             await bob.ExpectSinceAsync(withdrawn, Bag(0, 2), "the two in Bob's bag");
-            await bob.ExpectSinceAsync(withdrawn, p => p == $"f_stash 1.{WorldData.Seed}.{EtcPocket}.3.0.0", "the three left in the family warehouse");
+            await bob.ExpectSinceAsync(withdrawn, FamilyStored(1, 3), "the three left in the family warehouse");
             CollectionAssert.AreEqual(new[] { ((short)1, (short)3) }, await StoredInFamilyWarehouseAsync(family.FamilyId));
         }
 
@@ -272,15 +307,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }, head, member);
             await using var alice = await EnterAsync(head);
             await using var bob = await EnterAsync(member);
-            await alice.SendAsync($"f_deposit {EtcPocket} 0 5 0 0");
-            await alice.ExpectAsync(p => p == $"f_stash 0.{WorldData.Seed}.{EtcPocket}.5.0.0", "the five in the family warehouse");
+            await alice.SendAsync(FamilyDeposit(0, 5, 0));
+            await alice.ExpectAsync(FamilyStored(0, 5), "the five in the family warehouse");
             var asked = bob.Mark();
 
-            await bob.SendAsync("f_withdraw 0 5 0");
+            await bob.SendAsync(FamilyWithdraw(0, 5));
 
-            // 392 is the client's notice of not being qualified to use the warehouse.
-            await bob.ExpectSinceAsync(asked, p => p.StartsWith("infoi 392 ", StringComparison.Ordinal), "the not-qualified notice");
-            Assert.IsTrue(await bob.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "f_stash", TimeSpan.FromSeconds(1)));
+            await bob.ExpectSinceAsync<InfoiPacket>(asked, p => p.Message == Game18NConstString.NotQualifiedForWarehouse, "the not-qualified notice");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(asked, MovesAnythingOfTheFamily, TimeSpan.FromSeconds(1)));
             CollectionAssert.AreEqual(new[] { ((short)0, (short)5) }, await StoredInFamilyWarehouseAsync(family.FamilyId));
         }
 
@@ -291,14 +325,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var family = await Harness.AddFamilyAsync(f => f.WarehouseSize = 4, head);
             await using var alice = await EnterAsync(head);
             await using var carol = await Harness.EnterAsync("Carol", x: 82, y: 116);
-            await alice.SendAsync($"f_deposit {EtcPocket} 0 5 0 0");
-            await alice.ExpectAsync(p => p == $"f_stash 0.{WorldData.Seed}.{EtcPocket}.5.0.0", "the five in the family warehouse");
+            await alice.SendAsync(FamilyDeposit(0, 5, 0));
+            await alice.ExpectAsync(FamilyStored(0, 5), "the five in the family warehouse");
             var asked = carol.Mark();
 
-            await carol.SendAsync("f_withdraw 0 5 0");
+            await carol.SendAsync(FamilyWithdraw(0, 5));
 
-            await carol.ExpectSinceAsync(asked, p => p.StartsWith("infoi 392 ", StringComparison.Ordinal), "the not-qualified notice");
-            Assert.IsTrue(await carol.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "f_stash", TimeSpan.FromSeconds(1)));
+            await carol.ExpectSinceAsync<InfoiPacket>(asked, p => p.Message == Game18NConstString.NotQualifiedForWarehouse, "the not-qualified notice");
+            Assert.IsTrue(await carol.NoneSinceAsync<IPacket>(asked, MovesAnythingOfTheFamily, TimeSpan.FromSeconds(1)));
             CollectionAssert.AreEqual(new[] { ((short)0, (short)5) }, await StoredInFamilyWarehouseAsync(family.FamilyId));
         }
 
@@ -309,9 +343,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterAsync(player);
             var asked = alice.Mark();
 
-            await alice.SendAsync($"deposit {EtcPocket} 0 5 0 0");
+            await alice.SendAsync(Deposit(0, 5, 0));
 
-            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "stash", TimeSpan.FromSeconds(1)));
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, MovesAnything, TimeSpan.FromSeconds(1)));
             Assert.AreEqual(0, (await StoredInWarehouseAsync(player.CharacterId)).Length);
         }
 
@@ -322,9 +356,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterAsync(player);
             var asked = alice.Mark();
 
-            await alice.SendAsync($"deposit {EtcPocket} 0 5 {WorldData.ChestSlots} 0");
+            await alice.SendAsync(Deposit(0, 5, WorldData.ChestSlots));
 
-            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "stash", TimeSpan.FromSeconds(1)));
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, MovesAnything, TimeSpan.FromSeconds(1)));
             Assert.AreEqual(0, (await StoredInWarehouseAsync(player.CharacterId)).Length);
         }
 
@@ -333,13 +367,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await OwnerAsync(5);
             await using var alice = await EnterAsync(player);
-            await alice.SendAsync($"deposit {EtcPocket} 0 2 0 0");
-            await alice.ExpectAsync(p => p == Stored(0, 2), "the two in the warehouse");
+            await alice.SendAsync(Deposit(0, 2, 0));
+            await alice.ExpectAsync(Stored(0, 2), "the two in the warehouse");
             var asked = alice.Mark();
 
-            await alice.SendAsync($"deposit {EtcPocket} 0 3 0 0");
+            await alice.SendAsync(Deposit(0, 3, 0));
 
-            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "stash", TimeSpan.FromSeconds(1)));
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, MovesAnything, TimeSpan.FromSeconds(1)));
             CollectionAssert.AreEqual(new[] { ((short)0, (short)2) }, await StoredInWarehouseAsync(player.CharacterId));
         }
 
@@ -348,13 +382,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await OwnerAsync(5);
             await using var alice = await EnterAsync(player);
-            await alice.SendAsync($"deposit {EtcPocket} 0 3 0 0");
-            await alice.ExpectAsync(p => p == Stored(0, 3), "the three in the warehouse");
+            await alice.SendAsync(Deposit(0, 3, 0));
+            await alice.ExpectAsync(Stored(0, 3), "the three in the warehouse");
             var asked = alice.Mark();
 
-            await alice.SendAsync("withdraw 0 4 0");
+            await alice.SendAsync(Withdraw(0, 4));
 
-            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "stash", TimeSpan.FromSeconds(1)));
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, MovesAnything, TimeSpan.FromSeconds(1)));
             CollectionAssert.AreEqual(new[] { ((short)0, (short)3) }, await StoredInWarehouseAsync(player.CharacterId));
         }
 
@@ -363,14 +397,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await OwnerAsync(5);
             await using var alice = await EnterAsync(player);
-            await alice.SendAsync($"deposit {EtcPocket} 0 5 0 0");
-            await alice.ExpectAsync(p => p == Stored(0, 5), "the five in the warehouse");
+            await alice.SendAsync(Deposit(0, 5, 0));
+            await alice.ExpectAsync(Stored(0, 5), "the five in the warehouse");
             var moved = alice.Mark();
 
-            await alice.SendAsync("repos 0 5 3 0");
+            await alice.SendAsync(new ReposPacket { OldSlot = 0, Amount = 5, NewSlot = 3, PartnerBackpack = false });
 
-            await alice.ExpectSinceAsync(moved, p => p == Stored(3, 5), "the five in their new slot");
-            await alice.ExpectSinceAsync(moved, p => p == EmptyStorageSlot(0), "the emptied slot");
+            await alice.ExpectSinceAsync(moved, Stored(3, 5), "the five in their new slot");
+            await alice.ExpectSinceAsync(moved, EmptyStorageSlot(0), "the emptied slot");
             CollectionAssert.AreEqual(new[] { ((short)3, (short)5) }, await StoredInWarehouseAsync(player.CharacterId));
         }
     }
