@@ -30,6 +30,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
@@ -70,6 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World.UseReal<IMateProgressionService, MateProgressionService>();
             World.UseReal<IBuffService, BuffService>();
             World.UseReal<IQuestDropService, QuestDropService>();
+            World.UseReal<IItemDeliveryService, ItemDeliveryService>();
             _equipment = World.Freeze<Mock<IEquipmentStatsService>>();
             _equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
             _service = World.Create<RewardService>();
@@ -264,6 +266,33 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
             Assert.IsFalse(_map.GetMapItemBundles().Any(i => i.VNum == GoldVNum));
+        }
+
+        [TestMethod]
+        public async Task InGlacernonEveryAttackerGetsTheDropInTheirBag()
+        {
+            _map.IsAct4 = true;
+            MonsterDrops(DroppableVNum, chance: 10000);
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 99));
+
+            Assert.IsFalse(_map.GetMapItemBundles().Any(i => i.VNum == DroppableVNum));
+            Assert.AreEqual(1, _first.Character.InventoryService.Values.Count(i => i.ItemInstance.ItemVNum == DroppableVNum));
+            Assert.AreEqual(1, _second.Character.InventoryService.Values.Count(i => i.ItemInstance.ItemVNum == DroppableVNum));
+        }
+
+        [TestMethod]
+        public async Task InGlacernonEveryAttackerGetsTheGold()
+        {
+            _map.IsAct4 = true;
+            _first.Character.Gold = 0;
+            _second.Character.Gold = 0;
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 99));
+
+            Assert.IsFalse(_map.GetMapItemBundles().Any(i => i.VNum == GoldVNum));
+            Assert.IsTrue(_first.Character.Gold is >= 60 and <= 120, $"got {_first.Character.Gold}");
+            Assert.AreEqual(_first.Character.Gold, _second.Character.Gold);
         }
 
         [TestMethod]

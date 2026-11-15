@@ -3547,6 +3547,16 @@ for example map 134. The war is per channel and starts at 0% on every server sta
 The faction HUD bar does not draw: the client applies `fc` to a window it only opens on its
 own, so check the bar values in the packet log instead of on screen.
 
+### Glacernon loot
+
+Two characters on a Glacernon hunting map such as 132, both hitting the same monster.
+
+- [ ] When the monster dies nothing falls to the ground: each of the two gets every drop in their
+      bag with "You have received" in chat, and the same gold amount
+- [ ] A character who missed every hit gets nothing
+- [ ] With a full bag the drop arrives by parcel instead
+- [ ] The same monster on a normal map still drops its items and gold on the ground
+
 ### Lord Mukraju and the Glacernon raids
 
 A side needs 100 kills to fill its bar. Both characters need a family and level 60 or more.

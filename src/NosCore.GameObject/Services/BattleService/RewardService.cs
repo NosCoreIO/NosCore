@@ -36,6 +36,11 @@ using NosCore.Algorithm.LevelPenaltyService;
 using NosCore.Algorithm.LowLevelBoostService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
+using NosCore.GameObject.Messaging.Events;
+using NosCore.Packets.ServerPackets.UI;
+using Wolverine;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -59,6 +64,9 @@ public sealed class RewardService(
     IEquipmentStatsService equipmentStatsService,
     IQuestDropService questDropService,
     IScriptedInstanceService scriptedInstanceService,
+    IItemDeliveryService itemDeliveryService,
+    IMessageBus messageBus,
+    IOptions<WorldConfiguration> worldConfiguration,
     ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill.
@@ -97,7 +105,11 @@ public sealed class RewardService(
             var topDamageDealer = FindTopDamageDealer(victim, hitSnapshot);
             var (doubleChance, noDropChance) = topDamageDealer is { } hunter ? DropChances(hunter) : (0, 0);
             var dropsLoot = !Rolls(noDropChance);
-            if (dropsLoot)
+            if (dropsLoot && mapInstance.IsAct4)
+            {
+                await GiveDropsToAttackersAsync(victim, mob, mapInstance, hitSnapshot);
+            }
+            else if (dropsLoot)
             {
                 await SpawnDropsAsync(victim, mob, mapInstance, topDamageDealer, doubleChance);
             }
@@ -105,7 +117,7 @@ public sealed class RewardService(
             await SpawnQuestDropsAsync(victim, mob, mapInstance, hitSnapshot);
             if (dropsLoot)
             {
-                await SpawnGoldAsync(victim, mob, mapInstance, topDamageDealer);
+                await SpawnGoldAsync(victim, mob, mapInstance, topDamageDealer, hitSnapshot);
             }
             _ = killer;
         }
@@ -406,7 +418,64 @@ public sealed class RewardService(
         }
     }
 
-    private async Task SpawnGoldAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, PlayerComponentBundle? topDamageDealer)
+    private static List<PlayerComponentBundle> Attackers(IAliveEntity victim, IReadOnlyDictionary<Entity, int> hitSnapshot)
+    {
+        var attackers = new List<PlayerComponentBundle>();
+        foreach (var handle in hitSnapshot.Keys)
+        {
+            if (TryFindPlayer(victim, handle, out var player))
+            {
+                attackers.Add(player);
+            }
+        }
+
+        return attackers;
+    }
+
+    // In Glacernon nothing falls to the ground: each drop goes into the bag of everyone who hit the monster.
+    private async Task GiveDropsToAttackersAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, IReadOnlyDictionary<Entity, int> hitSnapshot)
+    {
+        var attackers = Attackers(victim, hitSnapshot);
+        foreach (var drop in catalog.GetDrops(mob.NpcMonsterVNum))
+        {
+            if (random.Next(0, 10000) >= drop.DropChance * mapInstance.DropRate)
+            {
+                continue;
+            }
+
+            foreach (var attacker in attackers)
+            {
+                try
+                {
+                    await itemDeliveryService.DeliverAsync(attacker, itemGenerationService.Create(drop.VNum, (short)drop.Amount));
+                    await messageBus.PublishAsync(new ItemsReceivedEvent(attacker, drop.VNum, (short)drop.Amount));
+                }
+                catch (System.Exception ex)
+                {
+                    logger.LogWarning(ex, logLanguage[LogLanguageKey.DROP_SPAWN_FAILED], drop.VNum, mob.NpcMonsterVNum);
+                }
+            }
+        }
+    }
+
+    private async Task GiveGoldAsync(PlayerComponentBundle player, ItemDto gold, long amount)
+    {
+        var maxGold = worldConfiguration.Value.MaxGoldAmount;
+        if (player.Gold + amount > maxGold)
+        {
+            player.Gold = maxGold;
+            await player.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.MaxGoldReached });
+        }
+        else
+        {
+            player.Gold += amount;
+            await player.SendPacketAsync(player.GenerateGoldReceived(amount, gold.Name[player.AccountLanguage]));
+        }
+
+        await player.SendPacketAsync(player.GenerateGold());
+    }
+
+    private async Task SpawnGoldAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, PlayerComponentBundle? topDamageDealer, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
         if (mapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
             && mapInstance.MapInstanceType != MapInstanceType.TimeSpaceInstance)
@@ -416,17 +485,28 @@ public sealed class RewardService(
 
         var (minGold, maxGold) = monsterGoldService.GetGoldDrop(mob.Level);
         var goldAmount = random.Next(minGold, maxGold + 1);
-        if (topDamageDealer is { } owner)
+        if (topDamageDealer is { } owner
+            && random.Next(0, 100) >= levelPenaltyService.GetGoldPenalty(owner.Level, mob.Level) * 100)
         {
-            if (random.Next(0, 100) >= levelPenaltyService.GetGoldPenalty(owner.Level, mob.Level) * 100)
-            {
-                return;
-            }
-
-            goldAmount = (int)(goldAmount * (1 + GoldBonusPercent(owner) / 100d));
+            return;
         }
 
         if (goldAmount <= 0 || itemCatalog.GetItemWithEffect(ItemEffectType.Gold) is not { } gold) return;
+
+        if (mapInstance.IsAct4)
+        {
+            foreach (var attacker in Attackers(victim, hitSnapshot))
+            {
+                await GiveGoldAsync(attacker, gold, (long)(goldAmount * (1 + GoldBonusPercent(attacker) / 100d)));
+            }
+
+            return;
+        }
+
+        if (topDamageDealer is { } hunter)
+        {
+            goldAmount = (int)(goldAmount * (1 + GoldBonusPercent(hunter) / 100d));
+        }
 
         try
         {
