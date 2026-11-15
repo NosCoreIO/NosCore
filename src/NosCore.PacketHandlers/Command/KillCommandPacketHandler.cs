@@ -23,7 +23,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             session.Character.Hp = 0;
-            await messageBus.PublishAsync(new EntityDiedEvent(session.Character, session.Character)).ConfigureAwait(false);
+            await messageBus.PublishAsync(new EntityDiedEvent(session.Character, session.Character));
         }
     }
 }

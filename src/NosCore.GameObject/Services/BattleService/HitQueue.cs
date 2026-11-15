@@ -186,7 +186,7 @@ public sealed class HitQueue(
             {
                 await ApplySpecialActionsAsync(request.Skill.BCards, request.Origin, target,
                         defenderStats.ForcedMovementResistance, isPvp)
-                    .ConfigureAwait(false);
+                    ;
             }
 
             // Track contribution per attacker so reward distribution can weight by
@@ -210,12 +210,12 @@ public sealed class HitQueue(
                 await buffService
                     .ApplySkillBuffAsync(target, request.Skill.SkillVnum, request.Skill.Duration,
                         request.Skill.BCards, request.Origin)
-                    .ConfigureAwait(false);
+                    ;
 
-                await RefreshVitalityAsync(target).ConfigureAwait(false);
+                await RefreshVitalityAsync(target);
                 if (!ReferenceEquals(request.Origin, target))
                 {
-                    await RefreshVitalityAsync(request.Origin).ConfigureAwait(false);
+                    await RefreshVitalityAsync(request.Origin);
                 }
             }
 
@@ -315,13 +315,13 @@ public sealed class HitQueue(
                 // The target slides backwards along the line joining it to whoever struck.
                 case BCardEffect.SpecialActionsPushBack when !Resists(resistance):
                     await SlideAsync(target, origin.PositionX, origin.PositionY, Math.Max(1, fields),
-                        away: true, stopAt: 0).ConfigureAwait(false);
+                        away: true, stopAt: 0);
                     break;
 
                 // The target is drawn in until it is `fields` away from the caster.
                 case BCardEffect.SpecialActionsDrawEnemies when !Resists(resistance):
                     await SlideAsync(target, origin.PositionX, origin.PositionY, int.MaxValue,
-                        away: false, stopAt: fields).ConfigureAwait(false);
+                        away: false, stopAt: fields);
                     break;
 
                 // Type 75: a chance (first) of moving `second` fields, the caster back from the
@@ -329,20 +329,20 @@ public sealed class HitQueue(
                 case BCardEffect.JumpBackPushJumpBackChance or BCardEffect.JumpBackPushMoveBackChanceNegated
                     when Rolls(bCard.FirstData):
                     await SlideAsync(origin, target.PositionX, target.PositionY, Math.Max(1, (int)bCard.SecondData),
-                        away: true, stopAt: 0).ConfigureAwait(false);
+                        away: true, stopAt: 0);
                     break;
 
                 case BCardEffect.JumpBackPushPushBackChance or BCardEffect.JumpBackPushPushBackChanceNegated
                     when (isPvp || bCard.Effect() == BCardEffect.JumpBackPushPushBackChance)
                         && Rolls(bCard.FirstData) && !Resists(resistance):
                     await SlideAsync(target, origin.PositionX, origin.PositionY, Math.Max(1, (int)bCard.SecondData),
-                        away: true, stopAt: 0).ConfigureAwait(false);
+                        away: true, stopAt: 0);
                     break;
 
                 // The caster closes on the target and stops beside it.
                 case BCardEffect.SpecialActionsCharge:
                     await SlideAsync(origin, target.PositionX, target.PositionY, Math.Max(1, fields),
-                        away: false, stopAt: 1).ConfigureAwait(false);
+                        away: false, stopAt: 1);
                     break;
             }
         }

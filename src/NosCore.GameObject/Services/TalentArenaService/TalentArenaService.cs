@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
         ISessionRegistry sessionRegistry,
         IItemGenerationService itemGenerationService,
         IRandomProvider random,
-        ILogger<TalentArenaService> logger, TimeProvider time) : ITalentArenaService, ISingletonService
+        ILogger<TalentArenaService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeProvider time) : ITalentArenaService, ISingletonService
     {
         public const string Script = "talent-arena";
 
@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Arena of Talents failed");
+                    logger.LogError(e, logLanguage[LogLanguageKey.TALENT_ARENA_FAILED]);
                 }
                 finally
                 {

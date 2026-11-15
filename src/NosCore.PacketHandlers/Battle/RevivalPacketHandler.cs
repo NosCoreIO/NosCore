@@ -84,9 +84,9 @@ namespace NosCore.PacketHandlers.Battle
                         await landOfDeathService.ReturnToEntranceAsync(session);
                         break;
                     case RevivalType.InPlace when character.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance:
-                        await ReviveInPlaceAsync(session).ConfigureAwait(false);
+                        await ReviveInPlaceAsync(session);
                         break;
-                    case RevivalType.AtSavePoint: await ReviveAtSavePointAsync(session).ConfigureAwait(false); break;
+                    case RevivalType.AtSavePoint: await ReviveAtSavePointAsync(session); break;
                     case RevivalType.InArena when character.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance:
                         await ReviveInArenaAsync(session);
                         break;
@@ -117,8 +117,8 @@ namespace NosCore.PacketHandlers.Battle
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.NotEnoughPowerSeed,
-                    }).ConfigureAwait(false);
-                    await ReviveAtSavePointAsync(session).ConfigureAwait(false);
+                    });
+                    await ReviveAtSavePointAsync(session);
                     return;
                 }
 
@@ -161,18 +161,18 @@ namespace NosCore.PacketHandlers.Battle
             var (mapId, x, y) = respawnService.GetRespawnLocation(character, respawnMapTypeId);
 
             RestoreLife(session, 100);
-            await mapChangeService.ChangeMapAsync(session, mapId, x, y).ConfigureAwait(false);
-            await BroadcastReviveAsync(session, x, y).ConfigureAwait(false);
+            await mapChangeService.ChangeMapAsync(session, mapId, x, y);
+            await BroadcastReviveAsync(session, x, y);
         }
 
         private async Task ReviveInArenaAsync(ClientSession session)
         {
             var character = session.Character;
-            if (character.Gold < ArenaReviveCost) { await ReviveAtSavePointAsync(session).ConfigureAwait(false); return; }
+            if (character.Gold < ArenaReviveCost) { await ReviveAtSavePointAsync(session); return; }
 
             character.Gold -= ArenaReviveCost;
             RestoreLife(session, 100);
-            await session.SendPacketAsync(character.GenerateGold()).ConfigureAwait(false);
+            await session.SendPacketAsync(character.GenerateGold());
             await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
 
             var protection = cardCatalog.GetTriggeredCard(CardTrigger.ArenaRevival);
@@ -215,10 +215,10 @@ namespace NosCore.PacketHandlers.Battle
                 VisualType = VisualType.Player,
                 VisualId = character.VisualId,
                 Data = 0,
-            }).ConfigureAwait(false);
+            });
 
-            await session.SendPacketAsync(character.GeneratePinit()).ConfigureAwait(false);
-            await session.SendPacketAsync(character.GenerateStat()).ConfigureAwait(false);
+            await session.SendPacketAsync(character.GeneratePinit());
+            await session.SendPacketAsync(character.GenerateStat());
         }
     }
 }

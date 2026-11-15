@@ -113,7 +113,7 @@ public sealed class VitalityService(
 
         if (character is Ecs.PlayerComponentBundle player)
         {
-            await player.SendPacketAsync(player.GenerateStat()).ConfigureAwait(false);
+            await player.SendPacketAsync(player.GenerateStat());
         }
     }
 

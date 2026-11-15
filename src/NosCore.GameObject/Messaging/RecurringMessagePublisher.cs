@@ -25,11 +25,11 @@ namespace NosCore.GameObject.Messaging
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             using var timer = new PeriodicTimer(interval, time);
-            while (await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
                 try
                 {
-                    await bus.PublishAsync(new TMessage()).ConfigureAwait(false);
+                    await bus.PublishAsync(new TMessage());
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 {

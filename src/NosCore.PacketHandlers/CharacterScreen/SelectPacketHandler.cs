@@ -284,7 +284,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<RespawnDto>();
                 staticBuffService.Load(character);
 
-                foreach (var mate in await mateService.LoadAsync(characterId).ConfigureAwait(false))
+                foreach (var mate in await mateService.LoadAsync(characterId))
                 {
                     character.Mates[mate.MateTransportId] = mate;
                 }

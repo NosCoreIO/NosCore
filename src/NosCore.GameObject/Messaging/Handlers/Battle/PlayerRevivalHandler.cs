@@ -139,11 +139,11 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                     var transfer = player.Level * 50L;
                     player.Reputation -= transfer;
                     killer.Reputation += transfer;
-                    await killer.SendPacketAsync(killer.GenerateFd()).ConfigureAwait(false);
+                    await killer.SendPacketAsync(killer.GenerateFd());
                 }
 
-                await player.SendPacketAsync(player.GenerateStat()).ConfigureAwait(false);
-                await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
+                await player.SendPacketAsync(player.GenerateStat());
+                await player.SendPacketAsync(player.GenerateFd());
 
                 var question = player.Level > 20
                     ? Game18NConstString.ContinueHereTenSeeds
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                     YesPacket = new RevivalPacket { Type = RevivalType.InPlace },
                     NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
                     Question = question,
-                }).ConfigureAwait(false);
+                });
             }
             catch (Exception ex)
             {

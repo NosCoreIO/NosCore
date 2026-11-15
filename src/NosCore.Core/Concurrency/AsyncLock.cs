@@ -19,7 +19,7 @@ namespace NosCore.Core.Concurrency
 
         public async ValueTask<Releaser> AcquireAsync(CancellationToken cancellationToken = default)
         {
-            await _semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await _semaphore.WaitAsync(cancellationToken);
             return new Releaser(_semaphore);
         }
 

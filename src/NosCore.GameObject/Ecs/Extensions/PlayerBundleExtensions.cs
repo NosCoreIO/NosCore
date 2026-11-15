@@ -923,8 +923,8 @@ public static class ClientSessionMailExtensions
         // them straight back on top of the new class's. LearnClassSkillsAsync then grants what
         // the job level allows, and the change has just put that back to 1, so it starts from
         // the first skill.
-        await skillService.ForgetUnlearnableSkillsAsync(character).ConfigureAwait(false);
-        await skillService.LearnClassSkillsAsync(character).ConfigureAwait(false);
+        await skillService.ForgetUnlearnableSkillsAsync(character);
+        await skillService.LearnClassSkillsAsync(character);
 
         var itemsToAdd = worldConfiguration.Value.BasicEquipments.TryGetValue(classType.ToString(), out var byOrigin)
             && byOrigin.TryGetValue(StarterOrigin.CreateAndUpgrade, out var pack)

@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Services.BattleService
             var skill = Resolve(origin, arguments);
             if (skill == null)
             {
-                await CancelAsync(origin, target).ConfigureAwait(false);
+                await CancelAsync(origin, target);
                 return false;
             }
 
@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Services.BattleService
             {
                 try
                 {
-                    await captureService.TryCaptureAsync(origin, target, skill).ConfigureAwait(false);
+                    await captureService.TryCaptureAsync(origin, target, skill);
                 }
                 catch (Exception ex)
                 {
@@ -305,7 +305,7 @@ namespace NosCore.GameObject.Services.BattleService
                 Completion: new TaskCompletionSource<HitOutcome>(TaskCreationOptions.RunContinuationsAsynchronously),
                 Cancellation: CancellationToken.None);
 
-            var outcome = await hitQueue.EnqueueAsync(request).ConfigureAwait(false);
+            var outcome = await hitQueue.EnqueueAsync(request);
             if (outcome.Status == HitStatus.Cancelled)
             {
                 return;
@@ -313,15 +313,15 @@ namespace NosCore.GameObject.Services.BattleService
 
             // stat goes to the target before su: the client paints the damage number first and
             // re-reads its cached HP for the bar, so a stat arriving later leaves the bar frozen.
-            await SendTargetStatAsync(target).ConfigureAwait(false);
+            await SendTargetStatAsync(target);
             await BroadcastHitAsync(origin, target, skill, outcome, presentation);
             if (outcome.OnyxDamage > 0)
             {
                 await onyxDragonService.StrikeAsync(origin, target, skill, outcome.OnyxDamage);
             }
 
-            await BroadcastTargetInfoAsync(target).ConfigureAwait(false);
-            await messageBus.PublishAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed)).ConfigureAwait(false);
+            await BroadcastTargetInfoAsync(target);
+            await messageBus.PublishAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed));
 
             if (outcome.Killed)
             {
@@ -345,10 +345,10 @@ namespace NosCore.GameObject.Services.BattleService
                         .GetClientSessionsByMapInstance(target.MapInstance.MapInstanceId)
                         .Where(s => s.HasSelectedCharacter && s.Character.CharacterId != victimCharacterId))
                     {
-                        await spectator.SendPacketAsync(diePacket).ConfigureAwait(false);
+                        await spectator.SendPacketAsync(diePacket);
                     }
                 }
-                await messageBus.PublishAsync(new EntityDiedEvent(target, origin)).ConfigureAwait(false);
+                await messageBus.PublishAsync(new EntityDiedEvent(target, origin));
             }
         }
 
@@ -551,7 +551,7 @@ namespace NosCore.GameObject.Services.BattleService
                 {
                     Type = CancelPacketType.CancelAutoAttack,
                     TargetId = target?.VisualId ?? 0,
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                 }
                 try
                 {
-                    await questService.OnMonsterKilledAsync(character, mob).ConfigureAwait(false);
+                    await questService.OnMonsterKilledAsync(character, mob);
                 }
                 catch (Exception ex)
                 {
