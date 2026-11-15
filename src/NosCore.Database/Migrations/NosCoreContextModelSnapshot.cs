@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115083250_AddBackpackBasketAndRenamingCardEffects";
+    public override string LastMigrationId => "20261115090102_AddNpcExchanges";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2266,6 +2266,50 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.ToTable("MountMapSpeed");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.NpcExchange", b =>
+            {
+                b.Property<short>("NpcExchangeId")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Amount")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("ItemVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Runner")
+                    .HasColumnType("smallint");
+
+                b.HasKey("NpcExchangeId");
+
+                b.HasIndex("ItemVNum");
+
+                b.ToTable("NpcExchange");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.NpcExchangeMaterial", b =>
+            {
+                b.Property<short>("NpcExchangeMaterialId")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Amount")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("ItemVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("NpcExchangeId")
+                    .HasColumnType("smallint");
+
+                b.HasKey("NpcExchangeMaterialId");
+
+                b.HasIndex("ItemVNum");
+
+                b.HasIndex("NpcExchangeId");
+
+                b.ToTable("NpcExchangeMaterial");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.NpcMonster", b =>
             {
                 b.Property<short>("NpcMonsterVNum")
@@ -4224,6 +4268,36 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Item");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.NpcExchange", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Item", "Item")
+                    .WithMany("NpcExchange")
+                    .HasForeignKey("ItemVNum")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Item");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.NpcExchangeMaterial", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Item", "Item")
+                    .WithMany("NpcExchangeMaterial")
+                    .HasForeignKey("ItemVNum")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("NosCore.Database.Entities.NpcExchange", "NpcExchange")
+                    .WithMany("NpcExchangeMaterial")
+                    .HasForeignKey("NpcExchangeId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Item");
+
+                b.Navigation("NpcExchange");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.NpcMonsterSkill", b =>
             {
                 b.HasOne("NosCore.Database.Entities.NpcMonster", "NpcMonster")
@@ -4665,6 +4739,10 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Navigation("ItemInstances");
 
+                b.Navigation("NpcExchange");
+
+                b.Navigation("NpcExchangeMaterial");
+
                 b.Navigation("Recipe");
 
                 b.Navigation("RecipeItem");
@@ -4726,6 +4804,11 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Drops");
 
                 b.Navigation("MapTypeMap");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.NpcExchange", b =>
+            {
+                b.Navigation("NpcExchangeMaterial");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.NpcMonster", b =>

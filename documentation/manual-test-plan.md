@@ -1875,6 +1875,30 @@ and 5 Apples.
 - [ ] Press Produce and confirm: after the bar, "[Attack Potion] has been produced." pops up,
       the potion appears, the materials are gone and one scroll is used up
 
+### NPC exchanges
+
+The exchanges come from the parser, so re-run it on an existing database first. Scene:
+`npc-exchanges/reset.sh` in the project files copies an NPC next to a level 60 swordsman holding
+both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
+
+- [ ] Priestess Serizad, Restoring the Seal, Restore Seal: both halves are gone, the Raid Seal of
+      Grenigas is in the Main pocket and "You have received: 1x Raid Seal of Grenigas" shows
+- [ ] Choose Restore Seal again without the halves: "Raw materials missing." and nothing changes
+- [ ] Great Magician Kan, Exchange Draco's Claws, Exchange for Gladiator SP/...: a swordsman gets
+      the Gladiator card for 50 claws; an archer gets the Fire Cannoneer card, a mage the Volcano
+      card, and a martial artist nothing
+- [ ] Kan, Exchange for Ruby of Completion: 5 claws become one Ruby of Completion
+- [ ] Felix Frost: Create Raid Seal takes 20 Seeds of Power, 20 Ice Cubes and 20 Ice Flowers;
+      the Glacerus' Mane exchanges mirror Kan's with the Battle Monk, Scout and Tide Lord cards
+      and the Sapphire of Completion
+- [ ] Kan's Make the Raid Seal of Lord Draco takes 20 Seeds of Power, 20 Dona River Sand and 20
+      Gillion Stones
+- [ ] Akamur Merchant Military Engineer, Exchange Akamur Coupons: 5 coupons give 10 Ice Flower Oil,
+      90 a Magical Camel, 300 a Magical Camel Box
+- [ ] Sarakael: three Soul Slivers give three Cleansing Powder, five Seeds of Damnation two Raid
+      Seals of Witch Laurena
+- [ ] With the pocket full, an exchange keeps the materials and shows "Not enough space"
+
 ### Forming a party
 
 - [ ] A invites B and B confirms: both see the other in the party panel and "In party" under

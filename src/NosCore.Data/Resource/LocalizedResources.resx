@@ -681,6 +681,9 @@
   <data name="MOUNT_SCROLLS_PARSED" xml:space="preserve">
     <value>{Scrolls} mount scrolls draw from {Rolls} mounts</value>
   </data>
+  <data name="NPC_EXCHANGES_PARSED" xml:space="preserve">
+    <value>{Exchanges} NPC exchanges imported</value>
+  </data>
   <data name="MOUNT_MAP_SPEEDS_PARSED" xml:space="preserve">
     <value>{Rows} map speed bonuses imported for {Mounts} mounts</value>
   </data>
