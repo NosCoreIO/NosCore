@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Services.QuestService
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IEnumerable<IQuestTypeHandler> questTypeHandlers,
             Wolverine.IMessageBus messageBus,
-            IQuestRewardService questRewardService)
+            IQuestRewardService questRewardService, TimeProvider time)
         : IQuestService
     {
         public Task RunScriptAsync(PlayerComponentBundle character) => RunScriptAsync(character, null);
@@ -233,7 +233,7 @@ namespace NosCore.GameObject.Services.QuestService
 
         private async Task<bool> TimeAsync(short delay)
         {
-            await Task.Delay(TimeSpan.FromSeconds(delay));
+            await Task.Delay(TimeSpan.FromSeconds(delay), time);
             return true;
         }
 

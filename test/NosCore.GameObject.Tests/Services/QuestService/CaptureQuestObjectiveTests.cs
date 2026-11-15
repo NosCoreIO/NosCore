@@ -81,7 +81,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 World.LogLanguageLocalizer,
                 new IQuestTypeHandler[] { World.Create<CaptureQuestHandler>(), World.Create<CaptureWithoutGettingTheMonsterQuestHandler>() },
                 new Mock<Wolverine.IMessageBus>().Object,
-                new Mock<IQuestRewardService>().Object);
+                new Mock<IQuestRewardService>().Object,
+                World.Clock);
             var capturedHandler = new OnEntityCapturedHandler(questService, NullLogger<OnEntityCapturedHandler>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             Bus = new InlineOrDeferredMessageBus<EntityCapturedEvent>(capturedHandler.Handle);
 

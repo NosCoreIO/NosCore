@@ -107,7 +107,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null,
             IBattleStatsProvider? battleStatsProvider = null,
             IHeatService? heatService = null,
-            IMateRevivalService? mateRevivalService = null)
+            IMateRevivalService? mateRevivalService = null,
+            TimeProvider? time = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -139,10 +140,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _battleStatsProvider = battleStatsProvider;
             _heatService = heatService;
             _mateRevivalService = mateRevivalService;
-            EcsWorld = new MapWorld();
+            EcsWorld = new MapWorld(clock);
+            Time = time ?? TimeProvider.System;
         }
 
         public Instant LastUnregister { get; set; }
+
+        public TimeProvider Time { get; }
 
         public int MapItemCount => _mapItemSystem.Count(EcsWorld);
 
@@ -523,7 +527,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         private async Task RunLifeLoopAsync(CancellationToken token)
         {
-            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(400));
+            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(400), Time);
             try
             {
                 while (await timer.WaitForNextTickAsync(token))

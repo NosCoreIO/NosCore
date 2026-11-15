@@ -23,6 +23,7 @@ using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.Time;
 using NosCore.GameObject.Messaging;
 using NosCore.Core.Observability;
 using NosCore.Core.Services.IdService;
@@ -168,7 +169,8 @@ namespace NosCore.MasterServer
             containerBuilder.Register(c => new DaoTransactionScope(c.Resolve<Func<DbContext>>()))
                 .As<IDaoTransactionScope>().SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-            containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
+            containerBuilder.RegisterInstance(TimeProvider.System).As<TimeProvider>();
+            containerBuilder.Register(c => new TimeProviderClock(c.Resolve<TimeProvider>())).As<IClock>().SingleInstance();
 
             containerBuilder.RegisterType<BazaarRegistry>().As<IBazaarRegistry>().SingleInstance();
             containerBuilder.RegisterType<FriendRequestRegistry>().As<IFriendRequestRegistry>().SingleInstance();

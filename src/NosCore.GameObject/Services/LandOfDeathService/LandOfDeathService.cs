@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         ISessionRegistry sessionRegistry,
         IItemCatalog itemCatalog,
         IClock clock,
-        ILogger<LandOfDeathService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : ILandOfDeathService, ISingletonService
+        ILogger<LandOfDeathService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeProvider time) : ILandOfDeathService, ISingletonService
     {
         public const string Script = "land-of-death";
         public const short EntranceX = 153;
@@ -78,7 +78,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
                 if (_script != null)
                 {
-                    await Task.Delay(GateOpenFor);
+                    await Task.Delay(GateOpenFor, time);
                 }
 
                 Volatile.Write(ref _gateOpen, 0);
@@ -150,7 +150,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             {
                 try
                 {
-                    await Task.Delay(ReviveTimeout);
+                    await Task.Delay(ReviveTimeout, time);
                     if (player.ReviveAskedAt != askedAt || player.Hp > 0 || player.MapInstance?.MapInstanceId != mapInstanceId
                         || sessionRegistry.GetSessionByCharacterId(player.CharacterId) is not { } session)
                     {

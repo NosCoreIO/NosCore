@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             _aggro = new AggroService(_clock);
-            var world = new MapWorld();
+            var world = new MapWorld(_clock);
             _monster = new MonsterComponentBundle(
                 world.Exclusive(w => w.Create(new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue))), world);
         }

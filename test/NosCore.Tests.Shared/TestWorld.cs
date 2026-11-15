@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NodaTime;
-using NodaTime.Testing;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
 using NosCore.Core.Configuration;
@@ -106,7 +105,7 @@ namespace NosCore.Tests.Shared
         private TestWorld()
         {
             Fixture = new NosCoreFixture();
-            Clock = Fixture.Create<FakeClock>();
+            Clock = Fixture.Create<TestClock>();
             SessionRegistry = Fixture.Create<SessionRegistry>();
             WorldConfiguration = Fixture.Create<IOptions<WorldConfiguration>>();
             LogLanguageLocalizer = Fixture.Create<ILogLanguageLocalizer<LogLanguageKey>>();
@@ -213,7 +212,7 @@ namespace NosCore.Tests.Shared
             return this;
         }
 
-        public FakeClock Clock { get; }
+        public TestClock Clock { get; }
         public SessionRegistry SessionRegistry { get; }
         public IOptions<WorldConfiguration> WorldConfiguration { get; }
         public ILogLanguageLocalizer<LogLanguageKey> LogLanguageLocalizer { get; }

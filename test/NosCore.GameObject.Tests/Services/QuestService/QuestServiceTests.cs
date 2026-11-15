@@ -168,7 +168,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     new NpcButtonQuestHandler(Quests),
                 },
                 Bus.Object,
-                new Mock<IQuestRewardService>().Object);
+                new Mock<IQuestRewardService>().Object,
+                World.Clock);
         }
 
         [TestMethod]

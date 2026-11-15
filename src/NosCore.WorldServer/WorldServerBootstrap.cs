@@ -20,6 +20,7 @@ using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Core;
 using NosCore.Core.Configuration;
+using NosCore.Core.Time;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
 using NosCore.Core.Observability;
@@ -237,9 +238,8 @@ namespace NosCore.WorldServer
                     services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
                         typeof(LogLanguageLocalizer<LanguageKey, LocalizedResources>));
 
-                    // IClock is wired as a singleton here because SystemClock is an external
-                    // NodaTime type with no container-friendly constructor.
-                    services.AddSingleton<IClock>(_ => SystemClock.Instance);
+                    services.AddSingleton(TimeProvider.System);
+                    services.AddSingleton<IClock>(s => new TimeProviderClock(s.GetRequiredService<TimeProvider>()));
 
                     // ID services, session/map registries, hub clients, pathfinder and the
                     // combat pipeline live behind a single registrar. Registering them once
@@ -270,36 +270,43 @@ namespace NosCore.WorldServer
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<SaveAllSessionsMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromMinutes(5)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromMinutes(5)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<RefreshMinilandPointsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshMinilandPointsMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromMinutes(1)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<RefreshGroupBarsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshGroupBarsMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromSeconds(2)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<DrainSpecialistPointsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<DrainSpecialistPointsMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromSeconds(1)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<TickFactionWarMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<TickFactionWarMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromSeconds(1)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<TickTimeSpacesMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<TickTimeSpacesMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromSeconds(1)));
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;

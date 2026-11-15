@@ -20,6 +20,7 @@ using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Core.Time;
 using NosCore.Core.Observability;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
@@ -106,7 +107,8 @@ namespace NosCore.LoginServer
 
             containerBuilder.RegisterType<SpamRequestFilter>().SingleInstance().AsImplementedInterfaces();
 
-            containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
+            containerBuilder.RegisterInstance(TimeProvider.System).As<TimeProvider>();
+            containerBuilder.Register(c => new TimeProviderClock(c.Resolve<TimeProvider>())).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces();

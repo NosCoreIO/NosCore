@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             catalog.Setup(c => c.GetCard(FollowUpCardId)).Returns(FollowUpCard);
             catalog.Setup(c => c.GetCardBCards(It.IsAny<short>())).Returns(Array.Empty<BCardDto>());
             _random = new Mock<IRandomProvider>();
-            _world = new MapWorld();
+            _world = new MapWorld(_clock);
             _target = new MonsterComponentBundle(
                 _world.Exclusive(w => w.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),

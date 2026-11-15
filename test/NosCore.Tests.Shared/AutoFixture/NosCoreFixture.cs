@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NodaTime;
-using NodaTime.Testing;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Services.BroadcastService;
@@ -28,7 +28,7 @@ namespace NosCore.Tests.Shared.AutoFixture
     /// </summary>
     /// <remarks>
     /// <c>Freeze&lt;Mock&lt;IDep&gt;&gt;()</c> before <c>Create&lt;Sut&gt;()</c> to set up or verify a dependency.
-    /// Formula services from NosCore.Algorithm, the clock, the session registry, the localizers and the
+    /// Formula services from NosCore.Algorithm, the clock and the time provider behind it, the session registry, the localizers and the
     /// world configuration are real and shared by everything the fixture builds. Collections are empty.
     /// </remarks>
     public class NosCoreFixture : Fixture
@@ -44,9 +44,10 @@ namespace NosCore.Tests.Shared.AutoFixture
             Customizations.Add(new IdServiceRelay());
             RepeatCount = 0;
 
-            var clock = new FakeClock(Epoch);
+            var clock = new TestClock(Epoch);
             this.Inject(clock);
             this.Inject<IClock>(clock);
+            this.Inject<TimeProvider>(clock);
 
             var sessionRegistry = new SessionRegistry(NullLogger<SessionRegistry>.Instance,
                 this.Create<ILogLanguageLocalizer<LogLanguageKey>>());

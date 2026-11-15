@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication;
 
-public class ChannelPresenceMonitor(MasterClientList masterClientList, Hubs.ChannelHub.ChannelHub channelHub, IClock clock)
+public class ChannelPresenceMonitor(MasterClientList masterClientList, Hubs.ChannelHub.ChannelHub channelHub, IClock clock, TimeProvider time)
     : BackgroundService
 {
     private static readonly Duration Expiry = Duration.FromSeconds(15);
@@ -20,7 +20,7 @@ public class ChannelPresenceMonitor(MasterClientList masterClientList, Hubs.Chan
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var timer = new PeriodicTimer(SweepInterval);
+        using var timer = new PeriodicTimer(SweepInterval, time);
         while (await timer.WaitForNextTickAsync(stoppingToken))
         {
             var now = clock.GetCurrentInstant();

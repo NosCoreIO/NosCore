@@ -92,7 +92,35 @@ namespace NosCore.GameObject.Tests.Services.Act4ShipService
             Assert.IsFalse(_service.TryStart());
         }
 
+        [TestMethod]
+        public async Task BoardingClosesTwentyMinutesAfterItOpens()
+        {
+            await new Spec("The ship takes passengers for twenty minutes and then no more")
+                .Given(BoardingIsOpen)
+                .And(_MinutesPass, 19)
+                .Then(BoardingShouldBe_, true)
+                .When(_MinutesPass, 1)
+                .Then(BoardingShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BoardingOpensAgainOnceTheShipHasLeft()
+        {
+            await new Spec("Once boarding has closed the next sailing can open it again")
+                .Given(BoardingIsOpen)
+                .And(_MinutesPass, 20)
+                .Then(BoardingCanOpenAgain)
+                .ExecuteAsync();
+        }
+
         private void BoardingIsOpen() => Assert.IsTrue(_service.TryStart());
+
+        private void _MinutesPass(int minutes) => World.Clock.AdvanceMinutes(minutes);
+
+        private void BoardingShouldBe_(bool open) => Assert.AreEqual(open, _service.IsBoarding);
+
+        private void BoardingCanOpenAgain() => Assert.IsTrue(_service.TryStart());
 
         private void ThePlayerIsNeutral() => _session.Character.Faction = FactionType.Neutral;
 

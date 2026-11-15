@@ -20,11 +20,11 @@ namespace NosCore.GameObject.Messaging
     public sealed class RecurringMessagePublisher<TMessage>(
         IMessageBus bus,
         ILogger<RecurringMessagePublisher<TMessage>> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-        TimeSpan interval) : BackgroundService where TMessage : new()
+        TimeProvider time, TimeSpan interval) : BackgroundService where TMessage : new()
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using var timer = new PeriodicTimer(interval);
+            using var timer = new PeriodicTimer(interval, time);
             while (await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))
             {
                 try

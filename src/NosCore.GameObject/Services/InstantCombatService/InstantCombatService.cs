@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
         IInstantCombatRewardService rewardService,
         IFamilyContributionService familyContributionService,
         IOptions<WorldConfiguration> worldConfiguration,
-        ILogger<InstantCombatService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IInstantCombatService, ISingletonService
+        ILogger<InstantCombatService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeProvider time) : IInstantCombatService, ISingletonService
     {
         public const short MapId = 2004;
         public const int PlayersPerRoom = 50;
@@ -142,7 +142,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 {
                     var (before, delay, amount) = Countdown[i];
                     await AnnounceAsync(delay, amount);
-                    await Task.Delay(i + 1 < Countdown.Length ? before - Countdown[i + 1].Before : before);
+                    await Task.Delay(i + 1 < Countdown.Length ? before - Countdown[i + 1].Before : before, time);
                 }
             }
 
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 YesPacket = new NosCore.Packets.ClientPackets.UI.GuriPacket { Type = GuriPacketType.EventInWaiting },
                 Question = Game18NConstString.JoinInstantCombatQuestion,
             });
-            await Task.Delay(SignUpTime);
+            await Task.Delay(SignUpTime, time);
             _signUpOpen = false;
 
             var players = sessionRegistry.GetSessions(s => s.HasPlayerEntity).ToList();
