@@ -16,6 +16,8 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
+using NosCore.Data.Enumerations.Family;
+using NosCore.Data.Enumerations.Interaction;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using FamilyUpgradeType = NosCore.Data.Enumerations.Family.FamilyUpgradeType;
 
@@ -138,6 +140,18 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short SteedStartCard = 51;
         public const short SteedEndCard = 52;
         public const int SteedCardTime = 30;
+
+        // The Mother Cuby raid as its script lays it out: its gate on the entrance map, the seal
+        // that opens a team, and its boss, which falls to any hit.
+        public const short JellyEntrance = 2510;
+        public const short JellySquare = 2512;
+        public const short RaidGateX = 20;
+        public const short RaidGateY = 5;
+        public const short RaidSeal = 1127;
+        public const short RaidReward = 4684;
+        public const byte RaidLevel = 30;
+        public const int RaidTeamMinimum = 5;
+        public const short RaidMissionId = 9100;
 
         // Sells a family its warehouse, to families of the second level and above only.
         public const int FamilyManager = 4;
@@ -368,6 +382,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await context.SaveChangesAsync();
             await SeedMarketAsync(context);
             await SeedFamilyManagerAsync(context);
+            await SeedRaidAsync(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
         }
@@ -413,6 +428,35 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Token, Slot = 2, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Gem, Slot = 3, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Trinket, Slot = 4, Type = 1 });
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedRaidAsync(NosCoreContext context)
+        {
+            context.Add(OpenMap(JellyEntrance, 60, 60));
+            context.Add(OpenMap(JellySquare, 60, 60));
+            context.Add(new Item
+            {
+                VNum = RaidSeal, Name = "raidseal", Type = NoscorePocketType.Main, ItemType = ItemType.Special, Effect = ItemEffectType.RaidSeal
+            });
+            context.Add(new Item { VNum = RaidReward, Name = "raidreward", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
+            context.Add(new NpcMonster { NpcMonsterVNum = 282, Name = "mothercuby", Level = 40, MaxHp = 1 });
+            foreach (short vnum in new short[] { 283, 167, 168, 169, 170 })
+            {
+                context.Add(new NpcMonster { NpcMonsterVNum = vnum, Name = "jelly" + vnum, Level = 30, MaxHp = 100000 });
+            }
+
+            await context.SaveChangesAsync();
+            context.Add(new ScriptedInstance
+            {
+                MapId = JellyEntrance, PositionX = RaidGateX, PositionY = RaidGateY, Type = ScriptedInstanceType.Raid,
+                Script = "raid-mother-cuby", LevelMinimum = 30, LevelMaximum = 49
+            });
+            context.Add(new FamilyQuest
+            {
+                QuestId = RaidMissionId, Kind = FamilyQuestKind.Mission, Objective = FamilyQuestObjective.Raid, Parameter = 0,
+                Target = 10, Experience = 100, ResetsDaily = true, OncePerMemberPerDay = true
+            });
             await context.SaveChangesAsync();
         }
 
