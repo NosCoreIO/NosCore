@@ -103,10 +103,19 @@ namespace NosCore.Instances.Tests
         private static CsxInstanceScriptLoader Loader() =>
             new(Path.Combine(AppContext.BaseDirectory, "instances"));
 
+        private static async Task<IInstanceScript> LoadAsync(string name) =>
+            await Loader().LoadAsync(name) ?? throw new AssertFailedException($"{name}.csx did not load.");
+
+        [TestMethod]
+        public async Task AScriptThatDoesNotExistLoadsAsNothing()
+        {
+            Assert.IsNull(await Loader().LoadAsync("no-such-script"));
+        }
+
         [TestMethod]
         public async Task TheScriptDescribesItsRooms()
         {
-            var script = await Loader().LoadAsync("timespace-01");
+            var script = await LoadAsync("timespace-01");
 
             Assert.AreEqual(2, script.Definition.Rooms.Count);
             Assert.AreEqual(20, script.Definition.StartX);
@@ -116,7 +125,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task EnteringOpensTheFirstRoom()
         {
-            var script = await Loader().LoadAsync("timespace-01");
+            var script = await LoadAsync("timespace-01");
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
@@ -134,7 +143,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ClearingTheFirstRoomOpensTheWay()
         {
-            var script = await Loader().LoadAsync("timespace-01");
+            var script = await LoadAsync("timespace-01");
             var run = new RecordingRun();
 
             script.OnRoomCleared(run, 1);
@@ -145,7 +154,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ClearingTheLastRoomEndsTheInstance()
         {
-            var script = await Loader().LoadAsync("timespace-01");
+            var script = await LoadAsync("timespace-01");
             var run = new RecordingRun();
 
             script.OnRoomCleared(run, 2);
@@ -156,7 +165,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task TheClockRunningOutFailsTheRun()
         {
-            var script = await Loader().LoadAsync("timespace-01");
+            var script = await LoadAsync("timespace-01");
             var run = new RecordingRun();
 
             script.OnTimeout(run);
@@ -167,7 +176,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task InstantCombatBringsItsWavesInOverTime()
         {
-            var script = await Loader().LoadAsync("instant-combat");
+            var script = await LoadAsync("instant-combat");
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
@@ -186,7 +195,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task InstantCombatIsWonOnceTheLastWaveIsOutAndEveryMonsterIsDead()
         {
-            var script = await Loader().LoadAsync("instant-combat");
+            var script = await LoadAsync("instant-combat");
             var run = new RecordingRun { Elapsed = TimeSpan.FromSeconds(729) };
 
             script.OnMonsterKilled(run, 1, 333);
@@ -210,7 +219,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task AnIcebreakerWithOnePlayerIsWonAtOnce()
         {
-            var script = await Loader().LoadAsync("ice-breaker");
+            var script = await LoadAsync("ice-breaker");
             var run = new RecordingRun { Players = 1 };
 
             script.OnFirstEnter(run);
@@ -222,7 +231,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task AnIcebreakerOpensPvpAfterItsWarningsAndEndsAfterTenMinutes()
         {
-            var script = await Loader().LoadAsync("ice-breaker");
+            var script = await LoadAsync("ice-breaker");
             var run = new RecordingRun { Players = 2 };
 
             script.OnFirstEnter(run);
@@ -249,7 +258,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task AnIcebreakerIsWonOnceOneSideIsLeftStanding()
         {
-            var script = await Loader().LoadAsync("ice-breaker");
+            var script = await LoadAsync("ice-breaker");
             var run = new RecordingRun { Players = 2, Elapsed = TimeSpan.FromSeconds(14) };
             script.OnFirstEnter(run);
             var beginAttack = run.Scheduled.Single(s => s.At == TimeSpan.FromSeconds(14)).Step;
@@ -266,7 +275,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ALandOfDeathHuntsEveryFourMinutesFromHalfTime()
         {
-            var script = await Loader().LoadAsync("land-of-death");
+            var script = await LoadAsync("land-of-death");
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
@@ -280,7 +289,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ALandOfDeathDevilTriplesRatesUntilItLeaves()
         {
-            var script = await Loader().LoadAsync("land-of-death");
+            var script = await LoadAsync("land-of-death");
             var run = new RecordingRun();
             script.OnFirstEnter(run);
             run.Calls.Clear();
@@ -302,7 +311,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ALandFirstReachedLateOnlyKeepsWhatIsLeft()
         {
-            var script = await Loader().LoadAsync("land-of-death");
+            var script = await LoadAsync("land-of-death");
             var run = new RecordingRun { Elapsed = TimeSpan.FromMinutes(34.5) };
 
             script.OnFirstEnter(run);
@@ -314,7 +323,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ALandOfDeathClosesWhenItsClockRunsOut()
         {
-            var script = await Loader().LoadAsync("land-of-death");
+            var script = await LoadAsync("land-of-death");
             var run = new RecordingRun();
 
             script.OnTimeout(run);
@@ -325,7 +334,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task TheRaidIsOpenedByItsSealForATeamInItsLevelRange()
         {
-            var definition = (await Loader().LoadAsync("raid-mother-cuby")).Definition;
+            var definition = (await LoadAsync("raid-mother-cuby")).Definition;
 
             Assert.AreEqual(1127, definition.RequiredItems.Single().VNum);
             Assert.AreEqual(30, definition.LevelMinimum);
@@ -346,7 +355,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task TheArenaGivesFifteenSecondsBeforeTheFirstBout()
         {
-            var script = await Loader().LoadAsync("talent-arena");
+            var script = await LoadAsync("talent-arena");
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
@@ -359,7 +368,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ABoutOpensFiveSecondsAfterTheFightersAreCalled()
         {
-            var script = await Loader().LoadAsync("talent-arena");
+            var script = await LoadAsync("talent-arena");
             var run = new RecordingRun();
             run.Fighters.Enqueue(true);
             script.OnFirstEnter(run);
@@ -376,7 +385,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task AFallCallsTheNextFightersThreeSecondsLater()
         {
-            var script = await Loader().LoadAsync("talent-arena");
+            var script = await LoadAsync("talent-arena");
             var run = new RecordingRun();
             run.Fighters.Enqueue(true);
             run.Fighters.Enqueue(true);
@@ -395,7 +404,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task ABoutStillGoingAfterFiveMinutesEndsWithoutAWinner()
         {
-            var script = await Loader().LoadAsync("talent-arena");
+            var script = await LoadAsync("talent-arena");
             var run = new RecordingRun();
             run.Fighters.Enqueue(true);
             script.OnFirstEnter(run);
@@ -413,7 +422,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task TheMatchEndsOnceASideHasNobodyLeft()
         {
-            var script = await Loader().LoadAsync("talent-arena");
+            var script = await LoadAsync("talent-arena");
             var run = new RecordingRun();
             script.OnFirstEnter(run);
 
@@ -426,7 +435,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task TheRaidOpensOnItsEntranceWithTheBossWaitingInTheSquare()
         {
-            var script = await Loader().LoadAsync("raid-mother-cuby");
+            var script = await LoadAsync("raid-mother-cuby");
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
@@ -446,7 +455,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task OnlyTheBossFallingWinsTheRaid()
         {
-            var script = await Loader().LoadAsync("raid-mother-cuby");
+            var script = await LoadAsync("raid-mother-cuby");
             var run = new RecordingRun();
 
             script.OnMonsterKilled(run, 1, 283);
@@ -518,7 +527,7 @@ namespace NosCore.Instances.Tests
         [DataRow("act4-berios", (short)624, (short)999)]
         public async Task AGlacernonRaidOpensItsBossDoorAtHalfTime(string name, short boss, short gift)
         {
-            var script = await Loader().LoadAsync(name);
+            var script = await LoadAsync(name);
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
@@ -539,7 +548,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task AGlacernonRaidReachedLateKeepsOnlyTheGuardsStillToCome()
         {
-            var script = await Loader().LoadAsync("act4-hatus");
+            var script = await LoadAsync("act4-hatus");
             var run = new RecordingRun { Elapsed = TimeSpan.FromMinutes(45) };
 
             script.OnFirstEnter(run);
@@ -551,7 +560,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         public async Task TheGlacernonRaidBossThrowsItsLootAndEndsTheRaid()
         {
-            var script = await Loader().LoadAsync("act4-morcos");
+            var script = await LoadAsync("act4-morcos");
             var run = new RecordingRun();
 
             script.OnMonsterKilled(run, 2, 562);

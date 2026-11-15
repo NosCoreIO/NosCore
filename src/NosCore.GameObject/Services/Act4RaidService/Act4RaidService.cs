@@ -126,7 +126,6 @@ namespace NosCore.GameObject.Services.Act4RaidService
 
             if (await scriptedInstanceService.LoadScriptAsync(Script(raid)) is not { } script)
             {
-                logger.LogError(logLanguage[LogLanguageKey.ACT4_RAID_SCRIPT_MISSING], Script(raid));
                 return null;
             }
 

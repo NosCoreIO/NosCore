@@ -44,8 +44,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
         IMapChangeService mapChangeService,
         ISessionRegistry sessionRegistry,
         IItemGenerationService itemGenerationService,
-        ILogger<TalentArenaService> logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage) : ITalentArenaService, ISingletonService
+        ILogger<TalentArenaService> logger) : ITalentArenaService, ISingletonService
     {
         public const string Script = "talent-arena";
 
@@ -76,7 +75,11 @@ namespace NosCore.GameObject.Services.TalentArenaService
             {
                 try
                 {
-                    await RunAsync();
+                    _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+                    if (_script != null)
+                    {
+                        await RunAsync();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -307,7 +310,6 @@ namespace NosCore.GameObject.Services.TalentArenaService
             _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
             if (_script is not { Definition.Sides.Count: 2 } script)
             {
-                logger.LogError(logLanguage[LogLanguageKey.TALENT_ARENA_SCRIPT_MISSING], Script);
                 return;
             }
 

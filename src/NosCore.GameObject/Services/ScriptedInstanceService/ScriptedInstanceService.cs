@@ -117,7 +117,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             try
             {
                 entrance.Logic = await _scriptLoader.LoadAsync(entrance.Script).WaitAsync(_scriptTimeout);
-                return true;
+                return entrance.Logic != null;
             }
             catch (Exception exception)
             {

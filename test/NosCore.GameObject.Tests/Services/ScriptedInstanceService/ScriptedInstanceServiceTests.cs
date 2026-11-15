@@ -286,6 +286,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AMissingScriptLeavesTheTimeSpaceOutAsync()
+        {
+            var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, "missing"), 2004, 2005);
+            var entrance = (service.GetAt(1, 5, 6) ?? throw new AssertFailedException("no entrance"));
+
+            Assert.IsFalse(await service.LoadAsync(entrance));
+            Assert.IsNull(await service.InstantiateAsync(entrance));
+            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()),
+                Times.Never);
+        }
+
+        [TestMethod]
         public async Task TheScriptIsWhatTheTimeSpaceWindowDescribesAsync()
         {
             var (service, _, _) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004, 2005);

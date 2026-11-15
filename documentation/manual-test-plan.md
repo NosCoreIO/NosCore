@@ -2294,6 +2294,9 @@ same trust as the server's own code, so only the operator should be able to writ
 `instances/`. Only files directly in that folder are loaded: a `Script` such as `../x` or
 `sub/x` is refused.
 
+- [ ] Point the stone's `Script` at a file that is not in `instances/`: standing on the stone
+      opens no panel, and the world server logs no error about it
+
 - [ ] A `Script` of `../timespace-01` opens no panel, and the world log says it is not a
       script name
 
@@ -2502,6 +2505,10 @@ characters in the bracket on a base map, each with at least 500 gold.
       changing a time there and restarting the world server changes it in game
 - [ ] A frozen player who logs out does not stop the others' fight, and the last player leaving
       the map closes it
+
+- [ ] Move `ice-breaker.csx` out of `instances/` and run `$Event IceBreaker`: no countdown or
+      start notice appears and the world server logs no error. Instant Combat, Land of Death,
+      the Arena of Talents and the Act 4 raids skip the same way without their script
 
 ### Land of Death
 

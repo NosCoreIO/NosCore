@@ -10,6 +10,7 @@ namespace NosCore.Instances.Abstractions
 {
     public interface IInstanceScriptLoader
     {
-        Task<IInstanceScript> LoadAsync(string name);
+        // Null when no script by that name exists, so the content it would run is simply left out.
+        Task<IInstanceScript?> LoadAsync(string name);
     }
 }

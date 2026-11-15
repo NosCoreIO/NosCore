@@ -168,6 +168,12 @@ namespace NosCore.GameObject.Services.IceBreakerService
 
         private async Task RunAsync(int bracket, bool withCountdown)
         {
+            _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+            if (_script is not { } script)
+            {
+                return;
+            }
+
             var levelMinimum = rewardService.GetLevelMinimum(bracket);
             var levelMaximum = rewardService.GetLevelMaximum(bracket);
             if (withCountdown)
@@ -178,13 +184,6 @@ namespace NosCore.GameObject.Services.IceBreakerService
                     await AnnounceAsync(delay, amount, levelMinimum, levelMaximum);
                     await Task.Delay(i + 1 < Countdown.Length ? before - Countdown[i + 1].Before : before);
                 }
-            }
-
-            _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
-            if (_script is not { } script)
-            {
-                logger.LogError(logLanguage[LogLanguageKey.ICE_BREAKER_SCRIPT_MISSING], Script);
-                return;
             }
 
             var run = await scriptedInstanceService.InstantiateAsync(script, MapInstanceType.IceBreakerInstance,

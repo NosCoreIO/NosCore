@@ -129,6 +129,13 @@ namespace NosCore.GameObject.Services.InstantCombatService
 
         private async Task RunAsync(bool withCountdown)
         {
+            var brackets = monsters.Select(m => m.LevelMinimum).Distinct().ToList();
+            _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+            if (_script is not { } script || brackets.Count == 0)
+            {
+                return;
+            }
+
             if (withCountdown)
             {
                 for (var i = 0; i < Countdown.Length; i++)
@@ -162,14 +169,6 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 }
 
                 session.Character.IsWaitingForEvent = false;
-            }
-
-            var brackets = monsters.Select(m => m.LevelMinimum).Distinct().ToList();
-            _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
-            if (_script is not { } script || brackets.Count == 0)
-            {
-                logger.LogError(logLanguage[LogLanguageKey.INSTANT_COMBAT_DATA_MISSING], Script);
-                return;
             }
 
             foreach (var room in GroupIntoRooms(joining, brackets))
