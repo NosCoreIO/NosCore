@@ -22,6 +22,7 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Packets.ServerPackets.UI;
@@ -593,7 +594,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public bool IsButtonOn(int room, int button) =>
             _rooms[room].Buttons.TryGetValue(button, out var placed) && placed.IsOn;
 
-        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false)
+        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever)
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(button, 1);
             ArgumentOutOfRangeException.ThrowIfGreaterThan(button, MapButton.LastId);
@@ -605,13 +606,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 PositionY = at.Y,
                 OffVNum = offVNum,
                 OnVNum = onVNum,
-                Toggles = toggles
+                Toggles = toggles,
+                Kind = kind
             };
             _pending.Add(() => OnRoom(mapInstance, () =>
             {
                 mapInstance.Buttons[button] = placed;
                 return mapInstance.SendPacketAsync(placed.GenerateIn());
             }));
+        }
+
+        public void RemoveButton(int room, int button)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () =>
+                mapInstance.Buttons.TryRemove(button, out var removed)
+                    ? mapInstance.SendPacketAsync(removed.GenerateOut())
+                    : Task.CompletedTask));
         }
 
         public void PlaceNpc(int room, short vNum, Spot at)
@@ -631,7 +642,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
-        public Task UseButtonAsync(Guid mapInstanceId, int button)
+        public Task UseButtonAsync(Guid mapInstanceId, int button, long userId)
         {
             return RunAsync(async () =>
             {
@@ -647,8 +658,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 var mapInstance = _rooms[room.Value];
                 _pending.Add(() => OnRoom(mapInstance, async () =>
                 {
+                    if (used.Kind == ButtonKind.Key)
+                    {
+                        mapInstance.Buttons.TryRemove(button, out _);
+                        await mapInstance.SendPacketAsync(new ServerGetPacket { VisualType = VisualType.Player, VisualId = userId, ItemId = button });
+                        return;
+                    }
+
                     await mapInstance.SendPacketAsync(used.GenerateOut());
                     await mapInstance.SendPacketAsync(used.GenerateIn());
+                    if (used.Kind == ButtonKind.Sculpture)
+                    {
+                        return;
+                    }
+
                     await mapInstance.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.LeverHasBeenPulled });
                 }));
                 await CallScriptAsync(run => _script.OnButtonUsed(run, room.Value, button));
@@ -987,8 +1010,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public bool IsButtonOn(int room, int button) => run.IsButtonOn(room, button);
 
-            public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
-                Do(() => run.PlaceButton(room, button, at, offVNum, onVNum, toggles));
+            public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever) =>
+                Do(() => run.PlaceButton(room, button, at, offVNum, onVNum, toggles, kind));
+
+            public void RemoveButton(int room, int button) => Do(() => run.RemoveButton(room, button));
 
             public void PlaceNpc(int room, short vNum, Spot at) => Do(() => run.PlaceNpc(room, vNum, at));
 

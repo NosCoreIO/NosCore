@@ -2786,15 +2786,17 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In the last room the exit stays shut until the lever is pulled; pulling it shows "The lever
       has been pulled." and opens the exit, and walking onto it shows Mission Clear
 - [ ] Letting the clock run out shows Mission Fail with "Failed because time ran out."
-- [ ] In `timespace-3`, the room with two keys opens the east portal for one key and the west
+- [ ] In `timespace-3`, the two keys of the second room stand somewhere else on each run. Taking
+      one shows "A door has opened somewhere." and "Find a key!" without "The lever has been
+      pulled.", makes the other key vanish, and opens the east portal for one key and the west
       portal for the other
+- [ ] In the last room of `timespace-3`, one key opens the exit; the other one leaves it shut and
+      brings five monsters one after another, and killing the last of them opens the exit
 - [ ] In `timespace-11`, the third room shows a red five-minute clock and brings a wave of
       monsters every 30 seconds; when the clock runs out the monsters leave and both portals open
 - [ ] In `timespace-9` and `timespace-13`, killing the last room's monsters ends the run with
       Mission Clear without an exit portal
-- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on.
-      In `timespace-3` the key you did not pick should vanish; it stays, and picking it opens the
-      other portal too
+- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on
 
 ### Time-space reward chest
 

@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return Task.CompletedTask;
             }
 
-            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.UseButtonAsync(mapInstance.MapInstanceId, buttonId)
+            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.UseButtonAsync(mapInstance.MapInstanceId, buttonId, character.VisualId)
                 ?? Task.CompletedTask;
         }
 

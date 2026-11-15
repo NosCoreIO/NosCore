@@ -81,7 +81,7 @@ public class TimeSpace10 : InstanceScript
         r.SpawnPortal(_room4, new(28, 15), _room5, new(1, 14), locked: false);
         r.SpawnPortal(_room4, new(1, 15), _room3, new(28, 15), locked: false);
         r.SpawnPortal(_room5, new(1, 14), _room4, new(28, 15));
-        r.PlaceButton(_room5, 1, new(20, 15), 1055, 1056);
+        r.PlaceButton(_room5, 1, new(20, 15), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnPortal(_room6, new(28, 14), _room3, new(1, 14), locked: false);
         r.SpawnPortal(_room6, new(1, 14), _room7, new(28, 15));
         r.PlaceButton(_room6, 1, new(15, 15), 1000, 1045);
@@ -90,7 +90,7 @@ public class TimeSpace10 : InstanceScript
                 r.Summon(_room6, new MonsterSpawn(131, new(8, 12), IsBonus: true));
             }));
         r.SpawnPortal(_room7, new(28, 15), _room6, new(1, 14));
-        r.PlaceButton(_room7, 1, new(10, 15), 1055, 1056);
+        r.PlaceButton(_room7, 1, new(10, 15), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnPortal(_room8, new(14, 1), _room3, new(14, 28), locked: false);
         r.SpawnPortal(_room8, new(28, 15), _room9, new(1, 14), locked: false);
         r.SpawnPortal(_room8, new(14, 28), _room13, new(14, 1));
@@ -104,7 +104,7 @@ public class TimeSpace10 : InstanceScript
             new MonsterSpawn(129, new(10, 4)),
             new MonsterSpawn(129, new(7, 14)));
         r.SpawnPortal(_room10, new(1, 14), _room9, new(28, 15));
-        r.PlaceButton(_room10, 1, new(20, 15), 1055, 1056);
+        r.PlaceButton(_room10, 1, new(20, 15), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnPortal(_room11, new(28, 15), _room8, new(1, 14), locked: false);
         r.SpawnPortal(_room11, new(1, 15), _room12, new(28, 15), locked: false);
         r.Summon(_room11,
@@ -125,7 +125,7 @@ public class TimeSpace10 : InstanceScript
             new MonsterSpawn(19, new(4, 20)),
             new MonsterSpawn(19, new(4, 9), IsBonus: true));
         r.SpawnPortal(_room12, new(28, 15), _room11, new(1, 15));
-        r.PlaceButton(_room12, 1, new(10, 15), 1055, 1056);
+        r.PlaceButton(_room12, 1, new(10, 15), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnPortal(_room13, new(14, 1), _room8, new(14, 28), locked: false);
         r.SpawnPortal(_room13, new(28, 15), _room14, new(1, 15), locked: false);
         r.SpawnPortal(_room13, new(1, 14), _room15, new(28, 15), locked: false);
@@ -143,7 +143,7 @@ public class TimeSpace10 : InstanceScript
             }));
         r.SpawnPortal(_room15, new(28, 15), _room13, new(1, 14));
         r.SpawnPortal(_room15, new(1, 15), _room16, new(28, 15));
-        r.PlaceButton(_room15, 1, new(15, 15), 1055, 1056);
+        r.PlaceButton(_room15, 1, new(15, 15), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnPortal(_room16, new(28, 15), _room15, new(1, 15));
         r.SpawnExit(_room16, new(1, 15));
         r.Summon(_room16,
@@ -253,7 +253,6 @@ public class TimeSpace10 : InstanceScript
         else if (room == _room6 && button == 1)
         {
             r.UnlockPortal(_room6, _room7);
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(Game18NConstString.NewGoal);
         }
@@ -280,7 +279,6 @@ public class TimeSpace10 : InstanceScript
         else if (room == _room9 && button == 1)
         {
             r.UnlockPortal(_room9, _room10);
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(Game18NConstString.NewGoal);
         }
@@ -331,7 +329,6 @@ public class TimeSpace10 : InstanceScript
         }
         else if (room == _room14 && button == 1)
         {
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.NewGoal);
         }
         else if (room == _room15 && button == 1)

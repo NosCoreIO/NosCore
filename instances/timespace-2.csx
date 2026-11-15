@@ -131,7 +131,6 @@ public class TimeSpace2 : InstanceScript
         if (room == _room3 && button == 1)
         {
             r.AddClockTime(TimeSpan.FromSeconds(1));
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Summon(_room3,
                 new MonsterSpawn(31, new(11, 15)),
                 new MonsterSpawn(31, new(11, 12)));

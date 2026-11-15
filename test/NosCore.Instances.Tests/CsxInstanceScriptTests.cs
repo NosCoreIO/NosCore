@@ -118,8 +118,10 @@ namespace NosCore.Instances.Tests
 
         public bool IsButtonOn(int room, int button) => ButtonsOn.Contains(button);
 
-        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
+        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever) =>
             Calls.Add($"button({room},{button},{at.X},{at.Y},{offVNum},{onVNum},{toggles})");
+
+        public void RemoveButton(int room, int button) => Calls.Add($"removebutton({room},{button})");
 
         public void PlaceNpc(int room, short vNum, Spot at) => Calls.Add($"npc({room},{vNum},{at.X},{at.Y})");
 

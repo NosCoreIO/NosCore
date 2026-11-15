@@ -138,13 +138,11 @@ public class TimeSpace4 : InstanceScript
         {
             r.UnlockPortal(_room5, _room6);
             r.AddClockTime(TimeSpan.FromSeconds(100));
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.ADoorHasOpened);
         }
         else if (room == _room6 && button == 1)
         {
             r.UnlockExit(_room6);
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.ADoorHasOpened);
         }
     }

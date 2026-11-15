@@ -98,7 +98,7 @@ public class TimeSpace6 : InstanceScript
         r.SpawnPortal(_room8, new(28, 15), _room7, new(1, 14), locked: false);
         r.SpawnPortal(_room8, new(14, 28), _room13, new(14, 1), locked: false);
         r.SpawnPortal(_room8, new(1, 15), _room9, new(28, 15), locked: false);
-        r.PlaceButton(_room8, 1, new(8, 6), 1057, 1057);
+        r.PlaceButton(_room8, 1, new(8, 6), 1057, 1057, kind: ButtonKind.Key);
         r.Summon(_room8,
             new MonsterSpawn(130, new(15, 20), OnDeath: r =>
             {
@@ -258,12 +258,7 @@ public class TimeSpace6 : InstanceScript
         else if (room == _room13 && button == 1)
         {
             r.UnlockPortal(_room13, _room14);
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.ADoorHasOpened);
-        }
-        else if (room == _room14 && button == 1)
-        {
-            r.Message(Game18NConstString.LeverHasBeenPulled);
         }
     }
 

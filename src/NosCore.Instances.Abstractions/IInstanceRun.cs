@@ -18,6 +18,15 @@ namespace NosCore.Instances.Abstractions
 
     public readonly record struct NpcSpawn(short VNum, Spot At);
 
+    // A lever says it has been pulled, a sculpture is moved without a word, and a key is taken
+    // off the map by whoever uses it.
+    public enum ButtonKind
+    {
+        Lever,
+        Sculpture,
+        Key
+    }
+
     public readonly record struct ItemPile(short VNum, short Piles, int Amount);
 
     // The verbs a script may use. Everything a script can do to a running instance goes
@@ -83,7 +92,10 @@ namespace NosCore.Instances.Abstractions
         // A lever or switch drawn with offVNum until it is used, then with onVNum. Button ids run
         // from 1 to 99999 and are unique within their room. A toggling button can be used again
         // to switch it back; any other button is used once.
-        void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false);
+        void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever);
+
+        // Takes a placed button off the map, so it can no longer be used.
+        void RemoveButton(int room, int button);
 
         bool IsButtonOn(int room, int button);
 

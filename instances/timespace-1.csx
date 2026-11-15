@@ -129,7 +129,6 @@ public class TimeSpace1 : InstanceScript
         if (room == _room7 && button == 1)
         {
             r.UnlockExit(_room7);
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.ADoorHasOpened);
         }
     }
