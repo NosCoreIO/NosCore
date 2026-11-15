@@ -4,11 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MateService;
 using NosCore.Packets.ClientPackets.Mates;
-using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Mates
@@ -16,11 +16,9 @@ namespace NosCore.PacketHandlers.Mates
     public class UpsPacketHandler(IPartnerSpecialistService partnerSpecialistService)
         : PacketHandler<UpsPacket>, IWorldPacketHandler
     {
-        // A mate counts as an ally of every player and npc, so a monster is the only target it can hit.
         public override Task ExecuteAsync(UpsPacket packet, ClientSession session)
         {
-            if (packet.TargetType != VisualType.Monster
-                || session.Character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId) is not { } target)
+            if (session.Character.SkillTarget(packet.MateTransportId, packet.TargetType, packet.TargetId) is not { } target)
             {
                 return Task.CompletedTask;
             }

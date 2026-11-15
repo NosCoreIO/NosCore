@@ -15,6 +15,8 @@ using Moq;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -152,6 +154,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .And(_HitsShouldBeSent, 2)
                 .And(TheCardsShouldReach_, Array.Empty<string>())
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task APetsBasicAttackStrikesTheMonster()
+        {
+            await new Spec("A pet with no skill of its own still lands its basic attack on a monster")
+                .GivenAsync(ThePetOfTheCasterOnlyHasABasicAttack)
+                .WhenAsync(ThePetAttacksAMonster)
+                .Then(TheCastShouldBeAccepted_, true)
+                .And(_HitsShouldBeSent, 1)
+                .ExecuteAsync();
+        }
+
+        private MateComponentBundle _pet;
+
+        private async Task ThePetOfTheCasterOnlyHasABasicAttack()
+        {
+            var pet = TestMates.Pet(_caster.Character.CharacterId);
+            await pet.SpawnAsync(_caster.Character, _map, 11, 10);
+            _pet = pet.Entity ?? throw new InvalidOperationException();
+            IAliveEntity attacker = _pet;
+            _skillResolver.Setup(r => r.Resolve(attacker, It.IsAny<long>())).Returns(new SkillInfo(
+                SkillVnum: 0, CastId: 0, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
+                Type: 0, HitType: TargetHitType.SingleTargetHit, Range: 1, TargetRange: 0, TargetType: 1,
+                Element: 0, Duration: 0, MpCost: 0, BCards: Array.Empty<BCardDto>()));
+        }
+
+        private async Task ThePetAttacksAMonster()
+        {
+            IAliveEntity monster = new FakeEntity { Hp = 100, VisualId = 50, VisualType = VisualType.Monster, MapInstance = _map };
+            IAliveEntity attacker = _pet;
+            _targetResolver.Setup(r => r.Resolve(attacker, monster, It.IsAny<SkillInfo>())).Returns(new[] { monster });
+            _accepted = await _service.Hit(_pet, monster, new HitArguments());
         }
 
         private void TheSkillTargets_WithHitType_(byte targetType, TargetHitType hitType)

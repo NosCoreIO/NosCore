@@ -36,6 +36,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private const short CostlyPetSkill = 663;
         private const short MonsterSkill = 1100;
         private const short SomeoneElsesSkill = 1673;
+        private const short SkillAroundThePet = 1674;
         private const int StartingMp = 10;
 
         private TestWorld World;
@@ -60,13 +61,15 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 new() { SkillVNum = PetSkill, CastId = 2, SkillType = 5, Range = 1, Cooldown = 350, MpCost = 4 },
                 new() { SkillVNum = CostlyPetSkill, CastId = 3, SkillType = 5, Range = 1, Cooldown = 700, MpCost = 40 },
                 new() { SkillVNum = MonsterSkill, CastId = 1, SkillType = 4, Range = 1 },
-                new() { SkillVNum = SomeoneElsesSkill, CastId = 3, SkillType = 5, Range = 1 }
+                new() { SkillVNum = SomeoneElsesSkill, CastId = 3, SkillType = 5, Range = 1 },
+                new() { SkillVNum = SkillAroundThePet, CastId = 4, SkillType = 5, TargetType = 1, HitType = 1, TargetRange = 6, MpCost = 4 }
             });
             World.Inject(new List<NpcMonsterSkillDto>
             {
                 new() { NpcMonsterSkillId = 1, NpcMonsterVNum = 333, SkillVNum = CostlyPetSkill },
                 new() { NpcMonsterSkillId = 2, NpcMonsterVNum = 333, SkillVNum = PetSkill },
                 new() { NpcMonsterSkillId = 3, NpcMonsterVNum = 333, SkillVNum = MonsterSkill },
+                new() { NpcMonsterSkillId = 5, NpcMonsterVNum = 333, SkillVNum = SkillAroundThePet },
                 new() { NpcMonsterSkillId = 4, NpcMonsterVNum = 806, SkillVNum = SomeoneElsesSkill }
             });
             _handler = World.UseReal<IMateAttackService, MateAttackService>()
@@ -236,6 +239,16 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         [TestMethod]
+        public async Task APetCastsASkillCentredOnItself()
+        {
+            await new Spec("A skill centred on the pet names the pet as its target and is cast on it")
+                .WhenAsync(ThePetIsOrderedToUseItsSkillAroundItself)
+                .Then(ThePetShouldCast_OnItself, SkillAroundThePet)
+                .And(ThePetShouldHave_Mp, StartingMp - 4)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task APetLeftAtHomeUsesNoSkill()
         {
             await new Spec("A pet that is not in the team casts nothing")
@@ -278,6 +291,20 @@ namespace NosCore.PacketHandlers.Tests.Mates
             TargetId = _session.Character.VisualId,
             SkillVNum = PetSkill
         }, _session);
+
+        private Task ThePetIsOrderedToUseItsSkillAroundItself() => _handler.ExecuteAsync(new UpetPacket
+        {
+            MateTransportId = _pet.MateTransportId,
+            TargetType = VisualType.Npc,
+            TargetId = _pet.MateTransportId,
+            SkillVNum = SkillAroundThePet
+        }, _session);
+
+        private void ThePetShouldCast_OnItself(short skill) =>
+            _battleService.Verify(b => b.Hit(
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _pet.MateTransportId),
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _pet.MateTransportId),
+                It.Is<HitArguments>(a => a.Skill != null && a.Skill.SkillVNum == skill)), Times.Once);
 
         private async Task AnotherPlayerOrdersThePetToUseItsSkill()
         {
