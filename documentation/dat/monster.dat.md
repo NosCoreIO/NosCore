@@ -7,7 +7,7 @@
 	BASIC	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	CARD	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	EFF	{BasicSkill}	{EffectIdConstantly}	{EffectIdOnDeath}
-	ETC	{CanWalk}	{unknown1}	{IsPercentileDmg}	{CanOnlyBeDmgedByJajamaruLastSkill}	{unknown2}	{VisibleOnMinimapAsGreenDot}	{unknown3}	{IsValhallaPartner}
+	ETC	{CanWalk}	{chatterGroup}	{IsPercentileDmg}	{CanOnlyBeDmgedByJajamaruLastSkill}	{unknown2}	{VisibleOnMinimapAsGreenDot}	{unknown3}	{IsValhallaPartner}
 	EXP	{monsterXpBonus}	{JobXp}
 	HP/MP	{monsterMaxHpBonus}	{monsterMaxMpBonus}
 	ITEM	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}
@@ -175,12 +175,12 @@
 | 2 | Parsed | OnDefenseOnlyOnce | Boolean | ETC bit 8 -> defensive AI fires once |
 | 2 | Parsed | RegenerateHpOverTime | Boolean | ETC bit 10 -> passive HP regen |
 | 2 | Parsed | VNumRequired | Int16 | VNum of the item required to tame/interact |
-| 3 | NonParsed | unknown1 |  |  |
+| 3 | NonParsed | chatterGroup |  | Monsters sharing a non-zero value say the same lines, sent as raw say text that no client file holds: 2 miners, 3 Koarens, 4 and 5 Kenkos, 8 witches. 1 marks field animals and skeletons. |
 | 4 | Parsed | IsPercentileDmg | Boolean | Damage output is expressed as % of target max HP (boss mechanic) |
 | 5 | Parsed | CanOnlyBeDmgedByJajamaruLastSkill | Boolean | Only damageable by Jajamaru's final skill (Namaju) |
 | 6 | NonParsed | unknown2 |  | Always 0. |
 | 7 | Parsed | VisibleOnMinimapAsGreenDot | Boolean | Renders as a green dot on the minimap |
-| 8 | NonParsed | unknown3 |  |  |
+| 8 | NonParsed | unknown3 |  | 1 on 192 raid and dungeon bosses, their summons and raid objects; the client never reads it. |
 | 9 | Parsed | IsValhallaPartner | Boolean | Marks Valhalla raid partner mobs |
 
 ## EXP
@@ -425,7 +425,7 @@
 | 2 | Parsed | Concentrate | Int16 | Hit rate |
 | 2 | Parsed | DamageMaximum | Int16 | Max attack damage |
 | 2 | Parsed | DamageMinimum | Int16 | Min attack damage |
-| 3 | NonParsed | weaponRange |  |  |
+| 3 | NonParsed | weaponRange |  | Always equal to ZSKILL[3], the basic attack range. |
 | 4 | Parsed | DamageMinimum | Int16 | Min attack damage |
 | 4 | Parsed | DamageMinimumBonus | Int16 | Flat minimum damage added to the curve |
 | 5 | Parsed | DamageMaximum | Int16 | Max attack damage |
@@ -440,7 +440,7 @@
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | NonParsed | winfoAttType |  | Attack type (0 melee, 1 ranged, 2 magic), the same as ZSKILL[2]. |
-| 3 | NonParsed | unknown5 |  |  |
+| 3 | NonParsed | unknown5 |  | 0 except on five monsters (Amora 3, Exterminator Bushi 6, Suspicious Spirit Swordsman 1). |
 | 4 | Parsed | AttackUpgrade | Byte | Weapon upgrade level |
 
 ## ZSKILL
@@ -456,5 +456,5 @@
 | 5 | Parsed | BasicArea | Byte | Basic attack area-of-effect radius |
 | 6 | Parsed | BasicCooldown | Int16 | Basic attack cooldown, deciseconds |
 | 7 | Parsed | DashSpeed | Byte | Dash visual speed |
-| 8 | NonParsed | unknown4 |  |  |
+| 8 | NonParsed | unknown4 |  | 0 except on 13 bosses (1, 2, 3 or 5); the client never reads it. |
 

@@ -22,7 +22,7 @@
 | 8 | Parsed | IsMinilandActionable | Boolean | Miniland-actionable object |
 | 9 | Parsed | IsWarehouse | Boolean | Can be stored in the account warehouse |
 | 10 | Parsed | Flag9 | Boolean | FLAG bit 9 (appears on beads, medals, raid seals) |
-| 11 | Parsed | Flag1 | Boolean | FLAG bit 10 (unknown) |
+| 11 | Parsed | Flag1 | Boolean | Set on Mysterious Box (1098) only |
 | 12 | Parsed | Flag2 | Boolean | FLAG bit 11 (set on mounts + raid items + partner equipment) |
 | 13 | Parsed | Flag3 | Boolean | On a miniland object the tooltip shows "In use" or "Not used"; set on 1418 items, most of them mall goods |
 | 14 | Parsed | Flag4 | Boolean | Used on another item: double-clicking it picks a target item instead of sending u_i |
@@ -35,7 +35,7 @@
 | 21 | NonParsed | ReputationPrice |  | The shop tooltip labels the price "Reputation"; read into ReputPrice. |
 | 22 | Parsed | IsHeroic | Boolean | Heroic item |
 | 23 | Parsed | Flag7 | Boolean | Headgear that also hides the mask; only changes what the client draws |
-| 24 | Parsed | Flag8 | Boolean | FLAG bit 23 (unknown) |
+| 24 | Parsed | Flag8 | Boolean | Variant of another item (INDEX[6] holds the original's icon); the client appends a fixed word to its name |
 | 25 | NonParsed | Unused |  | 0 on every item. |
 | 26 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops. The client keeps them in the main inventory. |
 
