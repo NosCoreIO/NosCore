@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.GameObject.Services.MateService
 {
@@ -26,6 +27,9 @@ namespace NosCore.GameObject.Services.MateService
 
         /// <summary>The skills of the card a transformed partner wears, in skill bar order; none when it is not transformed.</summary>
         IReadOnlyList<SkillDto> Skills(PlayerComponentBundle owner, Mate partner);
+
+        /// <summary>The skills a partner card gives, in skill bar order.</summary>
+        IReadOnlyList<SkillDto> CardSkills(SpecialistInstance card);
 
         /// <summary>Casts the skill in a slot of a transformed partner's skill bar.</summary>
         Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target);

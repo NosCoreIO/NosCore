@@ -7,7 +7,7 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Data.Enumerations.Battle;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -98,8 +98,8 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
 
             var sc = _session.Character.GenerateSc(_stats.Object);
 
-            Assert.AreEqual((byte)main, sc.Type);
-            Assert.AreEqual((byte)secondary, sc.Type2);
+            Assert.AreEqual(main, sc.Type);
+            Assert.AreEqual(secondary, sc.Type2);
         }
     }
 }

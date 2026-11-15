@@ -4,40 +4,55 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemInfoService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
+using NosCore.Data.Enumerations.Character;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class EquipmentInfoPacketHandler(IItemInfoService itemInfoService)
+    public class EquipmentInfoPacketHandler(IItemInfoService itemInfoService, IItemCatalog itemCatalog,
+            IItemGenerationService itemProvider)
         : PacketHandler<EquipmentInfoPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(EquipmentInfoPacket packet, ClientSession clientSession)
         {
-            NoscorePocketType? pocket = packet.Type switch
+            if (Find(packet, clientSession) is { } item && itemInfoService.GenerateInfo(item) is { } info)
             {
-                EquipmentInfoType.Worn => NoscorePocketType.Wear,
-                EquipmentInfoType.Equipment => NoscorePocketType.Equipment,
-                EquipmentInfoType.Specialist => NoscorePocketType.Specialist,
+                await clientSession.SendPacketAsync(info);
+            }
+        }
+
+        private IItemInstance? Find(EquipmentInfoPacket packet, ClientSession clientSession)
+        {
+            var character = clientSession.Character;
+            return packet.Type switch
+            {
+                EquipmentInfoType.Worn => InPocket(NoscorePocketType.Wear, packet.Slot),
+                EquipmentInfoType.Equipment => InPocket(NoscorePocketType.Equipment, packet.Slot),
+                EquipmentInfoType.Specialist => InPocket(NoscorePocketType.Specialist, packet.Slot),
+                EquipmentInfoType.Costume => InPocket(NoscorePocketType.Costume, packet.Slot),
+                // The slot is the partner's position counted from 1, the second field its equipment slot.
+                EquipmentInfoType.PartnerEquipment => character.Mates.Values
+                        .FirstOrDefault(m => m.MateType == MateType.Partner && m.PetSlot == packet.Slot - 1)?
+                        .EquipmentPocket() is { } pocket
+                    ? InPocket(pocket, packet.MateSlot)
+                    : null,
+                // An NPC shop sends the item's VNum as the slot.
+                EquipmentInfoType.NpcShop => itemCatalog.GetItem(packet.Slot) == null ? null : itemProvider.Create(packet.Slot),
                 _ => null
             };
-            if (pocket == null)
-            {
-                return;
-            }
 
-            var item = clientSession.Character.InventoryService.LoadBySlotAndType(packet.Slot, pocket.Value);
-            if (item == null || itemInfoService.GenerateInfo(item.ItemInstance) is not { } info)
-            {
-                return;
-            }
-
-            await clientSession.SendPacketAsync(info);
+            IItemInstance? InPocket(NoscorePocketType pocket, short slot) =>
+                character.InventoryService.LoadBySlotAndType(slot, pocket)?.ItemInstance;
         }
     }
 }

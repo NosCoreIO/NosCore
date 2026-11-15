@@ -15,11 +15,16 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.FairyBeadService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.SpecialistCardService;
+using NosCore.GameObject.Services.SpecialistHolderService;
+using NodaTime;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Mates;
 
 namespace NosCore.GameObject.Services.ItemInfoService;
 
@@ -28,9 +33,15 @@ public sealed class ItemInfoService(
     List<SkillDto> skills,
     ISpExperienceService spExperienceService,
     ISpecialistPointService specialistPointService,
-    ISpecialistCardService specialistCardService) : IItemInfoService
+    ISpecialistCardService specialistCardService,
+    ISpecialistHolderService specialistHolderService,
+    IFairyBeadService fairyBeadService,
+    IPartnerSpecialistService partnerSpecialistService,
+    IClock clock) : IItemInfoService
 {
     private const int ListedSpecialistSkills = 10;
+    private const byte PartnerSpecialistSubType = 4;
+    private const int PermanentHours = -1;
 
     private const byte AdventurerClass = 1;
     private const byte SwordsmanClass = 2;
@@ -41,13 +52,25 @@ public sealed class ItemInfoService(
     {
         return itemInstance switch
         {
+            SpecialistInstance { Item.ItemSubType: PartnerSpecialistSubType } partnerCard => GeneratePartnerSpecialistInfo(partnerCard),
             SpecialistInstance specialist => GenerateSpecialistInfo(specialist),
+            BoxInstance holder when specialistHolderService.IsSpecialistHolder(holder) => GenerateHolderInfo(holder),
+            BoxInstance bead when fairyBeadService.IsFairyBead(bead) => GenerateFairyBeadInfo(bead),
             WearableInstance { Item.ItemType: ItemType.Shell } shell => GenerateShellInfo(shell),
             WearableInstance wearable => wearable.Item.EquipmentSlot switch
             {
                 EquipmentType.MainWeapon or EquipmentType.SecondaryWeapon => GenerateWeaponInfo(wearable),
                 EquipmentType.Armor => GenerateArmorInfo(wearable),
-                EquipmentType.Gloves or EquipmentType.Boots => GenerateAccessoryInfo(wearable),
+                EquipmentType.Gloves or EquipmentType.Boots or EquipmentType.Hat or EquipmentType.Mask => GenerateAccessoryInfo(wearable),
+                EquipmentType.CostumeSuit => GenerateCostumeInfo(wearable),
+                EquipmentType.CostumeHat or EquipmentType.WeaponSkin or EquipmentType.WingSkin => GenerateCostumeHatInfo(wearable),
+                EquipmentType.Amulet => new EInfoAmuletPacket
+                {
+                    ItemVNum = wearable.ItemVNum,
+                    LevelMinimum = wearable.Item.LevelMinimum,
+                    RemainingTime = RemainingSeconds(wearable) * 10,
+                    Price = wearable.Item.Price,
+                },
                 EquipmentType.Necklace or EquipmentType.Ring or EquipmentType.Bracelet => GenerateJewelryInfo(wearable),
                 EquipmentType.Fairy => new EInfoFairyPacket
                 {
@@ -136,6 +159,145 @@ public sealed class ItemInfoService(
             DarkResistance = (short)(item.DarkResistance + (accessory.DarkResistance ?? 0)),
             Price = item.Price,
             Upgrade = accessory.Upgrade,
+        };
+    }
+
+    private EInfoCostumePacket GenerateCostumeInfo(WearableInstance costume)
+    {
+        var item = costume.Item;
+        return new EInfoCostumePacket
+        {
+            ItemVNum = costume.ItemVNum,
+            Rare = costume.Rare,
+            Upgrade = costume.Upgrade,
+            IsFixed = costume.IsFixed ?? false,
+            LevelMinimum = item.LevelMinimum,
+            CloseDefence = (short)(item.CloseDefence + (costume.CloseDefence ?? 0)),
+            DistanceDefence = (short)(item.DistanceDefence + (costume.DistanceDefence ?? 0)),
+            MagicDefence = (short)(item.MagicDefence + (costume.MagicDefence ?? 0)),
+            DefenceDodge = (short)(item.DefenceDodge + (costume.DefenceDodge ?? 0)),
+            Price = item.Price,
+            IsTradable = IsTradable(costume),
+            RemainingHours = RemainingHours(costume),
+        };
+    }
+
+    private EInfoCostumeHatPacket GenerateCostumeHatInfo(WearableInstance costume)
+    {
+        var item = costume.Item;
+        return new EInfoCostumeHatPacket
+        {
+            ItemVNum = costume.ItemVNum,
+            LevelMinimum = item.LevelMinimum,
+            CloseDefence = (short)(item.CloseDefence + (costume.CloseDefence ?? 0)),
+            DistanceDefence = (short)(item.DistanceDefence + (costume.DistanceDefence ?? 0)),
+            MagicDefence = (short)(item.MagicDefence + (costume.MagicDefence ?? 0)),
+            DefenceDodge = (short)(item.DefenceDodge + (costume.DefenceDodge ?? 0)),
+            FireResistance = (short)(item.FireResistance + (costume.FireResistance ?? 0)),
+            WaterResistance = (short)(item.WaterResistance + (costume.WaterResistance ?? 0)),
+            LightResistance = (short)(item.LightResistance + (costume.LightResistance ?? 0)),
+            DarkResistance = (short)(item.DarkResistance + (costume.DarkResistance ?? 0)),
+            Price = item.Price,
+            IsTradable = IsTradable(costume),
+            RemainingHours = RemainingHours(costume),
+        };
+    }
+
+    private static bool IsTradable(IItemInstance item) => item.Item.IsTradable && item.BoundCharacterId == null;
+
+    // A worn time-limited item counts down from its delete time; one never worn still has its whole validity.
+    private long RemainingSeconds(IItemInstance item) => item.ItemDeleteTime is { } deleteTime
+        ? Math.Max(0, (long)(deleteTime - clock.GetCurrentInstant()).TotalSeconds)
+        : item.Item.ItemValidTime;
+
+    private int RemainingHours(IItemInstance item) =>
+        item.ItemDeleteTime == null && item.Item.ItemValidTime <= 0 ? PermanentHours : (int)(RemainingSeconds(item) / 3600);
+
+    private EInfoSpecialistHolderPacket GenerateHolderInfo(BoxInstance holder)
+    {
+        if ((holder.HoldingVNum ?? 0) == 0)
+        {
+            return new EInfoSpecialistHolderPacket { ItemVNum = holder.ItemVNum };
+        }
+
+        var card = GenerateSpecialistInfo(specialistHolderService.TakeOut(holder));
+        return new EInfoSpecialistHolderPacket
+        {
+            ItemVNum = holder.ItemVNum,
+            IsFull = true,
+            HoldingVNum = card.ItemVnum,
+            SpLevel = card.SpLevel,
+            Xp = card.Xp,
+            XpMaximum = card.SpXpData,
+            Upgrade = card.Upgrade,
+            SlHit = card.SlHit,
+            SlDefence = card.SlDefense,
+            SlElement = card.SlElement,
+            SlHp = card.SlHp,
+            FreePoints = card.FreeSpPoints,
+            SpStoneUpgrade = card.SpStoneUpgrade,
+            FireResistance = card.FireResistance,
+            WaterResistance = card.WaterResistance,
+            LightResistance = card.LightResistance,
+            DarkResistance = card.DarkResistance,
+            AttackPoints = card.AttackPoints,
+            DefencePoints = card.DefensePoints,
+            ElementPoints = card.ElementPoints,
+            HpMpPoints = card.HpMpPoints,
+            FirePoints = card.SpFireResistance,
+            WaterPoints = card.SpWaterResistance,
+            LightPoints = card.SpLightResistance,
+            DarkPoints = card.SpDarkResistance,
+        };
+    }
+
+    private EInfoFairyBeadPacket GenerateFairyBeadInfo(BoxInstance bead)
+    {
+        if ((bead.HoldingVNum ?? 0) == 0)
+        {
+            return new EInfoFairyBeadPacket { ItemVNum = bead.ItemVNum };
+        }
+
+        var fairy = fairyBeadService.TakeOut(bead);
+        return new EInfoFairyBeadPacket
+        {
+            ItemVNum = bead.ItemVNum,
+            IsFull = true,
+            HoldingVNum = fairy.ItemVNum,
+            ElementRate = (short)(fairy.Item.ElementRate + (fairy.ElementRate ?? 0)),
+        };
+    }
+
+    private PslInfoPacket GeneratePartnerSpecialistInfo(SpecialistInstance card)
+    {
+        var item = card.Item;
+        var cardSkills = partnerSpecialistService.CardSkills(card);
+        ScnPacket.ScSkillDetails? SkillAt(int slot) => slot < cardSkills.Count
+            ? new ScnPacket.ScSkillDetails { SkillId = cardSkills[slot].SkillVNum, Rank = SpPartnerRank.NotIdentifiedYet }
+            : null;
+        return new PslInfoPacket
+        {
+            ItemVNum = card.ItemVNum,
+            Element = (ElementType)item.Element,
+            ElementRate = item.ElementRate,
+            LevelMinimum = item.LevelMinimum,
+            Speed = item.Speed,
+            FireResistance = item.FireResistance,
+            WaterResistance = item.WaterResistance,
+            LightResistance = item.LightResistance,
+            DarkResistance = item.DarkResistance,
+            Skill1 = SkillAt(0),
+            Skill2 = SkillAt(1),
+            Skill3 = SkillAt(2),
+            Upgrade = card.Upgrade,
+            AttackPoints = card.SpDamage,
+            DefencePoints = card.SpDefence,
+            CriticalDamageReductionPoints = card.SpElement,
+            HpMpPoints = card.SpHp,
+            FirePoints = card.SpFire,
+            WaterPoints = card.SpWater,
+            LightPoints = card.SpLight,
+            DarkPoints = card.SpDark,
         };
     }
 

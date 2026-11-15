@@ -1177,6 +1177,22 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] Not verifiable yet: a move onto a taken slot being refused, since the client always picks
       a free slot itself
 
+### Item info windows
+
+- [ ] Right-click each of these in the EQUIP tab and confirm an info window opens with its
+      values: a hat and a mask (defences), a costume suit and a costume hat (remaining time
+      for a timed one, "permanent" otherwise, tradable until worn), an amulet (remaining
+      time), a card holder with and without a card (the stored card's level, points and
+      upgrade), a fairy bead with and without a fairy (the fairy's element rate), a weapon or
+      wing skin, and a partner card (its three skills)
+- [ ] From the ADDITIONAL tab, right-click a card in the card inventory (the specialist window
+      opens) and a costume in the costume inventory
+- [ ] Open a partner's page (P) and right-click its card and its weapon
+- [ ] At an NPC shop, right-click an item for sale: its info window opens
+- [ ] Open one card's specialist window, close it, then right-click a different card: in the
+      browser client the second window did not open although its slinfo arrived. Check
+      whether the game client does the same
+
 ### Potions
 
 - [ ] Take some damage, then use a Small Health Potion (`$CreateItem 1002`): the HP bar
