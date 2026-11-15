@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Linq;
 using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -19,14 +18,6 @@ public sealed class CollectQuestHandler : ItemQuestHandlerBase
 {
     public override QuestType QuestType => QuestType.Collect;
 
-    public override Task<ItemQuestProgress> OnItemsReceivedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum)
-    {
-        var progressed = false;
-        foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.ItemVNum(QuestType) == vNum))
-        {
-            progressed |= RaiseProgress(quest, objective, character.InventoryService.CountItem(vNum));
-        }
-
-        return Task.FromResult(Outcome(quest, progressed));
-    }
+    public override Task<ItemQuestProgress> OnItemsReceivedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum) =>
+        Task.FromResult(ProgressToBagCount(character, quest, vNum));
 }
