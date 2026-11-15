@@ -16,6 +16,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Mates;
@@ -44,8 +45,10 @@ namespace NosCore.GameObject.Services.MateService
 
         public IReadOnlyList<SkillDto> Skills(PlayerComponentBundle owner, Mate partner) =>
             partner.SpecialistMorph != null && partner.Specialist(owner.InventoryService) is { } specialist
-                ? _skillsBySet[specialist.Item.PartnerSkillSet].ToList()
+                ? CardSkills(specialist)
                 : [];
+
+        public IReadOnlyList<SkillDto> CardSkills(SpecialistInstance card) => _skillsBySet[card.Item.PartnerSkillSet].ToList();
 
         public async Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target)
         {

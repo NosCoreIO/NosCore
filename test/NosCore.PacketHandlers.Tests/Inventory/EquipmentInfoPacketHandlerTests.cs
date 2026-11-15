@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemInfoService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Player;
@@ -32,8 +34,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             await base.SetupAsync();
             var itemInfoService = new Mock<IItemInfoService>();
-            itemInfoService.Setup(s => s.GenerateInfo(It.Is<IItemInstance>(i => i.ItemVNum == 1))).Returns(_info);
-            _handler = new EquipmentInfoPacketHandler(itemInfoService.Object);
+            itemInfoService.Setup(s => s.GenerateInfo(It.Is<IItemInstance>(i => i.ItemVNum == 1 || i.ItemVNum == 912))).Returns(_info);
+            var itemCatalog = new Mock<IItemCatalog>();
+            itemCatalog.Setup(c => c.GetItem(1)).Returns(new ItemDto { VNum = 1 });
+            _handler = new EquipmentInfoPacketHandler(itemInfoService.Object, itemCatalog.Object, ItemProvider);
         }
 
         [TestMethod]
@@ -53,6 +57,44 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .Given(AWeaponIsWorn)
                 .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Worn, (short)EquipmentType.MainWeapon)
                 .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RightClickingAnItemInTheCardInventoryShowsItsDetails()
+        {
+            await new Spec("Right clicking an item in the card inventory shows its details")
+                .Given(Item_IsIn_Slot_, (short)912, NoscorePocketType.Specialist, (short)2)
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Specialist, (short)2)
+                .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RightClickingAnItemInTheCostumeInventoryShowsItsDetails()
+        {
+            await new Spec("Right clicking an item in the costume inventory shows its details")
+                .Given(Item_IsIn_Slot_, (short)1, NoscorePocketType.Costume, (short)1)
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Costume, (short)1)
+                .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnNpcShopItemIsLookedUpByItsVNum()
+        {
+            await new Spec("An NPC shop item is looked up by its VNum")
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.NpcShop, (short)1)
+                .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnUnknownNpcShopItemSendsNothing()
+        {
+            await new Spec("An unknown NPC shop item sends nothing")
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.NpcShop, (short)30000)
+                .Then(NothingIsSent)
                 .ExecuteAsync();
         }
 
@@ -79,6 +121,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemProvider.Create(1, 1), Session.Character.CharacterId),
                 NoscorePocketType.Equipment, slot);
+
+        private void Item_IsIn_Slot_(short vnum, NoscorePocketType pocket, short slot) =>
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemProvider.Create(vnum, 1), Session.Character.CharacterId), pocket, slot);
 
         private void AWeaponIsWorn() =>
             Session.Character.InventoryService.AddItemToPocket(

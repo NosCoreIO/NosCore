@@ -17,7 +17,12 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemInfoService;
+using NosCore.GameObject.Services.FairyBeadService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.SpecialistCardService;
+using NosCore.GameObject.Services.SpecialistHolderService;
+using NodaTime;
+using NodaTime.Testing;
 using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SpecialistPointService;
 using NosCore.Data.StaticEntities;
@@ -32,6 +37,10 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
     {
         private readonly List<EquipmentOptionDto> _options = new();
         private readonly List<SkillDto> _skills = new();
+        private readonly Mock<ISpecialistHolderService> _holders = new();
+        private readonly Mock<IFairyBeadService> _beads = new();
+        private readonly Mock<IPartnerSpecialistService> _partnerCards = new();
+        private readonly FakeClock _clock = new(Instant.FromUtc(2026, 1, 1, 0, 0));
         private GameObject.Services.ItemInfoService.ItemInfoService _service;
 
         [TestInitialize]
@@ -42,7 +51,8 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
                 .Returns((Expression<Func<EquipmentOptionDto, bool>> predicate) => _options.Where(predicate.Compile()));
             var pointService = new SpecialistPointService();
             _service = new GameObject.Services.ItemInfoService.ItemInfoService(optionDao.Object, _skills,
-                new SpExperienceService(), pointService, new SpecialistCardService(pointService));
+                new SpExperienceService(), pointService, new SpecialistCardService(pointService),
+                _holders.Object, _beads.Object, _partnerCards.Object, _clock);
         }
 
         private static WearableInstance Wearable(Item item) =>
@@ -239,9 +249,137 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         [TestMethod]
         public void AnItemWithoutADetailWindowGetsNoAnswer()
         {
-            var costume = Wearable(new Item { VNum = 1, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.CostumeSuit });
+            var potion = new ItemInstance(new Item { VNum = 1012, ItemType = ItemType.Potion });
 
-            Assert.IsNull(_service.GenerateInfo(costume));
+            Assert.IsNull(_service.GenerateInfo(potion));
+        }
+
+        [TestMethod]
+        public void AHatIsShownLikeGloves()
+        {
+            var hat = Wearable(new Item { VNum = 200, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.Hat, LevelMinimum = 1, CloseDefence = 1, Price = 40 });
+
+            PacketAssert.AreEqual(new EInfoAccessoryPacket { ItemVNum = 200, LevelMinimum = 1, CloseDefence = 1, Price = 40 },
+                Info<EInfoAccessoryPacket>(hat));
+        }
+
+        [TestMethod]
+        public void AnUnwornCostumeShowsItsWholeValidityAndCanBeTraded()
+        {
+            var suit = Wearable(new Item
+            {
+                VNum = 187, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.CostumeSuit, LevelMinimum = 20,
+                Price = 2400, ItemValidTime = 2592000, IsTradable = true
+            });
+
+            PacketAssert.AreEqual(new EInfoCostumePacket
+            {
+                ItemVNum = 187, LevelMinimum = 20, Price = 2400, IsTradable = true, RemainingHours = 720,
+            }, Info<EInfoCostumePacket>(suit));
+        }
+
+        [TestMethod]
+        public void AWornCostumeCountsDownAndIsBound()
+        {
+            var hat = Wearable(new Item
+            {
+                VNum = 186, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.CostumeHat, ItemValidTime = 2592000, IsTradable = true
+            });
+            hat.BoundCharacterId = 1;
+            hat.ItemDeleteTime = _clock.GetCurrentInstant().Plus(Duration.FromHours(5)).Plus(Duration.FromMinutes(30));
+
+            var info = Info<EInfoCostumeHatPacket>(hat);
+
+            Assert.AreEqual(5, info.RemainingHours);
+            Assert.IsFalse(info.IsTradable);
+        }
+
+        [TestMethod]
+        public void APermanentSkinShowsNoRemainingTime()
+        {
+            var skin = Wearable(new Item { VNum = 4270, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.WeaponSkin });
+
+            Assert.AreEqual(-1, Info<EInfoCostumeHatPacket>(skin).RemainingHours);
+        }
+
+        [TestMethod]
+        public void AnAmuletShowsItsRemainingTimeInTenthsOfASecond()
+        {
+            var amulet = Wearable(new Item
+            {
+                VNum = 180, ItemType = ItemType.Jewelery, EquipmentSlot = EquipmentType.Amulet, LevelMinimum = 10, ItemValidTime = 1800, Price = 3300
+            });
+
+            PacketAssert.AreEqual(new EInfoAmuletPacket { ItemVNum = 180, LevelMinimum = 10, RemainingTime = 18000, Price = 3300 },
+                Info<EInfoAmuletPacket>(amulet));
+        }
+
+        [TestMethod]
+        public void AnEmptyHolderOnlySaysItIsEmpty()
+        {
+            var holder = new BoxInstance(new Item { VNum = 287, ItemType = ItemType.Box });
+            _holders.Setup(h => h.IsSpecialistHolder(holder)).Returns(true);
+
+            PacketAssert.AreEqual(new EInfoSpecialistHolderPacket { ItemVNum = 287 }, Info<EInfoSpecialistHolderPacket>(holder));
+        }
+
+        [TestMethod]
+        public void AFullHolderShowsTheCardItKeeps()
+        {
+            var holder = new BoxInstance(new Item { VNum = 287, ItemType = ItemType.Box }) { HoldingVNum = 901 };
+            _holders.Setup(h => h.IsSpecialistHolder(holder)).Returns(true);
+            _holders.Setup(h => h.TakeOut(holder)).Returns(new SpecialistInstance(new Item
+            {
+                VNum = 901, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp, Morph = 1, FireResistance = 4
+            })
+            {
+                SpLevel = 40, Xp = 1000, SlDamage = 30, SpDamage = 10,
+            });
+
+            var info = Info<EInfoSpecialistHolderPacket>(holder);
+
+            Assert.IsTrue(info.IsFull);
+            Assert.AreEqual((short)901, info.HoldingVNum);
+            Assert.AreEqual((byte)40, info.SpLevel);
+            Assert.AreEqual(19, info.SlHit);
+            Assert.AreEqual((short)4, info.FireResistance);
+            Assert.AreEqual((short)10, info.AttackPoints);
+        }
+
+        [TestMethod]
+        public void AFairyBeadShowsItsFairyWithTheFairysGrowth()
+        {
+            var bead = new BoxInstance(new Item { VNum = 4194, ItemType = ItemType.Box }) { HoldingVNum = 254 };
+            _beads.Setup(b => b.IsFairyBead(bead)).Returns(true);
+            var fairy = Wearable(new Item { VNum = 254, ItemType = ItemType.Jewelery, EquipmentSlot = EquipmentType.Fairy, ElementRate = 10 });
+            fairy.ElementRate = 20;
+            _beads.Setup(b => b.TakeOut(bead)).Returns(fairy);
+
+            PacketAssert.AreEqual(new EInfoFairyBeadPacket { ItemVNum = 4194, IsFull = true, HoldingVNum = 254, ElementRate = 30 },
+                Info<EInfoFairyBeadPacket>(bead));
+        }
+
+        [TestMethod]
+        public void APartnerCardListsItsSkillsAndPoints()
+        {
+            var card = new SpecialistInstance(new Item
+            {
+                VNum = 4324, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, LevelMinimum = 30, Speed = 2
+            })
+            {
+                Upgrade = 1, SpDamage = 2, SpHp = 5,
+            };
+            _partnerCards.Setup(p => p.CardSkills(card)).Returns([new SkillDto { SkillVNum = 1235 }, new SkillDto { SkillVNum = 1237 }]);
+
+            var info = Info<PslInfoPacket>(card);
+
+            Assert.AreEqual((byte)30, info.LevelMinimum);
+            Assert.AreEqual(1235, info.Skill1?.SkillId);
+            Assert.AreEqual(1237, info.Skill2?.SkillId);
+            Assert.IsNull(info.Skill3);
+            Assert.AreEqual((byte)1, info.Upgrade);
+            Assert.AreEqual((short)2, info.AttackPoints);
+            Assert.AreEqual((short)5, info.HpMpPoints);
         }
 
         [TestMethod]

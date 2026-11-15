@@ -16,7 +16,6 @@ using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Battle;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -497,9 +496,9 @@ public static class PlayerBundleExtensions
         return new FdPacket
         {
             Reput = player.Reputation,
-            ReputIcon = (int)player.ReputIcon,
+            ReputIcon = player.ReputIcon,
             Dignity = player.Dignity,
-            DignityIcon = (int)player.DignityIcon
+            DignityIcon = player.DignityIcon
         };
     }
 
@@ -528,7 +527,7 @@ public static class PlayerBundleExtensions
             FamilyId = player.Family?.FamilyId ?? -1,
             FamilyName = player.GenerateFamilyTag(localizer, viewerLanguage),
             ReputationIco = (ExtendedReputationType)player.ReputIcon,
-            DignityIco = (CharacterDignity)player.DignityIcon,
+            DignityIco = player.DignityIcon,
             HaveWeapon = weapon != null ? 1 : 0,
             WeaponRare = weapon?.Rare ?? 0,
             WeaponUpgrade = weapon?.Upgrade ?? 0,
@@ -708,14 +707,14 @@ public static class PlayerBundleExtensions
         };
         return new ScPacket
         {
-            Type = (byte)mainType,
+            Type = mainType,
             MainWeaponUpgrade = (byte)stats.MeleeUpgrade,
             MinHit = Math.Max(0, stats.MinHit),
             MaxHit = Math.Max(0, stats.MaxHit),
             HitRate = stats.HitRate,
             CriticalHitRate = (short)stats.CriticalChance,
             CriticalHitMultiplier = stats.CriticalRate,
-            Type2 = (byte)secondaryType,
+            Type2 = secondaryType,
             SecondaryWeaponUpgrade = (short)stats.RangedUpgrade,
             SecondaryMinHit = (short)Math.Max(0, stats.MinDistance),
             SecondaryMaxHit = (short)Math.Max(0, stats.MaxDistance),
