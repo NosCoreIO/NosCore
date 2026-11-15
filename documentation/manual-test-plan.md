@@ -3252,3 +3252,7 @@ and :30; `$Event Act4Ship` opens boarding at once.
 - [ ] Without an Act 4 channel running, the ship lands in the citadel on the same channel
 - [ ] With one player in Glacernon and one in Port Alveus, a whisper from Glacernon ends with
       "<Channel: 51>" and one from Port Alveus ends with "<Channel: 1>"; neither is "is not playing"
+- [ ] When the save before a channel move fails (for example a `BEFORE UPDATE` trigger on
+      "Character" that raises for `MapId` 130), `$Teleport 130 10 36` from Port Alveus sends no
+      `mz` and the player arrives in the citadel on the same channel, instead of reconnecting to
+      the Act 4 channel and being sent straight back to Port Alveus

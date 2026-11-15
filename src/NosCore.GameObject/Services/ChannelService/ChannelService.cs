@@ -59,23 +59,38 @@ namespace NosCore.GameObject.Services.ChannelService
                 return false;
             }
 
-            await MoveToMapAsync(clientSession, channel, map.IsAct4 ? ItModeType.ToAct4 : ItModeType.ToPortAlveus,
+            return await MoveToMapAsync(clientSession, channel, map.IsAct4 ? ItModeType.ToAct4 : ItModeType.ToPortAlveus,
                 map.Map.MapId, mapX, mapY);
-            return true;
         }
 
-        public async Task MoveToMapAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode,
+        public async Task<bool> MoveToMapAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode,
             short mapId, short mapX, short mapY)
         {
             var character = clientSession.Character;
+            var (previousMapId, previousMapX, previousMapY) = (character.MapId, character.MapX, character.MapY);
             character.MapId = mapId;
             character.MapX = mapX;
             character.MapY = mapY;
-            await MoveAsync(clientSession, server, mode);
+            if (await MoveAsync(clientSession, server, mode))
+            {
+                return true;
+            }
+
+            character.MapId = previousMapId;
+            character.MapX = previousMapX;
+            character.MapY = previousMapY;
+            return false;
         }
 
-        private async Task MoveAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode)
+        // The destination loads the player from the database, so without a stored save the player
+        // would arrive as they were before and stays on this channel instead.
+        private async Task<bool> MoveAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode)
         {
+            if (!await saveService.SaveAsync(clientSession))
+            {
+                return false;
+            }
+
             await clientSession.SendPacketAsync(new MzPacket(server.DisplayHost ?? server.Host)
             {
                 Port = server.DisplayPort ?? server.Port,
@@ -87,9 +102,9 @@ namespace NosCore.GameObject.Services.ChannelService
                 Mode = mode
             });
 
-            await saveService.SaveAsync(clientSession);
             await authHttpClient.SetAwaitingChannelChangeAsync(clientSession.Account.Name, server.Id, clientSession.MfaValidated);
             await clientSession.DisconnectAsync();
+            return true;
         }
     }
 }

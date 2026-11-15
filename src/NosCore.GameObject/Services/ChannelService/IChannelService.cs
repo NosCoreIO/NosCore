@@ -21,10 +21,12 @@ namespace NosCore.GameObject.Services.ChannelService
         // including when the other kind of channel is not running.
         Task<ChannelInfo?> GetChannelHostingAsync(bool act4Map);
 
-        // Sends the player to the channel hosting that base map; false when this channel hosts it.
+        // Sends the player to the channel hosting that base map; false when this channel keeps them,
+        // which includes a move that could not save the player first.
         Task<bool> TryMoveToHostAsync(ClientSession clientSession, MapInstance map, short mapX, short mapY);
 
-        // The player reconnects to that channel already standing on the map.
-        Task MoveToMapAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode, short mapId, short mapX, short mapY);
+        // The player reconnects to that channel already standing on the map; false when the player
+        // could not be saved, in which case they stay here where they were.
+        Task<bool> MoveToMapAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode, short mapId, short mapX, short mapY);
     }
 }

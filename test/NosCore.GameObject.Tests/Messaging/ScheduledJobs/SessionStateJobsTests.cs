@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
             SaveService = World.Freeze<Mock<ISaveService>>();
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
                 .Callback(() => Saves++)
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
             SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             SessionRegistry.Setup(s => s.GetSessions(It.IsAny<Func<ClientSession, bool>?>()))
                 .Returns(() => new[] { Session });

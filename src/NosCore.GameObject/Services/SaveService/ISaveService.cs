@@ -11,6 +11,7 @@ namespace NosCore.GameObject.Services.SaveService
 {
     public interface ISaveService
     {
-        Task SaveAsync(ClientSession session);
+        // False when nothing was stored: the save rolled back and the database keeps the previous state.
+        Task<bool> SaveAsync(ClientSession session);
     }
 }

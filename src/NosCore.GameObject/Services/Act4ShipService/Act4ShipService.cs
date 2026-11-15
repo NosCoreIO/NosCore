@@ -153,9 +153,9 @@ namespace NosCore.GameObject.Services.Act4ShipService
             var (x, y) = mapInstanceAccessorService.GetBaseMapById(landing.MapId) is { } citadel
                 ? FreeSpot(citadel, (landing.X, landing.Y, LandingSize, LandingSize))
                 : (landing.X, landing.Y);
-            if (await channelService.GetChannelHostingAsync(true) is { } act4Channel)
+            if (await channelService.GetChannelHostingAsync(true) is { } act4Channel
+                && await channelService.MoveToMapAsync(session, act4Channel, ItModeType.ShipToAct4, landing.MapId, x, y))
             {
-                await channelService.MoveToMapAsync(session, act4Channel, ItModeType.ShipToAct4, landing.MapId, x, y);
                 return;
             }
 

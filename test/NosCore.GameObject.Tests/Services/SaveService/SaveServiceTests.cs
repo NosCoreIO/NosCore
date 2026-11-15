@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             minilandService.Setup(s => s.GetMiniland(It.IsAny<long>()))
                 .Returns(new NosCore.GameObject.Services.MinilandService.Miniland { MinilandMessage = "Test" });
 
-            Service = new GameObject.Services.SaveService.SaveService(
+            Build = titles => new GameObject.Services.SaveService.SaveService(
                 World.CharacterDao,
                 itemInstanceDao,
                 inventoryItemInstanceDao,
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 quicklistEntriesDao,
                 World.MinilandDao,
                 minilandService.Object,
-                titleDao,
+                titles,
                 characterQuestDao,
                 characterQuestObjectiveDao,
                 respawnDao,
@@ -105,6 +105,24 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                     NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
                 new DaoTransactionScope(contextBuilder),
                 StaticBuffs);
+            Service = Build(titleDao);
+        }
+
+        private Func<IDao<TitleDto, Guid>, ISaveService>? Build;
+
+        [TestMethod]
+        public async Task AStoredSaveReportsSuccess()
+        {
+            Assert.IsTrue(await Service.SaveAsync(Session));
+        }
+
+        [TestMethod]
+        public async Task ARolledBackSaveReportsFailure()
+        {
+            var titles = new Mock<IDao<TitleDto, Guid>>();
+            titles.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<TitleDto>>())).ReturnsAsync(false);
+
+            Assert.IsFalse(await Build.NotNull()(titles.Object).SaveAsync(Session));
         }
 
         [TestMethod]

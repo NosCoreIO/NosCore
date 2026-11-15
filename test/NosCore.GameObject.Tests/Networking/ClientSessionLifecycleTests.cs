@@ -210,7 +210,7 @@ namespace NosCore.GameObject.Tests.Networking
             var saveService = new Mock<ISaveService>();
             saveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
                 .Callback(() => Events.Add("save"))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
             DisconnectHandler.Setup(h => h.HandleDisconnectAsync(It.IsAny<ClientSession>()))
                 .Returns((ClientSession session) => new SaveDisconnectHandler(saveService.Object).HandleDisconnectAsync(session));
         }
