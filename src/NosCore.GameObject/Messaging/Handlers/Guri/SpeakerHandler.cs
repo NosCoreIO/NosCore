@@ -98,7 +98,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                     logger.LogError(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND], type, slot));
                     return;
                 }
+#pragma warning disable NosCoreWireEscape // #3321: the escape belongs on SayItemPacket.Message
                 message = CraftMessage(message, valueSplit.Skip(2).ToArray()).Replace(' ', '|');
+#pragma warning restore NosCoreWireEscape
                 await BroadcastToListenersAsync(session.Character.GenerateSayItem(message, deeplink), session.ConnectedChannel.Id);
             }
             else

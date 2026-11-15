@@ -834,6 +834,9 @@
   <data name="SKILL_COOLDOWN_RESET_FAILED" xml:space="preserve">
     <value>Failed to reset cooldown for skill {CastId}</value>
   </data>
+  <data name="PET_SKILL_COOLDOWN_RESET_FAILED" xml:space="preserve">
+    <value>Failed to reset cooldown for pet skill slot {Slot}</value>
+  </data>
   <data name="MAP_LIFE_STEP_FAILED" xml:space="preserve">
     <value>Life tick step {Step} failed for map {MapId}</value>
   </data>
@@ -920,5 +923,11 @@
   </data>
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Do you want to make this village your place of revival?</value>
+  </data>
+  <data name="ASK_YES_NO" xml:space="preserve">
+    <value>{Question} [Y/n]</value>
+  </data>
+  <data name="TALENT_ARENA_FAILED" xml:space="preserve">
+    <value>Arena of Talents failed</value>
   </data>
 </root>

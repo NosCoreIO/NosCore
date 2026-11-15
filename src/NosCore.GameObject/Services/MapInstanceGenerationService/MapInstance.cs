@@ -755,7 +755,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Failed to reset cooldown for pet skill slot {Slot}", slot);
+                    _logger.LogWarning(e, _logLanguage[LogLanguageKey.PET_SKILL_COOLDOWN_RESET_FAILED], slot);
                 }
             }
         }

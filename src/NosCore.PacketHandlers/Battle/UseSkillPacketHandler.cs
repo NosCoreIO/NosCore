@@ -47,13 +47,13 @@ namespace NosCore.PacketHandlers.Battle
         {
             if (!clientSession.Character.CanFight)
             {
-                await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack }).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
                 return;
             }
 
             if (clientSession.Character.IsSitting)
             {
-                await clientSession.Character.RestAsync().ConfigureAwait(false);
+                await clientSession.Character.RestAsync();
             }
 
             clientSession.Character.CancelDelay();
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Battle
             if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed))
             {
                 (character.PositionX, character.PositionY) = (previousX, previousY);
-                await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack }).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
                 return;
             }
 

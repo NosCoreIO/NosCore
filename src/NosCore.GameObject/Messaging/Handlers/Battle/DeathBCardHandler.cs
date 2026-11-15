@@ -62,10 +62,10 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             // failure we'd double-apply the damage/heal.
             try
             {
-                await killer.SendPacketAsync(killer.GenerateStat()).ConfigureAwait(false);
+                await killer.SendPacketAsync(killer.GenerateStat());
                 if (killer.MapInstance != null)
                 {
-                    await killer.MapInstance.SendPacketAsync(killer.GenerateStatInfo()).ConfigureAwait(false);
+                    await killer.MapInstance.SendPacketAsync(killer.GenerateStatInfo());
                 }
             }
             catch (Exception ex)

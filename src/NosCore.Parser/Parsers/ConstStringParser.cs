@@ -39,15 +39,15 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertLaddersAsync(string folder)
         {
-            var bands = await ReadBandsAsync(folder).ConfigureAwait(false);
+            var bands = await ReadBandsAsync(folder);
 
             // Imported apart so a client that breaks one ladder still yields the other.
             await ImportAsync(BuildReputationLevels(bands), reputationLevelDao,
                 LogLanguageKey.REPUTATIONLEVELS_PARSED, LogLanguageKey.REPUTATIONLEVELS_MALFORMED)
-                .ConfigureAwait(false);
+                ;
             await ImportAsync(BuildDignityLevels(bands), dignityLevelDao,
                 LogLanguageKey.DIGNITYLEVELS_PARSED, LogLanguageKey.DIGNITYLEVELS_MALFORMED)
-                .ConfigureAwait(false);
+                ;
         }
 
         private async Task ImportAsync<TDto>(List<TDto>? levels, IDao<TDto, byte> dao,
@@ -59,7 +59,7 @@ namespace NosCore.Parser.Parsers
                 return;
             }
 
-            await dao.TryInsertOrUpdateAsync(levels).ConfigureAwait(false);
+            await dao.TryInsertOrUpdateAsync(levels);
             logger.LogInformation(logLanguage[parsed], levels.Count);
         }
 
@@ -67,7 +67,7 @@ namespace NosCore.Parser.Parsers
         {
             // Latin1 never throws on any byte, and only digits are read out of the values.
             var content = await File.ReadAllTextAsync(Path.Combine(folder, FileName), Encoding.Latin1)
-                .ConfigureAwait(false);
+                ;
 
             var bands = new Dictionary<int, string>();
             foreach (var record in content.Split('\r', '\n'))

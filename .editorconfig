@@ -55,3 +55,8 @@ resharper_virtual_member_call_in_constructor_highlighting=none
 
 [*.cs]
 charset=utf-8
+
+# Test players type chat, which is not text the server sends.
+[test/**.cs]
+dotnet_diagnostic.NosCorePlayerText.severity=none
+

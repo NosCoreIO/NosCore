@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Inventory
                     clientSession.Character.GeneratePairy(null));
             }
 
-            await vitalityService.RefreshAndNotifyAsync(clientSession.Character).ConfigureAwait(false);
+            await vitalityService.RefreshAndNotifyAsync(clientSession.Character);
             await messageBus.PublishAsync(new MovementConditionChangedEvent(clientSession.Character));
         }
     }

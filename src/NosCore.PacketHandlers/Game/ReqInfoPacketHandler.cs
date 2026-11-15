@@ -63,17 +63,17 @@ namespace NosCore.PacketHandlers.Game
                     {
                         return;
                     }
-                    await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage)).ConfigureAwait(false);
+                    await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage));
                     return;
 
                 case ReqInfoType.MateInfo:
                     if (packet.MateVNum.HasValue)
                     {
-                        await HandleMapEntityInfoAsync(packet, session).ConfigureAwait(false);
+                        await HandleMapEntityInfoAsync(packet, session);
                     }
                     else
                     {
-                        await HandleMateInfoAsync(packet, session).ConfigureAwait(false);
+                        await HandleMateInfoAsync(packet, session);
                     }
                     return;
 
@@ -115,7 +115,7 @@ namespace NosCore.PacketHandlers.Game
                 return;
             }
 
-            await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage)).ConfigureAwait(false);
+            await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage));
         }
 
         // `req_info 6 <mateTransportId>` (single-arg form) — mate / partner info card.

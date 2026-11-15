@@ -103,7 +103,7 @@ namespace NosCore.Parser.Tests
                 return string.Join("\n", new[]
                 {
                     MapNpcs.LoadAll().Select(s => $"npc {s.MapNpcId} {s.MapId} {s.VNum} {s.MapX} {s.MapY} {s.Direction} {s.IsSitting}"),
-                    Shops.LoadAll().Select(s => $"shop {s.MapNpcId} {s.MenuType} {s.ShopType}"),
+                    Shops.LoadAll().Select(s => $"npc-shop {s.MapNpcId} {s.MenuType} {s.ShopType}"),
                     ShopItems.LoadAll().Select(s => $"item {shops[s.ShopId]} {s.Type} {s.Slot} {s.ItemVNum} {s.Rare} {s.Upgrade}"),
                     ShopSkills.LoadAll().Select(s => $"skill {shops[s.ShopId]} {s.Type} {s.Slot} {s.SkillVNum}"),
                     Teleporters.LoadAll().Select(s => $"teleporter {s.MapNpcId} {s.Runner} {s.Index} {s.MapId} {s.MapX} {s.MapY} {s.Type}"),

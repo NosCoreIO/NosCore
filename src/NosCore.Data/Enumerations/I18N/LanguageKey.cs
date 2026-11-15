@@ -230,6 +230,7 @@ namespace NosCore.Data.Enumerations.I18N
         HERO_MESSAGE_FAILED,
         MAP_LIFE_TICK_FAILED,
         SKILL_COOLDOWN_RESET_FAILED,
+        PET_SKILL_COOLDOWN_RESET_FAILED,
         MAP_LIFE_STEP_FAILED,
         ENTITY_LIFE_TICK_FAILED,
         RESPAWN_LIFE_TICK_FAILED,
@@ -258,6 +259,8 @@ namespace NosCore.Data.Enumerations.I18N
         ARENA_REVIVAL_PROTECTION_FAILED,
         UNHANDLED_NRUN_RUNNER,
         NRUN_WITHOUT_DIALOG,
+        ASK_YES_NO,
+        TALENT_ARENA_FAILED,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

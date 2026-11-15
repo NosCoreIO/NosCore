@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Services.SkillService
             // Characters who changed class before the deletion below existed are still carrying
             // the old rows. Clearing them at login, and not only at the next class change, means
             // those characters heal themselves instead of staying broken for ever.
-            await ForgetUnlearnableSkillsAsync(character).ConfigureAwait(false);
+            await ForgetUnlearnableSkillsAsync(character);
 
             var characterSkills = characterSkillDao.Where(x => x.CharacterId == character.VisualId).Adapt<List<CharacterSkill>>() ?? new List<CharacterSkill>();
             var skillToUse = skills.Where(x => characterSkills.Select(s => s.SkillVNum).Contains(x.SkillVNum));
@@ -149,7 +149,7 @@ namespace NosCore.GameObject.Services.SkillService
             foreach (var stale in characterSkillDao.Where(x => x.CharacterId == characterId)?
                          .Where(x => !keep.Contains(x.SkillVNum) && !passives.Contains(x.SkillVNum)).ToList() ?? [])
             {
-                await characterSkillDao.TryDeleteAsync(stale.Id).ConfigureAwait(false);
+                await characterSkillDao.TryDeleteAsync(stale.Id);
                 character.Skills.TryRemove(stale.SkillVNum, out _);
             }
         }
@@ -173,7 +173,7 @@ namespace NosCore.GameObject.Services.SkillService
                 var skillVNum = skill.SkillVNum;
                 var existing = await characterSkillDao
                     .FirstOrDefaultAsync(x => x.CharacterId == characterId && x.SkillVNum == skillVNum)
-                    .ConfigureAwait(false);
+                    ;
 
                 var entry = new CharacterSkill
                 {
@@ -184,7 +184,7 @@ namespace NosCore.GameObject.Services.SkillService
                 };
                 if (character.Skills.TryAdd(skill.SkillVNum, entry))
                 {
-                    await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>()).ConfigureAwait(false);
+                    await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>());
                     learned = true;
                 }
             }

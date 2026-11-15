@@ -205,7 +205,7 @@ public sealed class RewardService(
         await mateProgression.AddExperienceAsync(player, levelXp);
 
         await AwardReputationAsync(player, mob, bonuses.Reputation);
-        await AwardDignityAsync(player, mob).ConfigureAwait(false);
+        await AwardDignityAsync(player, mob);
     }
 
     private static long WithBonus(long amount, int percent) => amount * Math.Max(0, 100 + percent) / 100;
@@ -322,7 +322,7 @@ public sealed class RewardService(
             return;
         }
         player.Dignity = (short)(player.Dignity + 1);
-        await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
+        await player.SendPacketAsync(player.GenerateFd());
     }
 
     private static PlayerComponentBundle? FindTopDamageDealer(IAliveEntity victim, IReadOnlyDictionary<Entity, int> hitSnapshot)

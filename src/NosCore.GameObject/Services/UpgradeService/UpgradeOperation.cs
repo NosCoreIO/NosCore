@@ -105,9 +105,9 @@ public abstract class UpgradeOperation(IRandomProvider random, IGameLanguageLoca
 
         ConsumeMaterials(session, ctx, outcome, packets);
         ConsumeFixedSlots(session, ctx);
-        await session.Character.RemoveGoldAsync(ctx.GoldCost, localizer).ConfigureAwait(false);
+        await session.Character.RemoveGoldAsync(ctx.GoldCost, localizer);
 
-        await EmitOutcomeEffectsAsync(session, ctx, outcome, packets).ConfigureAwait(false);
+        await EmitOutcomeEffectsAsync(session, ctx, outcome, packets);
 
         if (AnnouncesResult)
         {
