@@ -402,6 +402,16 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] With the amulet on, a meal heals two fifths more HP and MP per tick, never above the usual
       per-tick ceiling for meals
 
+### Full restore potions
+
+- [ ] Drink a Divine Health Potion (1242) with HP missing: the HP bar fills, MP stays where it was,
+      and one potion is gone
+- [ ] Drink a Divine Recovery Potion (1244) with an injured pet out: both your bars and the pet's
+      HP and MP bars fill
+- [ ] Drink a Divine potion on a PvP map or in Glacernon: "This item cannot be used in PvP mode."
+      appears and the potion stays in the bag
+- [ ] An ordinary potion (1010) still heals in Glacernon
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
