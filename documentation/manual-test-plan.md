@@ -197,6 +197,14 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] With both in play nothing locks up or throws — the attacker's guarantee is resolved
       first by design
 
+### Defence nullified — BCard type 2 subtype 11
+
+- [ ] Hit a monster carrying "all defence nullified" (Destroy Shield, card 69;
+      `/mnt/project-files/bcard-effects/reset-defence.sh nullified` gives a 300-defence Large
+      Dander the effect, key 1 casts): the hit lands as if it had no defence (about 350 with
+      Tester's level 40 mage, against single digits without the effect)
+- [ ] Its dodge is unchanged, and the defence comes back once the debuff ends
+
 ### Elemental resistance — BCard types 13 and 14
 
 - [ ] A buff that raises your resistance to an element reduces the elemental damage you
