@@ -1348,6 +1348,15 @@ Needs two characters on the same channel. The commending one must be level 31 or
       effect is activated and is used up; the pet basket ends 10 days later, the ticket never
 - [ ] Use a second knapsack or ticket of the same kind while one is active: it stays in the
       inventory
+- [ ] Use Partner's Backpack (Permanent) 5676 and Pet Basket (Permanent) 5677
+      (`/mnt/project-files/parity-items/scene.sh`, Main slots 0 and 1): each asks "Use the item.", says
+      its effect is activated and is used up; neither bonus has an end date
+- [ ] Use the Renaming Card 5787 (same scene, Main slot 2): after "Use the item." the client asks
+      "Using this item will allow you to change your character's name...", Confirm says "You can
+      change this character's name. To do so, please log out and log back in again." and the card is
+      used up; at the next character select, picking the character opens "Type new name"
+- [ ] Use a second Renaming Card before renaming: "You have already used this item to rename this
+      character." and the card stays
 - [ ] Put a Release Scroll on the quick bar and drop it on a fixed +7 weapon
       (`/mnt/project-files/hardcoded-tables/reset-release.sh`, key 3 then click the weapon): it asks
       "Would you like to use Release Scroll?", Confirm says "This equipment level can be changed.",

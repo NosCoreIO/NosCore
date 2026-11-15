@@ -90,6 +90,30 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task PermanentPetBasketGrantsPetBasketWithNoEndDate()
+        {
+            await new Spec("The permanent Pet Basket grants PetBasket for good and consumes the item")
+                .Given(ItemInInventoryWithEffect_, ItemEffectType.PermanentPetBasket)
+                .WhenAsync(UsingTheItem)
+                .Then(StaticBonusListShouldContain_, StaticBonusType.PetBasket)
+                .And(StaticBonusDateEndShouldBeNull)
+                .And(ItemStackCountShouldBe_, (short)0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PermanentPartnerBackpackGrantsPetBackPackWithNoEndDate()
+        {
+            await new Spec("The permanent Partner's Backpack grants PetBackPack for good and consumes the item")
+                .Given(ItemInInventoryWithEffect_, ItemEffectType.PermanentPartnerBackpack)
+                .WhenAsync(UsingTheItem)
+                .Then(StaticBonusListShouldContain_, StaticBonusType.PetBackPack)
+                .And(StaticBonusDateEndShouldBeNull)
+                .And(ItemStackCountShouldBe_, (short)0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task DuplicatePetBasketIsRejectedWithNotInPair()
         {
             await new Spec("Second PetBasket grant emits NotInPair and does not consume the item")
