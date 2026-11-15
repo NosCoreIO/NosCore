@@ -1943,6 +1943,17 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 - [ ] Talk to the sailor aboard and choose to leave the ship: you are back on the harbour you boarded from.
 - [ ] A dead player cannot board.
 
+### Daily quests from NPC dialogs
+
+- [ ] At level 81 or more, open the Daily Quest page of Serizad, the Fire Alchemist, the Akamur
+      military engineer or the camp construction NPC and choose "Yes, I understand.": one of that
+      NPC's daily quests appears in the quest window.
+- [ ] Ask the same NPC again while the quest is held: nothing new is handed out.
+- [ ] Finish the quest and ask again the same day: "You can only do this quest once a day."
+- [ ] Below level 81 the NPC answers that your level is too low.
+- [ ] Fortune-Teller Nuki's Accept Quest (level 60+) and Malcolm Mix's daily (level 20+) hand out one
+      of their quests the same way.
+
 ### Forming a party
 
 - [ ] A invites B and B confirms: both see the other in the party panel and "In party" under

@@ -13,6 +13,7 @@ using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
+using NosCore.Packets.Enumerations;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -176,6 +177,29 @@ namespace NosCore.Parser.Tests
             await parser.ImportQuestsAsync(_tempFolder);
 
             Assert.IsFalse(_savedQuests.Single().IsDaily);
+        }
+
+        [TestMethod]
+        public async Task QuestParser_AQuestHandedOutByADialogButtonKnowsItsButton()
+        {
+            CreateTestFile(CreateQuestData(questId: 5515, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(NrunRunnerType.GetDailyQuestAkamurMerchantMilitaryEngineerEliminateMonsters,
+                _savedQuests.Single().OfferedBy);
+        }
+
+        [TestMethod]
+        public async Task QuestParser_AQuestNoDialogButtonHandsOutHasNoButton()
+        {
+            CreateTestFile(CreateQuestData(questId: 100, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.IsNull(_savedQuests.Single().OfferedBy);
         }
 
         [TestMethod]
