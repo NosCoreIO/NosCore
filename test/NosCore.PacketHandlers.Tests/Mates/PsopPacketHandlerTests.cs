@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private PartnerSpecialistService _specialists;
         private PartnerEquipmentService _equipment;
         private PsopPacketHandler _handler;
-        private Mock<IRandomNumberSource> _random;
+        private Mock<NosCore.GameObject.Services.BattleService.IRandomProvider> _random;
         private Mate _partner;
 
         [TestInitialize]
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                     Type = NoscorePocketType.Equipment, VNum = PartnerSpecialist, ItemType = ItemType.Specialist,
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, Morph = 2041, PartnerSkillSet = SkillSet
                 }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             World.Inject(new List<SkillDto>
             {
                 new() { SkillVNum = 1315, CastId = 0, SkillType = 5, UpgradeType = SkillSet },
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 new() { SkillVNum = 1317, CastId = 2, SkillType = 5, UpgradeType = SkillSet }
             });
             World.Inject<IPartnerSkillRankService>(new PartnerSkillRankService());
-            _random = World.Freeze<Mock<IRandomNumberSource>>();
+            _random = World.Random;
             _specialists = World.Create<PartnerSpecialistService>();
             _equipment = new PartnerEquipmentService(_specialists, World.Create<PartnerSkillCatalog>());
             _handler = new PsopPacketHandler(_specialists);

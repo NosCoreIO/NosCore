@@ -33,7 +33,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.MateService
 {
     public sealed class PartnerSpecialistService(IClock clock, IPartnerSkillCatalog partnerSkillCatalog, IBattleService battleService,
-            IHeuristic distanceCalculator, IPartnerSkillRankService partnerSkillRankService, IRandomNumberSource random)
+            IHeuristic distanceCalculator, IPartnerSkillRankService partnerSkillRankService, IRandomProvider random)
         : IPartnerSpecialistService, ISingletonService
     {
         private const short CooldownSeconds = 30;
