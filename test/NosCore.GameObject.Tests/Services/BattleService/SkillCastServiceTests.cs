@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task ABuffThatShortensCooldownsShortensIt()
         {
             await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = 1 },
-                [new BCardDto { Type = 17, SubType = 42, FirstData = 20, CardId = 1 }]);
+                [new BCardDto { Type = BCardType.CardType.Morale, SubType = 42, FirstData = 20, CardId = 1 }]);
 
             Assert.AreEqual(Duration.FromSeconds(8), _service.Cooldown(_session.Character, 100));
         }
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void WornGearThatLengthensCooldownsLengthensIt()
         {
-            WearBCards(new BCardDto { Type = 17, SubType = 41, FirstData = 50 });
+            WearBCards(new BCardDto { Type = BCardType.CardType.Morale, SubType = 41, FirstData = 50 });
 
             Assert.AreEqual(Duration.FromSeconds(15), _service.Cooldown(_session.Character, 100));
         }
@@ -65,7 +66,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AShortenedCooldownLetsTheSkillBeCastSooner()
         {
-            WearBCards(new BCardDto { Type = 17, SubType = 42, FirstData = 50 });
+            WearBCards(new BCardDto { Type = BCardType.CardType.Morale, SubType = 42, FirstData = 50 });
             var skill = Skill(mpCost: 0);
             await _service.SpendAsync(_session.Character, skill, 0);
 
@@ -77,7 +78,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AManaCostIncreaseRaisesTheMpSpent()
         {
-            WearBCards(new BCardDto { Type = 18, SubType = 21, FirstData = 50 });
+            WearBCards(new BCardDto { Type = BCardType.CardType.Casting, SubType = 21, FirstData = 50 });
 
             _service.Check(_session.Character, Skill(mpCost: 20), out var mpCost);
 
@@ -87,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AManaCostDecreaseLowersTheMpSpent()
         {
-            WearBCards(new BCardDto { Type = 18, SubType = 22, FirstData = 25 });
+            WearBCards(new BCardDto { Type = BCardType.CardType.Casting, SubType = 22, FirstData = 25 });
 
             _service.Check(_session.Character, Skill(mpCost: 20), out var mpCost);
 

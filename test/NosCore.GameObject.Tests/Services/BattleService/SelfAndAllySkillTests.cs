@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class SelfAndAllySkillTests
     {
-        private static readonly IReadOnlyList<BCardDto> Cards = new[] { new BCardDto { Type = 25, SubType = 11, FirstData = 400, SecondData = 13 } };
+        private static readonly IReadOnlyList<BCardDto> Cards = new[] { new BCardDto { Type = BCardType.CardType.Buff, SubType = 11, FirstData = 400, SecondData = 13 } };
 
         private TestWorld World;
         private ClientSession _caster;

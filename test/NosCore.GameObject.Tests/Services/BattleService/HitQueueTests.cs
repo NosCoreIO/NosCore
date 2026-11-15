@@ -107,7 +107,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             {
                 SkillVnum = 7,
                 Duration = 100,
-                BCards = new[] { new BCardDto { Type = 3 /*AttackPower*/, FirstData = 10 } },
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.AttackPower /*AttackPower*/, FirstData = 10 } },
             };
             var request = Request(attacker, target) with { Skill = skill };
 
@@ -143,7 +143,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var queue = new HitQueue(calc.Object, stats.Object, buffs.Object,
                 new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(),
                 new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
-            var skill = MakeSkill() with { BCards = new[] { new BCardDto { Type = 3 } } };
+            var skill = MakeSkill() with { BCards = new[] { new BCardDto { Type = BCardType.CardType.AttackPower } } };
 
             var hit = queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
 
@@ -181,7 +181,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
             var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(), new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
-            var skill = MakeSkill() with { Duration = 100, BCards = new[] { new BCardDto { Type = 3 } } };
+            var skill = MakeSkill() with { Duration = 100, BCards = new[] { new BCardDto { Type = BCardType.CardType.AttackPower } } };
 
             await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
 
@@ -249,7 +249,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var skill = MakeSkill() with
             {
                 Kind = SkillKind.Debuff,
-                BCards = new[] { new BCardDto { Type = 25, FirstData = 400, SecondData = 144 } },
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.Buff, FirstData = 400, SecondData = 144 } },
             };
 
             var outcome = await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });

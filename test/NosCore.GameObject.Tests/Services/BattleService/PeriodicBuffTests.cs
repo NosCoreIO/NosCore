@@ -105,7 +105,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             character.Mp = character.MaxMp - 1;
             await _buffs.ApplyPermanentAsync(character, Heat, [new BCardDto
             {
-                Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 21, FirstData = 20, ThirdData = 1,
+                Type = BCardType.CardType.RecoveryAndDamagePercent, SubType = 21, FirstData = 20, ThirdData = 1,
             }]);
 
             World.Clock.Advance(Duration.FromSeconds(2));
@@ -151,7 +151,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             monster.Hp = 90;
             await _buffs.ApplyAsync(monster, Poison, [new BCardDto
             {
-                Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 11, FirstData = 20, ThirdData = 3,
+                Type = BCardType.CardType.RecoveryAndDamagePercent, SubType = 11, FirstData = 20, ThirdData = 3,
             }], null);
 
             World.Clock.Advance(Duration.FromSeconds(6));
@@ -215,7 +215,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             monster.Mp = 10;
             await _buffs.ApplyAsync(monster, Poison, [new BCardDto
             {
-                Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 22, FirstData = 50, ThirdData = 2,
+                Type = BCardType.CardType.RecoveryAndDamagePercent, SubType = 22, FirstData = 50, ThirdData = 2,
             }], null);
             var map = _session.Character.MapInstance;
             map.LastPackets.Clear();
@@ -246,7 +246,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static BCardDto HpRecovered(int percent, int steps) => new()
         {
-            Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 11, FirstData = percent, ThirdData = steps,
+            Type = BCardType.CardType.RecoveryAndDamagePercent, SubType = 11, FirstData = percent, ThirdData = steps,
         };
 
         [TestMethod]
@@ -361,7 +361,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static BCardDto Fixed(byte subType, int value, int steps, bool perLevel) => new()
         {
-            Type = (byte)BCardType.CardType.HealingBurningAndCasting, SubType = subType, FirstData = value,
+            Type = BCardType.CardType.HealingBurningAndCasting, SubType = subType, FirstData = value,
             ThirdData = steps, IsLevelScaled = perLevel,
         };
 
@@ -375,7 +375,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static BCardDto HpReduced(int percent, int steps) => new()
         {
-            Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 12, FirstData = percent, ThirdData = steps,
+            Type = BCardType.CardType.RecoveryAndDamagePercent, SubType = 12, FirstData = percent, ThirdData = steps,
         };
     }
 }

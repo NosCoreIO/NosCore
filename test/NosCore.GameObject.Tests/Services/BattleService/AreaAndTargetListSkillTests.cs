@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -322,7 +323,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .Returns(new List<IAliveEntity> { Monster(10) });
         }
 
-        private static readonly BCardDto TeleportCard = new() { Type = 76, SubType = 11 };
+        private static readonly BCardDto TeleportCard = new() { Type = BCardType.CardType.FairyXpIncrease, SubType = 11 };
 
         private void TheSkillResolvesWithCards_(BCardDto[] cards)
         {

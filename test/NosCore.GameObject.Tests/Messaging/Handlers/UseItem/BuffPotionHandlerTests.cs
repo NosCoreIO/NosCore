@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private static readonly IReadOnlyList<BCardDto> PotionBCards = new[]
         {
-            new BCardDto { ItemVNum = AttackPotionVNum, Type = 25, SubType = 11, FirstData = 400, SecondData = 116 }
+            new BCardDto { ItemVNum = AttackPotionVNum, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 400, SecondData = 116 }
         };
 
         private ClientSession _session;

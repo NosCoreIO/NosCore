@@ -79,11 +79,11 @@ namespace NosCore.Parser.Parsers
         {
             switch (card.CardId)
             {
-                case 131 when card.BCards?.Any(b => b.Type == (byte)BCardType.CardType.Type96 && b.SubType == 11) != true:
+                case 131 when card.BCards?.Any(b => b.Type == BCardType.CardType.Type96 && b.SubType == 11) != true:
                     card.BCards = [.. card.BCards ?? [], new BCardDto
                     {
                         CardId = card.CardId,
-                        Type = (byte)BCardType.CardType.Type96,
+                        Type = BCardType.CardType.Type96,
                         SubType = 11,
                         FirstData = 30,
                     }];
@@ -124,7 +124,7 @@ namespace NosCore.Parser.Parsers
                 list.Add(new BCardDto
                 {
                     CardId = Convert.ToInt16(chunks["VNUM"][0][2]),
-                    Type = byte.Parse(row[2 + i * 6]),
+                    Type = (BCardType.CardType)byte.Parse(row[2 + i * 6]),
                     SubType = (byte)((Convert.ToByte(row[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                     FirstData = value.Value,
                     SecondData = int.Parse(row[7 + i * 6]) / 4,

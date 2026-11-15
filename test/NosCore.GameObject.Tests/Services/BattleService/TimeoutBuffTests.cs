@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -128,7 +129,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             RollGives(0);
             await _service.ApplySkillBuffAsync(_target, FirstCardId, 10,
-                new[] { new BCardDto { Type = (byte)NosCore.Data.Enumerations.Buff.BCardType.CardType.AttackPower } }, null);
+                new[] { new BCardDto { Type = BCardType.CardType.AttackPower } }, null);
 
             _clock.Advance(Duration.FromSeconds(1));
             await _service.TickAsync(_target);

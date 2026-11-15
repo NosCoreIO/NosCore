@@ -194,7 +194,7 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         }
 
         private static BCardDto Move(BCardEffect effect, int value) =>
-            new() { Type = (byte)((short)effect / 100), SubType = (byte)((short)effect % 100), FirstData = value };
+            new() { Type = effect.Type(), SubType = effect.SubType(), FirstData = value };
 
         private static BuffInstance Buff(short cardId, BCardDto bCard) =>
             new(cardId, BuffType.Good, null, NodaTime.Instant.MinValue, NodaTime.Instant.MaxValue, new[] { bCard });

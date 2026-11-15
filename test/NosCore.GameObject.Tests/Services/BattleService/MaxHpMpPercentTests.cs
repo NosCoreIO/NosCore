@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -49,8 +50,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var (hp, mp) = (_session.Character.MaxHp, _session.Character.MaxMp);
             await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = 1539 },
             [
-                new BCardDto { Type = 32, SubType = 41, FirstData = 25, CardId = 1539 },
-                new BCardDto { Type = 32, SubType = 51, FirstData = 10, CardId = 1539 },
+                new BCardDto { Type = BCardType.CardType.Recovery, SubType = 41, FirstData = 25, CardId = 1539 },
+                new BCardDto { Type = BCardType.CardType.Recovery, SubType = 51, FirstData = 10, CardId = 1539 },
             ]);
 
             _vitality.Refresh(_session.Character);
@@ -64,7 +65,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var hp = _session.Character.MaxHp;
             await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = 2 },
-                [new BCardDto { Type = 32, SubType = 42, FirstData = 20, CardId = 2 }]);
+                [new BCardDto { Type = BCardType.CardType.Recovery, SubType = 42, FirstData = 20, CardId = 2 }]);
 
             _vitality.Refresh(_session.Character);
 

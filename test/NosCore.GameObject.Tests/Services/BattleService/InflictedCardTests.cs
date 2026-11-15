@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static readonly List<BCardDto> StunCardEffects = new()
         {
-            new BCardDto { CardId = StunCardId, Type = (byte)BCardType.CardType.SpecialActions, FirstData = 1 }
+            new BCardDto { CardId = StunCardId, Type = BCardType.CardType.SpecialActions, FirstData = 1 }
         };
 
         private static BCardDto Declares(BCardEffect effect, int percent, short cardId) =>
@@ -201,7 +201,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             await Inflict(new BCardDto
             {
-                Type = (byte)BCardType.CardType.AttackPower, SubType = 11, FirstData = 50
+                Type = BCardType.CardType.AttackPower, SubType = 11, FirstData = 50
             });
 
             Assert.AreEqual(0, _service.GetActiveBuffs(_target).Count);

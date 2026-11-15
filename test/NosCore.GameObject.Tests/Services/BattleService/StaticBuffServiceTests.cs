@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +32,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static readonly IReadOnlyList<BCardDto> BlessingBCards =
         [
-            new BCardDto { CardId = BlessingCardId, Type = 44, SubType = 11, FirstData = 100 }
+            new BCardDto { CardId = BlessingCardId, Type = BCardType.CardType.Item, SubType = 11, FirstData = 100 }
         ];
 
         private TestWorld World;

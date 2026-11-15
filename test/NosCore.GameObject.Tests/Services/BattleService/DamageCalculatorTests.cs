@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Algorithm.DodgeChanceService;
 using NosCore.Algorithm.MonsterLevelDamageService;
 using NosCore.Algorithm.UpgradeBonusService;
@@ -379,7 +380,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var basicMagic = MagicSkill with
             {
-                BCards = new[] { new BCardDto { Type = 3, SubType = 41, FirstData = 60 } },
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.AttackPower, SubType = 41, FirstData = 60 } },
             };
 
             Assert.AreEqual(97, Hit(Player(CharacterClassType.Mage, 10, attack: 26), Chicken(), basicMagic));
@@ -414,7 +415,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var daggerWithBonus = MeleeSkill with
             {
                 UsesSecondaryWeapon = true,
-                BCards = new[] { new BCardDto { Type = 3, SubType = 21, FirstData = 20 } },
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.AttackPower, SubType = 21, FirstData = 20 } },
             };
 
             Assert.AreEqual(52, Hit(archer, Chicken(), daggerWithBonus));

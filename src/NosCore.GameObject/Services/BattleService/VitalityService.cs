@@ -45,7 +45,7 @@ public sealed class VitalityService(
 
         foreach (var card in cards)
         {
-            var type = (BCardType.CardType)card.Type;
+            var type = card.Type;
             if (type != BCardType.CardType.Quest && type != BCardType.CardType.MaxHpmp && type != BCardType.CardType.Recovery)
             {
                 continue;

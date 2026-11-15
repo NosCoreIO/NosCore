@@ -325,7 +325,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             var effects = _service.Resolve(_session.Character).BCards;
 
             Assert.AreEqual(1, effects.Count);
-            Assert.AreEqual((byte)BCardType.CardType.Defence, effects[0].Type);
+            Assert.AreEqual(BCardType.CardType.Defence, effects[0].Type);
             Assert.AreEqual(25, effects[0].FirstData);
         }
 

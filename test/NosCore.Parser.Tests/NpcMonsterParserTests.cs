@@ -166,7 +166,7 @@ namespace NosCore.Parser.Tests
             await parser.InsertNpcMonstersAsync(_tempFolder);
 
             CollectionAssert.AreEquivalent(new[] { "0 11/22 95 75", "1 26/21 1 3135", "3 26/11 2 36" },
-                saved.Select(b => $"{b.Slot} {b.Type}/{b.SubType} {b.FirstData} {b.SecondData}").ToArray());
+                saved.Select(b => $"{b.Slot} {b.Type:D}/{b.SubType} {b.FirstData} {b.SecondData}").ToArray());
         }
 
         [TestMethod]

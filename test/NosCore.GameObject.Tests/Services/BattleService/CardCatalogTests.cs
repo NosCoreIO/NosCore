@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static CardCatalog Create(ItemEffectType effect) => new(
             [new CardDto { CardId = BoostCardId }],
-            [new BCardDto { ItemVNum = BoosterVNum, Type = (byte)BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = BoostCardId }],
+            [new BCardDto { ItemVNum = BoosterVNum, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = BoostCardId }],
             [new ItemDto { VNum = BoosterVNum, Effect = effect }]);
 
         [TestMethod]

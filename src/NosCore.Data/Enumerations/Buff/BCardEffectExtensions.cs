@@ -12,9 +12,9 @@ namespace NosCore.Data.Enumerations.Buff
     {
         public static BCardEffect Effect(this BCardDto card) => Effect(card.Type, card.SubType);
 
-        public static BCardEffect Effect(byte type, byte subType) => (BCardEffect)(type * 100 + subType);
+        public static BCardEffect Effect(BCardType.CardType type, byte subType) => (BCardEffect)((byte)type * 100 + subType);
 
-        public static byte Type(this BCardEffect effect) => (byte)((short)effect / 100);
+        public static BCardType.CardType Type(this BCardEffect effect) => (BCardType.CardType)((short)effect / 100);
 
         public static byte SubType(this BCardEffect effect) => (byte)((short)effect % 100);
     }
