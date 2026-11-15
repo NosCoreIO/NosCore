@@ -2311,6 +2311,19 @@ reputation, so have each player relog after a `$SetReputation` on them.
 - [ ] The ranking is re-read every 30 seconds: a change of saved reputation can take that long
       to decide who may use the hero chat, but A's own live reputation counts at once
 
+### Speaker
+
+Two characters, A and B, on the same channel. A has a Speaker (2173) in the Etc pocket and a weapon
+in the Equipment pocket.
+
+- [ ] A uses the speaker with "Hello from the speaker": B's chat shows the client's own speaker
+      prefix, then `[A]:Hello from the speaker` in purple, and one speaker is used up
+- [ ] A uses the speaker again and links the weapon into the message: B's chat shows the weapon's
+      name in braces where A put it, never a raw `{%s}`
+- [ ] B clicks the linked weapon in the chat line: its info window opens with A's upgrade and rarity
+- [ ] A links a specialist card, then an ordinary item such as a potion: the card opens its own
+      info window, and the potion shows its name
+
 ### Dye Bomb
 
 - [ ] Wear a Wig and double-click a Dye Bomb, then confirm: the wig takes another colour, a second

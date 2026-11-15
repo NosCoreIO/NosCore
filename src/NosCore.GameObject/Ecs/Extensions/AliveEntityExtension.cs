@@ -263,24 +263,6 @@ namespace NosCore.GameObject.Ecs.Extensions
         public static Sayi2Packet GenerateGoldReceived(this IAliveEntity aliveEntity, long amount, string goldName) =>
             aliveEntity.GenerateSayi2(SayColorType.Green, Game18NConstString.ItemReceived, 9, amount, goldName);
 
-        public static SayItemPacket GenerateSayItem(this IAliveEntity aliveEntity, string message, InventoryItemInstance item)
-        {
-            var isNormalItem = item.Type != NoscorePocketType.Equipment && item.Type != NoscorePocketType.Specialist;
-            return new SayItemPacket
-            {
-                VisualType = aliveEntity.VisualType,
-                VisualId = aliveEntity.VisualId,
-                OratorSlot = 17,
-                Message = message,
-                IconInfo = isNormalItem ? new IconInfoPacket
-                {
-                    IconId = item.ItemInstance.ItemVNum
-                } : null,
-                EquipmentInfo = isNormalItem ? null : new EInfoPacket(),
-                SlInfo = item.Type != NoscorePocketType.Specialist ? null : new SlInfoPacket()
-            };
-        }
-
         public static ShopPacket GenerateShop(this IAliveEntity visualEntity, RegionType language)
         {
             return new ShopPacket
