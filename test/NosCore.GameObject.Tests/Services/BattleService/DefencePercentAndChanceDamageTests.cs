@@ -119,8 +119,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public void AnAllAttacksPercentRaisesTheAttackLikeACostumeBonus()
         {
             var stats = StatsWith(
-                Card(BCardEffect.Type103IncreaseAllAttack, 20),
-                Card(BCardEffect.Type103DecreaseAllAttack, 10));
+                Card(BCardEffect.IncreaseAllAttack, 20),
+                Card(BCardEffect.DecreaseAllAttack, 10));
 
             Assert.AreEqual(55, stats.MinHit);
             Assert.AreEqual(55, stats.MaxHit);

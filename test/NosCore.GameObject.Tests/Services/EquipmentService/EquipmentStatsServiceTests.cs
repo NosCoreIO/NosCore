@@ -293,8 +293,8 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                     {
                         new BCardDto
                         {
-                            Type = BCardEffect.Type96IncreaseFairyElement.Type(),
-                            SubType = BCardEffect.Type96IncreaseFairyElement.SubType(),
+                            Type = BCardEffect.IncreaseFairyElement.Type(),
+                            SubType = BCardEffect.IncreaseFairyElement.SubType(),
                             FirstData = 5,
                         },
                     }),
@@ -529,7 +529,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             Assert.AreEqual(60, effects[BCardEffect.ElementFireIncreased]);
             Assert.AreEqual(12, effects[BCardEffect.ItemIncreaseEarnedGold]);
             Assert.AreEqual(6, effects[BCardEffect.ItemExpIncreased]);
-            Assert.AreEqual(7, effects[BCardEffect.Type101IncreaseJXpGain]);
+            Assert.AreEqual(7, effects[BCardEffect.IncreaseJXpGain]);
             Assert.AreEqual(7, effects.Count, "Race damage is not an effect card");
         }
 
@@ -668,7 +668,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             AddOption(weapon, WeaponShellOptionType.Freeze, 2);
 
             var cards = _service.Resolve(_session.Character).BCards
-                .Where(c => c.Effect() == BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack);
+                .Where(c => c.Effect() == BCardEffect.ChanceCausingXBuffOnEnemyOnAttack);
 
             CollectionAssert.AreEquivalent(new[] { "4 189", "2 200" },
                 cards.Select(c => $"{c.FirstData} {c.SecondData}").ToArray());

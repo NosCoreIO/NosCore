@@ -530,7 +530,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             await messageBus.PublishAsync(new MovementConditionChangedEvent(target));
         }
 
-        if (buff.BCards.Any(b => b.Effect() == BCardEffect.Type96IncreaseFairyElement))
+        if (buff.BCards.Any(b => b.Effect() == BCardEffect.IncreaseFairyElement))
         {
             await messageBus.PublishAsync(new FairyLookChangedEvent(target));
         }

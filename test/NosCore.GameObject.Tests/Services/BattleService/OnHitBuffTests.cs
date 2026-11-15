@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AttackerGearCanInflictACardOnTheOpponent()
         {
-            Wear(_attacker, BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack, 3, 4424);
+            Wear(_attacker, BCardEffect.ChanceCausingXBuffOnEnemyOnAttack, 3, 4424);
 
             await _service.TriggerAsync(_attacker.Character, _defender.Character, false);
 
@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AttackerGearCanGiveTheAttackerACard()
         {
-            Wear(_attacker, BCardEffect.Type95ChanceReceivingXBuffOnAttack, 8, 4426);
+            Wear(_attacker, BCardEffect.ChanceReceivingXBuffOnAttack, 8, 4426);
 
             await _service.TriggerAsync(_attacker.Character, _defender.Character, false);
 
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task DefenderGearCanInflictACardOnTheAttacker()
         {
-            Wear(_defender, BCardEffect.Type95ChanceCausingXBuffOnEnemyOnDefence, 5, 100);
+            Wear(_defender, BCardEffect.ChanceCausingXBuffOnEnemyOnDefence, 5, 100);
 
             await _service.TriggerAsync(_attacker.Character, _defender.Character, false);
 
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task DefenderGearCanGiveTheDefenderACard()
         {
-            Wear(_defender, BCardEffect.Type95ChanceReceivingXBuffOnDefence, 5, 101);
+            Wear(_defender, BCardEffect.ChanceReceivingXBuffOnDefence, 5, 101);
 
             await _service.TriggerAsync(_attacker.Character, _defender.Character, false);
 
@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AKilledOpponentGetsNothing()
         {
-            Wear(_attacker, BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack, 3, 4424);
+            Wear(_attacker, BCardEffect.ChanceCausingXBuffOnEnemyOnAttack, 3, 4424);
 
             await _service.TriggerAsync(_attacker.Character, _defender.Character, true);
 

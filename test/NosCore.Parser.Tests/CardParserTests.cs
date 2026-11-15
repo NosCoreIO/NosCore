@@ -140,7 +140,7 @@ namespace NosCore.Parser.Tests
             await parser.InsertCardsAsync(_tempFolder);
 
             var card = _savedBCards.Single(b => b.CardId == 131);
-            Assert.AreEqual(BCardEffect.Type96IncreaseFairyElement, card.Effect());
+            Assert.AreEqual(BCardEffect.IncreaseFairyElement, card.Effect());
             Assert.AreEqual(30, card.FirstData);
         }
 

@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             await new Spec("An effect on the equipped fairy's element raises the element rate a character fights with")
                 .Given(AWornFairyOfRate_, FairyRate)
-                .And(ABuffWith_Of_, BCardEffect.Type96IncreaseFairyElement, (short)5)
+                .And(ABuffWith_Of_, BCardEffect.IncreaseFairyElement, (short)5)
                 .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, FairyRate + 5)
                 .ExecuteAsync();
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             await new Spec("The decreasing subtype takes the value off the fairy's element")
                 .Given(AWornFairyOfRate_, FairyRate)
-                .And(ABuffWith_Of_, BCardEffect.Type96DecreaseFairyElement, (short)10)
+                .And(ABuffWith_Of_, BCardEffect.DecreaseFairyElement, (short)10)
                 .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, FairyRate - 10)
                 .ExecuteAsync();
@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             await new Spec("Gloves carrying the effect raise the fairy's element while worn")
                 .Given(AWornFairyOfRate_, FairyRate)
-                .And(WornGearWith_Of_, BCardEffect.Type96IncreaseFairyElement, (short)10)
+                .And(WornGearWith_Of_, BCardEffect.IncreaseFairyElement, (short)10)
                 .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, FairyRate + 10)
                 .ExecuteAsync();
@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             await new Spec("Without a fairy there is no fairy element to raise")
                 .Given(NoFairy)
-                .And(ABuffWith_Of_, BCardEffect.Type96IncreaseFairyElement, (short)5)
+                .And(ABuffWith_Of_, BCardEffect.IncreaseFairyElement, (short)5)
                 .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, 0)
                 .ExecuteAsync();
@@ -105,7 +105,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private void TheFairyBoosterIsActive() =>
             Buffs.Add(new BuffInstance(CardId: 131, BuffType: BuffType.Good, Caster: null,
                 StartedAt: Instant.MinValue, ExpiresAt: Instant.MaxValue,
-                BCards: new[] { Card(BCardEffect.Type96IncreaseFairyElement, 30) }, Static: true));
+                BCards: new[] { Card(BCardEffect.IncreaseFairyElement, 30) }, Static: true));
 
         private void AWornFairyOfRate_(int rate) =>
             Gear = EquipmentStats.None with { ElementRate = rate, Element = ElementType.Fire, FairyWorn = true };
