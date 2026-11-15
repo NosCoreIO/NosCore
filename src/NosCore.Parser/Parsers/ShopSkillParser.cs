@@ -24,9 +24,9 @@ namespace NosCore.Parser.Parsers
     {
         public async Task InsertShopSkillsAsync(IReadOnlyList<IPacket> packets)
         {
-            var shops = shopDao.LoadAll().GroupBy(s => s.MapNpcId).ToDictionary(g => g.Key, g => g.First());
-            var skills = shopSkillDao.LoadAll().ToList();
-            var added = new List<ShopSkillDto>();
+            var shopdb = shopDao.LoadAll().ToList();
+            var shops = shopdb.GroupBy(s => s.MapNpcId).ToDictionary(g => g.Key, g => g.First());
+            var skills = new List<ShopSkillDto>();
             foreach (var packet in packets.OfType<NInvPacket>())
             {
                 if (packet.Skills is not { } listed || !shops.TryGetValue((int)packet.VisualId, out var shop) || packet.ShopKind is not { } type)
@@ -42,20 +42,42 @@ namespace NosCore.Parser.Parsers
                         continue;
                     }
 
-                    var shopSkill = new ShopSkillDto
+                    skills.Add(new ShopSkillDto
                     {
                         ShopId = shop.ShopId,
                         Type = type,
                         Slot = (byte)tab.Count,
                         SkillVNum = skillVNum
-                    };
-                    skills.Add(shopSkill);
-                    added.Add(shopSkill);
+                    });
                 }
             }
 
-            await shopSkillDao.TryInsertOrUpdateAsync(added);
-            logger.LogInformation(logLanguage[LogLanguageKey.SHOPSKILLS_PARSED], added.Count);
+            // The capture is the whole list of the shops of the NPCs it shows.
+            var capturedNpcs = CaptureSessions.NpcIds(packets);
+            var capturedShops = shopdb.Where(s => capturedNpcs.Contains(s.MapNpcId)).Select(s => s.ShopId).ToHashSet();
+            var stored = shopSkillDao.LoadAll().ToList();
+            var desired = skills.Select(s => (s.ShopId, s.Type, s.SkillVNum)).ToHashSet();
+            await shopSkillDao.TryDeleteAsync(stored
+                .Where(s => capturedShops.Contains(s.ShopId) && !desired.Contains((s.ShopId, s.Type, s.SkillVNum)))
+                .Select(s => s.ShopSkillId).ToList());
+
+            var storedByKey = stored.GroupBy(s => (s.ShopId, s.Type, s.SkillVNum)).ToDictionary(g => g.Key, g => g.First());
+            var changed = new List<ShopSkillDto>();
+            foreach (var skill in skills)
+            {
+                if (!storedByKey.TryGetValue((skill.ShopId, skill.Type, skill.SkillVNum), out var row))
+                {
+                    changed.Add(skill);
+                }
+                else if (row.Slot != skill.Slot)
+                {
+                    row.Slot = skill.Slot;
+                    changed.Add(row);
+                }
+            }
+
+            await shopSkillDao.TryInsertOrUpdateAsync(changed);
+            logger.LogInformation(logLanguage[LogLanguageKey.SHOPSKILLS_PARSED], changed.Count);
         }
     }
 }

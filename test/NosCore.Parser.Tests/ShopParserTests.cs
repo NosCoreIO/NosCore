@@ -65,7 +65,7 @@ namespace NosCore.Parser.Tests
                 Captured.Shop(100, 1, 0, "Shop Name")
             };
 
-            var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ShopParser(_shopDaoMock.Object, new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertShopsAsync(packets);
 
             Assert.AreEqual(1, _savedShops.Count);
@@ -83,7 +83,7 @@ namespace NosCore.Parser.Tests
                 Captured.Shop(101, 2, 1, "Shop2")
             };
 
-            var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ShopParser(_shopDaoMock.Object, new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertShopsAsync(packets);
 
             Assert.AreEqual(2, _savedShops.Count);
@@ -98,7 +98,7 @@ namespace NosCore.Parser.Tests
                 Captured.Shop(100, 2, 1, "Shop1Duplicate")
             };
 
-            var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ShopParser(_shopDaoMock.Object, new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertShopsAsync(packets);
 
             Assert.AreEqual(1, _savedShops.Count);
@@ -112,7 +112,7 @@ namespace NosCore.Parser.Tests
                 Captured.Shop(999, 1, 0, "UnknownShop")
             };
 
-            var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ShopParser(_shopDaoMock.Object, new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertShopsAsync(packets);
 
             Assert.AreEqual(0, _savedShops.Count);
@@ -123,7 +123,7 @@ namespace NosCore.Parser.Tests
         {
             var packets = new List<IPacket>();
 
-            var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ShopParser(_shopDaoMock.Object, new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertShopsAsync(packets);
 
             Assert.AreEqual(0, _savedShops.Count);
@@ -138,7 +138,7 @@ namespace NosCore.Parser.Tests
                 Captured.Shop(100, 1, 0, "Shop1")
             };
 
-            var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ShopParser(_shopDaoMock.Object, new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertShopsAsync(packets);
 
             Assert.AreEqual(1, _savedShops.Count);

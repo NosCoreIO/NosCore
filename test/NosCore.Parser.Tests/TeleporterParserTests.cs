@@ -119,13 +119,36 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task TeleportersAlreadyStoredAreKept()
+        public async Task AStoredTeleporterTakesTheCapturedDestinationInPlace()
         {
-            _existing.Add(new TeleporterDto { MapNpcId = 1899, Runner = NrunRunnerType.Teleport, Index = 1, MapId = 20, MapX = 1, MapY = 1 });
+            _existing.Add(new TeleporterDto { TeleporterId = 7, MapNpcId = 1899, Runner = NrunRunnerType.Teleport, Index = 1, MapId = 20, MapX = 1, MapY = 1 });
+
+            await _parser.InsertTeleportersAsync([Captured.Npc(330, 1899, 10, 10), Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 8, 87)]);
+
+            var teleporter = _saved.Single(s => s.MapNpcId == 1899);
+            Assert.AreEqual((short)7, teleporter.TeleporterId);
+            Assert.AreEqual((short)8, teleporter.MapX);
+            _teleporterDao.Verify(x => x.TryDeleteAsync(It.Is<IEnumerable<short>>(ids => !ids.Any())), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AStoredDestinationTheCaptureDoesNotShowForItsNpcIsRemoved()
+        {
+            _existing.Add(new TeleporterDto { TeleporterId = 7, MapNpcId = 1899, Runner = NrunRunnerType.Teleport, Index = 3, MapId = 20, MapX = 1, MapY = 1 });
+
+            await _parser.InsertTeleportersAsync([Captured.Npc(330, 1899, 10, 10), Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 8, 87)]);
+
+            _teleporterDao.Verify(x => x.TryDeleteAsync(It.Is<IEnumerable<short>>(ids => ids.SequenceEqual(new short[] { 7 }))), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AStoredDestinationOfAnNpcTheCaptureDoesNotShowIsKept()
+        {
+            _existing.Add(new TeleporterDto { TeleporterId = 7, MapNpcId = 9821, Runner = NrunRunnerType.Teleport, Index = 3, MapId = 20, MapX = 1, MapY = 1 });
 
             await _parser.InsertTeleportersAsync([Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 8, 87)]);
 
-            Assert.IsFalse(_saved.Any(s => s.MapNpcId == 1899));
+            _teleporterDao.Verify(x => x.TryDeleteAsync(It.Is<IEnumerable<short>>(ids => ids.Any())), Times.Never);
         }
 
         [TestMethod]

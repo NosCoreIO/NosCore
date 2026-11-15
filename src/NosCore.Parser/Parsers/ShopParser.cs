@@ -19,42 +19,52 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ShopParser(IDao<ShopDto, int> shopDao, IDao<MapNpcDto, int> mapNpcDao, ILogger<ShopParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ShopParser(IDao<ShopDto, int> shopDao, IDao<ShopItemDto, int> shopItemDao, IDao<ShopSkillDto, int> shopSkillDao,
+        IDao<MapNpcDto, int> mapNpcDao, ILogger<ShopParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertShopsAsync(IReadOnlyList<IPacket> packets)
         {
-            var shopCounter = 0;
-            var shops = new List<ShopDto>();
-            var mapnpcdb = mapNpcDao.LoadAll().ToList();
-            var shopdb = shopDao.LoadAll().ToList();
-            foreach (var currentPacket in packets.OfType<ShopPacket>().Where(s => s.VisualType == VisualType.Npc))
+            var npcIds = mapNpcDao.LoadAll().Select(s => s.MapNpcId).ToHashSet();
+            var captured = new Dictionary<int, ShopDto>();
+            foreach (var packet in packets.OfType<ShopPacket>().Where(s => s.VisualType == VisualType.Npc))
             {
-                var npc = mapnpcdb.FirstOrDefault(s => s.MapNpcId == currentPacket.VisualId);
-                if (npc == null || currentPacket.ShopType is not { } shopType)
+                if (npcIds.Contains((int)packet.VisualId) && packet.ShopType is { } shopType)
                 {
-                    continue;
+                    captured.TryAdd((int)packet.VisualId, new ShopDto
+                    {
+                        MapNpcId = (int)packet.VisualId,
+                        MenuType = packet.MenuType,
+                        ShopType = shopType
+                    });
                 }
+            }
 
-                var shop = new ShopDto
-                {
-                    MapNpcId = npc.MapNpcId,
-                    MenuType = currentPacket.MenuType,
-                    ShopType = shopType
-                };
+            // A shop stored on a captured NPC that the capture does not show was put there by an
+            // earlier import that mixed up NPC ids.
+            var capturedNpcs = CaptureSessions.NpcIds(packets);
+            var stored = shopDao.LoadAll().ToList();
+            await CapturedRows.DeleteShopsAsync(shopDao, shopItemDao, shopSkillDao, stored
+                .Where(s => capturedNpcs.Contains(s.MapNpcId) && !captured.ContainsKey(s.MapNpcId))
+                .Select(s => s.ShopId).ToList());
 
-                if ((shopdb.FirstOrDefault(s => s.MapNpcId == npc.MapNpcId) != null) ||
-                    shops.Any(s => s.MapNpcId == npc.MapNpcId))
+            var shops = new List<ShopDto>();
+            foreach (var shop in captured.Values)
+            {
+                var row = stored.FirstOrDefault(s => s.MapNpcId == shop.MapNpcId);
+                if (row == null)
                 {
-                    continue;
+                    shops.Add(shop);
                 }
-
-                shops.Add(shop);
-                shopCounter++;
+                else if ((row.MenuType, row.ShopType) != (shop.MenuType, shop.ShopType))
+                {
+                    row.MenuType = shop.MenuType;
+                    row.ShopType = shop.ShopType;
+                    shops.Add(row);
+                }
             }
 
             await shopDao.TryInsertOrUpdateAsync(shops);
-            logger.LogInformation(logLanguage[LogLanguageKey.SHOPS_PARSED],
-                shopCounter);
+            logger.LogInformation(logLanguage[LogLanguageKey.SHOPS_PARSED], shops.Count);
         }
     }
 }

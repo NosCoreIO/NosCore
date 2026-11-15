@@ -28,7 +28,7 @@ namespace NosCore.Parser.Parsers
         {
             short map = 0;
             var monsters = new List<MapMonsterDto>();
-            var mapMonsterdb = mapMonsterDao.LoadAll().ToList();
+            var stored = mapMonsterDao.LoadAll().ToDictionary(s => s.MapMonsterId);
             var npcMonsterdb = npcMonsterDao.LoadAll().ToDictionary(n => n.NpcMonsterVNum);
 
             foreach (var packet in packets)
@@ -56,8 +56,7 @@ namespace NosCore.Parser.Parsers
                     IsDisabled = false
                 };
 
-                if ((mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null)
-                    || (monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0))
+                if (monsters.Any(i => i.MapMonsterId == monster.MapMonsterId))
                 {
                     continue;
                 }
@@ -65,9 +64,17 @@ namespace NosCore.Parser.Parsers
                 monsters.Add(monster);
             }
 
-            await mapMonsterDao.TryInsertOrUpdateAsync(monsters);
-            logger.LogInformation(logLanguage[LogLanguageKey.MONSTERS_PARSED],
-                monsters.Count);
+            // A row stored on a captured monster's cell under another id is a copy from an earlier import.
+            var ids = monsters.Select(s => s.MapMonsterId).ToHashSet();
+            var cells = monsters.Select(s => (s.MapId, s.VNum, s.MapX, s.MapY)).ToHashSet();
+            await mapMonsterDao.TryDeleteAsync(stored.Values
+                .Where(s => !ids.Contains(s.MapMonsterId) && cells.Contains((s.MapId, s.VNum, s.MapX, s.MapY)))
+                .Select(s => s.MapMonsterId).ToList());
+
+            var changed = monsters.Where(s => !stored.TryGetValue(s.MapMonsterId, out var row)
+                || (row.MapId, row.VNum, row.MapX, row.MapY, row.Direction, row.IsDisabled) != (s.MapId, s.VNum, s.MapX, s.MapY, s.Direction, s.IsDisabled)).ToList();
+            await mapMonsterDao.TryInsertOrUpdateAsync(changed);
+            logger.LogInformation(logLanguage[LogLanguageKey.MONSTERS_PARSED], changed.Count);
         }
     }
 }

@@ -101,27 +101,36 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            // A destination stored before its runner was recorded takes the runner it was captured under.
+            // The capture holds every destination of the NPCs it shows; a destination stored before its
+            // runner was recorded takes the runner it was captured under.
+            var capturedNpcs = CaptureSessions.NpcIds(packets);
             var teleporters = new List<TeleporterDto>();
+            var kept = new HashSet<short>();
             foreach (var teleporter in captured.Values)
             {
-                if (stored.Any(s => s.MapNpcId == teleporter.MapNpcId && s.Runner == teleporter.Runner && s.Index == teleporter.Index))
+                var row = stored.FirstOrDefault(s => !kept.Contains(s.TeleporterId) && s.MapNpcId == teleporter.MapNpcId && s.Runner == teleporter.Runner && s.Index == teleporter.Index)
+                    ?? stored.FirstOrDefault(s => !kept.Contains(s.TeleporterId) && s.MapNpcId == teleporter.MapNpcId && s.Runner == null && s.Index == teleporter.Index);
+                if (row == null)
                 {
+                    teleporters.Add(teleporter);
                     continue;
                 }
 
-                var withoutRunner = stored.FirstOrDefault(s => s.MapNpcId == teleporter.MapNpcId && s.Runner == null && s.Index == teleporter.Index);
-                if (withoutRunner != null)
+                kept.Add(row.TeleporterId);
+                if ((row.Runner, row.MapId, row.MapX, row.MapY, row.Type) != (teleporter.Runner, teleporter.MapId, teleporter.MapX, teleporter.MapY, teleporter.Type))
                 {
-                    stored.Remove(withoutRunner);
-                    withoutRunner.Runner = teleporter.Runner;
-                    teleporters.Add(withoutRunner);
-                    continue;
+                    row.Runner = teleporter.Runner;
+                    row.MapId = teleporter.MapId;
+                    row.MapX = teleporter.MapX;
+                    row.MapY = teleporter.MapY;
+                    row.Type = teleporter.Type;
+                    teleporters.Add(row);
                 }
-
-                teleporters.Add(teleporter);
             }
 
+            await teleporterDao.TryDeleteAsync(stored
+                .Where(s => capturedNpcs.Contains(s.MapNpcId) && !kept.Contains(s.TeleporterId))
+                .Select(s => s.TeleporterId).ToList());
             await teleporterDao.TryInsertOrUpdateAsync(teleporters);
             logger.LogInformation(logLanguage[LogLanguageKey.TELEPORTERS_PARSED], teleporters.Count);
         }

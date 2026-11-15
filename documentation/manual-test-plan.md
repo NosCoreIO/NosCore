@@ -70,6 +70,16 @@ compute and will mask a regression.
 - [ ] Close the client while in the world, log back in at once: the character is not
       reported as already connected and loads normally
 
+### NPCs after an import
+
+Run the parser on an empty database, and again on a database an earlier parser filled; both
+should give the same NPCs.
+
+- [ ] NosVille: the Mimi Mentor at (90, 45) is one NPC, and clicking it opens one dialog
+- [ ] Port Alveus Market (map 146): Sarakael, Leika Passage, Isalin, Lilith and the other stall
+      keepers all stand on the map, and the minimap shows them
+- [ ] The shops, skill shops and teleporters of the NPCs above still open and work
+
 ---
 
 ## Movement

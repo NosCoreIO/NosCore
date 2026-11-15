@@ -76,7 +76,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(1, 100, 50, 60, 2, dialog: 1)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual(1, _savedNpcs.Count);
@@ -97,7 +99,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(2, 101, 70, 80, 3, dialog: 2)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual(2, _savedNpcs.Count);
@@ -113,7 +117,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(1, 100, 70, 80, 3, dialog: 2)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual(1, _savedNpcs.Count);
@@ -128,7 +134,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(999, 100, 50, 60, 2, dialog: 1)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual(0, _savedNpcs.Count);
@@ -143,7 +151,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(1, 100, 50, 60, 2, dialog: 1)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual(1, _savedNpcs.Count);
@@ -160,7 +170,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(2, 101, 70, 80)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             CollectionAssert.AreEqual(new[] { true, false }, _savedNpcs.Select(s => s.IsSitting).ToList());
@@ -178,7 +190,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(955, 100, 50, 60)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual((short)857, _savedNpcs.Single().Effect);
@@ -196,7 +210,9 @@ namespace NosCore.Parser.Tests
                 Captured.Npc(1, 100, 50, 60, dialog: 1)
             };
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual(1, _savedNpcs.Count);
@@ -207,7 +223,9 @@ namespace NosCore.Parser.Tests
         {
             var packets = new List<IPacket>();
 
-            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+                new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+                new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);
 
             Assert.AreEqual(0, _savedNpcs.Count);

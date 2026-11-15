@@ -21,13 +21,18 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
+    // Rows already stored on the cell of a captured NPC under another id are copies from an earlier
+    // import, so they are removed with their shops, teleports and recipes; the NPC's own row is
+    // brought in line with the capture.
     public class MapNpcParser(IDao<MapNpcDto, int> mapNpcDao, IDao<NpcMonsterDto, short> npcMonsterDao, IDao<NpcTalkDto, short> npcTalkDao,
+        IDao<ShopDto, int> shopDao, IDao<ShopItemDto, int> shopItemDao, IDao<ShopSkillDto, int> shopSkillDao,
+        IDao<TeleporterDto, short> teleporterDao, IDao<RecipeDto, short> recipeDao, IDao<RecipeItemDto, short> recipeItemDao,
         ILogger<MapNpcParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertMapNpcsAsync(IReadOnlyList<IPacket> packets)
         {
             var npcmonsterdb = npcMonsterDao.LoadAll().ToDictionary(n => n.NpcMonsterVNum);
-            var npcCounter = 0;
+            var stored = mapNpcDao.LoadAll().ToDictionary(s => s.MapNpcId);
             short map = 0;
             var npcs = new List<MapNpcDto>();
             var npcTalks = npcTalkDao.LoadAll().ToDictionary(s => s.DialogId, s => s);
@@ -67,11 +72,35 @@ namespace NosCore.Parser.Parsers
                 }
 
                 npcs.Add(npctest);
-                npcCounter++;
             }
 
-            await mapNpcDao.TryInsertOrUpdateAsync(npcs);
-            logger.LogInformation(logLanguage[LogLanguageKey.NPCS_PARSED], npcCounter);
+            var ids = npcs.Select(s => s.MapNpcId).ToHashSet();
+            var cells = npcs.Select(s => (s.MapId, s.VNum, s.MapX, s.MapY)).ToHashSet();
+            await DeleteCopiesAsync(stored.Values
+                .Where(s => !ids.Contains(s.MapNpcId) && cells.Contains((s.MapId, s.VNum, s.MapX, s.MapY)))
+                .Select(s => s.MapNpcId).ToList());
+
+            var changed = npcs.Where(s => !stored.TryGetValue(s.MapNpcId, out var row) || !Fields(row).Equals(Fields(s))).ToList();
+            await mapNpcDao.TryInsertOrUpdateAsync(changed);
+            logger.LogInformation(logLanguage[LogLanguageKey.NPCS_PARSED], changed.Count);
+        }
+
+        private static object Fields(MapNpcDto npc) => (npc.MapId, npc.VNum, npc.MapX, npc.MapY, npc.Effect, npc.EffectDelay,
+            npc.IsMoving, npc.Direction, npc.Dialog, npc.IsSitting, npc.IsDisabled);
+
+        private async Task DeleteCopiesAsync(List<int> copies)
+        {
+            if (copies.Count == 0)
+            {
+                return;
+            }
+
+            await CapturedRows.DeleteShopsAsync(shopDao, shopItemDao, shopSkillDao,
+                shopDao.Where(s => copies.Contains(s.MapNpcId))?.Select(s => s.ShopId).ToList() ?? []);
+            await teleporterDao.TryDeleteAsync(teleporterDao.Where(s => copies.Contains(s.MapNpcId))?.Select(s => s.TeleporterId).ToList() ?? []);
+            await CapturedRows.DeleteRecipesAsync(recipeDao, recipeItemDao,
+                recipeDao.Where(s => s.MapNpcId != null && copies.Contains(s.MapNpcId.Value))?.Select(s => s.RecipeId).ToList() ?? []);
+            await mapNpcDao.TryDeleteAsync(copies);
         }
     }
 }
