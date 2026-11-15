@@ -30,7 +30,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +43,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
         IMapChangeService mapChangeService,
         ISessionRegistry sessionRegistry,
         IItemGenerationService itemGenerationService,
-        ILogger<TalentArenaService> logger) : ITalentArenaService, ISingletonService
+        ILogger<TalentArenaService> logger, TimeProvider time) : ITalentArenaService, ISingletonService
     {
         public const string Script = "talent-arena";
 
@@ -188,7 +187,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         private async Task RunAsync()
         {
-            var started = Stopwatch.GetTimestamp();
+            var started = time.GetTimestamp();
             for (var step = 1; Tick * step <= OpenLength; step++)
             {
                 await _lock.WaitAsync();
@@ -201,10 +200,10 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     _lock.Release();
                 }
 
-                var wait = Tick * step - Stopwatch.GetElapsedTime(started);
+                var wait = Tick * step - time.GetElapsedTime(started);
                 if (wait > TimeSpan.Zero)
                 {
-                    await Task.Delay(wait);
+                    await Task.Delay(wait, time);
                 }
             }
         }

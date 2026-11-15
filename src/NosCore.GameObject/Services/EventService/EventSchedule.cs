@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Services.EventService
 {
     // Starts each configured event's countdown so the event itself begins at its scheduled time.
     public sealed class EventSchedule(IEventService eventService, IClock clock,
-        IOptions<WorldConfiguration> worldConfiguration, ILogger<EventSchedule> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : BackgroundService
+        IOptions<WorldConfiguration> worldConfiguration, ILogger<EventSchedule> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeProvider time) : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Services.EventService
                 var wait = countdown.InZoneLeniently(zone).ToInstant() - clock.GetCurrentInstant();
                 if (wait > Duration.Zero)
                 {
-                    await Task.Delay(wait.ToTimeSpan(), stoppingToken);
+                    await Task.Delay(wait.ToTimeSpan(), time, stoppingToken);
                 }
 
                 if (!eventService.TryStart(next.Event.Type, true))
@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Services.EventService
                 }
 
                 // Never fire the same slot twice.
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(1), time, stoppingToken);
             }
         }
 

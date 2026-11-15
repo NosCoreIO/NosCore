@@ -173,7 +173,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         {
             try
             {
-                await Task.Delay(delay);
+                await Task.Delay(delay, mapInstance.Time);
                 await mapInstance.Executor.RunAsync(() =>
                 {
                     entity.PositionX = x;

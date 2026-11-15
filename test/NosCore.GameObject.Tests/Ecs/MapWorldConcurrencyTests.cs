@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Tests.Ecs
         [TestMethod]
         public async Task WritersOfDifferentFieldsOfOneComponentKeepEachOthersWrites()
         {
-            using var world = new MapWorld();
+            using var world = new MapWorld(SystemClock.Instance);
             var monster = Monster(world, 0);
             var hpWentBack = false;
 
@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Ecs
         [TestMethod]
         public async Task EntitiesComingAndGoingLeaveTheOthersIntact()
         {
-            using var world = new MapWorld();
+            using var world = new MapWorld(SystemClock.Instance);
             var residents = Enumerable.Range(1, 64).Select(i => Monster(world, i)).ToArray();
             var failures = new ConcurrentQueue<string>();
             using var stop = new CancellationTokenSource(TimeSpan.FromSeconds(2));
@@ -120,7 +120,7 @@ namespace NosCore.GameObject.Tests.Ecs
         [TestMethod]
         public async Task OnlyOneOfSeveralRemoversDestroysAnEntity()
         {
-            using var world = new MapWorld();
+            using var world = new MapWorld(SystemClock.Instance);
             for (var round = 0; round < 2_000; round++)
             {
                 var item = world.CreateMapItem(round, 1012, 1, Guid.Empty, 0, 0, null, Instant.MinValue,
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.Tests.Ecs
         [TestMethod]
         public void ADisposedWorldReadsAsEmptyInsteadOfThrowing()
         {
-            var world = new MapWorld();
+            var world = new MapWorld(SystemClock.Instance);
             var monster = Monster(world, 1);
             world.Dispose();
 

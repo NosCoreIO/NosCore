@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Services.Act4ShipService
         IChannelService channelService,
         IMapInstanceAccessorService mapInstanceAccessorService,
         IRandomProvider random,
-        IClock clock) : IAct4ShipService, ISingletonService
+        IClock clock, TimeProvider time) : IAct4ShipService, ISingletonService
     {
         public const string Script = "act4-ship";
         public const long Fare = 50000;
@@ -78,12 +78,14 @@ namespace NosCore.GameObject.Services.Act4ShipService
 
             _openedAt = clock.GetCurrentInstant();
             _decks.Clear();
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(BoardingOpenFor);
-                Volatile.Write(ref _boarding, 0);
-            });
+            _ = CloseBoardingAsync();
             return true;
+        }
+
+        private async Task CloseBoardingAsync()
+        {
+            await Task.Delay(BoardingOpenFor, time);
+            Volatile.Write(ref _boarding, 0);
         }
 
         public async Task BoardAsync(ClientSession session)

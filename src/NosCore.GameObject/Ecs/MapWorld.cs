@@ -37,12 +37,14 @@ public class MapWorld : IDisposable
     // through this lock; it is re-entrant and is never held across an await.
     private readonly Lock _sync = new();
     private readonly World _world;
+    private readonly IClock _clock;
     private readonly long _order = Interlocked.Increment(ref _lastOrder);
     private readonly ConcurrentDictionary<Entity, (ClientSession Session, long At)> _forwards = new();
     private bool _disposed;
 
-    public MapWorld()
+    public MapWorld(IClock clock)
     {
+        _clock = clock;
         lock (WorldTableLock)
         {
             _world = World.Create();
@@ -245,7 +247,7 @@ public class MapWorld : IDisposable
         bool isDisabled,
         bool respawns = true)
     {
-        var now = SystemClock.Instance.GetCurrentInstant();
+        var now = _clock.GetCurrentInstant();
         using var scope = _sync.EnterScope();
         ThrowIfDisposed();
         var entity = _world.Create(
@@ -287,7 +289,7 @@ public class MapWorld : IDisposable
         short effectDelay,
         Shop? shop)
     {
-        var now = SystemClock.Instance.GetCurrentInstant();
+        var now = _clock.GetCurrentInstant();
         using var scope = _sync.EnterScope();
         ThrowIfDisposed();
         var entity = _world.Create(
@@ -326,7 +328,7 @@ public class MapWorld : IDisposable
         short positionY,
         byte direction)
     {
-        var now = SystemClock.Instance.GetCurrentInstant();
+        var now = _clock.GetCurrentInstant();
         using var scope = _sync.EnterScope();
         ThrowIfDisposed();
         return _world.Create(
@@ -412,7 +414,7 @@ public class MapWorld : IDisposable
         int serverId,
         FactionType faction)
     {
-        var now = SystemClock.Instance.GetCurrentInstant();
+        var now = _clock.GetCurrentInstant();
         using var scope = _sync.EnterScope();
         ThrowIfDisposed();
         var entity = _world.Create(

@@ -65,12 +65,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _catalog.Setup(c => c.GetCardBCards(BlessingCardId)).Returns(new List<BCardDto>());
 
             _random = new Mock<IRandomProvider>();
-            _world = new MapWorld();
+            var clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
+            _world = new MapWorld(clock);
             _target = Entity();
             _caster = Entity();
 
             _resistance = new Mock<IDebuffResistanceService>();
-            _service = new BuffService(new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
+            _service = new BuffService(clock,
                 _catalog.Object, _random.Object, _resistance.Object, new Mock<Wolverine.IMessageBus>().Object);
         }
 

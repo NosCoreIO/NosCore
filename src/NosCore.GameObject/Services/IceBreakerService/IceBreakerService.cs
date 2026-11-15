@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
         IRandomProvider random,
         IIceBreakerRewardService rewardService,
         IOptions<WorldConfiguration> worldConfiguration,
-        ILogger<IceBreakerService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IIceBreakerService, ISingletonService
+        ILogger<IceBreakerService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeProvider time) : IIceBreakerService, ISingletonService
     {
         public const string Script = "ice-breaker";
         public const int MaxPlayers = 50;
@@ -182,7 +182,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
                 {
                     var (before, delay, amount) = Countdown[i];
                     await AnnounceAsync(delay, amount, levelMinimum, levelMaximum);
-                    await Task.Delay(i + 1 < Countdown.Length ? before - Countdown[i + 1].Before : before);
+                    await Task.Delay(i + 1 < Countdown.Length ? before - Countdown[i + 1].Before : before, time);
                 }
             }
 
@@ -209,7 +209,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
                 });
             }
 
-            await Task.Delay(SignUpTime);
+            await Task.Delay(SignUpTime, time);
             _signUpMap = null;
             if (!await scriptedInstanceService.DisposeIfEmptyAsync(run))
             {

@@ -4,13 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Infastructure;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-public sealed class CastDelayService : ICastDelayService, ISingletonService
+public sealed class CastDelayService(TimeProvider time) : ICastDelayService, ISingletonService
 {
-    public Task WaitAsync(Duration castTime) => Task.Delay(castTime.ToTimeSpan());
+    public Task WaitAsync(Duration castTime) => Task.Delay(castTime.ToTimeSpan(), time);
 }
