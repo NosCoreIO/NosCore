@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace NosCore.Data.Enumerations.Interaction
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public enum RespawnType : byte
+    public enum RespawnType : long
     {
         DefaultAct1 = 0,
         ReturnAct1 = 1,

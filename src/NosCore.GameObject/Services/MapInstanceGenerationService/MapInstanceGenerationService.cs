@@ -107,7 +107,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
-            var act4Maps = mapTypeMaps.Where(m => m.MapTypeId is (short)MapTypeType.Act4 or (short)MapTypeType.Act42)
+            var act4Maps = mapTypeMaps.Where(m => m.MapTypeId is MapTypeType.Act4 or MapTypeType.Act42)
                 .Select(m => m.MapId).ToHashSet();
             var mapInstances = maps.Adapt<List<Map.Map>>().ToDictionary(
                 map => mapsdic[map.MapId],

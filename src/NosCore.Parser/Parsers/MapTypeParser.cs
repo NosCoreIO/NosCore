@@ -16,194 +16,194 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class MapTypeParser(IDao<MapTypeDto, short> dropDao, ILogger<MapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class MapTypeParser(IDao<MapTypeDto, MapTypeType> dropDao, ILogger<MapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         internal async Task InsertMapTypesAsync()
         {
             var mts = new List<MapTypeDto> { new()
                 {
-                    MapTypeId = (short) MapTypeType.Act1,
+                    MapTypeId = MapTypeType.Act1,
                     MapTypeName = "Act1",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act2,
+                    MapTypeId = MapTypeType.Act2,
                     MapTypeName = "Act2",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act3,
+                    MapTypeId = MapTypeType.Act3,
                     MapTypeName = "Act3",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act4,
+                    MapTypeId = MapTypeType.Act4,
                     MapTypeName = "Act4",
                     PotionDelay = 5000
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act51,
+                    MapTypeId = MapTypeType.Act51,
                     MapTypeName = "Act5.1",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct5,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct5
+                    RespawnMapTypeId = RespawnType.DefaultAct5,
+                    ReturnMapTypeId = RespawnType.ReturnAct5
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act52,
+                    MapTypeId = MapTypeType.Act52,
                     MapTypeName = "Act5.2",
                     PotionDelay = 300,
                     ZoneCardId = 339,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct5,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct5
+                    RespawnMapTypeId = RespawnType.DefaultAct5,
+                    ReturnMapTypeId = RespawnType.ReturnAct5
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act61,
+                    MapTypeId = MapTypeType.Act61,
                     MapTypeName = "Act6.1",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct6,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act62,
+                    MapTypeId = MapTypeType.Act62,
                     MapTypeName = "Act6.2",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct6,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act61A,
+                    MapTypeId = MapTypeType.Act61A,
                     MapTypeName = "Act6.1a", // angel camp
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct6,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act61D,
+                    MapTypeId = MapTypeType.Act61D,
                     MapTypeName = "Act6.1d", // demon camp
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct6,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct6,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.CometPlain,
+                    MapTypeId = MapTypeType.CometPlain,
                     MapTypeName = "CometPlain",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Mine1,
+                    MapTypeId = MapTypeType.Mine1,
                     MapTypeName = "Mine1",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Mine2,
+                    MapTypeId = MapTypeType.Mine2,
                     MapTypeName = "Mine2",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.MeadowOfMine,
+                    MapTypeId = MapTypeType.MeadowOfMine,
                     MapTypeName = "MeadownOfPlain",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.SunnyPlain,
+                    MapTypeId = MapTypeType.SunnyPlain,
                     MapTypeName = "SunnyPlain",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Fernon,
+                    MapTypeId = MapTypeType.Fernon,
                     MapTypeName = "Fernon",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.FernonF,
+                    MapTypeId = MapTypeType.FernonF,
                     MapTypeName = "FernonF",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Cliff,
+                    MapTypeId = MapTypeType.Cliff,
                     MapTypeName = "Cliff",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
-                    ReturnMapTypeId = (long) RespawnType.ReturnAct1
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
+                    ReturnMapTypeId = RespawnType.ReturnAct1
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.LandOfTheDead,
+                    MapTypeId = MapTypeType.LandOfTheDead,
                     MapTypeName = "LandOfTheDead",
                     PotionDelay = 300
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act32,
+                    MapTypeId = MapTypeType.Act32,
                     MapTypeName = "Act 3.2",
                     PotionDelay = 300
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.CleftOfDarkness,
+                    MapTypeId = MapTypeType.CleftOfDarkness,
                     MapTypeName = "Cleft of Darkness",
                     PotionDelay = 300
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.CitadelAngel,
+                    MapTypeId = MapTypeType.CitadelAngel,
                     MapTypeName = "AngelCitadel",
                     PotionDelay = 300
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.CitadelDemon,
+                    MapTypeId = MapTypeType.CitadelDemon,
                     MapTypeName = "DemonCitadel",
                     PotionDelay = 300
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Oasis,
+                    MapTypeId = MapTypeType.Oasis,
                     MapTypeName = "Oasis",
                     PotionDelay = 300,
-                    RespawnMapTypeId = (long) RespawnType.DefaultOasis,
-                    ReturnMapTypeId = (long) RespawnType.DefaultOasis
+                    RespawnMapTypeId = RespawnType.DefaultOasis,
+                    ReturnMapTypeId = RespawnType.DefaultOasis
                 },
                 new()
                 {
-                    MapTypeId = (short) MapTypeType.Act42,
+                    MapTypeId = MapTypeType.Act42,
                     MapTypeName = "Act42",
                     PotionDelay = 5000
                 }

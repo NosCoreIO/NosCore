@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities.Base;
 using System.ComponentModel.DataAnnotations;
 
@@ -24,7 +25,7 @@ namespace NosCore.Database.Entities
 
         public virtual RespawnMapType RespawnMapType { get; set; }
 
-        public long RespawnMapTypeId { get; set; }
+        public RespawnType RespawnMapTypeId { get; set; }
 
         public short X { get; set; }
 

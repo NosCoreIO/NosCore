@@ -44,12 +44,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World.Inject(_mapTypes);
             World.Inject(new List<MapTypeDto>
             {
-                new() { MapTypeId = (short)MapTypeType.Act51, MapTypeName = "Act5.1" },
-                new() { MapTypeId = (short)MapTypeType.Act52, MapTypeName = "Act5.2", ZoneCardId = BurningCardId },
+                new() { MapTypeId = MapTypeType.Act51, MapTypeName = "Act5.1" },
+                new() { MapTypeId = MapTypeType.Act52, MapTypeName = "Act5.2", ZoneCardId = BurningCardId },
             });
         }
 
-        private HeatService CreateService(params short[] mapTypes)
+        private HeatService CreateService(params MapTypeType[] mapTypes)
         {
             foreach (var type in mapTypes)
             {
@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task TheBurningSwordHeatsAct52()
         {
-            var service = CreateService((short)MapTypeType.Act52);
+            var service = CreateService(MapTypeType.Act52);
 
             await service.RefreshAsync(_session.Character);
 
@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task OtherMapsStayCool()
         {
-            var service = CreateService((short)MapTypeType.Act51);
+            var service = CreateService(MapTypeType.Act51);
 
             await service.RefreshAsync(_session.Character);
 
@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task HeatResistanceKeepsTheHeatAway()
         {
-            var service = CreateService((short)MapTypeType.Act52);
+            var service = CreateService(MapTypeType.Act52);
             await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = OilCardId }, [],
                 Duration.FromMinutes(10));
 
@@ -94,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task HeatResistanceCoolsOffTheBurningSword()
         {
-            var service = CreateService((short)MapTypeType.Act52);
+            var service = CreateService(MapTypeType.Act52);
             await service.RefreshAsync(_session.Character);
             await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = OilCardId }, [],
                 Duration.FromMinutes(10));
@@ -118,7 +118,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task TheHeatReturnsWhenTheResistanceRunsOut()
         {
-            var service = CreateService((short)MapTypeType.Act52);
+            var service = CreateService(MapTypeType.Act52);
             await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = OilCardId }, [],
                 Duration.FromMinutes(10));
             World.Clock.Advance(Duration.FromMinutes(11));

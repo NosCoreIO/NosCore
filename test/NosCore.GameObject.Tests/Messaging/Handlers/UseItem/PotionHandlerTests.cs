@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Map;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -212,8 +213,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void TheCharactersMapHasAPotionDelayOf_Ms(short delay)
         {
-            _mapTypes.Add(new MapTypeDto { MapTypeId = 5, PotionDelay = delay });
-            _mapTypeMaps.Add(new MapTypeMapDto { MapId = _session.Character.MapInstance.Map.MapId, MapTypeId = 5 });
+            _mapTypes.Add(new MapTypeDto { MapTypeId = MapTypeType.Act52, PotionDelay = delay });
+            _mapTypeMaps.Add(new MapTypeMapDto { MapId = _session.Character.MapInstance.Map.MapId, MapTypeId = MapTypeType.Act52 });
         }
 
         private void _MillisecondsPass(int ms) => World.Clock.Advance(Duration.FromMilliseconds(ms));

@@ -134,7 +134,7 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
         }
 
         private void SenderIsOnAMapOfType_(MapTypeType type) =>
-            MapTypeMaps.Add(new MapTypeMapDto { MapId = Session.Character.MapInstance.Map.MapId, MapTypeId = (short)type });
+            MapTypeMaps.Add(new MapTypeMapDto { MapId = Session.Character.MapInstance.Map.MapId, MapTypeId = type });
 
         private void SenderIsLevel_(byte level) => Session.Character.Level = level;
 

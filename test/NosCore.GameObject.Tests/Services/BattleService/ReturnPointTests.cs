@@ -35,14 +35,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _respawns = _character.Respawns;
             _respawns.Clear();
             _service = new RespawnService(
-                new List<MapTypeMapDto> { new() { MapId = Act1Map, MapTypeId = (short)MapTypeType.Act1 } },
+                new List<MapTypeMapDto> { new() { MapId = Act1Map, MapTypeId = MapTypeType.Act1 } },
                 new List<MapTypeDto>
                 {
                     new()
                     {
-                        MapTypeId = (short)MapTypeType.Act1,
-                        RespawnMapTypeId = (long)RespawnType.DefaultAct1,
-                        ReturnMapTypeId = (long)RespawnType.ReturnAct1
+                        MapTypeId = MapTypeType.Act1,
+                        RespawnMapTypeId = RespawnType.DefaultAct1,
+                        ReturnMapTypeId = RespawnType.ReturnAct1
                     }
                 },
                 new List<RespawnMapTypeDto>());
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(2, _respawns.Count);
             Assert.AreEqual(((short)Act1Map, (short)21, (short)34), _service.GetReturnPoint(_character, Act1Map));
-            Assert.AreEqual((short)5, _respawns.Find(r => r.RespawnMapTypeId == (long)RespawnType.DefaultAct1).NotNull().X);
+            Assert.AreEqual((short)5, _respawns.Find(r => r.RespawnMapTypeId == RespawnType.DefaultAct1).NotNull().X);
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _service.SetReturnPoint(_character, UntypedMap, 20, 33);
 
-            Assert.AreEqual((long)RespawnType.ReturnAct1, _respawns.Single().RespawnMapTypeId);
+            Assert.AreEqual(RespawnType.ReturnAct1, _respawns.Single().RespawnMapTypeId);
             Assert.AreEqual(((short)UntypedMap, (short)20, (short)33), _service.GetReturnPoint(_character, Act1Map));
         }
     }

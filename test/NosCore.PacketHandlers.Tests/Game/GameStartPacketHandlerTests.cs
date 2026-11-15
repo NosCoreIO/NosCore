@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Ecs;
 using Moq;
@@ -246,7 +247,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         private void TheSavePointIsMap_At_(short mapId, short x, short y) =>
-            RespawnService.Setup(s => s.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<long?>()))
+            RespawnService.Setup(s => s.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<RespawnType?>()))
                 .Returns((mapId, x, y));
 
         private void TheCharacterShouldBeAliveWithOneHpAndMp()

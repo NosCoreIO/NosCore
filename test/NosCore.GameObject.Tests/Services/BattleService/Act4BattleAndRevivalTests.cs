@@ -22,7 +22,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private ClientSession _angel;
         private ClientSession _demon;
         private bool _canFight;
-        private long? _revivalMapType;
+        private RespawnType? _revivalMapType;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -81,7 +81,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("An angel who falls in Glacernon revives at the angel citadel")
                 .Given(BothStandInGlacernon)
                 .When(TheRevivalPointOfIsResolved_, FactionType.Angel)
-                .Then(TheRevivalShouldUse_, (long?)RespawnType.Act4Angel)
+                .Then(TheRevivalShouldUse_, (RespawnType?)RespawnType.Act4Angel)
                 .ExecuteAsync();
         }
 
@@ -91,7 +91,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("A demon who falls in Glacernon revives at the demon citadel")
                 .Given(BothStandInGlacernon)
                 .When(TheRevivalPointOfIsResolved_, FactionType.Demon)
-                .Then(TheRevivalShouldUse_, (long?)RespawnType.Act4Demon)
+                .Then(TheRevivalShouldUse_, (RespawnType?)RespawnType.Act4Demon)
                 .ExecuteAsync();
         }
 
@@ -134,7 +134,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(expected, _canFight);
         }
 
-        private void TheRevivalShouldUse_(long? expected)
+        private void TheRevivalShouldUse_(RespawnType? expected)
         {
             Assert.AreEqual(expected, _revivalMapType);
         }

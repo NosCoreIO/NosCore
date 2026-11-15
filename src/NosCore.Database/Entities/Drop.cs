@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Map;
 using NosCore.Database.Entities.Base;
 using System.ComponentModel.DataAnnotations;
 
@@ -24,7 +25,7 @@ namespace NosCore.Database.Entities
 
         public virtual MapType? MapType { get; set; }
 
-        public short? MapTypeId { get; set; }
+        public MapTypeType? MapTypeId { get; set; }
 
         public short? MonsterVNum { get; set; }
 
