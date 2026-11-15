@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task PlayerReqInfoRepliesWithTcInfoForTheTargetedCharacter()
         {
-            await new Spec("req_info 1 <characterId> replies with tc_info for the targeted player")
+            await new Spec("Asking about a player replies with that player's card")
                 .WhenAsync(RequestingPlayerInfoForSelf)
                 .Then(TcInfoPacketShouldBeSent)
                 .ExecuteAsync();
@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task PlayerReqInfoForUnknownTargetEmitsNothing()
         {
-            await new Spec("req_info 1 <unknownId> emits nothing")
+            await new Spec("Asking about an unknown player sends nothing")
                 .WhenAsync(RequestingPlayerInfoForUnknownVisualId)
                 .Then(NoTcInfoShouldBeSent)
                 .ExecuteAsync();
@@ -102,10 +102,9 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task NpcInfoReqResolvesTemplateByVNumFromTheGlobalCatalog()
         {
-            // Official wire: `req_info 5 303` -> `e_info 10 303 35 ...`. Type 5 is a static
-            // catalog lookup on the NpcMonster VNum, NOT a lookup on entities currently on
-            // the map — so the reply comes back even if no such NPC is spawned nearby.
-            await new Spec("req_info 5 <npcMonsterVNum> replies with e_info for the catalog entry")
+            // A monster kind is looked up in the catalog, not among the entities on the map, so the
+            // reply comes back even if no such monster is spawned nearby.
+            await new Spec("Asking about a monster kind replies with its catalog entry")
                 .WhenAsync(RequestingNpcInfoByVNum)
                 .Then(EInfoForVNum303ShouldBeSent)
                 .ExecuteAsync();
@@ -114,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task NpcInfoReqForUnknownVNumEmitsNothing()
         {
-            await new Spec("req_info 5 <unknownVNum> emits nothing")
+            await new Spec("Asking about an unknown monster kind sends nothing")
                 .WhenAsync(RequestingNpcInfoForUnknownVNum)
                 .Then(NoEInfoNpcMonsterPacketShouldBeSent)
                 .ExecuteAsync();
@@ -126,7 +125,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             // Official wire: `req_info 6 2 <mapNpcVisualId>` -> `e_info 10 <npcVNum> ...`.
             // Type 6 is live-map lookup discriminated by VisualType in TargetVNum and the
             // VisualId in MateVNum.
-            await new Spec("req_info 6 2 <mapNpcVisualId> replies with e_info for the npc on the current map")
+            await new Spec("Asking about an npc on the map replies with its entry")
                 .Given(NpcIsOnMap)
                 .WhenAsync(RequestingMapInfoForNpc)
                 .Then(EInfoForVNum909ShouldBeSent)
@@ -137,7 +136,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task MapEntityInfoReqResolvesMonsterByVisualIdOnCurrentMap()
         {
             // Official wire: `req_info 6 3 <mapMonsterVisualId>` -> `e_info 10 <vnum> ...`.
-            await new Spec("req_info 6 3 <mapMonsterVisualId> replies with e_info for the monster on the current map")
+            await new Spec("Asking about a monster on the map replies with its entry")
                 .Given(MonsterIsOnMap)
                 .WhenAsync(RequestingMapInfoForMonster)
                 .Then(EInfoForVNum25ShouldBeSent)
@@ -150,7 +149,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             // `req_info 6 <mateTransportId>` single-arg form routes to the mate-lookup
             // branch. There is no runtime Mate collection yet, so this no-ops like an
             // unknown mate id.
-            await new Spec("req_info 6 <mateTransportId> no-ops until the mate subsystem lands")
+            await new Spec("Asking about a mate sends nothing")
                 .WhenAsync(RequestingMateInfoForUnknownTransportId)
                 .Then(NoEInfoNpcMonsterPacketShouldBeSent)
                 .ExecuteAsync();
@@ -161,7 +160,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             // VisualType.Player via req_info 6 is currently unwired — the handler drops at
             // Debug level instead of spamming WARN.
-            await new Spec("req_info 6 1 <playerId> is a quiet no-op (player branch not wired)")
+            await new Spec("Asking about a player as a map entity sends nothing")
                 .WhenAsync(RequestingMapInfoForPlayer)
                 .Then(NoEInfoNpcMonsterPacketShouldBeSent)
                 .ExecuteAsync();

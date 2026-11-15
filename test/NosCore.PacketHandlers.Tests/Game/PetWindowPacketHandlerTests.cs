@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             var packetTypes = PacketTypes.World();
 
-            var packet = new Deserializer(packetTypes).Deserialize("npinfo 0");
+            var packet = new Deserializer(packetTypes).Deserialize(new Serializer(packetTypes).Serialize(new NpInfoPacket { Page = 0 }));
 
             Assert.IsInstanceOfType(packet, typeof(NpinfoPacketHandler).BaseType.NotNull().GetGenericArguments()[0],
                 "handlers are looked up by the exact type the deserializer produces");

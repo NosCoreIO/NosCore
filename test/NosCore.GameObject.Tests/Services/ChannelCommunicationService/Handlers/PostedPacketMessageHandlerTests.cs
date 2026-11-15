@@ -15,6 +15,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
+using NosCore.Packets;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.I18N;
@@ -125,11 +126,15 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 .ExecuteAsync();
         }
 
+        private static readonly SayPacket Said = new() { Message = "Test message" };
+
+        private static readonly string Posted = new Serializer([typeof(SayPacket)]).Serialize(Said);
+
         private IPacket DeserializedPacket;
 
         private void DeserializerReturnsPacket()
         {
-            DeserializedPacket = new SayPacket { Message = "Test message" };
+            DeserializedPacket = Said;
             Deserializer.Setup(x => x.Deserialize(It.IsAny<string>()))
                 .Returns(DeserializedPacket);
         }
@@ -155,7 +160,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         {
             await Handler.Handle(new PostedPacket
             {
-                Packet = "say Test message",
+                Packet = Posted,
                 ReceiverType = ReceiverType.AllNoHeroBlocked
             });
         }
@@ -191,7 +196,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         {
             await Handler.Handle(new PostedPacket
             {
-                Packet = "say Test message",
+                Packet = Posted,
                 ReceiverType = ReceiverType.All
             });
         }
@@ -200,7 +205,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         {
             await Handler.Handle(new PostedPacket
             {
-                Packet = "say Test message",
+                Packet = Posted,
                 ReceiverType = ReceiverType.OnlySomeone,
                 ReceiverCharacter = new Data.WebApi.Character { Name = Session.Character.Name }
             });
@@ -210,7 +215,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         {
             await Handler.Handle(new PostedPacket
             {
-                Packet = "say Test message",
+                Packet = Posted,
                 ReceiverType = ReceiverType.OnlySomeone,
                 ReceiverCharacter = new Data.WebApi.Character { Id = Session.Character.CharacterId }
             });
@@ -220,7 +225,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         {
             await Handler.Handle(new PostedPacket
             {
-                Packet = "say Test message",
+                Packet = Posted,
                 ReceiverType = unchecked((ReceiverType)999)
             });
         }

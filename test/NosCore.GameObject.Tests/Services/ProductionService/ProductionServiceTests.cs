@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         [TestMethod]
         public async Task AScrollRecipeShowsItsMaterialsWhileTheScrollIsHeld()
         {
-            await new Spec("pdtse 1 answers for a scroll recipe when the character holds the scroll")
+            await new Spec("Asking about a scroll recipe is answered when the character holds the scroll")
                 .Given(TheCharacterHoldsTheScroll)
                 .WhenAsync(TheScrollRecipeIsShown)
                 .Then(TheScrollMaterialsShouldBeSent)
@@ -151,7 +151,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         [TestMethod]
         public async Task ShowingARecipeSendsItsMaterials()
         {
-            await new Spec("pdtse 1 answers with the amount made and the materials needed")
+            await new Spec("Asking about a recipe is answered with the amount made and the materials needed")
                 .Given(AnNpcAt_CellsMakes_From_Materials, 0, (short)5)
                 .WhenAsync(TheRecipeIsShown)
                 .Then(TheMaterialsShouldBeSent)

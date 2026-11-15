@@ -41,13 +41,17 @@ namespace NosCore.GameObject.Tests.Networking
             pubSubHub.Setup(s => s.SendMessagesAsync(It.IsAny<List<IMessage>>()))
                 .Callback<List<IMessage>>(m => sent = m)
                 .ReturnsAsync(true);
-            var serializer = new Serializer(new[] { typeof(FinfoPacket), typeof(FinfoSubPackets) });
+            var packetTypes = new[] { typeof(FinfoPacket), typeof(FinfoSubPackets) };
+            var serializer = new Serializer(packetTypes);
 
             await new FriendNotificationDisconnectHandler(friendHub.Object, pubSubHub.Object, serializer)
                 .HandleDisconnectAsync(session);
 
             var posted = (PostedPacket)sent.NotNull().Single();
-            Assert.AreEqual($"finfo {characterId}.0.{session.Character.Name}", posted.Packet);
+            PacketAssert.AreEqual(new FinfoPacket
+            {
+                FriendList = [new FinfoSubPackets { CharacterId = characterId, IsConnected = false, CharacterName = session.Character.Name }],
+            }, (FinfoPacket)new Deserializer(packetTypes).Deserialize(posted.Packet.NotNull()));
         }
     }
 }

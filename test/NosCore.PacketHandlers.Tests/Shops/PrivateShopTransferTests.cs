@@ -141,14 +141,17 @@ namespace NosCore.PacketHandlers.Tests.Shops
             await new Spec("The owner sees the running total and the stock left")
                 .GivenAsync(TheOwnerOpensTheShop)
                 .WhenAsync(TheBuyerBuys_FromShopSlot_, (short)2, (short)1)
-                .Then(TheOwnerShouldReceiveTheSellList_, "sell_list 200 1.2.1")
+                .Then(TheOwnerShouldSeeATotalOf_With_SoldFromSlot_And_Left, 200L, 2L, (short)1, 1L)
                 .ExecuteAsync();
         }
 
-        private void TheOwnerShouldReceiveTheSellList_(string wire)
+        private void TheOwnerShouldSeeATotalOf_With_SoldFromSlot_And_Left(long total, long sold, short slot, long left)
         {
-            var sellList = _owner.LastPackets.OfType<SellListPacket>().Single();
-            Assert.AreEqual(wire, new Serializer(new[] { typeof(SellListPacket) }).Serialize(sellList));
+            PacketAssert.AreEqual(new SellListPacket
+            {
+                ValueSold = total,
+                SellListSubPacket = [new SellListSubPacket { Slot = slot, Amount = sold, SellAmount = left }],
+            }, _owner.LastPackets.OfType<SellListPacket>().Single());
         }
 
         [TestMethod]

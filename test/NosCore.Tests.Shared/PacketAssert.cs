@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -19,7 +20,7 @@ namespace NosCore.Tests.Shared
     // which NosCore.Packets owns and tests.
     public static class PacketAssert
     {
-        public static void AreEqual<T>(T expected, T actual) where T : class
+        public static void AreEqual<T>(T expected, T? actual) where T : class
         {
             var differences = new List<string>();
             Compare(expected, actual, typeof(T).Name, differences);
@@ -30,11 +31,30 @@ namespace NosCore.Tests.Shared
             }
         }
 
+        // For waiting on a packet that carries exactly these values.
+        public static bool Matches<T>(T expected, T? actual) where T : class
+        {
+            var differences = new List<string>();
+            Compare(expected, actual, typeof(T).Name, differences);
+            return differences.Count == 0;
+        }
+
         private static void Compare(object? expected, object? actual, string path, List<string> differences)
         {
             if (expected is null || actual is null)
             {
                 if (!ReferenceEquals(expected, actual))
+                {
+                    differences.Add($"{path}: expected {Describe(expected)}, was {Describe(actual)}");
+                }
+
+                return;
+            }
+
+            // Untyped values, such as i18n arguments, come off the wire as long whatever they were written as.
+            if (IsNumber(expected.GetType()) && IsNumber(actual.GetType()))
+            {
+                if (Convert.ToDecimal(expected, CultureInfo.InvariantCulture) != Convert.ToDecimal(actual, CultureInfo.InvariantCulture))
                 {
                     differences.Add($"{path}: expected {Describe(expected)}, was {Describe(actual)}");
                 }
@@ -61,8 +81,8 @@ namespace NosCore.Tests.Shared
 
             if (expected is IEnumerable expectedItems)
             {
-                var left = expectedItems.Cast<object?>().ToList();
-                var right = ((IEnumerable)actual).Cast<object?>().ToList();
+                var left = Items(expectedItems);
+                var right = Items((IEnumerable)actual);
                 if (left.Count != right.Count)
                 {
                     differences.Add($"{path}: expected {left.Count} entries, was {right.Count}");
@@ -80,6 +100,18 @@ namespace NosCore.Tests.Shared
             {
                 Compare(property.GetValue(expected), property.GetValue(actual), $"{path}.{property.Name}", differences);
             }
+        }
+
+        // Walked by hand: a list that pads itself to its size when enumerated reports only what it holds when copied.
+        private static List<object?> Items(IEnumerable items)
+        {
+            var list = new List<object?>();
+            foreach (var item in items)
+            {
+                list.Add(item);
+            }
+
+            return list;
         }
 
         private static IEnumerable<PropertyInfo> Fields(Type type)
@@ -101,6 +133,8 @@ namespace NosCore.Tests.Shared
             var packetBase = typeof(PacketBase).GetProperties().Select(p => p.Name).ToHashSet();
             return properties.Where(p => !packetBase.Contains(p.Name));
         }
+
+        private static bool IsNumber(Type type) => type.IsPrimitive && type != typeof(bool) && type != typeof(char);
 
         private static bool IsLeaf(Type type)
         {

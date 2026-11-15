@@ -68,7 +68,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void TheTagCarriesTheFamilyIdAndTheRank()
         {
-            // gidx 1 521919 5052 -Nemesis-(Member) 7
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
 
             var packet = _session.Character.GenerateGidx(World.GameLanguageLocalizer,
@@ -82,7 +81,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void ACharacterWithNoFamilyIsStillToldSo()
         {
-            // gidx 1 741328 -1 - 0 - silence would leave the last tag on screen.
+            // Silence would leave the last tag on screen.
             _session.Character.Family = null;
 
             var packet = _session.Character.GenerateGidx(World.GameLanguageLocalizer,
@@ -122,7 +121,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void NoFamilyLeavesEveryFamilyFieldEmpty()
         {
-            // gidx 1 741328 -1 - 0
             _session.Character.Family = null;
 
             PacketAssert.AreEqual(new GidxPacket
@@ -155,7 +153,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void AFamilyGoesOutWithItsIdNameAndLevel()
         {
-            // gidx 1 521919 5052.-1 -Nemesis-(...) 7 0|0|0
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
 
             PacketAssert.AreEqual(new GidxPacket
