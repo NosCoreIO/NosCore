@@ -11,6 +11,8 @@ namespace NosCore.Data.Enumerations.Family
     {
         FamilyLevel = 0,
         DailyMessage = 1,
-        InstantCombat = 2
+        InstantCombat = 2,
+        Raid = 3,
+        HeroicRaid = 4
     }
 }

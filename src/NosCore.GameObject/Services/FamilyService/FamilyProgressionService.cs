@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Services.FamilyService
         }
 
         public async Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, long? characterId,
-            FamilyQuestObjective objective, int amount)
+            FamilyQuestObjective objective, int amount, int? parameter)
         {
             using var _ = await FamilyRowLock.Instance.AcquireAsync();
             var family = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 ? (familyQuestContributionDao.Where(s => s.FamilyId == familyId && s.CharacterId == id) ?? []).ToDictionary(s => s.QuestId)
                 : [];
             var progress = new Progress(family, LoadQuests(familyId), contributions, characterId, clock.GetCurrentInstant());
-            Gain(progress, Advance(progress, objective, amount));
+            Gain(progress, Advance(progress, objective, amount, parameter));
             return await SaveAsync(progress, null);
         }
 
@@ -79,17 +79,20 @@ namespace NosCore.GameObject.Services.FamilyService
                     family.FamilyLevel++;
                 }
 
-                experience = family.FamilyLevel > level ? Advance(progress, FamilyQuestObjective.FamilyLevel, 0) : 0;
+                experience = family.FamilyLevel > level ? Advance(progress, FamilyQuestObjective.FamilyLevel, 0, null) : 0;
             }
         }
 
         // Quests are walked in id order, which is also the order of each chain, so an achievement
         // unlocked here opens the next one in the same pass. A counted chain carries its count on:
         // the next achievement starts where the previous one stopped.
-        private int Advance(Progress progress, FamilyQuestObjective objective, int amount)
+        // A parameter (a raid, for instance) only advances the quests that name the same one.
+        private int Advance(Progress progress, FamilyQuestObjective objective, int amount, int? parameter)
         {
             var experience = 0;
-            foreach (var quest in familyQuests.Where(s => s.Objective == objective).OrderBy(s => s.QuestId))
+            foreach (var quest in familyQuests
+                         .Where(s => s.Objective == objective && (parameter == null || s.Parameter == parameter))
+                         .OrderBy(s => s.QuestId))
             {
                 progress.Quests.TryGetValue(quest.QuestId, out var row);
                 if (row != null && FamilyQuestPeriod.HasExpired(quest, row, progress.Now))

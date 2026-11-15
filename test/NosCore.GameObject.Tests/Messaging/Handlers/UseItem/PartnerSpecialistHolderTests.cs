@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Services.InventoryService;
@@ -51,7 +52,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 EquipmentSlot = EquipmentType.Sp
             });
             await base.SetupAsync();
-            _handler = new SpecialistHolderHandler(new SpecialistHolderService(ItemProvider));
+            World.Inject<IItemGenerationService>(ItemProvider);
+            World.UseReal<ISpecialistHolderService, SpecialistHolderService>();
+            _handler = World.Create<SpecialistHolderHandler>();
         }
 
         [TestMethod]

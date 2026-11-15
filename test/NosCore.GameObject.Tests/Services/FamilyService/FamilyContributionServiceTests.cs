@@ -114,6 +114,29 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AWonRaidCountsForEveryMemberWithoutAHistoryLine()
+        {
+            await new Spec("Two members winning Mother Cuby advance its missions twice and write no history line")
+                .WhenAsync(Members_And_WinRaid_, 7, 8, 0)
+                .Then(EachOf_And_ShouldAdvanceRaid_, 7, 8, 0)
+                .And(TheHistoryShouldStayEmpty)
+                .ExecuteAsync();
+        }
+
+        private Task Members_And_WinRaid_(int first, int second, int raidId) =>
+            _service.RaidWonAsync(FamilyId, new long[] { first, second }, (byte)raidId, false);
+
+        private void TheHistoryShouldStayEmpty() => Assert.AreEqual(0, _logs.Count);
+
+        private void EachOf_And_ShouldAdvanceRaid_(int first, int second, int raidId)
+        {
+            foreach (var characterId in new long[] { first, second })
+            {
+                _hub.Verify(s => s.AdvanceQuestsAsync(FamilyId, characterId, FamilyQuestObjective.Raid, 1, raidId), Times.Once);
+            }
+        }
+
         private void AGainOf_TakesTheFamilyToLevel_(int experience, int level) =>
             _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, experience))
                 .ReturnsAsync(new FamilyExperienceGain((byte)level, true));

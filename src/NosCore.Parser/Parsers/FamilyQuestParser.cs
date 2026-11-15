@@ -72,6 +72,8 @@ namespace NosCore.Parser.Parsers
                 ((int)FamilyQuestKind.Achievement, 0, 0) => FamilyQuestObjective.FamilyLevel,
                 ((int)FamilyQuestKind.Achievement, 0, 1) => FamilyQuestObjective.DailyMessage,
                 ((int)FamilyQuestKind.Mission, 1, 4) => FamilyQuestObjective.InstantCombat,
+                ((int)FamilyQuestKind.Mission, 1, 3) => FamilyQuestObjective.Raid,
+                ((int)FamilyQuestKind.Mission, 1, 9) or ((int)FamilyQuestKind.Achievement, 3, _) => FamilyQuestObjective.HeroicRaid,
                 _ => null
             };
 

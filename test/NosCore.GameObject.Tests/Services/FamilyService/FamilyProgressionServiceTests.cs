@@ -68,6 +68,16 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 {
                     QuestId = InstantCombats, Kind = FamilyQuestKind.Mission, Objective = FamilyQuestObjective.InstantCombat,
                     FamilyLevelMinimum = 1, Target = 2, Experience = MissionReward, ResetsDaily = true, OncePerMemberPerDay = true
+                },
+                new()
+                {
+                    QuestId = MotherCubyRaids, Kind = FamilyQuestKind.Mission, Objective = FamilyQuestObjective.Raid,
+                    FamilyLevelMinimum = 1, Target = 2, Parameter = MotherCuby, Experience = MissionReward, ResetsDaily = true
+                },
+                new()
+                {
+                    QuestId = GinsengRaids, Kind = FamilyQuestKind.Mission, Objective = FamilyQuestObjective.Raid,
+                    FamilyLevelMinimum = 1, Target = 2, Parameter = Ginseng, Experience = MissionReward, ResetsDaily = true
                 }
             ];
             _service = new FamilyProgressionService(_familyDao, _familyCharacterDao, _questProgressDao,
@@ -84,6 +94,10 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private const int QuoteReward = 300;
         private const short InstantCombats = 9017;
         private const int MissionReward = 500;
+        private const short MotherCubyRaids = 9008;
+        private const short GinsengRaids = 9009;
+        private const int MotherCuby = 0;
+        private const int Ginseng = 1;
 
         private static FamilyQuestDto Achievement(short id, FamilyQuestObjective objective, int target, int? parameter = null,
             short? previous = null, int experience = 0) => new()
@@ -166,7 +180,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task EachDailyMessageCountsTowardsTheQuoteAchievement()
         {
-            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1)).NotNull();
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1, null)).NotNull();
 
             Assert.AreEqual(0, gain.CompletedQuestIds.Count);
             Assert.AreEqual(1, Quest(FirstQuotes).NotNull().Progress);
@@ -176,9 +190,9 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task ReachingTheTargetUnlocksItGrantsItsExperienceAndCarriesTheCountOn()
         {
-            await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1);
+            await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1, null);
 
-            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1)).NotNull();
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1, null)).NotNull();
 
             CollectionAssert.AreEqual(new[] { FirstQuotes }, gain.CompletedQuestIds.ToArray());
             Assert.AreEqual(QuoteReward, (await FamilyAsync()).NotNull().FamilyExperience);
@@ -189,9 +203,9 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task AnUnlockedAchievementIsNotUnlockedAgain()
         {
-            await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 2);
+            await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 2, null);
 
-            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1)).NotNull();
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 1, null)).NotNull();
 
             Assert.AreEqual(0, gain.CompletedQuestIds.Count);
             Assert.AreEqual(1, Quest(FirstQuotes).NotNull().TotalCompletions);
@@ -203,7 +217,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             _quests[2].Experience = (int)_curve.GetFamilyExperience(1);
 
-            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 2)).NotNull();
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.DailyMessage, 2, null)).NotNull();
 
             Assert.IsTrue(gain.LeveledUp);
             CollectionAssert.AreEquivalent(new[] { FirstQuotes, LevelTwo }, gain.CompletedQuestIds.ToArray());
@@ -227,7 +241,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         private Task<FamilyExperienceGain?> WinAsync(long characterId) =>
-            _service.AdvanceQuestsAsync(_familyId, characterId, FamilyQuestObjective.InstantCombat, 1);
+            _service.AdvanceQuestsAsync(_familyId, characterId, FamilyQuestObjective.InstantCombat, 1, null);
 
         [TestMethod]
         public async Task WinningInstantCombatsCompletesTheDailyMission()
@@ -277,6 +291,18 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             CollectionAssert.AreEqual(new[] { InstantCombats }, gain.CompletedQuestIds.ToArray());
             Assert.AreEqual(2, Quest(InstantCombats).NotNull().TotalCompletions);
             Assert.AreEqual(2 * MissionReward, (await FamilyAsync()).NotNull().FamilyExperience);
+        }
+
+        [TestMethod]
+        public async Task ARaidWinOnlyCountsTowardsTheMissionForThatRaid()
+        {
+            await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.Raid, 1, MotherCuby);
+
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, null, FamilyQuestObjective.Raid, 1, MotherCuby)).NotNull();
+
+            CollectionAssert.AreEqual(new[] { MotherCubyRaids }, gain.CompletedQuestIds.ToArray());
+            Assert.IsNull(Quest(GinsengRaids));
+            Assert.AreEqual(MissionReward, (await FamilyAsync()).NotNull().FamilyExperience);
         }
     }
 }
