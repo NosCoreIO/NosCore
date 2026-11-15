@@ -122,7 +122,7 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
-            if (targets.Count == 1)
+            if (targets.Count == 1 && !skill.HitsSeveral)
             {
                 foreach (var bystander in SurroundingTargets(origin, target, skill))
                 {
@@ -149,6 +149,7 @@ namespace NosCore.GameObject.Services.BattleService
             return targetResolver
                 .ResolveArea(origin, map, target.PositionX, target.PositionY, skill with { TargetRange = (byte)stats.SurroundingDamageRadius })
                 .Where(e => !(e.VisualType == target.VisualType && e.VisualId == target.VisualId))
+                .Where(e => !(e.VisualType == origin.VisualType && e.VisualId == origin.VisualId))
                 .ToList();
         }
 

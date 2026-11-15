@@ -77,13 +77,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
-        private async Task<(FakeEntity Origin, FakeEntity Target, FakeEntity Bystander)> SurroundedAsync(int chance, int roll)
+        private async Task<(FakeEntity Origin, FakeEntity Target, FakeEntity Bystander)> SurroundedAsync(int chance, int roll, byte skillArea = 0)
         {
             var map = (await TestWorld.CreateAsync()).GetBaseMap(TestWorld.TestMapId);
             var origin = new FakeEntity { Hp = 100 };
             var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, VisualId = 1, MapInstance = map };
             var bystander = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, VisualId = 2, MapInstance = map };
-            var skill = MakeSkill(TargetHitType.SingleTargetHit);
+            var skill = MakeSkill(TargetHitType.SingleTargetHit) with { TargetRange = skillArea };
             SetupLanding(origin, target, skill);
             _stats.Setup(s => s.GetStats(origin))
                 .Returns(new CombatStats { SurroundingDamageChance = chance, SurroundingDamageRadius = 2 });
@@ -125,6 +125,29 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
 
             _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == bystander)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AnAreaSkillThatFoundOneTargetDoesNotSplash()
+        {
+            var (origin, target, bystander) = await SurroundedAsync(chance: 100, roll: 0, skillArea: 1);
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == bystander)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task TheAttackerIsNeverCaughtInItsOwnSplash()
+        {
+            var (origin, target, _) = await SurroundedAsync(chance: 100, roll: 0);
+            _targetResolver.Setup(r => r.ResolveArea(origin, target.MapInstance, target.PositionX, target.PositionY,
+                    It.Is<SkillInfo>(s => s.TargetRange == 2)))
+                .Returns(new IAliveEntity[] { target, origin });
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == origin)), Times.Never);
         }
 
         [TestMethod]
