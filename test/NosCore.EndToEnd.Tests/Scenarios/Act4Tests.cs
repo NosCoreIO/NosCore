@@ -105,8 +105,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static Task<Player> InGlacernonAsync(string name) =>
             Harness.AddPlayerAsync(name, WorldData.AngelCitadel, CitadelX, CitadelY, c => c.Faction = FactionType.Angel);
 
-        // Takes the second channel's clock to just after boarding next opens. The step stops short
-        // first, so a boarding window already open closes before the next one starts.
+        // Takes the second channel's clock to just after boarding next opens. The schedule starts
+        // one event at a time and skips a start the clock has already passed, so the jump stops
+        // short first and lets every event it carried past start, and a boarding window already
+        // open close, before the last step.
         private static async Task BoardingOpensAsync()
         {
             var now = await Harness.Stack.AdvanceClockAsync(Second, TimeSpan.Zero);
@@ -117,9 +119,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 opens += TimeSpan.FromMinutes(30);
             }
 
-            await Harness.Stack.AdvanceClockAsync(Second, opens - local - TimeSpan.FromSeconds(5));
-            await Task.Delay(500);
-            await Harness.Stack.AdvanceClockAsync(Second, TimeSpan.FromSeconds(10));
+            await Harness.Stack.AdvanceClockAsync(Second, opens - local - TimeSpan.FromSeconds(30));
+            await Task.Delay(TimeSpan.FromSeconds(4));
+            await Harness.Stack.AdvanceClockAsync(Second, TimeSpan.FromSeconds(35));
         }
 
         // The schedule opens boarding on the channel's own timer, so the first request may still
