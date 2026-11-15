@@ -1733,6 +1733,7 @@ Two characters, A and B, on the same map, both with exchange allowed in the opti
 
 - [ ] A requests a trade with B: A sees "You invited B to trade." and B gets the dialog; B
       accepts and the trade window opens on both
+- [ ] The upper half of A's window reads "The trade list of B", and B's reads "The trade list of A"
 - [ ] A requests again, B declines: A sees that B cancelled the trade and B sees that the trade
       was cancelled; no window opens
 - [ ] A requests twice within five seconds: the second request shows the client's wait message

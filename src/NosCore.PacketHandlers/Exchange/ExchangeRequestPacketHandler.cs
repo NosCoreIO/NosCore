@@ -169,8 +169,9 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    await clientSession.SendPacketAsync(clientSession.Character.GenerateServerExcListPacket(null, null, null));
-                    await target.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null));
+                    // Each window is titled with the partner's name, taken from the id it is opened with.
+                    await clientSession.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null));
+                    await target.SendPacketAsync(clientSession.Character.GenerateServerExcListPacket(null, null, null));
                     return;
 
                 case RequestExchangeType.Declined:

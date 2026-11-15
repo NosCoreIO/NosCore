@@ -150,6 +150,22 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task EachTradeWindowOpensOnThePartner()
+        {
+            await new Spec("Each player's trade window is opened with the other player's id")
+                .GivenAsync(RequesterAsksForATrade)
+                .WhenAsync(TargetAccepts)
+                .Then(EachWindowNamesThePartner)
+                .ExecuteAsync();
+        }
+
+        private void EachWindowNamesThePartner()
+        {
+            Assert.AreEqual(Target.Character.VisualId, Requester.LastPackets.OfType<ServerExcListPacket>().Single().VisualId);
+            Assert.AreEqual(Requester.Character.VisualId, Target.LastPackets.OfType<ServerExcListPacket>().Single().VisualId);
+        }
+
+        [TestMethod]
         public async Task ARequestCanOnlyBeAcceptedOnce()
         {
             await new Spec("A request is consumed when it is accepted")
