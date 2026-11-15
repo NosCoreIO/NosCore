@@ -92,7 +92,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             }
 
             if (character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
-                || friend.Value.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
+                || friend.Value.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
+                || (friend.Value.MapInstance.IsAct4 && friend.Value.Faction != character.Faction))
             {
                 await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CanNotBeUsedHere));
                 return;
