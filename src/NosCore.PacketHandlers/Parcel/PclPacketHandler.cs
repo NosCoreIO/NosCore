@@ -82,20 +82,20 @@ namespace NosCore.PacketHandlers.Parcel
                     2, item.ItemVNum.ToString(), amount));
 
                 await clientSession.SendPacketAsync(
-                    new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId });
+                    new ParcelPacket { Type = ParcelPacketType.Received, Box = MailBoxType.Received, Id = (short)getGiftPacket.GiftId });
             }
             else if (getGiftPacket.Type == 5)
             {
                 if (await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, characterId, isCopy))
                 {
-                    await clientSession.SendPacketAsync(new ParcelPacket { Type = 7, Unknown = 1, Id = (short)getGiftPacket.GiftId });
+                    await clientSession.SendPacketAsync(new ParcelPacket { Type = ParcelPacketType.Deleted, Box = MailBoxType.Received, Id = (short)getGiftPacket.GiftId });
                 }
             }
         }
 
         private static async Task SendNotEnoughSpaceAsync(ClientSession clientSession)
         {
-            await clientSession.SendPacketAsync(new ParcelPacket { Type = 5, Unknown = 1, Id = 0 });
+            await clientSession.SendPacketAsync(new ParcelPacket { Type = ParcelPacketType.NotEnoughSpace, Box = MailBoxType.Received, Id = 0 });
             await clientSession.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,

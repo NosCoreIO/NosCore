@@ -1,3 +1,4 @@
+using NosCore.Packets.Enumerations;
 using System;
 
 namespace NosCore.GameObject.InterChannelCommunication.Messages
@@ -6,7 +7,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
     {
         public long CharacterId { get; set; }
         public short MailId { get; set; }
-        public byte PostType { get; set; }
+        public MailBoxType Box { get; set; }
         public Guid Id { get; set; } = Guid.NewGuid();
     }
 }

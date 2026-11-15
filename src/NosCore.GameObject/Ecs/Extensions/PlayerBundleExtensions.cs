@@ -871,28 +871,7 @@ public static class ClientSessionMailExtensions
         var playerName = session.Character.Name;
         foreach (var mail in mails)
         {
-            if (!mail.MailDto.IsSenderCopy && (mail.ReceiverName == playerName))
-            {
-                if (mail.ItemInstance != null)
-                {
-                    await session.SendPacketAsync(mail.GeneratePost(0));
-                }
-                else
-                {
-                    await session.SendPacketAsync(mail.GeneratePost(1));
-                }
-            }
-            else
-            {
-                if (mail.ItemInstance != null)
-                {
-                    await session.SendPacketAsync(mail.GeneratePost(3));
-                }
-                else
-                {
-                    await session.SendPacketAsync(mail.GeneratePost(2));
-                }
-            }
+            await session.SendPacketAsync(mail.GeneratePost(mail.BoxOf(playerName)));
         }
     }
 

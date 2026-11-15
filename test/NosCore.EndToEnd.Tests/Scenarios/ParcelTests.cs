@@ -25,13 +25,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
     [TestClass]
     public class ParcelTests
     {
-        private const byte Received = 1;
-        private const byte Sent = 2;
-
         private static PstClientPacket Note(string receiver, string title, string text) => new()
         {
             ActionType = PostActionType.Send,
-            Type = 1,
+            Type = MailBoxType.Sent,
             Id = 0,
             Unknow1 = null,
             Unknow2 = 0,
@@ -40,9 +37,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Text = text,
         };
 
-        private static Func<PostPacket, bool> Listed(byte box) => packet => packet.Type == 1 && packet.PostType == box;
+        private static Func<PostPacket, bool> Listed(MailBoxType box) => packet => packet.Type == PostPacketType.Listed && packet.PostType == box;
 
-        private static Func<ParcelPacket, bool> Listed() => packet => packet.Type == 1 && packet.Unknown == Received;
+        private static Func<ParcelPacket, bool> Listed() => packet => packet.Type == ParcelPacketType.Listed && packet.Box == MailBoxType.Received;
 
         private static Func<IvnPacket, bool> ThreeSeeds =>
             packet => packet.Type == PocketType.Etc
@@ -52,8 +49,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             packet => packet.VisualType == VisualType.Player && packet.VisualId == client.CharacterId
                 && packet.Type == color && packet.Message == message;
 
-        private static Func<ParcelPacket, bool> Parcel(byte type, short id) =>
-            packet => packet.Type == type && packet.Unknown == 1 && packet.Id == id;
+        private static Func<ParcelPacket, bool> Parcel(ParcelPacketType type, short id) =>
+            packet => packet.Type == type && packet.Box == MailBoxType.Received && packet.Id == id;
 
         private static async Task<TestClient> EnterAsync(Player player)
         {
@@ -118,13 +115,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.ExpectAsync(Notice(alice, SayColorType.Red, Game18NConstString.NoteSent), "the sent notice");
             Assert.AreEqual("noon", (await StoredMailAsync(receiver.CharacterId)).Single(m => !m.IsSenderCopy).Message, "the note is stored");
-            var note = await bob.ExpectAsync(Listed(Received), "the note");
+            var note = await bob.ExpectAsync(Listed(MailBoxType.Received), "the note");
             Assert.AreEqual((sender.Name, "Lunch", "noon"), (note.SenderName, note.Title, note.Message));
             Assert.IsFalse(note.IsOpened, "it is unread");
 
-            await bob.SendAsync(new PstClientPacket { ActionType = PostActionType.Read, Type = Received, Id = note.Id });
+            await bob.SendAsync(new PstClientPacket { ActionType = PostActionType.Read, Type = MailBoxType.Received, Id = note.Id });
 
-            var opened = await bob.ExpectAsync<PostPacket>(p => p.Type == 5 && p.PostType == Received && p.Id == note.Id, "the opened note");
+            var opened = await bob.ExpectAsync<PostPacket>(p => p.Type == PostPacketType.Opened && p.PostType == MailBoxType.Received && p.Id == note.Id, "the opened note");
             Assert.AreEqual((sender.Name, "Lunch", "noon"), (opened.SenderName, opened.Title, opened.Message));
             var stored = (await StoredMailAsync(receiver.CharacterId)).Single(m => !m.IsSenderCopy);
             Assert.AreEqual("noon", stored.Message);
@@ -143,7 +140,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await using var bob = Harness.Client(receiver);
             await bob.EnterWorldAsync(receiver.Slot);
-            var note = await bob.ExpectSinceAsync(0, Listed(Received), "the note");
+            var note = await bob.ExpectSinceAsync(0, Listed(MailBoxType.Received), "the note");
             Assert.AreEqual((sender.Name, "Lunch", "noon"), (note.SenderName, note.Title, note.Message));
         }
 
@@ -159,10 +156,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await alice.SendAsync(Note(receiver.Name, "Lunch", "noon"));
 
             // A sent note names who it went to.
-            var copy = await alice.ExpectAsync(Listed(Sent), "the sender's copy");
+            var copy = await alice.ExpectAsync(Listed(MailBoxType.Sent), "the sender's copy");
             Assert.AreEqual((receiver.Name, "Lunch", "noon"), (copy.SenderName, copy.Title, copy.Message));
-            await bob.ExpectSinceAsync(sent, Listed(Received), "the note");
-            Assert.IsTrue(await bob.NoneSinceAsync(sent, Listed(Sent), TimeSpan.FromSeconds(1)),
+            await bob.ExpectSinceAsync(sent, Listed(MailBoxType.Received), "the note");
+            Assert.IsTrue(await bob.NoneSinceAsync(sent, Listed(MailBoxType.Sent), TimeSpan.FromSeconds(1)),
                 "the receiver is not given the sender's copy");
         }
 
@@ -184,9 +181,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterAsync(sender);
             await using var bob = await EnterAsync(receiver);
             await alice.SendAsync(Note(receiver.Name, "Lunch", "noon"));
-            var note = await bob.ExpectAsync(Listed(Received), "the note");
+            var note = await bob.ExpectAsync(Listed(MailBoxType.Received), "the note");
 
-            await bob.SendAsync(new PstClientPacket { ActionType = PostActionType.Delete, Type = Received, Id = note.Id });
+            await bob.SendAsync(new PstClientPacket { ActionType = PostActionType.Delete, Type = MailBoxType.Received, Id = note.Id });
 
             await bob.ExpectAsync(Notice(bob, SayColorType.Red, Game18NConstString.NoteDeleted), "the deleted notice");
             Assert.IsFalse((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the note is no longer stored");
@@ -204,7 +201,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var taken = bob.Mark();
             await bob.SendAsync(Take(id));
 
-            await bob.ExpectSinceAsync(taken, Parcel(2, id), "the parcel taken");
+            await bob.ExpectSinceAsync(taken, Parcel(ParcelPacketType.Received, id), "the parcel taken");
             Assert.IsFalse((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the parcel is no longer stored");
             await bob.ExpectSinceAsync(taken, ThreeSeeds, "the three in the bag");
         }
@@ -219,7 +216,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var id = await GiftAsync(gm, bob, receiver, 3);
                 await bob.SendAsync(Take(id));
-                await bob.ExpectAsync(Parcel(2, id), "the parcel taken");
+                await bob.ExpectAsync(Parcel(ParcelPacketType.Received, id), "the parcel taken");
             }
 
             var waited = Stopwatch.StartNew();
@@ -246,7 +243,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await EnterAsync(receiver);
             var id = await GiftAsync(gm, bob, receiver, 3);
             await bob.SendAsync(Take(id));
-            await bob.ExpectAsync(Parcel(2, id), "the parcel taken");
+            await bob.ExpectAsync(Parcel(ParcelPacketType.Received, id), "the parcel taken");
             var again = bob.Mark();
 
             await bob.SendAsync(Take(id));
@@ -267,7 +264,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await bob.SendAsync(new PclPacket { Type = 5, GiftId = id });
 
-            await bob.ExpectSinceAsync(thrown, Parcel(7, id), "the parcel removed");
+            await bob.ExpectSinceAsync(thrown, Parcel(ParcelPacketType.Deleted, id), "the parcel removed");
             Assert.IsFalse((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the parcel is no longer stored");
             Assert.IsTrue(await bob.NoneSinceAsync<IvnPacket>(thrown, null, TimeSpan.FromSeconds(1)), "nothing goes to the bag");
         }
@@ -283,10 +280,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await GiftAsync(gm, bob, receiver, 3);
 
-            Assert.IsTrue(await bob.NoneSinceAsync<ParcelPacket>(sent, p => p.Type == 1 && p.Unknown == Sent, TimeSpan.FromSeconds(1)),
+            Assert.IsTrue(await bob.NoneSinceAsync<ParcelPacket>(sent, p => p.Type == ParcelPacketType.Listed && p.Box == MailBoxType.Sent, TimeSpan.FromSeconds(1)),
                 "the receiver is not given the sender's copy");
             // The list sent on entering can carry the same parcel a second time; it is still one parcel.
-            Assert.AreEqual(1, bob.Since<ParcelPacket>(sent).Where(p => p.Type == 1).Select(p => p.Id).Distinct().Count());
+            Assert.AreEqual(1, bob.Since<ParcelPacket>(sent).Where(p => p.Type == ParcelPacketType.Listed).Select(p => p.Id).Distinct().Count());
         }
 
         [TestMethod]

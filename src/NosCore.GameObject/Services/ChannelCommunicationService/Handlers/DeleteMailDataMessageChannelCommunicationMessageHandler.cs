@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Parcel;
 using System.Threading.Tasks;
 using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
@@ -24,8 +25,8 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 
             await session.SendPacketAsync(new PostPacket
             {
-                Type = 2,
-                PostType = data.PostType,
+                Type = PostPacketType.Deleted,
+                PostType = data.Box,
                 Id = data.MailId
             });
         }

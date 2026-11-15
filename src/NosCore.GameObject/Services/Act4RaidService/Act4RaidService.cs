@@ -113,7 +113,7 @@ namespace NosCore.GameObject.Services.Act4RaidService
             var left = closesAt - clock.GetCurrentInstant();
             await character.SendPacketAsync(new DgPacket
             {
-                RaidType = (byte)raid,
+                RaidType = raid,
                 Urgency = (byte)(left > UrgentFrom ? 1 : 2),
                 Seconds = (int)Math.Max(0, left.TotalSeconds),
             });
