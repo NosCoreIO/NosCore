@@ -69,6 +69,7 @@ namespace NosCore.GameObject.Services.MateService
             if (npcId is <= 0 or > int.MaxValue
                 || owner.MapInstance.GetNpcById((int)npcId) is not { IsAlive: true } escort
                 || escort.LeaderId != owner.CharacterId
+                || escort.NoMove
                 || !owner.MapInstance.Map.IsWalkable(x, y))
             {
                 return false;
@@ -82,7 +83,7 @@ namespace NosCore.GameObject.Services.MateService
 
             escort.PositionX = x;
             escort.PositionY = y;
-            await SendAsync(owner, new MovePacket
+            await owner.MapInstance.SendPacketAsync(new MovePacket
             {
                 VisualType = VisualType.Npc,
                 VisualEntityId = escort.VisualId,
