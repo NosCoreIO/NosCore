@@ -10,8 +10,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Ecs.Extensions
@@ -69,6 +71,30 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
 
             Assert.AreEqual((short)2369, sub.Morph);
             Assert.AreEqual((short)2369, cInfo.Morph);
+        }
+
+        [TestMethod]
+        public void TheFamilysLevelIsShownInTheMapEntryAndToNewcomers()
+        {
+            _session.Character.Family = new Family { FamilyId = 1, Name = "Testers", FamilyLevel = 7 };
+
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
+            var cInfo = _session.Character.GenerateCInfo(World.GameLanguageLocalizer);
+
+            Assert.AreEqual((byte)7, sub.FamilyLevel);
+            Assert.AreEqual((byte)7, cInfo.FamilyLevel);
+        }
+
+        [TestMethod]
+        public void TheInfoCardShowsTheSpecialistOnlyWhileTransformed()
+        {
+            _session.Character.Morph = 3;
+            var untransformed = _session.Character.GenerateReqInfo(World.GameLanguageLocalizer, RegionType.EN);
+            _session.Character.UseSp = true;
+            var transformed = _session.Character.GenerateReqInfo(World.GameLanguageLocalizer, RegionType.EN);
+
+            Assert.AreEqual(0L, untransformed.Morph);
+            Assert.AreEqual(3L, transformed.Morph);
         }
 
         [TestMethod]
