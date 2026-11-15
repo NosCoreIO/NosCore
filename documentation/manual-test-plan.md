@@ -1375,6 +1375,13 @@ Needs two characters on the same channel. The commending one must be level 31 or
       costume inventory, then open them from the ADDITIONAL tab: the cards close up in order
       of the job level they need, the costumes in item number order
 
+### Swapping items
+
+- [ ] Drag a stack on the ETC tab onto a different item: they trade places. Walk a few cells,
+      relog: both stay in their new slots and you stand where you left
+- [ ] Put on a weapon while another is worn: the old one goes back to the bag. Relog: the new
+      one is still worn and the old one is still in the bag
+
 ### Moving into the card and costume inventories
 
 - [ ] Drag a costume from the EQUIP tab onto a taken slot of the costume inventory (ADDITIONAL
