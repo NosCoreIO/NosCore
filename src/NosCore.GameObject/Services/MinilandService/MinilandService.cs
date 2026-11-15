@@ -141,6 +141,7 @@ namespace NosCore.GameObject.Services.MinilandService
 
             minilandRegistry.Register(characterId, minilandInfo);
             await generator.AddMapInstanceAsync(miniland);
+            await miniland.StartLifeAsync();
 
             var listobjects = player.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToList();

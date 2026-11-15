@@ -83,6 +83,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IBattleStatsProvider? _battleStatsProvider;
         private readonly IHeatService? _heatService;
         private readonly IMateRevivalService? _mateRevivalService;
+        private readonly IMateLoyaltyService? _mateLoyaltyService;
         private readonly RespawnSystem _respawnSystem = new();
         private readonly List<Entity> _dueRespawns = new();
         private readonly BuffSystem _buffSystem = new();
@@ -108,7 +109,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IBattleStatsProvider? battleStatsProvider = null,
             IHeatService? heatService = null,
             IMateRevivalService? mateRevivalService = null,
-            TimeProvider? time = null)
+            TimeProvider? time = null,
+            IMateLoyaltyService? mateLoyaltyService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -141,6 +143,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _battleStatsProvider = battleStatsProvider;
             _heatService = heatService;
             _mateRevivalService = mateRevivalService;
+            _mateLoyaltyService = mateLoyaltyService;
             EcsWorld = new MapWorld(clock);
             Time = time ?? TimeProvider.System;
         }
@@ -606,6 +609,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             await GuardAsync(_regenerationService is { } regeneration ? () => RegenerateAsync(regeneration) : null, "regeneration");
             await GuardAsync(_digestionService == null ? null : () => _digestionService.TickAsync(this), "digestion");
             await GuardAsync(_mateRevivalService == null ? null : () => _mateRevivalService.TickAsync(this), "mate revival");
+            await GuardAsync(_mateLoyaltyService == null ? null : () => _mateLoyaltyService.TickAsync(this), "mate loyalty");
             await GuardAsync(SendSkillResetsAsync, "cooldown resets");
             await GuardAsync(SendAmbientEffectsAsync, "ambient effects");
             await GuardAsync(SweepPendingRespawnsAsync, "respawns");
