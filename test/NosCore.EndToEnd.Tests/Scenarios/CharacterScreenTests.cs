@@ -11,12 +11,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class CharacterScreenTests
     {
+        private static CharNewPacket NewCharacter(string name) => new()
+        {
+            Name = name,
+            Slot = 1,
+            Gender = GenderType.Male,
+            HairStyle = HairStyleType.HairStyleA,
+            HairColor = HairColorType.DarkPurple,
+        };
+
         [TestMethod]
         public async Task ANewCharacterIsListedAndCanEnterTheWorld()
         {
@@ -25,14 +40,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await client.ConnectAsync();
             var name = "New" + player.Name;
 
-            await client.SendAsync($"Char_NEW {name} 1 0 0 0");
+            await client.SendAsync(NewCharacter(name));
 
-            await client.ExpectAsync("clist_start");
-            await client.ExpectAsync(p => p.StartsWith($"clist 1 {name} ", StringComparison.Ordinal), "the new character in slot 1");
-            await client.ExpectAsync("clist_end");
+            await client.ExpectAsync<ClistStartPacket>();
+            await client.ExpectAsync<ClistPacket>(p => p.Slot == 1 && p.Name == name, "the new character in slot 1");
+            await client.ExpectAsync<ClistEndPacket>();
 
             var entry = await client.EnterWorldAsync(1);
-            Assert.IsTrue(entry.Any(p => p.StartsWith($"at {client.CharacterId} {WorldData.Town} ", StringComparison.Ordinal)),
+            Assert.IsTrue(entry.OfType<AtPacket>().Any(p => p.CharacterId == client.CharacterId && p.MapId == WorldData.Town),
                 "a new character starts in the town");
         }
 
@@ -63,10 +78,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             try
             {
-                await client.SendAsync($"Char_NEW {name} 1 0 0 0");
+                await client.SendAsync(NewCharacter(name));
 
-                // 213 is the client's "Creation failed. Please try again."
-                await client.ExpectAsync(p => p.StartsWith("infoi 213 ", StringComparison.Ordinal), "the creation-failed notice");
+                await client.ExpectAsync<InfoiPacket>(p => p.Message == Game18NConstString.CreationFailed, "the creation-failed notice");
                 await using var context = Harness.Database.CreateContext();
                 Assert.IsFalse(await context.Set<Character>().AnyAsync(c => c.Name == name), "no character row is left");
             }
@@ -89,10 +103,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await client.ConnectAsync();
             var created = client.Mark();
 
-            await client.SendAsync($"Char_NEW {taken.Name} 1 0 0 0");
+            await client.SendAsync(NewCharacter(taken.Name));
 
-            await client.ExpectAsync("infoi");
-            Assert.IsTrue(await client.NoneSinceAsync(created, p => p.StartsWith("clist 1 ", StringComparison.Ordinal), TimeSpan.FromSeconds(1)));
+            await client.ExpectAsync<InfoiPacket>();
+            Assert.IsTrue(await client.NoneSinceAsync<ClistPacket>(created, p => p.Slot == 1, TimeSpan.FromSeconds(1)));
         }
 
         [TestMethod]
@@ -103,11 +117,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await client.ConnectAsync();
             var deleted = client.Mark();
 
-            await client.SendAsync($"Char_DEL {player.Slot} {WorldData.Password}");
+            await client.SendAsync(new CharacterDeletePacket { Slot = player.Slot, Password = WorldData.Password });
 
-            await client.ExpectAsync("clist_start");
-            await client.ExpectAsync("clist_end");
-            Assert.IsFalse(client.Since(deleted).Any(p => p.StartsWith("clist ", StringComparison.Ordinal)), "the slot is empty");
+            await client.ExpectAsync<ClistStartPacket>();
+            await client.ExpectAsync<ClistEndPacket>();
+            Assert.IsFalse(client.Since<ClistPacket>(deleted).Any(), "the slot is empty");
         }
     }
 }

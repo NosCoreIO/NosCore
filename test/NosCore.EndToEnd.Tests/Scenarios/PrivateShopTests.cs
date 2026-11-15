@@ -5,7 +5,6 @@
 //
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -13,79 +12,96 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Shop;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class PrivateShopTests
     {
-        private const int Player = 1;
-        private const int EquipmentPocket = 0;
-        private const int EtcPocket = 2;
-        private const int ShopSign = 501;
-        private const int ShopMenu = 3;
-        private const int BagSlots = 48;
+        private const long ShopSign = 501;
+        private const byte ShopMenu = 3;
+        private const short BagSlots = 48;
         private const long MostGold = 1_000_000_000;
-        private const int Bought = 117;
-        private const int NotEnoughGold = 115;
-        private const int OnlyOnAMarket = 127;
-        private const int ShopOpened = 131;
-        private const int CannotBeTraded = 704;
-        private const int SellerWouldHoldTooMuchGold = 878;
-        private const int AwayFromPortals = 924;
-        private const int NothingToSell = 1658;
-        private const int BagIsFull = 1841;
 
-        // m_shop 0 <pocket slot amount price, twenty times> <name>
-        private static string Open(string name, params (int Pocket, int Slot, int Amount, long Price)[] shelf) =>
-            $"m_shop 0 {string.Join(' ', Enumerable.Range(0, 20).Select(i => i < shelf.Length
-                ? $"{shelf[i].Pocket} {shelf[i].Slot} {shelf[i].Amount} {shelf[i].Price}" : "0 0 0 0"))} {name}";
+        private static MShopPacket Open(string name, params (PocketType Pocket, short Slot, short Amount, long Price)[] shelf) => new()
+        {
+            Type = CreateShopPacketType.Open,
+            ItemList = shelf.Select(item => (MShopItemSubPacket?)new MShopItemSubPacket { Type = item.Pocket, Slot = item.Slot, Amount = item.Amount, Price = item.Price }).ToList(),
+            Name = name,
+        };
 
-        private static Func<string, bool> Sign(TestClient seller, string name) =>
-            packet => packet == $"shop {Player} {seller.CharacterId} {ShopSign} {ShopMenu} 0 {name}";
+        private static readonly MShopPacket Close = new() { Type = CreateShopPacketType.Close };
 
-        private static Func<string, bool> AnySign(TestClient seller) =>
-            packet => packet.StartsWith($"shop {Player} {seller.CharacterId} {ShopSign} ", StringComparison.Ordinal);
+        private static BuyPacket Buy(TestClient seller, short amount) => Buy(seller.CharacterId, amount);
 
-        private static Func<string, bool> NoSign(TestClient seller) =>
-            packet => packet == $"shop {Player} {seller.CharacterId} 0 0";
+        private static BuyPacket Buy(long sellerId, short amount) =>
+            new() { VisualType = VisualType.Player, VisualId = sellerId, Slot = 0, Amount = amount };
 
-        private static Func<string, bool> Flag(TestClient seller, int sign) =>
-            packet => packet == $"pflag {Player} {seller.CharacterId} {sign}";
+        private static RequestNpcPacket LookAt(TestClient seller) => new() { Type = VisualType.Player, TargetId = seller.CharacterId };
 
-        private static Func<string, bool> Sitting(TestClient who, bool sitting) =>
-            packet => packet == $"rest {Player} {who.CharacterId} {(sitting ? 1 : 0)}";
+        private static Func<IPacket, bool> Sign(TestClient seller, string name) =>
+            packet => packet is ShopPacket { VisualType: VisualType.Player, ShopId: ShopSign, MenuType: ShopMenu, ShopType: 0 } shop
+                && shop.VisualId == seller.CharacterId && shop.Name == name;
 
-        private static Func<string, bool> Shelf(TestClient seller) =>
-            packet => packet.StartsWith($"n_inv {Player} {seller.CharacterId} ", StringComparison.Ordinal);
+        private static Func<IPacket, bool> AnySign(long sellerId) =>
+            packet => packet is ShopPacket { VisualType: VisualType.Player, ShopId: ShopSign } shop && shop.VisualId == sellerId;
 
-        // n_inv <type> <id> 0 <kind> <pocket.slot.vnum.amount.price, or -1 for an empty place>...
-        private static string[] OnShelf(string shelf) => shelf.Split(' ').Skip(5).Where(place => place != "-1").ToArray();
+        private static Func<IPacket, bool> AnySign(TestClient seller) => AnySign(seller.CharacterId);
 
-        private static Func<string, bool> Slot(int pocket, int slot, int vnum, int amount) =>
-            packet => packet.StartsWith($"ivn {pocket} {slot}.{vnum}.{amount}.", StringComparison.Ordinal);
+        private static Func<IPacket, bool> NoSign(TestClient seller) =>
+            packet => packet is ShopPacket { VisualType: VisualType.Player, ShopId: 0, MenuType: 0 } shop && shop.VisualId == seller.CharacterId;
 
-        private static Func<string, bool> EmptySlot(int pocket, int slot) =>
-            packet => packet.StartsWith($"ivn {pocket} {slot}.", StringComparison.Ordinal)
-                && packet.Split(' ')[2].Split('.')[1] is "0" or "-1";
+        private static Func<IPacket, bool> Flag(long sellerId, long sign) =>
+            packet => packet is PflagPacket { VisualType: VisualType.Player } flag && flag.VisualId == sellerId && flag.Flag == sign;
 
-        private static Func<string, bool> Gold(long gold) => packet => packet == $"gold {gold} 0";
+        private static Func<IPacket, bool> Flag(TestClient seller, long sign) => Flag(seller.CharacterId, sign);
 
-        private static Func<string, bool> AnyGold => packet => TestClient.HeaderOf(packet) == "gold";
+        private static Func<IPacket, bool> Sitting(TestClient who, bool sitting) =>
+            packet => packet is RestPacket { VisualType: VisualType.Player } rest && rest.VisualId == who.CharacterId && rest.IsSitting == sitting;
 
-        private static Func<string, bool> Memo(int type, int message) => packet => packet == $"s_memoi {type} {message} 0";
+        private static Func<IPacket, bool> AShopShown(TestClient seller) => packet => AnySign(seller)(packet) || Flag(seller, ShopSign)(packet);
 
-        private static Func<string, bool> Told(int message) =>
-            packet => packet.Split(' ') is ["infoi", var id, ..] && id == message.ToString(CultureInfo.InvariantCulture);
+        private static Func<NInvPacket, bool> Shelf(TestClient seller) =>
+            packet => packet.VisualType == VisualType.Player && packet.VisualId == seller.CharacterId;
 
-        private static Func<string, bool> Said(TestClient who, int message) =>
-            packet => packet.StartsWith($"sayi {Player} {who.CharacterId} ", StringComparison.Ordinal)
-                && packet.Split(' ')[4] == message.ToString(CultureInfo.InvariantCulture);
+        private static (PocketType Pocket, int Slot, int VNum, int Amount, int Price)[] OnShelf(NInvPacket shelf) =>
+            (shelf.Items ?? []).OfType<NInvItemSubPacket>().Select(item => (item.Type, (int)item.Slot, (int)item.VNum, (int)(item.RareAmount ?? 0), item.Price)).ToArray();
 
-        private static Func<string, bool> Announced(int message) =>
-            packet => packet.Split(' ') is ["msgi", _, var id, ..] && id == message.ToString(CultureInfo.InvariantCulture);
+        private static bool IsEmpty(IvnSubPacket slot) => slot.VNum is 0 or -1;
 
-        private static Func<string, bool> ShopEnded => packet => TestClient.HeaderOf(packet) == "shop_end";
+        private static Func<IvnPacket, bool> Slot(PocketType pocket, short slot, short vnum, short amount) =>
+            packet => packet.Type == pocket && packet.IvnSubPackets?.Any(item => item.Slot == slot && item.VNum == vnum && item.RareAmount == amount) == true;
+
+        private static Func<IvnPacket, bool> EmptySlot(PocketType pocket, short slot) =>
+            packet => packet.Type == pocket && packet.IvnSubPackets?.FirstOrDefault()?.Slot == slot && IsEmpty(packet.IvnSubPackets[0]);
+
+        private static Func<GoldPacket, bool> Gold(long gold) => packet => packet.Gold == gold && packet.Unknown == 0;
+
+        private static bool Moves(IPacket packet) => packet is IvnPacket or GoldPacket;
+
+        private static Func<SMemoiPacket, bool> Memo(SMemoType type, Game18NConstString message) =>
+            packet => packet.Type == type && packet.Message == message && packet.ArgumentType == 0;
+
+        private static Func<InfoiPacket, bool> Told(Game18NConstString message) => packet => packet.Message == message;
+
+        private static Func<SayiPacket, bool> Said(TestClient who, Game18NConstString message) =>
+            packet => packet.VisualType == VisualType.Player && packet.VisualId == who.CharacterId && packet.Message == message;
+
+        private static Func<MsgiPacket, bool> Announced(Game18NConstString message) => packet => packet.Message == message;
+
+        private static Func<ShopEndPacket, bool> ShopEnded => _ => true;
 
         private static async Task<TestClient> EnterAsync(Player player)
         {
@@ -103,20 +119,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             return client;
         }
 
-        private static string[] Listed(TestClient client, int pocket) =>
-            client.Received.Where(p => p.StartsWith($"inv {pocket}", StringComparison.Ordinal))
-                .SelectMany(p => p.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(2))
-                .Select(slot => slot.Split('.'))
-                .OrderBy(slot => int.Parse(slot[0], CultureInfo.InvariantCulture))
-                .Select(slot => string.Join('.', slot.Take(3)))
+        private static (int Slot, int VNum, int Amount)[] Listed(TestClient client, PocketType pocket) =>
+            client.Received.OfType<InvPacket>().Where(p => p.Type == pocket)
+                .SelectMany(p => p.IvnSubPackets ?? [])
+                .OrderBy(slot => slot.Slot)
+                .Select(slot => ((int)slot.Slot, (int)slot.VNum, (int)slot.RareAmount))
                 .ToArray();
 
         // The gold is sent a moment after the character is in the world.
         private static async Task<long> GoldOnEnteringAsync(TestClient client) =>
-            long.Parse((await client.ExpectSinceAsync(0, p => TestClient.HeaderOf(p) == "gold", "the gold on entering")).Split(' ')[1],
-                CultureInfo.InvariantCulture);
+            (await client.ExpectSinceAsync<GoldPacket>(0, null, "the gold on entering")).Gold;
 
-        private static async Task<string[]> StoredAsync(long characterId, NoscorePocketType pocket)
+        private static async Task<(int Slot, int VNum, int Amount)[]> StoredAsync(long characterId, NoscorePocketType pocket)
         {
             await using var context = Harness.Database.CreateContext();
             var rows = await context.Set<InventoryItemInstance>().AsNoTracking()
@@ -124,25 +138,29 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 .OrderBy(i => i.Slot)
                 .Select(i => new { i.Slot, i.ItemInstance.ItemVNum, i.ItemInstance.Amount })
                 .ToArrayAsync();
-            return rows.Select(r => $"{r.Slot}.{r.ItemVNum}.{r.Amount}").ToArray();
+            return rows.Select(r => ((int)r.Slot, (int)r.ItemVNum, (int)r.Amount)).ToArray();
         }
 
-        private static void Same(string[] expected, string[] actual, string? what = null) =>
+        private static void Same((int Slot, int VNum, int Amount)[] expected, (int Slot, int VNum, int Amount)[] actual, string? what = null) =>
+            Assert.AreEqual(string.Join(' ', expected), string.Join(' ', actual), what);
+
+        private static void Same((PocketType Pocket, int Slot, int VNum, int Amount, int Price)[] expected,
+            (PocketType Pocket, int Slot, int VNum, int Amount, int Price)[] actual, string? what = null) =>
             Assert.AreEqual(string.Join(' ', expected), string.Join(' ', actual), what);
 
         // The seller opens a shop and someone standing by sees its sign go up.
         private static async Task OpenAsync(TestClient seller, TestClient watcher, string name,
-            params (int Pocket, int Slot, int Amount, long Price)[] shelf)
+            params (PocketType Pocket, short Slot, short Amount, long Price)[] shelf)
         {
             var opened = watcher.Mark();
             await seller.SendAsync(Open(name, shelf));
             await watcher.ExpectSinceAsync(opened, Sign(seller, name), "the sign of the shop");
         }
 
-        private static async Task<string> LookAsync(TestClient buyer, TestClient seller)
+        private static async Task<NInvPacket> LookAsync(TestClient buyer, TestClient seller)
         {
             var looked = buyer.Mark();
-            await buyer.SendAsync($"npc_req {Player} {seller.CharacterId}");
+            await buyer.SendAsync(LookAt(seller));
             return await buyer.ExpectSinceAsync(looked, Shelf(seller), "the shelf");
         }
 
@@ -156,10 +174,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var opened = alice.Mark();
             var seen = bob.Mark();
 
-            await alice.SendAsync(Open("stall", (EtcPocket, 0, 5, 30)));
+            await alice.SendAsync(Open("stall", (PocketType.Etc, 0, 5, 30)));
 
             await alice.ExpectSinceAsync(opened, Sign(alice, "stall"), "her own sign");
-            await alice.ExpectSinceAsync(opened, Told(ShopOpened), "the notice that the shop is open");
+            await alice.ExpectSinceAsync(opened, Told(Game18NConstString.ShopOpened), "the notice that the shop is open");
             await alice.ExpectSinceAsync(opened, Sitting(alice, true), "herself sitting");
             await bob.ExpectSinceAsync(seen, Sign(alice, "stall"), "the sign");
             await bob.ExpectSinceAsync(seen, Flag(alice, ShopSign), "the flag over her head");
@@ -176,11 +194,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var refused = alice.Mark();
             var seen = bob.Mark();
 
-            await alice.SendAsync(Open("stall", (EtcPocket, 0, 5, 30)));
+            await alice.SendAsync(Open("stall", (PocketType.Etc, 0, 5, 30)));
 
-            await alice.ExpectSinceAsync(refused, Told(OnlyOnAMarket), "the refusal");
+            await alice.ExpectSinceAsync(refused, Told(Game18NConstString.UseCommercialMapToShop), "the refusal");
             await alice.ExpectSinceAsync(refused, ShopEnded, "the end of the shop window");
-            Assert.IsTrue(await bob.NoneSinceAsync(seen, p => AnySign(alice)(p) || Flag(alice, ShopSign)(p) || Sitting(alice, true)(p),
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(seen, p => AShopShown(alice)(p) || Sitting(alice, true)(p),
                 TimeSpan.FromSeconds(1)), "nobody is shown a shop");
         }
 
@@ -194,10 +212,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var refused = alice.Mark();
             var seen = bob.Mark();
 
-            await alice.SendAsync(Open("stall", (EtcPocket, 0, 5, 30)));
+            await alice.SendAsync(Open("stall", (PocketType.Etc, 0, 5, 30)));
 
-            await alice.ExpectSinceAsync(refused, Told(AwayFromPortals), "the refusal");
-            Assert.IsTrue(await bob.NoneSinceAsync(seen, p => AnySign(alice)(p) || Flag(alice, ShopSign)(p), TimeSpan.FromSeconds(1)),
+            await alice.ExpectSinceAsync(refused, Told(Game18NConstString.OpenShopAwayPortal), "the refusal");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(seen, AShopShown(alice), TimeSpan.FromSeconds(1)),
                 "nobody is shown a shop");
         }
 
@@ -213,9 +231,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.SendAsync(Open("stall"));
 
-            await alice.ExpectSinceAsync(refused, Said(alice, NothingToSell), "the refusal");
+            await alice.ExpectSinceAsync(refused, Said(alice, Game18NConstString.NoItemToSell), "the refusal");
             await alice.ExpectSinceAsync(refused, ShopEnded, "the end of the shop window");
-            Assert.IsTrue(await bob.NoneSinceAsync(seen, p => AnySign(alice)(p) || Flag(alice, ShopSign)(p), TimeSpan.FromSeconds(1)),
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(seen, AShopShown(alice), TimeSpan.FromSeconds(1)),
                 "nobody is shown a shop");
         }
 
@@ -229,11 +247,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var refused = alice.Mark();
             var seen = bob.Mark();
 
-            await alice.SendAsync(Open("stall", (EtcPocket, 0, 5, 30)));
+            await alice.SendAsync(Open("stall", (PocketType.Etc, 0, 5, 30)));
 
-            await alice.ExpectSinceAsync(refused, Said(alice, CannotBeTraded), "the refusal");
+            await alice.ExpectSinceAsync(refused, Said(alice, Game18NConstString.SomeItemsCannotBeTraded), "the refusal");
             await alice.ExpectSinceAsync(refused, ShopEnded, "the end of the shop window");
-            Assert.IsTrue(await bob.NoneSinceAsync(seen, p => AnySign(alice)(p) || Flag(alice, ShopSign)(p), TimeSpan.FromSeconds(1)),
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(seen, AShopShown(alice), TimeSpan.FromSeconds(1)),
                 "nobody is shown a shop");
         }
 
@@ -247,10 +265,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var refused = alice.Mark();
             var seen = bob.Mark();
 
-            await alice.SendAsync(Open("stall", (EtcPocket, 0, 5, 30), (EtcPocket, 0, 5, 10)));
+            await alice.SendAsync(Open("stall", (PocketType.Etc, 0, 5, 30), (PocketType.Etc, 0, 5, 10)));
 
             await alice.ExpectSinceAsync(refused, ShopEnded, "the end of the shop window");
-            Assert.IsTrue(await bob.NoneSinceAsync(seen, p => AnySign(alice)(p) || Flag(alice, ShopSign)(p), TimeSpan.FromSeconds(1)),
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(seen, AShopShown(alice), TimeSpan.FromSeconds(1)),
                 "nobody is shown a shop");
         }
 
@@ -262,11 +280,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(seller, WorldData.Gem, 2, slot: 1);
             await using var alice = await EnterAsync(seller);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Market, 41, 60);
-            await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 4, 30), (EtcPocket, 1, 2, 700));
+            await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 4, 30), (PocketType.Etc, 1, 2, 700));
 
             var shelf = await LookAsync(bob, alice);
 
-            Same(new[] { $"{EtcPocket}.0.{WorldData.Seed}.4.30", $"{EtcPocket}.1.{WorldData.Gem}.2.700" }, OnShelf(shelf));
+            Same([(PocketType.Etc, 0, WorldData.Seed, 4, 30), (PocketType.Etc, 1, WorldData.Gem, 2, 700)], OnShelf(shelf));
         }
 
         [TestMethod]
@@ -278,29 +296,29 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             await using (var bob = await EnterAsync(buyer))
             {
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
                 await LookAsync(bob, alice);
                 var sold = alice.Mark();
                 var bought = bob.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 2");
+                await bob.SendAsync(Buy(alice, 2));
 
-                await bob.ExpectSinceAsync(bought, Slot(EtcPocket, 0, WorldData.Seed, 2), "the two seeds in his bag");
-                await bob.ExpectSinceAsync(bought, Memo(0, Bought), "the purchase confirmed");
+                await bob.ExpectSinceAsync(bought, Slot(PocketType.Etc, 0, WorldData.Seed, 2), "the two seeds in his bag");
+                await bob.ExpectSinceAsync(bought, Memo(SMemoType.SuccessNpc, Game18NConstString.TradeSuccessfull), "the purchase confirmed");
                 await bob.ExpectSinceAsync(bought, Gold(1000 - 2 * 30), "his gold after paying");
-                Same(new[] { $"{EtcPocket}.0.{WorldData.Seed}.3.30" }, OnShelf(await bob.ExpectSinceAsync(bought, Shelf(alice), "the shelf after the sale")));
-                await alice.ExpectSinceAsync(sold, Slot(EtcPocket, 0, WorldData.Seed, 3), "the three seeds left in her bag");
+                Same([(PocketType.Etc, 0, WorldData.Seed, 3, 30)], OnShelf(await bob.ExpectSinceAsync(bought, Shelf(alice), "the shelf after the sale")));
+                await alice.ExpectSinceAsync(sold, Slot(PocketType.Etc, 0, WorldData.Seed, 3), "the three seeds left in her bag");
                 await alice.ExpectSinceAsync(sold, Gold(2 * 30), "her gold after the sale");
             }
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
-            Same(new[] { $"0.{WorldData.Seed}.3" }, Listed(aliceBack, EtcPocket), "her bag when she comes back");
-            Same(new[] { $"0.{WorldData.Seed}.2" }, Listed(bobBack, EtcPocket), "his bag when he comes back");
+            Same([(0, WorldData.Seed, 3)], Listed(aliceBack, PocketType.Etc), "her bag when she comes back");
+            Same([(0, WorldData.Seed, 2)], Listed(bobBack, PocketType.Etc), "his bag when he comes back");
             Assert.AreEqual(2 * 30, await GoldOnEnteringAsync(aliceBack), "her gold when she comes back");
             Assert.AreEqual(1000 - 2 * 30, await GoldOnEnteringAsync(bobBack), "his gold when he comes back");
-            Same(new[] { $"0.{WorldData.Seed}.3" }, await StoredAsync(seller.CharacterId, NoscorePocketType.Etc));
-            Same(new[] { $"0.{WorldData.Seed}.2" }, await StoredAsync(buyer.CharacterId, NoscorePocketType.Etc));
+            Same([(0, WorldData.Seed, 3)], await StoredAsync(seller.CharacterId, NoscorePocketType.Etc));
+            Same([(0, WorldData.Seed, 2)], await StoredAsync(buyer.CharacterId, NoscorePocketType.Etc));
         }
 
         [TestMethod]
@@ -313,17 +331,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             await using (var bob = await EnterAsync(buyer))
             {
-                await OpenAsync(alice, carol, "stall", (EtcPocket, 0, 5, 30));
+                await OpenAsync(alice, carol, "stall", (PocketType.Etc, 0, 5, 30));
                 await LookAsync(bob, alice);
                 var sold = alice.Mark();
                 var bought = bob.Mark();
                 var seen = carol.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 5");
+                await bob.SendAsync(Buy(alice, 5));
 
-                await bob.ExpectSinceAsync(bought, Slot(EtcPocket, 0, WorldData.Seed, 5), "the five seeds in his bag");
+                await bob.ExpectSinceAsync(bought, Slot(PocketType.Etc, 0, WorldData.Seed, 5), "the five seeds in his bag");
                 await bob.ExpectSinceAsync(bought, Gold(1000 - 5 * 30), "his gold after paying");
-                await alice.ExpectSinceAsync(sold, EmptySlot(EtcPocket, 0), "her emptied slot");
+                await alice.ExpectSinceAsync(sold, EmptySlot(PocketType.Etc, 0), "her emptied slot");
                 await alice.ExpectSinceAsync(sold, Gold(5 * 30), "her gold after the sale");
                 await alice.ExpectSinceAsync(sold, Sitting(alice, false), "herself standing up");
                 await carol.ExpectSinceAsync(seen, NoSign(alice), "the sign taken down");
@@ -334,8 +352,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
-            Same([], Listed(aliceBack, EtcPocket), "her bag when she comes back");
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(bobBack, EtcPocket), "his bag when he comes back");
+            Same([], Listed(aliceBack, PocketType.Etc), "her bag when she comes back");
+            Same([(0, WorldData.Seed, 5)], Listed(bobBack, PocketType.Etc), "his bag when he comes back");
             Assert.AreEqual(5 * 30, await GoldOnEnteringAsync(aliceBack), "her gold when she comes back");
             Assert.AreEqual(1000 - 5 * 30, await GoldOnEnteringAsync(bobBack), "his gold when he comes back");
         }
@@ -349,17 +367,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterAsync(seller);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Market, 41, 72, c => c.Gold = 1000);
             await using var carol = await Harness.EnterAsync("Carol", WorldData.Market, 40, 73);
-            await OpenAsync(alice, carol, "stall", (EtcPocket, 0, 5, 30), (EtcPocket, 1, 2, 700));
+            await OpenAsync(alice, carol, "stall", (PocketType.Etc, 0, 5, 30), (PocketType.Etc, 1, 2, 700));
             await LookAsync(bob, alice);
             var bought = bob.Mark();
             var seen = carol.Mark();
 
-            await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 5");
+            await bob.SendAsync(Buy(alice, 5));
 
-            Same(new[] { $"{EtcPocket}.1.{WorldData.Gem}.2.700" }, OnShelf(await bob.ExpectSinceAsync(bought, Shelf(alice), "the shelf after the sale")));
-            Assert.IsTrue(await carol.NoneSinceAsync(seen, p => NoSign(alice)(p) || Flag(alice, 0)(p) || Sitting(alice, false)(p),
+            Same([(PocketType.Etc, 1, WorldData.Gem, 2, 700)], OnShelf(await bob.ExpectSinceAsync(bought, Shelf(alice), "the shelf after the sale")));
+            Assert.IsTrue(await carol.NoneSinceAsync<IPacket>(seen, p => NoSign(alice)(p) || Flag(alice, 0)(p) || Sitting(alice, false)(p),
                 TimeSpan.FromSeconds(1)), "the shop stays open");
-            Same(new[] { $"{EtcPocket}.1.{WorldData.Gem}.2.700" }, OnShelf(await LookAsync(carol, alice)), "what someone else is shown");
+            Same([(PocketType.Etc, 1, WorldData.Gem, 2, 700)], OnShelf(await LookAsync(carol, alice)), "what someone else is shown");
         }
 
         [TestMethod]
@@ -371,23 +389,23 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             await using (var bob = await EnterAsync(buyer))
             {
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
                 await LookAsync(bob, alice);
                 var asked = alice.Mark();
                 var refused = bob.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 2");
+                await bob.SendAsync(Buy(alice, 2));
 
-                await bob.ExpectSinceAsync(refused, Memo(2, NotEnoughGold), "the refusal");
-                Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "gold", TimeSpan.FromSeconds(1)),
+                await bob.ExpectSinceAsync(refused, Memo(SMemoType.FailNpc, Game18NConstString.NotEnoughGold5), "the refusal");
+                Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, Moves, TimeSpan.FromSeconds(1)),
                     "the seller is told of no sale");
-                Assert.IsFalse(bob.Since(refused).Any(p => TestClient.HeaderOf(p) is "ivn" or "gold"), "nothing reaches the buyer");
+                Assert.IsFalse(bob.Since(refused).Any(Moves), "nothing reaches the buyer");
             }
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(aliceBack, EtcPocket));
-            Same([], Listed(bobBack, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(aliceBack, PocketType.Etc));
+            Same([], Listed(bobBack, PocketType.Etc));
             Assert.AreEqual(0, await GoldOnEnteringAsync(aliceBack));
             Assert.AreEqual(59, await GoldOnEnteringAsync(bobBack));
         }
@@ -406,26 +424,26 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             await using (var bob = await EnterAsync(buyer))
             {
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
                 await LookAsync(bob, alice);
                 var asked = alice.Mark();
                 var refused = bob.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 5");
+                await bob.SendAsync(Buy(alice, 5));
 
-                await bob.ExpectSinceAsync(refused, Announced(BagIsFull), "the refusal");
-                Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "gold" || NoSign(alice)(p),
+                await bob.ExpectSinceAsync(refused, Announced(Game18NConstString.NotEnoughSpace), "the refusal");
+                Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, p => Moves(p) || NoSign(alice)(p),
                     TimeSpan.FromSeconds(1)), "the seller is told of no sale and the shop stays open");
-                Assert.IsFalse(bob.Since(refused).Any(AnyGold), "the buyer pays nothing");
-                Same(new[] { $"{EtcPocket}.0.{WorldData.Seed}.5.30" }, OnShelf(await LookAsync(bob, alice)), "the shelf afterwards");
+                Assert.IsFalse(bob.Since<GoldPacket>(refused).Any(), "the buyer pays nothing");
+                Same([(PocketType.Etc, 0, WorldData.Seed, 5, 30)], OnShelf(await LookAsync(bob, alice)), "the shelf afterwards");
             }
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(aliceBack, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(aliceBack, PocketType.Etc));
             Assert.AreEqual(0, await GoldOnEnteringAsync(aliceBack));
             Assert.AreEqual(1000, await GoldOnEnteringAsync(bobBack));
-            Assert.IsFalse(Listed(bobBack, EtcPocket).Any(slot => slot.Contains($".{WorldData.Seed}.", StringComparison.Ordinal)), "no seed in his bag");
+            Assert.IsFalse(Listed(bobBack, PocketType.Etc).Any(slot => slot.VNum == WorldData.Seed), "no seed in his bag");
         }
 
         [TestMethod]
@@ -438,21 +456,21 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var bob = await EnterAsync(buyer))
             {
                 // Three of the five she holds are for sale.
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 3, 30));
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 3, 30));
                 await LookAsync(bob, alice);
                 var asked = alice.Mark();
                 var refused = bob.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 4");
+                await bob.SendAsync(Buy(alice, 4));
 
-                Assert.IsTrue(await bob.NoneSinceAsync(refused, p => TestClient.HeaderOf(p) is "ivn" or "gold", TimeSpan.FromSeconds(1)),
+                Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(refused, Moves, TimeSpan.FromSeconds(1)),
                     "nothing reaches the buyer");
-                Assert.IsFalse(alice.Since(asked).Any(p => TestClient.HeaderOf(p) is "ivn" or "gold"), "the seller is told of no sale");
+                Assert.IsFalse(alice.Since(asked).Any(Moves), "the seller is told of no sale");
             }
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(aliceBack, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(aliceBack, PocketType.Etc));
             Assert.AreEqual(1000, await GoldOnEnteringAsync(bobBack));
         }
 
@@ -466,22 +484,22 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             await using (var bob = await EnterAsync(buyer))
             {
-                await OpenAsync(alice, carol, "stall", (EtcPocket, 0, 3, 30));
+                await OpenAsync(alice, carol, "stall", (PocketType.Etc, 0, 3, 30));
                 await LookAsync(bob, alice);
                 var sold = alice.Mark();
                 var seen = carol.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 3");
+                await bob.SendAsync(Buy(alice, 3));
 
-                await alice.ExpectSinceAsync(sold, Slot(EtcPocket, 0, WorldData.Seed, 2), "the two seeds she kept");
+                await alice.ExpectSinceAsync(sold, Slot(PocketType.Etc, 0, WorldData.Seed, 2), "the two seeds she kept");
                 await alice.ExpectSinceAsync(sold, Gold(3 * 30), "her gold after the sale");
                 await carol.ExpectSinceAsync(seen, NoSign(alice), "the sign taken down");
             }
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
-            Same(new[] { $"0.{WorldData.Seed}.2" }, Listed(aliceBack, EtcPocket));
-            Same(new[] { $"0.{WorldData.Seed}.3" }, Listed(bobBack, EtcPocket));
+            Same([(0, WorldData.Seed, 2)], Listed(aliceBack, PocketType.Etc));
+            Same([(0, WorldData.Seed, 3)], Listed(bobBack, PocketType.Etc));
         }
 
         [TestMethod]
@@ -492,18 +510,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             {
                 await using var bob = await Harness.EnterAsync("Bob", WorldData.Market, 47, 40);
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
-                await alice.SendAsync($"npc_req {Player} {alice.CharacterId}");
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
+                await alice.SendAsync(LookAt(alice));
                 var asked = alice.Mark();
 
-                await alice.SendAsync($"buy {Player} {alice.CharacterId} 0 2");
+                await alice.SendAsync(Buy(alice, 2));
 
-                Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "gold", TimeSpan.FromSeconds(1)),
+                Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, Moves, TimeSpan.FromSeconds(1)),
                     "nothing is sold");
             }
 
             await using var back = await Harness.ComeBackAsync(seller);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
             Assert.AreEqual(1000, await GoldOnEnteringAsync(back));
         }
 
@@ -514,12 +532,12 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(seller, WorldData.Seed, 5);
             await using var alice = await EnterAsync(seller);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Market, 47, 44, c => c.Gold = 1000);
-            await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+            await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
             await LookAsync(bob, alice);
             var closed = alice.Mark();
             var seen = bob.Mark();
 
-            await alice.SendAsync("m_shop 1");
+            await alice.SendAsync(Close);
 
             await bob.ExpectSinceAsync(seen, NoSign(alice), "the sign taken down");
             await bob.ExpectSinceAsync(seen, Flag(alice, 0), "the flag taken down");
@@ -528,10 +546,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var asked = alice.Mark();
             var tried = bob.Mark();
 
-            await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 1");
+            await bob.SendAsync(Buy(alice, 1));
 
-            Assert.IsTrue(await bob.NoneSinceAsync(tried, p => TestClient.HeaderOf(p) is "ivn" or "gold", TimeSpan.FromSeconds(1)), "nothing is bought");
-            Assert.IsFalse(alice.Since(asked).Any(p => TestClient.HeaderOf(p) is "ivn" or "gold"), "nothing is sold");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(tried, Moves, TimeSpan.FromSeconds(1)), "nothing is bought");
+            Assert.IsFalse(alice.Since(asked).Any(Moves), "nothing is sold");
         }
 
         [TestMethod]
@@ -541,16 +559,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(seller, WorldData.Seed, 5);
             await using var alice = await EnterAsync(seller);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Market, 47, 48, c => c.Gold = 1000);
-            await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+            await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
             var seen = bob.Mark();
-            await alice.SendAsync("m_shop 1");
+            await alice.SendAsync(Close);
             await bob.ExpectSinceAsync(seen, NoSign(alice), "the sign taken down");
 
-            await OpenAsync(alice, bob, "bargains", (EtcPocket, 0, 5, 20));
+            await OpenAsync(alice, bob, "bargains", (PocketType.Etc, 0, 5, 20));
 
-            Same(new[] { $"{EtcPocket}.0.{WorldData.Seed}.5.20" }, OnShelf(await LookAsync(bob, alice)));
+            Same([(PocketType.Etc, 0, WorldData.Seed, 5, 20)], OnShelf(await LookAsync(bob, alice)));
             var bought = bob.Mark();
-            await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 1");
+            await bob.SendAsync(Buy(alice, 1));
             await bob.ExpectSinceAsync(bought, Gold(1000 - 20), "his gold at the new price");
         }
 
@@ -564,25 +582,23 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             {
                 sellerId = alice.CharacterId;
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
                 await LookAsync(bob, alice);
             }
 
-            await bob.ExpectAsync(p => p == $"out {Player} {sellerId}", "the seller leaving");
+            await bob.ExpectAsync<OutPacket>(p => p.VisualType == VisualType.Player && p.VisualId == sellerId, "the seller leaving");
             var tried = bob.Mark();
-            await bob.SendAsync($"buy {Player} {sellerId} 0 1");
+            await bob.SendAsync(Buy(sellerId, 1));
             await Task.Delay(TimeSpan.FromSeconds(1));
-            Assert.AreEqual(string.Empty, string.Join(" / ", bob.Since(tried).Where(p => TestClient.HeaderOf(p) is "ivn" or "gold" or "s_memoi" or "n_inv")),
-                "nothing is bought from someone who has left");
+            Assert.IsFalse(bob.Since(tried).Any(p => p is IvnPacket or GoldPacket or SMemoiPacket or NInvPacket), "nothing is bought from someone who has left");
 
             var returned = bob.Mark();
             await using var back = await Harness.ComeBackAsync(seller);
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(back, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
             Assert.AreEqual(0, await GoldOnEnteringAsync(back));
-            await bob.ExpectSinceAsync(returned, p => p.StartsWith("in 1 ", StringComparison.Ordinal) && p.Split(' ')[4] == sellerId.ToString(CultureInfo.InvariantCulture),
-                "the seller back on the map");
-            Assert.IsTrue(await bob.NoneSinceAsync(returned, p => p.StartsWith($"shop {Player} {sellerId} {ShopSign} ", StringComparison.Ordinal)
-                || p == $"pflag {Player} {sellerId} {ShopSign}", TimeSpan.FromSeconds(1)), "she comes back without a shop");
+            await bob.ExpectSinceAsync<InPacket>(returned, p => p.VisualType == VisualType.Player && p.VisualId == sellerId, "the seller back on the map");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(returned, p => AnySign(sellerId)(p) || Flag(sellerId, ShopSign)(p), TimeSpan.FromSeconds(1)),
+                "she comes back without a shop");
         }
 
         [TestMethod]
@@ -592,21 +608,21 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(seller, WorldData.Seed, 5);
             await using var alice = await EnterAsync(seller);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Market, 47, 56);
-            await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+            await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
 
             await using (var carol = await Harness.EnterAsync("Carol", WorldData.Market, 46, 57))
             {
                 await carol.ExpectSinceAsync(0, Sign(alice, "stall"), "the sign");
                 await carol.ExpectSinceAsync(0, Flag(alice, ShopSign), "the flag");
-                Same(new[] { $"{EtcPocket}.0.{WorldData.Seed}.5.30" }, OnShelf(await LookAsync(carol, alice)));
+                Same([(PocketType.Etc, 0, WorldData.Seed, 5, 30)], OnShelf(await LookAsync(carol, alice)));
             }
 
             var seen = bob.Mark();
-            await alice.SendAsync("m_shop 1");
+            await alice.SendAsync(Close);
             await bob.ExpectSinceAsync(seen, NoSign(alice), "the sign taken down");
 
             await using var dave = await Harness.EnterAsync("Dave", WorldData.Market, 46, 57);
-            Assert.IsTrue(await dave.NoneSinceAsync(0, p => AnySign(alice)(p) || Flag(alice, ShopSign)(p), TimeSpan.FromSeconds(1)),
+            Assert.IsTrue(await dave.NoneSinceAsync<IPacket>(0, AShopShown(alice), TimeSpan.FromSeconds(1)),
                 "nobody arriving afterwards is shown a shop");
         }
 
@@ -620,31 +636,33 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             await using (var bob = await EnterAsync(buyer))
             {
-                await OpenAsync(alice, bob, "smithy", (EquipmentPocket, 0, 1, 2000));
-                Same(new[] { $"{EquipmentPocket}.0.{WorldData.Blade}.5.7.2000" }, OnShelf(await LookAsync(bob, alice)));
+                await OpenAsync(alice, bob, "smithy", (PocketType.Equipment, 0, 1, 2000));
+                PacketAssert.AreEqual(new NInvItemSubPacket { Type = PocketType.Equipment, Slot = 0, VNum = WorldData.Blade, RareAmount = 5, UpgradeDesign = 7, Price = 2000 },
+                    (await LookAsync(bob, alice)).Items?.OfType<NInvItemSubPacket>().Single());
                 var sold = alice.Mark();
                 var bought = bob.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 1");
+                await bob.SendAsync(Buy(alice, 1));
 
-                await bob.ExpectSinceAsync(bought, p => p.StartsWith($"ivn {EquipmentPocket} 0.{WorldData.Blade}.5.7.", StringComparison.Ordinal),
-                    "the blade in his bag, as it was");
+                await bob.ExpectSinceAsync<IvnPacket>(bought, p => p.Type == PocketType.Equipment
+                    && p.IvnSubPackets?.Any(item => item is { Slot: 0, VNum: WorldData.Blade, RareAmount: 5, UpgradeDesign: 7 }) == true, "the blade in his bag, as it was");
                 await bob.ExpectSinceAsync(bought, Gold(5000 - 2000), "his gold after paying");
-                await alice.ExpectSinceAsync(sold, EmptySlot(EquipmentPocket, 0), "her emptied slot");
+                await alice.ExpectSinceAsync(sold, EmptySlot(PocketType.Equipment, 0), "her emptied slot");
                 await alice.ExpectSinceAsync(sold, Gold(2000), "her gold after the sale");
             }
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
-            Same([], Listed(aliceBack, EquipmentPocket), "her bag when she comes back");
-            Assert.IsTrue(bobBack.Received.Any(p => p.StartsWith($"inv {EquipmentPocket} 0.{WorldData.Blade}.5.7.", StringComparison.Ordinal)),
+            Same([], Listed(aliceBack, PocketType.Equipment), "her bag when she comes back");
+            Assert.IsTrue(bobBack.Received.OfType<InvPacket>().Any(p => p.Type == PocketType.Equipment
+                && p.IvnSubPackets?.Any(item => item is { Slot: 0, VNum: WorldData.Blade, RareAmount: 5, UpgradeDesign: 7 }) == true),
                 "his blade when he comes back, as it was");
             await using var context = Harness.Database.CreateContext();
             var held = await context.Set<InventoryItemInstance>().AsNoTracking()
                 .Where(i => (i.CharacterId == seller.CharacterId || i.CharacterId == buyer.CharacterId) && i.ItemInstance.ItemVNum == WorldData.Blade)
                 .Select(i => i.CharacterId)
                 .ToArrayAsync();
-            Assert.AreEqual(buyer.CharacterId.ToString(CultureInfo.InvariantCulture), string.Join(' ', held), "who holds a blade");
+            CollectionAssert.AreEqual(new[] { buyer.CharacterId }, held, "who holds a blade");
         }
 
         [TestMethod]
@@ -656,24 +674,24 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(seller))
             await using (var bob = await EnterAsync(buyer))
             {
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 5, 30));
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
                 await LookAsync(bob, alice);
                 var asked = alice.Mark();
                 var refused = bob.Mark();
 
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 1");
+                await bob.SendAsync(Buy(alice, 1));
 
-                await bob.ExpectSinceAsync(refused, Memo(3, SellerWouldHoldTooMuchGold), "the refusal");
-                Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "ivn" or "gold", TimeSpan.FromSeconds(1)),
+                await bob.ExpectSinceAsync(refused, Memo(SMemoType.FailPlayer, Game18NConstString.TradeFailedMaxMoney), "the refusal");
+                Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, Moves, TimeSpan.FromSeconds(1)),
                     "the seller is told of no sale");
-                Assert.IsFalse(bob.Since(refused).Any(p => TestClient.HeaderOf(p) is "ivn" or "gold"), "nothing reaches the buyer");
+                Assert.IsFalse(bob.Since(refused).Any(Moves), "nothing reaches the buyer");
             }
 
             await using var aliceBack = await Harness.ComeBackAsync(seller);
             await using var bobBack = await Harness.ComeBackAsync(buyer);
             Assert.AreEqual(MostGold - 10, await GoldOnEnteringAsync(aliceBack));
             Assert.AreEqual(1000, await GoldOnEnteringAsync(bobBack));
-            Same(new[] { $"0.{WorldData.Seed}.5" }, Listed(aliceBack, EtcPocket));
+            Same([(0, WorldData.Seed, 5)], Listed(aliceBack, PocketType.Etc));
         }
 
         [TestMethod]
@@ -687,17 +705,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var bob = await EnterAsync(first))
             await using (var carol = await EnterAsync(second))
             {
-                await OpenAsync(alice, bob, "stall", (EtcPocket, 0, 1, 400));
+                await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 1, 400));
                 await LookAsync(bob, alice);
                 await LookAsync(carol, alice);
                 var bought = bob.Mark();
-                await bob.SendAsync($"buy {Player} {alice.CharacterId} 0 1");
+                await bob.SendAsync(Buy(alice, 1));
                 await bob.ExpectSinceAsync(bought, Gold(600), "his gold after paying");
                 var late = carol.Mark();
 
-                await carol.SendAsync($"buy {Player} {alice.CharacterId} 0 1");
+                await carol.SendAsync(Buy(alice, 1));
 
-                Assert.IsTrue(await carol.NoneSinceAsync(late, p => TestClient.HeaderOf(p) is "ivn" or "gold", TimeSpan.FromSeconds(1)),
+                Assert.IsTrue(await carol.NoneSinceAsync<IPacket>(late, Moves, TimeSpan.FromSeconds(1)),
                     "nothing is left for the second buyer");
             }
 
@@ -707,9 +725,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Assert.AreEqual(400, await GoldOnEnteringAsync(aliceBack));
             Assert.AreEqual(600, await GoldOnEnteringAsync(bobBack));
             Assert.AreEqual(1000, await GoldOnEnteringAsync(carolBack));
-            Same(new[] { $"0.{WorldData.Gem}.1" }, Listed(bobBack, EtcPocket));
-            Same([], Listed(carolBack, EtcPocket));
-            Same([], Listed(aliceBack, EtcPocket));
+            Same([(0, WorldData.Gem, 1)], Listed(bobBack, PocketType.Etc));
+            Same([], Listed(carolBack, PocketType.Etc));
+            Same([], Listed(aliceBack, PocketType.Etc));
         }
     }
 }

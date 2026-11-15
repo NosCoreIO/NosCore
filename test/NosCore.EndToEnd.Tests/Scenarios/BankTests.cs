@@ -5,32 +5,29 @@
 //
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Bank;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Bank;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Npcs;
+using NosCore.Packets.ServerPackets.Shop;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class BankTests
     {
-        private const int Npc = 2;
-        private const int OpenBank = 321;
-        private const int Deposit = 1;
-        private const int Withdraw = 2;
-        private const int Opened = 3;
-        private const int BankSuccess = 4;
-        private const int BankError = 5;
-        private const int NotEnoughGold = 1072;
-        private const int BankIsFull = 1073;
-        private const int NotEnoughInTheBank = 1074;
-        private const int TooMuchGoldToCarry = 1075;
-        private const int NoGoldForTheFee = 2354;
-
         // The bank counts in thousands of gold.
         private const long Unit = 1000;
         private const long MostInTheBank = 100_000_000_000;
@@ -63,14 +60,41 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             return client;
         }
 
-        // gb <action> <thousands in the bank> <gold carried> <rank> <fee of a withdrawal>
+        private static readonly RequestNpcPacket TalkToTheBroker = new() { Type = VisualType.Npc, TargetId = WorldData.Broker };
+
+        private static readonly NrunPacket OpenTheBank = new()
+        {
+            Runner = NrunRunnerType.OpenBankFacilities, Type = 0, VisualType = VisualType.Npc, VisualId = WorldData.Broker
+        };
+
+        private static Func<NpcReqPacket, bool> BrokersDialog =>
+            packet => packet.Type == VisualType.Npc && packet.TargetId == WorldData.Broker && packet.Data == WorldData.BrokerDialog;
+
+        private static GboxPacket Deposit(long units, bool confirmed = true) =>
+            new() { Type = BankActionType.DepositGold, Amount = units, Mode = confirmed };
+
+        private static GboxPacket Withdraw(long units, bool confirmed = true) =>
+            new() { Type = BankActionType.WithdrawGold, Amount = units, Mode = confirmed };
+
+        private static Func<GbPacket, bool> Bank(BankActionType action, long units, long carried) =>
+            packet => packet.Type == action && packet.GoldBank == units && packet.Gold == carried;
+
+        private static Func<GoldPacket, bool> Carrying(long gold) => packet => packet.Gold == gold && packet.Unknown == 0;
+
+        private static Func<SMemoi2Packet, bool> Receipt => packet => packet.Type == SMemoType.BankSuccess;
+
+        private static Func<Qnai2Packet, bool> AskedToConfirm(GboxPacket asked) =>
+            packet => packet.YesPacket is GboxPacket { Mode: true } yes && yes.Type == asked.Type && yes.Amount == asked.Amount;
+
+        private static bool MovesGold(IPacket packet) => packet is GoldPacket or GbPacket;
+
         private static async Task<long> OpenBankAsync(TestClient client)
         {
-            await client.SendAsync($"npc_req {Npc} {WorldData.Broker}");
-            await client.ExpectAsync(p => p == $"npc_req {Npc} {WorldData.Broker} {WorldData.BrokerDialog}", "the broker's dialog");
-            await client.SendAsync($"n_run {OpenBank} 0 {Npc} {WorldData.Broker}");
-            var opened = await client.ExpectAsync(p => p.StartsWith($"gb {Opened} ", StringComparison.Ordinal), "the bank window");
-            return long.Parse(opened.Split(' ')[5], CultureInfo.InvariantCulture);
+            await client.SendAsync(TalkToTheBroker);
+            await client.ExpectAsync(BrokersDialog, "the broker's dialog");
+            await client.SendAsync(OpenTheBank);
+            var opened = await client.ExpectAsync<GbPacket>(p => p.Type == BankActionType.OpenBank, "the bank window");
+            return opened.BankTax;
         }
 
         private static async Task<(long Gold, long Banked)> StoredAsync(Player player)
@@ -80,8 +104,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             return ((await Harness.StoredAsync(player.CharacterId)).Gold, banked);
         }
 
-        private static Func<string, bool> Refusal(int message) =>
-            packet => packet.StartsWith($"s_memoi {BankError} {message} ", StringComparison.Ordinal) || packet == $"s_memoi {BankError} {message}";
+        private static Func<SMemoiPacket, bool> Refusal(Game18NConstString message) =>
+            packet => packet.Type == SMemoType.BankError && packet.Message == message;
 
         [TestMethod]
         public async Task OpeningTheBankShowsWhatIsInItAndWhatIsCarried()
@@ -89,12 +113,12 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var player = await CustomerAsync(gold: 5_000, banked: 7_000_000);
             await using var alice = await EnterAsync(player);
 
-            await alice.SendAsync($"npc_req {Npc} {WorldData.Broker}");
-            await alice.ExpectAsync(p => p == $"npc_req {Npc} {WorldData.Broker} {WorldData.BrokerDialog}", "the broker's dialog");
-            await alice.SendAsync($"n_run {OpenBank} 0 {Npc} {WorldData.Broker}");
+            await alice.SendAsync(TalkToTheBroker);
+            await alice.ExpectAsync(BrokersDialog, "the broker's dialog");
+            await alice.SendAsync(OpenTheBank);
 
-            var opened = (await alice.ExpectAsync("gb")).Split(' ');
-            Assert.AreEqual($"gb {Opened} 7000 5000", string.Join(' ', opened.Take(4)));
+            var opened = await alice.ExpectAsync<GbPacket>();
+            Assert.AreEqual((BankActionType.OpenBank, 7000L, 5000), (opened.Type, opened.GoldBank, opened.Gold));
         }
 
         [TestMethod]
@@ -106,17 +130,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await OpenBankAsync(alice);
                 var asked = alice.Mark();
 
-                await alice.SendAsync($"gbox {Deposit} 3 0");
+                await alice.SendAsync(Deposit(3, confirmed: false));
 
-                StringAssert.StartsWith(await alice.ExpectAsync("qnai2"), $"qnai2 #gbox^{Deposit}^3^1 ");
-                Assert.IsFalse(alice.Since(asked).Any(p => TestClient.HeaderOf(p) is "gold" or "gb"), "nothing moves while it is only asked");
+                await alice.ExpectAsync(AskedToConfirm(Deposit(3)), "the question");
+                Assert.IsFalse(alice.Since(asked).Any(MovesGold), "nothing moves while it is only asked");
                 var deposited = alice.Mark();
 
-                await alice.SendAsync($"gbox {Deposit} 3 1");
+                await alice.SendAsync(Deposit(3));
 
-                await alice.ExpectSinceAsync(deposited, p => p == "gold 2000 0", "the gold left in hand");
-                await alice.ExpectSinceAsync(deposited, p => p.StartsWith($"gb {Deposit} 3 2000 ", StringComparison.Ordinal), "the bank after the deposit");
-                await alice.ExpectSinceAsync(deposited, p => p.StartsWith($"s_memoi2 {BankSuccess} ", StringComparison.Ordinal), "the receipt");
+                await alice.ExpectSinceAsync(deposited, Carrying(2000), "the gold left in hand");
+                await alice.ExpectSinceAsync(deposited, Bank(BankActionType.DepositGold, 3, 2000), "the bank after the deposit");
+                await alice.ExpectSinceAsync(deposited, Receipt, "the receipt");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -132,17 +156,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 var fee = await OpenBankAsync(alice);
                 Assert.IsTrue(fee > 0, "a withdrawal costs something");
 
-                await alice.SendAsync($"gbox {Withdraw} 2000 0");
+                await alice.SendAsync(Withdraw(2000, confirmed: false));
 
-                StringAssert.StartsWith(await alice.ExpectAsync("qnai2"), $"qnai2 #gbox^{Withdraw}^2000^1 ");
+                await alice.ExpectAsync(AskedToConfirm(Withdraw(2000)), "the question");
                 var withdrawn = alice.Mark();
 
-                await alice.SendAsync($"gbox {Withdraw} 2000 1");
+                await alice.SendAsync(Withdraw(2000));
 
                 var carried = 1_000_000 + 2_000_000 - fee;
-                await alice.ExpectSinceAsync(withdrawn, p => p == $"gold {carried} 0", "the gold in hand");
-                await alice.ExpectSinceAsync(withdrawn, p => p.StartsWith($"gb {Withdraw} 3000 {carried} ", StringComparison.Ordinal), "the bank after the withdrawal");
-                await alice.ExpectSinceAsync(withdrawn, p => p.StartsWith($"s_memoi2 {BankSuccess} ", StringComparison.Ordinal), "the receipt");
+                await alice.ExpectSinceAsync(withdrawn, Carrying(carried), "the gold in hand");
+                await alice.ExpectSinceAsync(withdrawn, Bank(BankActionType.WithdrawGold, 3000, carried), "the bank after the withdrawal");
+                await alice.ExpectSinceAsync(withdrawn, Receipt, "the receipt");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -159,13 +183,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var fee = await OpenBankAsync(alice);
                 var deposited = alice.Mark();
-                await alice.SendAsync($"gbox {Deposit} 1000 1");
-                await alice.ExpectSinceAsync(deposited, p => p.StartsWith($"gb {Deposit} 1000 1000000 ", StringComparison.Ordinal), "the bank after the deposit");
+                await alice.SendAsync(Deposit(1000));
+                await alice.ExpectSinceAsync(deposited, Bank(BankActionType.DepositGold, 1000, 1_000_000), "the bank after the deposit");
                 var withdrawn = alice.Mark();
 
-                await alice.SendAsync($"gbox {Withdraw} 1000 1");
+                await alice.SendAsync(Withdraw(1000));
 
-                await alice.ExpectSinceAsync(withdrawn, p => p.StartsWith($"gb {Withdraw} 0 {2_000_000 - fee} ", StringComparison.Ordinal), "the emptied bank");
+                await alice.ExpectSinceAsync(withdrawn, Bank(BankActionType.WithdrawGold, 0, 2_000_000 - fee), "the emptied bank");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -181,10 +205,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await OpenBankAsync(alice);
                 var refused = alice.Mark();
 
-                await alice.SendAsync($"gbox {Deposit} 6 1");
+                await alice.SendAsync(Deposit(6));
 
-                await alice.ExpectSinceAsync(refused, Refusal(NotEnoughGold), "the refusal");
-                Assert.IsFalse(alice.Since(refused).Any(p => TestClient.HeaderOf(p) is "gold" or "gb"), "nothing moves");
+                await alice.ExpectSinceAsync(refused, Refusal(Game18NConstString.NotEnoughGold3), "the refusal");
+                Assert.IsFalse(alice.Since(refused).Any(MovesGold), "nothing moves");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -200,10 +224,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await OpenBankAsync(alice);
                 var refused = alice.Mark();
 
-                await alice.SendAsync($"gbox {Withdraw} 6 1");
+                await alice.SendAsync(Withdraw(6));
 
-                await alice.ExpectSinceAsync(refused, Refusal(NotEnoughInTheBank), "the refusal");
-                Assert.IsFalse(alice.Since(refused).Any(p => TestClient.HeaderOf(p) is "gold" or "gb"), "nothing moves");
+                await alice.ExpectSinceAsync(refused, Refusal(Game18NConstString.NotEnoughFounds), "the refusal");
+                Assert.IsFalse(alice.Since(refused).Any(MovesGold), "nothing moves");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -220,9 +244,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 Assert.IsTrue(fee > 10, "the fee is more than she carries");
                 var refused = alice.Mark();
 
-                await alice.SendAsync($"gbox {Withdraw} 5000 1");
+                await alice.SendAsync(Withdraw(5000));
 
-                await alice.ExpectSinceAsync(refused, Refusal(NoGoldForTheFee), "the refusal");
+                await alice.ExpectSinceAsync(refused, Refusal(Game18NConstString.YouDontHaveAnyGoldToPay), "the refusal");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -239,9 +263,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 var units = (fee + 2_000) / Unit;
                 var refused = alice.Mark();
 
-                await alice.SendAsync($"gbox {Withdraw} {units} 1");
+                await alice.SendAsync(Withdraw(units));
 
-                await alice.ExpectSinceAsync(refused, Refusal(TooMuchGoldToCarry), "the refusal");
+                await alice.ExpectSinceAsync(refused, Refusal(Game18NConstString.MaxGoldReached), "the refusal");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -257,14 +281,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await OpenBankAsync(alice);
                 var refused = alice.Mark();
 
-                await alice.SendAsync($"gbox {Deposit} 2 1");
+                await alice.SendAsync(Deposit(2));
 
-                await alice.ExpectSinceAsync(refused, Refusal(BankIsFull), "the refusal");
+                await alice.ExpectSinceAsync(refused, Refusal(Game18NConstString.CanNotDepositAnymore), "the refusal");
                 var filled = alice.Mark();
 
-                await alice.SendAsync($"gbox {Deposit} 1 1");
+                await alice.SendAsync(Deposit(1));
 
-                await alice.ExpectSinceAsync(filled, p => p.StartsWith($"gb {Deposit} {MostInTheBank / Unit} 4000 ", StringComparison.Ordinal), "the bank filled to the brim");
+                await alice.ExpectSinceAsync(filled, Bank(BankActionType.DepositGold, MostInTheBank / Unit, 4000), "the bank filled to the brim");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -279,11 +303,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var asked = alice.Mark();
 
-                await alice.SendAsync($"gbox {Deposit} 3 1");
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await alice.SendAsync(Deposit(3));
 
-                Assert.AreEqual(string.Empty, string.Join(" / ", alice.Since(asked).Where(p => TestClient.HeaderOf(p) is "gold" or "gb" or "s_memoi" or "s_memoi2")),
-                    "the bank does not answer");
+                Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, p => p is GoldPacket or GbPacket or SMemoiPacket or SMemoi2Packet,
+                    TimeSpan.FromSeconds(1)), "the bank does not answer");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -301,14 +324,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 for (short y = 116; y >= 110; y--)
                 {
                     await alice.WalkAsync(76, y);
-                    await bob.ExpectAsync(p => p.StartsWith($"mv 1 {alice.CharacterId} 76 {y} ", StringComparison.Ordinal), "the step");
+                    var step = y;
+                    await bob.ExpectAsync<MovePacket>(p => p.VisualType == VisualType.Player && p.VisualEntityId == alice.CharacterId
+                        && p.MapX == 76 && p.MapY == step, "the step");
                 }
 
                 var asked = alice.Mark();
 
-                await alice.SendAsync($"gbox {Deposit} 3 1");
+                await alice.SendAsync(Deposit(3));
 
-                Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) is "gold" or "gb" or "s_memoi2",
+                Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, p => p is GoldPacket or GbPacket or SMemoi2Packet,
                     TimeSpan.FromSeconds(1)), "the bank does not answer");
             }
 
@@ -324,8 +349,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using (var alice = await EnterAsync(player))
             {
                 await OpenBankAsync(alice);
-                await alice.SendAsync($"gbox {Deposit} 3 1");
-                await alice.ExpectAsync(p => p.StartsWith($"gb {Deposit} 3 2000 ", StringComparison.Ordinal), "the bank after the deposit");
+                await alice.SendAsync(Deposit(3));
+                await alice.ExpectAsync(Bank(BankActionType.DepositGold, 3, 2000), "the bank after the deposit");
             }
 
             await using var back = await Harness.ComeBackAsync(player);

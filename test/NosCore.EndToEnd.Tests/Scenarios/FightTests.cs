@@ -6,70 +6,70 @@
 
 using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ClientPackets.Battle;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ClientPackets.Event;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class FightTests
     {
-        private const int Player = 1;
-        private const int Monster = 3;
-        private const int MainPocket = 1;
         private const int MostHp = 221;
         private const int MostMp = 60;
-        private const int ReviveHere = 0;
-        private const int ReviveAtTheSavePoint = 1;
-        private const int ReviveHereForFree = 570;
         private const int RangedSkill = 1;
         private const int RangedSkillRange = 7;
 
-        // su <type> <id> <target type> <target id> <skill> <cooldown> <animation> <effect> <x> <y> <target alive> <target hp %> <damage> ...
-        private static Func<string, bool> HitBy(TestClient attacker, int monster) =>
-            packet => packet.StartsWith($"su {Player} {attacker.CharacterId} {Monster} {monster} ", StringComparison.Ordinal);
+        private static Func<SuPacket, bool> HitBy(TestClient attacker, int monster) =>
+            packet => packet.VisualType == VisualType.Player && packet.VisualId == attacker.CharacterId
+                && packet.TargetVisualType == VisualType.Monster && packet.TargetId == monster;
 
-        private static Func<string, bool> HitOn(TestClient victim, int monster) =>
-            packet => packet.StartsWith($"su {Monster} {monster} {Player} {victim.CharacterId} ", StringComparison.Ordinal);
+        private static Func<SuPacket, bool> HitOn(TestClient victim, int monster) =>
+            packet => packet.VisualType == VisualType.Monster && packet.VisualId == monster
+                && packet.TargetVisualType == VisualType.Player && packet.TargetId == victim.CharacterId;
 
-        private static Func<string, bool> Stat => packet => TestClient.HeaderOf(packet) == "stat";
+        private static UseSkillPacket Cast(long castId, int monster) =>
+            new() { CastId = castId, TargetVisualType = VisualType.Monster, TargetId = monster };
 
-        private static int Hp(string stat) => int.Parse(stat.Split(' ')[1], CultureInfo.InvariantCulture);
+        private static Func<DlgiPacket, bool> AskedHowToRevive =>
+            packet => packet.YesPacket is RevivalPacket { Type: RevivalType.InPlace } && packet.NoPacket is RevivalPacket { Type: RevivalType.AtSavePoint };
 
-        private static int Mp(string stat) => int.Parse(stat.Split(' ')[3], CultureInfo.InvariantCulture);
+        private static Func<CancelPacket, bool> Refused => packet => packet.Type == CancelPacketType.CancelAutoAttack;
+
+        private static Func<CMapPacket, bool> InTown => packet => packet is { Type: 0, Id: WorldData.Town, IsEntering: true };
 
         // A hit may miss, and a monster that was missed does not mind: she hits until one lands.
         private static async Task<int> ProvokeAsync(TestClient attacker)
         {
             var provoked = attacker.Mark();
-            var tried = Stopwatch.StartNew();
-            while (true)
-            {
-                var cast = attacker.Mark();
-                await attacker.SendAsync($"u_s 0 {Monster} {WorldData.Biter}");
-                var hit = (await attacker.ExpectSinceAsync(cast, HitBy(attacker, WorldData.Biter), "her hit")).Split(' ');
-                if (hit[13] != "0")
-                {
-                    return provoked;
-                }
-
-                Assert.IsTrue(tried.Elapsed < TimeSpan.FromSeconds(30), "no hit landed in thirty seconds");
-                await attacker.ExpectSinceAsync(cast, p => p == "sr 0", "the skill ready again");
-            }
+            await Steps.HitUntilAsync(attacker, attacker, WorldData.Biter, hit => hit.Damage != 0);
+            return provoked;
         }
 
         // With little HP left, hitting the biter is a sure way to die.
         private static async Task<int> DieAsync(TestClient victim)
         {
             var provoked = await ProvokeAsync(victim);
-            await victim.ExpectSinceAsync(provoked, p => HitOn(victim, WorldData.Biter)(p) && p.Split(' ')[11] == "0", "the blow that kills",
+            await victim.ExpectSinceAsync<SuPacket>(provoked, p => HitOn(victim, WorldData.Biter)(p) && !p.TargetIsAlive, "the blow that kills",
                 TimeSpan.FromSeconds(20));
-            await victim.ExpectSinceAsync(provoked, p => p.StartsWith($"dlgi #revival^{ReviveHere} #revival^{ReviveAtTheSavePoint} ", StringComparison.Ordinal),
-                "the question how to revive");
+            await victim.ExpectSinceAsync(provoked, AskedHowToRevive, "the question how to revive");
             return provoked;
         }
 
@@ -82,13 +82,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var hit = await ProvokeAsync(alice);
 
-            var blow = (await bob.ExpectAsync(p => HitOn(alice, WorldData.Biter)(p) && p.Split(' ')[13] != "0", "the biter hitting back",
-                TimeSpan.FromSeconds(20))).Split(' ');
-            var damage = int.Parse(blow[13], CultureInfo.InvariantCulture);
-            Assert.AreEqual("1", blow[11], "she is still alive");
-            Assert.AreEqual(((MostHp - damage) * 100 / MostHp).ToString(CultureInfo.InvariantCulture), blow[12], "the part of her HP she has left");
-            var stat = await alice.ExpectSinceAsync(hit, p => Stat(p) && Hp(p) < MostHp, "her HP after the blow");
-            Assert.AreEqual(MostHp - damage, Hp(stat));
+            var blow = await bob.ExpectAsync<SuPacket>(p => HitOn(alice, WorldData.Biter)(p) && p.Damage != 0, "the biter hitting back",
+                TimeSpan.FromSeconds(20));
+            var damage = (int)blow.Damage;
+            Assert.IsTrue(blow.TargetIsAlive, "she is still alive");
+            Assert.AreEqual((MostHp - damage) * 100 / MostHp, blow.HpPercentage, "the part of her HP she has left");
+            var stat = await alice.ExpectSinceAsync<StatPacket>(hit, p => p.Hp < MostHp, "her HP after the blow");
+            Assert.AreEqual(MostHp - damage, stat.Hp);
         }
 
         [TestMethod]
@@ -98,9 +98,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var died = await DieAsync(alice);
 
-            await alice.ExpectSinceAsync(died, p => Stat(p) && Hp(p) == 0 && Mp(p) == 0, "neither HP nor MP left");
-            StringAssert.StartsWith(alice.Since(died).First(p => TestClient.HeaderOf(p) == "dlgi"),
-                $"dlgi #revival^{ReviveHere} #revival^{ReviveAtTheSavePoint} {ReviveHereForFree} ");
+            await alice.ExpectSinceAsync<StatPacket>(died, p => p.Hp == 0 && p.Mp == 0, "neither HP nor MP left");
+            var question = alice.Since<DlgiPacket>(died).First();
+            Assert.IsTrue(AskedHowToRevive(question), "revive here or at the save point");
+            Assert.AreEqual(Game18NConstString.ContinueHereFree, question.Question);
         }
 
         [TestMethod]
@@ -116,12 +117,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var watched = bob.Mark();
 
             await alice.WalkAsync(80, 22);
-            await alice.SendAsync($"u_s 0 {Monster} {WorldData.Biter}");
-            await alice.SendAsync($"u_i {Player} {alice.CharacterId} {MainPocket} 0 0 0");
+            await alice.SendAsync(Cast(0, WorldData.Biter));
+            await alice.SendAsync(new UseItemPacket
+            {
+                VisualType = VisualType.Player, VisualId = alice.CharacterId, Type = PocketType.Main, Slot = 0, Mode = 0, Parameter = 0
+            });
 
-            Assert.IsTrue(await bob.NoneSinceAsync(watched, p => p.StartsWith($"mv {Player} {alice.CharacterId} ", StringComparison.Ordinal)
-                || HitBy(alice, WorldData.Biter)(p), TimeSpan.FromSeconds(2)), "she neither walks nor hits");
-            Assert.IsFalse(alice.Since(dead).Any(p => TestClient.HeaderOf(p) == "ivn" || (Stat(p) && Hp(p) > 0)), "no potion is drunk");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(watched, p => p is MovePacket { VisualType: VisualType.Player } step
+                && step.VisualEntityId == alice.CharacterId || p is SuPacket hit && HitBy(alice, WorldData.Biter)(hit), TimeSpan.FromSeconds(2)),
+                "she neither walks nor hits");
+            Assert.IsFalse(alice.Since(dead).Any(p => p is IvnPacket or StatPacket { Hp: > 0 }), "no potion is drunk");
         }
 
         [TestMethod]
@@ -133,15 +138,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var revived = alice.Mark();
             var watched = bob.Mark();
 
-            await alice.SendAsync($"#revival^{ReviveHere}");
+            await alice.SendAsync(new RevivalPacket { Type = RevivalType.InPlace });
 
-            await bob.ExpectSinceAsync(watched, p => p == $"revive {Player} {alice.CharacterId} 0", "her revival");
-            await bob.ExpectSinceAsync(watched, p => p == $"tp {Player} {alice.CharacterId} 80 21 0", "her standing where she fell");
-            var stat = await alice.ExpectSinceAsync(revived, p => Stat(p) && Hp(p) > 0, "her HP after reviving");
-            Assert.AreEqual((MostHp, MostMp), (Hp(stat), Mp(stat)));
+            await bob.ExpectSinceAsync<RevivePacket>(watched, p => p is { VisualType: VisualType.Player, Data: 0 } && p.VisualId == alice.CharacterId,
+                "her revival");
+            await bob.ExpectSinceAsync<TpPacket>(watched, p => p is { VisualType: VisualType.Player, X: 80, Y: 21, Unknown: 0 }
+                && p.VisualId == alice.CharacterId, "her standing where she fell");
+            var stat = await alice.ExpectSinceAsync<StatPacket>(revived, p => p.Hp > 0, "her HP after reviving");
+            Assert.AreEqual((MostHp, MostMp), (stat.Hp, stat.Mp));
 
             await alice.WalkAsync(80, 22);
-            await bob.ExpectSinceAsync(watched, p => p.StartsWith($"mv {Player} {alice.CharacterId} 80 22 ", StringComparison.Ordinal), "her walking again");
+            await bob.ExpectSinceAsync<MovePacket>(watched, p => p is { VisualType: VisualType.Player, MapX: 80, MapY: 22 }
+                && p.VisualEntityId == alice.CharacterId, "her walking again");
         }
 
         [TestMethod]
@@ -156,13 +164,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 var revived = alice.Mark();
                 var watched = bob.Mark();
 
-                await alice.SendAsync($"#revival^{ReviveAtTheSavePoint}");
+                await alice.SendAsync(new RevivalPacket { Type = RevivalType.AtSavePoint });
 
-                // c_map <type> <map> <1 on arriving, 0 on leaving>
-                await alice.ExpectSinceAsync(revived, p => p == $"c_map 0 {WorldData.Town} 1", "the town she revives in");
-                var stat = await alice.ExpectSinceAsync(revived, p => Stat(p) && Hp(p) > 0, "her HP after reviving");
-                Assert.AreEqual((MostHp, MostMp), (Hp(stat), Mp(stat)));
-                await bob.ExpectSinceAsync(watched, p => p == $"out {Player} {alice.CharacterId}", "her leaving the meadow");
+                await alice.ExpectSinceAsync(revived, InTown, "the town she revives in");
+                var stat = await alice.ExpectSinceAsync<StatPacket>(revived, p => p.Hp > 0, "her HP after reviving");
+                Assert.AreEqual((MostHp, MostMp), (stat.Hp, stat.Mp));
+                await bob.ExpectSinceAsync<OutPacket>(watched, p => p.VisualType == VisualType.Player && p.VisualId == alice.CharacterId,
+                    "her leaving the meadow");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
@@ -198,17 +206,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = Harness.Client(player);
             await alice.ConnectAsync();
             var entered = alice.Mark();
-            await alice.SendAsync($"select {player.Slot}");
-            await alice.ExpectAsync("OK");
+            await alice.SendAsync(new SelectPacket { Slot = player.Slot });
+            await alice.ExpectAsync<OkPacket>();
 
-            await alice.SendAsync("game_start");
-            await alice.SendAsync("lbs 0");
+            await alice.SendAsync(new GameStartPacket());
+            await alice.SendAsync(new LbsPacket { Type = 0 });
 
-            await alice.ExpectSinceAsync(entered, p => p == $"c_map 0 {WorldData.Town} 1", "the town she comes back in");
-            var bars = await alice.ExpectSinceAsync(entered, Stat, "her bars on entering");
-            Assert.AreEqual((1, 1), (Hp(bars), Mp(bars)), "one point of each");
-            Assert.IsFalse(alice.Since(entered).Any(p => p.StartsWith("dlgi #revival", StringComparison.Ordinal)),
-                "nobody asks her how to revive");
+            await alice.ExpectSinceAsync(entered, InTown, "the town she comes back in");
+            var bars = await alice.ExpectSinceAsync<StatPacket>(entered, null, "her bars on entering");
+            Assert.AreEqual((1, 1), (bars.Hp, bars.Mp), "one point of each");
+            Assert.IsFalse(alice.Since<DlgiPacket>(entered).Any(AskedHowToRevive), "nobody asks her how to revive");
         }
 
         [TestMethod]
@@ -217,10 +224,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 82, 24, c => c.Hp = 100);
             var asked = alice.Mark();
 
-            await alice.SendAsync($"#revival^{ReviveHere}");
-            await alice.SendAsync($"#revival^{ReviveAtTheSavePoint}");
+            await alice.SendAsync(new RevivalPacket { Type = RevivalType.InPlace });
+            await alice.SendAsync(new RevivalPacket { Type = RevivalType.AtSavePoint });
 
-            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => (Stat(p) && Hp(p) > 100) || TestClient.HeaderOf(p) is "revive" or "c_map",
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, p => p is StatPacket { Hp: > 100 } or RevivePacket or CMapPacket,
                 TimeSpan.FromSeconds(1)), "nothing is restored and she stays where she is");
         }
 
@@ -232,16 +239,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var refused = far.Mark();
             var watched = near.Mark();
 
-            await far.SendAsync($"u_s {RangedSkill} {Monster} {WorldData.SturdyMonster}");
+            await far.SendAsync(Cast(RangedSkill, WorldData.SturdyMonster));
 
-            // cancel 2 is the client's cue to stop attacking.
-            await far.ExpectSinceAsync(refused, p => p.StartsWith("cancel 2 ", StringComparison.Ordinal), "the refusal");
+            await far.ExpectSinceAsync(refused, Refused, "the refusal");
             Assert.IsTrue(await near.NoneSinceAsync(watched, HitBy(far, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit from out of range");
 
-            await near.SendAsync($"u_s {RangedSkill} {Monster} {WorldData.SturdyMonster}");
+            await near.SendAsync(Cast(RangedSkill, WorldData.SturdyMonster));
 
-            var hit = (await far.ExpectAsync(HitBy(near, WorldData.SturdyMonster), "the hit from within range")).Split(' ');
-            Assert.AreEqual("201", hit[5], "the ranged skill");
+            var hit = await far.ExpectAsync(HitBy(near, WorldData.SturdyMonster), "the hit from within range");
+            Assert.AreEqual(201, hit.SkillVnum, "the ranged skill");
         }
 
         [TestMethod]
@@ -252,9 +258,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var refused = alice.Mark();
             var watched = bob.Mark();
 
-            await alice.SendAsync($"u_s 0 {Monster} {WorldData.SturdyMonster}");
+            await alice.SendAsync(Cast(0, WorldData.SturdyMonster));
 
-            await alice.ExpectSinceAsync(refused, p => p.StartsWith("cancel 2 ", StringComparison.Ordinal), "the refusal");
+            await alice.ExpectSinceAsync(refused, Refused, "the refusal");
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit from four cells away");
         }
 
@@ -268,19 +274,19 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await alice.EnterWorldAsync(player.Slot);
             var cast = alice.Mark();
 
-            await alice.SendAsync($"u_s {WorldData.SlowSkillCastId} {Monster} {WorldData.SturdyMonster}");
+            await alice.SendAsync(Cast(WorldData.SlowSkillCastId, WorldData.SturdyMonster));
 
-            var hit = (await bob.ExpectAsync(HitBy(alice, WorldData.SturdyMonster), "the hit")).Split(' ');
-            Assert.AreEqual(WorldData.SlowSkill.ToString(CultureInfo.InvariantCulture), hit[5]);
-            Assert.AreEqual(MostMp - WorldData.SlowSkillMp, Mp(await alice.ExpectSinceAsync(cast, p => Stat(p) && Mp(p) < MostMp, "the MP it cost")));
+            var hit = await bob.ExpectAsync(HitBy(alice, WorldData.SturdyMonster), "the hit");
+            Assert.AreEqual(WorldData.SlowSkill, hit.SkillVnum);
+            Assert.AreEqual(MostMp - WorldData.SlowSkillMp, (await alice.ExpectSinceAsync<StatPacket>(cast, p => p.Mp < MostMp, "the MP it cost")).Mp);
             var again = alice.Mark();
             var watched = bob.Mark();
 
-            await alice.SendAsync($"u_s {WorldData.SlowSkillCastId} {Monster} {WorldData.SturdyMonster}");
+            await alice.SendAsync(Cast(WorldData.SlowSkillCastId, WorldData.SturdyMonster));
 
-            await alice.ExpectSinceAsync(again, p => p.StartsWith("cancel 2 ", StringComparison.Ordinal), "the refusal");
+            await alice.ExpectSinceAsync(again, Refused, "the refusal");
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no second hit");
-            Assert.IsFalse(alice.Since(again).Any(p => Stat(p) && Mp(p) < MostMp - WorldData.SlowSkillMp), "and no MP spent on it");
+            Assert.IsFalse(alice.Since<StatPacket>(again).Any(p => p.Mp < MostMp - WorldData.SlowSkillMp), "and no MP spent on it");
         }
 
         [TestMethod]
@@ -294,9 +300,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var refused = alice.Mark();
             var watched = bob.Mark();
 
-            await alice.SendAsync($"u_s {WorldData.SlowSkillCastId} {Monster} {WorldData.SturdyMonster}");
+            await alice.SendAsync(Cast(WorldData.SlowSkillCastId, WorldData.SturdyMonster));
 
-            await alice.ExpectSinceAsync(refused, p => p.StartsWith("cancel 2 ", StringComparison.Ordinal), "the refusal");
+            await alice.ExpectSinceAsync(refused, Refused, "the refusal");
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit");
         }
 
@@ -307,10 +313,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 84, 41);
             var struck = bob.Mark();
 
-            await alice.SendAsync($"u_s 0 {Player} {bob.CharacterId}");
+            await alice.SendAsync(new UseSkillPacket { CastId = 0, TargetVisualType = VisualType.Player, TargetId = bob.CharacterId });
 
-            Assert.IsTrue(await bob.NoneSinceAsync(struck, p => p.StartsWith($"su {Player} {alice.CharacterId} {Player} {bob.CharacterId} ", StringComparison.Ordinal)
-                || (Stat(p) && Hp(p) < MostHp), TimeSpan.FromSeconds(2)), "Bob is not hit");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(struck, p => p is SuPacket { VisualType: VisualType.Player, TargetVisualType: VisualType.Player } hit
+                && hit.VisualId == alice.CharacterId && hit.TargetId == bob.CharacterId || p is StatPacket { Hp: < MostHp }, TimeSpan.FromSeconds(2)),
+                "Bob is not hit");
         }
     }
 }

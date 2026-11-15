@@ -200,6 +200,11 @@ dotnet test NosCore.sln
 - **Tests** run against a per-test `TestWorld` and build the class under test with
   `World.Create<T>()`; `test/README.md` shows the pattern. Do not hand-wire constructors or add
   shared static state.
+- **Tests handle packets as objects, never as text.** Send a typed client packet, wait for a
+  typed server packet (`ExpectAsync<T>`, `ExpectSinceAsync<T>`, `NoneSinceAsync<T>`) and compare
+  it with `PacketAssert`; do not build, split or match a packet's line. A line the end-to-end
+  client cannot read arrives as an `UndecodedPacket`: fix the packet class in `NosCore.Packets`
+  instead of matching the text.
 - **Source generators** live under `tools/`. They pin their Roslyn version deliberately: a
   generator must target the *oldest* compiler it will run on. Letting them float to the
   central `Microsoft.CodeAnalysis` version produces `CS9057` and breaks every build that

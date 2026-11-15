@@ -13,6 +13,17 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Packets.ClientPackets;
+using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ClientPackets.Login;
+using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.ClientPackets.Player;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Login;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
 {
@@ -30,7 +41,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private readonly string _password;
         private readonly string _host;
         private readonly int _loginPort;
-        private readonly List<string> _received = new();
+        private readonly List<Arrival> _received = new();
         private readonly SemaphoreSlim _arrived = new(0);
         private readonly CancellationTokenSource _closing = new();
         private TcpClient? _world;
@@ -56,23 +67,22 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public int Speed { get; private set; }
 
         // Every packet received so far, oldest first.
-        public IReadOnlyList<string> Received
-        {
-            get
-            {
-                lock (_received)
-                {
-                    return _received.ToList();
-                }
-            }
-        }
+        public IReadOnlyList<IPacket> Received => Since(0);
 
         // The login server's answer to this account: the world to connect to, or the refusal.
         public async Task<LoginReply> LoginAsync()
         {
-            var line = string.Join(' ', "NoS0575", Random.Shared.Next(100000, 9999999).ToString(CultureInfo.InvariantCulture),
-                _account, Convert.ToHexString(SHA512.HashData(ClientCipher.Text.GetBytes(_password))),
-                Guid.NewGuid().ToString(), "006548C6", "0\v0.9.3.3125", "0", "458E0876581FA9A6EFE00A28AA8E75F2");
+            var line = Wire.Serialize(new NoS0575Packet
+            {
+                SessionId = Random.Shared.Next(100000, 9999999),
+                Username = _account,
+                Password = Convert.ToHexString(SHA512.HashData(ClientCipher.Text.GetBytes(_password))),
+                ClientId = Guid.NewGuid(),
+                UnknownYet = "006548C6",
+                RegionType = RegionType.EN,
+                ClientVersion = new ClientVersionSubPacket { Major = 0, Minor = 9, Fix = 3, SubFix = 3125 },
+                Md5String = "458E0876581FA9A6EFE00A28AA8E75F2",
+            });
             using var login = new TcpClient();
             await login.ConnectAsync(_host, _loginPort);
             var stream = login.GetStream();
@@ -92,7 +102,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 bytes.AddRange(buffer.AsSpan(0, read).ToArray());
             }
 
-            return LoginReply.Parse(bytes.Count == 0 ? string.Empty : ClientCipher.DecodeLoginReply(bytes.ToArray()));
+            return new LoginReply(bytes.Count == 0 ? null : Wire.Deserialize(ClientCipher.DecodeLoginReply(bytes.ToArray())));
         }
 
         // Logs in and opens the world session; the character list is in Received afterwards.
@@ -101,22 +111,23 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             var reply = await LoginAsync();
             if (reply.Channels.Count <= _channel)
             {
-                throw new InvalidOperationException($"No channel {_channel} in the login reply: {reply.Raw}");
+                throw new InvalidOperationException($"No channel {_channel} in the login reply: {reply}");
             }
 
-            _session = reply.Session;
+            _session = reply.Accepted?.SessionId ?? 0;
             _world = new TcpClient { NoDelay = true };
             await _world.ConnectAsync(reply.Channels[_channel].Host, reply.Channels[_channel].Port);
             await _world.GetStream().WriteAsync(ClientCipher.EncodeSession(_counter++, _session));
             _reading = Task.Run(ReadLoopAsync);
             await Task.Delay(200);
-            await SendAsync($"{_account} ORG 0");
-            await SendAsync(_password);
-            await ExpectAsync("clist_end");
+            // The session opens with the account and the password as bare lines, before any packet.
+            await SendLineAsync($"{_account} ORG 0");
+            await SendLineAsync(_password);
+            await ExpectAsync<ClistEndPacket>();
         }
 
         // Selects the character in a slot and starts the game; returns what the server sent for it.
-        public async Task<IReadOnlyList<string>> EnterWorldAsync(byte slot)
+        public async Task<IReadOnlyList<IPacket>> EnterWorldAsync(byte slot)
         {
             if (_world == null)
             {
@@ -124,25 +135,31 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             }
 
             var mark = Mark();
-            await SendAsync($"select {slot}");
-            await ExpectAsync("OK");
-            await SendAsync("game_start");
-            await SendAsync("lbs 0");
-            var info = await ExpectAsync("c_info");
-            CharacterId = long.Parse(info.Split(' ')[6], CultureInfo.InvariantCulture);
-            await ExpectAsync("c_map");
-            var condition = await ExpectAsync("cond");
-            Speed = int.Parse(condition.Split(' ')[5], CultureInfo.InvariantCulture);
+            await SendAsync(new SelectPacket { Slot = slot });
+            await ExpectAsync<OkPacket>();
+            await SendAsync(new GameStartPacket());
+            await SendAsync(new LbsPacket { Type = 0 });
+            CharacterId = (await ExpectAsync<CInfoPacket>()).CharacterId;
+            await ExpectAsync<CMapPacket>();
+            Speed = (await ExpectAsync<CondPacket>()).Speed;
             // The map's packets come first and game_start carries on after them; title is the last
             // packet it always sends, so nothing of the login is left to arrive once it is here.
-            await ExpectAsync("title");
+            await ExpectAsync<TitlePacket>();
             return Since(mark);
         }
 
         // One step, as the client sends it: the cell, its checksum and the speed the server gave.
-        public Task WalkAsync(short x, short y) => SendAsync($"walk {x} {y} {(x + y) % 3 % 2} {Speed}");
+        public Task WalkAsync(short x, short y) => SendAsync(new WalkPacket
+        {
+            XCoordinate = x,
+            YCoordinate = y,
+            CheckSum = (byte)((x + y) % 3 % 2),
+            Speed = (short)Speed,
+        });
 
-        public async Task SendAsync(string line)
+        public Task SendAsync(IPacket packet) => SendLineAsync(Wire.Serialize(packet));
+
+        private async Task SendLineAsync(string line)
         {
             var world = _world ?? throw new InvalidOperationException("Not connected to a world server");
             var counter = _counter;
@@ -159,74 +176,76 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             }
         }
 
-        public IReadOnlyList<string> Since(int mark)
+        public IReadOnlyList<IPacket> Since(int mark)
         {
             lock (_received)
             {
-                return _received.Skip(mark).ToList();
+                return _received.Skip(mark).Select(arrival => arrival.Packet).ToList();
             }
         }
 
-        // The next packet with this header after the last one an Expect returned. Fails the test
-        // when none arrives in time.
-        public Task<string> ExpectAsync(string header, TimeSpan? timeout = null) =>
-            ExpectAsync(packet => HeaderOf(packet) == header, header, timeout);
+        public IEnumerable<T> Since<T>(int mark) where T : class, IPacket => Since(mark).OfType<T>();
 
-        public async Task<string> ExpectAsync(Func<string, bool> matches, string description, TimeSpan? timeout = null)
-        {
-            var packet = await WaitAsync(matches, timeout ?? DefaultTimeout);
-            if (packet != null)
-            {
-                return packet;
-            }
-
-            var tail = string.Join(Environment.NewLine, Received.TakeLast(15).Select(p => "  " + Shorten(p)));
-            throw new TimeoutException(
-                $"No '{description}' packet within {(timeout ?? DefaultTimeout).TotalSeconds:0.#} s" +
-                $"{(_disconnected ? " (the server closed the connection)" : string.Empty)}. Last packets:{Environment.NewLine}{tail}" +
-                ServerDiagnosis?.Invoke(_disconnected));
-        }
+        // The next packet of this type, matching when a condition is given, after the last one an
+        // Expect returned. Fails the test when none arrives in time.
+        public async Task<T> ExpectAsync<T>(Func<T, bool>? matches = null, string? description = null, TimeSpan? timeout = null)
+            where T : class, IPacket =>
+            (T)(await ExpectAsync(Is(matches), description ?? typeof(T).Name, timeout)).Packet;
 
         // A packet received at or after a mark, wherever it falls among the others. For when two
         // packets answer one action and their order is not the point.
-        public async Task<string> ExpectSinceAsync(int mark, Func<string, bool> matches, string description, TimeSpan? timeout = null)
+        public async Task<T> ExpectSinceAsync<T>(int mark, Func<T, bool>? matches = null, string? description = null, TimeSpan? timeout = null)
+            where T : class, IPacket =>
+            (T)(await ExpectSinceAsync(mark, Is(matches), description ?? typeof(T).Name, timeout)).Packet;
+
+        // Whether nothing matching has arrived since a mark, once the given time has passed. An
+        // Expect moves past the packets before the one it returns, so an absence is asserted
+        // from a mark taken before the action instead.
+        public Task<bool> NoneSinceAsync<T>(int mark, Func<T, bool>? matches, TimeSpan after) where T : class, IPacket =>
+            NoneSinceAsync(mark, Is(matches), after);
+
+        // The next matching packet, or null when none arrives in time. Use it to assert that
+        // something is not sent.
+        public async Task<T?> WaitAsync<T>(Func<T, bool>? matches, TimeSpan timeout) where T : class, IPacket =>
+            (await WaitAsync(Is(matches), timeout))?.Packet as T;
+
+        private static Func<Arrival, bool> Is<T>(Func<T, bool>? matches) where T : class, IPacket =>
+            arrival => arrival.Packet is T packet && (matches == null || matches(packet));
+
+        private async Task<Arrival> ExpectAsync(Func<Arrival, bool> matches, string description, TimeSpan? timeout)
+        {
+            var arrival = await WaitAsync(matches, timeout ?? DefaultTimeout);
+            return arrival ?? throw NotReceived(description, timeout ?? DefaultTimeout, "Last packets", Arrivals(0).TakeLast(15));
+        }
+
+        private async Task<Arrival> ExpectSinceAsync(int mark, Func<Arrival, bool> matches, string description, TimeSpan? timeout)
         {
             var limit = timeout ?? DefaultTimeout;
             var waited = Stopwatch.StartNew();
             while (true)
             {
-                var found = Since(mark).FirstOrDefault(matches);
+                var found = Arrivals(mark).FirstOrDefault(matches);
                 if (found != null)
                 {
                     return found;
                 }
 
-                var left = limit - waited.Elapsed;
-                if (left <= TimeSpan.Zero)
+                if (limit - waited.Elapsed <= TimeSpan.Zero)
                 {
-                    var tail = string.Join(Environment.NewLine, Since(mark).TakeLast(15).Select(p => "  " + Shorten(p)));
-                    throw new TimeoutException(
-                        $"No '{description}' packet within {limit.TotalSeconds:0.#} s" +
-                        $"{(_disconnected ? " (the server closed the connection)" : string.Empty)}. Received since:{Environment.NewLine}{tail}" +
-                        ServerDiagnosis?.Invoke(_disconnected));
+                    throw NotReceived(description, limit, "Received since", Arrivals(mark).TakeLast(15));
                 }
 
                 await Task.Delay(50);
             }
         }
 
-        // Whether nothing matching has arrived since a mark, once the given time has passed. An
-        // Expect moves past the packets before the one it returns, so an absence is asserted
-        // from a mark taken before the action instead.
-        public async Task<bool> NoneSinceAsync(int mark, Func<string, bool> matches, TimeSpan after)
+        private async Task<bool> NoneSinceAsync(int mark, Func<Arrival, bool> matches, TimeSpan after)
         {
             await Task.Delay(after);
-            return !Since(mark).Any(matches);
+            return !Arrivals(mark).Any(matches);
         }
 
-        // The next matching packet, or null when none arrives in time. Use it to assert that
-        // something is not sent.
-        public async Task<string?> WaitAsync(Func<string, bool> matches, TimeSpan timeout)
+        private async Task<Arrival?> WaitAsync(Func<Arrival, bool> matches, TimeSpan timeout)
         {
             var waited = Stopwatch.StartNew();
             while (true)
@@ -250,13 +269,19 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             }
         }
 
-        public static string HeaderOf(string packet)
+        private List<Arrival> Arrivals(int mark)
         {
-            var space = packet.IndexOf(' ');
-            return space < 0 ? packet : packet[..space];
+            lock (_received)
+            {
+                return _received.Skip(mark).ToList();
+            }
         }
 
-        private static string Shorten(string packet) => packet.Length <= 120 ? packet : packet[..120] + "...";
+        private TimeoutException NotReceived(string description, TimeSpan limit, string listed, IEnumerable<Arrival> arrivals) =>
+            new($"No '{description}' packet within {limit.TotalSeconds:0.#} s" +
+                $"{(_disconnected ? " (the server closed the connection)" : string.Empty)}. {listed}:{Environment.NewLine}" +
+                string.Join(Environment.NewLine, arrivals.Select(arrival => "  " + arrival)) +
+                ServerDiagnosis?.Invoke(_disconnected));
 
         private async Task ReadLoopAsync()
         {
@@ -280,9 +305,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                         continue;
                     }
 
+                    var arrivals = packets.Select(Arrival.Of).ToList();
                     lock (_received)
                     {
-                        _received.AddRange(packets);
+                        _received.AddRange(arrivals);
                     }
 
                     _arrived.Release();
@@ -310,35 +336,27 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         }
     }
 
-    public sealed record LoginReply(string Raw, int Session, IReadOnlyList<(string Host, int Port)> Channels)
+    // A packet as it came off the wire; the line is kept to describe the packet when an expectation fails.
+    internal sealed record Arrival(IPacket Packet, string Line)
     {
-        // NsTeST <region> <account> ... <session> <ip:port:colour:world.channel.name> ... -1:-1:-1:10000.10000.1
-        public static LoginReply Parse(string raw)
-        {
-            var parts = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 0 || parts[0] != "NsTeST")
-            {
-                return new LoginReply(raw, 0, []);
-            }
+        public static Arrival Of(string line) => new(Wire.Deserialize(line), line);
 
-            var first = Array.FindIndex(parts, IsChannel);
-            if (first < 1)
-            {
-                return new LoginReply(raw, 0, []);
-            }
+        public override string ToString() => Line.Length <= 120 ? Line : Line[..120] + "...";
+    }
 
-            var channels = parts.Skip(first).Where(IsChannel)
-                .Select(part => part.Split(':'))
-                .Select(server => (server[0], int.Parse(server[1], CultureInfo.InvariantCulture)))
-                .ToList();
-            return new LoginReply(raw, int.Parse(parts[first - 1], CultureInfo.InvariantCulture), channels);
-        }
+    public sealed record LoginReply(IPacket? Packet)
+    {
+        public NsTestPacket? Accepted => Packet as NsTestPacket;
+
+        public FailcPacket? Refusal => Packet as FailcPacket;
+
+        public IReadOnlyList<(string Host, int Port)> Channels =>
+            Accepted?.SubPacket?.OfType<NsTeStSubPacket>()
+                .Where(server => server is { Host: not null and not "-1", Port: > 0 })
+                .Select(server => (server.Host ?? string.Empty, server.Port ?? 0)).ToList() ?? [];
 
         public (string Host, int Port)? World => Channels.Count > 0 ? Channels[0] : null;
 
-        public string? Refusal => Channels.Count == 0 && Raw.StartsWith("failc", StringComparison.Ordinal) ? Raw : null;
-
-        private static bool IsChannel(string part) =>
-            part.Count(c => c == ':') == 3 && !part.StartsWith("-1", StringComparison.Ordinal);
+        public override string ToString() => Packet == null ? "no reply" : Wire.Serialize(Packet);
     }
 }

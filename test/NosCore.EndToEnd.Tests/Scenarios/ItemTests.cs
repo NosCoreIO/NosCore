@@ -9,6 +9,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Shop;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
@@ -16,10 +26,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
     public class ItemTests
     {
         private const int EtcPocket = 2;
-        private const int Npc = 2;
 
-        private static Func<string, bool> Bag(int slot, int amount) =>
-            packet => packet.StartsWith($"ivn {EtcPocket} {slot}.{WorldData.Seed}.{amount}.", StringComparison.Ordinal);
+        private static Func<IvnPacket, bool> Bag(int slot, int amount) =>
+            packet => packet.Type == PocketType.Etc
+                && packet.IvnSubPackets?.Single() is { } item && item.Slot == slot && item.VNum == WorldData.Seed && item.RareAmount == amount;
 
         [TestMethod]
         public async Task WhatACharacterCarriesIsSentWhenItEnters()
@@ -30,7 +40,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var entry = await alice.EnterWorldAsync(player.Slot);
 
-            Assert.IsTrue(entry.Any(p => p.StartsWith($"inv {EtcPocket} 0.{WorldData.Seed}.5.", StringComparison.Ordinal)),
+            Assert.IsTrue(entry.OfType<InvPacket>().Where(p => p.Type == PocketType.Etc).SelectMany(p => p.IvnSubPackets ?? [])
+                    .Any(item => item.Slot == 0 && item.VNum == WorldData.Seed && item.RareAmount == 5),
                 "the five seeds are listed in the Etc pocket");
         }
 
@@ -43,16 +54,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await alice.EnterWorldAsync(player.Slot);
             await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
 
-            await alice.SendAsync($"put {EtcPocket} 0 3");
+            await alice.SendAsync(new PutPacket { PocketType = PocketType.Etc, Slot = 0, Amount = 3 });
 
             await alice.ExpectAsync(Bag(0, 2), "the two left in the bag");
-            var drop = await bob.ExpectAsync(p => p.StartsWith($"drop {WorldData.Seed} ", StringComparison.Ordinal), "the drop");
-            var dropId = drop.Split(' ')[2];
-            Assert.AreEqual("3", drop.Split(' ')[5], "three were dropped");
+            var drop = await bob.ExpectAsync<DropPacket>(p => p.VNum == WorldData.Seed, "the drop");
+            Assert.AreEqual(3, drop.Amount, "three were dropped");
 
-            await alice.SendAsync($"get 1 {alice.CharacterId} {dropId} 0");
+            await alice.SendAsync(new GetPacket { PickerType = VisualType.Player, PickerId = alice.CharacterId, VisualId = drop.VisualId });
 
-            await bob.ExpectAsync(p => p.StartsWith($"get 1 {alice.CharacterId} {dropId}", StringComparison.Ordinal), "the pick-up");
+            await bob.ExpectAsync<ServerGetPacket>(p => p.VisualId == alice.CharacterId && p.ItemId == drop.VisualId, "the pick-up");
             await alice.ExpectAsync(Bag(0, 5), "all five back in the bag");
         }
 
@@ -62,20 +72,26 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", x: 84, y: 117, configure: c => c.Gold = 1000);
 
             // Talking to a shopkeeper who has nothing to say opens the shop at once.
-            await alice.SendAsync($"npc_req {Npc} {WorldData.Shopkeeper}");
-            var shelf = await alice.ExpectAsync("n_inv");
-            Assert.AreEqual($"n_inv {Npc} {WorldData.Shopkeeper} 0 100 {EtcPocket}.0.{WorldData.Seed}.-1.{WorldData.SeedPrice}", shelf);
+            await alice.SendAsync(new RequestNpcPacket { Type = VisualType.Npc, TargetId = WorldData.Shopkeeper });
+            PacketAssert.AreEqual(new NInvPacket
+            {
+                VisualType = VisualType.Npc,
+                VisualId = WorldData.Shopkeeper,
+                Unknown = 0,
+                ShopKind = 100,
+                Items = [new NInvItemSubPacket { Type = PocketType.Etc, Slot = 0, VNum = WorldData.Seed, RareAmount = null, Price = (int)WorldData.SeedPrice }],
+            }, await alice.ExpectAsync<NInvPacket>());
 
             var bought = alice.Mark();
-            await alice.SendAsync($"buy {Npc} {WorldData.Shopkeeper} 0 3");
+            await alice.SendAsync(new BuyPacket { VisualType = VisualType.Npc, VisualId = WorldData.Shopkeeper, Slot = 0, Amount = 3 });
             await alice.ExpectSinceAsync(bought, Bag(0, 3), "three in the bag");
-            await alice.ExpectSinceAsync(bought, p => p == $"gold {1000 - 3 * WorldData.SeedPrice} 0", "gold after buying three");
+            await alice.ExpectSinceAsync<GoldPacket>(bought, p => p.Gold == 1000 - 3 * WorldData.SeedPrice, "gold after buying three");
 
             var sold = alice.Mark();
-            await alice.SendAsync($"sell 0 0 {EtcPocket} 0 1");
+            await alice.SendAsync(new SellPacket { Data = EtcPocket, Slot = 0, Amount = 1 });
             await alice.ExpectSinceAsync(sold, Bag(0, 2), "two left in the bag");
             // A shop pays a twentieth of the price.
-            await alice.ExpectSinceAsync(sold, p => p == $"gold {1000 - 3 * WorldData.SeedPrice + WorldData.SeedPrice / 20} 0",
+            await alice.ExpectSinceAsync<GoldPacket>(sold, p => p.Gold == 1000 - 3 * WorldData.SeedPrice + WorldData.SeedPrice / 20,
                 "gold after selling one");
         }
     }

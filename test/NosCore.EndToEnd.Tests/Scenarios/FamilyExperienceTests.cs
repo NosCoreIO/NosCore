@@ -5,7 +5,6 @@
 //
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -16,24 +15,27 @@ using NosCore.Algorithm.FamilyUpgradeService;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Families;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.ServerPackets.Families;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Shop;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
+using Authority = NosCore.Packets.Enumerations.FamilyAuthority;
+using Game18NConstString = NosCore.Packets.Enumerations.Game18NConstString;
+using MessageType = NosCore.Packets.Enumerations.MessageType;
+using PacketLogType = NosCore.Packets.Enumerations.FamilyLogType;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class FamilyExperienceTests
     {
-        private const int PlayerType = 1;
-        private const int Npc = 2;
-        private const int Monster = 3;
-        private const int Head = 0;
-        private const int Member = 3;
-
-        // 1965 is the client's "Family level increased to %d!".
-        private const int FamilyLevelIncreased = 1965;
-
-        // 1975 is the client's "Your family level is insufficient." and 2386 its "Purchased: %s".
-        private const int FamilyLevelInsufficient = 1975;
-        private const int Purchased = 2386;
         private const int RewardedLevel = 30;
         private const int RewardedLevelExperience = 600;
 
@@ -47,30 +49,35 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             c.LevelXp = Levels.GetExperience(level) - 1;
         };
 
-        // ginfo <family> <head> <head gender> <level> <xp> <xp to level> <members> <capacity> <own authority> ...
-        private static Func<string, bool> FamilyInfo(string family, int level, long experience, int authority) =>
-            packet => packet.Split(' ') is ["ginfo", var name, _, _, var familyLevel, var xp, var bar, _, _, var own, ..]
-                && name == family && familyLevel == level.ToString() && xp == experience.ToString()
-                && bar == FamilyLevels.GetFamilyExperience((byte)level).ToString() && own == authority.ToString();
+        private static Func<GInfoPacket, bool> FamilyInfo(string family, int level, long experience, Authority authority) =>
+            packet => packet.FamilyName == family && packet.FamilyLevel == level && packet.FamilyXp == experience
+                && packet.MaxFamilyXp == FamilyLevels.GetFamilyExperience((byte)level) && packet.CharacterFamilyAuthority == authority;
 
-        private static bool AnyFamilyInfo(string packet) => TestClient.HeaderOf(packet) == "ginfo";
+        private static Func<GexpPacket, bool> Contribution(long characterId, long experience) =>
+            packet => packet.Entries?.Any(entry => entry?.CharacterId == characterId && entry.Experience == experience) == true;
 
-        // gexp <member>|<what the member earned for the family> ...
-        private static Func<string, bool> Contribution(long characterId, long experience) =>
-            packet => TestClient.HeaderOf(packet) == "gexp" && packet.Split(' ').Contains($"{characterId}|{experience}");
+        private static Func<MsgiPacket, bool> FamilyLevelReached(int level) =>
+            packet => packet.Type == MessageType.Default && packet.Message == Game18NConstString.FamilyLevelIncreased
+                && packet.ArgumentType == 4 && Equals(packet.Game18NArguments[0], (long)level);
 
-        private static bool HistoryChanged(string packet) => packet == "fhis_stc";
+        private static Func<NInvPacket, bool> Shelf =>
+            packet => packet.VisualType == VisualType.Npc && packet.VisualId == WorldData.FamilyManager
+                && packet.Items?.Any(item => item?.VNum == WorldData.FamilyWarehouse) == true;
 
-        private static Func<string, bool> FamilyLevelReached(int level) =>
-            packet => packet.StartsWith($"msgi 0 {FamilyLevelIncreased} 4 {level} ", StringComparison.Ordinal);
+        private static Func<InPacket, bool> PreyOnTheMap =>
+            packet => packet.VisualType == VisualType.Monster && packet.VisualId == WorldData.Prey;
 
-        // n_inv <npc type> <npc> 0 100 <pocket>.<slot>.<vnum>.<amount>.<price> ...
-        private static bool Shelf(string packet) =>
-            packet.StartsWith($"n_inv {Npc} {WorldData.FamilyManager} ", StringComparison.Ordinal)
-            && packet.Contains($".{WorldData.FamilyWarehouse}.", StringComparison.Ordinal);
+        private static readonly RequestNpcPacket TalkToTheManager = new() { Type = VisualType.Npc, TargetId = WorldData.FamilyManager };
 
-        private static bool PreyOnTheMap(string packet) =>
-            packet.StartsWith($"in {Monster} {WorldData.PreyVNum} {WorldData.Prey} ", StringComparison.Ordinal);
+        private static readonly BuyPacket BuyTheWarehouse = new() { VisualType = VisualType.Npc, VisualId = WorldData.FamilyManager, Slot = 0, Amount = 1 };
+
+        private static GhisSubPacket Entry(PacketLogType type, params object[] arguments) => new()
+        {
+            Type = type,
+            FirstArgument = arguments.ElementAtOrDefault(0)?.ToString(),
+            SecondArgument = arguments.ElementAtOrDefault(1)?.ToString(),
+            HoursAgo = 0,
+        };
 
         private static async Task<TestClient> EnterAsync(Player player, int channel = 0)
         {
@@ -93,22 +100,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static async Task LevelUpAsync(TestClient killer)
         {
             await killer.ExpectSinceAsync(0, PreyOnTheMap, "the prey on the map");
-            var tried = Stopwatch.StartNew();
-            while (true)
-            {
-                var cast = killer.Mark();
-                await killer.SendAsync($"u_s 0 {Monster} {WorldData.Prey}");
-                var hit = (await killer.ExpectSinceAsync(cast,
-                    p => p.StartsWith($"su {PlayerType} {killer.CharacterId} {Monster} {WorldData.Prey} ", StringComparison.Ordinal), "the hit")).Split(' ');
-                if (hit[11] == "0")
-                {
-                    await killer.ExpectSinceAsync(cast, p => p == $"levelup {killer.CharacterId}", "the level-up");
-                    return;
-                }
-
-                Assert.IsTrue(tried.Elapsed < TimeSpan.FromSeconds(30), "no hit landed in thirty seconds");
-                await killer.ExpectSinceAsync(cast, p => p == "sr 0", "the skill ready again");
-            }
+            var (_, cast) = await Steps.KillAsync(killer, WorldData.Prey);
+            await killer.ExpectSinceAsync<LevelUpPacket>(cast, p => p.CharacterId == killer.CharacterId, "the level-up");
         }
 
         private static async Task<Family> StoredFamilyAsync(long familyId)
@@ -149,11 +142,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await LevelUpAsync(bob);
 
-            await bob.ExpectSinceAsync(levelled, FamilyInfo(family.Name, 1, RewardedLevelExperience, Member), "the family with what Bob earned, for Bob");
-            await alice.ExpectSinceAsync(earned, FamilyInfo(family.Name, 1, RewardedLevelExperience, Head), "the family with what Bob earned, for Alice");
+            await bob.ExpectSinceAsync(levelled, FamilyInfo(family.Name, 1, RewardedLevelExperience, Authority.Member), "the family with what Bob earned, for Bob");
+            await alice.ExpectSinceAsync(earned, FamilyInfo(family.Name, 1, RewardedLevelExperience, Authority.Head), "the family with what Bob earned, for Alice");
             await alice.ExpectSinceAsync(earned, Contribution(member.CharacterId, RewardedLevelExperience), "what Bob earned next to his name");
-            await alice.ExpectSinceAsync(earned, HistoryChanged, "the history to read again");
-            Assert.IsFalse(alice.Since(earned).Any(p => p.StartsWith($"msgi 0 {FamilyLevelIncreased} ", StringComparison.Ordinal)),
+            await alice.ExpectSinceAsync<FhisStcPacket>(earned, null, "the history to read again");
+            Assert.IsFalse(alice.Since<MsgiPacket>(earned).Any(p => p.Message == Game18NConstString.FamilyLevelIncreased),
                 "the family has not levelled up");
 
             var stored = await StoredFamilyAsync(family.FamilyId);
@@ -168,11 +161,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }, await StoredHistoryAsync(family.FamilyId));
 
             var asked = alice.Mark();
-            await alice.SendAsync("fhis_cts");
+            await alice.SendAsync(new FhistCtsPacket());
 
-            // ghis 0 <type>|<arguments>|<hours ago> ..., the newest first.
-            Assert.AreEqual($"ghis 0 4|{member.Name}|{RewardedLevelExperience}|0 6|{member.Name}|{RewardedLevel}|0",
-                await alice.ExpectSinceAsync(asked, p => TestClient.HeaderOf(p) == "ghis", "the history"));
+            // The newest first.
+            PacketAssert.AreEqual(new GhisPacket
+            {
+                Unknown = 0,
+                Entries =
+                [
+                    Entry(PacketLogType.FamilyXp, member.Name, RewardedLevelExperience),
+                    Entry(PacketLogType.LevelUp, member.Name, RewardedLevel),
+                ],
+            }, await alice.ExpectSinceAsync<GhisPacket>(asked, null, "the history"));
         }
 
         [TestMethod]
@@ -191,9 +191,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var left = RewardedLevelExperience - 200;
             await bob.ExpectSinceAsync(levelled, FamilyLevelReached(2), "the family level, for Bob");
-            await bob.ExpectSinceAsync(levelled, FamilyInfo(family.Name, 2, left, Member), "the family at level 2, for Bob");
+            await bob.ExpectSinceAsync(levelled, FamilyInfo(family.Name, 2, left, Authority.Member), "the family at level 2, for Bob");
             await alice.ExpectSinceAsync(earned, FamilyLevelReached(2), "the family level, for Alice");
-            await alice.ExpectSinceAsync(earned, FamilyInfo(family.Name, 2, left, Head), "the family at level 2, for Alice");
+            await alice.ExpectSinceAsync(earned, FamilyInfo(family.Name, 2, left, Authority.Head), "the family at level 2, for Alice");
 
             var stored = await StoredFamilyAsync(family.FamilyId);
             Assert.AreEqual(2, stored.FamilyLevel);
@@ -206,10 +206,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }, await StoredHistoryAsync(family.FamilyId));
 
             var asked = alice.Mark();
-            await alice.SendAsync("fhis_cts");
+            await alice.SendAsync(new FhistCtsPacket());
 
-            Assert.AreEqual($"ghis 0 5|2|0 4|{member.Name}|{RewardedLevelExperience}|0 6|{member.Name}|{RewardedLevel}|0",
-                await alice.ExpectSinceAsync(asked, p => TestClient.HeaderOf(p) == "ghis", "the history"));
+            PacketAssert.AreEqual(new GhisPacket
+            {
+                Unknown = 0,
+                Entries =
+                [
+                    Entry(PacketLogType.FamilyLevelUp, 2),
+                    Entry(PacketLogType.FamilyXp, member.Name, RewardedLevelExperience),
+                    Entry(PacketLogType.LevelUp, member.Name, RewardedLevel),
+                ],
+            }, await alice.ExpectSinceAsync<GhisPacket>(asked, null, "the history"));
         }
 
         [TestMethod]
@@ -226,9 +234,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await LevelUpAsync(bob);
 
             await alice.ExpectSinceAsync(earned, FamilyLevelReached(2), "the family level");
-            await alice.ExpectSinceAsync(earned, FamilyInfo(family.Name, 2, RewardedLevelExperience - 200, Head), "the family at level 2");
+            await alice.ExpectSinceAsync(earned, FamilyInfo(family.Name, 2, RewardedLevelExperience - 200, Authority.Head), "the family at level 2");
             await alice.ExpectSinceAsync(earned, Contribution(member.CharacterId, RewardedLevelExperience), "what Bob earned next to his name");
-            await alice.ExpectSinceAsync(earned, HistoryChanged, "the history to read again");
+            await alice.ExpectSinceAsync<FhisStcPacket>(earned, null, "the history to read again");
         }
 
         [TestMethod]
@@ -243,8 +251,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await LevelUpAsync(bob);
 
-            Assert.IsTrue(await alice.NoneSinceAsync(earned, p => AnyFamilyInfo(p) || HistoryChanged(p), TimeSpan.FromSeconds(1)),
-                "the family window and its history stay as they were");
+            Assert.IsTrue(await alice.NoneSinceAsync<GInfoPacket>(earned, null, TimeSpan.FromSeconds(1)), "the family window stays as it was");
+            Assert.IsTrue(await alice.NoneSinceAsync<FhisStcPacket>(earned, null, TimeSpan.Zero), "and so does its history");
             Assert.AreEqual(0, (await StoredFamilyAsync(family.FamilyId)).FamilyExperience);
             Assert.AreEqual(0, (await StoredMembershipAsync(member.CharacterId)).Experience);
             Assert.AreEqual(0, (await StoredHistoryAsync(family.FamilyId)).Length);
@@ -261,25 +269,25 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await EnterAsync(member);
             var refused = alice.Mark();
 
-            await alice.SendAsync($"npc_req {Npc} {WorldData.FamilyManager}");
+            await alice.SendAsync(TalkToTheManager);
             await alice.ExpectSinceAsync(refused, Shelf, "what the family manager sells");
-            await alice.SendAsync($"buy {Npc} {WorldData.FamilyManager} 0 1");
+            await alice.SendAsync(BuyTheWarehouse);
 
-            await alice.ExpectSinceAsync(refused, p => p.StartsWith($"msgi 0 {FamilyLevelInsufficient} ", StringComparison.Ordinal),
-                "the family level refusal");
+            await alice.ExpectSinceAsync<MsgiPacket>(refused, p => p.Type == MessageType.Default
+                && p.Message == Game18NConstString.FamilyLevelInsufficient, "the family level refusal");
             Assert.AreEqual(0, (await StoredFamilyAsync(family.FamilyId)).WarehouseSize);
             var levelled = alice.Mark();
 
             await LevelUpAsync(bob);
             await alice.ExpectSinceAsync(levelled, FamilyLevelReached(WorldData.FamilyWarehouseLevel), "the family level");
             var bought = alice.Mark();
-            await alice.SendAsync($"npc_req {Npc} {WorldData.FamilyManager}");
+            await alice.SendAsync(TalkToTheManager);
             await alice.ExpectSinceAsync(bought, Shelf, "what the family manager sells");
-            await alice.SendAsync($"buy {Npc} {WorldData.FamilyManager} 0 1");
+            await alice.SendAsync(BuyTheWarehouse);
 
-            await alice.ExpectSinceAsync(bought, p => p.StartsWith($"msgi2 0 {Purchased} 2 {WorldData.FamilyWarehouse} ", StringComparison.Ordinal),
-                "the purchase");
-            await alice.ExpectSinceAsync(bought, p => p == "gold 0 0", "the price paid");
+            await alice.ExpectSinceAsync<Msgi2Packet>(bought, p => p.Type == MessageType.Default && p.Message == Game18NConstString.PurchasedItemX
+                && p.ArgumentType == 2 && Equals(p.Game18NArguments[0], (long)WorldData.FamilyWarehouse), "the purchase");
+            await alice.ExpectSinceAsync<GoldPacket>(bought, p => p is { Gold: 0, Unknown: 0 }, "the price paid");
             Assert.AreEqual(new FamilyUpgradeService().GetWarehouseSize(1), (await StoredFamilyAsync(family.FamilyId)).WarehouseSize);
         }
     }

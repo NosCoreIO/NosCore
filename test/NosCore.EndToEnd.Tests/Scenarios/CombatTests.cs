@@ -5,40 +5,22 @@
 //
 
 using System;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class CombatTests
     {
-        private const int Monster = 3;
-
-        // A hit may miss: the attacker hits until one lands, and that one is returned as the watcher saw it.
-        private static async Task<string[]> HitAsync(TestClient attacker, TestClient watcher, int monster)
-        {
-            var tried = Stopwatch.StartNew();
-            while (true)
-            {
-                var seen = watcher.Mark();
-                var cast = attacker.Mark();
-                await attacker.SendAsync($"u_s 0 {Monster} {monster}");
-                var hit = (await watcher.ExpectSinceAsync(seen,
-                    p => p.StartsWith($"su 1 {attacker.CharacterId} {Monster} {monster} 200 ", StringComparison.Ordinal), "the hit")).Split(' ');
-                if (hit[13] != "0")
-                {
-                    return hit;
-                }
-
-                Assert.IsTrue(tried.Elapsed < TimeSpan.FromSeconds(30), "no hit landed in thirty seconds");
-                await attacker.ExpectSinceAsync(cast, p => p == "sr 0", "the skill ready again");
-            }
-        }
+        private static async Task<SuPacket> HitAsync(TestClient attacker, TestClient watcher, int monster) =>
+            (await Steps.HitUntilAsync(attacker, watcher, monster, hit => hit.SkillVnum == 200 && hit.Damage != 0)).Hit;
 
         [TestMethod]
         public async Task AHitTakesHpFromAMonsterAndEveryoneSeesIt()
@@ -48,32 +30,33 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var hit = await HitAsync(alice, bob, WorldData.SturdyMonster);
 
-            Assert.AreEqual("1", hit[11], "the monster is still alive");
-            Assert.IsTrue(int.Parse(hit[13], CultureInfo.InvariantCulture) > 0, "the hit does damage");
+            Assert.IsTrue(hit.TargetIsAlive, "the monster is still alive");
+            Assert.IsTrue(hit.Damage > 0, "the hit does damage");
         }
 
         [TestMethod]
         public async Task ADeadMonsterIsNotShownToSomeoneEnteringTheMap()
         {
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 45, 46);
-            Assert.IsTrue(alice.Received.Any(p => p.StartsWith(In(WorldData.SlowMonster), StringComparison.Ordinal)), "alive, it is shown");
+            Assert.IsTrue(alice.Received.OfType<InPacket>().Any(Shows(WorldData.SlowMonster)), "alive, it is shown");
 
             var hit = await HitAsync(alice, alice, WorldData.SlowMonster);
-            Assert.AreEqual("0", hit[11], "the monster is dead");
+            Assert.IsFalse(hit.TargetIsAlive, "the monster is dead");
 
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 47, 47);
 
-            Assert.IsFalse(bob.Received.Any(p => p.Split(' ') is ["in", "3", _, var id, ..] && id == WorldData.SlowMonster.ToString(CultureInfo.InvariantCulture)),
+            Assert.IsFalse(bob.Received.OfType<InPacket>().Any(p => p.VisualType == VisualType.Monster && p.VisualId == WorldData.SlowMonster),
                 "a monster waiting to respawn is not on the map for a newcomer");
-            Assert.IsTrue(bob.Received.Any(p => p.StartsWith(In(WorldData.SturdyMonster), StringComparison.Ordinal)), "the living ones are");
+            Assert.IsTrue(bob.Received.OfType<InPacket>().Any(Shows(WorldData.SturdyMonster)), "the living ones are");
         }
 
-        private static string In(int monster) => monster switch
-        {
-            WorldData.SlowMonster => $"in 3 4 {monster} ",
-            WorldData.SturdyMonster => $"in 3 3 {monster} ",
-            _ => $"in 3 2 {monster} "
-        };
+        private static Func<InPacket, bool> Shows(int monster) => packet =>
+            packet.VisualType == VisualType.Monster && packet.VisualId == monster && packet.VNum == (monster switch
+            {
+                WorldData.SlowMonster => "4",
+                WorldData.SturdyMonster => "3",
+                _ => "2"
+            });
 
         [TestMethod]
         public async Task KillingAMonsterGivesExperience()
@@ -83,9 +66,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var hit = await HitAsync(alice, alice, WorldData.WeakMonster);
 
-            Assert.AreEqual("0", hit[11], "the monster is dead");
-            var level = (await alice.ExpectSinceAsync(before, p => TestClient.HeaderOf(p) == "lev", "the experience")).Split(' ');
-            Assert.IsTrue(long.Parse(level[2], CultureInfo.InvariantCulture) > 0, "experience was gained");
+            Assert.IsFalse(hit.TargetIsAlive, "the monster is dead");
+            var level = await alice.ExpectSinceAsync<LevPacket>(before, null, "the experience");
+            Assert.IsTrue(level.LevelXp > 0, "experience was gained");
         }
     }
 }

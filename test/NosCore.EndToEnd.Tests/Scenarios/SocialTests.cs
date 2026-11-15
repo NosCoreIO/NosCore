@@ -10,26 +10,46 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Packets.ServerPackets.Relations;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class SocialTests
     {
+        private static FinsPacket Befriend(TestClient other) => new() { Type = FinsPacketType.Accepted, CharacterId = other.CharacterId };
+
+        private static Func<FinitPacket, bool> Lists(TestClient friend) =>
+            packet => packet.SubPackets?.FirstOrDefault()?.CharacterId == friend.CharacterId;
+
+        private static PjoinPacket Join(GroupRequestType type, TestClient other) => new() { RequestType = type, CharacterId = other.CharacterId };
+
+        private static Func<Dlgi2Packet, bool> InvitedBy(TestClient other) =>
+            packet => packet.YesPacket is PjoinPacket { RequestType: GroupRequestType.Accepted } yes && yes.CharacterId == other.CharacterId;
+
         [TestMethod]
         public async Task AnAcceptedFriendRequestPutsEachInTheOthersList()
         {
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
             await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
 
-            await alice.SendAsync($"fins 1 {bob.CharacterId}");
-            await bob.ExpectAsync(p => p.StartsWith($"dlgi2 #fins^1^{alice.CharacterId} #fins^2^{alice.CharacterId} ", StringComparison.Ordinal),
-                "the friend request");
+            await alice.SendAsync(Befriend(bob));
+            await bob.ExpectAsync<Dlgi2Packet>(p => p.YesPacket is FinsPacket { Type: FinsPacketType.Accepted } yes && yes.CharacterId == alice.CharacterId
+                && p.NoPacket is FinsPacket { Type: FinsPacketType.Rejected } no && no.CharacterId == alice.CharacterId, "the friend request");
             var accepted = alice.Mark();
-            await bob.SendAsync($"fins 1 {alice.CharacterId}");
+            await bob.SendAsync(Befriend(alice));
 
-            await alice.ExpectSinceAsync(accepted, p => p.StartsWith($"finit {bob.CharacterId}|", StringComparison.Ordinal), "Bob in Alice's list");
-            await bob.ExpectSinceAsync(0, p => p.StartsWith($"finit {alice.CharacterId}|", StringComparison.Ordinal), "Alice in Bob's list");
+            await alice.ExpectSinceAsync(accepted, Lists(bob), "Bob in Alice's list");
+            await bob.ExpectSinceAsync(0, Lists(alice), "Alice in Bob's list");
         }
 
         [TestMethod]
@@ -37,14 +57,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
             await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
-            await alice.SendAsync($"fins 1 {bob.CharacterId}");
-            await bob.ExpectAsync("dlgi2");
-            await bob.SendAsync($"fins 1 {alice.CharacterId}");
-            await alice.ExpectAsync(p => p.StartsWith($"finit {bob.CharacterId}|", StringComparison.Ordinal), "Bob in Alice's list");
+            await alice.SendAsync(Befriend(bob));
+            await bob.ExpectAsync<Dlgi2Packet>();
+            await bob.SendAsync(Befriend(alice));
+            await alice.ExpectAsync(Lists(bob), "Bob in Alice's list");
 
-            await alice.SendAsync($"btk {bob.CharacterId} lunch at noon");
+            await alice.SendAsync(new BtkPacket { CharacterId = bob.CharacterId, Message = "lunch at noon" });
 
-            Assert.AreEqual($"talk {alice.CharacterId} lunch at noon", await bob.ExpectAsync("talk"));
+            PacketAssert.AreEqual(new TalkPacket { CharacterId = alice.CharacterId, Message = "lunch at noon" }, await bob.ExpectAsync<TalkPacket>());
         }
 
         [TestMethod]
@@ -53,15 +73,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
             await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
 
-            await alice.SendAsync($"pjoin 1 {bob.CharacterId}");
-            await bob.ExpectAsync(p => p.StartsWith("dlgi", StringComparison.Ordinal) && p.Contains($"#pjoin^3^{alice.CharacterId}", StringComparison.Ordinal),
-                "the group invitation");
+            await alice.SendAsync(Join(GroupRequestType.Invited, bob));
+            await bob.ExpectAsync(InvitedBy(alice), "the group invitation");
             var joined = alice.Mark();
-            await bob.SendAsync($"pjoin 3 {alice.CharacterId}");
+            await bob.SendAsync(Join(GroupRequestType.Accepted, alice));
 
-            var group = await alice.ExpectSinceAsync(joined, p => p.StartsWith("pinit 2 ", StringComparison.Ordinal), "the group of two");
-            StringAssert.Contains(group, $"|{bob.CharacterId}|");
-            StringAssert.Contains(group, $"|{alice.CharacterId}|");
+            var group = await alice.ExpectSinceAsync<PinitPacket>(joined, p => p.GroupSize == 2, "the group of two");
+            CollectionAssert.AreEquivalent(new[] { alice.CharacterId, bob.CharacterId },
+                (group.PinitSubPackets ?? []).Select(member => member?.VisualId ?? 0).ToArray());
         }
 
         [TestMethod]
@@ -85,18 +104,22 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 // The others ask to join in turn: one player may only send a group request every five seconds.
                 for (var i = 1; i < clients.Length; i++)
                 {
-                    await clients[i].SendAsync($"pjoin 1 {alice.CharacterId}");
-                    await alice.ExpectAsync(p => p.Contains($"#pjoin^3^{clients[i].CharacterId}", StringComparison.Ordinal), "the group request");
+                    await clients[i].SendAsync(Join(GroupRequestType.Invited, alice));
+                    await alice.ExpectAsync(InvitedBy(clients[i]), "the group request");
                     var joined = clients[i].Mark();
-                    await alice.SendAsync($"pjoin 3 {clients[i].CharacterId}");
-                    await clients[i].ExpectSinceAsync(joined, p => p.StartsWith($"pinit {i + 1} ", StringComparison.Ordinal), $"the group of {i + 1}");
+                    await alice.SendAsync(Join(GroupRequestType.Accepted, clients[i]));
+                    var size = i + 1;
+                    await clients[i].ExpectSinceAsync<PinitPacket>(joined, p => p.GroupSize == size, $"the group of {size}");
                 }
 
                 for (var i = 0; i < clients.Length; i++)
                 {
                     var watcher = clients[(i + 1) % clients.Length];
                     await clients[i].WalkAsync((short)(80 + i), 117);
-                    await watcher.ExpectAsync(p => p.StartsWith($"mv 1 {clients[i].CharacterId} {80 + i} 117 ", StringComparison.Ordinal), "the step");
+                    var walker = clients[i];
+                    var x = 80 + i;
+                    await watcher.ExpectAsync<MovePacket>(p => p.VisualType == VisualType.Player && p.VisualEntityId == walker.CharacterId
+                        && p.MapX == x && p.MapY == 117, "the step");
                 }
             }
             finally
@@ -128,18 +151,18 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
             await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
             await using var carol = await Harness.EnterAsync("Carol", x: 82, y: 116);
-            await alice.SendAsync($"pjoin 1 {bob.CharacterId}");
-            await bob.ExpectAsync(p => p.Contains($"#pjoin^3^{alice.CharacterId}", StringComparison.Ordinal), "the group invitation");
-            await bob.SendAsync($"pjoin 3 {alice.CharacterId}");
-            await alice.ExpectAsync(p => p.StartsWith("pinit 2 ", StringComparison.Ordinal), "the group of two");
+            await alice.SendAsync(Join(GroupRequestType.Invited, bob));
+            await bob.ExpectAsync(InvitedBy(alice), "the group invitation");
+            await bob.SendAsync(Join(GroupRequestType.Accepted, alice));
+            await alice.ExpectAsync<PinitPacket>(p => p.GroupSize == 2, "the group of two");
             var said = carol.Mark();
 
-            await alice.SendAsync(";pull the next one");
+            await alice.SendAsync(new GroupTalkPacket { Message = "pull the next one" });
 
-            var heard = await bob.ExpectAsync("spk");
-            StringAssert.StartsWith(heard, $"spk 1 {alice.CharacterId} 3 ");
-            StringAssert.EndsWith(heard, "pull the next one");
-            Assert.IsTrue(await carol.NoneSinceAsync(said, p => TestClient.HeaderOf(p) == "spk", TimeSpan.FromSeconds(1)),
+            var heard = await bob.ExpectAsync<SpeakPacket>();
+            Assert.AreEqual((VisualType.Player, alice.CharacterId, SpeakType.Group), (heard.VisualType, heard.VisualId, heard.SpeakType));
+            StringAssert.EndsWith(heard.Message, "pull the next one");
+            Assert.IsTrue(await carol.NoneSinceAsync<SpeakPacket>(said, null, TimeSpan.FromSeconds(1)),
                 "someone outside the group hears nothing");
         }
     }

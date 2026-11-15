@@ -11,6 +11,15 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Chat;
+using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
@@ -29,9 +38,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await aliceClient.EnterWorldAsync(alice.Slot);
 
-            var arrival = await bob.ExpectAsync(p => p.StartsWith($"in 1 {alice.Name} ", StringComparison.Ordinal), "in for Alice");
-            StringAssert.Contains(arrival, $" {alice.CharacterId} 80 116 ");
-            await aliceClient.ExpectSinceAsync(0, p => p.StartsWith("in 1 Bob", StringComparison.Ordinal),
+            var arrival = await bob.ExpectAsync<InPacket>(p => p.VisualType == VisualType.Player && p.Name == alice.Name, "in for Alice");
+            Assert.AreEqual((alice.CharacterId, (short)80, (short)116), (arrival.VisualId, arrival.PositionX, arrival.PositionY));
+            await aliceClient.ExpectSinceAsync<InPacket>(0, p => p.VisualType == VisualType.Player && p.VisualId == bob.CharacterId,
                 "in for Bob, who was already there");
         }
 
@@ -43,8 +52,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.WalkAsync(81, 117);
 
-            var step = await bob.ExpectAsync(p => p.StartsWith($"mv 1 {alice.CharacterId} ", StringComparison.Ordinal), "mv for Alice");
-            Assert.AreEqual($"mv 1 {alice.CharacterId} 81 117 {alice.Speed}", step);
+            var step = await bob.ExpectAsync<MovePacket>(p => p.VisualType == VisualType.Player && p.VisualEntityId == alice.CharacterId, "mv for Alice");
+            PacketAssert.AreEqual(new MovePacket
+            {
+                VisualType = VisualType.Player,
+                VisualEntityId = alice.CharacterId,
+                MapX = 81,
+                MapY = 117,
+                Speed = (byte)alice.Speed,
+            }, step);
         }
 
         [TestMethod]
@@ -54,11 +70,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
 
             var said = alice.Mark();
-            await alice.SendAsync("say hello there");
+            await alice.SendAsync(new ClientSayPacket { Message = "hello there" });
 
-            var heard = await bob.ExpectAsync("say");
-            Assert.AreEqual($"say 1 {alice.CharacterId} 0 hello there", heard);
-            Assert.IsTrue(await alice.NoneSinceAsync(said, p => TestClient.HeaderOf(p) == "say", TimeSpan.FromSeconds(1)),
+            PacketAssert.AreEqual(new SayPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = alice.CharacterId,
+                Type = SayColorType.Default,
+                Message = "hello there",
+            }, await bob.ExpectAsync<SayPacket>());
+            Assert.IsTrue(await alice.NoneSinceAsync<SayPacket>(said, null, TimeSpan.FromSeconds(1)),
                 "the speaker's client draws its own line");
         }
 
@@ -69,10 +90,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Task.Delay(PortalRest);
 
             await alice.WalkAsync(90, 116);
-            await alice.SendAsync("preq");
+            await alice.SendAsync(new PreqPacket());
 
-            var at = await alice.ExpectAsync("at");
-            Assert.AreEqual($"at {alice.CharacterId} {WorldData.Meadow} 10 10", string.Join(' ', at.Split(' ').Take(5)));
+            var at = await alice.ExpectAsync<AtPacket>();
+            Assert.AreEqual((alice.CharacterId, (short)WorldData.Meadow, (short)10, (short)10), (at.CharacterId, at.MapId, at.PositionX, at.PositionY));
         }
 
         [TestMethod]
@@ -81,11 +102,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", x: 90, y: 116);
 
             var asked = alice.Mark();
-            await alice.SendAsync("preq");
+            await alice.SendAsync(new PreqPacket());
 
-            // 94 is the client's "You will be able to move shortly".
-            await alice.ExpectAsync(p => p == $"sayi 1 {alice.CharacterId} 10 94 0 0 0 0 0", "sayi 94");
-            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) == "at", TimeSpan.FromSeconds(1)),
+            await alice.ExpectAsync<SayiPacket>(p => p.VisualId == alice.CharacterId && p.Type == SayColorType.Yellow
+                && p.Message == Game18NConstString.WillMoveShortly, "sayi WillMoveShortly");
+            Assert.IsTrue(await alice.NoneSinceAsync<AtPacket>(asked, null, TimeSpan.FromSeconds(1)),
                 "the character stays on its map");
         }
 
@@ -103,8 +124,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await SavedAtAsync(player, 81, 117);
 
             await using var back = await Harness.ComeBackAsync(player);
-            var at = back.Received.Single(p => TestClient.HeaderOf(p) == "at").Split(' ');
-            Assert.AreEqual($"{WorldData.Town} 81 117", string.Join(' ', at.Skip(2).Take(3)));
+            var at = back.Received.OfType<AtPacket>().Single();
+            Assert.AreEqual(((short)WorldData.Town, (short)81, (short)117), (at.MapId, at.PositionX, at.PositionY));
         }
 
         private static async Task SavedAtAsync(Player player, short x, short y)
