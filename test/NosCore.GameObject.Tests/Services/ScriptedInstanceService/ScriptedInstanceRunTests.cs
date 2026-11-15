@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
     {
         private TestWorld World;
         private const short Grunt = 58;
+        private const short Boss = 59;
 
         private sealed class Script : InstanceScript
         {
@@ -209,6 +210,22 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             {
                 "enter", "killed(1,58)", "killed(1,58)", "cleared(1)", "killed(1,58)"
             }, script.Calls);
+        }
+
+        [TestMethod]
+        public async Task ALockerForOneMonsterIgnoresTheOthersAsync()
+        {
+            var script = new Script { Enter = r => r.SetMonsterLocker(1, 1, Boss) };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            Assert.AreEqual(1, run.LockerLeft(1));
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Boss);
+
+            CollectionAssert.Contains(script.Calls, "cleared(1)");
+            Assert.AreEqual(0, run.LockerLeft(1));
         }
 
         [TestMethod]

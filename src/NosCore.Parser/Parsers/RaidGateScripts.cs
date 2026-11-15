@@ -16,6 +16,7 @@ namespace NosCore.Parser.Parsers
             {
                 [(2510, 20, 5)] = "raid-mother-cuby",
                 [(2520, 25, 1)] = "raid-ginseng",
+                [(2536, 26, 25)] = "raid-grenigas",
                 [(2587, 12, 43)] = "raid-glacerus",
             };
     }

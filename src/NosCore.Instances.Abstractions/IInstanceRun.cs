@@ -62,6 +62,9 @@ namespace NosCore.Instances.Abstractions
         // A locker holds the room shut until that many of its monsters are dead.
         void SetMonsterLocker(int room, short count);
 
+        // A locker that only that monster's deaths count towards.
+        void SetMonsterLocker(int room, short count, short countedVNum);
+
         // Kills the room's locker still waits for; 0 once it has let go, or when it never had one.
         int LockerLeft(int room);
 
