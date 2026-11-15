@@ -442,6 +442,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
         }
 
+        public bool RemoveNpc(NpcComponentBundle npc) =>
+            _npcs.TryRemove((int)npc.VisualId, out _) && EcsWorld.DestroyEntity(npc.Handle);
+
         public NpcComponentBundle? GetNpcById(int mapNpcId) =>
             _npcs.TryGetValue(mapNpcId, out var n) ? n : null;
 

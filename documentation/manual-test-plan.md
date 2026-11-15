@@ -2773,7 +2773,10 @@ Danger (`timespace-20`) does it for the five guards (vnum 320) of its last room.
       you walk across the room
 - [ ] A second player in the room sees the escort move with you
 - [ ] An escort that joined somebody else does not follow you
-- [ ] Not verifiable yet: an escort following its leader through a portal into the next room
+- [ ] Take a portal with an escort following you: it leaves the room with you and appears beside
+      you in the next room, with the HP it had (A New Companion, `timespace-22`, from room 11 on)
+- [ ] Right-click a monster with the escort selected: it attacks that monster with its own skill
+- [ ] Let the monsters kill the escort: the time-space ends with "Failed to protect the NPC"
 
 ### Inside a time-space
 

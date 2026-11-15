@@ -172,6 +172,45 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AnEscortHitsAMonsterItsLeaderPoints()
+        {
+            await new Spec("An escort following the player hits the monster the player sends it at")
+                .Given(AnEscortLedBy_, "owner")
+                .WhenAsync(TheOwnerSendsTheEscortAtMonster_, NearMonsterId)
+                .Then(ThePetShouldHaveHit_Times, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEscortLedByAnotherPlayerIgnoresTheOrder()
+        {
+            await new Spec("A suctl naming an escort that follows another player does not attack")
+                .Given(AnEscortLedBy_, "other player")
+                .WhenAsync(TheOwnerSendsTheEscortAtMonster_, NearMonsterId)
+                .Then(NothingShouldBeHit)
+                .ExecuteAsync();
+        }
+
+        private NosCore.GameObject.Ecs.NpcComponentBundle _escort;
+
+        private void AnEscortLedBy_(string whose)
+        {
+            var leader = whose == "owner" ? _session : _otherSession;
+            _escort = _map.SummonNpc(new NpcMonsterDto { NpcMonsterVNum = 318, MaxHp = 10, Speed = 10 }, 5, 5);
+            _escort.IsEscort = true;
+            _escort.LeaderId = leader.Character.CharacterId;
+        }
+
+        private Task TheOwnerSendsTheEscortAtMonster_(int monsterId) =>
+            _handler.ExecuteAsync(new SuCtlPacket
+            {
+                CastId = PetCastId,
+                MateTransportId = _escort.VisualId,
+                TargetType = VisualType.Monster,
+                TargetId = monsterId
+            }, _session);
+
         private void ThePetsSecondSkillHasCastZeroAndAMuchLongerRange()
         {
             _catalog.Setup(c => c.GetSkills(It.IsAny<short>())).Returns(new List<NpcMonsterSkillDto>

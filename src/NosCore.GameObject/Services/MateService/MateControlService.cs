@@ -17,6 +17,7 @@ using NosCore.Packets.ServerPackets.Entities;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -108,15 +109,28 @@ namespace NosCore.GameObject.Services.MateService
         public async Task<bool> AttackAsync(PlayerComponentBundle owner, long mateTransportId, long castId,
             IAliveEntity target)
         {
-            if (!TryGetOutMate(owner, mateTransportId, out var mate, out var entity)
-                || target.MapInstance != owner.MapInstance)
+            if (target.MapInstance != owner.MapInstance)
             {
                 return false;
             }
 
+            if (TryGetOutMate(owner, mateTransportId, out var mate, out var entity))
+            {
+                return await StrikeAsync(entity, mate.VNum, entity.NextUsableAt, castId, target);
+            }
+
+            return mateTransportId is > 0 and <= int.MaxValue
+                && owner.MapInstance.GetNpcById((int)mateTransportId) is { IsAlive: true } escort
+                && escort.LeaderId == owner.CharacterId
+                && await StrikeAsync(escort, escort.VNum, escort.NextUsableAt, castId, target);
+        }
+
+        private async Task<bool> StrikeAsync(IAliveEntity entity, short vNum, ConcurrentDictionary<short, Instant> nextUsableAt,
+            long castId, IAliveEntity target)
+        {
             // Only a skill in the creature's own roster, picked as the resolver picks it (cast 0 means its first
             // skill), so reach and cooldown are checked on the skill that is actually cast.
-            var skill = catalog.GetSkills(mate.VNum)
+            var skill = catalog.GetSkills(vNum)
                 .Select(s => _skillsByVnum.GetValueOrDefault(s.SkillVNum))
                 .FirstOrDefault(s => s != null && (s.CastId == castId || castId == 0));
             if (skill == null)
@@ -125,7 +139,7 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             var now = clock.GetCurrentInstant();
-            if (entity.NextUsableAt.TryGetValue(skill.SkillVNum, out var readyAt) && readyAt > now)
+            if (nextUsableAt.TryGetValue(skill.SkillVNum, out var readyAt) && readyAt > now)
             {
                 return false;
             }
@@ -143,7 +157,7 @@ namespace NosCore.GameObject.Services.MateService
                 return false;
             }
 
-            entity.NextUsableAt[skill.SkillVNum] = now.Plus(Duration.FromMilliseconds(Math.Max(200, skill.Cooldown * 100)));
+            nextUsableAt[skill.SkillVNum] = now.Plus(Duration.FromMilliseconds(Math.Max(200, skill.Cooldown * 100)));
             return true;
         }
 
