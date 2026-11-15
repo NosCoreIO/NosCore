@@ -64,6 +64,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                     World.Create<GoToQuestHandler>(),
                     World.Create<CollectQuestHandler>(),
                     World.Create<CollectInRaidQuestHandler>(),
+                    World.Create<CollectInTsQuestHandler>(),
                     World.Create<NeededQuestHandler>(),
                     World.Create<BringsQuestHandler>(),
                     World.Create<RequiredQuestHandler>(),
@@ -95,6 +96,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                 .And(TheCharacterCarries_Of_, 2, QuestItem)
                 .WhenAsync(TheCharacterReceives_, QuestItem)
                 .Then(TheQuestWindowShouldRead_Of_, 2, 5)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastTimeSpaceItemCompletesATimeSpaceCollectQuest()
+        {
+            await new Spec("Carrying every item of a time-space collect quest completes it")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.CollectInTs, 5, QuestItem)
+                .And(TheCharacterCarries_Of_, 5, QuestItem)
+                .WhenAsync(TheCharacterReceives_, QuestItem)
+                .Then(TheObjectiveShouldRead_, 5)
+                .And(TheQuestShouldBeCompleted)
                 .ExecuteAsync();
         }
 
@@ -379,6 +392,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
             GiveQuest(type, type switch
             {
                 QuestType.Collect or QuestType.CollectInRaid => Objective(Monster, vNum, amount),
+                QuestType.CollectInTs => Objective(3, vNum, amount),
                 QuestType.Wear => Objective(-1, vNum, null),
                 _ => Objective(vNum, amount == 0 ? null : amount, null)
             });

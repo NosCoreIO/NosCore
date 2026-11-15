@@ -20,15 +20,15 @@ public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropServ
     // always drop, but rows of 25 items at 100 make for long hunts, so the scale is doubtful.
     private const int ChanceScale = 10000;
 
-    public IReadOnlyList<short> RollDrops(PlayerComponentBundle character, NpcMonsterDto mob, int dropRate)
+    public IReadOnlyList<short> RollDrops(PlayerComponentBundle character, NpcMonsterDto mob, int dropRate, byte? timeSpaceId)
     {
         var drops = new List<short>();
         var ownDrops = catalog.GetDrops(mob.NpcMonsterVNum).Select(d => (int)d.VNum).ToHashSet();
         foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null
-                     && q.Quest.QuestType is QuestType.Collect or QuestType.CollectInRaid))
+                     && q.Quest.QuestType is QuestType.Collect or QuestType.CollectInRaid or QuestType.CollectInTs))
         {
             var type = quest.Quest.QuestType;
-            foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.FirstData == mob.NpcMonsterVNum))
+            foreach (var objective in quest.Quest.QuestObjectives.Where(o => DropsFrom(type, o, mob, timeSpaceId)))
             {
                 if (objective.ItemVNum(type) is not { } vNum
                     || ownDrops.Contains(vNum)
@@ -44,6 +44,12 @@ public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropServ
 
         return drops;
     }
+
+    // A time-space collect quest names the time-space rather than a monster: any monster in it may drop the item.
+    private static bool DropsFrom(QuestType type, QuestObjectiveDto objective, NpcMonsterDto mob, byte? timeSpaceId) =>
+        type == QuestType.CollectInTs
+            ? timeSpaceId is { } id && objective.FirstData == id
+            : objective.FirstData == mob.NpcMonsterVNum;
 
     private static int Held(PlayerComponentBundle character, CharacterQuest quest, QuestObjectiveDto objective, int vNum) =>
         quest.Quest.QuestType == QuestType.CollectInRaid

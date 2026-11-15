@@ -25,6 +25,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.EquipmentService;
@@ -58,6 +59,7 @@ public sealed class RewardService(
     IBuffService buffService,
     IEquipmentStatsService equipmentStatsService,
     IQuestDropService questDropService,
+    IScriptedInstanceService scriptedInstanceService,
     ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill.
@@ -379,6 +381,9 @@ public sealed class RewardService(
     // A quest item drops for each attacker still collecting it, and only they may pick it up.
     private async Task SpawnQuestDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
+        var timeSpaceId = scriptedInstanceService.GetRun(mapInstance.MapInstanceId) is { Host: TimeSpaceRunHost host }
+            ? host.Entrance.Definition?.Id
+            : null;
         foreach (var handle in hitSnapshot.Keys)
         {
             if (!TryFindPlayer(victim, handle, out var player))
@@ -386,7 +391,7 @@ public sealed class RewardService(
                 continue;
             }
 
-            foreach (var vNum in questDropService.RollDrops(player, mob, mapInstance.DropRate))
+            foreach (var vNum in questDropService.RollDrops(player, mob, mapInstance.DropRate, timeSpaceId))
             {
                 try
                 {

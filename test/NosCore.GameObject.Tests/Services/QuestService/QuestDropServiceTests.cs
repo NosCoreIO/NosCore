@@ -52,8 +52,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             return quest;
         }
 
-        private System.Collections.Generic.IReadOnlyList<short> Roll() =>
-            World.Create<QuestDropService>().RollDrops(Session.Character, Monster, 1);
+        private System.Collections.Generic.IReadOnlyList<short> Roll(byte? timeSpaceId = null) =>
+            World.Create<QuestDropService>().RollDrops(Session.Character, Monster, 1, timeSpaceId);
 
         [TestMethod]
         public void TheNamedMonsterDropsTheItemOfAnActiveCollectQuest()
@@ -130,6 +130,40 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Collect(MonsterVNum, 2, chance: 10000, QuestType.Hunt);
 
             Assert.AreEqual(0, Roll().Count);
+        }
+
+        [TestMethod]
+        public void AnyMonsterOfTheNamedTimeSpaceDropsTheItemOfATimeSpaceCollectQuest()
+        {
+            Collect(3, 2, chance: 10000, QuestType.CollectInTs);
+
+            CollectionAssert.AreEqual(new[] { QuestItem }, Roll(timeSpaceId: 3).ToArray());
+        }
+
+        [TestMethod]
+        public void AnotherTimeSpaceDropsNothingForATimeSpaceCollectQuest()
+        {
+            Collect(3, 2, chance: 10000, QuestType.CollectInTs);
+
+            Assert.AreEqual(0, Roll(timeSpaceId: 4).Count);
+        }
+
+        [TestMethod]
+        public void AMonsterOutsideATimeSpaceDropsNothingForATimeSpaceCollectQuest()
+        {
+            Collect(MonsterVNum, 2, chance: 10000, QuestType.CollectInTs);
+
+            Assert.AreEqual(0, Roll().Count);
+        }
+
+        [TestMethod]
+        public void ATimeSpaceCollectQuestStopsDroppingOnceTheBagHoldsEnough()
+        {
+            Collect(3, 2, chance: 10000, QuestType.CollectInTs);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(World.GenerateItemProvider().Create(QuestItem, 2), Session.Character.CharacterId));
+
+            Assert.AreEqual(0, Roll(timeSpaceId: 3).Count);
         }
     }
 }

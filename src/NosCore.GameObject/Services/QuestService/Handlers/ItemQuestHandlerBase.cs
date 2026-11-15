@@ -55,6 +55,18 @@ public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
         return true;
     }
 
+    // The objective follows how many of the item the bag holds, so dropping or selling one lowers nothing already counted.
+    protected ItemQuestProgress ProgressToBagCount(PlayerComponentBundle character, CharacterQuest quest, short vNum)
+    {
+        var progressed = false;
+        foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.ItemVNum(QuestType) == vNum))
+        {
+            progressed |= RaiseProgress(quest, objective, character.InventoryService.CountItem(vNum));
+        }
+
+        return Outcome(quest, progressed);
+    }
+
     protected static ItemQuestProgress Outcome(CharacterQuest quest, bool progressed) =>
         !progressed ? ItemQuestProgress.None
         : quest.AreObjectivesComplete() ? ItemQuestProgress.Completed

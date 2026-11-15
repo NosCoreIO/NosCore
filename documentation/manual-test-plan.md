@@ -2715,6 +2715,12 @@ next to them.
 - [ ] A player without the quest never sees item 1152 drop
 - [ ] Quest 1532 asks for items monsters 27 and 33 already drop for everyone: they still drop at
       their usual rate, not twice
+- [ ] **Collect in a time-space** (quest type 13) — the quest names a time-space instead of a
+      monster. Open quest 1520 with its objective pointed at time-space 1 (`QuestObjective`
+      FirstData 1, FourthData 10 000 so every kill drops) and run the time-space 1 stone on
+      Chicken Farm Path: each kill drops Red Fruit (2099), picking it up moves the quest window,
+      and the second one completes the quest
+- [ ] The same monsters killed outside the time-space drop no Red Fruit
 - [ ] Not verifiable yet: two events finishing the same quest at the same instant (an area skill
       killing the last two monsters together) giving the reward once; the client can't time two
       kills that closely, so a unit test covers it
