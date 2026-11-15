@@ -53,9 +53,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             List<MapTypeMapDto> mapTypeMaps)
         : IMapInstanceGeneratorService
     {
-        public Task AddMapInstanceAsync(MapInstance mapInstance)
+        public Task AddMapInstanceAsync(MapInstance mapInstance, bool withMapPortals = true)
         {
             mapInstanceRegistry.Register(mapInstance.MapInstanceId, mapInstance);
+            if (!withMapPortals)
+            {
+                return Task.CompletedTask;
+            }
+
             return LoadPortalsAsync(mapInstance, portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
         }
 

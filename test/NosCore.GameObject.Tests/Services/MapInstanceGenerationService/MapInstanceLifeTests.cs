@@ -21,6 +21,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
@@ -106,6 +107,37 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
             Assert.AreEqual(1, monster.PositionX);
             Assert.IsNull(monster.RespawnAt);
             await map.DisposeAsync();
+        }
+
+        [TestMethod]
+        public async Task AnAddedMapTakesItsMapsWorldPortals()
+        {
+            await World.PortalDao.TryInsertOrUpdateAsync(new PortalDto
+            {
+                PortalId = 9100, SourceMapId = 0, SourceX = 1, SourceY = 1, DestinationMapId = 1, DestinationX = 2,
+                DestinationY = 2, Type = PortalType.MapPortal,
+            });
+            var map = NewMap();
+
+            await World.MapInstanceGeneratorService.AddMapInstanceAsync(map);
+
+            Assert.AreEqual(9100, map.Portals.Single().PortalId);
+        }
+
+        [TestMethod]
+        public async Task AMapAddedWithoutMapPortalsHasNone()
+        {
+            await World.PortalDao.TryInsertOrUpdateAsync(new PortalDto
+            {
+                PortalId = 9100, SourceMapId = 0, SourceX = 1, SourceY = 1, DestinationMapId = 1, DestinationX = 2,
+                DestinationY = 2, Type = PortalType.MapPortal,
+            });
+            var map = NewMap();
+
+            await World.MapInstanceGeneratorService.AddMapInstanceAsync(map, withMapPortals: false);
+
+            Assert.AreEqual(0, map.Portals.Count);
+            Assert.AreSame(map, World.GetMap(map.MapInstanceId));
         }
 
         [TestMethod]

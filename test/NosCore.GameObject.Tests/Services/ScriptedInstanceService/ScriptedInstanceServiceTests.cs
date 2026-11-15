@@ -174,7 +174,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     It.IsAny<NosCore.Data.Enumerations.Map.MapInstanceType>()))
                 .Returns((GameObject.Map.Map map, Guid id, bool shop, NosCore.Data.Enumerations.Map.MapInstanceType type)
                     => World.MapInstanceGeneratorService.CreateMapInstance(map, id, shop, type));
-            generator.Setup(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()))
+            generator.Setup(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>(), It.IsAny<bool>()))
                 .Returns(Task.CompletedTask);
             generator.Setup(s => s.RemoveMapAsync(It.IsAny<Guid>()))
                 .Callback<Guid>(removed.Add).Returns(Task.CompletedTask);
@@ -217,8 +217,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, MapRooms),
                 [new NpcMonsterDto { NpcMonsterVNum = 58, MaxHp = 10 }], 2004);
             var built = new List<GameObject.Services.MapInstanceGenerationService.MapInstance>();
-            generator.Setup(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()))
-                .Callback<GameObject.Services.MapInstanceGenerationService.MapInstance>(built.Add).Returns(Task.CompletedTask);
+            generator.Setup(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>(), It.IsAny<bool>()))
+                .Callback<GameObject.Services.MapInstanceGenerationService.MapInstance, bool>((map, _) => built.Add(map)).Returns(Task.CompletedTask);
 
             var run = (await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull())).NotNull();
 
@@ -254,6 +254,19 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task RoomsDoNotTakeTheirMapsWorldPortalsAsync()
+        {
+            var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004, 2005);
+
+            await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull());
+
+            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>(), false),
+                Times.Exactly(2));
+            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>(), true),
+                Times.Never);
+        }
+
+        [TestMethod]
         public async Task TwoPartiesEnteringTheSameDoorDoNotMeetAsync()
         {
             var (service, _, _) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004, 2005);
@@ -271,7 +284,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, null));
 
             Assert.IsNull(await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull()));
-            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()),
+            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>(), It.IsAny<bool>()),
                 Times.Never);
         }
 
@@ -281,7 +294,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, Broken), 2004, 2005);
 
             Assert.IsNull(await service.InstantiateAsync((service.GetAt(1, 5, 6) ?? throw new AssertFailedException("no entrance"))));
-            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()),
+            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>(), It.IsAny<bool>()),
                 Times.Never);
         }
 
@@ -293,7 +306,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.IsFalse(await service.LoadAsync(entrance));
             Assert.IsNull(await service.InstantiateAsync(entrance));
-            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()),
+            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>(), It.IsAny<bool>()),
                 Times.Never);
         }
 

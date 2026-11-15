@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
     public interface IMapInstanceGeneratorService
     {
-        Task AddMapInstanceAsync(MapInstance mapInstance);
+        Task AddMapInstanceAsync(MapInstance mapInstance, bool withMapPortals = true);
         Task InitializeAsync();
         Task RemoveMapAsync(Guid guid);
         MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance);
