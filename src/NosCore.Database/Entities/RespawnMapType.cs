@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -39,6 +40,6 @@ namespace NosCore.Database.Entities
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long RespawnMapTypeId { get; set; }
+        public RespawnType RespawnMapTypeId { get; set; }
     }
 }

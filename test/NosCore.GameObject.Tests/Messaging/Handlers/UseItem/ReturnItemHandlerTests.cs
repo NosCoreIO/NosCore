@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using System;
 using NosCore.GameObject.Ecs;
 using System.Linq;
@@ -51,8 +52,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.MapInstance.MapInstanceType = MapInstanceType.BaseMapInstance;
             _respawnService = World.Freeze<Mock<IRespawnService>>();
             _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
-            _respawnService.Setup(x => x.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns(0);
-            _respawnService.Setup(x => x.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<long?>()))
+            _respawnService.Setup(x => x.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns(RespawnType.DefaultAct1);
+            _respawnService.Setup(x => x.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<RespawnType?>()))
                 .Returns(((short)1, (short)80, (short)116));
             _handler = World.Create<ReturnItemHandler>();
         }

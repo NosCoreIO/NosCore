@@ -25,7 +25,7 @@ public sealed class RespawnService(
 {
     private const int SpawnJitter = 3;
 
-    public long? ResolveRespawnMapTypeId(short mapId)
+    public RespawnType? ResolveRespawnMapTypeId(short mapId)
     {
         var mapTypeIds = mapTypeMaps.Where(m => m.MapId == mapId).Select(m => m.MapTypeId).ToList();
         if (mapTypeIds.Count == 0) return null;
@@ -34,25 +34,25 @@ public sealed class RespawnService(
             .FirstOrDefault(id => id.HasValue);
     }
 
-    public long? ResolveRevivalMapTypeId(PlayerComponentBundle character)
+    public RespawnType? ResolveRevivalMapTypeId(PlayerComponentBundle character)
     {
         if (character.MapInstance is { IsAct4: true })
         {
             switch (character.Faction)
             {
                 case FactionType.Angel:
-                    return (long)RespawnType.Act4Angel;
+                    return RespawnType.Act4Angel;
                 case FactionType.Demon:
-                    return (long)RespawnType.Act4Demon;
+                    return RespawnType.Act4Demon;
             }
         }
 
         return ResolveRespawnMapTypeId(character.MapId);
     }
 
-    public (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, long? respawnMapTypeId)
+    public (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, RespawnType? respawnMapTypeId)
     {
-        respawnMapTypeId ??= (long)RespawnType.DefaultAct1;
+        respawnMapTypeId ??= RespawnType.DefaultAct1;
 
         var saved = character.Respawns.FirstOrDefault(r => r.RespawnMapTypeId == respawnMapTypeId);
         short mapId, baseX, baseY;
@@ -65,7 +65,7 @@ public sealed class RespawnService(
         else
         {
             var catalog = respawnMapTypes.FirstOrDefault(r => r.RespawnMapTypeId == respawnMapTypeId)
-                          ?? respawnMapTypes.FirstOrDefault(r => r.RespawnMapTypeId == (long)RespawnType.DefaultAct1);
+                          ?? respawnMapTypes.FirstOrDefault(r => r.RespawnMapTypeId == RespawnType.DefaultAct1);
             mapId = catalog?.MapId ?? 1;
             baseX = catalog?.DefaultX ?? 80;
             baseY = catalog?.DefaultY ?? 116;
@@ -98,15 +98,15 @@ public sealed class RespawnService(
     }
 
     // Same fallback as the place of revival: a map without a return group counts as Act 1.
-    private long ResolveReturnMapTypeId(short mapId)
+    private RespawnType ResolveReturnMapTypeId(short mapId)
     {
         var mapTypeIds = mapTypeMaps.Where(m => m.MapId == mapId).Select(m => m.MapTypeId).ToList();
         return mapTypes.Where(t => mapTypeIds.Contains(t.MapTypeId))
             .Select(t => t.ReturnMapTypeId)
-            .FirstOrDefault(id => id.HasValue) ?? (long)RespawnType.ReturnAct1;
+            .FirstOrDefault(id => id.HasValue) ?? RespawnType.ReturnAct1;
     }
 
-    private static void Upsert(PlayerComponentBundle character, long respawnMapTypeId, short mapId, short x, short y)
+    private static void Upsert(PlayerComponentBundle character, RespawnType respawnMapTypeId, short mapId, short x, short y)
     {
         var existing = character.Respawns.FirstOrDefault(r => r.RespawnMapTypeId == respawnMapTypeId);
         if (existing == null)

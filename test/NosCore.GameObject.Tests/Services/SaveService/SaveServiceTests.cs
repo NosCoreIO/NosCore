@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -137,11 +138,11 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         {
             var other = await RespawnDao.TryInsertOrUpdateAsync(new RespawnDto
             {
-                CharacterId = Session.Character.CharacterId + 1, MapId = 1, X = 80, Y = 116, RespawnMapTypeId = 0,
+                CharacterId = Session.Character.CharacterId + 1, MapId = 1, X = 80, Y = 116, RespawnMapTypeId = RespawnType.DefaultAct1,
             });
             var respawn = new RespawnDto
             {
-                CharacterId = Session.Character.CharacterId, MapId = 2550, X = 23, Y = 34, RespawnMapTypeId = 0,
+                CharacterId = Session.Character.CharacterId, MapId = 2550, X = 23, Y = 34, RespawnMapTypeId = RespawnType.DefaultAct1,
             };
             Session.Character.Respawns.Add(respawn);
 

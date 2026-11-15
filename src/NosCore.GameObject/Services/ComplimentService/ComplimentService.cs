@@ -36,7 +36,7 @@ public sealed class ComplimentService(IClock clock, ISessionRegistry sessionRegi
 
         var mapId = character.MapInstance.Map.MapId;
         if (mapTypeMaps.Any(m => m.MapId == mapId
-                && m.MapTypeId is (short)MapTypeType.Act4 or (short)MapTypeType.Act42))
+                && m.MapTypeId is MapTypeType.Act4 or MapTypeType.Act42))
         {
             return ComplimentOutcome.InGlacernon;
         }

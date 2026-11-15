@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using System;
 using NosCore.GameObject.Ecs;
 using System.Linq;
@@ -68,8 +69,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _session.Character.MapInstance = World.GetBaseMap(1);
             _mapChangeService = new Mock<IMapChangeService>();
             _respawnService = new Mock<IRespawnService>();
-            _respawnService.Setup(r => r.ResolveRevivalMapTypeId(It.IsAny<PlayerComponentBundle>())).Returns((long?)1);
-            _respawnService.Setup(r => r.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<long?>()))
+            _respawnService.Setup(r => r.ResolveRevivalMapTypeId(It.IsAny<PlayerComponentBundle>())).Returns(RespawnType.ReturnAct1);
+            _respawnService.Setup(r => r.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<RespawnType?>()))
                 .Returns(((short)1, (short)50, (short)60));
 
             var catalog = new Mock<ICardCatalog>();

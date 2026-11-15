@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger<RespawnMapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class RespawnMapTypeParser(IDao<RespawnMapTypeDto, RespawnType> respawnMapTypeDao, ILogger<RespawnMapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         internal async Task InsertRespawnMapTypeAsync()
         {
@@ -24,7 +24,7 @@ namespace NosCore.Parser.Parsers
             {
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct1,
+                    RespawnMapTypeId = RespawnType.DefaultAct1,
                     MapId = 1,
                     DefaultX = 80,
                     DefaultY = 116,
@@ -32,7 +32,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.ReturnAct1,
+                    RespawnMapTypeId = RespawnType.ReturnAct1,
                     MapId = 0,
                     DefaultX = 0,
                     DefaultY = 0,
@@ -40,7 +40,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct5,
+                    RespawnMapTypeId = RespawnType.DefaultAct5,
                     MapId = 170,
                     DefaultX = 86,
                     DefaultY = 48,
@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.ReturnAct5,
+                    RespawnMapTypeId = RespawnType.ReturnAct5,
                     MapId = 0,
                     DefaultX = 0,
                     DefaultY = 0,
@@ -56,7 +56,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct6,
+                    RespawnMapTypeId = RespawnType.DefaultAct6,
                     MapId = 228,
                     DefaultX = 72,
                     DefaultY = 102,
@@ -64,7 +64,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.DefaultAct62,
+                    RespawnMapTypeId = RespawnType.DefaultAct62,
                     MapId = 228,
                     DefaultX = 72,
                     DefaultY = 102,
@@ -72,7 +72,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.DefaultOasis,
+                    RespawnMapTypeId = RespawnType.DefaultOasis,
                     MapId = 261,
                     DefaultX = 66,
                     DefaultY = 70,
@@ -80,7 +80,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.Act4Angel,
+                    RespawnMapTypeId = RespawnType.Act4Angel,
                     MapId = 130,
                     DefaultX = 39,
                     DefaultY = 42,
@@ -88,7 +88,7 @@ namespace NosCore.Parser.Parsers
                 },
                 new()
                 {
-                    RespawnMapTypeId = (long) RespawnType.Act4Demon,
+                    RespawnMapTypeId = RespawnType.Act4Demon,
                     MapId = 131,
                     DefaultX = 39,
                     DefaultY = 42,

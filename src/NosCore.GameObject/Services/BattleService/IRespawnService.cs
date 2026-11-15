@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Ecs;
 
@@ -14,15 +15,15 @@ public interface IRespawnService
     // The MapType.RespawnMapTypeId for the given MapId, or null if the map isn't tied
     // to a respawn group. Saved respawns are keyed by this value per character so a
     // save-point NPC in Act 5 doesn't overwrite the Act 1 save.
-    long? ResolveRespawnMapTypeId(short mapId);
+    RespawnType? ResolveRespawnMapTypeId(short mapId);
 
     // Where a fallen character is sent back to: their faction's citadel on Act 4, otherwise the
     // map's respawn group.
-    long? ResolveRevivalMapTypeId(PlayerComponentBundle character);
+    RespawnType? ResolveRevivalMapTypeId(PlayerComponentBundle character);
 
     // The (mapId, x, y) the character should respawn at for the given MapType group.
     // Falls back to the RespawnMapType catalog default (Nosville for Act 1).
-    (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, long? respawnMapTypeId);
+    (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, RespawnType? respawnMapTypeId);
 
     // Upserts the character's Respawn row for the MapType group to (mapId, x, y).
     // Returns false, and saves nothing, when the map has no RespawnMapTypeId.

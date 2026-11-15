@@ -48,13 +48,13 @@ namespace NosCore.Parser.Tests
                 amount: 3,
                 monsterVNum: 42,
                 dropChance: 1500,
-                mapTypeId: (short)MapTypeType.Act1);
+                mapTypeId: MapTypeType.Act1);
 
             Assert.AreEqual<short>(1012, dto.VNum);
             Assert.AreEqual(3, dto.Amount);
             Assert.AreEqual((short?)42, dto.MonsterVNum);
             Assert.AreEqual(1500, dto.DropChance);
-            Assert.AreEqual((short?)MapTypeType.Act1, dto.MapTypeId);
+            Assert.AreEqual<MapTypeType?>(MapTypeType.Act1, dto.MapTypeId);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace NosCore.Parser.Tests
                 amount: 1,
                 monsterVNum: null,
                 dropChance: 2500,
-                mapTypeId: (short)MapTypeType.Act2);
+                mapTypeId: MapTypeType.Act2);
 
             Assert.IsNull(dto.MonsterVNum);
             Assert.AreEqual<short>(2282, dto.VNum);
@@ -89,7 +89,7 @@ namespace NosCore.Parser.Tests
                 MapTypeType.Cliff, MapTypeType.CometPlain, MapTypeType.LandOfTheDead,
             })
             {
-                Assert.IsTrue(_savedDrops.Any(d => d.MapTypeId == (short)mapType),
+                Assert.IsTrue(_savedDrops.Any(d => d.MapTypeId == mapType),
                     $"No drops emitted for MapType {mapType}");
             }
         }
@@ -108,7 +108,7 @@ namespace NosCore.Parser.Tests
                 MapTypeType.Act62,
             })
             {
-                Assert.IsTrue(_savedDrops.Any(d => d.VNum == goldVNum && d.MapTypeId == (short)mapType),
+                Assert.IsTrue(_savedDrops.Any(d => d.VNum == goldVNum && d.MapTypeId == mapType),
                     $"Gold (1012) should drop on {mapType}");
             }
         }
