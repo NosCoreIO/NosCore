@@ -86,8 +86,8 @@ namespace NosCore.PacketHandlers.Tests.Family
         private FamilyWarehouseService Service()
         {
             var hub = new Mock<IWarehouseHub>();
-            hub.Setup(s => s.GetWarehouseItems(null, FamilyId, WarehouseType.FamilyWareHouse, null))
-                .ReturnsAsync(() => _stored.Select(s => new WarehouseLink
+            hub.Setup(s => s.GetWarehouseItems(null, FamilyId, WarehouseType.FamilyWareHouse, It.IsAny<byte?>()))
+                .ReturnsAsync((Guid? _, long? _, WarehouseType _, byte? slot) => _stored.Where(s => slot == null || s.Slot == slot).Select(s => new WarehouseLink
                 {
                     WarehouseItemId = s.Id,
                     Slot = s.Slot,
