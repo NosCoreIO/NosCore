@@ -132,7 +132,7 @@ namespace NosCore.GameObject.Services.ExperienceService
             if (spXpDelta > 0 && player.UseSp)
             {
                 spInstance = player.InventoryService
-                    .LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.Wear)
+                    .LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)
                     ?.ItemInstance as SpecialistInstance;
                 if (spInstance != null && spInstance.SpLevel < MaxSpLevel)
                 {
@@ -161,7 +161,7 @@ namespace NosCore.GameObject.Services.ExperienceService
             if (fairyXpDelta > 0)
             {
                 fairy = player.InventoryService
-                    .LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)
+                    .LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)
                     ?.ItemInstance as WearableInstance;
                 var baseRate = fairy?.Item?.ElementRate ?? 0;
                 var maxRate = fairy?.Item?.MaxElementRate ?? 0;

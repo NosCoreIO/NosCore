@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
@@ -60,7 +61,7 @@ namespace NosCore.GameObject.Services.MateService
             var mate = FindPartner(character, partnerSlot);
             var pocket = mate?.EquipmentPocket();
             if (character.InExchangeOrShop || mate == null || pocket == null
-                || character.InventoryService.LoadBySlotAndType((short)slot, pocket.Value) == null)
+                || character.InventoryService.LoadBySlotAndType(slot, pocket.Value) == null)
             {
                 return;
             }

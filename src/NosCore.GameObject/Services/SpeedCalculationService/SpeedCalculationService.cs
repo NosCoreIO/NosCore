@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using System;
 using System.Linq;
 using NosCore.Data.Enumerations.Buff;
@@ -44,7 +45,7 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
             {
                 foreach (var slot in Enum.GetValues<EquipmentType>())
                 {
-                    if (character.InventoryService.LoadBySlotAndType((short)slot, NoscorePocketType.Wear)?.ItemInstance
+                    if (character.InventoryService.LoadBySlotAndType(slot, NoscorePocketType.Wear)?.ItemInstance
                         is { } worn)
                     {
                         bonus += SpeedBonus(cardCatalog.GetItemBCards(worn.ItemVNum));

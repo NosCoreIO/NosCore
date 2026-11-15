@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Services.InventoryService
         public bool CanAddItem(short itemVnum)
         {
             var type = items.Find(item => item.VNum == itemVnum)?.Type;
-            return type != null && GetFreeSlot((NoscorePocketType)type).HasValue;
+            return type != null && GetFreeSlot(type.Value).HasValue;
         }
 
         public int CountItem(int itemVNum)
@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Services.InventoryService
 
             // Create new item
             var freeSlot = newItem.Type == NoscorePocketType.Wear
-                ? LoadBySlotAndType((short)newItem.ItemInstance.Item.EquipmentSlot, NoscorePocketType.Wear) == null
+                ? this.LoadBySlotAndType(newItem.ItemInstance.Item.EquipmentSlot, NoscorePocketType.Wear) == null
                     ? (short?)newItem.ItemInstance.Item.EquipmentSlot
                     : null
                 : GetFreeSlot(newItem.Type);
@@ -289,7 +289,7 @@ namespace NosCore.GameObject.Services.InventoryService
             if (IsWorn(targetType))
             {
                 nextFreeSlot =
-                    LoadBySlotAndType((short)sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
+                    this.LoadBySlotAndType(sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
                         ? (short)sourceInstance.ItemInstance.Item.EquipmentSlot
                         : null;
             }
@@ -468,7 +468,7 @@ namespace NosCore.GameObject.Services.InventoryService
         public bool HasRoomFor(IItemInstance itemInstance) => HasRoomFor([itemInstance]);
 
         public bool HasRoomFor(IReadOnlyCollection<IItemInstance> itemInstances) =>
-            itemInstances.GroupBy(i => (NoscorePocketType)i.Item.Type).All(pocket =>
+            itemInstances.GroupBy(i => i.Item.Type).All(pocket =>
             {
                 var slotsNeeded = pocket.Key is NoscorePocketType.Etc or NoscorePocketType.Main
                     ? pocket.GroupBy(i => i.ItemVNum).Sum(g => SlotsToStack(g.Key, g.Sum(i => i.Amount)))

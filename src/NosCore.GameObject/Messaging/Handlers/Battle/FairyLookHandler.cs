@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations;
@@ -24,7 +25,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
         public Task Handle(FairyLookChangedEvent evt)
         {
             if (evt.Target is not PlayerComponentBundle player || player.MapInstance == null
-                || player.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)
+                || player.InventoryService.LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)
                     ?.ItemInstance is not WearableInstance fairy)
             {
                 return Task.CompletedTask;

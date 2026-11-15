@@ -276,7 +276,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
             Slot = slot,
             Mode = mode,
             Parameter = 0,
-            TargetType = target == null ? null : target.Type == NoscorePocketType.Wear ? PocketType.Wear : (PocketType)target.Type,
+            TargetType = target == null ? null : target.Type.ToPocketType(),
             TargetSlot = target?.Slot,
         };
 

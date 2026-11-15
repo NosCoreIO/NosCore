@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             if (session.Character.UseSp && itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 var sp = session.Character.InventoryService.LoadBySlotAndType(
-                    (byte)EquipmentType.Sp, NoscorePocketType.Wear);
+                    EquipmentType.Sp, NoscorePocketType.Wear);
 
                 if (sp != null && sp.ItemInstance.Item.Element != 0
                     && itemInstance.ItemInstance.Item.Element != sp.ItemInstance.Item.Element
@@ -104,7 +104,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             {
                 var timeSpanSinceLastSpUsage = clock.GetCurrentInstant().Minus(session.Character.LastSp).TotalSeconds;
                 var sp = session.Character.InventoryService.LoadBySlotAndType(
-                    (byte)EquipmentType.Sp, NoscorePocketType.Wear);
+                    EquipmentType.Sp, NoscorePocketType.Wear);
                 if (timeSpanSinceLastSpUsage < session.Character.SpCooldown && sp != null)
                 {
                     await session.SendPacketAsync(new MsgiPacket

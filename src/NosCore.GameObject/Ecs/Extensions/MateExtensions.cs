@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             var pocket = mate.EquipmentPocket();
             return pocket == null
                 ? null
-                : inventory.LoadBySlotAndType((short)EquipmentType.Sp, pocket.Value)?.ItemInstance as SpecialistInstance;
+                : inventory.LoadBySlotAndType(EquipmentType.Sp, pocket.Value)?.ItemInstance as SpecialistInstance;
         }
 
         public static short Morph(this Mate mate) => mate.SpecialistMorph ?? (mate.Skin != 0 ? mate.Skin : (short)-1);
@@ -333,7 +333,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         private static ScnPacket.ScEquipmentDetails Gear(this Mate mate, IInventoryService inventory, EquipmentType slot)
         {
             var pocket = mate.EquipmentPocket();
-            var worn = pocket == null ? null : inventory.LoadBySlotAndType((short)slot, pocket.Value)?.ItemInstance;
+            var worn = pocket == null ? null : inventory.LoadBySlotAndType(slot, pocket.Value)?.ItemInstance;
             return worn is WearableInstance wearable
                 ? new ScnPacket.ScEquipmentDetails
                 {

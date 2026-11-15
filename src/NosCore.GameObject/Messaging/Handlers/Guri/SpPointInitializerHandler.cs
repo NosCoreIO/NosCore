@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             var session = evt.ClientSession;
             var character = session.Character;
             if (!character.UseSp
-                || character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+                || character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
                     is not SpecialistInstance specialist)
             {
                 await session.SendPacketAsync(new MsgiPacket

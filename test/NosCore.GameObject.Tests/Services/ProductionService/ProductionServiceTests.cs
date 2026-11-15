@@ -321,7 +321,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         private void TheMaterialSlotShouldBeSentEmpty()
         {
             var update = _session.LastPackets.OfType<IvnPacket>()
-                .Where(s => s.Type == (PocketType)_materialStack.Type)
+                .Where(s => s.Type == _materialStack.Type.ToPocketType())
                 .SelectMany(s => s.IvnSubPackets ?? []).OfType<IvnSubPacket>()
                 .Single(s => s.Slot == _materialStack.Slot);
             Assert.AreNotEqual(Material, update.VNum);

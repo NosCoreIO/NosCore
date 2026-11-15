@@ -178,7 +178,7 @@ public sealed class RewardService(
         if (player.UseSp)
         {
             var spInstance = player.InventoryService
-                .LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.Wear)
+                .LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)
                 ?.ItemInstance as SpecialistInstance;
             if (spInstance != null)
             {

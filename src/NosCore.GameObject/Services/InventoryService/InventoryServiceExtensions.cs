@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.Enumerations;
+using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Packets.ServerPackets.Inventory;
 using System;
@@ -15,6 +16,9 @@ namespace NosCore.GameObject.Services.InventoryService
 {
     public static class InventoryServiceExtensions
     {
+        public static InventoryItemInstance? LoadBySlotAndType(this IInventoryService inventory, EquipmentType slot,
+            NoscorePocketType type) => inventory.LoadBySlotAndType((short)slot, type);
+
         // Takes the amount from as many stacks as it needs, never from what is worn, and returns
         // the refresh for every stack it touched.
         public static List<IvnPacket> RemoveItemAmountByVNum(this IInventoryService inventory, int vNum, int amount)

@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-            var sp = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
+            var sp = character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear);
             if (!character.UseSp || sp == null)
             {
                 await session.SendPacketAsync(new MsgiPacket
