@@ -31,6 +31,7 @@ public class TimeSpace9 : InstanceScript
             .StartingAt(8, 8)
             .Requiring(1012, 1)
             .WithLives(4)
+            .WithObjective(ObjectiveKind.KillMonster, 109, 1)
             .WithDraw(162, 1)
             .WithDraw(168, 1)
             .WithDraw(174, 1)

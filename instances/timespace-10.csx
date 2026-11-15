@@ -24,6 +24,7 @@ public class TimeSpace10 : InstanceScript
             .StartingAt(7, 10)
             .Requiring(1012, 2)
             .WithLives(3)
+            .WithObjective(ObjectiveKind.UseObject, 1055, 5)
             .WithDraw(135, 1)
             .WithDraw(142, 1)
             .WithDraw(149, 1)

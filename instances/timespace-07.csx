@@ -19,6 +19,7 @@ public class TimeSpace7 : InstanceScript
             .StartingAt(10, 10)
             .Requiring(1012, 1)
             .WithLives(2)
+            .WithObjective(ObjectiveKind.UseObject, 1055, 2)
             .WithDraw(7, 1)
             .WithDraw(1073, 1)
             .WithSpecialReward(1015, 2)

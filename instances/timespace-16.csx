@@ -18,6 +18,7 @@ public class TimeSpace16 : InstanceScript
             .StartingAt(11, 10)
             .Requiring(1012, 2)
             .WithLives(2)
+            .WithObjective(ObjectiveKind.UseObject, 1048, 1)
             .WithDraw(70, 1)
             .WithDraw(80, 1)
             .WithDraw(88, 1)

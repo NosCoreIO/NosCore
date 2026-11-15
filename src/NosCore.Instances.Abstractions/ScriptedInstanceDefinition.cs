@@ -17,6 +17,15 @@ namespace NosCore.Instances.Abstractions
     // The area a side starts in, and comes back to, between two opposite corners.
     public record SideBase(Spot From, Spot To);
 
+    public enum ObjectiveKind
+    {
+        KillMonster,
+        UseObject
+    }
+
+    // An objective counts kills of the monster, or uses of the objects drawn with that vnum before use.
+    public record InstanceObjective(ObjectiveKind Kind, short VNum, short Count);
+
     public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false)
     {
         public IReadOnlyList<short> MapNpcs { get; init; } = [];
@@ -66,5 +75,8 @@ namespace NosCore.Instances.Abstractions
         public IReadOnlyList<SideBase> Bases { get; init; } = [];
 
         public IReadOnlyList<InstanceRoom> Rooms { get; init; } = [];
+
+        // The exit only lets the party out once every objective is met.
+        public IReadOnlyList<InstanceObjective> Objectives { get; init; } = [];
     }
 }

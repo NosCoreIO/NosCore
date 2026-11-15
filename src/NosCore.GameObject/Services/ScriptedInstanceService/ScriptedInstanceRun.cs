@@ -66,6 +66,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
+        private readonly Dictionary<(ObjectiveKind Kind, short VNum), int> _objectiveProgress = [];
 
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
         private readonly Dictionary<int, long> _newestArrival = [];
@@ -167,6 +168,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 MonstersKilled++;
+                Advance(ObjectiveKind.KillMonster, vNum);
                 _combo = isBonus ? _combo + 1 : 0;
                 Points += ComboPoints(isBonus ? _combo + 1 : 0);
                 var aliveBefore = _aliveByRoom.GetValueOrDefault(room.Value);
@@ -205,6 +207,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        private void Advance(ObjectiveKind kind, short vNum)
+        {
+            _objectiveProgress[(kind, vNum)] = _objectiveProgress.GetValueOrDefault((kind, vNum)) + 1;
+        }
+
         private static int ComboPoints(int combo)
         {
             var (points, next) = (4, 7);
@@ -220,10 +227,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         {
             return RunAsync(async () =>
             {
-                if (RoomOf(mapInstanceId) is { } room && EndState == null && !_abandoned)
+                if (RoomOf(mapInstanceId) is not { } room || EndState != null || _abandoned)
                 {
-                    await CallScriptAsync(run => _script.OnExitReached(run, room));
+                    return;
                 }
+
+                if (_script.Definition.Objectives.Any(o => _objectiveProgress.GetValueOrDefault((o.Kind, o.VNum)) < o.Count))
+                {
+                    var exitRoom = _rooms[room];
+                    _pending.Add(() => OnRoom(exitRoom, () => exitRoom.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.HaveIncompleteMission
+                    })));
+                    return;
+                }
+
+                await CallScriptAsync(run => _script.OnExitReached(run, room));
             });
         }
 
@@ -752,6 +772,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 used.IsOn = !used.IsOn;
+                if (used.IsOn)
+                {
+                    Advance(ObjectiveKind.UseObject, used.OffVNum);
+                }
+
                 var mapInstance = _rooms[room.Value];
                 _pending.Add(() => OnRoom(mapInstance, async () =>
                 {
