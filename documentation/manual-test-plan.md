@@ -1127,6 +1127,9 @@ Needs two characters who are friends, both online on the same channel.
 - [ ] With either of you inside an instance (miniland, raid, time-space): the client's "cannot be
       used here" message appears and the wings stay
 - [ ] Walk, or cast a skill, during the bar: the bar stops, you stay, and the wings stay
+- [ ] With the friend in Glacernon and of the other faction: "That cannot be used here." appears,
+      you stay, and the wings stay
+- [ ] With the friend in Glacernon and of your own faction: you appear next to them
 
 ### Marriage
 

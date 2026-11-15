@@ -233,6 +233,46 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             _session.Character.InventoryService[wings.ItemInstanceId] = wings;
         }
 
+        [TestMethod]
+        public async Task InAct4TheWingsOnlyReachAFriendOfTheSameFaction()
+        {
+            await new Spec("In Act 4 a friend of the other faction cannot be reached, and the wings are kept")
+                .Given(CharacterHasWings)
+                .And(TheOtherCharacterIsAFriend)
+                .And(TheFriendIsOnThisChannel)
+                .And(BothAreInAct4As_And_, FactionType.Angel, FactionType.Demon)
+                .AndAsync(TheBarHasRun)
+                .WhenAsync(SendingArgument_, 2)
+                .Then(NoMapChangeShouldHappen)
+                .And(CanNotBeUsedHereShouldBeSaid)
+                .And(WingsCountShouldBe_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task InAct4TheWingsReachAFriendOfTheSameFaction()
+        {
+            await new Spec("In Act 4 a friend of the same faction is reached as usual")
+                .Given(CharacterHasWings)
+                .And(TheOtherCharacterIsAFriend)
+                .And(TheFriendIsOnThisChannel)
+                .And(BothAreInAct4As_And_, FactionType.Angel, FactionType.Angel)
+                .AndAsync(TheBarHasRun)
+                .WhenAsync(SendingArgument_, 2)
+                .Then(ThePlayerShouldBeSentToTheFriend)
+                .ExecuteAsync();
+        }
+
+        private void BothAreInAct4As_And_(FactionType self, FactionType friend)
+        {
+            _session.Character.MapInstance.IsAct4 = true;
+            _session.Character.Faction = self;
+            _friend.Character.Faction = friend;
+        }
+
+        private void CanNotBeUsedHereShouldBeSaid() =>
+            Assert.IsTrue(_session.LastPackets.OfType<SayiPacket>().Any(p => p.Message == Game18NConstString.CanNotBeUsedHere));
+
         private void TheOtherCharacterIsAFriend()
         {
             var selfId = _session.Character.CharacterId;
