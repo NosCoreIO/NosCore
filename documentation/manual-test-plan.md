@@ -1372,6 +1372,19 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Relog with a filled bead, enter your Miniland and use it: "Remove the pet from the bead?",
       then the pet comes out at the level it was stored with and the bead is gone
 
+### Specialist Partner Card Holder
+
+`$CreateItem 4801` gives the holder; have a partner in the team wearing a partner specialist card.
+
+- [ ] Click the partner, double-click the holder and confirm: "Do you want to put the Specialist Card in the Card
+      Holder?" shows; confirm it and "You have placed the Specialist Card in the Card Holder." shows, and the
+      partner's equipment page no longer shows the card
+- [ ] With the partner transformed, the holder answers "You cannot put Specialist Cards in the Card Holder while
+      the transformation is in progress." and the card stays
+- [ ] With no partner selected, or a partner without a card: "No Specialist Card equipped."
+- [ ] Double-click the filled holder: the card is back in the bag with its level and upgrade, the holder is gone
+      and "The Specialist Card has been removed from the Card Holder." shows
+
 ### Ordering NosMates
 
 Have a pet and a partner out, and a second client on the same map watching.

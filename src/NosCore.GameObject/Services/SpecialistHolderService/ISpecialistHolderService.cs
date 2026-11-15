@@ -13,6 +13,9 @@ public interface ISpecialistHolderService
 {
     bool IsSpecialistHolder(IItemInstance? item);
 
+    // Holds the specialist card a partner wears rather than one of the player's.
+    bool IsPartnerSpecialistHolder(IItemInstance? item);
+
     // A card whose soul was destroyed stays out of holders, so it cannot be traded away unrevived.
     bool CanStore(SpecialistInstance card);
 

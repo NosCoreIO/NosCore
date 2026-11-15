@@ -17,9 +17,15 @@ namespace NosCore.GameObject.Services.SpecialistHolderService;
 
 public sealed class SpecialistHolderService(IItemGenerationService itemProvider) : ISpecialistHolderService
 {
+    private const byte PartnerSpecialistHolderSubType = 6;
+
     public bool IsSpecialistHolder(IItemInstance? item) =>
         item is BoxInstance { Item: { Effect: ItemEffectType.Holder } holder }
         && (HolderEffectValue)holder.EffectValue is HolderEffectValue.SpecialistCard or HolderEffectValue.GoldenSpecialistCard;
+
+    public bool IsPartnerSpecialistHolder(IItemInstance? item) =>
+        item is BoxInstance { Item: { ItemType: ItemType.Box, ItemSubType: PartnerSpecialistHolderSubType } holder }
+        && (BoxItemEffectType)holder.Effect == BoxItemEffectType.NosMateHolder;
 
     public bool CanStore(SpecialistInstance card) => card.Rare != SpUpgradeOperationBase.DestroyedSoulRare;
 
