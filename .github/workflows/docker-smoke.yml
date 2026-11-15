@@ -1,0 +1,70 @@
+name: Docker smoke
+
+# Follows the Docker path of documentation/getting-started.md: client data from the patch server,
+# the parser container, then every server container until it reports healthy.
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'deploy/**'
+      - 'docker-compose.yml'
+      - '.dockerignore'
+      - 'configuration/**'
+      - '.github/workflows/docker-smoke.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v7
+
+    - uses: actions/checkout@v7
+      with:
+        repository: NosCoreIO/NosCore.ParserInputGenerator
+        path: parser-input-generator
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 11.0.x
+
+    # Moved out of the workspace so that NosCore's central package versions do not apply to it.
+    - name: Download the client data
+      run: |
+        mv parser-input-generator "$RUNNER_TEMP/"
+        cd "$RUNNER_TEMP/parser-input-generator"
+        dotnet build
+        cd build/net11.0
+        dotnet NosCore.ParserInputGenerator.Launcher.dll
+        mv output/parser "$GITHUB_WORKSPACE/dats"
+
+    - name: Build the images
+      run: docker compose --profile tools build
+
+    - name: Fill the database
+      run: |
+        docker compose up -d --wait db
+        docker compose run --rm parser 2>&1 | tee parser.log
+        grep -q "Parsing done!" parser.log
+
+    - name: Start the servers
+      run: docker compose up -d --wait
+
+    - name: Server logs
+      if: always()
+      run: docker compose logs --no-color --tail 200
+
+    - name: Stop
+      if: always()
+      run: docker compose down
