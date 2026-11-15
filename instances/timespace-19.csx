@@ -60,6 +60,8 @@ public class TimeSpace19 : InstanceScript
         }
         else if (room == _room2)
         {
+            r.StartRoomClock(_room2, TimeSpan.FromSeconds(120));
+            r.Message(Game18NConstString.EnemiesReinforcements);
             r.Dialog(_room2, 6101);
             r.Summon(_room2,
                 new MonsterSpawn(4, new(13, 6)),

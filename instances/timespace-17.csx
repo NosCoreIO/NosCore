@@ -47,7 +47,7 @@ public class TimeSpace17 : InstanceScript
             new MonsterSpawn(66, new(9, 15)));
         r.SummonNpcs(_room4, new NpcSpawn(318, new(11, 15)));
         r.SpawnPortal(_room5, new(14, 1), _room6, new(14, 28), locked: false);
-        r.SpawnPortal(_room5, new(29, 15), _room7, new(1, 15), locked: false);
+        r.SpawnPortal(_room5, new(29, 15), _room7, new(1, 15));
         r.SpawnPortal(_room5, new(1, 15), _room3, new(28, 15), locked: false);
         r.Summon(_room5,
             new MonsterSpawn(58, new(25, 13), IsBonus: true),
@@ -116,9 +116,19 @@ public class TimeSpace17 : InstanceScript
             r.Dialog(_room4, 6084);
             r.UnlockPortal(_room3, _room5);
         }
-        else if (room == _room7)
+        else if (room == _room6)
+        {
+            r.UnlockPortal(_room6, _room5);
+            r.AddClockTime(TimeSpan.FromSeconds(130));
+            r.Message(Game18NConstString.ADoorHasOpened);
+            r.Dialog(_room6, 6086);
+            r.UnlockPortal(_room5, _room7);
+        }
+        else if (room == _room8)
         {
             r.UnlockExit(_room8);
+            r.Message(Game18NConstString.ADoorHasOpened);
+            r.Dialog(_room8, 6088);
         }
     }
 
