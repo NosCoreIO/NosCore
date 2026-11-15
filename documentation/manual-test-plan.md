@@ -1467,6 +1467,7 @@ under half health first.
 - [ ] Open the pet window: the list stays, it does not empty
 - [ ] Change map: the pet comes along and stays in the party panel
 - [ ] Log out and back in: every pet, its level and loyalty are still there
+- [ ] Sit down with a pet or partner out: it sits beside you; sit again to stand up and it stands too
 - [ ] Not verifiable yet: the HP and MP values a pet's party bars carry; the client draws the
       bars from the percentages and shows neither number, even on hover
 - [ ] With a second client on the map, log out: your pet disappears from their screen too
