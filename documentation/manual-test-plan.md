@@ -2364,6 +2364,8 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Three hostile monsters appear in the first room and are drawn as soon as the room is, and a padlocked portal stands at its
       east edge; walking onto the padlock does nothing
 - [ ] No time-space stone is drawn inside the rooms
+- [ ] No portal of Chicken Farm Path is drawn inside the rooms: the ring south of the start
+      spot is gone, and walking onto its cell leaves you in the room with the clock still running
 - [ ] Killing the third monster opens the padlock; walking onto it moves you to the second
       room, where a single Weak Devil Vampire waits
 - [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
