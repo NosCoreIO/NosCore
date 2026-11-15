@@ -38,7 +38,7 @@ dotnet NosCore.WorldServer.dll
 The parser creates the database, applies the migrations and imports the game data. Run it again after pulling: it is
 safe to run on a database it already filled. On Windows, `scripts\` has a `.cmd` for each step, and
 `docker-compose.yml` runs the same servers in containers. If you would rather have the three servers in one terminal,
-`dotnet run --project src/NosCore.DevHost` starts them together once the database is filled.
+run `dotnet run --project src/NosCore.DevHost` from the root of the clone once the database is filled.
 
 Run the tests with:
 
@@ -73,7 +73,8 @@ tried before it is published. Point the variable at a folder, drop the `.nupkg` 
 export NOSCORE_LOCAL_PACKAGES=~/LocalPackages      # Windows: setx NOSCORE_LOCAL_PACKAGES C:\LocalPackages
 ```
 
-Restart your shell or IDE so it sees the variable. When it is unset, only nuget.org is used.
+`export` only lasts for that shell, so restore from the same one, or add the line to your shell profile; after a
+`setx`, open a new terminal or restart the IDE. When the variable is unset, only nuget.org is used.
 
 ## The NosCore repositories
 
