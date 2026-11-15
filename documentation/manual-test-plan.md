@@ -361,6 +361,8 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       "Reduced Enemy ... Resistance in PvP" line makes hits on another player stronger, and leaves
       hits on a monster unchanged
 - [ ] A weapon shell with "Hit Everytime in PVP" never misses another player
+- [ ] A weapon shell with "% to Damage at 15% in PVP" makes about one hit in seven on another
+      player that much stronger. Hits on a monster are unchanged
 
 ### Buffs triggered by hits
 

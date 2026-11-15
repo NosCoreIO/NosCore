@@ -78,9 +78,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void TheOccasionalDamageBonusLandsOnlyOnALuckyRoll()
+        {
+            var shell = new PvpShellStats(OccasionalDamagePercent: 50);
+
+            Assert.IsTrue(Hit(shell, roll: 0.1) > Hit(default, roll: 0.1));
+            Assert.AreEqual(Hit(default), Hit(shell, roll: 0.99));
+        }
+
+        [TestMethod]
         public void TheOptionsDoNothingAgainstAMonster() =>
-            Assert.AreEqual(Hit(default, defenderIsPlayer: false),
-                Hit(new PvpShellStats(EnemyDefenceReduction: 50, EnemyFireResistance: -30), defenderIsPlayer: false));
+            Assert.AreEqual(Hit(default, defenderIsPlayer: false, roll: 0.1),
+                Hit(new PvpShellStats(EnemyDefenceReduction: 50, EnemyFireResistance: -30, OccasionalDamagePercent: 50),
+                    defenderIsPlayer: false, roll: 0.1));
 
         [TestMethod]
         public void HittingEveryTimeLandsEvenOnARollThatWouldMiss()

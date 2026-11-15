@@ -408,6 +408,9 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
     // Each "ignores ... resistance in PvP" option works one hit in four.
     private const int IgnoreResistanceChance = 25;
 
+    // "Increases PvP damage by %s%% with a probability of 15%%".
+    private const int OccasionalDamageChance = 15;
+
     private (CombatStats Attacker, CombatStats Defender) WithPvpShell(CombatStats attacker, CombatStats defender)
     {
         var shell = attacker.PvpShell;
@@ -423,6 +426,9 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
                 EnemyLightResistance = attacker.EnemyLightResistance + shell.EnemyLightResistance,
                 EnemyDarkResistance = attacker.EnemyDarkResistance + shell.EnemyDarkResistance,
                 GuaranteedHitChance = shell.AlwaysHits ? 100 : attacker.GuaranteedHitChance,
+                ChanceDamage = shell.OccasionalDamagePercent > 0
+                    ? [.. attacker.ChanceDamage ?? [], new ChanceDamage(OccasionalDamageChance, shell.OccasionalDamagePercent)]
+                    : attacker.ChanceDamage,
             },
             defender with
             {
