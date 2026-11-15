@@ -36,18 +36,22 @@ namespace NosCore.Parser.Parsers
         {
             var sightings = new Dictionary<InPacket, Sighting>(ReferenceEqualityComparer.Instance);
             var firstCells = new Dictionary<Sighting, (short X, short Y)>();
+            var visits = new Dictionary<Sighting, HashSet<int>>();
             short map = 0;
+            var visit = 0;
             foreach (var packet in packets)
             {
                 switch (packet)
                 {
                     case AtPacket at:
                         map = at.MapId;
+                        visit++;
                         break;
                     case InPacket { VisualType: VisualType.Npc or VisualType.Monster } entity:
                         var sighting = new Sighting(entity.VisualType, map, entity.VNum, entity.VisualId);
                         sightings[entity] = sighting;
                         firstCells.TryAdd(sighting, (entity.PositionX, entity.PositionY));
+                        (visits.TryGetValue(sighting, out var seen) ? seen : visits[sighting] = []).Add(visit);
                         break;
                 }
             }
@@ -58,7 +62,7 @@ namespace NosCore.Parser.Parsers
             var ids = new Dictionary<Sighting, long>();
             var taken = new HashSet<(VisualType Type, long Id)>();
             var dropped = new HashSet<Sighting>();
-            var keptMonsters = new Dictionary<(short Map, string? VNum), List<(short X, short Y)>>();
+            var keptMonsters = new Dictionary<(short Map, string? VNum), List<(short X, short Y, HashSet<int> Visits)>>();
             long nextId = 1;
             foreach (var entity in entities)
             {
@@ -69,13 +73,15 @@ namespace NosCore.Parser.Parsers
                 }
 
                 // An id another entity can still want goes to it. An entity left without a free id gets a
-                // new one, unless it is a monster close to a kept one of its kind: that is the same monster
-                // met again in another session after it walked, and it is not imported twice.
+                // new one, unless it is a monster close to a kept one of its kind that is never on screen
+                // with it: that is the same monster met again on another visit after it walked.
                 long? id = entity.Select(e => e.Id).Where(c => !taken.Contains((type, c)))
                     .OrderBy(c => demand[(type, c)]).Select(c => (long?)c).FirstOrDefault();
                 var cell = (entity.Key.Map, entity.Key.VNum);
+                var entityVisits = entity.SelectMany(s => visits[s]).ToHashSet();
                 if (id == null && (type == VisualType.Npc || !keptMonsters.TryGetValue(cell, out var near)
-                    || !near.Any(k => Math.Abs(k.X - entity.Key.X) + Math.Abs(k.Y - entity.Key.Y) <= WanderReach)))
+                    || !near.Any(k => Math.Abs(k.X - entity.Key.X) + Math.Abs(k.Y - entity.Key.Y) <= WanderReach
+                        && !k.Visits.Overlaps(entityVisits))))
                 {
                     while (used.Contains((type, nextId)))
                     {
@@ -95,7 +101,7 @@ namespace NosCore.Parser.Parsers
                 taken.Add((type, kept));
                 if (type == VisualType.Monster)
                 {
-                    (keptMonsters.TryGetValue(cell, out var list) ? list : keptMonsters[cell] = []).Add((entity.Key.X, entity.Key.Y));
+                    (keptMonsters.TryGetValue(cell, out var list) ? list : keptMonsters[cell] = []).Add((entity.Key.X, entity.Key.Y, entityVisits));
                 }
 
                 foreach (var sighting in entity)

@@ -150,6 +150,19 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public void TwoMonstersOfAKindSeenTogetherAreBothKept()
+        {
+            var first = Captured.Monster(24, 500, 10, 10);
+            var other = Captured.Monster(30, 501, 50, 50);
+            var neighbour = Captured.Monster(24, 501, 13, 12);
+
+            var merged = Merge(Captured.Arrival(1), first, Captured.Arrival(2), other, Captured.Arrival(1), Captured.Monster(24, 500, 10, 10), neighbour);
+
+            CollectionAssert.Contains(merged, neighbour);
+            Assert.AreEqual(1, neighbour.VisualId);
+        }
+
+        [TestMethod]
         public void AMonsterWhoseOnlyIdIsHeldFarFromItsKindGetsAFreeOne()
         {
             var other = Captured.Monster(25, 500, 30, 30);
