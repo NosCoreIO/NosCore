@@ -29,28 +29,19 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var itemInstance = evt.InventoryItem;
-            var effect = itemInstance.ItemInstance.Item.Effect;
-            if (effect != ItemEffectType.InventoryUpgrade && effect != ItemEffectType.InventoryTicketUpgrade)
+            StaticBonusType? bonus = itemInstance.ItemInstance.Item.Effect switch
+            {
+                ItemEffectType.InventoryUpgrade or ItemEffectType.PermanentInventoryUpgrade => StaticBonusType.BackPack,
+                ItemEffectType.InventoryTicketUpgrade or ItemEffectType.PermanentInventoryTicketUpgrade => StaticBonusType.InventoryTicketUpgrade,
+                _ => null,
+            };
+            if (bonus == null)
             {
                 return;
             }
 
             var session = evt.ClientSession;
-            if (effect == ItemEffectType.InventoryUpgrade
-                && session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack))
-            {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.NotInPair
-                });
-                return;
-            }
-
-            if (effect == ItemEffectType.InventoryTicketUpgrade
-                && session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade))
+            if (session.Character.StaticBonusList.Any(s => s.StaticBonusType == bonus))
             {
                 await session.SendPacketAsync(new SayiPacket
                 {
@@ -68,9 +59,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 DateEnd = itemInstance.ItemInstance.Item.EffectValue == 0
                     ? null
                     : clock.GetCurrentInstant().Plus(Duration.FromDays(itemInstance.ItemInstance.Item.EffectValue)),
-                StaticBonusType = effect == ItemEffectType.InventoryTicketUpgrade
-                    ? StaticBonusType.InventoryTicketUpgrade
-                    : StaticBonusType.BackPack
+                StaticBonusType = bonus.Value
             });
 
             await session.SendPacketAsync(new SayiPacket

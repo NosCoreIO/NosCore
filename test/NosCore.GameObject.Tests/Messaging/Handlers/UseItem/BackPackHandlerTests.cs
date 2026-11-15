@@ -94,11 +94,34 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task PermanentBackPackStoresNullDateEnd()
         {
-            await new Spec("EffectValue=0 means permanent: StaticBonus.DateEnd stays null")
-                .Given(ItemInInventoryWithEffect_, ItemEffectType.InventoryUpgrade)
-                .And(ItemHasEffectValueDays_, 0)
+            await new Spec("A permanent knapsack grants a BackPack bonus that never ends")
+                .Given(ItemInInventoryWithEffect_, ItemEffectType.PermanentInventoryUpgrade)
                 .WhenAsync(UsingTheItem)
-                .Then(StaticBonusDateEndShouldBeNull)
+                .Then(StaticBonusListShouldContain_, StaticBonusType.BackPack)
+                .And(StaticBonusDateEndShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PermanentInventoryTicketGrantsTicketBonus()
+        {
+            await new Spec("A permanent inventory ticket grants the ticket bonus that never ends")
+                .Given(ItemInInventoryWithEffect_, ItemEffectType.PermanentInventoryTicketUpgrade)
+                .WhenAsync(UsingTheItem)
+                .Then(StaticBonusListShouldContain_, StaticBonusType.InventoryTicketUpgrade)
+                .And(StaticBonusDateEndShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DuplicatePermanentBackPackGrantIsRejected()
+        {
+            await new Spec("A permanent knapsack is refused while a BackPack bonus is active")
+                .Given(ItemInInventoryWithEffect_, ItemEffectType.PermanentInventoryUpgrade)
+                .And(CharacterAlreadyHasStaticBonus_, StaticBonusType.BackPack)
+                .WhenAsync(UsingTheItem)
+                .Then(NotInPairMessageShouldBeSent)
+                .And(ItemStackCountShouldBe_, (short)1)
                 .ExecuteAsync();
         }
 
