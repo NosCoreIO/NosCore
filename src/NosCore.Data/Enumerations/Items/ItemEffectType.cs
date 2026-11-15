@@ -105,6 +105,9 @@ namespace NosCore.Data.Enumerations.Items
         // EffectValue is the reward level of the minigame box, 0 for the lowest.
         MinigameChest = 1022,
 
+        // Lifts the fixed level a failed upgrade left on a piece of equipment.
+        ReleaseScroll = 1023,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

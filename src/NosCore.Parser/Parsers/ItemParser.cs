@@ -741,6 +741,7 @@ namespace NosCore.Parser.Parsers
                 1430 => ItemEffectType.ShellOptionRemoval,
                 1428 => ItemEffectType.Perfume,
                 var x when x == 1365 || x == 9039 => ItemEffectType.SoulRevival,
+                1219 or 9130 => ItemEffectType.ReleaseScroll,
                 var x when x == 5107 || x == 5207 || x == 5519 => ItemEffectType.EventSpUpgradeScroll,
                 var x when x == 907 || x == 900 || x == 4099 || x == 4100 => ItemEffectType.EventSpecialist,
                 var x when x == 5874 || x == 9112 => ItemEffectType.CostumeFusion,

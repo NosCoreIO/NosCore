@@ -1251,6 +1251,12 @@ Needs two characters on the same channel. The commending one must be level 31 or
       effect is activated and is used up; the pet basket ends 10 days later, the ticket never
 - [ ] Use a second knapsack or ticket of the same kind while one is active: it stays in the
       inventory
+- [ ] Put a Release Scroll on the quick bar and drop it on a fixed +7 weapon
+      (`/mnt/project-files/hardcoded-tables/reset-release.sh`, key 3 then click the weapon): it asks
+      "Would you like to use Release Scroll?", Confirm says "This equipment level can be changed.",
+      one scroll is used up and the weapon can be upgraded again
+- [ ] Drop it on equipment that isn't fixed: "Can only be used for fixed level weapons and
+      equipment." and the scroll stays
 
 ### Resting in combat
 
