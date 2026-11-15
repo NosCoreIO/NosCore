@@ -236,6 +236,28 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ATimeSpaceScriptNameHasTwoDigitsAsync()
+        {
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(121, 26, (WpPortalType)4, 10, 99, 3)));
+
+            Assert.AreEqual("timespace-03", _saved.Single().Script);
+        }
+
+        [TestMethod]
+        public async Task AnEntranceStoredWithTheUnpaddedScriptNameMovesToTheTwoDigitOneAsync()
+        {
+            _existing.Add(new ScriptedInstanceDto { ScriptedInstanceId = 7, MapId = 1, PositionX = 121, PositionY = 26, Script = "timespace-3" });
+
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(121, 26, (WpPortalType)4, 10, 99, 3)));
+
+            Assert.AreEqual("timespace-03", _saved.Single().Script);
+        }
+
+        [TestMethod]
         public async Task ARaidEntranceGetsNoTimeSpaceScriptAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
