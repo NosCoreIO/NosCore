@@ -158,6 +158,28 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
             Assert.AreEqual(14, SpeedCalculationService.CalculateSpeed(character));
         }
 
+        [DataTestMethod]
+        [DataRow(true, 13)]
+        [DataRow(false, 12)]
+        public async Task AWornSpecialistCardAddsItsSpeedOnlyWhileTransformed(bool transformed, int expected)
+        {
+            SpeedService.Setup(x => x.GetSpeed(CharacterClassType.Archer)).Returns((byte)12);
+            var character = (await World.CreateSessionAsync()).Character;
+            character.Class = CharacterClassType.Archer;
+            var item = new Item
+            {
+                VNum = 903, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
+                EquipmentSlot = EquipmentType.Sp, Speed = 1,
+            };
+            var sp = InventoryItemInstance.Create(new SpecialistInstance(item) { Amount = 1, ItemVNum = 903 }, character.CharacterId);
+            sp.Slot = (short)EquipmentType.Sp;
+            sp.Type = NoscorePocketType.Wear;
+            character.InventoryService[sp.ItemInstanceId] = sp;
+            character.UseSp = transformed;
+
+            Assert.AreEqual(expected, SpeedCalculationService.CalculateSpeed(character));
+        }
+
         [TestMethod]
         public async Task AMountRidesFasterOnAMapOfItsRegion()
         {
