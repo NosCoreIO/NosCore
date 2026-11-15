@@ -62,7 +62,7 @@ namespace NosCore.Parser.Parsers
                     source: "DATA[4] (partner skin) or INDEX[7]", description: "Morph id: the partner skin's look, else the item's own")
                 .Field(x => x.Class, chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3]),
                     source: "TYPE[1] (fairy override: 15)", description: "Class restriction bitmask")
-                .Field(x => x.Flag8, "FLAG", 0, 24, s => s == "1", "FLAG bit 23 (unknown)")
+                .Field(x => x.Flag8, "FLAG", 0, 24, s => s == "1", "Variant of another item (INDEX[6] holds the original's icon); the client appends a fixed word to its name")
                 .Field(x => x.Flag7, "FLAG", 0, 23, s => s == "1", "Headgear that also hides the mask; only changes what the client draws")
                 .Field(x => x.IsHeroic, "FLAG", 0, 22, s => s == "1", "Heroic item")
                 .Field(x => x.Flag6, "FLAG", 0, 20, s => s == "1", "Set on 17 upgrade materials (soul gems, dragon parts, completion stones, guardian angels); the client never reads it")
@@ -73,7 +73,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Flag4, "FLAG", 0, 14, s => s == "1", "Used on another item: double-clicking it picks a target item instead of sending u_i")
                 .Field(x => x.Flag3, "FLAG", 0, 13, s => s == "1", "On a miniland object the tooltip shows \"In use\" or \"Not used\"; set on 1418 items, most of them mall goods")
                 .Field(x => x.Flag2, "FLAG", 0, 12, s => s == "1", "FLAG bit 11 (set on mounts + raid items + partner equipment)")
-                .Field(x => x.Flag1, "FLAG", 0, 11, s => s == "1", "FLAG bit 10 (unknown)")
+                .Field(x => x.Flag1, "FLAG", 0, 11, s => s == "1", "Set on Mysterious Box (1098) only")
                 .Field(x => x.Flag9, "FLAG", 0, 10, s => s == "1", "FLAG bit 9 (appears on beads, medals, raid seals)")
                 .Field(x => x.IsWarehouse, "FLAG", 0, 9, s => s == "1", "Can be stored in the account warehouse")
                 .Field(x => x.IsMinilandActionable, "FLAG", 0, 8, s => s == "1", "Miniland-actionable object")
