@@ -6,6 +6,7 @@
 
 using NosCore.GameObject.Services.ExchangeService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Core.Observability;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -25,7 +26,9 @@ using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 using TwoFactorAuthNet;
@@ -40,9 +43,30 @@ namespace NosCore.GameObject.Tests.Networking
         private ClientSession Session;
         private readonly List<string> Handled = new();
 
+        private readonly ConcurrentBag<(string Instrument, KeyValuePair<string, object?>[] Tags)> Measurements = new();
+        private MeterListener? Listener;
+
+        [TestCleanup]
+        public void Cleanup() => Listener?.Dispose();
+
         [TestInitialize]
         public async Task SetupAsync()
         {
+            var listener = new MeterListener
+            {
+                InstrumentPublished = (instrument, published) =>
+                {
+                    if (instrument.Meter.Name == NosCoreTelemetry.MeterName)
+                    {
+                        published.EnableMeasurementEvents(instrument);
+                    }
+                },
+            };
+            listener.SetMeasurementEventCallback<long>((instrument, _, tags, _) => Measurements.Add((instrument.Name, tags.ToArray())));
+            listener.SetMeasurementEventCallback<double>((instrument, _, tags, _) => Measurements.Add((instrument.Name, tags.ToArray())));
+            listener.Start();
+            Listener = listener;
+
             World = await TestWorld.CreateAsync();
             Handled.Clear();
             Session = await World.CreateSessionAsync(new List<IPacketHandler>
@@ -94,6 +118,27 @@ namespace NosCore.GameObject.Tests.Networking
                 .Given(AccountAuthorityIs_, AuthorityType.Banned)
                 .WhenAsync(AGameMasterCommandArrives)
                 .Then(Packet_ShouldNotHaveRun, nameof(SetMaintenancePacket))
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AHandledPacketIsCountedUnderItsHeader()
+        {
+            await new Spec("A handled packet is counted under its header")
+                .Given(TheSessionIsOnTheCharacterScreen)
+                .WhenAsync(ASelectArrives)
+                .Then(_ShouldHaveBeenRecordedWith_, "noscore.packets.handled", ("packet.header", (object)"select"))
+                .And(_ShouldHaveBeenRecordedWith_, "noscore.packets.duration", ("packet.header", (object)"select"))
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARefusedPacketIsCountedUnderItsReason()
+        {
+            await new Spec("A refused packet is counted under its reason")
+                .Given(AccountAuthorityIs_, AuthorityType.User)
+                .WhenAsync(AGameMasterCommandArrives)
+                .Then(_ShouldHaveBeenRecordedWith_, "noscore.packets.refused", ("reason", (object)"authority"))
                 .ExecuteAsync();
         }
 
@@ -384,6 +429,11 @@ namespace NosCore.GameObject.Tests.Networking
                 : (ushort)((Session.LastKeepAliveIdentity ?? 0) + 1);
             return Session.HandlePacketsAsync(new[] { packet }, true);
         }
+
+        // Other tests record on the same meter at the same time, so only presence is checked.
+        private void _ShouldHaveBeenRecordedWith_(string instrument, (string Key, object Value) tag) =>
+            Assert.IsTrue(Measurements.Any(m => m.Instrument == instrument
+                && m.Tags.Any(t => t.Key == tag.Key && Equals(t.Value, tag.Value))), instrument);
 
         private void Packet_ShouldHaveRun(string name) => CollectionAssert.Contains(Handled, name);
 

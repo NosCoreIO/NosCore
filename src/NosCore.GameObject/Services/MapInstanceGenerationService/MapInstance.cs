@@ -6,6 +6,7 @@
 
 using Arch.Core;
 using NodaTime;
+using NosCore.Core.Observability;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -40,6 +41,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -98,6 +100,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public MapWorld EcsWorld { get; }
 
         public MapExecutor Executor { get; } = new();
+
+        private bool _reportedAwake;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IClock clock, IMapChangeService mapChangeService,
@@ -573,11 +577,29 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         // not cost the rest of the map its buffs, regeneration or respawns for that tick.
         private async Task TickLifeAsync()
         {
+            var map = new KeyValuePair<string, object?>("map.id", (int)Map.MapId);
             if (IsSleeping)
             {
+                if (_reportedAwake)
+                {
+                    _reportedAwake = false;
+                    NosCoreMetrics.MapPlayers.Record(0, map);
+                    NosCoreMetrics.MapMonsters.Record(0, map);
+                }
+
                 return;
             }
 
+            var started = Stopwatch.GetTimestamp();
+            await TickAwakeAsync();
+            _reportedAwake = true;
+            NosCoreMetrics.MapTickDuration.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds, map);
+            NosCoreMetrics.MapPlayers.Record(Sessions.Count, map);
+            NosCoreMetrics.MapMonsters.Record(_monsters.Count, map);
+        }
+
+        private async Task TickAwakeAsync()
+        {
             foreach (var (_, monster) in _monsters)
             {
                 try

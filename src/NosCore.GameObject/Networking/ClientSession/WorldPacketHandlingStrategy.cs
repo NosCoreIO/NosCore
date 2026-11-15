@@ -17,7 +17,10 @@ using NosCore.Packets.Interfaces;
 using MsgiPacket = NosCore.Packets.ServerPackets.UI.MsgiPacket;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using NosCore.Core.Observability;
 
 namespace NosCore.GameObject.Networking.ClientSession;
 
@@ -49,6 +52,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         if (string.IsNullOrWhiteSpace(packetHeader) && isFromNetwork)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.CORRUPT_PACKET], processedPacket);
+            Refused("corrupt");
             await session.DisconnectAsync();
             return;
         }
@@ -57,11 +61,13 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         if (handler == null)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.HANDLER_NOT_FOUND], packetHeader);
+            Refused("no_handler");
             return;
         }
 
         if (!processedPacket.IsValid)
         {
+            Refused("invalid");
             return;
         }
 
@@ -73,17 +79,28 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
 
         if (!ValidateAuthority(session, attr))
         {
+            Refused("authority");
             return;
         }
 
-        await ExecuteHandlerAsync(handler, processedPacket, session, isFromNetwork, attr);
+        var started = Stopwatch.GetTimestamp();
+        if (await ExecuteHandlerAsync(handler, processedPacket, session, isFromNetwork, attr))
+        {
+            var header = new KeyValuePair<string, object?>("packet.header", packetHeader);
+            NosCoreMetrics.PacketsHandled.Add(1, header);
+            NosCoreMetrics.PacketDuration.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds, header);
+        }
     }
+
+    private static void Refused(string reason) =>
+        NosCoreMetrics.PacketsRefused.Add(1, new KeyValuePair<string, object?>("reason", reason));
 
     private async Task<bool> ValidateKeepAliveAsync(IPacket packet, ClientSession session)
     {
         if (packet.KeepAliveId is not { } number)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.MISSING_KEEPALIVE], session.SessionId);
+            Refused("keepalive");
             await session.DisconnectAsync();
             return false;
         }
@@ -91,6 +108,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         if (session.LastKeepAliveIdentity is { } last && number != NextKeepAlive(last))
         {
             logger.LogError(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
+            Refused("keepalive");
             await session.DisconnectAsync();
             return false;
         }
@@ -162,6 +180,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         if (session.HasSelectedCharacter && (attr.Scopes & Scope.InTrade) == 0 && session.Character.InExchangeOrShop)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.PLAYER_IN_SHOP], packet.Header);
+            Refused("in_shop");
             return false;
         }
 
@@ -169,18 +188,21 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         if (session.IsAuthenticated && !session.MfaValidated && session.HasAccount && session.Account.MfaSecret != null && !isMfa)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.PACKET_REFUSED_BEFORE_MFA], packet.Header);
+            Refused("before_mfa");
             return false;
         }
 
         if (!session.HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0 && !isMfa)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER], packet.Header);
+            Refused("without_character");
             return false;
         }
 
         if (session.HasSelectedCharacter && (attr.Scopes & Scope.InGame) == 0)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.PACKET_USED_WHILE_IN_GAME], packet.Header);
+            Refused("in_game");
             return false;
         }
 
@@ -211,6 +233,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         if (!character.IsAlive && (attr.Scopes & Scope.WhileDead) == 0 && attr is not CommandPacketHeaderAttribute)
         {
             logger.LogDebug(logLanguage[LogLanguageKey.PACKET_REFUSED_WHILE_DEAD], packet.Header);
+            Refused("dead");
             return false;
         }
 
@@ -223,6 +246,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
             }
 
             logger.LogDebug(logLanguage[LogLanguageKey.PACKET_REFUSED_IN_STATE], packet.Header, refusal.States & state);
+            Refused("sender_state");
             if (refusal.Message is { } message)
             {
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = message });
@@ -255,7 +279,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         return state;
     }
 
-    private async Task ExecuteHandlerAsync(IPacketHandler handler, IPacket packet, ClientSession session, bool isFromNetwork, PacketHeaderAttribute? attr)
+    private async Task<bool> ExecuteHandlerAsync(IPacketHandler handler, IPacket packet, ClientSession session, bool isFromNetwork, PacketHeaderAttribute? attr)
     {
         if (isFromNetwork)
         {
@@ -263,25 +287,25 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
             {
                 if (session.IsClosing)
                 {
-                    return;
+                    return false;
                 }
 
                 if (!await ValidateSenderStateAsync(packet, session, attr))
                 {
-                    return;
+                    return false;
                 }
 
                 await handler.ExecuteAsync(packet, session);
+                return true;
             }
         }
-        else
-        {
-            if (!await ValidateSenderStateAsync(packet, session, attr))
-            {
-                return;
-            }
 
-            await handler.ExecuteAsync(packet, session);
+        if (!await ValidateSenderStateAsync(packet, session, attr))
+        {
+            return false;
         }
+
+        await handler.ExecuteAsync(packet, session);
+        return true;
     }
 }
