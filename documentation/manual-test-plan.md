@@ -228,6 +228,9 @@ parser) after a change to how these are read.
 - [ ] When the booster ends or is removed, the fairy goes back to its normal look
 - [ ] Right-click a player whose fairy has grown past its base element: the info card shows the
       base element plus what the fairy has grown, the same figure as the fairy's tooltip
+- [ ] Put on a specialist card and right-click your portrait: the info card's portrait is the
+      specialist's, like the HUD's. Take the card off and open it again: the plain class portrait
+      is back
 
 ### Casting range
 
