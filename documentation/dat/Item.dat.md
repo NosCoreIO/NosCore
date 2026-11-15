@@ -98,10 +98,12 @@
 | Morph | Int16 | DATA[4] (partner skin) or INDEX[7] | Morph id: the partner skin's look, else the item's own |
 | Mp | Int16 | DATA[varies] | Mp bonus on equip |
 | PartnerSkillSet | Byte | DATA[14] (partner SP only) | Partner SP skill set: the UpgradeType shared by its three partner skills, one more than the raw value |
+| RemovesDebuffsUpToLevel | Byte | SpecialPotions | Negative effects up to this card level end on use |
 | ReputationMinimum | Byte | DATA[varies] | Minimum reputation tier |
 | ReputPrice | Int64 | FLAG[20] + VNUM[1] | Reputation price when FLAG[20] is set |
 | RestoresAllHp | Boolean | FullRestorePotions | Potion that fills the HP bar |
 | RestoresAllMp | Boolean | FullRestorePotions | Potion that fills the MP bar |
+| RestoresPercent | Byte | SpecialPotions | HP and MP restored on use, in percent of the maximum |
 | Sex | Byte | FLAG[16] + FLAG[17] | Genders allowed, one bit per GenderType: 1=male only, 2=female only, 0=any |
 | ShellType | Nullable`1 | DATA[5] (shell only) | Shell kind, which decides the options it rolls |
 | Speed | Byte | DATA[varies] | Movement speed bonus / vehicle speed |

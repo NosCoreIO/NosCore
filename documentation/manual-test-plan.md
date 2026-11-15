@@ -486,6 +486,18 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       appears and the potion stays in the bag
 - [ ] An ordinary potion (1010) still heals in Glacernon
 
+### Special potions
+
+- [ ] Eat Fafnir's Fried Dinner (5904) with HP and MP low and a level 3 or lower debuff on you:
+      both bars gain a fifth of their maximum, the healed number floats over you, the debuff icon
+      goes away, and the SP points bar gains 100
+- [ ] A debuff above level 3 stays after Fafnir's Fried Dinner
+- [ ] Drink a Large Special Potion (1120) with any debuff on you: every debuff icon goes away and
+      the SP points bar gains 180 000
+- [ ] A Small Special Potion (1118) only adds SP points
+- [ ] With the SP points bar full, each of them shows "Cannot be used as it exceeds the capacity."
+      and stays in the bag
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
