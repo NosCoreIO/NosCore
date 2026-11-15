@@ -3210,3 +3210,5 @@ and :30; `$Event Act4Ship` opens boarding at once.
 - [ ] Log out in Glacernon and log in on the ordinary channel: the client moves straight to the
       Act 4 channel, on the map the character left
 - [ ] Without an Act 4 channel running, the ship lands in the citadel on the same channel
+- [ ] With one player in Glacernon and one in Port Alveus, a whisper from Glacernon ends with
+      "<Channel: 51>" and one from Port Alveus ends with "<Channel: 1>"; neither is "is not playing"

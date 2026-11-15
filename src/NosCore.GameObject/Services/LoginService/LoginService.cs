@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Options;
+using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -91,7 +92,7 @@ namespace NosCore.GameObject.Services.LoginService
                     default:
                         var connectedAccount = await pubSubHub.GetSubscribersAsync();
                         var comChannels = await channelHub.GetCommunicationChannels();
-                        var servers = comChannels.Where(x => x.Type == ServerType.WorldServer && !x.IsAct4).ToList();
+                        var servers = comChannels.Where(x => x.IsListed()).OrderBy(x => x.ServerId).ThenBy(x => x.Id).ToList();
                         if (connectedAccount.Any(x => x.Name == acc.Name))
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
@@ -136,7 +137,7 @@ namespace NosCore.GameObject.Services.LoginService
                             RegionType = language
                         };
                         var serverId = 0;
-                        foreach (var server in servers.OrderBy(s => s.ServerId))
+                        foreach (var server in servers)
                         {
                             if (serverId != server.ServerId)
                             {
