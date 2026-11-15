@@ -771,6 +771,20 @@ It gives Teoman's copy on Chicken Farm Path the gambling shop (shop type 4).
       amulet first, and nothing is charged
 - [ ] Gamble a champion item while wearing a normal amulet: "You are wearing an incorrect amulet."
 
+### Services an NPC offers
+
+The parser imports `shoptype.dat`: each shop type lists the services its NPC offers. The client
+draws a shop's tabs from its own copy of that file, so a desync only shows when the NPC's server
+shop type differs from the one its dialog opens.
+
+- [ ] Teoman (shop type 3) upgrades equipment; the Alchemist (shop type 7) upgrades and perfects
+      specialist cards and combines resistances
+- [ ] Give a Teoman copy's `Shop` row a type whose `shoptype.dat` line has no 4 (e.g. 1) and keep
+      its dialog: the upgrade tab still shows, but pressing Upgrade and confirming changes nothing
+      and takes no gold
+- [ ] Salim's "Purchase Family Extensions" (shop type 48, service 41) still lists the four
+      extensions; another NPC's shop never does
+
 ### Specialist points
 
 - [ ] Wear a level 60 specialist card and right-click the SP button by the portrait: the card

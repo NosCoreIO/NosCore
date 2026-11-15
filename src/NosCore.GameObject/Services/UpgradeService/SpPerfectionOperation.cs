@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -44,6 +45,8 @@ public sealed class SpPerfectionOperation(
     private const byte StatArgumentType = 16;
 
     public override UpgradePacketType Kind => UpgradePacketType.PerfectSp;
+
+    public override NpcService? Service => NpcService.SpecialistCardPerfection;
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.PerfectingSpecialistSuccessful;
 

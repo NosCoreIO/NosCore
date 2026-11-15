@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115052609_AddReleaseScrollEffect";
+    public override string LastMigrationId => "20261115055431_AddShopTypeServices";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -58,6 +58,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "miniland_state", new[] { "open", "private", "lock" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_type", new[] { "unknown", "partner", "npc", "well", "portal", "boss", "elite", "peapod", "special", "gem_space_time" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "noscore_pocket_type", new[] { "equipment", "main", "etc", "miniland", "specialist", "costume", "wear", "mount", "raid", "first_partner_inventory", "second_partner_inventory", "third_partner_inventory" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "npc_service", new[] { "equipment_upgrade", "equipment_rarify", "accessory_option", "resistance_sum", "specialist_card_upgrade", "family_manager", "specialist_card_perfection" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "penalty_type", new[] { "muted", "banned", "block_exp", "block_f_exp", "block_rep", "warning" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "portal_type", new[] { "ts_normal", "closed", "open", "miniland", "ts_end", "ts_end_closed", "exit", "exit_closed", "raid", "effect", "blue_raid", "dark_raid", "time_space", "shop_teleport", "map_portal" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "quest_reward_type", new[] { "none", "gold", "gold_per_monster", "experience", "experience_per_monster", "job_experience", "consecutive_item", "etc_main_item", "wear_item", "reputation", "gold_per_kill", "experience_per_kill", "job_experience_per_kill", "not_repeatable", "class_item", "hero_experience", "level", "level_and_job_level" });
@@ -3227,6 +3228,22 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasIndex("SkillVNum");
 
                 b.ToTable("ShopSkill");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.ShopTypeService", b =>
+            {
+                b.Property<short>("ShopTypeServiceId")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Service")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("ShopType")
+                    .HasColumnType("smallint");
+
+                b.HasKey("ShopTypeServiceId");
+
+                b.ToTable("ShopTypeService");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.Skill", b =>

@@ -8,7 +8,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.PacketHandlers.Upgrades;
@@ -32,6 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         private Mock<IUpgradeOperation> _otherOperation;
         private Mock<ILogger<UpgradePacketHandler>> _logger;
         private UpgradePacketHandler _handler;
+        private const byte AlchemistShopType = 7;
+        private const byte BlacksmithShopType = 3;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -52,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
             _handler = new UpgradePacketHandler(
                 new[] { _otherOperation.Object, _matchingOperation.Object },
                 _logger.Object,
-                World.LogLanguageLocalizer, World.NpcDialogService);
+                World.LogLanguageLocalizer, World.NpcDialogService, World.NpcServiceCatalog);
         }
 
         [TestMethod]
@@ -126,7 +131,52 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AnNpcWhoseShopOffersTheServiceRunsTheUpgrade()
+        {
+            await new Spec("An upgrade an NPC's shop type offers runs at that NPC")
+                .Given(TheUpgradeIsAnNpcService)
+                .And(TheNpcsShopTypeIs_, AlchemistShopType)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(MatchingOperationShouldHaveExecutedExactlyOnce)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnNpcWhoseShopDoesNotOfferTheServiceRunsNothing()
+        {
+            await new Spec("An upgrade sent from an NPC whose shop type does not offer it runs nothing")
+                .Given(TheUpgradeIsAnNpcService)
+                .And(TheNpcsShopTypeIs_, BlacksmithShopType)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnNpcWithoutAShopRunsNoNpcService()
+        {
+            await new Spec("An upgrade sent from an NPC without a shop runs nothing")
+                .Given(TheUpgradeIsAnNpcService)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
+
+        private void TheUpgradeIsAnNpcService()
+        {
+            _matchingOperation.Setup(o => o.Service).Returns(NpcService.ResistanceSum);
+            World.ShopTypeServices.Add(new ShopTypeServiceDto { ShopTypeServiceId = 1, ShopType = AlchemistShopType, Service = NpcService.ResistanceSum });
+            World.ShopTypeServices.Add(new ShopTypeServiceDto { ShopTypeServiceId = 2, ShopType = BlacksmithShopType, Service = NpcService.EquipmentUpgrade });
+        }
+
+        private void TheNpcsShopTypeIs_(byte shopType)
+        {
+            var npc = _session.Character.MapInstance.GetNpcById(100).NotNull();
+            npc.Shop = new Shop { ShopType = shopType };
+        }
 
         private void NoWindowIsOpen() => _session.Character.NpcDialog = null;
 

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Data.Enumerations.Items;
 using System;
@@ -34,6 +35,8 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
     : UpgradeOperation(random, localizer)
 {
+    public override NpcService? Service => NpcService.EquipmentUpgrade;
+
     protected abstract bool IsProtected { get; }
 
     protected virtual MaterialType ProtectionScroll => MaterialType.EquipmentProtectionScroll;

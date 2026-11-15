@@ -27,6 +27,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
@@ -146,6 +147,8 @@ namespace NosCore.Tests.Shared
 
             Fixture.Inject(ItemList);
             Fixture.Inject(new List<MountMapSpeedDto>());
+            Fixture.Inject(ShopTypeServices);
+            Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
             Fixture.Freeze<Mock<IMinilandService>>()
@@ -273,6 +276,10 @@ namespace NosCore.Tests.Shared
         public IItemGenerationService GenerateItemProvider() => Create<ItemGenerationService>();
 
         public NpcDialogService NpcDialogService => Create<NpcDialogService>();
+
+        public List<ShopTypeServiceDto> ShopTypeServices { get; } = new();
+
+        public NpcServiceCatalog NpcServiceCatalog => new(ShopTypeServices);
 
         public GroupLootService GroupLootService => Create<GroupLootService>();
 
