@@ -333,6 +333,52 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AChampionBlessingAmuletCanReachRareEight()
+        {
+            await new Spec("A champion item gambled with a Champion Blessing Amulet worn can land on rare 8")
+                .Given(ChampionWearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.Heroic, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.0130)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)8)
+                .And(TheAmuletShouldHave_UsesLeft, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChampionBlessingAmuletKeepsChampionGearOnAFailedGamble()
+        {
+            await new Spec("A failed champion gamble with a Champion Blessing Amulet worn keeps the item")
+                .Given(ChampionWearableAtRarity_, (sbyte)5)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.Heroic, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)5)
+                .And(TheResultShouldSay_, Game18NConstString.ItemSurvivedWithProtection)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChampionBlessingAmuletRefusesOrdinaryGear()
+        {
+            await new Spec("An ordinary item cannot be gambled while wearing a Champion Blessing Amulet")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.Heroic, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(TheRefusalShouldBe_, Game18NConstString.YouAreWearingAnIncorrectAmulet)
+                .And(GoldShouldBe_, 100_000L)
+                .And(TheAmuletShouldHave_UsesLeft, 3)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
         private void WearableAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Armor);

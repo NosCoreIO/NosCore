@@ -821,6 +821,11 @@ It gives Teoman's copy on Chicken Farm Path the gambling shop (shop type 4).
 - [ ] A champion item ignores amulet 259 and is raised by one with the champion versions (4261,
       4263) instead, up to rare 8; an ordinary item ignores the champion versions
 
+- [ ] Wear a Champion Blessing Amulet (4264) and gamble a champion item (`SWORD=4958 AMULET=4264`
+      in the scene): the gamble goes through, a failure keeps the item, and rare 8 can come up
+- [ ] Gamble an ordinary sword with the Champion Blessing Amulet worn: "You are wearing an
+      incorrect amulet." and no gold is taken
+
 ### Services an NPC offers
 
 The parser imports `shoptype.dat`: each shop type lists the services its NPC offers. The client
