@@ -91,7 +91,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
 
         var lasting = bCards
-            .Where(b => (BCardType.CardType)b.Type != BCardType.CardType.Damage)
+            .Where(b => b.Type != BCardType.CardType.Damage)
             .ToArray();
         if (lasting.Length == 0)
         {

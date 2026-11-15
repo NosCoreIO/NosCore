@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Algorithm.MateExperienceService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MateService;
@@ -182,7 +183,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task ACertainDoubleDropChanceDropsTheItemTwice()
         {
             MonsterDrops(DroppableVNum, chance: 10000);
-            Wear(new BCardDto { Type = 95, SubType = 11, FirstData = 100 });
+            Wear(new BCardDto { Type = BCardType.CardType.Type95, SubType = 11, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
@@ -193,7 +194,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task ACertainNoDropChanceDropsNothing()
         {
             MonsterDrops(DroppableVNum, chance: 10000);
-            Wear(new BCardDto { Type = 95, SubType = 12, FirstData = 100 });
+            Wear(new BCardDto { Type = BCardType.CardType.Type95, SubType = 12, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
@@ -211,7 +212,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task OnlyTheTopDamageDealersGearDecidesTheDrops()
         {
             MonsterDrops(DroppableVNum, chance: 10000);
-            Wear(new BCardDto { Type = 95, SubType = 12, FirstData = 100 });
+            Wear(new BCardDto { Type = BCardType.CardType.Type95, SubType = 12, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 99));
 
@@ -223,7 +224,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None with
             {
-                BCards = new[] { new BCardDto { Type = 44, SubType = 51, FirstData = 200 } },
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.Item, SubType = 51, FirstData = 200 } },
             });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));

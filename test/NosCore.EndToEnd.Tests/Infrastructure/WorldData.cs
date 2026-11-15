@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -222,7 +223,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new Card { CardId = SteedStartCard, Name = "steedstart", Duration = SteedCardTime });
             context.Add(new Card { CardId = SteedEndCard, Name = "steedend", Duration = SteedCardTime });
             // The card an item gives is the one its buff effect names.
-            context.Add(new BCard { ItemVNum = Booster, Type = 25, SubType = 11, FirstData = 100, SecondData = BoostCard });
+            context.Add(new BCard { ItemVNum = Booster, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = BoostCard });
             // What a new adventurer is given: its club, its catapult, its clothes, and its three skills.
             context.Add(Worn(1, EquipmentType.MainWeapon, ItemType.Weapon));
             context.Add(Worn(8, EquipmentType.SecondaryWeapon, ItemType.Weapon));

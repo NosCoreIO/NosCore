@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Database.Entities.Base;
 using System.ComponentModel.DataAnnotations;
 
@@ -16,7 +17,7 @@ namespace NosCore.Database.Entities
 
         public byte SubType { get; set; }
 
-        public byte Type { get; set; }
+        public BCardType.CardType Type { get; set; }
 
         public int FirstData { get; set; }
 

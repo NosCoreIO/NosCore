@@ -87,5 +87,5 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
     public CardDto? GetTriggeredCard(CardTrigger trigger) => _triggered.GetValueOrDefault(trigger);
 
     private short? GrantedCardId(short itemVnum) =>
-        (short?)GetItemBCards(itemVnum).FirstOrDefault(b => b.Type == (byte)BCardType.CardType.Buff)?.SecondData;
+        (short?)GetItemBCards(itemVnum).FirstOrDefault(b => b.Type == BCardType.CardType.Buff)?.SecondData;
 }

@@ -135,7 +135,7 @@ namespace NosCore.DtoGenerator
                             var namespaceType = typeSymbol?.ContainingNamespace == null ? "" : typeSymbol.ContainingNamespace + ".";
                             if (typeSymbol?.ContainingType != null)
                             {
-                                namespaceType = typeSymbol?.ContainingType + ".";
+                                namespaceType = typeSymbol.ContainingType.ContainingNamespace + ".";
                             }
 
                             var dtoName = prop.Type.ToString();

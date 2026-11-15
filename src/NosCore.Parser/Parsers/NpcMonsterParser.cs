@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
@@ -371,7 +372,7 @@ namespace NosCore.Parser.Parsers
                 yield return new BCardDto
                 {
                     NpcMonsterVNum = monstervnum,
-                    Type = (byte)type,
+                    Type = (BCardType.CardType)type,
                     SubType = (byte)((int.Parse(row[column + 3]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                     IsLevelScaled = value.IsLevelScaled,
                     IsLevelDivided = value.IsLevelDivided,

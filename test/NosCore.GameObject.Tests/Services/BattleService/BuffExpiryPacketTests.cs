@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,7 +73,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AStunLandingAndEndingBothRefreshTheMovementCondition()
         {
-            var stun = new[] { new BCardDto { Type = 1, SubType = 11 }, new BCardDto { Type = 19, SubType = 11 } };
+            var stun = new[] { new BCardDto { Type = BCardType.CardType.SpecialAttack, SubType = 11 }, new BCardDto { Type = BCardType.CardType.Move, SubType = 11 } };
             await _service.ApplyAsync(_session.Character, Card, stun, null);
             _clock.Advance(Duration.FromSeconds(10));
             await _service.TickAsync(_session.Character);

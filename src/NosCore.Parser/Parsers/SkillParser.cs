@@ -160,7 +160,7 @@ namespace NosCore.Parser.Parsers
                 var comb = new BCardDto
                 {
                     SkillVNum = Convert.ToInt16(chunks["VNUM"][0][2]),
-                    Type = type,
+                    Type = (BCardType.CardType)type,
                     SubType = (byte)((int.Parse(chunks["BASIC"][j][4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                     IsLevelScaled = value.IsLevelScaled,
                     IsLevelDivided = value.IsLevelDivided,

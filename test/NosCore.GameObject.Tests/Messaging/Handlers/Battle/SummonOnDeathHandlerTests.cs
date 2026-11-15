@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestMethod]
         public async Task ADeathSummonCardSpawnsItsMonstersWhereTheBearerDied()
         {
-            DeathCards(new BCardDto { Type = (byte)BCardType.CardType.Summons, SubType = 11, FirstData = 2, SecondData = PiiVnum });
+            DeathCards(new BCardDto { Type = BCardType.CardType.Summons, SubType = 11, FirstData = 2, SecondData = PiiVnum });
 
             await Handler().Handle(new EntityDiedEvent(Pod(), null));
 
@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestMethod]
         public async Task AChanceSummonOnlySpawnsWhenTheRollIsUnderTheChance()
         {
-            DeathCards(new BCardDto { Type = (byte)BCardType.CardType.Summons, SubType = 12, FirstData = 20, SecondData = PiiVnum });
+            DeathCards(new BCardDto { Type = BCardType.CardType.Summons, SubType = 12, FirstData = 20, SecondData = PiiVnum });
 
             _random.Setup(r => r.Next(0, 100)).Returns(20);
             await Handler().Handle(new EntityDiedEvent(Pod(), null));
@@ -77,7 +77,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         public async Task ASkillSummonCardSpawnsItsMonstersOnTheCaster()
         {
             await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(),
-                new[] { new BCardDto { Type = (byte)BCardType.CardType.Summons, SubType = 21, FirstData = 3, SecondData = PiiVnum } });
+                new[] { new BCardDto { Type = BCardType.CardType.Summons, SubType = 21, FirstData = 3, SecondData = PiiVnum } });
 
             var summoned = _map.EnumerateMonsters().Where(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum).ToList();
             Assert.AreEqual(3, summoned.Count);
@@ -87,7 +87,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestMethod]
         public async Task APassiveSummonCardAlsoFiresOnDeath()
         {
-            DeathCards(new BCardDto { Type = (byte)BCardType.CardType.Summons, SubType = 21, FirstData = 1, SecondData = PiiVnum, Slot = 0 });
+            DeathCards(new BCardDto { Type = BCardType.CardType.Summons, SubType = 21, FirstData = 1, SecondData = PiiVnum, Slot = 0 });
 
             await Handler().Handle(new EntityDiedEvent(Pod(), null));
 
@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             _random.SetupSequence(r => r.Next(-3, 4)).Returns(2).Returns(2).Returns(-3).Returns(0);
 
             await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(),
-                new[] { new BCardDto { Type = (byte)BCardType.CardType.Summons, SubType = 21, FirstData = 2, SecondData = PiiVnum } });
+                new[] { new BCardDto { Type = BCardType.CardType.Summons, SubType = 21, FirstData = 2, SecondData = PiiVnum } });
 
             var cells = _map.EnumerateMonsters().Where(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum)
                 .Select(m => (m.PositionX, m.PositionY)).OrderBy(c => c).ToList();
@@ -110,7 +110,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestMethod]
         public async Task OtherDeathCardsSummonNothing()
         {
-            DeathCards(new BCardDto { Type = (byte)BCardType.CardType.SpecialEffects, SubType = 11, FirstData = 10 });
+            DeathCards(new BCardDto { Type = BCardType.CardType.SpecialEffects, SubType = 11, FirstData = 10 });
 
             await Handler().Handle(new EntityDiedEvent(Pod(), null));
 

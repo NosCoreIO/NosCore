@@ -109,7 +109,7 @@ namespace NosCore.Parser.Tests
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
-            var card = _savedBCards.Single(b => b.Type == 11);
+            var card = _savedBCards.Single(b => b.Type == BCardType.CardType.Block);
             Assert.AreEqual(12, card.SubType);
             Assert.AreEqual(10, card.FirstData);
             Assert.AreEqual(10, card.SecondData);
@@ -124,7 +124,7 @@ namespace NosCore.Parser.Tests
             await parser.ParseAsync(_tempFolder);
 
             var card = _savedBCards.Single(b => b.ItemVNum == 5119);
-            Assert.AreEqual((byte)BCardType.CardType.Buff, card.Type);
+            Assert.AreEqual(BCardType.CardType.Buff, card.Type);
             Assert.AreEqual(336, card.SecondData);
             Assert.AreEqual(885, _savedItems.Single().EffectValue);
         }
@@ -319,7 +319,7 @@ namespace NosCore.Parser.Tests
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
-            var card = _savedBCards.Single(b => b.Type == 11);
+            var card = _savedBCards.Single(b => b.Type == BCardType.CardType.Block);
             Assert.AreEqual(11, card.SubType);
             Assert.AreEqual(10, card.FirstData);
         }
@@ -332,7 +332,7 @@ namespace NosCore.Parser.Tests
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
-            var card = _savedBCards.Single(b => b.Type == 11);
+            var card = _savedBCards.Single(b => b.Type == BCardType.CardType.Block);
             Assert.AreEqual(10, card.FirstData);
             Assert.IsTrue(card.IsLevelScaled);
         }
@@ -345,7 +345,7 @@ namespace NosCore.Parser.Tests
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
-            var card = _savedBCards.Single(b => b.Type == 11);
+            var card = _savedBCards.Single(b => b.Type == BCardType.CardType.Block);
             Assert.AreEqual(22, card.SubType);
             Assert.AreEqual(6, card.FirstData);
         }
@@ -380,7 +380,7 @@ namespace NosCore.Parser.Tests
             await parser.ParseAsync(_tempFolder);
 
             var card = _savedBCards.Single(b => b.ItemVNum == 13752);
-            Assert.AreEqual((byte)BCardType.CardType.Buff, card.Type);
+            Assert.AreEqual(BCardType.CardType.Buff, card.Type);
             Assert.AreEqual(4328, card.SecondData);
         }
 

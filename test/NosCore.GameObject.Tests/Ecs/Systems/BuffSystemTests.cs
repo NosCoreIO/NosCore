@@ -98,7 +98,7 @@ namespace NosCore.GameObject.Tests.Ecs.Systems
 
         private static BCardDto HpReduced(int steps) => new()
         {
-            Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 12, FirstData = 8, ThirdData = steps,
+            Type = BCardType.CardType.RecoveryAndDamagePercent, SubType = 12, FirstData = 8, ThirdData = steps,
         };
     }
 }

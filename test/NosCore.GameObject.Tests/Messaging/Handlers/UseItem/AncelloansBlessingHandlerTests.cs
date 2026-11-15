@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private static readonly IReadOnlyList<BCardDto> BlessingBCards = new[]
         {
-            new BCardDto { CardId = BlessingCardId, Type = 44, SubType = 11, FirstData = 100 }
+            new BCardDto { CardId = BlessingCardId, Type = BCardType.CardType.Item, SubType = 11, FirstData = 100 }
         };
 
         private ClientSession _session;

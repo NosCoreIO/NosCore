@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using System;
 using System.Collections.Generic;
@@ -89,7 +90,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private void CharacterWearsGearBoostingRecoveryBy_Percent(int percent) =>
             _gear.Setup(g => g.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None with
             {
-                BCards = [new BCardDto { Type = 71, SubType = 21, FirstData = (short)percent }],
+                BCards = [new BCardDto { Type = BCardType.CardType.LeonaPassiveSkill, SubType = 21, FirstData = (short)percent }],
             });
 
         [TestMethod]

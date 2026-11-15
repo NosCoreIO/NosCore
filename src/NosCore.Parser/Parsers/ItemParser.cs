@@ -204,7 +204,7 @@ namespace NosCore.Parser.Parsers
                         item.BCards = [.. item.BCards ?? [], new BCardDto
                         {
                             ItemVNum = item.VNum,
-                            Type = (byte)BCardType.CardType.Buff,
+                            Type = BCardType.CardType.Buff,
                             SubType = 11,
                             FirstData = 100,
                             SecondData = mount.RidingCard,
@@ -240,7 +240,7 @@ namespace NosCore.Parser.Parsers
                 var comb = new BCardDto
                 {
                     ItemVNum = Convert.ToInt16(chunk["VNUM"][0][2]),
-                    Type = type,
+                    Type = (BCardType.CardType)type,
                     SubType = (byte)(((int.Parse(chunk["BUFF"][0][5 + 5 * i]) + 1) * 10) + 1
                         + (first < 0 ? 1 : 0)),
                     IsLevelScaled = value.IsLevelScaled,
@@ -858,12 +858,12 @@ namespace NosCore.Parser.Parsers
                 },
                 _ => 0
             };
-            if (grantedCard != 0 && item.BCards?.Any(b => b.Type == (byte)BCardType.CardType.Buff) != true)
+            if (grantedCard != 0 && item.BCards?.Any(b => b.Type == BCardType.CardType.Buff) != true)
             {
                 item.BCards = [.. item.BCards ?? [], new BCardDto
                 {
                     ItemVNum = item.VNum,
-                    Type = (byte)BCardType.CardType.Buff,
+                    Type = BCardType.CardType.Buff,
                     SubType = 11,
                     FirstData = 100,
                     SecondData = grantedCard,
