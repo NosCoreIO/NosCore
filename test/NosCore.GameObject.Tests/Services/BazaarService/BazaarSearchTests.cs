@@ -18,6 +18,7 @@ using NosCore.Packets.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Tests.Services.BazaarService
 {
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             registry.Setup(s => s.GetAll()).Returns(_links);
             _service = new GameObject.Services.BazaarService.BazaarService(registry.Object, new Mock<IDao<BazaarItemDto, long>>().Object,
                 new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<BazaarOperationDto, Guid>>().Object,
-                new Mock<IDaoTransactionScope>().Object, new Mock<IClock>().Object, _items);
+                new Mock<IDaoTransactionScope>().Object, new Mock<IClock>().Object, new ItemCatalog(_items));
         }
 
         private void List(short vnum, ItemInstanceDto? instance = null, sbyte rare = 0, byte upgrade = 0)

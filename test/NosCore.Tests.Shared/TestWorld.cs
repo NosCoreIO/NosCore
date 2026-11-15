@@ -146,6 +146,7 @@ namespace NosCore.Tests.Shared
             QuicklistEntryDao = Dao<QuicklistEntry, QuicklistEntryDto, Guid>();
 
             Fixture.Inject(ItemList);
+            Fixture.UseReal<IItemCatalog, ItemCatalog>();
             Fixture.Inject(new List<MountMapSpeedDto>());
             Fixture.Inject(ShopTypeServices);
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
@@ -417,7 +418,7 @@ namespace NosCore.Tests.Shared
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerNetworkComponent(session, session.Channel));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerContextComponent(mapInstance, group, null));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerInventoryComponent(
-                new InventoryService(ItemList, WorldConfiguration, NullLogger<InventoryService>.Instance),
+                new InventoryService(new ItemCatalog(ItemList), WorldConfiguration, NullLogger<InventoryService>.Instance),
                 new ConcurrentDictionary<short, GameObject.Services.BattleService.CharacterSkill>(),
                 new ConcurrentDictionary<Guid, GameObject.Services.QuestService.CharacterQuest>(),
                 new List<QuicklistEntryDto>(),

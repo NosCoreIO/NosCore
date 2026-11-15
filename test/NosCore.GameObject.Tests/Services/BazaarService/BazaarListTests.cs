@@ -19,6 +19,7 @@ using SpecLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Tests.Services.BazaarService
 {
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             registry.Setup(s => s.GetAll()).Returns(Links);
             Service = new GameObject.Services.BazaarService.BazaarService(registry.Object,
                 new Mock<IDao<BazaarItemDto, long>>().Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object,
-                new Mock<IDao<BazaarOperationDto, Guid>>().Object, new Mock<IDaoTransactionScope>().Object, Clock, items);
+                new Mock<IDao<BazaarOperationDto, Guid>>().Object, new Mock<IDaoTransactionScope>().Object, Clock, new ItemCatalog(items));
             Search = new BazaarSearch { Language = RegionType.EN, PageSize = 50 };
         }
 

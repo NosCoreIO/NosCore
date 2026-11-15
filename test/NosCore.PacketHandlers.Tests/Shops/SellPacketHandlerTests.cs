@@ -178,7 +178,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ItemType = ItemType.Sell, Price = long.MaxValue }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 5), 0),
                 NoscorePocketType.Etc, 0);
@@ -190,7 +190,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, IsSoldable = true, Price = 500 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Equipment, 0);
@@ -223,7 +223,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 0);
@@ -267,7 +267,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -284,7 +284,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = false }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -301,7 +301,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);

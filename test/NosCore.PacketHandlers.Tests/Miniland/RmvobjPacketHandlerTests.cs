@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _session.Character.MapInstance = mapInstance;
             _rmvobjPacketHandler = new RmvobjPacketHandler(_minilandProvider);
             _itemProvider = new ItemGenerationService(
-                MinilandItems,
+                new ItemCatalog(MinilandItems),
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
         }

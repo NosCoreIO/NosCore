@@ -17,17 +17,18 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetGoldCommandPacketHandler(IRemoteCharacterService remoteCharacterService, List<ItemDto> items)
+    public class SetGoldCommandPacketHandler(IRemoteCharacterService remoteCharacterService, IItemCatalog itemCatalog)
         : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(goldPacket.Name) || goldPacket.Name == session.Character.Name)
             {
-                await session.Character.SetGoldAsync(goldPacket.Gold, items);
+                await session.Character.SetGoldAsync(goldPacket.Gold, itemCatalog);
                 return;
             }
 

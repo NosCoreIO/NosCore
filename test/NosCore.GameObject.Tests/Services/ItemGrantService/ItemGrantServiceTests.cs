@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
 
             Service = new GameObject.Services.ItemGrantService.ItemGrantService(
                 NullLogger<GameObject.Services.ItemGrantService.ItemGrantService>.Instance,
-                items,
+                new ItemCatalog(items),
                 World.WorldConfiguration,
                 ItemProvider.Object,
                 World.LogLanguageLocalizer,

@@ -17,10 +17,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Services.InventoryService
 {
-    public class InventoryService(List<ItemDto> items, IOptions<WorldConfiguration> configuration, ILogger<InventoryService> logger)
+    public class InventoryService(IItemCatalog itemCatalog, IOptions<WorldConfiguration> configuration, ILogger<InventoryService> logger)
         : ConcurrentDictionary<Guid, InventoryItemInstance>, IInventoryService
     {
         public int GetMaxSlots(NoscorePocketType pocket)
@@ -73,7 +74,7 @@ namespace NosCore.GameObject.Services.InventoryService
 
         public bool CanAddItem(short itemVnum)
         {
-            var type = items.Find(item => item.VNum == itemVnum)?.Type;
+            var type = itemCatalog.GetItem(itemVnum)?.Type;
             return type != null && GetFreeSlot(type.Value).HasValue;
         }
 

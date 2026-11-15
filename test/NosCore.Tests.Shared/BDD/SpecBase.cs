@@ -53,7 +53,7 @@ namespace NosCore.Tests.Shared.BDD
             Session = await World.CreateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             ItemProvider = new ItemGenerationService(
-                DefaultItems,
+                new ItemCatalog(DefaultItems),
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
         }

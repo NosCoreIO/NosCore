@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Services.BazaarService
 {
@@ -29,7 +30,7 @@ namespace NosCore.GameObject.Services.BazaarService
     // them, or could not and compensates them; a claim never pays for a pending buy.
     public class BazaarService(IBazaarRegistry bazaarRegistry, IDao<BazaarItemDto, long> bazaarItemDao,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<BazaarOperationDto, Guid> bazaarOperationDao,
-            IDaoTransactionScope transactionScope, IClock clock, List<ItemDto> items)
+            IDaoTransactionScope transactionScope, IClock clock, IItemCatalog itemCatalog)
         : IBazaarService
     {
         private static readonly ConcurrentDictionary<long, AsyncLock> ListingLocks = new();
@@ -68,7 +69,7 @@ namespace NosCore.GameObject.Services.BazaarService
                 var vnums = links.Select(s => s.ItemInstance.ItemVNum)
                     .Concat(links.Select(s => (s.ItemInstance as BoxInstanceDto)?.HoldingVNum ?? 0))
                     .ToHashSet();
-                var itemsByVNum = items.Where(s => vnums.Contains(s.VNum)).ToDictionary(s => s.VNum);
+                var itemsByVNum = vnums.Select(itemCatalog.GetItem).OfType<ItemDto>().ToDictionary(s => s.VNum);
                 var filter = new BazaarFilter(type, subTypeFilter ?? 0, levelFilter ?? 0, rareFilter ?? 0, upgradeFilter ?? 0);
                 bzlinks = links.Where(s => itemsByVNum.TryGetValue(s.ItemInstance.ItemVNum, out var item)
                     && filter.Matches(s.ItemInstance, item, itemsByVNum));
@@ -94,7 +95,7 @@ namespace NosCore.GameObject.Services.BazaarService
                 .ToList();
 
             var vnums = searched.Select(s => s.ItemInstance.ItemVNum).ToHashSet();
-            var names = items.Where(s => vnums.Contains(s.VNum))
+            var names = vnums.Select(itemCatalog.GetItem).OfType<ItemDto>()
                 .ToDictionary(s => s.VNum, s => s.Name[search.Language]);
             var byName = searched.OrderBy(s => names.GetValueOrDefault(s.ItemInstance.ItemVNum) ?? "");
             var ordered = search.OrderFilter switch

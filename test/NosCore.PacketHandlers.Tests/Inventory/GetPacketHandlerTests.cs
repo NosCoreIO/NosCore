@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
-            ItemProvider = World.GenerateItemProvider();
+            ItemProvider = World.Create<ItemGenerationService>();
             var dropHandler = World.Create<DropHandler>();
             var goldHandler = World.Create<GoldDropHandler>();
             var spChargerHandler = World.Create<SpChargerHandler>();
@@ -184,6 +184,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             });
             Session.Character.Gold = 0;
             Owner.Character.Gold = 0;
+            ItemProvider = World.Create<ItemGenerationService>();
             MapItemVisualId = World.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
                 ItemProvider.Create(GoldVNum, GoldAmount), Session.Character.PositionX, Session.Character.PositionY,
                 Owner.Character.CharacterId).VisualId;

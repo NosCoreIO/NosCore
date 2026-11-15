@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
                 new Item {Type = NoscorePocketType.Main, VNum = 1013}
             };
 
-            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             ExchangeProvider = CreateExchangeService();
             _sessionA = await World.CreateSessionAsync();
             _sessionB = await World.CreateSessionAsync();

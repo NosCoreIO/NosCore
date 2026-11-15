@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService,
             IOptions<WorldConfiguration> worldConfiguration, IDao<CharacterSkillDto, Guid> characterSkillDao,
-            List<ItemDto> items, ILoggerFactory loggerFactory, IDaoTransactionScope daoTransactionScope,
+            IItemCatalog itemCatalog, ILoggerFactory loggerFactory, IDaoTransactionScope daoTransactionScope,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
@@ -180,7 +180,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     // Everything is built before anything is written, and written in one transaction:
                     // a creation that fails must not leave a character without its equipment and skills.
                     var origin = ResolveStarterOrigin(@class, _worldConfiguration.AllClassAvailableOnCreate);
-                    var inventory = new InventoryService(items, worldConfiguration, loggerFactory.CreateLogger<InventoryService>());
+                    var inventory = new InventoryService(itemCatalog, worldConfiguration, loggerFactory.CreateLogger<InventoryService>());
                     try
                     {
                         foreach (var itemToAdd in ResolvePack(_worldConfiguration.BasicEquipments, @class, origin, new List<BasicEquipment>()))

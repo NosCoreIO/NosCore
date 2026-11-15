@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             {
                 new Item { VNum = SavingsBookVNum, Type = NoscorePocketType.Main, Effect = ItemEffectType.CuarryBankSavingsBook },
             };
-            _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
+            _handler = new GetSavingsBookHandler(new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
                 new ItemCatalog(items));
         }
 

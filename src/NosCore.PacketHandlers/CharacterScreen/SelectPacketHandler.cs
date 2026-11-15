@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
-            List<ItemDto> items, IHpService hpService, IMpService mpService, ISpeedService speedService,
+            IItemCatalog itemCatalog, IHpService hpService, IMpService mpService, ISpeedService speedService,
             NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             ISessionGroupFactory sessionGroupFactory,
             ICharacterInitializationService characterInitializationService,
@@ -123,7 +123,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var ids = inventories.Select(o => o.ItemInstanceId).ToList();
                 var itemInstances = (itemInstanceDao.Where(s => ids.Contains(s.Id)) ?? []).OfType<IItemInstanceDto>().ToList();
 
-                var inventoryService = new InventoryService(items, configuration, loggerFactory.CreateLogger<InventoryService>());
+                var inventoryService = new InventoryService(itemCatalog, configuration, loggerFactory.CreateLogger<InventoryService>());
                 inventories.ForEach(k => inventoryService[k.ItemInstanceId] =
                     InventoryItemInstance.Create(itemProvider.Convert(itemInstances.First(s => s.Id == k.ItemInstanceId)),
                         characterId, k));

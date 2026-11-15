@@ -324,6 +324,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             World.ItemList.RemoveAll(i => i.VNum == MountVNum);
             World.ItemList.Add(mount);
+            _speed = World.Create<SpeedCalculationService>();
+            World.Inject(_speed);
+            _handler = World.Create<SpeedBoosterHandler>();
             var character = _session.Character;
             character.IsVehicled = true;
             character.VehicleSpeed = mount.Speed;

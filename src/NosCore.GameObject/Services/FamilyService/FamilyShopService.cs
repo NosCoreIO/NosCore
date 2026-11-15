@@ -22,10 +22,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Services.FamilyService
 {
-    public class FamilyShopService(List<FamilyUpgradeDto> familyUpgrades, List<ItemDto> items,
+    public class FamilyShopService(List<FamilyUpgradeDto> familyUpgrades, IItemCatalog itemCatalog,
         IFamilyUpgradeService capacities, IFamilyHub familyHub, IPubSubHub pubSubHub, IFamilyService familyService)
         : IFamilyShopService
     {
@@ -65,7 +66,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var price = items.First(s => s.VNum == upgrade.ItemVNum).Price;
+            if (itemCatalog.GetItem(upgrade.ItemVNum) is not { } upgradeItem)
+            {
+                return;
+            }
+
+            var price = upgradeItem.Price;
             if (session.Character.Gold < price)
             {
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.InsufficientGoldAvailable });
@@ -101,7 +107,11 @@ namespace NosCore.GameObject.Services.FamilyService
             Unknown = 0,
             Items = Offered.Select((upgrade, slot) =>
             {
-                var item = items.First(s => s.VNum == upgrade.ItemVNum);
+                if (itemCatalog.GetItem(upgrade.ItemVNum) is not { } item)
+                {
+                    return null;
+                }
+
                 return (NInvItemSubPacket?)new NInvItemSubPacket
                 {
                     Type = item.Type.ToPocketType(),

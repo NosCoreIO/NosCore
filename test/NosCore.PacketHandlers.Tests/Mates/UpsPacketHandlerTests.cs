@@ -75,14 +75,14 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 new() { SkillVNum = AttackSkill, CastId = 0, SkillType = 5, UpgradeType = SkillSet, Range = 12, TargetRange = 3, Cooldown = 60, MpCost = 4 },
                 new() { SkillVNum = CostlySkill, CastId = 1, SkillType = 5, UpgradeType = SkillSet, Range = 12, Cooldown = 300, MpCost = 50 }
             });
-            _items = new ItemGenerationService(new List<ItemDto>
+            _items = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item
                 {
                     Type = NoscorePocketType.Equipment, VNum = PartnerSpecialist, ItemType = ItemType.Specialist,
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, Morph = 2333, PartnerSkillSet = SkillSet
                 }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             _specialists = World.Create<PartnerSpecialistService>();
             _handler = new UpsPacketHandler(_specialists);
         }

@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             ListHandler = new ExcListPacketHandler(Exchange, NullLogger<ExcListPacketHandler>.Instance,
                 World.LogLanguageLocalizer, World.SessionRegistry);
 
-            ItemProvider = new ItemGenerationService(new List<ItemDto>
+            ItemProvider = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
                 new Item
@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     Type = NoscorePocketType.Equipment, VNum = 1, IsTradable = true, ItemType = ItemType.Armor,
                     EquipmentSlot = EquipmentType.Armor
                 }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
         }
 
         private TransferService CreateTransferService()

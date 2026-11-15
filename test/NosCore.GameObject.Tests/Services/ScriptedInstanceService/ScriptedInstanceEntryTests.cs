@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(
-                new List<ItemDto> { new() { VNum = SeedVnum, Type = NoscorePocketType.Etc } },
+                new ItemCatalog(new List<ItemDto> { new() { VNum = SeedVnum, Type = NoscorePocketType.Etc } }),
                 NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
         }
 

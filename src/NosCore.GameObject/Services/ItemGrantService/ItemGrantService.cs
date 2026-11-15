@@ -29,7 +29,7 @@ public interface IItemGrantService
     ItemGrantResult Grant(PlayerComponentBundle character, short vnum, short? designOrAmount, byte? upgrade);
 }
 
-public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<ItemDto> items,
+public sealed class ItemGrantService(ILogger<ItemGrantService> logger, IItemCatalog itemCatalog,
         IOptions<WorldConfiguration> worldConfiguration, IItemGenerationService itemProvider,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRarityPointService rarityPoints)
     : IItemGrantService
@@ -40,7 +40,7 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<Item
         byte upgrade = 0;
         byte design = 0;
         short amount = 1;
-        var iteminfo = items.Find(item => item.VNum == vnum);
+        var iteminfo = itemCatalog.GetItem(vnum);
         if (iteminfo == null)
         {
             return ItemGrantOutcome.UnknownItem;

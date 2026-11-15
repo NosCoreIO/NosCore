@@ -21,11 +21,12 @@ using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Messaging.Handlers.MapItem
 {
     [UsedImplicitly]
-    public sealed class GoldDropHandler(IOptions<WorldConfiguration> worldConfiguration, List<ItemDto> items)
+    public sealed class GoldDropHandler(IOptions<WorldConfiguration> worldConfiguration, IItemCatalog itemCatalog)
     {
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
@@ -57,8 +58,10 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                 character = session.Character;
                 character.Gold += amount;
 
-                var goldName = items.First(i => i.VNum == vnum).Name[session.Account.Language];
-                await session.SendPacketAsync(character.GenerateGoldReceived(amount, goldName));
+                if (itemCatalog.GetItem(vnum) is { } goldItem)
+                {
+                    await session.SendPacketAsync(character.GenerateGoldReceived(amount, goldItem.Name[session.Account.Language]));
+                }
             }
             else
             {

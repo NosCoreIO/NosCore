@@ -42,6 +42,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using FamilyEntity = NosCore.Database.Entities.Family;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.PacketHandlers.Tests.Family
 {
@@ -131,7 +132,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync(true);
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
 
-            var shop = new FamilyShopService(Upgrades, Items, new FamilyUpgradeService(), familyHub.Object, pubSubHub.Object, _familyService);
+            var shop = new FamilyShopService(Upgrades, new ItemCatalog(Items), new FamilyUpgradeService(), familyHub.Object, pubSubHub.Object, _familyService);
             var dignity = new Mock<IDignityService>();
             dignity.Setup(s => s.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);
             _shopping = new ShoppingPacketHandler(NullLogger<ShoppingPacketHandler>.Instance, dignity.Object,

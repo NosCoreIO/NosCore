@@ -19,6 +19,7 @@ using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
 {
@@ -44,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
                 Effect = ItemEffectType.Gold,
                 Name = new I18NString { [RegionType.EN] = "Gold" }
             };
-            _handler = new GoldDropHandler(World.WorldConfiguration, new List<ItemDto> { gold });
+            _handler = new GoldDropHandler(World.WorldConfiguration, new ItemCatalog(new List<ItemDto> { gold }));
             var mapItem = World.MapItemProvider.NotNull().Create(_session.Character.MapInstance,
                 new ItemInstance(gold) { Amount = GoldAmount }, _session.Character.PositionX, _session.Character.PositionY);
             _event = new MapItemPickedUpEvent(_session, mapItem.VisualId, GoldVNum, GoldAmount, mapItem.ItemInstance,

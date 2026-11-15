@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
+            _items = new ItemGenerationService(new ItemCatalog(Catalog), NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
 
             var buffs = new Mock<IBuffService>();

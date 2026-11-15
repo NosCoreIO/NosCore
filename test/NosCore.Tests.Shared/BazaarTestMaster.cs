@@ -14,6 +14,7 @@ using NosCore.Data.WebApi;
 using NosCore.Database.Entities;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Services.BazaarService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using System;
@@ -36,7 +37,7 @@ namespace NosCore.Tests.Shared
             Registry = new BazaarRegistry(BazaarItemDao, ItemInstanceDao, new Mock<IDao<CharacterDto, long>>().Object,
                 OperationDao);
             Service = new BazaarService(Registry, BazaarItemDao, ItemInstanceDao, OperationDao,
-                new DaoTransactionScope(context), clock, new List<ItemDto>());
+                new DaoTransactionScope(context), clock, new ItemCatalog(new List<ItemDto>()));
             Hub = new BazaarHub(Service);
         }
 

@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     public class StatDataMessageChannelCommunicationMessageHandler(ILogger<StatDataMessageChannelCommunicationMessageHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration, ISessionRegistry sessionRegistry,
         IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService,
-        IGameLanguageLocalizer gameLanguageLocalizer, IItemGenerationService itemProvider, ISkillService skillService, List<ItemDto> items)
+        IGameLanguageLocalizer gameLanguageLocalizer, IItemGenerationService itemProvider, ISkillService skillService, IItemCatalog itemCatalog)
         : ChannelCommunicationMessageHandler<StatData>
     {
         public override async Task Handle(StatData data)
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                         return;
                     }
 
-                    await character.SetGoldAsync(data.Data, items);
+                    await character.SetGoldAsync(data.Data, itemCatalog);
                     break;
                 case UpdateStatActionType.UpdateClass:
                     await session.ChangeClassAsync((CharacterClassType)data.Data, worldConfiguration, experienceService, jobExperienceService,

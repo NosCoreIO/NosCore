@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
                 new Item { Type = NoscorePocketType.Main, VNum = 1013, IsTradable = false }
             };
-            ItemProvider = new ItemGenerationService(items,
+            ItemProvider = new ItemGenerationService(new ItemCatalog(items),
                 NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
 
             Handler = World.Create<ExcListPacketHandler>();
