@@ -14,10 +14,8 @@ namespace NosCore.GameObject.Ecs.Systems;
 
 public class BuffSystem
 {
-    // Mates carry buff state but take no buffs yet, so they are never due.
     private readonly QueryDescription _buffedQuery = new QueryDescription()
-        .WithAll<EntityIdentityComponent, BuffStateComponent>()
-        .WithNone<MateStateComponent>();
+        .WithAll<EntityIdentityComponent, BuffStateComponent>();
 
     // Lists the entities with a buff to expire or a periodic effect to fire; the rest of the
     // map, most of it buffless, costs one check each.

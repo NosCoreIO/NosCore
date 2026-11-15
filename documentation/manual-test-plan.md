@@ -1816,8 +1816,10 @@ Have such a pet in the team and a second client on the map.
 - [ ] With less MP left than the skill costs: nothing happens
 - [ ] Select a monster across the map and press Smackeroo: the Otter does not hit it
 - [ ] With a monster within a few cells of the Otter, press Sushi Party (Shift+R): the Otter plays
-      the skill, the monster gets Delicious Tuna and Short Blackout in its buff row, the Otter's
-      MP goes down by 40 and the slot cools down for 70 seconds
+      the skill, the monster gets Short Blackout in its buff row, the Otter's MP goes down by 40
+      and the slot cools down for 70 seconds
+- [ ] The same cast gives the Otter itself Delicious Tuna and Battle Ready, and neither shows
+      on the monster
 - [ ] Kill a monster with a pet skill: it collapses as it does from your own hits
 - [ ] Change map: the bar is still there
 - [ ] Send the Otter back to the Miniland: the bar goes away; take it out again: the bar is back

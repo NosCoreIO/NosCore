@@ -167,7 +167,8 @@ namespace NosCore.Parser.Parsers
                     IsLevelDivided = value.IsLevelDivided,
                     FirstData = (short)value.Value,
                     SecondData = (short)(int.Parse(chunks["BASIC"][j][6]) / 4),
-                    ThirdData = (short)(int.Parse(chunks["BASIC"][j][7]) / 4)
+                    ThirdData = (short)(int.Parse(chunks["BASIC"][j][7]) / 4),
+                    AppliesToCaster = chunks["BASIC"][j][7] == "0"
                 };
                 list.Add(comb);
             }

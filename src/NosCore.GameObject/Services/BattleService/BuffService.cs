@@ -504,15 +504,22 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     // BuffStateComponent lives on the target's ECS world; walking through the bundle
     // gets us its dictionary handle without copying. Returning null means the entity
     // has no buff state (e.g. map items) — caller treats as "no buffs".
-    public async Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
-        IReadOnlyList<BCardDto> skillBCards)
+    public Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
+        IReadOnlyList<BCardDto> skillBCards) => InflictAsync(target, caster, skillBCards, onCaster: false);
+
+    public Task InflictCasterCardsAsync(IAliveEntity caster, IReadOnlyList<BCardDto> skillBCards) =>
+        InflictAsync(caster, caster, skillBCards, onCaster: true);
+
+    private async Task InflictAsync(IAliveEntity target, IAliveEntity? caster, IReadOnlyList<BCardDto> skillBCards,
+        bool onCaster)
     {
         await CleanseAsync(target, skillBCards);
         for (var i = 0; i < skillBCards.Count; i++)
         {
             var bCard = skillBCards[i];
             var effect = bCard.Effect();
-            if (effect is not (BCardEffect.BuffChanceCausing or BCardEffect.BuffChanceRemoving or BCardEffect.MeditationSkillSacrifice))
+            if (bCard.AppliesToCaster != onCaster
+                || effect is not (BCardEffect.BuffChanceCausing or BCardEffect.BuffChanceRemoving or BCardEffect.MeditationSkillSacrifice))
             {
                 continue;
             }
