@@ -814,6 +814,9 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] With a job level different from the card's level, open the Character window (P): while
       transformed "Job level" shows the card's level and its experience, and the job level again
       after untransforming
+- [ ] Transform with a card that walks faster (Ninja 902 +1, Chicken 907 +2): `cond` carries the
+      class speed plus the card's bonus, and a long walk takes visibly fewer steps; untransform and
+      the speed goes back to the class value. A card without a bonus leaves the speed unchanged
 
 ### Specialist card upgrade
 

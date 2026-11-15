@@ -84,7 +84,10 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
                 return CalculateSpeed(characterEntity, characterEntity.VehicleSpeed + boost + mapSpeed, byte.MaxValue);
             }
 
-            return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class), MaxSpeedOnFoot);
+            var specialistSpeed = characterEntity.UseSp
+                ? characterEntity.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance.Item.Speed ?? 0
+                : 0;
+            return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class) + specialistSpeed, MaxSpeedOnFoot);
         }
     }
 }

@@ -58,6 +58,7 @@ namespace NosCore.GameObject.Services.TransformationService
             await skillService.UnloadSpecialistSkillsAsync(character);
             await specialistWingsService.RefreshAsync(character);
             character.SpCooldown = 30;
+            character.Speed = speedCalculationService.CalculateSpeed(character);
 
             var characterId = character.CharacterId;
             var spCooldown = character.SpCooldown;
@@ -132,6 +133,7 @@ namespace NosCore.GameObject.Services.TransformationService
 
             await skillService.LoadSpecialistSkillsAsync(character, sp.Item.Morph, sp.SpLevel);
             await specialistWingsService.RefreshAsync(character);
+            character.Speed = speedCalculationService.CalculateSpeed(character);
 
             var characterId2 = character.CharacterId;
             var mapInstance = character.MapInstance;
