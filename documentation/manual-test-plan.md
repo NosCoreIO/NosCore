@@ -134,6 +134,12 @@ same damage means only one of the two is being read.
 - [ ] A critical hit adds its bonus on top of a normal hit; the level gap is not multiplied
 - [ ] A level 30 swordsman with a +0 Crossbow (68) fires Crossbow Shot at a level 30 Baby Dander
       from range: every non-critical hit is between 132 and 137
+- [ ] A level 80 swordsman holding a Beginner's Sword (18) and a Ballista (761) fires Stun Shot (298)
+      at a level 1 Baby Dander: it hits about 200 harder than the basic attack, because Stun Shot
+      fires the crossbow
+- [ ] The same swordsman fires Taunting Shot (230) at the Baby Dander: no damage number appears and its
+      HP bar does not move, as for every skill that only puts a debuff on its target (Provoke, Sleep,
+      Intimidate)
 - [ ] Every hit, a monster's on a player included, draws the skill's impact on the target, not
       only the damage number
 - [ ] Hit a monster with a class skill, then again once its upgrade is learned: the impact

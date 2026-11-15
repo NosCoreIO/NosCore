@@ -31,7 +31,9 @@ public sealed record SkillInfo(
     string? CellPattern = null,
     short CastAnimation = 0,
     // Tenths of a second the caster winds up before the hit lands.
-    short CastTime = 0)
+    short CastTime = 0,
+    bool UsesSecondaryWeapon = false,
+    SkillKind Kind = SkillKind.Attack)
 {
     public bool IsAoe => HitType is TargetHitType.SingleAoeTargetHit
                          or TargetHitType.AoeTargetHit
