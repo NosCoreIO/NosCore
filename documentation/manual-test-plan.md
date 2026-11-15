@@ -2746,9 +2746,8 @@ same trust as the server's own code, so only the operator should be able to writ
 
 ### Escorts in a time-space
 
-A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`. No shipped
-script does yet: until `timespace-20` (Guards in Danger) marks the five guards (vnum 320) of its
-last room, add the flag to an `NpcSpawn` of any script in `instances/` to run these checks.
+A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`; Guards in
+Danger (`timespace-20`) does it for the five guards (vnum 320) of its last room.
 
 - [ ] An escort stands still until you walk within four cells of it; within about a second a
       sparkle plays on it and it joins you

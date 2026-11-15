@@ -192,7 +192,7 @@ public class TimeSpace20 : InstanceScript
                     r.Summon(_room14, new MonsterSpawn(59, new(17, 14), IsBonus: true));
                 }));
             }));
-        r.SummonNpcs(_room14, new NpcSpawn(320, new(18, 17)), new NpcSpawn(320, new(15, 11)), new NpcSpawn(320, new(16, 18)), new NpcSpawn(320, new(12, 16)), new NpcSpawn(320, new(12, 12)));
+        r.SummonNpcs(_room14, new NpcSpawn(320, new(18, 17), IsEscort: true), new NpcSpawn(320, new(15, 11), IsEscort: true), new NpcSpawn(320, new(16, 18), IsEscort: true), new NpcSpawn(320, new(12, 16), IsEscort: true), new NpcSpawn(320, new(12, 12), IsEscort: true));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
