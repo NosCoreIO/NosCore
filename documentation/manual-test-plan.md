@@ -2694,6 +2694,9 @@ next to them.
 - [ ] A player without the quest never sees item 1152 drop
 - [ ] Quest 1532 asks for items monsters 27 and 33 already drop for everyone: they still drop at
       their usual rate, not twice
+- [ ] Not verifiable yet: two events finishing the same quest at the same instant (an area skill
+      killing the last two monsters together) giving the reward once; the client can't time two
+      kills that closely, so a unit test covers it
 
 ### Quests offered in NPC dialogs
 
