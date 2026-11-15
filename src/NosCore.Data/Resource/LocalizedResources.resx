@@ -708,9 +708,6 @@
   <data name="CAPTURE_QUEST_PROGRESS_FAILED" xml:space="preserve">
     <value>Failed to progress capture quest for character {CharacterId}</value>
   </data>
-  <data name="UNKNOWN_PROBABILITY_WINDOW" xml:space="preserve">
-    <value>n_run ProbabilityUIs requested unknown WindowType={Raw} (NPC visualId={VisualId}); extend WindowType or add a mapping</value>
-  </data>
   <data name="SPEAKER_MESSAGE_FAILED" xml:space="preserve">
     <value>Speaker message to {CharacterId} failed</value>
   </data>

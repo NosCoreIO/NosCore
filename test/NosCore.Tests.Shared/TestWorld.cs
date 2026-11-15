@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -277,7 +278,17 @@ namespace NosCore.Tests.Shared
 
         public NpcDialogService NpcDialogService => Create<NpcDialogService>();
 
-        public List<ShopTypeServiceDto> ShopTypeServices { get; } = new();
+        public const byte UpgraderShopType = 3;
+
+        public const byte AlchemistShopType = 7;
+
+        public List<ShopTypeServiceDto> ShopTypeServices { get; } =
+        [
+            new() { ShopTypeServiceId = 1, ShopType = UpgraderShopType, Service = NpcService.EquipmentUpgrade },
+            new() { ShopTypeServiceId = 2, ShopType = AlchemistShopType, Service = NpcService.ResistanceSum },
+            new() { ShopTypeServiceId = 3, ShopType = AlchemistShopType, Service = NpcService.SpecialistCardUpgrade },
+            new() { ShopTypeServiceId = 4, ShopType = AlchemistShopType, Service = NpcService.SpecialistCardPerfection },
+        ];
 
         public NpcServiceCatalog NpcServiceCatalog => new(ShopTypeServices);
 

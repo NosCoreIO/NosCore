@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -44,6 +45,8 @@ public sealed class CellonOperation(
     : UpgradeOperation(random, localizer)
 {
     public override UpgradePacketType Kind => UpgradePacketType.CellonItem;
+
+    public override NpcService? Service => NpcService.AccessoryOption;
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.OptionAdded;
 

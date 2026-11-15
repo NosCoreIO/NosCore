@@ -784,6 +784,9 @@ shop type differs from the one its dialog opens.
       and takes no gold
 - [ ] Salim's "Purchase Family Extensions" (shop type 48, service 41) still lists the four
       extensions; another NPC's shop never does
+- [ ] An accessory shop whose type lists service 10 (e.g. 5) opens the cellon window; the
+      Alchemist's tab for the card upgrade (`n_run 12 9`) and SP Perfection (`n_run 12 41`) open there
+      and nowhere else
 
 ### Specialist points
 

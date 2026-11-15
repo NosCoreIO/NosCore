@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Networking.ClientSession;
@@ -35,8 +34,6 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         private Mock<IUpgradeOperation> _otherOperation;
         private Mock<ILogger<UpgradePacketHandler>> _logger;
         private UpgradePacketHandler _handler;
-        private const byte AlchemistShopType = 7;
-        private const byte BlacksmithShopType = 3;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -136,7 +133,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         {
             await new Spec("An upgrade an NPC's shop type offers runs at that NPC")
                 .Given(TheUpgradeIsAnNpcService)
-                .And(TheNpcsShopTypeIs_, AlchemistShopType)
+                .And(TheNpcsShopTypeIs_, TestWorld.AlchemistShopType)
                 .WhenAsync(SumResistancePacketIsHandled)
                 .Then(MatchingOperationShouldHaveExecutedExactlyOnce)
                 .ExecuteAsync();
@@ -147,7 +144,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         {
             await new Spec("An upgrade sent from an NPC whose shop type does not offer it runs nothing")
                 .Given(TheUpgradeIsAnNpcService)
-                .And(TheNpcsShopTypeIs_, BlacksmithShopType)
+                .And(TheNpcsShopTypeIs_, TestWorld.UpgraderShopType)
                 .WhenAsync(SumResistancePacketIsHandled)
                 .Then(NoOperationShouldHaveExecuted)
                 .ExecuteAsync();
@@ -165,12 +162,8 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
 
         // --- Givens ---
 
-        private void TheUpgradeIsAnNpcService()
-        {
+        private void TheUpgradeIsAnNpcService() =>
             _matchingOperation.Setup(o => o.Service).Returns(NpcService.ResistanceSum);
-            World.ShopTypeServices.Add(new ShopTypeServiceDto { ShopTypeServiceId = 1, ShopType = AlchemistShopType, Service = NpcService.ResistanceSum });
-            World.ShopTypeServices.Add(new ShopTypeServiceDto { ShopTypeServiceId = 2, ShopType = BlacksmithShopType, Service = NpcService.EquipmentUpgrade });
-        }
 
         private void TheNpcsShopTypeIs_(byte shopType)
         {

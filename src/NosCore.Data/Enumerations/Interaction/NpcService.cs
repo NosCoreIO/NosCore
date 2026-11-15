@@ -11,6 +11,7 @@ namespace NosCore.Data.Enumerations.Interaction
     {
         EquipmentUpgrade = 4,
         EquipmentRarify = 6,
+        AccessoryOption = 10,
         ResistanceSum = 12,
         SpecialistCardUpgrade = 20,
         FamilyManager = 41,

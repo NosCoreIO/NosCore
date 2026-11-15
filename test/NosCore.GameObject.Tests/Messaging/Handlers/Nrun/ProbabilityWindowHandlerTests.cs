@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ShopService;
+using NosCore.Data.Enumerations.Interaction;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,7 +38,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             var spUpgrade = new Mock<IUpgradeOperation>();
             spUpgrade.SetupGet(o => o.Kind).Returns(UpgradePacketType.UpgradeSpNoProtection);
             spUpgrade.SetupGet(o => o.Window).Returns(NpcDialogWindow.Upgrade);
-            _handler = new ProbabilityWindowHandler(new[] { spUpgrade.Object }, World.NpcDialogService);
+            spUpgrade.SetupGet(o => o.Service).Returns(NpcService.SpecialistCardUpgrade);
+            _handler = new ProbabilityWindowHandler(new[] { spUpgrade.Object }, World.NpcDialogService, World.NpcServiceCatalog);
         }
 
         [TestMethod]
@@ -45,6 +48,23 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await RunAsync(9);
 
             Assert.AreEqual(WindowType.UpgradeSpNoProtection, _session.LastPackets.OfType<WopenPacket>().Single().Type);
+        }
+
+        [TestMethod]
+        public async Task AnNpcThatDoesNotOfferTheServiceOpensNothing()
+        {
+            await RunAsync(9, TestWorld.UpgraderShopType);
+
+            Assert.IsFalse(_session.LastPackets.OfType<WopenPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task AnNpcWithoutAShopOpensNothing()
+        {
+            await _handler.HandleAsync(_session, _session.WithNpcAt(1, 1, 1),
+                new NrunPacket { Runner = NrunRunnerType.ProbabilityUIs, Type = 9 });
+
+            Assert.IsFalse(_session.LastPackets.OfType<WopenPacket>().Any());
         }
 
         [TestMethod]
@@ -72,7 +92,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             Assert.IsFalse(_session.LastPackets.OfType<WopenPacket>().Any());
         }
 
-        private Task RunAsync(short type) => _handler.HandleAsync(_session, _session.WithNpcAt(1, 1, 1),
-            new NrunPacket { Runner = NrunRunnerType.ProbabilityUIs, Type = type });
+        private Task RunAsync(short type, byte shopType = TestWorld.AlchemistShopType)
+        {
+            var npc = _session.WithNpcAt(1, 1, 1);
+            npc.Shop = new Shop { ShopType = shopType };
+            return _handler.HandleAsync(_session, npc, new NrunPacket { Runner = NrunRunnerType.ProbabilityUIs, Type = type });
+        }
     }
 }
