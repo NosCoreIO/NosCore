@@ -3256,3 +3256,5 @@ and :30; `$Event Act4Ship` opens boarding at once.
       "Character" that raises for `MapId` 130), `$Teleport 130 10 36` from Port Alveus sends no
       `mz` and the player arrives in the citadel on the same channel, instead of reconnecting to
       the Act 4 channel and being sent straight back to Port Alveus
+- [ ] In the citadel (map 130), Hemil Melius > Use Shop shows Price 150.0 and the Bell of Sweet Home at 600 gold (400 elsewhere);
+      buying one takes 600 gold. A Dreadful, Unqualified or Useless dignity raises the shop to 160, 170 or 200
