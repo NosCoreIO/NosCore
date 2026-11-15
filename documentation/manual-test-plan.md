@@ -3694,6 +3694,15 @@ Two characters on a Glacernon hunting map such as 132, both hitting the same mon
 - [ ] With a full bag the drop arrives by parcel instead
 - [ ] The same monster on a normal map still drops its items and gold on the ground
 
+### Sealed Vessel
+
+A character with a few Sealed Vessels (1945) in the Main bag.
+
+- [ ] Double-clicking one in NosVille releases one sealed monster (Sealed Pink Jelly to Sealed
+      Slade Golem, level 70) on the character's cell, and the stack drops by one
+- [ ] The released monster does not come back once killed
+- [ ] In Glacernon the vessel is refused with "That cannot be used here." and the stack is kept
+
 ### Lord Mukraju and the Glacernon raids
 
 A side needs 100 kills to fill its bar. Both characters need a family and level 60 or more.

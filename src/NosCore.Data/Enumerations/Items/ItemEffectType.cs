@@ -87,6 +87,8 @@ namespace NosCore.Data.Enumerations.Items
         Vehicle = 1000,
         // A map item a raid collect quest counts when it is picked up; it never reaches the bag.
         RaidCollectQuestItem = 2001,
+        // Releases one of the monsters its item's ItemSummon rows list, where the player stands.
+        SealedVessel = 1002,
         GoldNosMerchantUpgrade = 1003,
         SilverNosMerchantUpgrade = 1004,
         PetSpaceUpgrade = 1006,
