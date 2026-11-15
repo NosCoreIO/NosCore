@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
@@ -54,9 +55,18 @@ namespace NosCore.GameObject.Services.FamilyService
         public Task InstantCombatWonAsync(long familyId, long characterId) =>
             AdvanceAsync(familyId, characterId, FamilyQuestObjective.InstantCombat);
 
-        private async Task AdvanceAsync(long familyId, long? characterId, FamilyQuestObjective objective)
+        // The history's raid line is for Glacernon family raids, so an ordinary raid only counts towards the missions.
+        public async Task RaidWonAsync(long familyId, IReadOnlyCollection<long> characterIds, byte raidId, bool isHeroic)
         {
-            var gain = await familyHub.AdvanceQuestsAsync(familyId, characterId, objective, 1);
+            foreach (var characterId in characterIds)
+            {
+                await AdvanceAsync(familyId, characterId, isHeroic ? FamilyQuestObjective.HeroicRaid : FamilyQuestObjective.Raid, raidId);
+            }
+        }
+
+        private async Task AdvanceAsync(long familyId, long? characterId, FamilyQuestObjective objective, int? parameter = null)
+        {
+            var gain = await familyHub.AdvanceQuestsAsync(familyId, characterId, objective, 1, parameter);
             await AnnounceAsync(familyId, gain ?? new FamilyExperienceGain(0, false));
         }
 

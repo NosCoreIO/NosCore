@@ -2312,8 +2312,14 @@ Open the family window's Missions button and pick "Daily Challenges" in the filt
       gets its 3 000 FXP and the entry shows today's date
 - [ ] A second win by the same member on the same day does not count
 - [ ] The next day the mission shows as not started, with its total kept
-- [ ] Not verifiable yet: the other missions (raids, Rainbow Battle, Glacernon), which have
-      nothing that counts them yet
+- [ ] Winning the Mother Cuby raid moves "[Daily] Complete the Mother Cuby Raid 5 Times" to
+      "[1/5]" and leaves the other raids' missions untouched
+- [ ] A second Mother Cuby win by the same member on the same day does not count; another
+      member's win does
+- [ ] A raid win writes nothing to the family history: its "Raid" line is for Glacernon family
+      raids
+- [ ] Not verifiable yet: Rainbow Battle and Glacernon missions, and the hardcore raid missions
+      and achievements, which have no hardcore raid to count them yet
 
 ---
 

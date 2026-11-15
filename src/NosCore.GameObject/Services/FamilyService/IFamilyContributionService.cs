@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService
@@ -22,5 +23,8 @@ namespace NosCore.GameObject.Services.FamilyService
         Task DailyMessageWrittenAsync(long familyId);
 
         Task InstantCombatWonAsync(long familyId, long characterId);
+
+        // Once per family taking part in the run, however many of its members finished it.
+        Task RaidWonAsync(long familyId, IReadOnlyCollection<long> characterIds, byte raidId, bool isHeroic);
     }
 }
