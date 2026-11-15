@@ -377,6 +377,10 @@ namespace NosCore.GameObject.Services.RaidService
             if (state == EndStateType.Success)
             {
                 var winners = run.Players().Where(s => s.HasPlayerEntity).ToList();
+                var familyWinners = winners
+                    .Select(s => s.Character.Family is { } family ? new RaidWinner(family.FamilyId, s.Character.CharacterId) : null)
+                    .OfType<RaidWinner>()
+                    .ToList();
                 foreach (var member in winners)
                 {
                     await RewardAsync(member, raid);
@@ -388,10 +392,6 @@ namespace NosCore.GameObject.Services.RaidService
 
                 if (raid.Definition is { } won)
                 {
-                    var familyWinners = winners
-                        .Select(s => s.Character.Family is { } family ? new RaidWinner(family.FamilyId, s.Character.CharacterId) : null)
-                        .OfType<RaidWinner>()
-                        .ToList();
                     await messageBus.PublishAsync(new RaidWonEvent(familyWinners, won.Id, raid.IsHeroic));
                 }
             }
