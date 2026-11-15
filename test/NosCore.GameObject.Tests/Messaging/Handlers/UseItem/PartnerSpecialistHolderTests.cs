@@ -167,7 +167,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         private SpecialistInstance? WornCard() =>
-            Session.Character.InventoryService.LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.FirstPartnerInventory)
+            Session.Character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.FirstPartnerInventory)
                 ?.ItemInstance as SpecialistInstance;
 
         private void ThePartnerStillWearsTheCard() => Assert.IsNotNull(WornCard());

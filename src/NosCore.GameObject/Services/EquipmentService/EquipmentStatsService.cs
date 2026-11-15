@@ -139,7 +139,7 @@ public sealed class EquipmentStatsService(
                 stats = stats with
                 {
                     MpConsumptionDecrease = stats.MpConsumptionDecrease
-                        + options.Where(o => o.Type == (byte)CellonType.MpConsumption).Sum(o => o.Value),
+                        + options.Where(o => o.Cellon() == CellonType.MpConsumption).Sum(o => o.Value),
                 };
             }
             else if (piece.Item.EquipmentSlot is EquipmentType.MainWeapon or EquipmentType.SecondaryWeapon)
@@ -151,9 +151,9 @@ public sealed class EquipmentStatsService(
                 stats = stats with
                 {
                     MpConsumptionDecrease = stats.MpConsumptionDecrease
-                        + options.Where(o => o.Type == (byte)WeaponShellOptionType.ReducedMpConsumption).Sum(o => o.Value),
+                        + options.Where(o => o.WeaponShell() == WeaponShellOptionType.ReducedMpConsumption).Sum(o => o.Value),
                     MapBossDamagePercent = stats.MapBossDamagePercent
-                        + options.Where(o => o.Type == (byte)WeaponShellOptionType.IncreasedDamageToMapBosses).Sum(o => o.Value),
+                        + options.Where(o => o.WeaponShell() == WeaponShellOptionType.IncreasedDamageToMapBosses).Sum(o => o.Value),
                     PvpShell = AddPvpShell(stats.PvpShell, options),
                 };
             }
@@ -249,7 +249,7 @@ public sealed class EquipmentStatsService(
     {
         var options = weapons.OfType<WearableInstance>().SelectMany(Options).ToList();
         int Sum(WeaponShellOptionType type) =>
-            options.Where(o => o.Type == (byte)type).Sum(o => o.Value);
+            options.Where(o => o.WeaponShell() == type).Sum(o => o.Value);
         var all = Sum(WeaponShellOptionType.IncreasedSlAll);
         return new SpecialistLevelBoost(
             Sum(WeaponShellOptionType.IncreasedSlDamage) + all,
@@ -263,7 +263,7 @@ public sealed class EquipmentStatsService(
         piece.EquipmentOptions ??= equipmentOptionDao.Where(o => o.WearableInstanceId == piece.Id)?.ToList() ?? [];
 
     // MP consumption has no effect card: it is read straight off the gear when a skill is paid for.
-    private static BCardDto? CellonBCard(EquipmentOptionDto option) => OptionBCard(option, (CellonType)option.Type switch
+    private static BCardDto? CellonBCard(EquipmentOptionDto option) => OptionBCard(option, option.Cellon() switch
     {
         CellonType.Hp => BCardEffect.MaxHpmpMaximumHpIncreased,
         CellonType.Mp => BCardEffect.MaxHpmpMaximumMpIncreased,
@@ -275,7 +275,7 @@ public sealed class EquipmentStatsService(
 
     // The SL options raise the specialist card and the race options go to RaceDamage instead.
     // The debuff options carry a card as well as a chance, so WeaponShellHitCard builds them.
-    private static BCardDto? WeaponShellBCard(EquipmentOptionDto option) => OptionBCard(option, (WeaponShellOptionType)option.Type switch
+    private static BCardDto? WeaponShellBCard(EquipmentOptionDto option) => OptionBCard(option, option.WeaponShell() switch
     {
         WeaponShellOptionType.EnhancedDamage => BCardEffect.AttackPowerAllAttacksIncreased,
         WeaponShellOptionType.IncreasedDamage => BCardEffect.DamageDamageIncreased,
@@ -296,8 +296,8 @@ public sealed class EquipmentStatsService(
     // The PvP damage option is a plain PvP attack bonus and goes through WeaponShellBCard.
     private static PvpShellStats AddPvpShell(PvpShellStats pvp, IReadOnlyCollection<EquipmentOptionDto> options)
     {
-        int Sum(WeaponShellOptionType type) => options.Where(o => o.Type == (byte)type).Sum(o => o.Value);
-        bool Has(WeaponShellOptionType type) => options.Any(o => o.Type == (byte)type);
+        int Sum(WeaponShellOptionType type) => options.Where(o => o.WeaponShell() == type).Sum(o => o.Value);
+        bool Has(WeaponShellOptionType type) => options.Any(o => o.WeaponShell() == type);
         var all = Sum(WeaponShellOptionType.PvpReducedEnemyAllResistances);
         return pvp with
         {
@@ -326,7 +326,7 @@ public sealed class EquipmentStatsService(
             new(MonsterRace.HighLevel, type, option.Value),
         ];
 
-        return (WeaponShellOptionType)option.Type switch
+        return option.WeaponShell() switch
         {
             WeaponShellOptionType.IncreasedDamageToPlants => Levelled(MonsterRaceType.Plant),
             WeaponShellOptionType.IncreasedDamageToAnimals => Levelled(MonsterRaceType.Animal),
@@ -341,7 +341,7 @@ public sealed class EquipmentStatsService(
     // 189 to 191, Blackout and Deadly Blackout 196 and 197, Freeze 200.
     private static BCardDto? WeaponShellHitCard(EquipmentOptionDto option)
     {
-        short? card = (WeaponShellOptionType)option.Type switch
+        short? card = option.WeaponShell() switch
         {
             WeaponShellOptionType.MinorBleeding => 189,
             WeaponShellOptionType.Bleeding => 190,
@@ -362,7 +362,7 @@ public sealed class EquipmentStatsService(
             : null;
     }
 
-    private static BCardDto? ArmorShellBCard(EquipmentOptionDto option) => OptionBCard(option, (ArmorShellOptionType)option.Type switch
+    private static BCardDto? ArmorShellBCard(EquipmentOptionDto option) => OptionBCard(option, option.ArmorShell() switch
     {
         ArmorShellOptionType.EnhancedMeleeDefence => BCardEffect.DefenceMeleeIncreased,
         ArmorShellOptionType.EnhancedRangedDefence => BCardEffect.DefenceRangedIncreased,
@@ -386,7 +386,7 @@ public sealed class EquipmentStatsService(
     // not count.
     private static WearableInstance? Worn(PlayerComponentBundle character, EquipmentType slot) =>
         character.InventoryService?
-            .LoadBySlotAndType((byte)slot, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
+            .LoadBySlotAndType(slot, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
 
     private static int Sum(short? instanceValue, short? itemValue) =>
         (instanceValue ?? 0) + (itemValue ?? 0);

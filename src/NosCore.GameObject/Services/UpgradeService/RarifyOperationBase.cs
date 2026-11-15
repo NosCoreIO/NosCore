@@ -205,7 +205,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         outcome == UpgradeOutcome.ProtectedSave && !IsProtected && ctx.Data<RarifyRollState>().Amulet is not null;
 
     private static InventoryItemInstance? WornBettingAmulet(ClientSession session) =>
-        session.Character.InventoryService.LoadBySlotAndType((short)EquipmentType.Amulet, NoscorePocketType.Wear) is
+        session.Character.InventoryService.LoadBySlotAndType(EquipmentType.Amulet, NoscorePocketType.Wear) is
         {
             ItemInstance.Item.Effect: ItemEffectType.RedAmulet or ItemEffectType.BlueAmulet,
         } amulet
