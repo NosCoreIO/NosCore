@@ -20,7 +20,8 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public sealed class PartnerEquipmentService(IPartnerSpecialistService partnerSpecialistService)
+    public sealed class PartnerEquipmentService(IPartnerSpecialistService partnerSpecialistService,
+            IPartnerSkillCatalog partnerSkillCatalog)
         : IPartnerEquipmentService, ISingletonService
     {
         private const byte PartnerWeaponSubType = 12;
@@ -53,7 +54,7 @@ namespace NosCore.GameObject.Services.MateService
 
             var swapped = character.InventoryService.LoadBySlotAndType(equipmentSlot, NoscorePocketType.Equipment);
             await character.SendPacketAsync(swapped.GeneratePocketChange(PocketType.Equipment, equipmentSlot));
-            await character.SendPacketAsync(mate.GenerateScn(character.AccountLanguage, character.InventoryService));
+            await character.SendPacketAsync(mate.GenerateScn(character.AccountLanguage, character.InventoryService, partnerSkillCatalog));
         }
 
         public async Task RemoveAsync(PlayerComponentBundle character, EquipmentType slot, byte partnerSlot)
@@ -83,7 +84,7 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             await character.SendPacketAsync(removed.GeneratePocketChange(PocketType.Equipment, removed.Slot));
-            await character.SendPacketAsync(mate.GenerateScn(character.AccountLanguage, character.InventoryService));
+            await character.SendPacketAsync(mate.GenerateScn(character.AccountLanguage, character.InventoryService, partnerSkillCatalog));
         }
 
         private static Mate? FindPartner(PlayerComponentBundle character, byte partnerSlot) =>

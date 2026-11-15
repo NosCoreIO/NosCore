@@ -77,7 +77,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             _service = new CaptureService(World.MateDao, _mateService,
                 new Mock<Wolverine.IMessageBus>().Object, World.Clock, _random.Object,
-                World.DistanceCalculator);
+                World.DistanceCalculator,
+                World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
 
             map.LastPackets.Clear();
             _session.LastPackets.Clear();
@@ -182,7 +183,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     return await World.MateDao.TryInsertOrUpdateAsync(row);
                 });
             service = new CaptureService(dao.Object, _mateService, new Mock<Wolverine.IMessageBus>().Object,
-                World.Clock, _random.Object, World.DistanceCalculator);
+                World.Clock, _random.Object, World.DistanceCalculator,
+                World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
 
             await service.TryCaptureAsync(_session.Character, _monster, Capture);
 

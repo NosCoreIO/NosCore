@@ -91,7 +91,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             var mateService = new MateServiceImpl(World.MateDao, Creatures.Values.ToList(),
                 new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             Captures = new CaptureService(World.MateDao, mateService, Bus.Object,
-                World.Clock, random.Object, World.DistanceCalculator);
+                World.Clock, random.Object, World.DistanceCalculator,
+                World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
         }
 
         [TestMethod]

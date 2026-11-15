@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Services.MateService
         ISessionRegistry sessionRegistry,
         IClock clock,
         IPartnerSpecialistService partnerSpecialistService,
+        IPartnerSkillCatalog partnerSkillCatalog,
         IPetSkillBarService petSkillBarService,
         ILogger<MateRevivalService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IMateRevivalService, ISingletonService
     {
@@ -51,7 +52,7 @@ namespace NosCore.GameObject.Services.MateService
                 mate.IsTeamMember = false;
                 mate.Refill();
                 await owner.SendPacketAsync(Message(Game18NConstString.NosMateDeadNoMorePowerSeed));
-                await owner.SendPacketsAsync(owner.GenerateMateRoster());
+                await owner.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
                 await owner.SendPacketAsync(owner.GeneratePinit());
                 return;
             }

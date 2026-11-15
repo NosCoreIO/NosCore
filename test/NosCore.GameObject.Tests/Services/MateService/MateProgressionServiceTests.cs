@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _session.Character.Level = 30;
-            _service = new MateProgressionService(World.Create<MateStatsService>());
+            _service = new MateProgressionService(World.Create<MateStatsService>(), World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
         }
 
         private Mate AddPet(bool isTeamMember = true, byte level = 10)

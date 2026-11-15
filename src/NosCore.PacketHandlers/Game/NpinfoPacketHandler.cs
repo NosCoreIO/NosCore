@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.MateService;
 using System.Threading.Tasks;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
@@ -12,12 +13,12 @@ using NosCore.Packets.ClientPackets.Player;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public sealed class NpinfoPacketHandler
+    public sealed class NpinfoPacketHandler(IPartnerSkillCatalog partnerSkillCatalog)
         : PacketHandler<NpInfoPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(NpInfoPacket packet, ClientSession session)
         {
-            return session.SendPacketsAsync(session.Character.GenerateMateRoster());
+            return session.SendPacketsAsync(session.Character.GenerateMateRoster(partnerSkillCatalog));
         }
     }
 }

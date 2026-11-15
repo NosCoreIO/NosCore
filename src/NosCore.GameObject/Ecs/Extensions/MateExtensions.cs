@@ -112,15 +112,17 @@ namespace NosCore.GameObject.Ecs.Extensions
         private static short SkillAt(IReadOnlyList<SkillDto>? skills, int slot, short empty = 0) =>
             skills != null && slot < skills.Count ? skills[slot].SkillVNum : empty;
 
-        private static ScnPacket.ScSkillDetails? SkillDetails(IReadOnlyList<SkillDto>? skills, int slot) =>
-            skills != null && slot < skills.Count
-                ? new ScnPacket.ScSkillDetails { SkillId = skills[slot].SkillVNum, Rank = SpPartnerRank.NotIdentifiedYet }
+        public static ScnPacket.ScSkillDetails? PartnerSkillDetails(this SpecialistInstance card,
+            IReadOnlyList<SkillDto> cardSkills, int slot) =>
+            slot < cardSkills.Count
+                ? new ScnPacket.ScSkillDetails { SkillId = cardSkills[slot].SkillVNum, Rank = card.PartnerSkillRank(slot) }
                 : null;
 
         public static ScnPacket GenerateScn(this Mate mate, RegionType language, IInventoryService inventory,
-            IReadOnlyList<SkillDto>? skills = null)
+            IPartnerSkillCatalog partnerSkills)
         {
             var specialist = mate.Specialist(inventory);
+            var cardSkills = specialist is null ? [] : partnerSkills.CardSkills(specialist);
             return new ScnPacket
             {
                 PetId = mate.PetSlot,
@@ -159,10 +161,12 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Name = mate.DisplayName(language),
                 MorphId = mate.Morph(),
                 IsSummonable = mate.IsSummonable,
-                SpDetails = specialist is null ? null : new ScnPacket.ScSpDetails { ItemId = specialist.ItemVNum },
-                Skill1Details = SkillDetails(skills, 0),
-                Skill2Details = SkillDetails(skills, 1),
-                Skill3Details = SkillDetails(skills, 2),
+                SpDetails = specialist is null
+                    ? null
+                    : new ScnPacket.ScSpDetails { ItemId = specialist.ItemVNum, AgilityPercentage = specialist.Agility },
+                Skill1Details = specialist?.PartnerSkillDetails(cardSkills, 0),
+                Skill2Details = specialist?.PartnerSkillDetails(cardSkills, 1),
+                Skill3Details = specialist?.PartnerSkillDetails(cardSkills, 2),
                 Unknown6 = specialist is null ? null : (byte)0
             };
         }

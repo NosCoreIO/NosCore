@@ -110,7 +110,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 Minilands.Object,
                 [new QuestDto { QuestId = 1 }, new QuestDto { QuestId = 6042 }],
                 World.Clock,
-                ChannelService.Object);
+                ChannelService.Object,
+                World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
         }
 
         [TestMethod]

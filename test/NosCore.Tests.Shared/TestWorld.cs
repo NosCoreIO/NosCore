@@ -151,6 +151,7 @@ namespace NosCore.Tests.Shared
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
+            Fixture.UseReal<GameObject.Services.MateService.IPartnerSkillCatalog, GameObject.Services.MateService.PartnerSkillCatalog>();
             Fixture.Freeze<Mock<IMinilandService>>()
                 .Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.Map.Portal>());
 

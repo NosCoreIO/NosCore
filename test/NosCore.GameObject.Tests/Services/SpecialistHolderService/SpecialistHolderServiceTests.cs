@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
             });
             await base.SetupAsync();
             _service = new GameObject.Services.SpecialistHolderService.SpecialistHolderService(ItemProvider);
-            _takeOut = new SpecialistHolderHandler(_service);
+            _takeOut = new SpecialistHolderHandler(_service, World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
         }
 
         [TestMethod]

@@ -28,8 +28,8 @@ namespace NosCore.GameObject.Services.MateService
         /// <summary>The skills of the card a transformed partner wears, in skill bar order; none when it is not transformed.</summary>
         IReadOnlyList<SkillDto> Skills(PlayerComponentBundle owner, Mate partner);
 
-        /// <summary>The skills a partner card gives, in skill bar order.</summary>
-        IReadOnlyList<SkillDto> CardSkills(SpecialistInstance card);
+        /// <summary>Gives the skill in a slot of a partner's card a rank, once the card's agility is full.</summary>
+        Task LearnSkillAsync(PlayerComponentBundle owner, byte petSlot, byte skillSlot);
 
         /// <summary>Casts the skill in a slot of a transformed partner's skill bar.</summary>
         Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target);

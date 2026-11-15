@@ -159,9 +159,11 @@ public static class PlayerBundleExtensions
     public static bool IsInCombat(this PlayerComponentBundle player, Instant now) =>
         now - player.LastAttack < CombatWindow || now - player.LastDamaged < CombatWindow;
 
-    public static IEnumerable<IPacket> GenerateMateRoster(this PlayerComponentBundle player) =>
+    public static IEnumerable<IPacket> GenerateMateRoster(this PlayerComponentBundle player,
+        IPartnerSkillCatalog partnerSkills) =>
         new IPacket[] { new PclearPacket() }
-            .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage, player.InventoryService));
+            .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage, player.InventoryService,
+                partnerSkills));
 
     public static Task RestAsync(this PlayerComponentBundle player)
     {
