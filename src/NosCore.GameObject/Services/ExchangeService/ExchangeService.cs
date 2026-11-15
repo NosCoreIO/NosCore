@@ -21,7 +21,6 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -86,7 +85,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                     return false;
                 }
 
-                data.ExchangeItems = new ConcurrentDictionary<InventoryItemInstance, short>(items);
+                data.ExchangeItems = new OrderedDictionary<InventoryItemInstance, short>(items);
                 data.Gold = gold;
                 data.BankGold = bankGold;
                 data.ExchangeConfirmed = false;

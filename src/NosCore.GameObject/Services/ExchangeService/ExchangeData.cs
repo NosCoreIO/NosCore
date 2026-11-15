@@ -6,7 +6,7 @@
 
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.TransferService;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,7 +31,8 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         public ExchangeData Partner => ReferenceEquals(Settlement.Initiator, this) ? Settlement.Target : Settlement.Initiator;
 
-        public ConcurrentDictionary<InventoryItemInstance, short> ExchangeItems { get; set; } = new();
+        // Kept in the order offered: the trade window shows and asks about the cells in that order.
+        public OrderedDictionary<InventoryItemInstance, short> ExchangeItems { get; set; } = new();
 
         public long Gold { get; set; }
 

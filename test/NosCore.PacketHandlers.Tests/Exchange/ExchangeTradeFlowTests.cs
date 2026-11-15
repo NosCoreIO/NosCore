@@ -649,7 +649,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void NothingIsOffered()
         {
-            Assert.IsTrue(Requester.Character.Exchange?.ExchangeItems.IsEmpty ?? true);
+            Assert.AreEqual(0, Requester.Character.Exchange?.ExchangeItems.Count ?? 0);
         }
     }
 }

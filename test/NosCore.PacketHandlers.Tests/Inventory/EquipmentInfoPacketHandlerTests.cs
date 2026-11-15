@@ -4,16 +4,19 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemInfoService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
@@ -37,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             itemInfoService.Setup(s => s.GenerateInfo(It.Is<IItemInstance>(i => i.ItemVNum == 1 || i.ItemVNum == 912))).Returns(_info);
             var itemCatalog = new Mock<IItemCatalog>();
             itemCatalog.Setup(c => c.GetItem(1)).Returns(new ItemDto { VNum = 1 });
-            _handler = new EquipmentInfoPacketHandler(itemInfoService.Object, itemCatalog.Object, ItemProvider);
+            _handler = new EquipmentInfoPacketHandler(itemInfoService.Object, itemCatalog.Object, ItemProvider, World.SessionRegistry);
         }
 
         [TestMethod]
@@ -108,14 +111,76 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         [TestMethod]
-        public async Task AnUnhandledSourceSendsNothing()
+        public async Task AnItemInTheTradePartnersOfferIsFoundByItsCell()
         {
-            await new Spec("An unhandled source sends nothing")
-                .Given(AWeaponIsInEquipmentSlot_, (short)0)
-                .WhenAsync(AskingForInfoOn_Slot_, (EquipmentInfoType)5, (short)0)
+            await new Spec("An item in the trade partner's offer is found by its cell")
+                .Given(ThePartnerOffersAPotionThenAWeapon)
+                .WhenAsync(AskingAbout_CellOfTheOfferOf_, (short)1, PartnerId)
+                .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOfferOfSomeoneElseThanTheTradePartnerSendsNothing()
+        {
+            await new Spec("An offer of someone else than the trade partner sends nothing")
+                .Given(ThePartnerOffersAPotionThenAWeapon)
+                .WhenAsync(AskingAbout_CellOfTheOfferOf_, (short)1, PartnerId + 1)
                 .Then(NothingIsSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AnItemInAPlayersShopIsFoundByItsSlot()
+        {
+            await new Spec("An item in a player's shop is found by its slot")
+                .GivenAsync(AnotherPlayerSellsAWeaponInSlot_, (byte)3)
+                .WhenAsync(AskingAboutSlot_OfTheShop, (short)3)
+                .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEmptySlotOfAPlayersShopSendsNothing()
+        {
+            await new Spec("An empty slot of a player's shop sends nothing")
+                .GivenAsync(AnotherPlayerSellsAWeaponInSlot_, (byte)3)
+                .WhenAsync(AskingAboutSlot_OfTheShop, (short)2)
+                .Then(NothingIsSent)
+                .ExecuteAsync();
+        }
+
+        private const long PartnerId = 77;
+        private long _sellerId;
+
+        private void ThePartnerOffersAPotionThenAWeapon()
+        {
+            var own = ExchangeData.Pair(Session.Character.VisualId, PartnerId).Initiator;
+            own.Partner.ExchangeItems = new OrderedDictionary<InventoryItemInstance, short>
+            {
+                [InventoryItemInstance.Create(ItemProvider.Create(1012, 1), PartnerId)] = 1,
+                [InventoryItemInstance.Create(ItemProvider.Create(1, 1), PartnerId)] = 1,
+            };
+            Session.Character.Exchange = own;
+        }
+
+        private Task AskingAbout_CellOfTheOfferOf_(short cell, long partnerId) =>
+            _handler.ExecuteAsync(new EquipmentInfoPacket { Type = EquipmentInfoType.Exchange, Slot = cell, ShopOwnerId = partnerId }, Session);
+
+        private async Task AnotherPlayerSellsAWeaponInSlot_(byte slot)
+        {
+            var seller = await World.CreateSessionAsync();
+            _sellerId = seller.Character.VisualId;
+            var shop = new Shop();
+            shop.ShopItems[0] = new ShopItem { Slot = slot, ItemInstance = ItemProvider.Create(1, 1), Price = 10, Amount = 1 };
+            seller.Character.Shop = shop;
+        }
+
+        private Task AskingAboutSlot_OfTheShop(short slot) =>
+            _handler.ExecuteAsync(new EquipmentInfoPacket
+            {
+                Type = EquipmentInfoType.PersonalShop, Slot = slot, ShopOwnerId = _sellerId
+            }, Session);
 
         private void AWeaponIsInEquipmentSlot_(short slot) =>
             Session.Character.InventoryService.AddItemToPocket(
