@@ -20,6 +20,7 @@ namespace NosCore.PacketHandlers.Game
         public override Task ExecuteAsync(BscPacket packet, ClientSession session) => packet.Type switch
         {
             BscPacketType.TalentArena => talentArenaService.CancelAsync(session, packet.Option == 1),
+            BscPacketType.ArenaOfMasters => talentArenaService.CancelAsync(session, true),
             BscPacketType.RainbowBattle => rainbowBattleService.CancelAsync(session),
             _ => Task.CompletedTask,
         };

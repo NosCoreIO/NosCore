@@ -38,8 +38,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.TalentArenaService
 {
-    // Players register alone in the arena and are put into teams of three of similar level; two
-    // teams then fight a match in their own copy of the ring, which runs from its script.
+    // In the Arena of Talents players register alone and are put into teams of three of similar
+    // level; in the Arena of Masters a party of three registers together. Two teams of the same
+    // arena then fight a match in their own copy of the ring, which runs from its script.
     public class TalentArenaService(
         IScriptedInstanceService scriptedInstanceService,
         IMapChangeService mapChangeService,
@@ -51,6 +52,8 @@ namespace NosCore.GameObject.Services.TalentArenaService
         public const string Script = "talent-arena";
 
         public static readonly TimeSpan OpenLength = TimeSpan.FromHours(4);
+        public static readonly TimeSpan MastersOpenLength = TimeSpan.FromHours(7);
+        public const int MasterPointsPerWin = 1;
         public static readonly TimeSpan SearchTime = TimeSpan.FromMinutes(5);
         public const int CallsPerTeam = 5;
         public static readonly TimeSpan CallDelay = TimeSpan.FromSeconds(3);
@@ -61,41 +64,35 @@ namespace NosCore.GameObject.Services.TalentArenaService
         private readonly SemaphoreSlim _lock = new(1, 1);
         private readonly List<Registrant> _registrants = new();
         private readonly ConcurrentDictionary<ScriptedInstanceRun, byte> _matches = new();
+        private readonly ConcurrentDictionary<ArenaKind, long> _openedAt = new();
         private IInstanceScript? _script;
         private int _running;
         private int _nextTeam;
 
-        public bool IsOpen => Volatile.Read(ref _running) == 1;
+        public bool IsOpen => _openedAt.ContainsKey(ArenaKind.Talents);
 
-        public bool TryStart()
+        public bool IsMastersOpen => _openedAt.ContainsKey(ArenaKind.Masters);
+
+        public bool TryStart() => TryOpen(ArenaKind.Talents);
+
+        public bool TryStartMasters() => TryOpen(ArenaKind.Masters);
+
+        private bool TryOpen(ArenaKind kind)
         {
-            if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
+            if (!_openedAt.TryAdd(kind, time.GetTimestamp()))
             {
                 return false;
             }
 
-            _ = Task.Run(async () =>
+            if (Interlocked.CompareExchange(ref _running, 1, 0) == 0)
             {
-                try
-                {
-                    _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
-                    if (_script != null)
-                    {
-                        await RunAsync();
-                    }
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, logLanguage[LogLanguageKey.TALENT_ARENA_FAILED]);
-                }
-                finally
-                {
-                    await CloseRegistrationAsync();
-                    Volatile.Write(ref _running, 0);
-                }
-            });
+                _ = Task.Run(RunAsync);
+            }
+
             return true;
         }
+
+        private static TimeSpan OpenLengthOf(ArenaKind kind) => kind == ArenaKind.Masters ? MastersOpenLength : OpenLength;
 
         public async Task RegisterAsync(ClientSession session)
         {
@@ -131,7 +128,72 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     Team = Interlocked.Increment(ref _nextTeam),
                     SecondsLeft = (int)SearchTime.TotalSeconds,
                 });
-                await player.SendPacketAsync(Search(BsInfoMode.Open, (short)SearchTime.TotalSeconds, BsInfoText.SearchTeammates));
+                await player.SendPacketAsync(Search(ArenaKind.Talents, BsInfoMode.Open, (short)SearchTime.TotalSeconds, BsInfoText.SearchTeammates));
+            }
+            finally
+            {
+                _lock.Release();
+            }
+        }
+
+        public async Task RegisterMastersAsync(ClientSession session)
+        {
+            var player = session.Character;
+            if (!IsMastersOpen)
+            {
+                await player.SendPacketAsync(Message(Game18NConstString.ArenaOfMasterOver));
+                return;
+            }
+
+            if (player.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance)
+            {
+                await player.SendPacketAsync(Message(Game18NConstString.RegisterAtArena));
+                return;
+            }
+
+            if (player.Group.Count != TalentArenaTeams.TeamSize)
+            {
+                await player.SendPacketAsync(Message(Game18NConstString.ThreeMemberInGroupRequired));
+                return;
+            }
+
+            var members = player.Group.Keys.Where(k => k.Item1 == VisualType.Player)
+                .Select(k => Session(k.Item2)).ToList();
+            if (members.Any(m => m == null || m.Character.MapInstanceId != player.MapInstanceId))
+            {
+                await player.SendPacketAsync(Message(Game18NConstString.AllParticipantMustStayOnMap));
+                return;
+            }
+
+            var party = members.OfType<ClientSession>().ToList();
+            if (party.Any(m => m.Character.CharacterDto.MasterTicket < 1))
+            {
+                await player.SendPacketAsync(Message(Game18NConstString.OneParticipantsNumberofEntriesIsTooLowForTheArenaofMasters));
+                return;
+            }
+
+            await _lock.WaitAsync();
+            try
+            {
+                if (party.Any(m => m.Character.TalentArenaTeam != null || _registrants.Any(r => r.CharacterId == m.Character.CharacterId)))
+                {
+                    await player.SendPacketAsync(Message(Game18NConstString.AmongTheUsersThereArePlayersWhoAreAlreadyRegistered));
+                    return;
+                }
+
+                var team = Interlocked.Increment(ref _nextTeam);
+                foreach (var member in party)
+                {
+                    var character = member.Character;
+                    _registrants.Add(new Registrant(character.CharacterId, character.MapInstanceId, character.PositionX, character.PositionY)
+                    {
+                        Kind = ArenaKind.Masters,
+                        Team = team,
+                        SecondsLeft = (int)SearchTime.TotalSeconds,
+                    });
+                    await member.SendPacketAsync(Search(ArenaKind.Masters, BsInfoMode.Open, (short)SearchTime.TotalSeconds,
+                        BsInfoText.SearchOpposingTeam));
+                }
             }
             finally
             {
@@ -150,6 +212,12 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     return;
                 }
 
+                if (registrant.Kind == ArenaKind.Masters)
+                {
+                    await WithdrawPartyAsync(registrant);
+                    return;
+                }
+
                 var teammates = _registrants.Where(r => r.Team == registrant.Team && r != registrant).ToList();
                 if (teammates.Count > 0 && !confirmed)
                 {
@@ -162,7 +230,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 }
 
                 _registrants.Remove(registrant);
-                await session.SendPacketAsync(Search(BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
+                await session.SendPacketAsync(Search(ArenaKind.Talents, BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
                 foreach (var teammate in teammates)
                 {
                     teammate.Next = BsInfoText.SearchTeammatesAgain;
@@ -225,25 +293,64 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 ? run.RunHostAsync(() => match.CallAsync(run, session.Character, calledIndex))
                 : Task.CompletedTask;
 
+        // Runs while either arena is open; each closes on its own once its opening time is over.
         private async Task RunAsync()
         {
-            var started = time.GetTimestamp();
-            for (var step = 1; Tick * step <= OpenLength; step++)
+            try
             {
+                _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
+                if (_script == null)
+                {
+                    _openedAt.Clear();
+                }
+
+                while (!_openedAt.IsEmpty)
+                {
+                    await _lock.WaitAsync();
+                    try
+                    {
+                        foreach (var (kind, openedAt) in _openedAt.ToList())
+                        {
+                            if (time.GetElapsedTime(openedAt) >= OpenLengthOf(kind))
+                            {
+                                await CloseRegistrationAsync(kind);
+                                _openedAt.TryRemove(kind, out _);
+                            }
+                        }
+
+                        await MatchmakeAsync();
+                    }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
+                    await Task.Delay(Tick, time);
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, logLanguage[LogLanguageKey.TALENT_ARENA_FAILED]);
                 await _lock.WaitAsync();
                 try
                 {
-                    await MatchmakeAsync();
+                    foreach (var kind in _openedAt.Keys.ToList())
+                    {
+                        await CloseRegistrationAsync(kind);
+                        _openedAt.TryRemove(kind, out _);
+                    }
                 }
                 finally
                 {
                     _lock.Release();
                 }
-
-                var wait = Tick * step - time.GetElapsedTime(started);
-                if (wait > TimeSpan.Zero)
+            }
+            finally
+            {
+                Volatile.Write(ref _running, 0);
+                if (!_openedAt.IsEmpty && Interlocked.CompareExchange(ref _running, 1, 0) == 0)
                 {
-                    await Task.Delay(wait, time);
+                    _ = Task.Run(RunAsync);
                 }
             }
         }
@@ -253,6 +360,17 @@ namespace NosCore.GameObject.Services.TalentArenaService
             foreach (var gone in _registrants.Where(r => Session(r.CharacterId) is not { } s
                          || s.Character.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance).ToList())
             {
+                if (!_registrants.Contains(gone))
+                {
+                    continue;
+                }
+
+                if (gone.Kind == ArenaKind.Masters)
+                {
+                    await WithdrawPartyAsync(gone);
+                    continue;
+                }
+
                 _registrants.Remove(gone);
                 foreach (var teammate in _registrants.Where(r => r.Team == gone.Team))
                 {
@@ -266,7 +384,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 {
                     registrant.Next = null;
                     registrant.SecondsLeft = (int)SearchTime.TotalSeconds;
-                    await SendAsync(registrant, Search(BsInfoMode.Update, (short)SearchTime.TotalSeconds, next));
+                    await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Update, (short)SearchTime.TotalSeconds, next));
                     continue;
                 }
 
@@ -276,7 +394,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 }
 
                 var size = TeamOf(registrant).Count;
-                await SendAsync(registrant, Search(BsInfoMode.Update, -1,
+                await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Update, -1,
                     size == TalentArenaTeams.TeamSize ? BsInfoText.NoOpposingTeamFound : BsInfoText.NoTeammatesFound));
                 registrant.Next = size == TalentArenaTeams.TeamSize ? BsInfoText.SearchOpposingTeam
                     : size == 1 ? BsInfoText.SearchTeammates : BsInfoText.SearchTeammatesAgain;
@@ -288,7 +406,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         private async Task FormTeamsAsync()
         {
-            foreach (var registrant in _registrants.ToList())
+            foreach (var registrant in _registrants.Where(r => r.Kind == ArenaKind.Talents).ToList())
             {
                 var team = TeamOf(registrant);
                 if (team.Count >= TalentArenaTeams.TeamSize)
@@ -296,7 +414,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     continue;
                 }
 
-                var other = _registrants.Where(r => r.Team != registrant.Team).Select(TeamOf)
+                var other = _registrants.Where(r => r.Kind == ArenaKind.Talents && r.Team != registrant.Team).Select(TeamOf)
                     .FirstOrDefault(o => TalentArenaTeams.CanTeamUp(Entrants(team), Entrants(o)));
                 if (other == null)
                 {
@@ -313,7 +431,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 {
                     member.Next = merged.Count == TalentArenaTeams.TeamSize ? BsInfoText.SearchOpposingTeam
                         : BsInfoText.SearchTeammatesAgain;
-                    await SendAsync(member, Search(BsInfoMode.Update, -1, BsInfoText.TeammatesFound));
+                    await SendAsync(member, Search(ArenaKind.Talents, BsInfoMode.Update, -1, BsInfoText.TeammatesFound));
                 }
             }
         }
@@ -325,7 +443,8 @@ namespace NosCore.GameObject.Services.TalentArenaService
             while (teams.Count >= 2)
             {
                 var zenas = teams[0];
-                var erenia = teams.Skip(1).FirstOrDefault(t => TalentArenaTeams.AreRivals(Entrants(zenas), Entrants(t)));
+                var erenia = teams.Skip(1).FirstOrDefault(t => t[0].Kind == zenas[0].Kind
+                    && TalentArenaTeams.AreRivals(Entrants(zenas), Entrants(t)));
                 teams.RemoveAt(0);
                 if (erenia == null)
                 {
@@ -336,15 +455,15 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 foreach (var registrant in zenas.Concat(erenia))
                 {
                     _registrants.Remove(registrant);
-                    await SendAsync(registrant, Search(BsInfoMode.Update, -1, BsInfoText.OpposingTeamFound));
-                    await SendAsync(registrant, Search(BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
+                    await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Update, -1, BsInfoText.OpposingTeamFound));
+                    await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
                 }
 
-                await CreateMatchAsync(zenas, erenia);
+                await CreateMatchAsync(zenas[0].Kind, zenas, erenia);
             }
         }
 
-        private async Task CreateMatchAsync(List<Registrant> zenas, List<Registrant> erenia)
+        private async Task CreateMatchAsync(ArenaKind kind, List<Registrant> zenas, List<Registrant> erenia)
         {
             _script ??= await scriptedInstanceService.LoadScriptAsync(Script);
             if (_script is not { Definition.Sides.Count: 2 } script)
@@ -354,7 +473,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
             var fighters = zenas.Select((r, i) => new Fighter(r, ArenaTeamType.Zenas, (byte)i))
                 .Concat(erenia.Select((r, i) => new Fighter(r, ArenaTeamType.Erenia, (byte)i))).ToList();
-            var match = new Match(this, script.Definition, fighters);
+            var match = new Match(this, script.Definition, kind, fighters);
             var run = await scriptedInstanceService.InstantiateAsync(script, MapInstanceType.TalentArenaMapInstance, match);
             if (run == null)
             {
@@ -374,6 +493,11 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 }
 
                 var player = session.Character;
+                if (kind == ArenaKind.Masters)
+                {
+                    player.CharacterDto.MasterTicket = Math.Max(0, player.CharacterDto.MasterTicket - 1);
+                }
+
                 await player.OnMapAsync(() =>
                 {
                     player.Hp = player.MaxHp;
@@ -425,22 +549,39 @@ namespace NosCore.GameObject.Services.TalentArenaService
         private IEnumerable<ClientSession> SessionsOn(Guid mapInstanceId) =>
             sessionRegistry.GetClientSessionsByMapInstance(mapInstanceId).Where(s => s.HasPlayerEntity);
 
-        private async Task CloseRegistrationAsync()
+        private async Task CloseRegistrationAsync(ArenaKind kind)
         {
-            await _lock.WaitAsync();
-            try
+            foreach (var registrant in _registrants.Where(r => r.Kind == kind).ToList())
             {
-                foreach (var registrant in _registrants)
-                {
-                    await SendAsync(registrant, Search(BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
-                }
+                _registrants.Remove(registrant);
+                await SendAsync(registrant, Search(kind, BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
+            }
+        }
 
-                _registrants.Clear();
-            }
-            finally
+        // A party registers and leaves the Arena of Masters together.
+        private async Task WithdrawPartyAsync(Registrant leaving)
+        {
+            foreach (var member in TeamOf(leaving))
             {
-                _lock.Release();
+                _registrants.Remove(member);
+                await SendAsync(member, Search(ArenaKind.Masters, BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
+                if (member != leaving)
+                {
+                    await SendAsync(member, Message(Game18NConstString.ParticipantCancelledRegistration));
+                }
             }
+        }
+
+        // Only a win counts in the Arena of Masters, for MasterPointsPerWin points.
+        public static int RecordMasters(CharacterDto record, ArenaTeamType team, ArenaResultType result)
+        {
+            if (result != (team == ArenaTeamType.Zenas ? ArenaResultType.ZenasWon : ArenaResultType.EreniaWon))
+            {
+                return 0;
+            }
+
+            record.MasterPoints += MasterPointsPerWin;
+            return MasterPointsPerWin;
         }
 
         // A draw counts as neither a win nor a loss.
@@ -507,10 +648,10 @@ namespace NosCore.GameObject.Services.TalentArenaService
         private List<TalentArenaEntrant> Entrants(IEnumerable<Registrant> team) =>
             team.Select(r => new TalentArenaEntrant(r.CharacterId, Session(r.CharacterId)?.Character.Level ?? 0)).ToList();
 
-        private static BSInfoPacket Search(BsInfoMode mode, short seconds, BsInfoText text) => new()
+        private static BSInfoPacket Search(ArenaKind kind, BsInfoMode mode, short seconds, BsInfoText text) => new()
         {
             Mode = mode,
-            Title = BscPacketType.TalentArena,
+            Title = kind == ArenaKind.Masters ? BscPacketType.ArenaOfMasters : BscPacketType.TalentArena,
             Time = seconds,
             Text = text,
         };
@@ -519,6 +660,8 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         private sealed record Registrant(long CharacterId, Guid ReturnMapInstanceId, short ReturnX, short ReturnY)
         {
+            public ArenaKind Kind { get; init; }
+
             public int Team { get; set; }
 
             public int SecondsLeft { get; set; }
@@ -559,7 +702,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         // One match: who fights for each side, in what order, and the score. The script decides
         // when bouts start and end; this carries them out and draws the arena windows.
-        private sealed class Match(TalentArenaService service, ScriptedInstanceDefinition definition, List<Fighter> fighters)
+        private sealed class Match(TalentArenaService service, ScriptedInstanceDefinition definition, ArenaKind kind, List<Fighter> fighters)
             : IInstanceRunHost
         {
             private readonly Dictionary<ArenaTeamType, int> _wins = new() { [ArenaTeamType.Zenas] = 0, [ArenaTeamType.Erenia] = 0 };
@@ -826,6 +969,23 @@ namespace NosCore.GameObject.Services.TalentArenaService
                         OpponentWon = _wins[Opponent(fighter.Team)],
                         OpponentLivesLeft = Lives(Opponent(fighter.Team)),
                     });
+                    if (kind == ArenaKind.Masters)
+                    {
+                        var points = RecordMasters(session.Character.CharacterDto, fighter.Team, result);
+                        if (points > 0)
+                        {
+                            await session.SendPacketAsync(new MsgiPacket
+                            {
+                                Type = MessageType.Default,
+                                Message = Game18NConstString.PointsEarned,
+                                ArgumentType = 4,
+                                Game18NArguments = { points },
+                            });
+                        }
+
+                        continue;
+                    }
+
                     var won = result == (fighter.Team == ArenaTeamType.Zenas ? ArenaResultType.ZenasWon : ArenaResultType.EreniaWon);
                     Record(session.Character.CharacterDto, fighter.Team, result);
                     foreach (var gift in won ? definition.GiftItems : definition.ConsolationItems)
@@ -838,7 +998,11 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 {
                     if (service.Session(fighter.CharacterId) is { } session)
                     {
-                        session.Character.CharacterDto.TalentSurrender++;
+                        if (kind == ArenaKind.Talents)
+                        {
+                            session.Character.CharacterDto.TalentSurrender++;
+                        }
+
                         session.Character.TalentArenaTeam = null;
                         session.Character.InTalentArenaRing = false;
                     }
@@ -970,6 +1134,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 ZenasScore = _wins[ArenaTeamType.Zenas],
                 EreniaScore = _wins[ArenaTeamType.Erenia],
                 TimeRemaining = seconds,
+                IsArenaOfMasters = kind == ArenaKind.Masters,
             };
 
             public TaPPacket Lists(ArenaTeamType team, TaWindowMode mode) => new()

@@ -124,6 +124,9 @@ namespace NosCore.Data.Enumerations.Items
         // Lifts the fixed level a failed upgrade left on a piece of equipment.
         ReleaseScroll = 1023,
 
+        // Gives one more entry to the Arena of Masters.
+        ArenaOfMastersTicket = 1024,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

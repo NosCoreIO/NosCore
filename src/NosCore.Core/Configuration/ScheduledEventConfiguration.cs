@@ -23,5 +23,10 @@ namespace NosCore.Core.Configuration
         public TimeSpan? Every { get; set; }
 
         public TimeSpan Offset { get; set; }
+
+        // The days of the week it runs on; empty for every day.
+#pragma warning disable CA2227 // Collection properties should be read only
+        public List<DayOfWeek> Days { get; set; } = new();
+#pragma warning restore CA2227 // Collection properties should be read only
     }
 }

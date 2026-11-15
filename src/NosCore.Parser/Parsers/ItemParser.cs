@@ -755,6 +755,7 @@ namespace NosCore.Parser.Parsers
                 var x when x == 5060 || x == 9066 => ItemEffectType.GoldNosMerchantUpgrade,
                 var x when x == 5061 || x == 9067 || x == 5062 || x == 9068 => ItemEffectType.SilverNosMerchantUpgrade,
                 5105 => ItemEffectType.ChangeGender,
+                5934 => ItemEffectType.ArenaOfMastersTicket,
                 var x when x == 1366 || x == 1427 || x == 5115 || x == 9040 => ItemEffectType.PointInitialisation,
                 1981 => ItemEffectType.MarriageProposal,
                 1982 => ItemEffectType.MarriageSeparation,

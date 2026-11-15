@@ -548,7 +548,7 @@ public static class PlayerBundleExtensions
             TalentWin = player.CharacterDto.TalentWin,
             TalentLose = player.CharacterDto.TalentLose,
             TalentSurrender = player.CharacterDto.TalentSurrender,
-            MasterPoints = 0,
+            MasterPoints = player.CharacterDto.MasterPoints,
             Compliments = player.Compliment,
             Act4Points = player.CharacterDto.Act4Points,
             IsPvpPrimary = false,
