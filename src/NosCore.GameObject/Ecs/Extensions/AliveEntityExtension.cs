@@ -23,6 +23,7 @@ using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Movement;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.PathFinder.Interfaces;
@@ -318,12 +319,19 @@ namespace NosCore.GameObject.Ecs.Extensions
                 PlayerComponentBundle p => p.World.TryGetComponent<BuffStateComponent>(p.Entity)?.ActiveBuffs,
                 MonsterComponentBundle m => m.World.TryGetComponent<BuffStateComponent>(m.Entity)?.ActiveBuffs,
                 NpcComponentBundle n => n.World.TryGetComponent<BuffStateComponent>(n.Entity)?.ActiveBuffs,
+                MateComponentBundle mate => mate.World.TryGetComponent<BuffStateComponent>(mate.Entity)?.ActiveBuffs,
                 _ => null,
             };
 
         // Permanent buffs (a fairy booster) have no icon on another player's bars.
         public static List<short>? ShownBuffIds(this IAliveEntity aliveEntity) =>
             aliveEntity.BuffState()?.Values.Where(b => !b.Static).Select(b => b.CardId).ToList() is { Count: > 0 } buffs
+                ? buffs
+                : null;
+
+        public static List<PstBuffSubPacket?>? ShownPstBuffs(this IAliveEntity aliveEntity) =>
+            aliveEntity.BuffState()?.Values.Where(b => !b.Static)
+                .Select(b => new PstBuffSubPacket { CardId = b.CardId, Level = b.CasterLevel ?? 0 }).ToList<PstBuffSubPacket?>() is { Count: > 0 } buffs
                 ? buffs
                 : null;
 
