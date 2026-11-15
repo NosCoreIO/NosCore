@@ -36,12 +36,14 @@ namespace NosCore.GameObject.Tests.Services.GroupService
         }
 
         [TestMethod]
-        public void AMemberBarCarriesTheTimedBuffs()
+        public void AMemberBarCarriesTheTimedBuffsWithTheirLevel()
         {
             Buff(116, isStatic: false);
             Buff(131, isStatic: true);
 
-            CollectionAssert.AreEqual(new[] { 116 }, Bar().BuffIds);
+            var buff = Bar().Buffs.NotNull().Single().NotNull();
+            Assert.AreEqual((short)116, buff.CardId);
+            Assert.AreEqual((byte)76, buff.Level);
         }
 
         [TestMethod]
@@ -65,6 +67,6 @@ namespace NosCore.GameObject.Tests.Services.GroupService
 
         private void Buff(short cardId, bool isStatic) =>
             _member.Character.BuffState().NotNull()[cardId] = new BuffInstance(cardId, BuffType.Good, null,
-                Instant.MinValue, Instant.MaxValue, Array.Empty<BCardDto>(), Static: isStatic);
+                Instant.MinValue, Instant.MaxValue, Array.Empty<BCardDto>(), Static: isStatic) { CasterLevel = 76 };
     }
 }

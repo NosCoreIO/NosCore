@@ -4,11 +4,16 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NodaTime;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
@@ -87,6 +92,18 @@ namespace NosCore.GameObject.Tests.Services.MateService
             entity.Hp = 78;
 
             Assert.AreEqual(50, _pet.GeneratePst().HpLeft);
+        }
+
+        [TestMethod]
+        public async Task AnOutMatesBarsCarryItsBuffsWithTheirLevel()
+        {
+            await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
+            _pet.Entity.NotNull().BuffState().NotNull()[153] = new BuffInstance(153, BuffType.Good, null,
+                Instant.MinValue, Instant.MaxValue, Array.Empty<BCardDto>()) { CasterLevel = 76 };
+
+            var buff = _pet.GeneratePst().Buffs.NotNull().Single().NotNull();
+
+            Assert.AreEqual(((short)153, (byte)76), (buff.CardId, buff.Level));
         }
 
         [TestMethod]
