@@ -20,6 +20,9 @@ using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.Npcs;
+using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using System;
@@ -40,6 +43,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             public Action<IInstanceRun>? Enter { get; init; }
             public Action<IInstanceRun, int>? Cleared { get; init; }
             public Action<IInstanceRun>? Timeout { get; init; }
+            public Action<IInstanceRun, int>? Exit { get; init; }
             public List<string> Calls { get; } = [];
 
             public Script(byte id = 0) => Definition = new ScriptedInstanceDefinition { Id = id };
@@ -57,6 +61,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             {
                 Calls.Add($"cleared({room})");
                 Cleared?.Invoke(run, room);
+            }
+
+            public override void OnRoomEntered(IInstanceRun run, int room) => Calls.Add($"entered({room})");
+
+            public override void OnExitReached(IInstanceRun run, int room)
+            {
+                Calls.Add($"exit({room})");
+                Exit?.Invoke(run, room);
             }
 
             public override void OnTimeout(IInstanceRun run)
@@ -121,7 +133,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.EnteredAsync(session, _first.MapInstanceId);
             await run.EnteredAsync(session, _second.MapInstanceId);
 
-            CollectionAssert.AreEqual(new[] { "enter" }, script.Calls);
+            Assert.AreEqual(1, script.Calls.Count(s => s == "enter"));
         }
 
         [TestMethod]
@@ -673,6 +685,201 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             CollectionAssert.AreEqual(new[] { EndStateType.Success }, host.Endings);
             Assert.AreEqual(0, _first.EnumerateMonsters().Count());
+        }
+
+        [TestMethod]
+        public async Task BonusKillsInARowScoreMoreThanOthersAsync()
+        {
+            var run = Run(new Script());
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            Assert.AreEqual(4, run.Points);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true);
+            Assert.AreEqual(15, run.Points);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true);
+            Assert.AreEqual(33, run.Points);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            Assert.AreEqual(37, run.Points);
+        }
+
+        [TestMethod]
+        public async Task ABonusMonsterFlashesAndRemembersItIsABonusAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), IsBonus: true), new MonsterSpawn(Grunt, new Spot(2, 1)))
+            });
+
+            await run.StartAsync();
+
+            var monsters = _first.EnumerateMonsters().OrderBy(s => s.PositionX).ToList();
+            Assert.IsTrue(monsters[0].IsBonus);
+            Assert.AreEqual(826, monsters[0].Effect);
+            Assert.IsFalse(monsters[1].IsBonus);
+            Assert.AreEqual(0, monsters[1].Effect);
+        }
+
+        [TestMethod]
+        public async Task AMonstersOwnDeathStepRunsWhenItFallsAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1),
+                    OnDeath: d => d.Summon(1, new MonsterSpawn(Grunt, new Spot(3, 1)))))
+            });
+            await run.StartAsync();
+            var first = _first.EnumerateMonsters().Single();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, first.IsBonus, first.DeathStep);
+
+            Assert.IsTrue(_first.EnumerateMonsters().Any(s => s.PositionX == 3));
+            Assert.AreEqual(1, run.MonstersAlive(1));
+        }
+
+        [TestMethod]
+        public async Task ARoomWithoutALockerClearsWithItsLastMonsterAsync()
+        {
+            var script = new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)), new MonsterSpawn(Grunt, new Spot(2, 1)))
+            };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            CollectionAssert.DoesNotContain(script.Calls, "cleared(1)");
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            Assert.AreEqual(1, script.Calls.Count(s => s == "cleared(1)"));
+        }
+
+        [TestMethod]
+        public async Task AReinforcementKeepsTheRoomFromClearingAsync()
+        {
+            var script = new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)))
+            };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt,
+                deathStep: d => d.Summon(1, new MonsterSpawn(Grunt, new Spot(2, 1))));
+
+            CollectionAssert.DoesNotContain(script.Calls, "cleared(1)");
+        }
+
+        [TestMethod]
+        public async Task EachRoomIsEnteredOnceAsync()
+        {
+            var script = new Script();
+            var run = Run(script);
+            var session = await World.CreateSessionAsync();
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            await run.EnteredAsync(session, _second.MapInstanceId);
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            CollectionAssert.AreEqual(new[] { "enter", "entered(1)", "entered(2)" }, script.Calls);
+        }
+
+        [TestMethod]
+        public async Task TheExitOpensAndAsksTheScriptWhenReachedAsync()
+        {
+            var script = new Script
+            {
+                Enter = r => r.SpawnExit(1, new Spot(3, 3)),
+                Cleared = (r, room) => r.UnlockExit(room),
+                Exit = (r, _) => r.Succeed()
+            };
+            var run = Run(script);
+            await run.StartAsync();
+            var exit = _first.Portals.Single();
+            Assert.AreEqual(PortalType.TsEndClosed, exit.Type);
+
+            run.SetMonsterLocker(1, 1);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            Assert.AreEqual(PortalType.TsEnd, exit.Type);
+
+            await run.ExitReachedAsync(_first.MapInstanceId);
+            Assert.AreEqual(EndStateType.Success, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task AddedTimeRaisesTheClockAndItsLimitAsync()
+        {
+            var extended = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromMinutes(2));
+                    r.AddClockTime(TimeSpan.FromSeconds(80));
+                }
+            });
+            await extended.StartAsync();
+
+            var clock = _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.TSTimer);
+            Assert.AreEqual(2000, clock.Parameter);
+            Assert.AreEqual(2000, clock.SecondParameter);
+        }
+
+        [TestMethod]
+        public async Task TheRoomClockStartsAndStopsAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.StartRoomClock(1, TimeSpan.FromMinutes(3)),
+                Cleared = (r, room) => r.StopRoomClock(room)
+            });
+            await run.StartAsync();
+            var started = _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.RedTimer);
+            Assert.AreEqual(1800, started.Parameter);
+            Assert.IsFalse(started.IsDisabled);
+
+            run.SetMonsterLocker(1, 1);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            var stopped = _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.RedTimer);
+            Assert.IsTrue(stopped.IsDisabled);
+        }
+
+        [TestMethod]
+        public async Task ADialogOpensForThePlayersInTheRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Dialog(1, 6111) });
+            var session = await PlayerInFirstRoomAsync();
+
+            await run.StartAsync();
+
+            var request = session.LastPackets.OfType<NpcReqPacket>().Single();
+            Assert.AreEqual(VisualType.Player, request.Type);
+            Assert.AreEqual(session.Character.CharacterId, request.TargetId);
+            Assert.AreEqual(6111L, request.Data);
+        }
+
+        [TestMethod]
+        public async Task SummonedNpcsStandInTheRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2))) });
+
+            await run.StartAsync();
+
+            var npc = _first.EnumerateNpcs().Single();
+            Assert.AreEqual(Grunt, npc.VNum);
+            Assert.AreEqual(1, run.NpcsSummoned);
+        }
+
+        [TestMethod]
+        public async Task TheScoreCarriesThePointsAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1), Cleared = (r, _) => r.Succeed() });
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            var score = _first.LastPackets.OfType<NosCore.Packets.ClientPackets.Instance.ScorePacket>().Single();
+            Assert.AreEqual(4, score.Points);
         }
     }
 }

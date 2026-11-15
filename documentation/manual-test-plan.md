@@ -2462,9 +2462,11 @@ Open the family window's Missions button and pick "Daily Challenges" in the filt
 
 ### Time-space entrances
 
-No time-space ships in the seed data, so add one: a `ScriptedInstance` row with `Type` 0
-(time-space) on a map you can reach, its `Script` naming a file in the world server's
-`instances/` folder without the extension (`timespace-01` runs `instances/timespace-01.csx`).
+The parser points every time-space stone it imports at `timespace-<id>`, the time-space id
+the stone announces, so `timespace-21.csx` runs the level 31 stone. A stone
+without a matching file stays shut. For a test stone anywhere else, add a `ScriptedInstance`
+row with `Type` 0 (time-space) on a map you can reach, its `Script` naming a file in the world
+server's `instances/` folder without the extension (`timespace-01` runs `instances/timespace-01.csx`).
 The script holds the level range, required items, rooms and start coordinates. Stand on the
 stone.
 
@@ -2527,6 +2529,31 @@ dropping their `MaxHp` makes the run quick.
       map, which this client does not draw yet, so drive it from a second, headless player
 - [ ] Disconnect inside a run you were alone in, then log back in: you are on the open world,
       not in a room
+
+### Captured time-spaces
+
+`instances/timespace-<id>.csx` hold the time-spaces rebuilt from captures. `timespace-21` ("The
+Duel", level 31) is the shortest: point a test stone at it, give the character three seeds
+(1012) and drop `MaxHp` of monsters 4, 20, 140, 141 and 318.
+
+- [ ] The panel shows "The Duel", level 31, three seeds, the three draw items, the special
+      item and the two bonus items
+- [ ] The first room shows "The mission starts as soon as you enter the first room." and no
+      clock; walking north into the second room starts a 200 second clock and opens the
+      dialog of NPC talk 6111
+- [ ] In the third room the north portal is shut until the lever is pulled; pulling it shows
+      "New mission goal!" and "A door has opened." and opens the portal
+- [ ] Some monsters flash every five seconds: those are bonus monsters, and killing several
+      in a row raises the score's points more than killing others
+- [ ] In the last room, Tom stands among three monsters; killing them all opens dialog 6113,
+      and walking onto the exit shows Mission Clear with the points, monsters killed and
+      rooms visited
+- [ ] In `timespace-25` (level 35), clearing each of rooms 2 to 5 shows "You have successfully
+      completed the Quick Mission." and adds time to the main clock, and entering the last room
+      shows a red two-minute clock
+- [ ] Killing a monster that brings reinforcements summons them at once, with "The enemies
+      are getting reinforcements!" where the script says so (`timespace-25`)
+- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on
 
 ### Time-space reward chest
 

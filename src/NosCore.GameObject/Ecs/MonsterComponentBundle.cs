@@ -22,7 +22,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(ChasePathComponent),
     typeof(SkillCooldownComponent),
     typeof(HitListComponent),
-    typeof(RespawnComponent)
+    typeof(RespawnComponent),
+    typeof(ScriptedMonsterComponent)
 )]
 public readonly partial struct MonsterComponentBundle : INonPlayableEntity
 {

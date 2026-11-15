@@ -53,7 +53,8 @@ namespace NosCore.Parser.Parsers
                             Type = ScriptedInstanceType.TimeSpace,
                             IsHeroic = ((byte)wp.PortalType & 8) != 0,
                             LevelMinimum = wp.LevelMinimum,
-                            LevelMaximum = wp.LevelMaximum
+                            LevelMaximum = wp.LevelMaximum,
+                            Script = $"timespace-{wp.ScriptedInstanceId}"
                         });
                         continue;
 
@@ -90,7 +91,7 @@ namespace NosCore.Parser.Parsers
                 if (stored.TryGetValue(key, out var existing))
                 {
                     entrance.ScriptedInstanceId = existing.ScriptedInstanceId;
-                    entrance.Script = existing.Script;
+                    entrance.Script = existing.Script ?? entrance.Script;
                 }
 
                 found.Add(entrance);

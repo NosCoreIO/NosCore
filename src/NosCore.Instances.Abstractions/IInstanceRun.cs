@@ -11,7 +11,12 @@ namespace NosCore.Instances.Abstractions
 {
     public readonly record struct Spot(short X, short Y);
 
-    public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true);
+    // A bonus monster flashes while alive, and each one killed in a row adds to the run's combo.
+    // OnDeath runs when this particular monster falls.
+    public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true, bool IsBonus = false,
+        Action<IInstanceRun>? OnDeath = null);
+
+    public readonly record struct NpcSpawn(short VNum, Spot At);
 
     public readonly record struct ItemPile(short VNum, short Piles, int Amount);
 
@@ -36,6 +41,8 @@ namespace NosCore.Instances.Abstractions
         // Scatters each pile around the spot, the way a boss throws its loot when it falls.
         void Throw(int room, Spot around, params ItemPile[] piles);
 
+        void SummonNpcs(int room, params NpcSpawn[] npcs);
+
         int MonstersAlive(int room);
 
         int PlayersIn(int room);
@@ -59,6 +66,11 @@ namespace NosCore.Instances.Abstractions
 
         void UnlockPortal(int fromRoom, int toRoom);
 
+        // The way out of the instance; walking onto it once it is open calls OnExitReached.
+        void SpawnExit(int room, Spot at, bool locked = true);
+
+        void UnlockExit(int room);
+
         // A locker holds the room shut until that many of its monsters are dead.
         void SetMonsterLocker(int room, short count);
 
@@ -68,6 +80,17 @@ namespace NosCore.Instances.Abstractions
         void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false);
 
         void StartClock(TimeSpan limit);
+
+        // Gives the run's clock more time, raising its limit by as much.
+        void AddClockTime(TimeSpan extra);
+
+        // The room's own red clock, which ends nothing when it runs out.
+        void StartRoomClock(int room, TimeSpan length);
+
+        void StopRoomClock(int room);
+
+        // Opens that NPC dialog for the players in the room.
+        void Dialog(int room, int dialog);
 
         // Shows the room a clock that ends nothing when it runs out.
         void ShowCountdown(int room, TimeSpan length);
@@ -104,7 +127,13 @@ namespace NosCore.Instances.Abstractions
 
         void OnMonsterKilled(IInstanceRun run, int room, short vNum);
 
+        // When the room's locker opens or, in a room without one, when its last monster falls.
         void OnRoomCleared(IInstanceRun run, int room);
+
+        // The first time anyone enters the room.
+        void OnRoomEntered(IInstanceRun run, int room);
+
+        void OnExitReached(IInstanceRun run, int room);
 
         void OnButtonUsed(IInstanceRun run, int room, int button);
 
@@ -121,6 +150,10 @@ namespace NosCore.Instances.Abstractions
         public virtual void OnMonsterKilled(IInstanceRun run, int room, short vNum) { }
 
         public virtual void OnRoomCleared(IInstanceRun run, int room) { }
+
+        public virtual void OnRoomEntered(IInstanceRun run, int room) { }
+
+        public virtual void OnExitReached(IInstanceRun run, int room) { }
 
         public virtual void OnButtonUsed(IInstanceRun run, int room, int button) { }
 

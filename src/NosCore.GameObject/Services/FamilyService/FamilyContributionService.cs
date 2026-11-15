@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Services.FamilyService
             AdvanceAsync(familyId, characterId, FamilyQuestObjective.InstantCombat);
 
         // The history's raid line is for Glacernon family raids, so an ordinary raid only counts towards the missions.
-        public async Task RaidWonAsync(long familyId, IReadOnlyCollection<long> characterIds, byte raidId, bool isHeroic)
+        public async Task RaidWonAsync(long familyId, IReadOnlyCollection<long> characterIds, short raidId, bool isHeroic)
         {
             foreach (var characterId in characterIds)
             {

@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
             var run = scriptedInstanceService.GetRun(mapInstance.MapInstanceId);
             return run == null
                 ? Task.CompletedTask
-                : run.MonsterKilledAsync(mapInstance.MapInstanceId, monster.VNum);
+                : run.MonsterKilledAsync(mapInstance.MapInstanceId, monster.VNum, monster.IsBonus, monster.DeathStep);
         }
 
         [UsedImplicitly]

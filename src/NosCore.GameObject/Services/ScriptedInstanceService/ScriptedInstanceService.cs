@@ -19,6 +19,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Ecs.Extensions;
@@ -279,6 +280,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public ScriptedInstanceRun? GetRun(Guid mapInstanceId)
         {
             return _runsByRoom.TryGetValue(mapInstanceId, out var run) ? run : null;
+        }
+
+        public async Task<bool> UseExitAsync(ClientSession session)
+        {
+            var character = session.Character;
+            if (character.MapInstance is not { } room || GetRun(room.MapInstanceId) is not { } run
+                || !room.Portals.Any(s => s.Type == PortalType.TsEnd
+                    && Math.Max(Math.Abs(s.SourceX - character.PositionX), Math.Abs(s.SourceY - character.PositionY)) <= 2))
+            {
+                return false;
+            }
+
+            await run.ExitReachedAsync(room.MapInstanceId);
+            return true;
         }
 
         public async Task<bool> DisposeIfEmptyAsync(ScriptedInstanceRun run)

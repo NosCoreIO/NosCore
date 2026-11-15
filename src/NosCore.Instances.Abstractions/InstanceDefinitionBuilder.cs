@@ -18,7 +18,7 @@ namespace NosCore.Instances.Abstractions
         private readonly List<InstanceGift> _specials = [];
         private readonly List<BoutSide> _sides = [];
 
-        private byte _id;
+        private short _id;
         private string? _label;
         private string? _title;
         private byte _levelMinimum;
@@ -32,7 +32,7 @@ namespace NosCore.Instances.Abstractions
         private int _familyExperience;
         private byte _lives;
 
-        public static InstanceDefinitionBuilder Named(byte id, string label, string title)
+        public static InstanceDefinitionBuilder Named(short id, string label, string title)
         {
             return new InstanceDefinitionBuilder { _id = id, _label = label, _title = title };
         }

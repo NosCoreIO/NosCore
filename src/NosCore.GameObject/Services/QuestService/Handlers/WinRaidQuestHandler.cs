@@ -18,7 +18,7 @@ public sealed class WinRaidQuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.WinRaid;
 
-    public Task<bool> OnScriptedInstanceSucceededAsync(PlayerComponentBundle character, ScriptedInstanceType type, byte instanceId,
+    public Task<bool> OnScriptedInstanceSucceededAsync(PlayerComponentBundle character, ScriptedInstanceType type, short instanceId,
         CharacterQuest quest) =>
         type == ScriptedInstanceType.Raid
             ? NpcObjectiveProgress.RecordAsync(character, quest, instanceId, o => o.SecondData ?? 1)

@@ -20,7 +20,7 @@ public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropServ
     // always drop, but rows of 25 items at 100 make for long hunts, so the scale is doubtful.
     private const int ChanceScale = 10000;
 
-    public IReadOnlyList<short> RollDrops(PlayerComponentBundle character, NpcMonsterDto mob, int dropRate, byte? timeSpaceId)
+    public IReadOnlyList<short> RollDrops(PlayerComponentBundle character, NpcMonsterDto mob, int dropRate, short? timeSpaceId)
     {
         var drops = new List<short>();
         var ownDrops = catalog.GetDrops(mob.NpcMonsterVNum).Select(d => (int)d.VNum).ToHashSet();
@@ -46,7 +46,7 @@ public sealed class QuestDropService(INpcCombatCatalog catalog) : IQuestDropServ
     }
 
     // A time-space collect quest names the time-space rather than a monster: any monster in it may drop the item.
-    private static bool DropsFrom(QuestType type, QuestObjectiveDto objective, NpcMonsterDto mob, byte? timeSpaceId) =>
+    private static bool DropsFrom(QuestType type, QuestObjectiveDto objective, NpcMonsterDto mob, short? timeSpaceId) =>
         type == QuestType.CollectInTs
             ? timeSpaceId is { } id && objective.FirstData == id
             : objective.FirstData == mob.NpcMonsterVNum;
