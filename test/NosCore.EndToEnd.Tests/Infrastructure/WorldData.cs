@@ -46,6 +46,21 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short Fairy = 4002;
         public const short FairyElementRate = 30;
         public const short CostumeHat = 4003;
+
+        // Lasts an hour from when it is first worn.
+        public const short Amulet = 4004;
+        public const long AmuletSeconds = 3600;
+        public const byte AmuletLevel = 10;
+
+        // Holds three seeds and two pebbles.
+        public const short Box = 4100;
+        public const short BoxSeeds = 3;
+        public const short BoxPebbles = 2;
+
+        // Holds one blade a swordsman may wield or one an adventurer may, whichever fits who opens it.
+        public const short ClassBox = 4101;
+        public const short SwordsmanBlade = 4102;
+        public const short AdventurerBlade = 4103;
         public const short Bench = 3001;
         public const short PowerSeed = 2026;
         public const int ChestSlots = 4;
@@ -217,6 +232,30 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             context.Add(new Item
             {
+                VNum = Amulet, Name = "amulet", Type = NoscorePocketType.Equipment, ItemType = ItemType.Jewelery,
+                EquipmentSlot = EquipmentType.Amulet, ItemValidTime = AmuletSeconds, LevelMinimum = AmuletLevel, Price = 200
+            });
+            context.Add(new Item
+            {
+                VNum = Box, Name = "box", Type = NoscorePocketType.Main, ItemType = ItemType.Special, Effect = ItemEffectType.BoxEffect
+            });
+            context.Add(new Item
+            {
+                VNum = ClassBox, Name = "classbox", Type = NoscorePocketType.Main, ItemType = ItemType.Special,
+                Effect = ItemEffectType.ClassBox
+            });
+            context.Add(new Item
+            {
+                VNum = SwordsmanBlade, Name = "swordsmanblade", Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon,
+                EquipmentSlot = EquipmentType.MainWeapon, Class = (byte)(1 << (byte)CharacterClassType.Swordsman)
+            });
+            context.Add(new Item
+            {
+                VNum = AdventurerBlade, Name = "adventurerblade", Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon,
+                EquipmentSlot = EquipmentType.MainWeapon, Class = (byte)(1 << (byte)CharacterClassType.Adventurer)
+            });
+            context.Add(new Item
+            {
                 VNum = Steed, Name = "steed", Type = NoscorePocketType.Mount, ItemType = ItemType.Special, Speed = SteedSpeed,
                 Morph = SteedLook, SpeedBoost = SteedBoost, SpeedBoostDuration = SteedBoostSeconds,
                 SpeedBoostRestoresHpPerLevel = SteedHpPerLevel, SpeedBoostStartCardId = SteedStartCard, SpeedBoostEndCardId = SteedEndCard
@@ -231,6 +270,24 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new Card { CardId = SteedEndCard, Name = "steedend", Duration = SteedCardTime });
             // The card an item gives is the one its buff effect names.
             context.Add(new BCard { ItemVNum = Booster, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = BoostCard });
+            context.Add(new RollGeneratedItem
+            {
+                OriginalItemVNum = Box, ItemGeneratedVNum = Seed, ItemGeneratedAmount = BoxSeeds, Probability = 1, MaximumOriginalItemRare = 8
+            });
+            context.Add(new RollGeneratedItem
+            {
+                OriginalItemVNum = Box, ItemGeneratedVNum = Pebble, ItemGeneratedAmount = BoxPebbles, Probability = 1, MaximumOriginalItemRare = 8
+            });
+            context.Add(new RollGeneratedItem
+            {
+                OriginalItemVNum = ClassBox, ItemGeneratedVNum = SwordsmanBlade, ItemGeneratedAmount = 1, Probability = 1,
+                MaximumOriginalItemRare = 8, RollGroup = 0
+            });
+            context.Add(new RollGeneratedItem
+            {
+                OriginalItemVNum = ClassBox, ItemGeneratedVNum = AdventurerBlade, ItemGeneratedAmount = 1, Probability = 1,
+                MaximumOriginalItemRare = 8, RollGroup = 1
+            });
             // What a new adventurer is given: its club, its catapult, its clothes, and its three skills.
             context.Add(Worn(1, EquipmentType.MainWeapon, ItemType.Weapon));
             context.Add(Worn(8, EquipmentType.SecondaryWeapon, ItemType.Weapon));
