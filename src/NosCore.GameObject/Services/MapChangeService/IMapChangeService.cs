@@ -1,4 +1,4 @@
-﻿using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Threading.Tasks;
 
