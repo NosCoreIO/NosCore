@@ -241,6 +241,16 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] A monster further away than the effect's range takes nothing
 - [ ] A skill that already hits several targets does not hit them a second time
 
+### HP and MP leech — BCard type 21 subtypes 3 to 5
+
+- [ ] Hit a monster with a skill that leeches HP (`/mnt/project-files/bcard-effects/reset-leech.sh`
+      gives Tester's skill 262 a 100% leech of 500 HP and drops Tester to 200 HP; key 1 casts):
+      Tester's HP bar jumps by 500 on each cast and the monster loses 500 more than the hit
+- [ ] A leech never kills: a target left with less HP than the leech stays at 1 HP
+- [ ] An MP leech takes no more MP than the target has, and a "convert the enemy's HP into
+      your MP" skill fills your MP bar instead of your HP bar
+- [ ] A monster carrying the leech (monster 3425 has 15% / 2500 HP) takes HP from you
+
 ### Elemental resistance — BCard types 13 and 14
 
 - [ ] A buff that raises your resistance to an element reduces the elemental damage you
