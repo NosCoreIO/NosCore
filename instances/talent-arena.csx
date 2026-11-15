@@ -15,6 +15,7 @@ public class TalentArena : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(0, "talent-arena", "talent-arena")
             .WithRoom(2015, out _ring)
+            .StartingAt(69, 100)
             .WithSide(new Spot(14, 38), new Spot(19, 40), new Spot(56, 40))
             .WithSide(new Spot(125, 37), new Spot(120, 39), new Spot(87, 39))
             .WithReward(2800, 1)
