@@ -457,6 +457,39 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public async Task TheMortazDesertShipCarriesItsSailorAboard()
+        {
+            var room = (await LoadAsync("act5-ship")).Definition.Rooms.Single();
+
+            Assert.AreEqual(148, room.VNum);
+            CollectionAssert.AreEquivalent(new short[] { 1350 }, room.MapNpcs.ToArray());
+        }
+
+        [TestMethod]
+        public async Task TheMortazDesertShipWarnsItsPassengersThenSails()
+        {
+            var script = await LoadAsync("act5-ship");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+
+            foreach (var (_, step) in run.Scheduled.OrderBy(s => s.At))
+            {
+                step(run);
+            }
+
+            CollectionAssert.AreEqual(new[] { 60d, 90, 110, 120 },
+                run.Scheduled.Select(s => s.At.TotalSeconds).OrderBy(m => m).ToArray());
+            CollectionAssert.AreEqual(new[]
+            {
+                "message(ShipLeaveInOneMinute)",
+                "message(ShipLeaveInThirtySeconds)",
+                "message(ShipLeaveInTenSeconds)",
+                "message(RaiseTheAnchor)",
+                "succeed"
+            }, run.Calls);
+        }
+
+        [TestMethod]
         public async Task TheRaidIsOpenedByItsSealForATeamInItsLevelRange()
         {
             var definition = (await LoadAsync("raid-mother-cuby")).Definition;

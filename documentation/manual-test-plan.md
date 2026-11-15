@@ -1917,6 +1917,18 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
       Seals of Witch Laurena
 - [ ] With the pocket full, an exchange keeps the materials and shows "Not enough space"
 
+### The ship to the Mortaz Desert
+
+- [ ] Talk to the harbour sailor (dialog "Act 5 - The Joys of Sailing") and choose Go to Mortaz Desert
+      Harbour, then "Yes, I want to go on board": you are taken aboard the Ship, with the sailor on deck,
+      and no gold is taken.
+- [ ] Board early: you wait aboard, and the ship warns one minute, 30 seconds and 10 seconds before it
+      leaves, then says it raises the anchor. Ships leave on every even two-minute mark.
+- [ ] Once the anchor is raised you land at the Mortaz Desert Port near (127, 47).
+- [ ] Two players boarding within the same two minutes share one ship and see each other aboard.
+- [ ] Talk to the sailor aboard and choose to leave the ship: you are back on the harbour you boarded from.
+- [ ] A dead player cannot board.
+
 ### Forming a party
 
 - [ ] A invites B and B confirms: both see the other in the party panel and "In party" under
