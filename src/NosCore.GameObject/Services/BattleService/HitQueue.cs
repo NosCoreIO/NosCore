@@ -38,6 +38,7 @@ public sealed class HitQueue(
     IVitalityService vitalityService,
     IOnHitBuffService onHitBuffService,
     IDamageLeechService damageLeechService,
+    IManaShieldService manaShieldService,
     ILogger<HitQueue> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IHitQueue, ISingletonService
 {
     // For entities that are on no map at all.
@@ -152,7 +153,8 @@ public sealed class HitQueue(
 
             // Damage proportional to HP rather than to the stats, on top of the blow.
             var hpBefore = target.Hp;
-            var newHp = target.Hp - damage.Damage - PercentageHpLoss(target, request.Skill.BCards);
+            var hpDamage = await manaShieldService.AbsorbAsync(target, damage.Damage);
+            var newHp = target.Hp - hpDamage - PercentageHpLoss(target, request.Skill.BCards);
             var overkill = 0;
             var killed = false;
             if (newHp <= 0)
