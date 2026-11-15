@@ -264,6 +264,11 @@ public sealed class BattleStatsProvider(
                         or BCardEffect.IncreaseDamageDecreasingPropability ? -card.SecondData : card.SecondData;
                     (totals.ChanceDamage ??= []).Add(new ChanceDamage(card.FirstData, percent));
                 }
+                else if (effect == BCardEffect.SpecialDamageAndExplosionsSurroundingDamage)
+                {
+                    totals.SurroundingChance += card.FirstData;
+                    totals.SurroundingRadius = Math.Max(totals.SurroundingRadius, (int)card.SecondData);
+                }
                 else if (DamageTakenChances.TryGetValue(effect, out var taken))
                 {
                     var percent = taken.Increased ? card.SecondData : -card.SecondData;
@@ -329,6 +334,8 @@ public sealed class BattleStatsProvider(
             GuaranteedHitChance = stats.GuaranteedHitChance + totals.GuaranteedHit,
             OnyxDragonChance = stats.OnyxDragonChance + totals.OnyxDragon,
             ForcedMovementResistance = stats.ForcedMovementResistance + totals.ForcedMovementResistance,
+            SurroundingDamageChance = stats.SurroundingDamageChance + totals.SurroundingChance,
+            SurroundingDamageRadius = Math.Max(stats.SurroundingDamageRadius, totals.SurroundingRadius),
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
             CriticalReceivedChance = stats.CriticalReceivedChance + totals.CritReceivedChance,
@@ -367,7 +374,7 @@ public sealed class BattleStatsProvider(
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
         public int FairyElement;
         public int GuaranteedHit, GuaranteedDodge;
-        public int OnyxDragon, ForcedMovementResistance;
+        public int OnyxDragon, ForcedMovementResistance, SurroundingChance, SurroundingRadius;
         public int DefencePercent;
         public List<ChanceDamage>? ChanceDamage;
         public List<ChanceDamageTaken>? ChanceDamageTaken;

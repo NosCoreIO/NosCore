@@ -52,6 +52,8 @@ namespace NosCore.GameObject.Services.BattleService
         ISkillComboService skillComboService,
         ISummonService summonService,
         IOnyxDragonService onyxDragonService,
+        IBattleStatsProvider statsProvider,
+        IRandomProvider random,
         ILogger<BattleService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -120,10 +122,35 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
+            if (targets.Count == 1 && !skill.HitsSeveral)
+            {
+                foreach (var bystander in SurroundingTargets(origin, target, skill))
+                {
+                    await TryProcessHitAsync(origin, bystander, skill, false, presentation with { InArea = true });
+                }
+            }
+
             // After the hits, so a cast never lands on the adds it calls.
             await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
             return true;
+        }
+
+        // Type 29 subtype 3: a lucky single-target hit also lands on everyone around the target.
+        private IReadOnlyList<IAliveEntity> SurroundingTargets(IAliveEntity origin, IAliveEntity target, SkillInfo skill)
+        {
+            var stats = statsProvider.GetStats(origin);
+            if (stats.SurroundingDamageChance <= 0 || stats.SurroundingDamageRadius <= 0 || target.MapInstance is not { } map
+                || random.Next(0, 100) >= stats.SurroundingDamageChance)
+            {
+                return [];
+            }
+
+            return targetResolver
+                .ResolveArea(origin, map, target.PositionX, target.PositionY, skill with { TargetRange = (byte)stats.SurroundingDamageRadius })
+                .Where(e => !(e.VisualType == target.VisualType && e.VisualId == target.VisualId))
+                .Where(e => !(e.VisualType == origin.VisualType && e.VisualId == origin.VisualId))
+                .ToList();
         }
 
         public async Task<bool> HitArea(IAliveEntity origin, short mapX, short mapY, HitArguments arguments)

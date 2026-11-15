@@ -26,6 +26,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Wolverine;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -39,6 +40,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<ICastDelayService> _castDelay;
         private Mock<IBuffService> _buffs;
         private Mock<ISummonService> _summons;
+        private Mock<IBattleStatsProvider> _stats;
+        private Mock<IRandomProvider> _random;
         private GameObject.Services.BattleService.BattleService _service;
 
         [TestInitialize]
@@ -52,6 +55,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>())).Returns(Task.CompletedTask);
             _buffs = new Mock<IBuffService>();
             _summons = new Mock<ISummonService>();
+            _stats = new Mock<IBattleStatsProvider>();
+            _stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
+            _random = new Mock<IRandomProvider>();
             _service = new GameObject.Services.BattleService.BattleService(
                 _skillResolver.Object,
                 _targetResolver.Object,
@@ -66,7 +72,82 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<NosCore.GameObject.Services.BattleService.ISkillComboService>().Object,
                 _summons.Object,
                 new Mock<IOnyxDragonService>().Object,
+                _stats.Object,
+                _random.Object,
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+        }
+
+        private async Task<(FakeEntity Origin, FakeEntity Target, FakeEntity Bystander)> SurroundedAsync(int chance, int roll, byte skillArea = 0)
+        {
+            var map = (await TestWorld.CreateAsync()).GetBaseMap(TestWorld.TestMapId);
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, VisualId = 1, MapInstance = map };
+            var bystander = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, VisualId = 2, MapInstance = map };
+            var skill = MakeSkill(TargetHitType.SingleTargetHit) with { TargetRange = skillArea };
+            SetupLanding(origin, target, skill);
+            _stats.Setup(s => s.GetStats(origin))
+                .Returns(new CombatStats { SurroundingDamageChance = chance, SurroundingDamageRadius = 2 });
+            _random.Setup(r => r.Next(0, 100)).Returns(roll);
+            _targetResolver.Setup(r => r.ResolveArea(origin, map, target.PositionX, target.PositionY,
+                    It.Is<SkillInfo>(s => s.TargetRange == 2)))
+                .Returns(new IAliveEntity[] { target, bystander });
+            return (origin, target, bystander);
+        }
+
+        [TestMethod]
+        public async Task ASurroundingDamageRollAlsoHitsWhoeverStandsAroundTheTarget()
+        {
+            var (origin, target, bystander) = await SurroundedAsync(chance: 30, roll: 29);
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == target && h.IsPrimaryTarget)), Times.Once);
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == bystander && !h.IsPrimaryTarget)), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AFailedSurroundingDamageRollHitsOnlyTheTarget()
+        {
+            var (origin, target, bystander) = await SurroundedAsync(chance: 30, roll: 30);
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == bystander)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task ASkillThatAlreadyHitsSeveralTargetsDoesNotSplash()
+        {
+            var (origin, target, bystander) = await SurroundedAsync(chance: 100, roll: 0);
+            var other = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, VisualId = 3 };
+            _targetResolver.Setup(r => r.Resolve(origin, target, It.IsAny<SkillInfo>())).Returns(new IAliveEntity[] { target, other });
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == bystander)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AnAreaSkillThatFoundOneTargetDoesNotSplash()
+        {
+            var (origin, target, bystander) = await SurroundedAsync(chance: 100, roll: 0, skillArea: 1);
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == bystander)), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task TheAttackerIsNeverCaughtInItsOwnSplash()
+        {
+            var (origin, target, _) = await SurroundedAsync(chance: 100, roll: 0);
+            _targetResolver.Setup(r => r.ResolveArea(origin, target.MapInstance, target.PositionX, target.PositionY,
+                    It.Is<SkillInfo>(s => s.TargetRange == 2)))
+                .Returns(new IAliveEntity[] { target, origin });
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Target == origin)), Times.Never);
         }
 
         [TestMethod]

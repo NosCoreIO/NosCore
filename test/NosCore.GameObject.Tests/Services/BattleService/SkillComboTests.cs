@@ -84,6 +84,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new SkillComboService(Combos),
                 new Mock<ISummonService>().Object,
                 new Mock<IOnyxDragonService>().Object,
+                new Mock<IBattleStatsProvider>().Object,
+                new Mock<IRandomProvider>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
