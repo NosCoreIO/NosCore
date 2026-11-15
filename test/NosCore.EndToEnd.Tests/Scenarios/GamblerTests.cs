@@ -96,12 +96,25 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Assert.AreEqual(Gold, (await Harness.StoredAsync(client.CharacterId)).Gold, "nothing is charged");
         }
 
+        [TestMethod]
+        public async Task AChampionItemIsNotBetWithANormalAmulet()
+        {
+            await using var client = await AtTheGamblerAsync("Alice", amuletUses: 3, item: WorldData.ChampionBlade);
+            await client.SendAsync(OpenTheBetWindow);
+            await client.ExpectAsync<WopenPacket>();
+
+            await client.SendAsync(new UpgradePacket { UpgradeType = UpgradePacketType.RarifyItem, InventoryType = PocketType.Equipment, Slot = 0 });
+
+            await client.ExpectAsync<MsgiPacket>(p => p.Message == Game18NConstString.YouAreWearingAnIncorrectAmulet);
+            Assert.AreEqual(Gold, (await Harness.StoredAsync(client.CharacterId)).Gold, "nothing is charged");
+        }
+
         private const long Gold = 10000;
 
-        private static async Task<TestClient> AtTheGamblerAsync(string name, int? amuletUses = null)
+        private static async Task<TestClient> AtTheGamblerAsync(string name, int? amuletUses = null, short item = WorldData.Blade)
         {
             var player = await Harness.AddPlayerAsync(name, x: WorldData.GamblerX - 1, y: WorldData.GamblerY, configure: c => c.Gold = Gold);
-            await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1 }, NoscorePocketType.Equipment);
+            await Harness.GiveAsync(player, new WearableInstance { ItemVNum = item, Amount = 1 }, NoscorePocketType.Equipment);
             await Harness.GiveAsync(player, WorldData.CellaPowder, 5);
             if (amuletUses is { } uses)
             {

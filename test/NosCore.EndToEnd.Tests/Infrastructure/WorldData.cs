@@ -264,6 +264,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private const byte GamblingShop = 4;
         public const short CellaPowder = 1014;
         public const short BlessingAmulet = 282;
+        public const short ChampionBlade = 4005;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -730,6 +731,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 VNum = BlessingAmulet, Name = "blessingamulet", Type = NoscorePocketType.Equipment, ItemType = ItemType.Jewelery,
                 EquipmentSlot = EquipmentType.Amulet, Effect = ItemEffectType.RedAmulet
+            });
+            context.Add(new Item
+            {
+                VNum = ChampionBlade, Name = "championblade", Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon,
+                EquipmentSlot = EquipmentType.MainWeapon, IsHeroic = true
             });
             context.Add(new NpcTalk { DialogId = GamblerDialog, Name = "gambler" });
             context.Add(new NpcMonster { NpcMonsterVNum = GamblerVNum, Name = "gambler", Level = 1, MaxHp = 100 });
