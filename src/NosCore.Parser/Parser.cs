@@ -38,9 +38,15 @@ namespace NosCore.Parser
 
                 logger.LogInformation(logLanguage[LogLanguageKey.DONE]);
             }
-            catch (FileNotFoundException)
+            catch (Exception e)
             {
-                logger.LogError(logLanguage[LogLanguageKey.AT_LEAST_ONE_FILE_MISSING]);
+                if (e is FileNotFoundException)
+                {
+                    logger.LogError(logLanguage[LogLanguageKey.AT_LEAST_ONE_FILE_MISSING]);
+                }
+
+                // The host still stops cleanly, so without this a half-filled database looks like a success.
+                Environment.ExitCode = 1;
                 throw;
             }
             finally
