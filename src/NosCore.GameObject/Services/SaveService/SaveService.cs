@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Observability;
 using NosCore.Dao.Interfaces;
 using NosCore.GameObject.Services.MateService;
 using NosCore.Data.Dto;
@@ -17,6 +18,7 @@ using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,6 +37,19 @@ namespace NosCore.GameObject.Services.SaveService
         : ISaveService
     {
         public async Task<bool> SaveAsync(ClientSession session)
+        {
+            var started = Stopwatch.GetTimestamp();
+            var saved = await TrySaveAsync(session);
+            NosCoreMetrics.SaveDuration.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+            if (!saved)
+            {
+                NosCoreMetrics.SaveFailures.Add(1);
+            }
+
+            return saved;
+        }
+
+        private async Task<bool> TrySaveAsync(ClientSession session)
         {
             try
             {

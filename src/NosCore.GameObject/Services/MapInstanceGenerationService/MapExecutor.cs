@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Observability;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -77,7 +79,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return await work();
             }
 
+            var waitStarted = Stopwatch.GetTimestamp();
             await _gate.WaitAsync();
+            NosCoreMetrics.MapExecutorWait.Record(Stopwatch.GetElapsedTime(waitStarted).TotalMilliseconds);
             var scope = new Scope(this, Current.Value);
             try
             {

@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -476,10 +478,13 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         if (cache == null || goalMoved || leftPath || cache.Path.Count == 0)
         {
             var pathfinder = pathfindingService.ForMap(map.Map);
+            var started = Stopwatch.GetTimestamp();
             var path = pathfinder.FindPath(
                     (entity.PositionX, entity.PositionY),
                     (goalX, goalY))
                 .ToList();
+            NosCoreMetrics.PathSearchDuration.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+            NosCoreMetrics.PathSearches.Add(1, new KeyValuePair<string, object?>("found", path.Count > 0));
             cache = new CachedPath(goalX, goalY, path, now, path.Count == 0);
             entity.ChasePath = cache;
         }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Observability;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
@@ -26,12 +27,24 @@ namespace NosCore.GameObject.Services.BroadcastService
 
         public void Register(SessionInfo sessionInfo)
         {
+            if (_sessionsByChannelId.TryAdd(sessionInfo.ChannelId, sessionInfo))
+            {
+                NosCoreMetrics.SessionsOnline.Add(1);
+                return;
+            }
+
             _sessionsByChannelId[sessionInfo.ChannelId] = sessionInfo;
         }
 
         public void Unregister(string channelId)
         {
-            if (_sessionsByChannelId.TryRemove(channelId, out var session) && session.CharacterId.HasValue)
+            if (!_sessionsByChannelId.TryRemove(channelId, out var session))
+            {
+                return;
+            }
+
+            NosCoreMetrics.SessionsOnline.Add(-1);
+            if (session.CharacterId.HasValue)
             {
                 _channelIdByCharacterId.TryRemove(session.CharacterId.Value, out _);
             }

@@ -167,3 +167,5 @@ need the PostgreSQL from above and report themselves as not run without it.
   It lets go when that connection closes; restarting the world server always clears it.
 - **`MSB3026` or `MSB3027` during a build.** A running server holds the files being replaced.
   Stop the servers and build again.
+- **A server is slow or stalls.** [observability.md](observability.md) shows how to watch its
+  packet, map tick, save and master request timings while it runs.
