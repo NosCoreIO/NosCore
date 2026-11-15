@@ -255,6 +255,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short ShipmasterY = 112;
         private const short ShipmasterDialog = 3;
 
+        // Gambles an item's rarity, and does nothing else: its shop type offers that one service.
+        public const int Gambler = 6;
+        private const short GamblerVNum = 12;
+        public const short GamblerX = 94;
+        public const short GamblerY = 112;
+        private const short GamblerDialog = 3;
+        private const byte GamblingShop = 4;
+        public const short CellaPowder = 1014;
+        public const short BlessingAmulet = 282;
+
         public static async Task SeedAsync(NosCoreContext context)
         {
             context.Add(OpenMap(Town, 200, 200));
@@ -589,6 +599,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedRaidAsync(context);
             SeedSoundFlower(context);
             await SeedAct4Async(context);
+            await SeedGamblerAsync(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
         }
@@ -705,6 +716,30 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 MapNpcId = Shipmaster, MapId = Town, MapX = ShipmasterX, MapY = ShipmasterY, VNum = ShipmasterVNum, Dialog = ShipmasterDialog
             });
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedGamblerAsync(NosCoreContext context)
+        {
+            context.Add(new Item
+            {
+                VNum = CellaPowder, Name = "cellapowder", Type = NoscorePocketType.Etc, ItemType = ItemType.Main,
+                Material = MaterialType.CellaPowder
+            });
+            context.Add(new Item
+            {
+                VNum = BlessingAmulet, Name = "blessingamulet", Type = NoscorePocketType.Equipment, ItemType = ItemType.Jewelery,
+                EquipmentSlot = EquipmentType.Amulet, Effect = ItemEffectType.RedAmulet
+            });
+            context.Add(new NpcTalk { DialogId = GamblerDialog, Name = "gambler" });
+            context.Add(new NpcMonster { NpcMonsterVNum = GamblerVNum, Name = "gambler", Level = 1, MaxHp = 100 });
+            await context.SaveChangesAsync();
+            context.Add(new MapNpc
+            {
+                MapNpcId = Gambler, MapId = Town, MapX = GamblerX, MapY = GamblerY, VNum = GamblerVNum, Dialog = GamblerDialog
+            });
+            context.Add(new Shop { MapNpcId = Gambler, MenuType = 0, ShopType = GamblingShop });
+            context.Add(new ShopTypeService { ShopTypeServiceId = 2, ShopType = GamblingShop, Service = NpcService.EquipmentRarify });
             await context.SaveChangesAsync();
         }
 
