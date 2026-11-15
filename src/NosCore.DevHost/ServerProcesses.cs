@@ -19,16 +19,16 @@ using System.Threading.Tasks;
 
 namespace NosCore.DevHost
 {
-    // Runs every server of a local stack as a child process and stops them together. The order does
-    // not matter: the world server imports the game data and the others wait for it.
+    // Runs every server of a local stack as a child process and stops them together.
     public sealed partial class ServerProcesses(ILogger<ServerProcesses> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IHostApplicationLifetime lifetime) : IHostedService
     {
-        private static readonly (string Prefix, string Assembly)[] Servers =
+        private static readonly (string Prefix, string Assembly, Dictionary<string, string> Environment)[] Servers =
         [
-            ("master", "NosCore.MasterServer"),
-            ("login", "NosCore.LoginServer"),
-            ("world", "NosCore.WorldServer"),
+            ("master", "NosCore.MasterServer", []),
+            ("login", "NosCore.LoginServer", []),
+            ("world", "NosCore.WorldServer", []),
+            ("act4", "NosCore.WorldServer", new() { ["ACT4_CHANNEL"] = "true", ["WORLD_PORT"] = "1338" }),
         ];
 
         private const int SigTerm = 15;
@@ -39,7 +39,7 @@ namespace NosCore.DevHost
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            foreach (var (prefix, assembly) in Servers)
+            foreach (var (prefix, assembly, environment) in Servers)
             {
                 var start = new ProcessStartInfo(DotnetHost())
                 {
@@ -49,6 +49,11 @@ namespace NosCore.DevHost
                     WorkingDirectory = AppContext.BaseDirectory,
                 };
                 start.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, assembly + ".dll"));
+                foreach (var (name, value) in environment)
+                {
+                    start.Environment[name] = value;
+                }
+
                 var process = new Process { StartInfo = start, EnableRaisingEvents = true };
                 process.OutputDataReceived += (_, e) => Write(prefix, e.Data);
                 process.ErrorDataReceived += (_, e) => Write(prefix, e.Data);

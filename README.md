@@ -37,7 +37,7 @@ dotnet NosCore.WorldServer.dll
 
 The parser creates the database, applies the migrations and imports the game data. Run it again after pulling: it is
 safe to run on a database it already filled. On Windows, `scripts\` has a `.cmd` for each step, and
-`docker-compose.yml` runs the same servers in containers. If you would rather have the three servers in one terminal,
+`docker-compose.yml` runs the same servers in containers. If you would rather have the servers, the Act 4 channel included, in one terminal,
 run `dotnet run --project src/NosCore.DevHost` from the root of the clone once the database is filled.
 
 To play Glacernon on a channel of its own, also start `ACT4_CHANNEL=true WORLD_PORT=1338 dotnet NosCore.WorldServer.dll` from

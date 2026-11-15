@@ -133,7 +133,8 @@ Stop the world server with Ctrl+C rather than killing it: it saves its character
 out.
 
 Once the database is filled, `dotnet run --project src/NosCore.DevHost` from the root of the
-clone can also build and start the three servers in one terminal, if you prefer.
+clone can also build and start the master, the login server, the world and the Act 4 world in one
+terminal, if you prefer.
 
 ## 5. Connect a client
 
