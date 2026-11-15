@@ -46,6 +46,10 @@ namespace NosCore.PacketHandlers.Movement
                             return Task.CompletedTask;
                         }
                         return player.RestAsync();
+                    case VisualType.Npc:
+                        return clientSession.Character.Mates.TryGetValue(u.VisualId, out var mate) && mate.Entity is { } entity
+                            ? entity.RestAsync()
+                            : Task.CompletedTask;
                     default:
                         logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                             u.VisualType);

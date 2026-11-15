@@ -7,8 +7,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MateService;
 using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.ServerPackets.Entities;
@@ -29,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         private SitPacketHandler Handler;
         private ClientSession Session;
         private ClientSession OtherSession;
+        private Mate Pet;
         private readonly ILogger<SitPacketHandler> Logger = new Mock<ILogger<SitPacketHandler>>().Object;
 
         [TestInitialize]
@@ -169,6 +172,40 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task SittingAnOutPetMakesItRest()
+        {
+            await new Spec("Sitting an out pet makes it rest")
+                .GivenAsync(CharacterIsOnMapWithAnOutPet)
+                .WhenAsync(SittingThePet)
+                .Then(PetIsSittingShouldBe_, true)
+                .And(TheMapShouldSeeThePetRest_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SittingAnOutPetTwiceStandsItBackUp()
+        {
+            await new Spec("Sitting an out pet twice stands it back up")
+                .GivenAsync(CharacterIsOnMapWithAnOutPet)
+                .WhenAsync(SittingThePet)
+                .AndAsync(SittingThePet)
+                .Then(PetIsSittingShouldBe_, false)
+                .And(TheMapShouldSeeThePetRest_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SittingSomeoneElsesPetIsIgnored()
+        {
+            await new Spec("Sitting someone else's pet is ignored")
+                .GivenAsync(CharacterIsOnMapWithAnOutPet)
+                .WhenAsync(OtherPlayerSitsThePet)
+                .Then(PetIsSittingShouldBe_, false)
+                .And(TheMapShouldSeeNoRestPacket)
+                .ExecuteAsync();
+        }
+
         private void CharacterIsStanding()
         {
             Session.Character.IsSitting = false;
@@ -236,6 +273,44 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 }
             }, Session);
         }
+
+        private async Task CharacterIsOnMapWithAnOutPet()
+        {
+            CharacterIsOnMap();
+            OtherPlayerIsOnSameMap();
+            Pet = TestMates.Pet(Session.Character.CharacterId);
+            Session.Character.Mates[Pet.MateTransportId] = Pet;
+            await Pet.SpawnAsync(Session.Character, Session.Character.MapInstance, 7, 9);
+            Session.Character.MapInstance.LastPackets.Clear();
+        }
+
+        private Task SittingThePet() => SittingPetAs(Session);
+
+        private Task OtherPlayerSitsThePet() => SittingPetAs(OtherSession);
+
+        private Task SittingPetAs(ClientSession session) =>
+            Handler.ExecuteAsync(new SitPacket
+            {
+                Users = new List<SitSubPacket?>
+                {
+                    new SitSubPacket
+                    {
+                        VisualType = VisualType.Npc,
+                        VisualId = Pet.MateTransportId
+                    }
+                }
+            }, session);
+
+        private void PetIsSittingShouldBe_(bool expected) =>
+            Assert.AreEqual(expected, Pet.Entity.NotNull().IsSitting);
+
+        private void TheMapShouldSeeThePetRest_(bool sitting) =>
+            PacketAssert.AreEqual(new RestPacket
+            {
+                VisualType = VisualType.Npc,
+                VisualId = Pet.MateTransportId,
+                IsSitting = sitting
+            }, Session.Character.MapInstance.LastPackets.OfType<RestPacket>().Last());
 
         private void IsSittingShouldBe_(bool expected) =>
             Assert.AreEqual(expected, Session.Character.IsSitting);
