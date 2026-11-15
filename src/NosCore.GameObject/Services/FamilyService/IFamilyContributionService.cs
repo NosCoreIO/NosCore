@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.Data.Enumerations.Interaction;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService
@@ -26,5 +27,7 @@ namespace NosCore.GameObject.Services.FamilyService
 
         // Once per family taking part in the run, however many of its members finished it.
         Task RaidWonAsync(long familyId, IReadOnlyCollection<long> characterIds, byte raidId, bool isHeroic);
+
+        Task GlacernonRaidWonAsync(long familyId, Act4RaidType raid, bool inTenMinutes, bool withoutLoss);
     }
 }

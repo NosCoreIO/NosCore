@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Family;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.FamilyService;
@@ -123,6 +124,41 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .And(TheHistoryShouldStayEmpty)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AGlacernonRaidWinIsWrittenToTheHistoryAndCountedOnce()
+        {
+            await new Spec("Beating Lord Hatus writes a raid line and counts once towards the family raid and Hatus quests")
+                .WhenAsync(TheFamilyBeats_, Act4RaidType.Hatus, false, false)
+                .Then(TheHistoryShouldSayTheFamilyMastered_, Act4RaidType.Hatus)
+                .And(TheFamilyShouldAdvance_With_Once, FamilyQuestObjective.GlacernonRaid, (int?)null)
+                .And(TheFamilyShouldAdvance_With_Once, FamilyQuestObjective.GlacernonRaidBoss, (int?)Act4RaidType.Hatus)
+                .And(TheFamilyShouldNotAdvance_, FamilyQuestObjective.GlacernonRaidInTenMinutes)
+                .And(TheFamilyShouldNotAdvance_, FamilyQuestObjective.GlacernonRaidWithoutLoss)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AQuickGlacernonRaidWinWithoutLossCountsForThoseMissionsToo()
+        {
+            await new Spec("Beating Lady Calvinas within ten minutes and without anyone falling counts for both daily missions")
+                .WhenAsync(TheFamilyBeats_, Act4RaidType.Calvina, true, true)
+                .Then(TheFamilyShouldAdvance_With_Once, FamilyQuestObjective.GlacernonRaidInTenMinutes, (int?)null)
+                .And(TheFamilyShouldAdvance_With_Once, FamilyQuestObjective.GlacernonRaidWithoutLoss, (int?)null)
+                .ExecuteAsync();
+        }
+
+        private Task TheFamilyBeats_(Act4RaidType raid, bool inTenMinutes, bool withoutLoss) =>
+            _service.GlacernonRaidWonAsync(FamilyId, raid, inTenMinutes, withoutLoss);
+
+        private void TheHistoryShouldSayTheFamilyMastered_(Act4RaidType raid) =>
+            CollectionAssert.AreEqual(new object[] { (byte)raid }, _logs.Single(s => s.Type == FamilyLogType.RaidWon).Arguments);
+
+        private void TheFamilyShouldAdvance_With_Once(FamilyQuestObjective objective, int? parameter) =>
+            _hub.Verify(s => s.AdvanceQuestsAsync(FamilyId, null, objective, 1, parameter), Times.Once);
+
+        private void TheFamilyShouldNotAdvance_(FamilyQuestObjective objective) =>
+            _hub.Verify(s => s.AdvanceQuestsAsync(It.IsAny<long>(), It.IsAny<long?>(), objective, It.IsAny<int>(), It.IsAny<int?>()), Times.Never);
 
         private Task Members_And_WinRaid_(int first, int second, int raidId) =>
             _service.RaidWonAsync(FamilyId, new long[] { first, second }, (byte)raidId, false);
