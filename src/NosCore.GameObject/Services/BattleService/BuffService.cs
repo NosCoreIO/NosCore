@@ -58,6 +58,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             CasterLevel = caster?.Level,
         };
 
+        await CleanseAsync(target, bCards);
         await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
         await NotifyMovementAsync(target, buff);
@@ -135,6 +136,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             BCards: bCards,
             Static: true);
 
+        await CleanseAsync(target, bCards);
         await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
         await NotifyMovementAsync(target, buff);
@@ -225,7 +227,9 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
     }
 
-    public async Task RemoveBadAsync(IAliveEntity target, byte maxLevel)
+    public Task RemoveBadAsync(IAliveEntity target, byte maxLevel) => RemoveUpToLevelAsync(target, BuffType.Bad, maxLevel);
+
+    private async Task RemoveUpToLevelAsync(IAliveEntity target, BuffType buffType, int maxLevel)
     {
         var buffs = target.BuffState();
         if (buffs == null)
@@ -235,10 +239,30 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         foreach (var (cardId, buff) in buffs)
         {
-            if (buff.BuffType == BuffType.Bad && cardCatalog.GetCard(cardId)?.Level <= maxLevel
+            if (buff.BuffType == buffType && !(buff.Static && buffType == BuffType.Good) && cardCatalog.GetCard(cardId)?.Level <= maxLevel
                 && buffs.TryRemove(cardId, out var removed))
             {
                 await SendIconRemovalAsync(target, removed);
+            }
+        }
+    }
+
+    // Effects that strip cards off the entity they land on, whether a skill casts them or a card carries them.
+    private async Task CleanseAsync(IAliveEntity target, IReadOnlyList<BCardDto> bCards)
+    {
+        foreach (var bCard in bCards)
+        {
+            switch (bCard.Effect())
+            {
+                case BCardEffect.LightAndShadowRemoveBadEffects:
+                    await RemoveUpToLevelAsync(target, BuffType.Bad, bCard.FirstData);
+                    break;
+                case BCardEffect.SpecialisationBuffResistanceRemoveBadEffects when Rolls(bCard.FirstData):
+                    await RemoveUpToLevelAsync(target, BuffType.Bad, bCard.SecondData);
+                    break;
+                case BCardEffect.SpecialisationBuffResistanceRemoveBuffBelowLevel when Rolls(bCard.FirstData):
+                    await RemoveUpToLevelAsync(target, BuffType.Good, bCard.SecondData - 1);
+                    break;
             }
         }
     }
@@ -470,6 +494,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     public async Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
         IReadOnlyList<BCardDto> skillBCards)
     {
+        await CleanseAsync(target, skillBCards);
         for (var i = 0; i < skillBCards.Count; i++)
         {
             var bCard = skillBCards[i];
