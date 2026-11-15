@@ -106,6 +106,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public EndStateType? EndState { get; private set; }
 
+        public bool HasStarted => _started;
+
         public int MonstersSummoned { get; private set; }
 
         public int MonstersKilled { get; private set; }
@@ -561,6 +563,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             EndState == EndStateType.Success && _chestsOpened.TryAdd(characterId, 0);
 
         public void Fail() => End(EndStateType.Fail);
+
+        public void RunOutOfLives() => End(EndStateType.LivesExhausted);
 
         private void End(EndStateType state)
         {

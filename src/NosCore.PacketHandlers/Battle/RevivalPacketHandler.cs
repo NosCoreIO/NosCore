@@ -18,6 +18,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.LandOfDeathService;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
@@ -52,7 +53,8 @@ namespace NosCore.PacketHandlers.Battle
         IBuffService buffService,
         ICardCatalog cardCatalog,
         IItemCatalog itemCatalog,
-        ILandOfDeathService landOfDeathService)
+        ILandOfDeathService landOfDeathService,
+        IScriptedInstanceService scriptedInstanceService)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedsRequired = 10;
@@ -62,6 +64,12 @@ namespace NosCore.PacketHandlers.Battle
         {
             if (!session.HasPlayerEntity) return;
             var character = session.Character;
+            // A scripted run revives its own players when it decides to.
+            if (character.MapInstance is { } map && scriptedInstanceService.GetRun(map.MapInstanceId) != null)
+            {
+                return;
+            }
+
             character.IsAlive = true;
 
             try

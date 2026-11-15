@@ -52,6 +52,9 @@ namespace NosCore.Instances.Abstractions
 
         public int FamilyExperience { get; init; }
 
+        // Deaths the party can afford: the one after the last life fails the run.
+        public byte Lives { get; init; }
+
         public IReadOnlyList<BoutSide> Sides { get; init; } = [];
 
         public IReadOnlyList<InstanceRoom> Rooms { get; init; } = [];

@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.PacketHandlers.Battle;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
@@ -44,11 +45,18 @@ namespace NosCore.PacketHandlers.Tests.Battle
     {
         private TestWorld World;
         private const short SeedOfPowerVNum = 1012;
+        private sealed class RunScript : NosCore.Instances.Abstractions.InstanceScript
+        {
+            public RunScript() =>
+                Definition = NosCore.Instances.Abstractions.InstanceDefinitionBuilder.Named(1, "timespace", "timespace").Build();
+        }
+
         private RevivalPacketHandler _handler;
         private ClientSession _session;
         private Mock<IMapChangeService> _mapChangeService;
         private Mock<IRespawnService> _respawnService;
         private Mock<ILandOfDeathService> _landOfDeath = new();
+        private readonly Mock<IScriptedInstanceService> _scriptedInstances = new();
         private BuffService _buffs;
         private readonly List<IPacket> _broadcast = new();
 
@@ -76,7 +84,20 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 _buffs,
                 catalog.Object,
                 UpgradeMaterials.Catalog(),
-                _landOfDeath.Object);
+                _landOfDeath.Object,
+                _scriptedInstances.Object);
+        }
+
+        [TestMethod]
+        public async Task RevivalRequestsInsideAScriptedRunAreIgnored()
+        {
+            await new Spec("Inside a time-space or raid the run revives its players, so a revival packet does nothing")
+                .Given(CharacterIsDeadAtLevel_, (byte)10)
+                .And(CharacterIsInsideAScriptedRun)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(CharacterShouldStillBeDead)
+                .And(MapChangeShouldNotBeCalled)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -351,7 +372,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 buffs.Object,
                 catalog.Object,
                 UpgradeMaterials.Catalog(),
-                _landOfDeath.Object);
+                _landOfDeath.Object,
+                _scriptedInstances.Object);
         }
 
         private void CharacterShouldBeAlive() =>
@@ -398,6 +420,24 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void CharacterHasGold_(long gold)
         {
             _session.Character.Gold = gold;
+        }
+
+        private void CharacterIsInsideAScriptedRun()
+        {
+            var room = _session.Character.MapInstance.MapInstanceId;
+            var script = new RunScript();
+            var run = new ScriptedInstanceRun(
+                new TimeSpaceRunHost(
+                    new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
+                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<Wolverine.IMessageBus>().Object, World.Clock),
+                script,
+                new Dictionary<int, GameObject.Services.MapInstanceGenerationService.MapInstance> { [1] = _session.Character.MapInstance },
+                new Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
+                new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
+                World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
+                Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance,
+                World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
+            _scriptedInstances.Setup(s => s.GetRun(room)).Returns(run);
         }
 
         private void CharacterIsInTheLandOfDeath() =>

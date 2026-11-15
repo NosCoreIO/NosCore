@@ -30,6 +30,7 @@ namespace NosCore.Instances.Abstractions
         private long _gold;
         private int _reputation;
         private int _familyExperience;
+        private byte _lives;
 
         public static InstanceDefinitionBuilder Named(byte id, string label, string title)
         {
@@ -105,6 +106,12 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        public InstanceDefinitionBuilder WithLives(byte lives)
+        {
+            _lives = lives;
+            return this;
+        }
+
         public InstanceDefinitionBuilder WithDraw(short vNum, short amount)
         {
             _draws.Add(new InstanceGift(vNum, amount));
@@ -152,6 +159,7 @@ namespace NosCore.Instances.Abstractions
                 Gold = _gold,
                 Reputation = _reputation,
                 FamilyExperience = _familyExperience,
+                Lives = _lives,
                 Sides = [.. _sides],
                 Rooms = [.. _rooms]
             };
