@@ -14,6 +14,9 @@ namespace NosCore.Instances.Abstractions
     // cells apart below Entry in their fighting order.
     public record BoutSide(Spot Entry, Spot Bench, Spot Ring);
 
+    // The area a side starts in, and comes back to, between two opposite corners.
+    public record SideBase(Spot From, Spot To);
+
     public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false)
     {
         public IReadOnlyList<short> MapNpcs { get; init; } = [];
@@ -59,6 +62,8 @@ namespace NosCore.Instances.Abstractions
         public byte Lives { get; init; }
 
         public IReadOnlyList<BoutSide> Sides { get; init; } = [];
+
+        public IReadOnlyList<SideBase> Bases { get; init; } = [];
 
         public IReadOnlyList<InstanceRoom> Rooms { get; init; } = [];
     }

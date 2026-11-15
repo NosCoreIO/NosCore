@@ -505,6 +505,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public void PlaceNpc(int room, short vNum, Spot at)
+        {
+            if (!_npcMonsters.TryGetValue(vNum, out var npcMonster))
+            {
+                _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, vNum);
+                return;
+            }
+
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, async () =>
+            {
+                var npc = mapInstance.PlaceNpc(npcMonster, at.X, at.Y);
+                await mapInstance.SendPacketAsync(npc.GenerateIn());
+                await _host.NpcPlacedAsync(this, mapInstance, npc);
+            }));
+        }
+
         public Task UseButtonAsync(Guid mapInstanceId, int button)
         {
             return RunAsync(async () =>
@@ -802,6 +819,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
                 Do(() => run.PlaceButton(room, button, at, offVNum, onVNum, toggles));
+
+            public void PlaceNpc(int room, short vNum, Spot at) => Do(() => run.PlaceNpc(room, vNum, at));
 
             public void StartClock(TimeSpan limit) => Do(() => run.StartClock(limit));
 

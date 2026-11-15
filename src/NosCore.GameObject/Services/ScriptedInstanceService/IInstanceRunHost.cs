@@ -45,6 +45,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
 
+        Task NpcPlacedAsync(ScriptedInstanceRun run, MapInstance room, NpcComponentBundle npc) => Task.CompletedTask;
+
         Task CountdownAsync(ScriptedInstanceRun run, MapInstance room, TimeSpan length) =>
             room.SendPacketAsync(new EventPacket
             {

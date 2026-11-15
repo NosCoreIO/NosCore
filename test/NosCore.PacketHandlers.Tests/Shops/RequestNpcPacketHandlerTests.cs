@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Algorithm.DignityService;
 using NosCore.Data.Dto;
@@ -52,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NullLogger<RequestNpcPacketHandler>.Instance,
                 World.LogLanguageLocalizer,
                 World.SessionRegistry,
-                MessageBus.Object, World.NpcDialogService);
+                MessageBus.Object, World.NpcDialogService, new Mock<IRainbowBattleService>().Object);
         }
 
         [TestMethod]
