@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Tests.Shared.BDD.Steps;
+using NosCore.GameObject.Services.ShopService;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -54,6 +56,24 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
+        public async Task AnNpcOfferingUpgradesOpensTheWindow()
+        {
+            await new Spec("An NPC whose shop type offers upgrades opens the upgrade window")
+                .WhenAsync(NrunUpgradeItemIsHandledAtAnNpcOfShopType_, TestWorld.UpgraderShopType)
+                .Then(TheUpgradeWindowShouldHaveOpened)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnNpcNotOfferingUpgradesOpensNothing()
+        {
+            await new Spec("An NPC whose shop type does not offer upgrades opens nothing")
+                .WhenAsync(NrunUpgradeItemIsHandledAtAnNpcOfShopType_, TestWorld.AlchemistShopType)
+                .Then(NoWopenShouldHaveBeenSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task RunnerPropertyMatchesUpgradeItem()
         {
             await new Spec("UpgradeItemHandler declares NrunRunnerType.UpgradeItem")
@@ -68,6 +88,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _handler.HandleAsync(_session,
                 new Mock<IAliveEntity>().Object,
                 new NrunPacket { Runner = NrunRunnerType.UpgradeItem });
+
+        private Task NrunUpgradeItemIsHandledAtAnNpcOfShopType_(byte shopType)
+        {
+            var npc = _session.WithNpcAt(1, 1, 1);
+            npc.Shop = new Shop { ShopType = shopType };
+            return _handler.HandleAsync(_session, npc, new NrunPacket { Runner = NrunRunnerType.UpgradeItem });
+        }
+
+        private void TheUpgradeWindowShouldHaveOpened() =>
+            Assert.AreEqual(WindowType.UpgradeItem, _session.LastPackets.OfType<WopenPacket>().Single().Type);
 
         private Task NrunUpgradeItemWithNullTargetIsHandled() =>
             _handler.HandleAsync(_session, null,

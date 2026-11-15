@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.GameObject.Networking.ClientSession;
@@ -20,6 +21,9 @@ public interface IUpgradeOperation
 
     // The dialog that has to be open for the window to be used.
     NpcDialogWindow Window { get; }
+
+    // The service the NPC whose dialog is open has to offer, when the window belongs to an NPC.
+    NpcService? Service { get; }
 
     Task<IReadOnlyList<IPacket>> ExecuteAsync(ClientSession session, UpgradePacket packet);
 }

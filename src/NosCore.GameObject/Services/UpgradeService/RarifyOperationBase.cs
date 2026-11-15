@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Algorithm.RarityPointService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Data.Enumerations.Items;
@@ -45,6 +46,8 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         IItemCatalog itemCatalog, IRarityPointService rarityPoints)
     : UpgradeOperation(random, localizer)
 {
+    public override NpcService? Service => NpcService.EquipmentRarify;
+
     public const sbyte MaxRarity = 8;
     public const long BaseGoldCost = 500;
     public const short BaseCellonCost = 5;

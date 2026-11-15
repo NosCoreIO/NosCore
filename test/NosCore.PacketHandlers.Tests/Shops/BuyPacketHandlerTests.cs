@@ -54,7 +54,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, System.Guid>>().Object,
                 new Mock<IFamilyShopService>().Object,
                 World.Create<DignityService>(),
-                SkillService.Object);
+                SkillService.Object,
+                World.NpcServiceCatalog);
         }
 
         [TestMethod]

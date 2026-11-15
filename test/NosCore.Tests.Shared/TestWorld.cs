@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -27,6 +28,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
@@ -146,6 +148,8 @@ namespace NosCore.Tests.Shared
 
             Fixture.Inject(ItemList);
             Fixture.Inject(new List<MountMapSpeedDto>());
+            Fixture.Inject(ShopTypeServices);
+            Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
             Fixture.Freeze<Mock<IMinilandService>>()
@@ -273,6 +277,20 @@ namespace NosCore.Tests.Shared
         public IItemGenerationService GenerateItemProvider() => Create<ItemGenerationService>();
 
         public NpcDialogService NpcDialogService => Create<NpcDialogService>();
+
+        public const byte UpgraderShopType = 3;
+
+        public const byte AlchemistShopType = 7;
+
+        public List<ShopTypeServiceDto> ShopTypeServices { get; } =
+        [
+            new() { ShopTypeServiceId = 1, ShopType = UpgraderShopType, Service = NpcService.EquipmentUpgrade },
+            new() { ShopTypeServiceId = 2, ShopType = AlchemistShopType, Service = NpcService.ResistanceSum },
+            new() { ShopTypeServiceId = 3, ShopType = AlchemistShopType, Service = NpcService.SpecialistCardUpgrade },
+            new() { ShopTypeServiceId = 4, ShopType = AlchemistShopType, Service = NpcService.SpecialistCardPerfection },
+        ];
+
+        public NpcServiceCatalog NpcServiceCatalog => new(ShopTypeServices);
 
         public GroupLootService GroupLootService => Create<GroupLootService>();
 

@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ShopService;
+using NosCore.Data.Enumerations.Interaction;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
@@ -35,7 +37,8 @@ namespace NosCore.PacketHandlers.Shops
             ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, INpcDialogService npcDialogService,
             IShellOptionService shellOptionService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IFamilyShopService familyShopService, IDignityService dignityService, ISkillService skillService)
+            IFamilyShopService familyShopService, IDignityService dignityService, ISkillService skillService,
+            INpcServiceCatalog npcServices)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -88,7 +91,7 @@ namespace NosCore.PacketHandlers.Shops
                     return skill == null ? Task.CompletedTask : skillService.BuyAsync(clientSession.Character, skill);
                 }
 
-                return buyPacket.VisualType == VisualType.Npc && shop.ShopType == FamilyShopService.ShopType
+                return buyPacket.VisualType == VisualType.Npc && npcServices.Offers(aliveEntity, NpcService.FamilyManager)
                     ? familyShopService.BuyAsync(clientSession, aliveEntity, buyPacket.Slot)
                     : clientSession.Character.BuyAsync(shop, buyPacket.Slot, amount, worldConfiguration,
                         itemProvider, dignityService, shellOptionService, itemInstanceDao);

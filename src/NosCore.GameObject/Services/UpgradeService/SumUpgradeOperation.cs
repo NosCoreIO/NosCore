@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Algorithm.SumService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using System.Collections.Generic;
@@ -34,6 +35,8 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
     : UpgradeOperation(random, localizer)
 {
     public override UpgradePacketType Kind => UpgradePacketType.SumResistance;
+
+    public override NpcService? Service => NpcService.ResistanceSum;
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.CombinationSuccessful;
 

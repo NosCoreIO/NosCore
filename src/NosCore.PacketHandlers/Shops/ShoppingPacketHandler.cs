@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ShopService;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Algorithm.DignityService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
@@ -24,7 +26,8 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class ShoppingPacketHandler(ILogger<ShoppingPacketHandler> logger, IDignityService dignityService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
-            INpcDialogService npcDialogService, IFamilyShopService familyShopService)
+            INpcDialogService npcDialogService, IFamilyShopService familyShopService,
+            INpcServiceCatalog npcServices)
         : PacketHandler<ShoppingPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
@@ -62,7 +65,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            if (shoppingPacket.VisualType == VisualType.Npc && aliveEntity.Shop?.ShopType == FamilyShopService.ShopType)
+            if (shoppingPacket.VisualType == VisualType.Npc && npcServices.Offers(aliveEntity, NpcService.FamilyManager))
             {
                 npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.Shop);
                 await familyShopService.OpenAsync(clientSession, aliveEntity);
