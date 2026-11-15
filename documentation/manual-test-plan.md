@@ -1070,6 +1070,15 @@ menu needs the import run again: until then those destinations take nobody anywh
       nobody moves
 - [ ] After re-running the import on an existing database, every teleporter above still works
 
+### NPC auras
+
+Run the parser's map NPC import first: an NPC's aura now comes from its `monster.dat` entry.
+
+- [ ] Stand next to a Teleportation Tower (NosVille, vnum 955): its aura plays every few
+      seconds while you watch, and keeps playing for a player who arrives later
+- [ ] A Holy Altar (vnum 867) and an Easter Sack (vnum 985) play their own aura the same way
+- [ ] An ordinary NPC such as a NosVille guard plays nothing
+
 ### Changing map
 
 Two clients, A and B.
