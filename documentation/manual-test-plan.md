@@ -3176,6 +3176,32 @@ arena) next to Tei Ken, the left NPC on the steps. Learned skills are needed to 
 - [ ] The match runs from `instances/talent-arena.csx`: setting its preparation to 30 seconds and
       restarting the world server makes the first fighters wait 30 seconds, with the HUD clock to match
 
+### Arena of Masters
+
+Run `$Event MasterArena` as a GM, or wait for 15:00 on a Saturday or Sunday; it stays open seven
+hours. Six level-80 characters of the four classes stand in the Individual Arena (map 2006) next to
+Victoria, the right NPC on the steps, in two parties of three. Learned skills are needed to hit
+anybody.
+
+- [ ] Using an Arena of Masters Ticket (made by Steve Stuff from a Gold Medal, or `$CreateItem
+      5934`) takes it from the inventory and says "The number of entries for the Arena of Masters
+      has been increased by 1."
+- [ ] Victoria's "Register for Arena of Masters": before the event it says the Arena of Masters is
+      over, outside the arena it says to register at the arena, without a party of three it asks
+      for three members, with a member on another map it asks everyone to stay on the map, and
+      with a member who has no entry it says one participant's entries are too low
+- [ ] A full party registers together: every member gets the search window titled "Arena of
+      Masters" with "Search for opposing team"; Cancel by any member closes it for all of them
+      and tells the others
+- [ ] Two registered parties are matched; each member loses one entry, and the match HUD reads
+      "Arena of Masters"
+- [ ] The match plays out as in the Arena of Talents; at the end the winners see "Points earned 1"
+      and nobody gets medals
+- [ ] "View Arena of Masters Rankings" opens "Record in the Arena of Masters" with the three
+      characters with the most points of each class (online players included) and the time; a
+      class with fewer than three scorers shows "?" in the rest
+- [ ] A fighter's info window (right-click the HP bar) shows their master points
+
 ---
 
 ## Quests

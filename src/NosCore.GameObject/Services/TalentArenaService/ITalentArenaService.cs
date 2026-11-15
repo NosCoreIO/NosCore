@@ -18,6 +18,14 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         Task RegisterAsync(ClientSession session);
 
+        bool IsMastersOpen { get; }
+
+        // False when the Arena of Masters is already open on this channel.
+        bool TryStartMasters();
+
+        // Registers the player's party of three for the Arena of Masters.
+        Task RegisterMastersAsync(ClientSession session);
+
         // A player who already has teammates is asked to confirm first.
         Task CancelAsync(ClientSession session, bool confirmed);
 

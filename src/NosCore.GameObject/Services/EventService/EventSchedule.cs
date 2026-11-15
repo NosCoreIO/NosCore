@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NodaTime;
+using NodaTime.Extensions;
 using NosCore.Core.Configuration;
 using System;
 using System.Collections.Generic;
@@ -65,8 +66,9 @@ namespace NosCore.GameObject.Services.EventService
         // The first countdown start strictly after now.
         public static LocalDateTime? Start(ScheduledEventConfiguration configuration, LocalDateTime now, TimeSpan countdown)
         {
-            return StartTimes(configuration, now.Date)
-                .Concat(StartTimes(configuration, now.Date.PlusDays(1)))
+            // A week and a day reaches the next slot of an event kept to some days of the week.
+            return Enumerable.Range(0, 8)
+                .SelectMany(day => StartTimes(configuration, now.Date.PlusDays(day)))
                 .Select(start => start.Minus(Period.FromTicks(countdown.Ticks)))
                 .Where(start => start > now)
                 .OrderBy(start => start)
@@ -76,6 +78,11 @@ namespace NosCore.GameObject.Services.EventService
 
         private static IEnumerable<LocalDateTime> StartTimes(ScheduledEventConfiguration configuration, LocalDate day)
         {
+            if (configuration.Days.Count > 0 && !configuration.Days.Contains(day.DayOfWeek.ToDayOfWeek()))
+            {
+                yield break;
+            }
+
             foreach (var at in configuration.At)
             {
                 yield return day.AtMidnight().PlusTicks(at.Ticks);

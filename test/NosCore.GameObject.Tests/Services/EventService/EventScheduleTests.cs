@@ -52,6 +52,44 @@ namespace NosCore.GameObject.Tests.Services.EventService
                 .Execute();
         }
 
+        [TestMethod]
+        public void AnEventKeptToSomeDaysWaitsForTheNextOfThem()
+        {
+            new Spec("A weekend event at 15:00 looked up on a Friday counts down on Saturday")
+                .Given(AWeekendEventAt_, new TimeSpan(15, 0, 0))
+                .When(LookingForTheNextCountdownAt_, new LocalDateTime(2026, 11, 13, 16, 0))
+                .Then(TheCountdownShouldStartAt_, new LocalDateTime(2026, 11, 14, 14, 55))
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AnEventKeptToSomeDaysRunsAgainTheNextDayItIsAllowed()
+        {
+            new Spec("A weekend event at 15:00 looked up after Saturday's start counts down on Sunday")
+                .Given(AWeekendEventAt_, new TimeSpan(15, 0, 0))
+                .When(LookingForTheNextCountdownAt_, new LocalDateTime(2026, 11, 14, 15, 30))
+                .Then(TheCountdownShouldStartAt_, new LocalDateTime(2026, 11, 15, 14, 55))
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AnEventKeptToSomeDaysIsFoundFromEarlyInTheWeek()
+        {
+            new Spec("A weekend event at 15:00 looked up on a Monday counts down on Saturday")
+                .Given(AWeekendEventAt_, new TimeSpan(15, 0, 0))
+                .When(LookingForTheNextCountdownAt_, new LocalDateTime(2026, 11, 16, 9, 0))
+                .Then(TheCountdownShouldStartAt_, new LocalDateTime(2026, 11, 21, 14, 55))
+                .Execute();
+        }
+
+        private void AWeekendEventAt_(TimeSpan at) =>
+            _event = new ScheduledEventConfiguration
+            {
+                Type = EventType.MasterArena,
+                Days = new List<DayOfWeek> { DayOfWeek.Saturday, DayOfWeek.Sunday },
+                At = new List<TimeSpan> { at },
+            };
+
         private void AnEventEvery_HoursShiftedBy_Minutes(int hours, int minutes) =>
             _event = new ScheduledEventConfiguration
             {

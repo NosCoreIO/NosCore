@@ -13,6 +13,7 @@ namespace NosCore.Data.Enumerations.Event
         LandOfDeath,
         TalentArena,
         Act4Ship,
-        RainbowBattle
+        RainbowBattle,
+        MasterArena
     }
 }

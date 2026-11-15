@@ -215,6 +215,57 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task OnlyAWinEarnsMasterPoints()
+        {
+            await new Spec("A win in the Arena of Masters earns a master point, while a loss or a draw earns none")
+                .Then(Zenas_MasterPointsAfter_Are_, ArenaResultType.ZenasWon, 1)
+                .And(Zenas_MasterPointsAfter_Are_, ArenaResultType.EreniaWon, 0)
+                .And(Zenas_MasterPointsAfter_Are_, ArenaResultType.Draw, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheArenaOfMastersOpensBesideTheArenaOfTalents()
+        {
+            await new Spec("The Arena of Masters opens while the Arena of Talents is open, and only once at a time")
+                .Given(TheArenaIsOpen)
+                .Then(OpeningTheArenaOfMastersShouldSucceed)
+                .And(OpeningTheArenaOfMastersAgainShouldBeRefused)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringForTheArenaOfMastersWhileItIsClosedIsRefused()
+        {
+            await new Spec("A party cannot register for the Arena of Masters while it is closed")
+                .Given(TheAttackerStandsInTheArena)
+                .WhenAsync(TheAttackerRegistersForTheArenaOfMastersAsync)
+                .Then(TheAttackerShouldBeTold_, Game18NConstString.ArenaOfMasterOver)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheArenaOfMastersTakesAPartyOfThree()
+        {
+            await new Spec("A player without a party of three cannot register for the Arena of Masters")
+                .Given(TheAttackerStandsInTheArena)
+                .And(TheArenaOfMastersIsOpen)
+                .WhenAsync(TheAttackerRegistersForTheArenaOfMastersAsync)
+                .Then(TheAttackerShouldBeTold_, Game18NConstString.ThreeMemberInGroupRequired)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheArenaOfMastersIsRegisteredForInTheArena()
+        {
+            await new Spec("A player away from the arena is told to register there")
+                .Given(TheArenaOfMastersIsOpen)
+                .WhenAsync(TheAttackerRegistersForTheArenaOfMastersAsync)
+                .Then(TheAttackerShouldBeTold_, Game18NConstString.RegisterAtArena)
+                .ExecuteAsync();
+        }
+
         private void TheAttackerFightsFor_(ArenaTeamType team) => _attacker.Character.TalentArenaTeam = team;
 
         private void TheDefenderFightsFor_(ArenaTeamType team) => _defender.Character.TalentArenaTeam = team;
@@ -233,6 +284,13 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
             var dto = new CharacterDto();
             TalentArena.Record(dto, ArenaTeamType.Zenas, result);
             Assert.AreEqual(record, $"{dto.TalentWin}/{dto.TalentLose}");
+        }
+
+        private static void Zenas_MasterPointsAfter_Are_(ArenaResultType result, int points)
+        {
+            var dto = new CharacterDto { MasterPoints = 5 };
+            Assert.AreEqual(points, TalentArena.RecordMasters(dto, ArenaTeamType.Zenas, result));
+            Assert.AreEqual(5 + points, dto.MasterPoints);
         }
 
         private static void TheMatchWithDefeated_ShouldEndIn_(string defeated, ArenaResultType? expected)
@@ -280,5 +338,13 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
         private void OpeningTheArenaShouldSucceed() => Assert.IsTrue(_service.TryStart());
 
         private void OpeningItAgainShouldBeRefused() => Assert.IsFalse(_service.TryStart());
+
+        private void TheArenaOfMastersIsOpen() => Assert.IsTrue(_service.TryStartMasters());
+
+        private void OpeningTheArenaOfMastersShouldSucceed() => Assert.IsTrue(_service.TryStartMasters());
+
+        private void OpeningTheArenaOfMastersAgainShouldBeRefused() => Assert.IsFalse(_service.TryStartMasters());
+
+        private Task TheAttackerRegistersForTheArenaOfMastersAsync() => _service.RegisterMastersAsync(_attacker);
     }
 }

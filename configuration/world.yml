@@ -60,6 +60,12 @@ Events:
 - Type: TalentArena
   At:
   - 18:00:00
+- Type: MasterArena
+  Days:
+  - Saturday
+  - Sunday
+  At:
+  - 15:00:00
 - Type: RainbowBattle
   Every: 02:00:00
   Offset: 01:00:00
