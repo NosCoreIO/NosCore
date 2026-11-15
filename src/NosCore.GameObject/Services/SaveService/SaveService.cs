@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Services.SaveService
             IDaoTransactionScope daoTransactionScope, IStaticBuffService staticBuffService)
         : ISaveService
     {
-        public async Task SaveAsync(ClientSession session)
+        public async Task<bool> SaveAsync(ClientSession session)
         {
             try
             {
@@ -96,13 +96,13 @@ namespace NosCore.GameObject.Services.SaveService
                 if (await accountDao.TryInsertOrUpdateAsync(account) == null)
                 {
                     Fail("Account upsert");
-                    return;
+                    return false;
                 }
 
                 if (await characterDao.TryInsertOrUpdateAsync(characterDto) == null)
                 {
                     Fail("Character upsert");
-                    return;
+                    return false;
                 }
 
                 var quicklistEntriesToDelete = (quicklistEntriesDao
@@ -111,12 +111,12 @@ namespace NosCore.GameObject.Services.SaveService
                 if (await quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray()) == null)
                 {
                     Fail("QuicklistEntry delete");
-                    return;
+                    return false;
                 }
                 if (!await quicklistEntriesDao.TryInsertOrUpdateAsync(quicklistEntries))
                 {
                     Fail("QuicklistEntry upsert");
-                    return;
+                    return false;
                 }
 
                 var itemsToDelete = (inventoryItemInstanceDao
@@ -127,7 +127,7 @@ namespace NosCore.GameObject.Services.SaveService
                 if (await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray()) == null)
                 {
                     Fail("InventoryItemInstance delete");
-                    return;
+                    return false;
                 }
                 var instancesToDelete = itemsToDelete.Select(s => s.ItemInstanceId).ToHashSet();
                 var deletedRows = itemsToDelete.Select(s => s.Id).ToHashSet();
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.Services.SaveService
                 if (await itemInstanceDao.TryDeleteAsync(instancesToDelete.Except(stillHeld).ToArray()) == null)
                 {
                     Fail("ItemInstance delete");
-                    return;
+                    return false;
                 }
 
                 // Inventory insert order: parent ItemInstance rows first so the FK on
@@ -154,12 +154,12 @@ namespace NosCore.GameObject.Services.SaveService
                 if (!await itemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray()))
                 {
                     Fail("ItemInstance upsert");
-                    return;
+                    return false;
                 }
                 if (!await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray()))
                 {
                     Fail("InventoryItemInstance upsert");
-                    return;
+                    return false;
                 }
 
                 var staticBonusToDelete = (staticBonusDao
@@ -168,31 +168,31 @@ namespace NosCore.GameObject.Services.SaveService
                 if (await staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId)) == null)
                 {
                     Fail("StaticBonus delete");
-                    return;
+                    return false;
                 }
                 if (!await staticBonusDao.TryInsertOrUpdateAsync(staticBonusList))
                 {
                     Fail("StaticBonus upsert");
-                    return;
+                    return false;
                 }
 
                 if (!await staticBuffService.SaveAsync(character))
                 {
                     Fail("StaticBuff save");
-                    return;
+                    return false;
                 }
 
                 if (!await titleDao.TryInsertOrUpdateAsync(titles))
                 {
                     Fail("Title upsert");
-                    return;
+                    return false;
                 }
 
                 var minilandDto = (MinilandDto)minilandProvider.GetMiniland(characterId);
                 if (await minilandDao.TryInsertOrUpdateAsync(minilandDto) == null)
                 {
                     Fail("Miniland upsert");
-                    return;
+                    return false;
                 }
 
                 var questsToDelete = (characterQuestDao
@@ -201,12 +201,12 @@ namespace NosCore.GameObject.Services.SaveService
                 if (await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id)) == null)
                 {
                     Fail("CharacterQuest delete");
-                    return;
+                    return false;
                 }
                 if (!await characterQuestDao.TryInsertOrUpdateAsync(quests.Values))
                 {
                     Fail("CharacterQuest upsert");
-                    return;
+                    return false;
                 }
 
                 var liveObjectives = quests.Values.SelectMany(q =>
@@ -237,12 +237,12 @@ namespace NosCore.GameObject.Services.SaveService
                 if (await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete) == null)
                 {
                     Fail("CharacterQuestObjective delete");
-                    return;
+                    return false;
                 }
                 if (!await characterQuestObjectiveDao.TryInsertOrUpdateAsync(liveObjectives))
                 {
                     Fail("CharacterQuestObjective upsert");
-                    return;
+                    return false;
                 }
 
                 // The key is shared by every character, so a new row takes the id the database gives it.
@@ -252,7 +252,7 @@ namespace NosCore.GameObject.Services.SaveService
                     if (inserted == null)
                     {
                         Fail("Respawn insert");
-                        return;
+                        return false;
                     }
                     respawn.RespawnId = inserted.RespawnId;
                 }
@@ -260,20 +260,22 @@ namespace NosCore.GameObject.Services.SaveService
                 if (!await respawnDao.TryInsertOrUpdateAsync(character.Respawns))
                 {
                     Fail("Respawn upsert");
-                    return;
+                    return false;
                 }
 
                 if (!await mateService.SaveAsync(character.Mates.Values))
                 {
                     Fail("Mate upsert");
-                    return;
+                    return false;
                 }
 
                 await transaction.CommitAsync();
+                return true;
             }
             catch (Exception e)
             {
                 logger.LogError(e, logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
+                return false;
             }
         }
     }

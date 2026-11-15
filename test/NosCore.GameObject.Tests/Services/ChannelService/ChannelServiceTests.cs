@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
             SaveService = World.Freeze<Mock<ISaveService>>();
 
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
-                .Returns(Task.CompletedTask);
+                .ReturnsAsync(true);
 
             Service = World.Create<GameObject.Services.ChannelService.ChannelService>();
         }
@@ -189,6 +189,68 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AFailedSaveKeepsThePlayerOnThisChannel()
+        {
+            await new Spec("A failed save keeps the player on this channel")
+                .Given(BothKindsOfChannelRun)
+                .And(ThePlayerStandsInPortAlveus)
+                .And(TheSaveFails)
+                .WhenAsync(SailingToTheAngelCitadel)
+                .Then(ThePlayerShouldHaveStayed)
+                .And(TheCharacterShouldStillStandInPortAlveus)
+                .And(NoChannelChangeShouldBeAwaited)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GlacernonStaysHereWhenThePlayerCannotBeSaved()
+        {
+            await new Spec("Glacernon stays here when the player cannot be saved")
+                .Given(BothKindsOfChannelRun)
+                .And(TheSaveFails)
+                .WhenAsync(EnteringGlacernon)
+                .Then(ThePlayerShouldHaveStayed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheClientIsToldToReconnectOnlyOnceThePlayerIsSaved()
+        {
+            await new Spec("The client is told to reconnect only once the player is saved")
+                .Given(TargetChannelExists)
+                .And(TheSaveFails)
+                .WhenAsync(MovingToChannel)
+                .Then(NoPacketsShouldBeSent)
+                .And(NoChannelChangeShouldBeAwaited)
+                .ExecuteAsync();
+        }
+
+        private void ThePlayerStandsInPortAlveus()
+        {
+            Session.Character.MapId = 145;
+            Session.Character.MapX = 50;
+            Session.Character.MapY = 42;
+        }
+
+        private void TheSaveFails()
+        {
+            SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>())).ReturnsAsync(false);
+        }
+
+        private void TheCharacterShouldStillStandInPortAlveus()
+        {
+            Assert.AreEqual((short)145, Session.Character.MapId);
+            Assert.AreEqual((short)50, Session.Character.MapX);
+            Assert.AreEqual((short)42, Session.Character.MapY);
+        }
+
+        private void NoChannelChangeShouldBeAwaited()
+        {
+            AuthHub.Verify(s => s.SetAwaitingChannelChangeAsync(It.IsAny<string>(), It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
+            Assert.IsFalse(Session.LastPackets.OfType<ItPacket>().Any());
+        }
+
         private bool Moved;
 
         private async Task EnteringGlacernon()
@@ -274,7 +336,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
         private async Task SailingToTheAngelCitadel()
         {
             var act4 = (await ChannelHub.Object.GetCommunicationChannels()).Single(c => c.IsAct4);
-            await Service.MoveToMapAsync(Session, act4, ItModeType.ShipToAct4, 130, 12, 38);
+            Moved = await Service.MoveToMapAsync(Session, act4, ItModeType.ShipToAct4, 130, 12, 38);
         }
 
         private void TheCharacterShouldStandInTheAngelCitadel()
