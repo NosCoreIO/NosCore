@@ -336,6 +336,8 @@ public sealed class BattleStatsProvider(
             ForcedMovementResistance = stats.ForcedMovementResistance + totals.ForcedMovementResistance,
             SurroundingDamageChance = stats.SurroundingDamageChance + totals.SurroundingChance,
             SurroundingDamageRadius = Math.Max(stats.SurroundingDamageRadius, totals.SurroundingRadius),
+            FinalCriticalDamagePercent = stats.FinalCriticalDamagePercent + totals.FinalCrit,
+            FinalCriticalDamageTakenPercent = stats.FinalCriticalDamageTakenPercent + totals.FinalCritTaken,
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
             CriticalReceivedChance = stats.CriticalReceivedChance + totals.CritReceivedChance,
@@ -375,6 +377,7 @@ public sealed class BattleStatsProvider(
         public int FairyElement;
         public int GuaranteedHit, GuaranteedDodge;
         public int OnyxDragon, ForcedMovementResistance, SurroundingChance, SurroundingRadius;
+        public int FinalCrit, FinalCritTaken;
         public int DefencePercent;
         public List<ChanceDamage>? ChanceDamage;
         public List<ChanceDamageTaken>? ChanceDamageTaken;
@@ -428,6 +431,10 @@ public sealed class BattleStatsProvider(
             [BCardEffect.CriticalReceivingDecreased] = (t, v) => t.CritReceivedChance -= v,
             [BCardEffect.CriticalDamageFromCriticalIncreased] = (t, v) => t.CritReceived += v,
             [BCardEffect.CriticalDamageFromCriticalDecreased] = (t, v) => t.CritReceived -= v,
+            [BCardEffect.CountFinalCriticalDamageIncreased] = (t, v) => t.FinalCrit += v,
+            [BCardEffect.CountCriticalDamageReduced] = (t, v) => t.FinalCrit -= v,
+            [BCardEffect.CountCriticalDamageTakenIncreased] = (t, v) => t.FinalCritTaken += v,
+            [BCardEffect.CountCriticalDamageTakenReduced] = (t, v) => t.FinalCritTaken -= v,
 
             [BCardEffect.DefenceAllIncreased] = (t, v) => t.DefenceAll += v,
             [BCardEffect.DefenceAllDecreased] = (t, v) => t.DefenceAll -= v,

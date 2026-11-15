@@ -380,6 +380,14 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       monster with a 20% critical chance hit you: no hit lands as a critical; take it off and about
       one landed hit in five is critical again
 
+### Final critical damage — BCard type 38 subtypes 31/32 and 41/42
+
+- [ ] With card 1679 ("final damage from critical hits +25%") on you, your critical hits on a monster
+      are a quarter higher than without it (`/mnt/project-files/bcard-effects/reset-crit.sh` makes
+      every hit of key 1 critical on a defenceless Large Dander: about 150 instead of 120)
+- [ ] With card 1689 ("when defending, critical damage reduced by 25%") on you, a monster's critical
+      hits on you are a quarter lower; its normal hits are unchanged
+
 ### Chance-based damage taken
 
 - [ ] Wear an armour with "there is a 100% chance that damage from ranged attacks is reduced by 20%"
