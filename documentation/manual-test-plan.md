@@ -783,7 +783,8 @@ shop type differs from the one its dialog opens.
       its dialog: the upgrade tab still shows, but pressing Upgrade and confirming changes nothing
       and takes no gold
 - [ ] Salim's "Purchase Family Extensions" (shop type 48, service 41) still lists the four
-      extensions; another NPC's shop never does
+      extensions; another NPC's shop never does. The list comes from the imported `FamilyUpgrade`
+      rows, so with game data that has none it is empty on every build
 - [ ] An accessory shop whose type lists service 10 (e.g. 5) opens the cellon window; the
       Alchemist's tab for the card upgrade (`n_run 12 9`) and SP Perfection (`n_run 12 41`) open there
       and nowhere else
