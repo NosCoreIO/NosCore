@@ -59,7 +59,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             var mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto>(),
                 new IdService<Mate>(1), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             _handler = new MateItemHandler(mateService, World.Create<MateStatsService>(),
-                new NosCore.GameObject.Services.MateService.MateProgressionService(World.Create<MateStatsService>()));
+                new NosCore.GameObject.Services.MateService.MateProgressionService(World.Create<MateStatsService>(),
+                    World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>()),
+                World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
         }
 
         [TestMethod]

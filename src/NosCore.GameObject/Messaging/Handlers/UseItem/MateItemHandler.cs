@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class MateItemHandler(IMateService mateService, IMateStatsService mateStatsService,
-        IMateProgressionService mateProgressionService)
+        IMateProgressionService mateProgressionService, IPartnerSkillCatalog partnerSkillCatalog)
     {
         // A fed mate must stay this many levels under its owner.
         public const int LevelUpGap = 5;
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             return true;
         }
 
-        private static async Task<bool> TeachPickUpAsync(PlayerComponentBundle owner, MateModel mate)
+        private async Task<bool> TeachPickUpAsync(PlayerComponentBundle owner, MateModel mate)
         {
             if (mate.CanPickUp)
             {
@@ -165,7 +165,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             return true;
         }
 
-        private static async Task<bool> MakeSummonableAsync(PlayerComponentBundle owner, MateModel mate)
+        private async Task<bool> MakeSummonableAsync(PlayerComponentBundle owner, MateModel mate)
         {
             if (mate.IsSummonable)
             {
@@ -207,11 +207,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return false;
             }
 
-            await owner.SendPacketsAsync(owner.GenerateMateRoster());
+            await owner.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
             return true;
         }
 
-        private static async Task<bool> ApplySkinAsync(PlayerComponentBundle owner, MateModel mate, int partnerVNum, short skin)
+        private async Task<bool> ApplySkinAsync(PlayerComponentBundle owner, MateModel mate, int partnerVNum, short skin)
         {
             if (mate.MateType != MateType.Partner || mate.VNum != partnerVNum || skin == 0)
             {
@@ -235,10 +235,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             return true;
         }
 
-        private static Task RefreshAsync(PlayerComponentBundle owner, MateModel mate) =>
+        private Task RefreshAsync(PlayerComponentBundle owner, MateModel mate) =>
             owner.SendPacketAsync(mate.MateType == MateType.Pet
                 ? mate.GenerateScp(owner.AccountLanguage)
-                : mate.GenerateScn(owner.AccountLanguage, owner.InventoryService));
+                : mate.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkillCatalog));
 
         private static MsgiPacket Message(Game18NConstString message) => new()
         {

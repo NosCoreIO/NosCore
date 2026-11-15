@@ -142,7 +142,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
             }, Creature(ChickenVNum, "Chicken", 157, 10), Creature(PartnerVNum, "Bob", 870, 200));
 
             var packets = MateServiceImpl
-                .GenerateScPackets(await service.LoadAsync(CharacterId), RegionType.EN, new Mock<IInventoryService>().Object).ToList();
+                .GenerateScPackets(await service.LoadAsync(CharacterId), RegionType.EN, new Mock<IInventoryService>().Object,
+                    CardWithoutSkills()).ToList();
 
             Assert.AreEqual(1, packets.OfType<ScpPacket>().Count());
             Assert.AreEqual(1, packets.OfType<ScnPacket>().Count());
@@ -337,7 +338,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             Assert.AreEqual("Joyeux Mouton", mate.GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Name);
             Assert.AreEqual("Joyeux Mouton", mate.GenerateScp(RegionType.EN).Name);
-            Assert.AreEqual("Joyeux Mouton", mate.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object).Name);
+            Assert.AreEqual("Joyeux Mouton", mate.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object, CardWithoutSkills()).Name);
         }
 
         [TestMethod]
@@ -353,8 +354,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
             wearing.Setup(s => s.LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.FirstPartnerInventory))
                 .Returns(InventoryItemInstance.Create(card, CharacterId));
 
-            var withCard = partner.GenerateScn(RegionType.EN, wearing.Object);
-            var withoutCard = partner.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object);
+            var withCard = partner.GenerateScn(RegionType.EN, wearing.Object, CardWithoutSkills());
+            var withoutCard = partner.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object, CardWithoutSkills());
 
             PacketAssert.AreEqual(new ScnPacket.ScSpDetails { ItemId = 4324 }, withCard.SpDetails.NotNull());
             Assert.AreEqual((byte)0, withCard.Unknown6);
@@ -393,6 +394,13 @@ namespace NosCore.GameObject.Tests.Services.MateService
             Assert.IsTrue(mate.MateTransportId >= 2000000);
             Assert.AreEqual(ChickenVNum, mate.NpcMonster.NpcMonsterVNum);
             Assert.AreEqual(15, mate.XpLoad, "a level 1 pet needs 15 experience in the recording");
+        }
+
+        private static NosCore.GameObject.Services.MateService.IPartnerSkillCatalog CardWithoutSkills()
+        {
+            var specialists = new Mock<NosCore.GameObject.Services.MateService.IPartnerSkillCatalog>();
+            specialists.Setup(s => s.CardSkills(It.IsAny<SpecialistInstance>())).Returns([]);
+            return specialists.Object;
         }
     }
 }

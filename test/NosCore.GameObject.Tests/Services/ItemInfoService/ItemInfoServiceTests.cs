@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         private readonly List<SkillDto> _skills = new();
         private readonly Mock<ISpecialistHolderService> _holders = new();
         private readonly Mock<IFairyBeadService> _beads = new();
-        private readonly Mock<IPartnerSpecialistService> _partnerCards = new();
+        private readonly Mock<IPartnerSkillCatalog> _partnerCards = new();
         private readonly FakeClock _clock = new(Instant.FromUtc(2026, 1, 1, 0, 0));
         private GameObject.Services.ItemInfoService.ItemInfoService _service;
 

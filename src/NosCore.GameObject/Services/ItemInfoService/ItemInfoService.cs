@@ -14,6 +14,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.FairyBeadService;
 using NosCore.GameObject.Services.MateService;
@@ -36,7 +37,7 @@ public sealed class ItemInfoService(
     ISpecialistCardService specialistCardService,
     ISpecialistHolderService specialistHolderService,
     IFairyBeadService fairyBeadService,
-    IPartnerSpecialistService partnerSpecialistService,
+    IPartnerSkillCatalog partnerSkillCatalog,
     IClock clock) : IItemInfoService
 {
     private const int ListedSpecialistSkills = 10;
@@ -271,10 +272,7 @@ public sealed class ItemInfoService(
     private PslInfoPacket GeneratePartnerSpecialistInfo(SpecialistInstance card)
     {
         var item = card.Item;
-        var cardSkills = partnerSpecialistService.CardSkills(card);
-        ScnPacket.ScSkillDetails? SkillAt(int slot) => slot < cardSkills.Count
-            ? new ScnPacket.ScSkillDetails { SkillId = cardSkills[slot].SkillVNum, Rank = SpPartnerRank.NotIdentifiedYet }
-            : null;
+        var cardSkills = partnerSkillCatalog.CardSkills(card);
         return new PslInfoPacket
         {
             ItemVNum = card.ItemVNum,
@@ -286,9 +284,9 @@ public sealed class ItemInfoService(
             WaterResistance = item.WaterResistance,
             LightResistance = item.LightResistance,
             DarkResistance = item.DarkResistance,
-            Skill1 = SkillAt(0),
-            Skill2 = SkillAt(1),
-            Skill3 = SkillAt(2),
+            Skill1 = card.PartnerSkillDetails(cardSkills, 0),
+            Skill2 = card.PartnerSkillDetails(cardSkills, 1),
+            Skill3 = card.PartnerSkillDetails(cardSkills, 2),
             Upgrade = card.Upgrade,
             AttackPoints = card.SpDamage,
             DefencePoints = card.SpDefence,

@@ -1427,6 +1427,23 @@ in the Equipment bag; a second player on the map watches the partner.
 - [ ] Press Shift+Q again during the cooldown: nothing happens; once it is over the skill works again
 - [ ] Turn the partner back: the partner skill bar goes away
 
+#### Partner skill learning
+
+`/mnt/project-files/partner-skill-learn/scene.sh` puts a card with three unlearned skills on the
+partner at 100% agility (`AGILITY=<n>` to change it). Open the Character window's partner tab.
+
+- [ ] Untransformed, the card's three skill icons show with a "?" over each and "Agility: 100%"
+- [ ] Double-click a skill icon: "Your partner now has the skill." shows, its "?" becomes a rank
+      letter (F to S) and the agility drops to 0%
+- [ ] Double-click another skill at 0% agility: "Your partner needs more agility!" and it stays "?"
+- [ ] Double-click the learned skill again (with `AGILITY=100`): "Your partner already has this
+      skill." and its rank stays
+- [ ] Transformed, double-click a skill: "You must first reverse your partner's transformation."
+- [ ] Send the partner home and double-click a skill: "That is only possible if your partner is
+      accompanying you."
+- [ ] Log out and back in: the learned ranks and the agility are kept
+- [ ] Not verifiable yet: agility does not grow, so after one skill the next needs the scene again
+
 #### Pet and partner items
 
 The client applies these to the NosMate you have targeted: click your pet or partner on the map,

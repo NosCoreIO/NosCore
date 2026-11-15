@@ -32,7 +32,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class NosMateBeadHandler(IDao<MateDto, long> mateDao, IMateService mateService,
-        IMinilandService minilandService, List<NpcMonsterDto> npcMonsters)
+        IMinilandService minilandService, List<NpcMonsterDto> npcMonsters,
+        IPartnerSkillCatalog partnerSkillCatalog)
     {
         private const byte PartnerSubType = 1;
         private const short NewMateLoyalty = 1000;
@@ -113,7 +114,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             holder.SpDefence = defence;
 
             await owner.SendPacketAsync(source.GeneratePocketChange(source.Type.ToPocketType(), source.Slot));
-            await owner.SendPacketsAsync(owner.GenerateMateRoster());
+            await owner.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
             await owner.SendPacketAsync(owner.GeneratePinit());
             await SendAsync(owner, mateType == MateType.Partner ? Game18NConstString.PartnerIsNowInBead : Game18NConstString.PetIsNowInBead);
         }
@@ -174,7 +175,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             await session.SendPacketAsync(owner.InventoryService.LoadBySlotAndType(source.Slot, source.Type)
                 .GeneratePocketChange(source.Type.ToPocketType(), source.Slot));
-            await session.SendPacketsAsync(owner.GenerateMateRoster());
+            await session.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
             await SendAsync(owner, mateType == MateType.Partner ? Game18NConstString.PartnerOutOfBead : Game18NConstString.PetOutOfBead);
         }
 

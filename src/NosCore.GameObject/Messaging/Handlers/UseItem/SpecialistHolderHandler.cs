@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.InventoryService;
@@ -21,7 +22,8 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class SpecialistHolderHandler(ISpecialistHolderService specialistHolderService)
+    public sealed class SpecialistHolderHandler(ISpecialistHolderService specialistHolderService,
+        IPartnerSkillCatalog partnerSkillCatalog)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -139,7 +141,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             specialistHolderService.Store(card, holder);
             await owner.SendPacketAsync(source.GeneratePocketChange(source.Type.ToPocketType(), source.Slot));
-            await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService));
+            await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkillCatalog));
             await SendAsync(evt, Game18NConstString.SpecialistInTheHolder);
         }
 

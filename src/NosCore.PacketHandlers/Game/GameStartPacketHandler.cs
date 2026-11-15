@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Game
             IBuffService buffService, IVitalityService vitalityService,
             ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService,
             IRespawnService respawnService, IMinilandRegistry minilandRegistry, List<QuestDto> quests, IClock clock,
-            IChannelService channelService)
+            IChannelService channelService, IPartnerSkillCatalog partnerSkillCatalog)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -157,7 +157,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateFaction());
             // p_clear wipes one panel holding both the party and the mate list, so both bursts
             // have to follow it rather than straddle it.
-            await session.SendPacketsAsync(session.Character.GenerateMateRoster());
+            await session.SendPacketsAsync(session.Character.GenerateMateRoster(partnerSkillCatalog));
             await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
 
             await session.SendPacketAsync(session.Character.GeneratePinit());

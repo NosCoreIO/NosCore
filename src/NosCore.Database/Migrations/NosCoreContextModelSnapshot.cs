@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115071357_AddTeamStoneEffect";
+    public override string LastMigrationId => "20261115073924_AddPartnerSkillRanks";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -67,6 +67,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "respawn_type", new[] { "default_act1", "return_act1", "default_act3", "default_act5", "return_act5", "default_act6", "default_act62", "default_oasis", "act4angel", "act4demon" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "scripted_instance_type", new[] { "time_space", "raid", "raid_act4" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "skill_kind", new[] { "attack", "debuff", "support", "emote" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "sp_partner_rank", new[] { "not_identified_yet", "f", "e", "d", "c", "b", "a", "s" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "static_bonus_type", new[] { "bazaar_medal_gold", "bazaar_medal_silver", "back_pack", "pet_basket", "pet_back_pack", "inventory_ticket_upgrade", "cuarry_bank_vip" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "teleporter_type", new[] { "teleporter", "teleporter_on_map" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "warehouse_type", new[] { "warehouse", "family_ware_house", "pet_warehouse" });
@@ -3652,6 +3653,15 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
             {
                 b.HasBaseType("NosCore.Database.Entities.WearableInstance");
 
+                b.Property<byte>("Agility")
+                    .HasColumnType("smallint");
+
+                b.Property<int>("FirstPartnerSkillRank")
+                    .HasColumnType("integer");
+
+                b.Property<int>("SecondPartnerSkillRank")
+                    .HasColumnType("integer");
+
                 b.Property<short>("SlDamage")
                     .HasColumnType("smallint");
 
@@ -3693,6 +3703,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<byte>("SpWater")
                     .HasColumnType("smallint");
+
+                b.Property<int>("ThirdPartnerSkillRank")
+                    .HasColumnType("integer");
 
                 b.HasDiscriminator().HasValue("SpecialistInstance");
             });

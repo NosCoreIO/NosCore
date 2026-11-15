@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 new() { SkillVNum = 1000, CastId = 0, SkillType = 1, UpgradeType = SkillSet }
             });
             _specialists = World.Create<PartnerSpecialistService>();
-            _equipment = new PartnerEquipmentService(_specialists);
+            _equipment = new PartnerEquipmentService(_specialists, World.Create<PartnerSkillCatalog>());
             _handler = new PslPacketHandler(_specialists);
         }
 

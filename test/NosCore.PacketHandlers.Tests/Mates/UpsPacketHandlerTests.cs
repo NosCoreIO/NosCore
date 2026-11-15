@@ -165,7 +165,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(_items.Create(PartnerSpecialist, 1), _session.Character.CharacterId),
                 NoscorePocketType.Equipment, 0);
-            await new PartnerEquipmentService(_specialists).WearAsync(_session.Character, 0, 1);
+            await new PartnerEquipmentService(_specialists, World.Create<PartnerSkillCatalog>()).WearAsync(_session.Character, 0, 1);
         }
 
         private async Task ThePartnerIsTransformed()

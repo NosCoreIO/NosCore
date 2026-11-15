@@ -14,7 +14,8 @@ using NosCore.Networking;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public sealed class MateProgressionService(IMateStatsService mateStatsService) : IMateProgressionService
+    public sealed class MateProgressionService(IMateStatsService mateStatsService,
+        IPartnerSkillCatalog partnerSkillCatalog) : IMateProgressionService
     {
         public async Task AddExperienceAsync(PlayerComponentBundle owner, long experience)
         {
@@ -63,7 +64,7 @@ namespace NosCore.GameObject.Services.MateService
 
             await owner.SendPacketAsync(mate.MateType == MateType.Pet
                 ? mate.GenerateScp(owner.AccountLanguage)
-                : mate.GenerateScn(owner.AccountLanguage, owner.InventoryService));
+                : mate.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkillCatalog));
         }
     }
 }

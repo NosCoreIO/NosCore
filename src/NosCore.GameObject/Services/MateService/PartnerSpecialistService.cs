@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Algorithm.PartnerSkillRankService;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -18,6 +19,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SkillService;
+using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Mates;
 using NosCore.Packets.Enumerations;
@@ -30,24 +32,19 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public sealed class PartnerSpecialistService(IClock clock, List<SkillDto> skills, IBattleService battleService,
-            IHeuristic distanceCalculator) : IPartnerSpecialistService, ISingletonService
+    public sealed class PartnerSpecialistService(IClock clock, IPartnerSkillCatalog partnerSkillCatalog, IBattleService battleService,
+            IHeuristic distanceCalculator, IPartnerSkillRankService partnerSkillRankService, IRandomNumberSource random)
+        : IPartnerSpecialistService, ISingletonService
     {
         private const short CooldownSeconds = 30;
+        private const byte FullAgility = 100;
         private const short TransformDelayMilliseconds = 5000;
         private const int TransformEffect = 196;
 
-        private readonly ILookup<short, SkillDto> _skillsBySet = skills
-            .Where(s => s.IsMateSkill())
-            .OrderBy(s => s.CastId)
-            .ToLookup(s => s.UpgradeType);
-
         public IReadOnlyList<SkillDto> Skills(PlayerComponentBundle owner, Mate partner) =>
             partner.SpecialistMorph != null && partner.Specialist(owner.InventoryService) is { } specialist
-                ? CardSkills(specialist)
+                ? partnerSkillCatalog.CardSkills(specialist)
                 : [];
-
-        public IReadOnlyList<SkillDto> CardSkills(SpecialistInstance card) => _skillsBySet[card.Item.PartnerSkillSet].ToList();
 
         public Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target) =>
             owner.Mates.TryGetValue(mateTransportId, out var partner)
@@ -153,10 +150,80 @@ namespace NosCore.GameObject.Services.MateService
                 await owner.SendPacketAsync(partnerSkills.GeneratePski());
             }
 
-            await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkills));
+            await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkillCatalog));
             await SendAsync(owner, entity.GenerateOut());
             await SendAsync(owner, partner.GenerateIn(owner.AccountLanguage, entity.PositionX, entity.PositionY, partnerSkills));
         }
+
+        public async Task LearnSkillAsync(PlayerComponentBundle owner, byte petSlot, byte skillSlot)
+        {
+            if (owner.Mates.Values.FirstOrDefault(s => s.MateType == MateType.Partner && s.PetSlot == petSlot) is not { } partner)
+            {
+                return;
+            }
+
+            if (!partner.IsTeamMember)
+            {
+                await SayAsync(owner, Game18NConstString.PartnerMustAccompanying);
+                return;
+            }
+
+            if (partner.Specialist(owner.InventoryService) is not { } card)
+            {
+                await SayAsync(owner, Game18NConstString.EquipPartnerWithSpecialist);
+                return;
+            }
+
+            if (partner.SpecialistMorph != null)
+            {
+                await SayAsync(owner, Game18NConstString.CancelPartnerSpecialist);
+                return;
+            }
+
+            if (skillSlot >= partnerSkillCatalog.CardSkills(card).Count)
+            {
+                return;
+            }
+
+            if (card.PartnerSkillRank(skillSlot) != SpPartnerRank.NotIdentifiedYet)
+            {
+                await SayAsync(owner, Game18NConstString.PartnerHasSkill);
+                return;
+            }
+
+            if (card.Agility < FullAgility)
+            {
+                await SayAsync(owner, Game18NConstString.PartnerNeedAgility);
+                return;
+            }
+
+            card.SetPartnerSkillRank(skillSlot, RollRank());
+            card.Agility = 0;
+            await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkillCatalog));
+            await SayAsync(owner, Game18NConstString.YourPartnerNowHasSkill);
+        }
+
+        private SpPartnerRank RollRank()
+        {
+            var ranks = Enumerable.Range(partnerSkillRankService.MinRank,
+                    partnerSkillRankService.MaxRank - partnerSkillRankService.MinRank + 1)
+                .Select(rank => (byte)rank)
+                .ToList();
+            var roll = random.NextDouble() * ranks.Sum(partnerSkillRankService.GetWeight);
+            foreach (var rank in ranks)
+            {
+                roll -= partnerSkillRankService.GetWeight(rank);
+                if (roll < 0)
+                {
+                    return (SpPartnerRank)rank;
+                }
+            }
+
+            return (SpPartnerRank)ranks[^1];
+        }
+
+        private static Task SayAsync(PlayerComponentBundle owner, Game18NConstString message) =>
+            owner.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = message });
 
         private static Mate? TeamPartner(PlayerComponentBundle owner) =>
             owner.Mates.Values.FirstOrDefault(s => s.MateType == MateType.Partner && s.IsTeamMember && s.Entity != null);

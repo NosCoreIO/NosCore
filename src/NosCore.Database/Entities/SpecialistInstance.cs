@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Packets.Enumerations;
+
 namespace NosCore.Database.Entities
 {
     public class SpecialistInstance : WearableInstance
@@ -35,5 +37,13 @@ namespace NosCore.Database.Entities
         public byte SpStoneUpgrade { get; set; }
 
         public byte SpWater { get; set; }
+
+        public byte Agility { get; set; }
+
+        public SpPartnerRank FirstPartnerSkillRank { get; set; }
+
+        public SpPartnerRank SecondPartnerSkillRank { get; set; }
+
+        public SpPartnerRank ThirdPartnerSkillRank { get; set; }
     }
 }

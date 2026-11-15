@@ -32,7 +32,8 @@ using Wolverine;
 namespace NosCore.GameObject.Services.BattleService
 {
     public sealed class CaptureService(IDao<MateDto, long> mateDao, IMateService mateService,
-        IMessageBus messageBus, IClock clock, IRandomProvider random, IHeuristic distanceCalculator) : ICaptureService
+        IMessageBus messageBus, IClock clock, IRandomProvider random, IHeuristic distanceCalculator,
+        IPartnerSkillCatalog partnerSkillCatalog) : ICaptureService
     {
         private const int CaptureHpThresholdPercent = 50;
         private const int LowLevelCaptureRate = 90;
@@ -132,12 +133,12 @@ namespace NosCore.GameObject.Services.BattleService
                 Type = VisualType.Npc, PetId = mate.MateTransportId, Action = 3, Unknown = 0
             });
             await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessful));
-            await owner.SendPacketsAsync(owner.GenerateMateRoster());
+            await owner.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
             if (mate.IsTeamMember)
             {
                 await mate.SpawnAsync(owner, monster.MapInstance, monster.PositionX, monster.PositionY);
                 await owner.SendPacketAsync(owner.GeneratePinit());
-                await owner.SendPacketsAsync(owner.GenerateMateRoster());
+                await owner.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
             }
 
             await ShowCaughtAsync(owner, monster, caughtAt);
