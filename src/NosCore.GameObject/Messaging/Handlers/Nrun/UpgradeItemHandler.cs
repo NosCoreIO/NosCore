@@ -10,6 +10,8 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShopService;
+using NosCore.Data.Enumerations.Shops;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -17,7 +19,7 @@ using NosCore.Packets.ServerPackets.UI;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class UpgradeItemHandler(INpcDialogService npcDialogService) : INrunEventHandler
+    public sealed class UpgradeItemHandler(INpcDialogService npcDialogService, INpcServiceCatalog npcServiceCatalog) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.UpgradeItem;
 
@@ -25,7 +27,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (target is not NpcComponentBundle npc)
+            if (target is not NpcComponentBundle npc || !npcServiceCatalog.Offers(npc, NpcService.Upgrade))
             {
                 return Task.CompletedTask;
             }

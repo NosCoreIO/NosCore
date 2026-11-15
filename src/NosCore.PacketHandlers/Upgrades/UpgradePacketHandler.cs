@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Shared.I18N;
@@ -25,7 +26,8 @@ namespace NosCore.PacketHandlers.Upgrades
         IEnumerable<IUpgradeOperation> operations,
         ILogger<UpgradePacketHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-        INpcDialogService npcDialogService)
+        INpcDialogService npcDialogService,
+        INpcServiceCatalog npcServiceCatalog)
         : PacketHandler<UpgradePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UpgradePacket packet, ClientSession session)
@@ -46,10 +48,17 @@ namespace NosCore.PacketHandlers.Upgrades
                 return;
             }
 
-            var packets = await operation.ExecuteAsync(session, packet).ConfigureAwait(false);
+            if (operation.Service is { } service
+                && (npcDialogService.FindOpenNpc(session.Character, operation.Window) is not { } npc
+                    || !npcServiceCatalog.Offers(npc, service)))
+            {
+                return;
+            }
+
+            var packets = await operation.ExecuteAsync(session, packet);
             if (packets.Count > 0)
             {
-                await session.SendPacketsAsync(packets).ConfigureAwait(false);
+                await session.SendPacketsAsync(packets);
             }
         }
     }

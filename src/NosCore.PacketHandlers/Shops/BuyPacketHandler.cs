@@ -13,6 +13,8 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.FamilyService;
+using NosCore.GameObject.Services.ShopService;
+using NosCore.Data.Enumerations.Shops;
 using NosCore.Core.I18N;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
@@ -35,7 +37,8 @@ namespace NosCore.PacketHandlers.Shops
             ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, INpcDialogService npcDialogService,
             IShellOptionService shellOptionService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IFamilyShopService familyShopService, IDignityService dignityService, ISkillService skillService)
+            IFamilyShopService familyShopService, IDignityService dignityService, ISkillService skillService,
+            INpcServiceCatalog npcServiceCatalog)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -88,7 +91,7 @@ namespace NosCore.PacketHandlers.Shops
                     return skill == null ? Task.CompletedTask : skillService.BuyAsync(clientSession.Character, skill);
                 }
 
-                return buyPacket.VisualType == VisualType.Npc && shop.ShopType == FamilyShopService.ShopType
+                return buyPacket.VisualType == VisualType.Npc && npcServiceCatalog.Offers(aliveEntity, NpcService.FamilyWarehouse)
                     ? familyShopService.BuyAsync(clientSession, aliveEntity, buyPacket.Slot)
                     : clientSession.Character.BuyAsync(shop, buyPacket.Slot, amount, worldConfiguration,
                         itemProvider, dignityService, shellOptionService, itemInstanceDao);

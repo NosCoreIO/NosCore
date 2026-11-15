@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Shops;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -48,6 +49,8 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     public abstract UpgradePacketType Kind { get; }
 
     public virtual NpcDialogWindow Window => NpcDialogWindow.Upgrade;
+
+    public abstract NpcService? Service { get; }
 
     public async Task<IReadOnlyList<IPacket>> ExecuteAsync(ClientSession session, UpgradePacket packet)
     {

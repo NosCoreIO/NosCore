@@ -16,14 +16,15 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShopService;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     // The NPC names the window it wants in the packet's Type, which is also the up_gr type the
-    // window sends back, so only windows whose upgrade is handled are opened.
+    // window sends back, so only windows whose upgrade is handled and offered by the NPC are opened.
     [UsedImplicitly]
     public sealed class ProbabilityWindowHandler(IEnumerable<IUpgradeOperation> operations,
-        INpcDialogService npcDialogService) : INrunEventHandler
+        INpcDialogService npcDialogService, INpcServiceCatalog npcServiceCatalog) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.ProbabilityUIs;
 
@@ -32,7 +33,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             if (target is not NpcComponentBundle npc || packet.Type is not { } type
-                || operations.All(o => (short)o.Kind != type || o.Window != NpcDialogWindow.Upgrade))
+                || !operations.Any(o => (short)o.Kind == type && o.Window == NpcDialogWindow.Upgrade
+                    && (o.Service is not { } service || npcServiceCatalog.Offers(npc, service))))
             {
                 return Task.CompletedTask;
             }

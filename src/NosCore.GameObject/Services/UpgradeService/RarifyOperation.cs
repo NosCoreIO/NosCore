@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Shops;
 using NosCore.Algorithm.RarityPointService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Data.Enumerations.Items;
@@ -20,6 +21,8 @@ public sealed class RarifyOperation(IRandomNumberSource random, IGameLanguageLoc
 {
     public override UpgradePacketType Kind => UpgradePacketType.RarifyItem;
 
+    public override NpcService? Service => NpcService.Rarify;
+
     protected override bool IsProtected => false;
 }
 
@@ -29,6 +32,8 @@ public sealed class RarifyProtectedOperation(IRandomNumberSource random, IGameLa
     : RarifyOperationBase(random, localizer, itemCatalog, rarityPoints)
 {
     public override UpgradePacketType Kind => UpgradePacketType.RarifyItemProtected;
+
+    public override NpcService? Service => NpcService.Rarify;
 
     protected override bool IsProtected => true;
 }

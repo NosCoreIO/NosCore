@@ -1482,6 +1482,19 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
 - [ ] Change map with a shop or bank window still open and use it: nothing happens until an NPC is
       clicked again
 
+### NPC services follow the shop type
+
+Each NPC offers only the services `shoptype.dat` lists for its shop type: the tabs of its shop window.
+An upgrade or window the NPC does not list does nothing, even when the client asks for it.
+
+- [ ] At an alchemist (shop type 7), open the specialist card upgrade and perfection tabs and use
+      them: both work
+- [ ] At an NPC whose shop window only rarifies (shop type 4), the rarify window opens and works
+- [ ] Give the client a `shoptype.dat` whose shop type 4 row also lists service 20, so that NPC shows a
+      card upgrade tab: clicking it sends `n_run 12 9` and no card upgrade window opens
+- [ ] At the family manager, the family warehouse purchase window still opens and buys (see
+      "Family extensions")
+
 ### Parcels and private shops
 
 - [ ] `$Gift 1012 5 0 0 <your name>`: chat shows "Gift has been delivered." and, once,

@@ -24,6 +24,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.FamilyService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Shops;
@@ -133,14 +134,16 @@ namespace NosCore.PacketHandlers.Tests.Family
             var dignity = new Mock<IDignityService>();
             dignity.Setup(s => s.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);
             _shopping = new ShoppingPacketHandler(NullLogger<ShoppingPacketHandler>.Instance, dignity.Object,
-                World.LogLanguageLocalizer, World.SessionRegistry, World.NpcDialogService, shop);
+                World.LogLanguageLocalizer, World.SessionRegistry, World.NpcDialogService, shop,
+                World.Create<NpcServiceCatalog>());
             _buy = new BuyPacketHandler(NullLogger<BuyPacketHandler>.Instance, World.LogLanguageLocalizer,
                 World.SessionRegistry, World.WorldConfiguration,
                 World.GenerateItemProvider(), World.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
                 new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, Guid>>().Object, shop,
                 World.Create<DignityService>(),
-                new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object);
+                new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,
+                World.Create<NpcServiceCatalog>());
 
             var sessions = new[] { _head, _member };
             var registry = new Mock<ISessionRegistry>();
@@ -159,7 +162,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
             var manager = _head.Character.MapInstance.GetNpcById(ManagerId).NotNull();
-            manager.Shop = new NosCore.GameObject.Services.ShopService.Shop { ShopType = FamilyShopService.ShopType };
+            manager.Shop = new Shop { ShopType = TestWorld.FamilyManagerShopType };
             _head.WithWindowOpenedAt(ManagerId, NpcDialogWindow.Shop);
         }
 

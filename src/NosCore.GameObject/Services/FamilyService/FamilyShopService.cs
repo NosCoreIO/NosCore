@@ -29,9 +29,6 @@ namespace NosCore.GameObject.Services.FamilyService
         IFamilyUpgradeService capacities, IFamilyHub familyHub, IPubSubHub pubSubHub, IFamilyService familyService)
         : IFamilyShopService
     {
-        /// <summary>The shopping window the family manager's dialog opens.</summary>
-        public const byte ShopType = 48;
-
         private List<FamilyUpgradeDto> Offered => familyUpgrades
             .Where(s => Enum.IsDefined(s.UpgradeType))
             .OrderBy(s => s.ItemVNum)

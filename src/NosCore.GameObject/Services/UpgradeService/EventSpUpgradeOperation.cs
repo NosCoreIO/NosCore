@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Shops;
 using NosCore.GameObject.Services.ItemGenerationService;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +59,8 @@ public sealed class ChickenSpUpgradeOperation(IRandomNumberSource random, IGameL
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpChiken;
+
+    public override NpcService? Service => null;
 }
 
 [UsedImplicitly]
@@ -66,6 +69,8 @@ public sealed class PyjamaSpUpgradeOperation(IRandomNumberSource random, IGameLa
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpPyjama;
+
+    public override NpcService? Service => null;
 }
 
 [UsedImplicitly]
@@ -74,4 +79,6 @@ public sealed class PirateSpUpgradeOperation(IRandomNumberSource random, IGameLa
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpPirate;
+
+    public override NpcService? Service => null;
 }

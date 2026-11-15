@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Shops;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Data.Enumerations.Items;
 using JetBrains.Annotations;
@@ -20,6 +21,8 @@ public sealed class SpUpgradeOperation(IRandomNumberSource random, IGameLanguage
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpNoProtection;
 
+    public override NpcService? Service => NpcService.SpecialistCardUpgrade;
+
     protected override bool IsProtected => false;
 }
 
@@ -30,6 +33,8 @@ public sealed class SpUpgradeProtectedOperation(IRandomNumberSource random, IGam
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpProtected;
 
+    public override NpcService? Service => NpcService.SpecialistCardUpgrade;
+
     protected override bool IsProtected => true;
 }
 
@@ -39,6 +44,8 @@ public sealed class SpUpgradeProtected2Operation(IRandomNumberSource random, IGa
     : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpProtected2;
+
+    public override NpcService? Service => NpcService.SpecialistCardUpgrade;
 
     protected override bool IsProtected => true;
 }

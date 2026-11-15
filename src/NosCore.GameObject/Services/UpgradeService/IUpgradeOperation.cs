@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Shops;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.GameObject.Networking.ClientSession;
@@ -20,6 +21,9 @@ public interface IUpgradeOperation
 
     // The dialog that has to be open for the window to be used.
     NpcDialogWindow Window { get; }
+
+    // The shop tab that offers it, or null for a window opened by an item.
+    NpcService? Service { get; }
 
     Task<IReadOnlyList<IPacket>> ExecuteAsync(ClientSession session, UpgradePacket packet);
 }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Shops;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Data.Enumerations.Items;
 using JetBrains.Annotations;
@@ -20,6 +21,8 @@ public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLangua
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItem;
 
+    public override NpcService? Service => NpcService.Upgrade;
+
     protected override bool IsProtected => false;
 }
 
@@ -30,6 +33,8 @@ public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IG
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItemProtected;
 
+    public override NpcService? Service => NpcService.Upgrade;
+
     protected override bool IsProtected => true;
 }
 
@@ -39,6 +44,8 @@ public sealed class UpgradeItemGoldScrollOperation(IRandomNumberSource random, I
     : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItemGoldScroll;
+
+    public override NpcService? Service => NpcService.Upgrade;
 
     protected override bool IsProtected => true;
 

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Shops;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Packets.Enumerations;
@@ -361,6 +362,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             context.Add(new MapNpc { MapNpcId = FamilyManager, MapId = Town, MapX = 76, MapY = 108, VNum = FamilyManagerVNum });
             context.Add(new Shop { MapNpcId = FamilyManager, MenuType = 0, ShopType = FamilyShop });
+            context.Add(new ShopTypeService { ShopTypeServiceId = 1, ShopType = FamilyShop, Service = NpcService.FamilyWarehouse });
             await context.SaveChangesAsync();
         }
 

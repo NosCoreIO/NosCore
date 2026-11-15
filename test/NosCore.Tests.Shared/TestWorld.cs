@@ -26,6 +26,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.Enumerations.Shops;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
@@ -49,6 +50,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
@@ -146,6 +148,8 @@ namespace NosCore.Tests.Shared
 
             Fixture.Inject(ItemList);
             Fixture.Inject(new List<MountMapSpeedDto>());
+            Fixture.Inject(ShopTypeServices);
+            Fixture.UseReal<INpcServiceCatalog, NpcServiceCatalog>();
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
             Fixture.Freeze<Mock<IMinilandService>>()
@@ -255,6 +259,23 @@ namespace NosCore.Tests.Shared
                 Type = NoscorePocketType.Main, VNum = 1078, ItemType = ItemType.Special,
                 Effect = ItemEffectType.DroppedSpRecharger, EffectValue = 10_000, WaitDelay = 5_000
             }
+        };
+
+        public const byte UpgraderShopType = 40;
+        public const byte AlchemistShopType = 7;
+        public const byte AccessoryShopType = 5;
+        public const byte FamilyManagerShopType = 48;
+
+        public List<ShopTypeServiceDto> ShopTypeServices { get; } = new()
+        {
+            new() { ShopTypeServiceId = 1, ShopType = UpgraderShopType, Service = NpcService.Upgrade },
+            new() { ShopTypeServiceId = 2, ShopType = UpgraderShopType, Service = NpcService.Rarify },
+            new() { ShopTypeServiceId = 3, ShopType = UpgraderShopType, Service = NpcService.ResistanceSum },
+            new() { ShopTypeServiceId = 4, ShopType = AlchemistShopType, Service = NpcService.ResistanceSum },
+            new() { ShopTypeServiceId = 5, ShopType = AlchemistShopType, Service = NpcService.SpecialistCardUpgrade },
+            new() { ShopTypeServiceId = 6, ShopType = AlchemistShopType, Service = NpcService.SpecialistPerfection },
+            new() { ShopTypeServiceId = 7, ShopType = AccessoryShopType, Service = NpcService.AccessoryOption },
+            new() { ShopTypeServiceId = 8, ShopType = FamilyManagerShopType, Service = NpcService.FamilyWarehouse },
         };
 
         public Guid MinilandId { get; } = Guid.NewGuid();

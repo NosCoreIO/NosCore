@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Shops;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -32,6 +33,8 @@ public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLang
     public const long GoldCost = 1_000_000;
 
     public override UpgradePacketType Kind => UpgradePacketType.FusionItem;
+
+    public override NpcService? Service => null;
 
     public override NpcDialogWindow Window => NpcDialogWindow.UpgradeScroll;
 

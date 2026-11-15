@@ -18,7 +18,9 @@ using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
+using NosCore.Data.Enumerations.Shops;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Upgrades
@@ -38,11 +40,12 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _session.WithNpcAt(100, 1, 1);
+            _session.WithNpcAt(100, 1, 1).Shop = new Shop { ShopType = TestWorld.UpgraderShopType };
             _session.WithWindowOpenedAt(100, NpcDialogWindow.Upgrade);
             _matchingOperation = new Mock<IUpgradeOperation>();
             _matchingOperation.Setup(o => o.Kind).Returns(UpgradePacketType.SumResistance);
             _matchingOperation.Setup(o => o.Window).Returns(NpcDialogWindow.Upgrade);
+            _matchingOperation.Setup(o => o.Service).Returns(NpcService.ResistanceSum);
             _matchingOperation.Setup(o => o.ExecuteAsync(It.IsAny<ClientSession>(), It.IsAny<UpgradePacket>()))
                 .ReturnsAsync((IReadOnlyList<IPacket>)new IPacket[0]);
             _otherOperation = new Mock<IUpgradeOperation>();
@@ -52,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
             _handler = new UpgradePacketHandler(
                 new[] { _otherOperation.Object, _matchingOperation.Object },
                 _logger.Object,
-                World.LogLanguageLocalizer, World.NpcDialogService);
+                World.LogLanguageLocalizer, World.NpcDialogService, World.Create<NpcServiceCatalog>());
         }
 
         [TestMethod]
@@ -126,7 +129,32 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AnUpgradeTheNpcDoesNotOfferIsIgnored()
+        {
+            await new Spec("An upgrade at an NPC whose shop type does not offer it runs nothing")
+                .Given(TheNpcOnlyAddsAccessoryOptions)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnUpgradeAtAnNpcWithoutAShopIsIgnored()
+        {
+            await new Spec("An upgrade at an NPC with no shop runs nothing")
+                .Given(TheNpcHasNoShop)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
+
+        private void TheNpcOnlyAddsAccessoryOptions() =>
+            _session.Npc(100).Shop = new Shop { ShopType = TestWorld.AccessoryShopType };
+
+        private void TheNpcHasNoShop() => _session.Npc(100).Shop = null;
 
         private void NoWindowIsOpen() => _session.Character.NpcDialog = null;
 

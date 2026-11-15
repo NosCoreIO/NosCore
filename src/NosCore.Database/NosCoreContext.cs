@@ -90,6 +90,8 @@ namespace NosCore.Database
 
         public virtual DbSet<MountMapSpeed>? MountMapSpeed { get; set; }
 
+        public virtual DbSet<ShopTypeService>? ShopTypeService { get; set; }
+
         public virtual DbSet<InstantCombatDrop>? InstantCombatDrop { get; set; }
 
         public virtual DbSet<InstantCombatMonster>? InstantCombatMonster { get; set; }

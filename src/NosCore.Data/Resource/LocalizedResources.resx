@@ -675,6 +675,9 @@
   <data name="MOUNT_MAP_SPEEDS_PARSED" xml:space="preserve">
     <value>{Rows} map speed bonuses imported for {Mounts} mounts</value>
   </data>
+  <data name="SHOP_TYPE_SERVICES_PARSED" xml:space="preserve">
+    <value>{Services} NPC services imported for {ShopTypes} shop types</value>
+  </data>
   <data name="INSTANT_COMBAT_PARSED" xml:space="preserve">
     <value>{Monsters} Instant Combat monster lines and {Drops} drop lines imported</value>
   </data>
@@ -695,9 +698,6 @@
   </data>
   <data name="CAPTURE_QUEST_PROGRESS_FAILED" xml:space="preserve">
     <value>Failed to progress capture quest for character {CharacterId}</value>
-  </data>
-  <data name="UNKNOWN_PROBABILITY_WINDOW" xml:space="preserve">
-    <value>n_run ProbabilityUIs requested unknown WindowType={Raw} (NPC visualId={VisualId}); extend WindowType or add a mapping</value>
   </data>
   <data name="SPEAKER_MESSAGE_FAILED" xml:space="preserve">
     <value>Speaker message to {CharacterId} failed</value>
