@@ -9,6 +9,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Mates;
@@ -47,6 +48,9 @@ namespace NosCore.GameObject.Services.WarehouseService
                 : new StashAllPacket { WarehouseSize = (byte)slots.Size, Items = items };
             await session.SendPacketAsync(packet);
         }
+
+        public Task<IItemInstance?> GetItemAsync(ClientSession session, WarehouseType warehouseType, short warehouseSlot) =>
+            transfer.GetItemAsync(session.Character.CharacterId, warehouseType, warehouseSlot);
 
         public Task DepositAsync(ClientSession session, WarehouseType warehouseType, PocketType pocket, short slot,
             short amount, short warehouseSlot) =>

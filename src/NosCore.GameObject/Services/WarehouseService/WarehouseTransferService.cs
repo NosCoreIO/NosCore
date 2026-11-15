@@ -48,6 +48,10 @@ namespace NosCore.GameObject.Services.WarehouseService
             return items;
         }
 
+        public async Task<IItemInstance?> GetItemAsync(long ownerId, WarehouseType warehouseType, short warehouseSlot) =>
+            (await GetItemsAsync(ownerId, warehouseType)).Where(s => s.Slot == warehouseSlot)
+                .Select(s => (IItemInstance?)s.Item).FirstOrDefault();
+
         public async Task<IItemInstance?> DepositAsync(ClientSession session, WarehouseSlots warehouse, PocketType pocket,
             short slot, short amount, short warehouseSlot, Func<IItemInstance, bool> canStore)
         {

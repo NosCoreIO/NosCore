@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
@@ -16,6 +17,8 @@ namespace NosCore.GameObject.Services.WarehouseService
         Task SendCarriedStoragesAsync(ClientSession session);
 
         Task OpenAsync(ClientSession session, WarehouseType warehouseType);
+
+        Task<IItemInstance?> GetItemAsync(ClientSession session, WarehouseType warehouseType, short warehouseSlot);
 
         Task DepositAsync(ClientSession session, WarehouseType warehouseType, PocketType pocket, short slot, short amount,
             short warehouseSlot);

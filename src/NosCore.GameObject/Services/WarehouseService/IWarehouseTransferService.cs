@@ -22,6 +22,8 @@ namespace NosCore.GameObject.Services.WarehouseService
     {
         Task<List<StoredItem>> GetItemsAsync(long ownerId, WarehouseType warehouseType);
 
+        Task<IItemInstance?> GetItemAsync(long ownerId, WarehouseType warehouseType, short warehouseSlot);
+
         Task<IItemInstance?> DepositAsync(ClientSession session, WarehouseSlots warehouse, PocketType pocket, short slot,
             short amount, short warehouseSlot, Func<IItemInstance, bool> canStore);
 
