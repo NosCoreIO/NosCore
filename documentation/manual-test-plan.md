@@ -388,6 +388,17 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] With card 1689 ("when defending, critical damage reduced by 25%") on you, a monster's critical
       hits on you are a quarter lower; its normal hits are unchanged
 
+### Cleansing effects — BCard type 43 subtype 21, type 24 subtypes 51 and 52
+
+- [ ] A skill that "removes all bad effects up to level 4" takes a level 2 debuff off its target and
+      leaves a level 6 one (`/mnt/project-files/bcard-effects/reset-cleanse.sh`: key 1 puts debuffs
+      23 and 321 on the Large Dander, the follow-up hits of skill 261 carry the cleanse): the green
+      icon under the monster's bars goes, the pink one stays until it runs out
+- [ ] A card that "removes bad effects" (card 506 from skill 1066) clears your level 4 and lower
+      debuffs when it lands
+- [ ] A card that "removes buffs below level N" (card 159) takes the lower-level buffs off whoever
+      receives it; static buffs such as a fairy booster stay
+
 ### Chance-based damage taken
 
 - [ ] Wear an armour with "there is a 100% chance that damage from ranged attacks is reduced by 20%"
