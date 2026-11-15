@@ -64,11 +64,12 @@ namespace NosCore.Parser.Parsers
                 monsters.Add(monster);
             }
 
-            // A row stored on a captured monster's cell under another id is a copy from an earlier import.
+            // A row stored on a map the capture shows that the capture no longer holds is a copy or a
+            // retired monster from an earlier import.
             var ids = monsters.Select(s => s.MapMonsterId).ToHashSet();
-            var cells = monsters.Select(s => (s.MapId, s.VNum, s.MapX, s.MapY)).ToHashSet();
+            var maps = CaptureSessions.Maps(packets);
             await mapMonsterDao.TryDeleteAsync(stored.Values
-                .Where(s => !ids.Contains(s.MapMonsterId) && cells.Contains((s.MapId, s.VNum, s.MapX, s.MapY)))
+                .Where(s => !ids.Contains(s.MapMonsterId) && maps.Contains(s.MapId))
                 .Select(s => s.MapMonsterId).ToList());
 
             var changed = monsters.Where(s => !stored.TryGetValue(s.MapMonsterId, out var row)
