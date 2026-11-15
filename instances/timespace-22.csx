@@ -148,7 +148,7 @@ public class TimeSpace22 : InstanceScript
             new MonsterSpawn(338, new(13, 16)),
             new MonsterSpawn(338, new(13, 14)),
             new MonsterSpawn(338, new(13, 12)));
-        r.SummonNpcs(_room11, new NpcSpawn(318, new(10, 15)));
+        r.SummonNpcs(_room11, new NpcSpawn(318, new(10, 15), IsEscort: true));
         r.SpawnPortal(_room12, new(23, 12), _room13, new(1, 12));
         r.SpawnPortal(_room12, new(1, 12), _room11, new(23, 12));
         r.Summon(_room12,

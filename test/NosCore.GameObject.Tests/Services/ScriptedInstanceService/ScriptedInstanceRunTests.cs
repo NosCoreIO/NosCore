@@ -928,6 +928,54 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ALedEscortFollowsItsLeaderIntoTheNextRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2), IsEscort: true)) });
+            var session = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            var escort = _first.EnumerateNpcs().Single();
+            escort.LeaderId = session.Character.CharacterId;
+            escort.Hp = 4;
+
+            session.Character.MapInstance = _second;
+            session.Character.PositionX = 1;
+            session.Character.PositionY = 0;
+            await run.EnteredAsync(session, _second.MapInstanceId);
+
+            Assert.AreEqual(0, _first.EnumerateNpcs().Count());
+            var moved = _second.EnumerateNpcs().Single();
+            Assert.AreEqual(session.Character.CharacterId, moved.LeaderId);
+            Assert.IsTrue(moved.IsEscort);
+            Assert.AreEqual(4, moved.Hp);
+            Assert.AreEqual((short)1, moved.PositionX);
+        }
+
+        [TestMethod]
+        public async Task AnEscortNobodyLeadsStaysInItsRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2), IsEscort: true)) });
+            var session = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            session.Character.MapInstance = _second;
+            await run.EnteredAsync(session, _second.MapInstanceId);
+
+            Assert.AreEqual(1, _first.EnumerateNpcs().Count());
+            Assert.AreEqual(0, _second.EnumerateNpcs().Count());
+        }
+
+        [TestMethod]
+        public async Task TheRunFailsWhenTheEscortFallsAsync()
+        {
+            var run = Run(new Script());
+            await run.StartAsync();
+
+            await run.EscortFellAsync(_first.MapInstanceId);
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+        }
+
+        [TestMethod]
         public async Task TheScoreCarriesThePointsAsync()
         {
             var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1), Cleared = (r, _) => r.Succeed() });

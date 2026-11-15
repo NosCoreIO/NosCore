@@ -252,6 +252,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (room != null && session.HasPlayerEntity)
                 {
                     _newestArrival[room.Value] = session.Character.CharacterId;
+                    BringEscorts(session.Character, room.Value);
                 }
 
                 if (!_started && !_abandoned && _host.StartsOnFirstEntry)
@@ -499,6 +500,56 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 });
                 await room.SendPacketAsync(escort.GenerateCond());
             }
+        }
+
+        // A led escort is carried over beside its leader rather than walking, as the rooms are separate maps.
+        private void BringEscorts(PlayerComponentBundle leader, int room)
+        {
+            var arrival = _rooms[room];
+            for (var i = 0; i < _escorts.Count; i++)
+            {
+                var index = i;
+                var (left, npcId) = _escorts[index];
+                if (left == arrival)
+                {
+                    continue;
+                }
+
+                _pending.Add(() => OnRoom(left, async () =>
+                {
+                    if (left.GetNpcById(npcId) is not { IsAlive: true } npc || npc.LeaderId != leader.CharacterId)
+                    {
+                        return;
+                    }
+
+                    var (hp, mp, npcMonster) = (npc.Hp, npc.Mp, npc.NpcMonster);
+                    left.RemoveNpc(npc);
+                    await left.SendPacketAsync(new OutPacket { VisualType = VisualType.Npc, VisualId = npcId });
+                    _pending.Add(() => OnRoom(arrival, () =>
+                    {
+                        var moved = arrival.SummonNpc(npcMonster, leader.PositionX, leader.PositionY);
+                        moved.Hp = hp;
+                        moved.Mp = mp;
+                        moved.IsEscort = true;
+                        moved.LeaderId = leader.CharacterId;
+                        _escorts[index] = (arrival, (int)moved.VisualId);
+                        return arrival.SendPacketAsync(moved.GenerateIn());
+                    }));
+                }));
+            }
+        }
+
+        public Task EscortFellAsync(Guid mapInstanceId)
+        {
+            return RunAsync(() =>
+            {
+                if (RoomOf(mapInstanceId) != null && EndState == null && !_abandoned)
+                {
+                    End(EndStateType.Fail);
+                }
+
+                return Task.CompletedTask;
+            });
         }
 
         public void Hunt(int room, short vNum)
