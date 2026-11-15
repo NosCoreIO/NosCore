@@ -17,6 +17,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ItemInfoService;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -31,6 +32,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         private TestWorld World;
         private const short SpeakerVNum = 2173;
         private const short SpeakerSlot = 4;
+        private const short LinkedVNum = 1219;
+        private const short LinkedSlot = 5;
         private ClientSession _speaker;
         private ClientSession _listener;
         private SpeakerHandler _handler;
@@ -44,6 +47,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             Register(_speaker);
             Register(_listener);
             GiveSpeakerItem();
+            World.Inject<IItemInfoService>(World.Create<ItemInfoService>());
             _handler = World.Create<SpeakerHandler>();
         }
 
@@ -64,6 +68,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .Given(ListenerAllowsHeroChat)
                 .WhenAsync(SpeakerIsUsed)
                 .Then(ListenerShouldHearIt)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ALinkedItemReachesTheListenerWithItsInfo()
+        {
+            await new Spec("A speaker message with a linked item reaches the listener with the item's info")
+                .Given(ListenerAllowsHeroChat)
+                .And(TheSpeakerHasAnItemToLink)
+                .WhenAsync(SpeakerIsUsedWithTheLinkedItem)
+                .Then(ListenerShouldSeeTheLinkedItem)
                 .ExecuteAsync();
         }
 
@@ -149,11 +164,43 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 Value = "hello",
             }));
 
-        private void ListenerShouldNotHearIt() =>
-            Assert.IsFalse(_listener.LastPackets.OfType<SayPacket>().Any());
+        private void TheSpeakerHasAnItemToLink()
+        {
+            var instance = new ItemInstanceForTest(LinkedVNum) { Amount = 1 };
+            var inventoryItem = InventoryItemInstance.Create(instance, _speaker.Character.CharacterId);
+            inventoryItem.Slot = LinkedSlot;
+            inventoryItem.Type = NoscorePocketType.Etc;
+            _speaker.Character.InventoryService[inventoryItem.ItemInstanceId] = inventoryItem;
+        }
 
-        private void ListenerShouldHearIt() =>
-            Assert.IsTrue(_listener.LastPackets.OfType<SayPacket>().Any());
+        private Task SpeakerIsUsedWithTheLinkedItem() =>
+            _handler.Handle(new GuriPacketReceivedEvent(_speaker, new GuriPacket
+            {
+                Type = GuriPacketType.TextInput,
+                Argument = 3,
+                VisualId = SpeakerSlot,
+                Data = 999,
+                Value = $"{(byte)NoscorePocketType.Etc} {LinkedSlot} WTS {{%s}} cheap",
+            }));
+
+        private void ListenerShouldSeeTheLinkedItem()
+        {
+            var said = _listener.LastPackets.OfType<SayItemtPacket>().Single();
+            Assert.AreEqual(_speaker.Character.Name, said.VisualName);
+            Assert.AreEqual(LinkedVNum, said.ItemVNum);
+            Assert.AreEqual("WTS {%s} cheap", said.Message);
+            Assert.AreEqual(LinkedVNum, (said.ItemInfo as IconInfoPacket)?.IconId);
+        }
+
+        private void ListenerShouldNotHearIt() =>
+            Assert.IsFalse(_listener.LastPackets.OfType<SaytPacket>().Any());
+
+        private void ListenerShouldHearIt()
+        {
+            var said = _listener.LastPackets.OfType<SaytPacket>().Single();
+            Assert.AreEqual(_speaker.Character.Name, said.VisualName);
+            Assert.AreEqual("hello", said.Message);
+        }
 
         private sealed class ItemInstanceForTest(short vnum) : NosCore.Data.Dto.ItemInstanceDto, IItemInstance
         {

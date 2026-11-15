@@ -290,7 +290,6 @@ namespace NosCore.Data.Enumerations.I18N
         LIMIT_EXCEEDED,
         OBJECT_IN_BAZAAR,
         NOT_IN_FRIENDLIST,
-        SPEAKER,
         FAMILY_AUTHORITY_HEAD,
         FAMILY_AUTHORITY_ASSISTANT,
         FAMILY_AUTHORITY_MANAGER,

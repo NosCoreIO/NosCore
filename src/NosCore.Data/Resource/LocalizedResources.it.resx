@@ -508,9 +508,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Sincronizzate!</value>
   </data>
-  <data name="SPEAKER" xml:space="preserve">
-    <value>Altoparlante</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
   </data>

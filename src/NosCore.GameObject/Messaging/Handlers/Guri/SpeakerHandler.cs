@@ -16,9 +16,12 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemInfoService;
 using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 
@@ -28,19 +31,21 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
     public sealed class SpeakerHandler(
         ILogger<SpeakerHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-        IGameLanguageLocalizer gameLanguageLocalizer,
         ISessionRegistry sessionRegistry,
-        IPenaltyService penaltyService)
+        IPenaltyService penaltyService,
+        IItemInfoService itemInfoService)
     {
-        private static string CraftMessage(string message, string[] valueSplit)
+        private static string CraftMessage(string[] valueSplit)
         {
-            message = valueSplit.Aggregate(message, (current, t) => current + t + " ");
+            var message = string.Join(' ', valueSplit);
             if (message.Length > 120)
             {
                 message = message.Substring(0, 120);
             }
             return message.Trim();
         }
+
+        private const byte SpeakerOratorSlot = 17;
 
         private Task BroadcastToListenersAsync(IPacket packet, string senderChannelId) =>
             Task.WhenAll(sessionRegistry.GetCharacters(c => !c.HeroChatBlocked && c.Channel?.Id != senderChannelId)
@@ -84,7 +89,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
 
             var data = packet.Value;
             var valueSplit = (data ?? string.Empty).Split(' ');
-            var message = $"<{gameLanguageLocalizer[LanguageKey.SPEAKER, session.Account.Language]}> [{session.Character.Name}]:";
             if (packet.Data == 999)
             {
                 InventoryItemInstance? deeplink = null;
@@ -98,15 +102,29 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                     logger.LogError(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND], type, slot));
                     return;
                 }
-#pragma warning disable NosCoreWireEscape // #3321: the escape belongs on SayItemPacket.Message
-                message = CraftMessage(message, valueSplit.Skip(2).ToArray()).Replace(' ', '|');
-#pragma warning restore NosCoreWireEscape
-                await BroadcastToListenersAsync(session.Character.GenerateSayItem(message, deeplink), session.ConnectedChannel.Id);
+                var item = deeplink.ItemInstance;
+                await BroadcastToListenersAsync(new SayItemtPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.VisualId,
+                    OratorSlot = SpeakerOratorSlot,
+                    Type = 1,
+                    ItemVNum = item.ItemVNum,
+                    VisualName = session.Character.Name,
+                    Message = CraftMessage(valueSplit.Skip(2).ToArray()),
+                    ItemInfo = itemInfoService.GenerateInfo(item) ?? new IconInfoPacket { IconId = item.ItemVNum },
+                }, session.ConnectedChannel.Id);
             }
             else
             {
-                message = CraftMessage(message, valueSplit);
-                await BroadcastToListenersAsync(session.Character.GenerateSay(message, (SayColorType)13), session.ConnectedChannel.Id);
+                await BroadcastToListenersAsync(new SaytPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.VisualId,
+                    Type = SayColorType.LightPurple,
+                    VisualName = session.Character.Name,
+                    Message = CraftMessage(valueSplit),
+                }, session.ConnectedChannel.Id);
             }
 
             await session.Character.UseUpOneAsync(inv);

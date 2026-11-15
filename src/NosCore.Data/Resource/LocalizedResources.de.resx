@@ -487,9 +487,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills geladen!</value>
   </data>
-  <data name="SPEAKER" xml:space="preserve">
-    <value>Servernachricht</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
   </data>

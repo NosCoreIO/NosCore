@@ -513,9 +513,6 @@
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Arkadaşın değil.</value>
   </data>
-  <data name="SPEAKER" xml:space="preserve">
-    <value>Hoparlör</value>
-  </data>
   <data name="SHOPSKILLS_LOADED" xml:space="preserve">
     <value>{0} Market becerileri yüklendi!</value>
   </data>
