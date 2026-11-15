@@ -1360,6 +1360,18 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Do the same with the pet bead: the pet comes out, and it is still there after relogging
 - [ ] Answer no to the question: nothing happens and the bead stays
 
+`$CreateItem 285` gives an empty Pet Bead and `$CreateItem 286` an empty Partner Bead.
+
+- [ ] Click your pet, then double-click the empty Pet Bead and confirm the client's "Use the item.":
+      "Put the pet in the bead?" shows; confirm it and the pet disappears from the map and from the
+      team portrait, "Pet is now in the bead." shows and the bead stays in the bag
+- [ ] Use the empty Pet Bead with your partner selected, or nothing selected: "Cannot put NosMate in
+      the bead." shows and nothing changes
+- [ ] Select a partner that wears gear and use the Partner Bead: "You can put the partner in the bead
+      after disarming it." shows; a partner in a costume is warned that the costume disappears
+- [ ] Relog with a filled bead, enter your Miniland and use it: "Remove the pet from the bead?",
+      then the pet comes out at the level it was stored with and the bead is gone
+
 ### Ordering NosMates
 
 Have a pet and a partner out, and a second client on the same map watching.
