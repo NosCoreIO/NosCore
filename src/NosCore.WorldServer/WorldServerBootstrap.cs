@@ -230,7 +230,18 @@ namespace NosCore.WorldServer
                     services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
                         typeof(LogLanguageLocalizer<LanguageKey, LocalizedResources>));
 
-                    services.AddSingleton(TimeProvider.System);
+                    if (configuration.GetValue<bool>(nameof(WorldConfiguration.TestClock)))
+                    {
+                        var adjustable = new AdjustableTimeProvider();
+                        services.AddSingleton(adjustable);
+                        services.AddSingleton<TimeProvider>(adjustable);
+                        services.AddHostedService<ClockCommandReader>();
+                    }
+                    else
+                    {
+                        services.AddSingleton(TimeProvider.System);
+                    }
+
                     services.AddSingleton<IClock>(s => new TimeProviderClock(s.GetRequiredService<TimeProvider>()));
 
                     // ID services, session/map registries, hub clients, pathfinder and the

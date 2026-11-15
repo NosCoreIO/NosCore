@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.ClientPackets.Player;
@@ -135,17 +136,59 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             }
 
             var mark = Mark();
+            await StartGameAsync(slot);
+            await ArriveAsync();
+            return Since(mark);
+        }
+
+        // Selects the character and starts the game, without waiting for the map: for a character
+        // the world hands on to another channel.
+        public async Task StartGameAsync(byte slot)
+        {
+            if (_world == null)
+            {
+                await ConnectAsync();
+            }
+
             await SendAsync(new SelectPacket { Slot = slot });
             await ExpectAsync<OkPacket>();
             await SendAsync(new GameStartPacket());
             await SendAsync(new LbsPacket { Type = 0 });
+        }
+
+        // Goes where an mz packet sends the character, as the client does: the world it leaves
+        // closes the connection, a new one opens on the same session and dac picks the character up.
+        public async Task<IReadOnlyList<IPacket>> FollowAsync(MzPacket destination)
+        {
+            if (_reading != null)
+            {
+                await _reading.WaitAsync(DefaultTimeout);
+            }
+
+            _world?.Dispose();
+            _disconnected = false;
+            _world = new TcpClient { NoDelay = true };
+            await _world.ConnectAsync(destination.Ip, destination.Port);
+            await _world.GetStream().WriteAsync(ClientCipher.EncodeSession(_counter++, _session));
+            _reading = Task.Run(ReadLoopAsync);
+            await Task.Delay(200);
+            var mark = Mark();
+            await SendAsync(new DacPacket(_account) { Slot = destination.CharacterSlot });
+            await ExpectAsync<OkPacket>();
+            await SendAsync(new GameStartPacket());
+            await SendAsync(new LbsPacket { Type = 0 });
+            await ArriveAsync();
+            return Since(mark);
+        }
+
+        private async Task ArriveAsync()
+        {
             CharacterId = (await ExpectAsync<CInfoPacket>()).CharacterId;
             await ExpectAsync<CMapPacket>();
             Speed = (await ExpectAsync<CondPacket>()).Speed;
             // The map's packets come first and game_start carries on after them; title is the last
             // packet it always sends, so nothing of the login is left to arrive once it is here.
             await ExpectAsync<TitlePacket>();
-            return Since(mark);
         }
 
         // One step, as the client sends it: the cell, its checksum and the speed the server gave.

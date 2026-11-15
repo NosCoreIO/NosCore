@@ -19,8 +19,10 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Map;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using FamilyUpgradeType = NosCore.Data.Enumerations.Family.FamilyUpgradeType;
+using MapType = NosCore.Database.Entities.MapType;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
 {
@@ -241,6 +243,17 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short RelictPiece = 2032;
         public const short FlowerQuest = 5981;
         public const byte FlowerQuestLevel = 20;
+
+        // Glacernon: the angels' citadel the ship lands on, the demons' beside it, and the deck the
+        // act4-ship script opens. The shipmaster in town takes passengers.
+        public const short AngelCitadel = 130;
+        public const short DemonCitadel = 131;
+        public const short ShipDeck = 148;
+        public const int Shipmaster = 6;
+        private const short ShipmasterVNum = 14;
+        public const short ShipmasterX = 90;
+        public const short ShipmasterY = 112;
+        private const short ShipmasterDialog = 3;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -575,6 +588,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedArchaeologistAsync(context);
             await SeedRaidAsync(context);
             SeedSoundFlower(context);
+            await SeedAct4Async(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
         }
@@ -669,6 +683,29 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 QuestId = FlowerQuest, QuestType = QuestType.FlowerQuest, LevelMin = FlowerQuestLevel, LevelMax = 99,
                 QuestLineId = FlowerQuest, Title = "flowerquest", Desc = "flowerquest"
             });
+        }
+
+        private static async Task SeedAct4Async(NosCoreContext context)
+        {
+            context.Add(OpenMap(AngelCitadel, 60, 60));
+            context.Add(OpenMap(DemonCitadel, 60, 60));
+            context.Add(OpenMap(ShipDeck, 60, 60));
+            context.Add(new MapType { MapTypeId = MapTypeType.Act4, MapTypeName = "act4" });
+            foreach (short vnum in new short[] { 540, 613 })
+            {
+                context.Add(new NpcMonster { NpcMonsterVNum = vnum, Name = "crew" + vnum, Level = 1, MaxHp = 100 });
+            }
+
+            context.Add(new NpcTalk { DialogId = ShipmasterDialog, Name = "shipmaster" });
+            context.Add(new NpcMonster { NpcMonsterVNum = ShipmasterVNum, Name = "shipmaster", Level = 1, MaxHp = 100 });
+            await context.SaveChangesAsync();
+            context.Add(new MapTypeMap { MapId = AngelCitadel, MapTypeId = MapTypeType.Act4 });
+            context.Add(new MapTypeMap { MapId = DemonCitadel, MapTypeId = MapTypeType.Act4 });
+            context.Add(new MapNpc
+            {
+                MapNpcId = Shipmaster, MapId = Town, MapX = ShipmasterX, MapY = ShipmasterY, VNum = ShipmasterVNum, Dialog = ShipmasterDialog
+            });
+            await context.SaveChangesAsync();
         }
 
         // The bands of dignity as the client names them, each by the highest value still in it.
