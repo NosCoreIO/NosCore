@@ -53,6 +53,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly SemaphoreSlim _gate = new(1, 1);
         private readonly List<Func<Task>> _pending = [];
         private readonly Dictionary<int, short> _lockers = [];
+        private readonly Dictionary<int, short> _lockerVNums = [];
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
@@ -157,7 +158,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
                 await CallScriptAsync(run => _script.OnMonsterKilled(run, room.Value, vNum));
 
-                if (!_lockers.TryGetValue(room.Value, out var remaining) || remaining <= 0)
+                if (!_lockers.TryGetValue(room.Value, out var remaining) || remaining <= 0
+                    || (_lockerVNums.TryGetValue(room.Value, out var counted) && counted != vNum))
                 {
                     return;
                 }
@@ -468,6 +470,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public void SetMonsterLocker(int room, short count)
         {
             _lockers[room] = count;
+            _lockerVNums.Remove(room);
+        }
+
+        public void SetMonsterLocker(int room, short count, short countedVNum)
+        {
+            _lockers[room] = count;
+            _lockerVNums[room] = countedVNum;
         }
 
         public int LockerLeft(int room) => _lockers.GetValueOrDefault(room);
@@ -783,6 +792,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
 
             public void SetMonsterLocker(int room, short count) => Do(() => run.SetMonsterLocker(room, count));
+
+            public void SetMonsterLocker(int room, short count, short countedVNum) =>
+                Do(() => run.SetMonsterLocker(room, count, countedVNum));
 
             public int LockerLeft(int room) => run.LockerLeft(room);
 

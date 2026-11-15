@@ -2679,8 +2679,8 @@ confirms "Do you want to create the raid map?".
       no longer shows it; B trying the same is told only the leader can
 - [ ] A registers twice: "Already registered in the raid list." appears
 - [ ] A starts the raid: the team is gone from everyone's board
-- [ ] On a freshly parsed database, the Mother Cuby, Ginseng and Glacerus gates show without
-      touching the `Script` column
+- [ ] On a freshly parsed database, the Mother Cuby, Ginseng, Glacerus and Grenigas gates show
+      without touching the `Script` column
 
 #### Ginseng
 
@@ -2708,6 +2708,21 @@ to 99 first.
       Glacerus (4772)
 - [ ] Not verifiable yet: whether the ghosts the packet trace shows around Glacerus fight for or
       against the team, so the den has Glacerus alone
+
+#### Grenigas
+
+Seal 5922, levels 85 to 99, gate on Grenigas Square (2536 at 26,25). Raise A to E to levels 85
+to 99 first. Dropping `MaxHp` of the Fiery Giant (1925) and of Grenigas (1058) makes it quick.
+
+- [ ] A starts at the gate: the team lands in the south-east of the Lava Path (2537) with a
+      two-hour clock
+- [ ] The portal at (17,21) stays shut while one of the levers at (41,162) and (147,31) is up,
+      and while either Fiery Giant lives; other monsters do not count
+- [ ] With both levers pulled and both giants dead it opens onto Way of the Phoenix (2538)
+- [ ] There the portal at (48,10) needs the levers at (34,75), (167,30) and (165,168) and the
+      three Fiery Giants, and leads to Grenigas Temple (2539)
+- [ ] Killing Grenigas wins: every member still inside gets a Raid Box of Grenigas (4698) and is
+      sent back to Grenigas Square
 
 ### Instant Combat
 

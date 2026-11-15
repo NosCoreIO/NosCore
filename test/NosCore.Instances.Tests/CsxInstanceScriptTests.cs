@@ -64,6 +64,9 @@ namespace NosCore.Instances.Tests
 
         public void SetMonsterLocker(int room, short count) => Calls.Add($"monsterLocker({room},{count})");
 
+        public void SetMonsterLocker(int room, short count, short countedVNum) =>
+            Calls.Add($"monsterLocker({room},{count},{countedVNum})");
+
         public int LockerLeft { get; set; }
 
         int IInstanceRun.LockerLeft(int room) => LockerLeft;
@@ -521,6 +524,7 @@ namespace NosCore.Instances.Tests
         [TestMethod]
         [DataRow("raid-ginseng", 1, 1128, 40, 59, 4685)]
         [DataRow("raid-glacerus", 17, 5512, 80, 99, 4772)]
+        [DataRow("raid-grenigas", 15, 5922, 85, 99, 4698)]
         public async Task EachRaidIsOpenedByItsOwnSeal(string name, int raid, int seal, int minimum, int maximum, int box)
         {
             var definition = (await LoadAsync(name)).Definition;
@@ -547,6 +551,62 @@ namespace NosCore.Instances.Tests
             script.OnRoomCleared(run, 1);
 
             CollectionAssert.AreEqual(new[] { "unlock(1->2)" }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task OnlyTheFieryGiantsHoldTheGrenigasLavaFields()
+        {
+            var run = new RecordingRun();
+
+            (await LoadAsync("raid-grenigas")).OnFirstEnter(run);
+
+            CollectionAssert.IsSubsetOf(new[]
+            {
+                "portal(1->2,locked)", "portal(2->3,locked)", "monsterLocker(1,2,1925)", "monsterLocker(2,3,1925)"
+            }, run.Calls);
+        }
+
+        [TestMethod]
+        [DataRow(1, 2, "unlock(1->2)")]
+        [DataRow(2, 3, "unlock(2->3)")]
+        public async Task EachGrenigasFieldOpensOnceItsLeversAndGiantsAreDone(int room, int levers, string unlock)
+        {
+            var script = await LoadAsync("raid-grenigas");
+            var run = new RecordingRun { LockerLeft = 1 };
+            for (var lever = 1; lever <= levers; lever++)
+            {
+                run.ButtonsOn.Add(lever);
+                script.OnButtonUsed(run, room, lever);
+            }
+
+            Assert.AreEqual(0, run.Calls.Count);
+
+            run.LockerLeft = 0;
+            script.OnRoomCleared(run, room);
+
+            CollectionAssert.AreEqual(new[] { unlock }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task TheGrenigasFieldStaysShutWhileALeverIsUp()
+        {
+            var script = await LoadAsync("raid-grenigas");
+            var run = new RecordingRun();
+            run.ButtonsOn.Add(1);
+
+            script.OnRoomCleared(run, 1);
+
+            Assert.AreEqual(0, run.Calls.Count);
+        }
+
+        [TestMethod]
+        public async Task KillingGrenigasWinsTheRaid()
+        {
+            var run = new RecordingRun();
+
+            (await LoadAsync("raid-grenigas")).OnMonsterKilled(run, 3, 1058);
+
+            CollectionAssert.AreEqual(new[] { "succeed" }, run.Calls);
         }
 
         [TestMethod]
