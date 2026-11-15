@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +23,7 @@ using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Tests.Shared;
 using SpecLight;
 
@@ -232,6 +234,55 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
+        public async Task AReinforcementAmuletUpgradesAFixedItemAndReleasesIt()
+        {
+            await new Spec("A fixed item is upgraded through a worn Amulet of Reinforcement, which spends a use")
+                .Given(WearableAtUpgrade_, (byte)2)
+                .And(WearableIsLocked)
+                .And(ReinforcementAmuletWith_UsesIsWorn, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 1_000_000L)
+                .And(NextRollWillSucceed)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)3)
+                .And(WearableShouldNotBeFixed)
+                .And(TheAmuletShouldHave_UsesLeft, 2)
+                .And(TheChatShouldSay_, Game18NConstString.AmuletReinforcingUsedFixedLevels)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AReinforcementAmuletIsNotSpentOnAnItemThatIsNotFixed()
+        {
+            await new Spec("Upgrading an item that is not fixed leaves the amulet's uses alone")
+                .Given(WearableAtUpgrade_, (byte)2)
+                .And(ReinforcementAmuletWith_UsesIsWorn, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 1_000_000L)
+                .And(NextRollWillSucceed)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)3)
+                .And(TheAmuletShouldHave_UsesLeft, 3)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AReinforcementAmuletDisappearsWithItsLastUse()
+        {
+            await new Spec("A fixed item that stays fixed still spends the amulet's last use")
+                .Given(WearableAtUpgrade_, (byte)5)
+                .And(WearableIsLocked)
+                .And(ReinforcementAmuletWith_UsesIsWorn, 1)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 1_000_000L)
+                .And(NextRollWillBe_, 0.10)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableShouldBeFixed)
+                .And(NoAmuletShouldBeWorn)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task FixedItemsCannotBeUpgraded()
         {
             await new Spec("A wearable with IsFixed=true is rejected upfront with a sayi + shop_end")
@@ -377,6 +428,39 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _wearable.Type = NoscorePocketType.Equipment;
             _session.Character.InventoryService[_wearable.ItemInstanceId] = _wearable;
         }
+
+        private void ReinforcementAmuletWith_UsesIsWorn(int uses)
+        {
+            var item = new Item
+            {
+                VNum = 284,
+                Type = NoscorePocketType.Equipment,
+                ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.Amulet,
+                Effect = ItemEffectType.ReinforcementAmulet,
+                EffectValue = 3,
+            };
+            var amulet = InventoryItemInstance.Create(
+                new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object, World.LogLanguageLocalizer)
+                {
+                    DurabilityPoint = uses,
+                },
+                _session.Character.CharacterId);
+            amulet.Slot = (short)EquipmentType.Amulet;
+            amulet.Type = NoscorePocketType.Wear;
+            _session.Character.InventoryService[amulet.ItemInstanceId] = amulet;
+        }
+
+        private InventoryItemInstance? WornAmulet() =>
+            _session.Character.InventoryService.LoadBySlotAndType(EquipmentType.Amulet, NoscorePocketType.Wear);
+
+        private void TheAmuletShouldHave_UsesLeft(int uses) =>
+            Assert.AreEqual(uses, WornAmulet().NotNull().ItemInstance.DurabilityPoint);
+
+        private void NoAmuletShouldBeWorn() => Assert.IsNull(WornAmulet());
+
+        private void TheChatShouldSay_(Game18NConstString message) =>
+            Assert.AreEqual(message, _result.OfType<SayiPacket>().Single().Message);
 
         private void WearableIsLocked() =>
             ((WearableInstance)_wearable.ItemInstance).IsFixed = true;
