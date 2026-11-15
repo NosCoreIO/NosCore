@@ -39,6 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .WhenAsync(OpeningTheSortedPockets)
                 .Then(SpecialistShouldBeInSlot_, 0)
                 .And(InvForSpecialistsShouldList_, "0:912")
+                .And(EachSpecialistShouldCarryOnlyFiveFields)
                 .And(InvForCostumesShouldBeEmpty)
                 .ExecuteAsync();
         }
@@ -64,6 +65,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             var inv = Session.LastPackets.OfType<InvPacket>().Single(p => p.Type == PocketType.Specialist);
             Assert.AreEqual(expected, string.Join(" ", inv.IvnSubPackets.NotNull().Select(s => $"{s.Slot}:{s.VNum}")));
+        }
+
+        private void EachSpecialistShouldCarryOnlyFiveFields()
+        {
+            var item = Session.LastPackets.OfType<InvPacket>().Single(p => p.Type == PocketType.Specialist).IvnSubPackets.NotNull().Single();
+            Assert.IsNull(item.Unknown5);
+            Assert.IsNull(item.Unknown6);
         }
 
         private void InvForCostumesShouldBeEmpty() =>
