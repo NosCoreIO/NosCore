@@ -29,9 +29,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService
     {
         public IItemInstance Convert(IItemInstanceDto k)
         {
-            var itemDto = itemCatalog.GetItem(k.ItemVNum)
+            var item = itemCatalog.GetItem(k.ItemVNum)
                 ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED]);
-            var item = itemDto.Adapt<Item.Item>();
             IItemInstance instance = k switch
             {
                 BoxInstanceDto _ => new BoxInstance(item),
@@ -64,8 +63,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService
 
         public IItemInstance Generate(short itemToCreateVNum, short amount, sbyte rare, byte upgrade, byte design)
         {
-            var itemToCreate = (itemCatalog.GetItem(itemToCreateVNum)
-                ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED])).Adapt<Item.Item>();
+            var itemToCreate = itemCatalog.GetItem(itemToCreateVNum)
+                ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED]);
             switch (itemToCreate.Type)
             {
                 case NoscorePocketType.Miniland:
