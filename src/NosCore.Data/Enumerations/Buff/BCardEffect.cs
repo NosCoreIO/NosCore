@@ -641,6 +641,10 @@ namespace NosCore.Data.Enumerations.Buff
         BearSpiritNextSkillDamageFromStoredNegated = 5842,
         BearSpiritDamageAgainstMonsters = 5851,
         BearSpiritDamageAgainstMonstersNegated = 5852,
+        // The client has no sentence for these two. Their rows read like SummonSkillSummon, a
+        // chance and a monster, and 21 only appears beside 11 on a skill that lays a second egg.
+        SummonSkillCallAdd = 5911,
+        SummonSkillCallSecondAdd = 5921,
         SummonSkillSummon = 5931,
         SummonSkillSummonTimed = 5932,
 

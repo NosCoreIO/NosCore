@@ -584,9 +584,9 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 58 | 42 | yes | BearSpiritNextSkillDamageFromStoredNegated | The damage of the next skill is increased by the damage stored by Soulripper (min. %s, max. %s). |
 | 58 | 51 | yes | BearSpiritDamageAgainstMonsters | If the target is a monster, the damage from all attacks is increased by %s%%. Otherwise the player is forced to transform into the %s. |
 | 58 | 52 | yes | BearSpiritDamageAgainstMonstersNegated | If the target is a monster, the damage from all attacks is increased by %s%%. Otherwise the player is forced to transform into the %s. |
-| 59 | 11 | yes |  |  |
+| 59 | 11 | yes | SummonSkillCallAdd |  |
 | 59 | 12 | yes |  |  |
-| 59 | 21 | yes |  |  |
+| 59 | 21 | yes | SummonSkillCallSecondAdd |  |
 | 59 | 22 | yes |  |  |
 | 59 | 31 | yes | SummonSkillSummon | Summons 1 %s with a probability of %s%%. |
 | 59 | 32 | yes | SummonSkillSummonTimed | Summons 1 %s with a probability of %s%%. (Disappears after a set amount of time) |

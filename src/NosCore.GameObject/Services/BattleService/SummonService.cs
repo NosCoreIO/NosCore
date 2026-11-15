@@ -33,6 +33,7 @@ public sealed class SummonService(List<NpcMonsterDto> npcMonsters, IRandomProvid
             {
                 BCardEffect.SummonsSummonUponDeath or BCardEffect.SummonsSummons => card.FirstData,
                 BCardEffect.SummonsSummonUponDeathChance or BCardEffect.SummonsSummonningChance
+                    or BCardEffect.SummonSkillCallAdd or BCardEffect.SummonSkillCallSecondAdd
                     => random.Next(0, 100) < card.FirstData ? 1 : 0,
                 _ => 0,
             };

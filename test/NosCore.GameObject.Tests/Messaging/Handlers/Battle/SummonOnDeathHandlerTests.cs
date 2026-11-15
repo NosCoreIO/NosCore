@@ -85,6 +85,32 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         }
 
         [TestMethod]
+        public async Task ASummonSkillCallsEachAddOnItsOwnRoll()
+        {
+            _random.SetupSequence(r => r.Next(0, 100)).Returns(69).Returns(70);
+
+            await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(), new[]
+            {
+                new BCardDto { Type = BCardType.CardType.SummonSkill, SubType = 11, FirstData = 70, SecondData = PiiVnum },
+                new BCardDto { Type = BCardType.CardType.SummonSkill, SubType = 21, FirstData = 70, SecondData = PodVnum },
+            });
+
+            Assert.AreEqual(1, _map.EnumerateMonsters().Count(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum));
+            Assert.AreEqual(1, _map.EnumerateMonsters().Count(m => m.NpcMonster?.NpcMonsterVNum == PodVnum));
+        }
+
+        [TestMethod]
+        public async Task ASecondSummonSkillCardAlsoCallsItsAdd()
+        {
+            _random.Setup(r => r.Next(0, 100)).Returns(0);
+
+            await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(),
+                new[] { new BCardDto { Type = BCardType.CardType.SummonSkill, SubType = 21, FirstData = 100, SecondData = PiiVnum } });
+
+            Assert.AreEqual(1, _map.EnumerateMonsters().Count(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum));
+        }
+
+        [TestMethod]
         public async Task APassiveSummonCardAlsoFiresOnDeath()
         {
             DeathCards(new BCardDto { Type = BCardType.CardType.Summons, SubType = 21, FirstData = 1, SecondData = PiiVnum, Slot = 0 });
