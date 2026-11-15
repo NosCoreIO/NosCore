@@ -19,7 +19,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.Interaction;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
-using NosCore.Data.Enumerations.Interaction;
 using FamilyUpgradeType = NosCore.Data.Enumerations.Family.FamilyUpgradeType;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
