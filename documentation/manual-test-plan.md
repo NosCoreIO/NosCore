@@ -1475,6 +1475,7 @@ under half health first.
 - [ ] Change map: the pet comes along and stays in the party panel
 - [ ] Log out and back in: every pet, its level and loyalty are still there
 - [ ] Sit down with a pet or partner out: it sits beside you; sit again to stand up and it stands too
+- [ ] Cast a buff that reaches everyone around (Wild Keeper's Wolf Spirit) with a pet out: the pet gets the buff too and its icon shows next to the pet's bars
 - [ ] Not verifiable yet: the HP and MP values a pet's party bars carry; the client draws the
       bars from the percentages and shows neither number, even on hover
 - [ ] With a second client on the map, log out: your pet disappears from their screen too

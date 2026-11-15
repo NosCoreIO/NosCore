@@ -24,6 +24,7 @@ using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
@@ -147,6 +148,51 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AGroupBuffLandsOnThePetsOutAround()
+        {
+            await new Spec("A skill buffing everyone around also reaches the pets the caster and the ally have out")
+                .Given(TheSkillTargets_WithHitType_, (byte)1, TargetHitType.SingleAoeTargetHit)
+                .AndAsync(TheCasterAndTheAllyHaveAPetOutAt_, (short)11)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheCardsShouldReach_, new[] { "caster", "ally", "caster's pet", "ally's pet" })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AGroupBuffLeavesOutAPetOutOfRange()
+        {
+            await new Spec("A pet outside the range is not buffed")
+                .Given(TheSkillTargets_WithHitType_, (byte)1, TargetHitType.SingleAoeTargetHit)
+                .AndAsync(TheCasterAndTheAllyHaveAPetOutAt_, (short)30)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheCardsShouldReach_, new[] { "caster", "ally" })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AGroupBuffShowsTheSkillLandingOnEachFriendAround()
+        {
+            await new Spec("Every friend a group buff reaches besides the caster sees the skill land on them")
+                .Given(TheSkillTargets_WithHitType_, (byte)1, TargetHitType.SingleAoeTargetHit)
+                .AndAsync(TheCasterAndTheAllyHaveAPetOutAt_, (short)11)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheSkillShouldBeShownLandingOn_, new[] { "ally", "caster's pet", "ally's pet" })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AGroupBuffRefreshesTheBarsOfEachPetItReaches()
+        {
+            await new Spec("Each owner gets their buffed pet's bars again, so the new buff shows under it")
+                .Given(TheSkillTargets_WithHitType_, (byte)1, TargetHitType.SingleAoeTargetHit)
+                .AndAsync(TheCasterAndTheAllyHaveAPetOutAt_, (short)11)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(_ShouldGetTheBarsOf_, "caster", "caster's pet")
+                .And(_ShouldGetTheBarsOf_, "ally", "ally's pet")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AnAttackAroundTheCasterHitsTheEnemiesAround()
         {
             await new Spec("A skill hitting around the caster strikes each enemy in its area and buffs nobody")
@@ -171,6 +217,42 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         private MateComponentBundle _pet;
+        private readonly Dictionary<string, long> _pets = new();
+
+        private async Task TheCasterAndTheAllyHaveAPetOutAt_(short x)
+        {
+            foreach (var (name, owner) in new[] { ("caster's pet", _caster), ("ally's pet", _ally) })
+            {
+                var pet = TestMates.Pet(owner.Character.CharacterId);
+                owner.Character.Mates[pet.MateTransportId] = pet;
+                await pet.SpawnAsync(owner.Character, _map, x, 10);
+                _pets[name] = pet.MateTransportId;
+            }
+
+            _map.LastPackets.Clear();
+        }
+
+        private long VisualIdOf(string who) => who switch
+        {
+            "caster" => _caster.Character.VisualId,
+            "ally" => _ally.Character.VisualId,
+            _ => _pets[who],
+        };
+
+        private void _ShouldGetTheBarsOf_(string owner, string pet)
+        {
+            var session = owner == "caster" ? _caster : _ally;
+            Assert.IsTrue(session.LastPackets.OfType<PstPacket>().Any(p => p.VisualId == _pets[pet]));
+        }
+
+        private void TheSkillShouldBeShownLandingOn_(string[] who)
+        {
+            var landed = _map.LastPackets.OfType<SuPacket>()
+                .Where(su => su.HitMode == SuPacketHitMode.AttackedInAoe)
+                .Select(su => su.TargetId)
+                .ToList();
+            CollectionAssert.AreEquivalent(who.Select(VisualIdOf).ToList(), landed);
+        }
 
         private async Task ThePetOfTheCasterOnlyHasABasicAttack()
         {
@@ -232,7 +314,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private void TheCardsShouldReach_(string[] who)
         {
-            var expected = who.Select(w => w == "caster" ? _caster.Character.VisualId : _ally.Character.VisualId).ToList();
+            var expected = who.Select(VisualIdOf).ToList();
             var reached = _buffService.Invocations
                 .Where(i => i.Method.Name == nameof(IBuffService.InflictCardsAsync))
                 .Select(i => i.Arguments[0] is IAliveEntity entity ? entity.VisualId : -1)
