@@ -37,7 +37,6 @@ namespace NosCore.Parser.Parsers
             var scrolls = items.Values
                 .Where(s => s.ItemType == ItemType.Production && s.Effect == ItemEffectType.OpenProduction)
                 .Select(s => s.VNum).ToHashSet();
-            var existing = recipeDao.LoadAll().Select(s => (s.MapNpcId, s.ScrollVNum, s.ItemVNum)).ToHashSet();
 
             var listed = new HashSet<(int? MapNpcId, short? ScrollVNum, short ItemVNum)>();
             var recipes = new Dictionary<(int? MapNpcId, short? ScrollVNum, short ItemVNum), (byte Amount, List<RecipeItemDto> Items)>();
@@ -97,23 +96,48 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
+            var desired = recipes
+                .Where(s => (s.Key.MapNpcId == null || npcIds.Contains(s.Key.MapNpcId.Value)) && items.ContainsKey(s.Key.ItemVNum)
+                    && s.Value.Items.Count > 0 && s.Value.Items.All(m => items.ContainsKey(m.ItemVNum)))
+                .ToDictionary(s => s.Key, s => s.Value);
+
+            // The capture holds every recipe of the NPCs it shows.
+            var capturedNpcs = CaptureSessions.NpcIds(packets);
+            var stored = recipeDao.LoadAll().ToList();
+            await CapturedRows.DeleteRecipesAsync(recipeDao, recipeItemDao, stored
+                .Where(s => s.MapNpcId != null && capturedNpcs.Contains(s.MapNpcId.Value) && !desired.ContainsKey((s.MapNpcId, s.ScrollVNum, s.ItemVNum)))
+                .Select(s => s.RecipeId).ToList());
+            var storedByKey = stored.GroupBy(s => (s.MapNpcId, s.ScrollVNum, s.ItemVNum)).ToDictionary(g => g.Key, g => g.First());
+            var storedItems = (recipeItemDao.LoadAll() ?? []).ToLookup(s => s.RecipeId);
+
             var count = 0;
             var recipeItems = new List<RecipeItemDto>();
-            foreach (var ((npc, scroll, itemVNum), (amount, materials)) in recipes)
+            foreach (var (key, (amount, materials)) in desired)
             {
-                if (existing.Contains((npc, scroll, itemVNum)) || (npc != null && !npcIds.Contains(npc.Value))
-                    || !items.ContainsKey(itemVNum) || materials.Count == 0 || materials.Any(s => !items.ContainsKey(s.ItemVNum)))
+                RecipeDto? recipe;
+                if (storedByKey.TryGetValue(key, out var row))
                 {
-                    continue;
+                    var current = storedItems[row.RecipeId].ToList();
+                    if (row.Amount == amount && Materials(current).SequenceEqual(Materials(materials)))
+                    {
+                        continue;
+                    }
+
+                    await recipeItemDao.TryDeleteAsync(current.Select(s => s.RecipeItemId).ToList());
+                    row.Amount = amount;
+                    recipe = await recipeDao.TryInsertOrUpdateAsync(row);
+                }
+                else
+                {
+                    recipe = await recipeDao.TryInsertOrUpdateAsync(new RecipeDto
+                    {
+                        MapNpcId = key.MapNpcId,
+                        ScrollVNum = key.ScrollVNum,
+                        ItemVNum = key.ItemVNum,
+                        Amount = amount
+                    });
                 }
 
-                var recipe = await recipeDao.TryInsertOrUpdateAsync(new RecipeDto
-                {
-                    MapNpcId = npc,
-                    ScrollVNum = scroll,
-                    ItemVNum = itemVNum,
-                    Amount = amount
-                });
                 if (recipe == null)
                 {
                     continue;
@@ -127,5 +151,8 @@ namespace NosCore.Parser.Parsers
             await recipeItemDao.TryInsertOrUpdateAsync(recipeItems);
             logger.LogInformation(logLanguage[LogLanguageKey.RECIPES_PARSED], count);
         }
+
+        private static IEnumerable<(short ItemVNum, short Amount)> Materials(IEnumerable<RecipeItemDto> items) =>
+            items.Select(s => (s.ItemVNum, s.Amount)).Order();
     }
 }

@@ -140,6 +140,7 @@ namespace NosCore.Parser
             }
 
             _packets = await packetTrace.ReadAsync(filePacket);
+            CaptureSessions.MergeRepeatedEntities(_packets);
         }
 
         public Task ImportSkillsAsync()

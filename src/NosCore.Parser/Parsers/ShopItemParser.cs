@@ -23,9 +23,7 @@ namespace NosCore.Parser.Parsers
         public async Task InsertShopItemsAsync(IReadOnlyList<IPacket> packets)
         {
             var shopitems = new List<ShopItemDto>();
-            var itemCounter = 0;
             byte type = 0;
-            var shopItemdb = shopItemDao.LoadAll().ToList();
             var shopdb = shopDao.LoadAll().ToList();
             foreach (var packet in packets)
             {
@@ -58,35 +56,53 @@ namespace NosCore.Parser.Parsers
                         Upgrade = item.UpgradeDesign is { } upgrade ? (byte)upgrade : (byte)0
                     };
 
-                    if (shopitems.Any(s =>
-                            s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
-                        || shopItemdb.Where(s => s.ShopId == sitem.ShopId)
-                            .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
+                    if (shopitems.Any(s => s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId)))
                     {
                         continue;
                     }
 
                     shopitems.Add(sitem);
-                    itemCounter++;
                 }
             }
 
-            var groups = shopitems.GroupBy(s => s.ShopId);
-            var shopListItemDtos = new List<ShopItemDto>();
-            foreach (var group in groups)
+            foreach (var group in shopitems.GroupBy(s => s.ShopId))
             {
                 var shopItemDtos = group.OrderBy(s => s.Slot).ToList();
                 for (byte i = 0; i < shopItemDtos.Count; i++)
                 {
-                    shopItemDtos.ElementAt(i).Slot = i;
+                    shopItemDtos[i].Slot = i;
                 }
-
-                shopListItemDtos.AddRange(shopItemDtos);
             }
 
-            await shopItemDao.TryInsertOrUpdateAsync(shopListItemDtos);
-            logger.LogInformation(logLanguage[LogLanguageKey.SHOPITEMS_PARSED],
-                itemCounter);
+            // The capture is the whole stock of the shops of the NPCs it shows.
+            var capturedNpcs = CaptureSessions.NpcIds(packets);
+            var capturedShops = shopdb.Where(s => capturedNpcs.Contains(s.MapNpcId)).Select(s => s.ShopId).ToHashSet();
+            var stored = shopItemDao.LoadAll().ToList();
+            var desired = shopitems.Select(s => (s.ShopId, s.ItemVNum)).ToHashSet();
+            await shopItemDao.TryDeleteAsync(stored
+                .Where(s => capturedShops.Contains(s.ShopId) && !desired.Contains((s.ShopId, s.ItemVNum)))
+                .Select(s => s.ShopItemId).ToList());
+
+            var storedByKey = stored.GroupBy(s => (s.ShopId, s.ItemVNum)).ToDictionary(g => g.Key, g => g.First());
+            var changed = new List<ShopItemDto>();
+            foreach (var item in shopitems)
+            {
+                if (!storedByKey.TryGetValue((item.ShopId, item.ItemVNum), out var row))
+                {
+                    changed.Add(item);
+                }
+                else if ((row.Type, row.Slot, row.Rare, row.Upgrade) != (item.Type, item.Slot, item.Rare, item.Upgrade))
+                {
+                    row.Type = item.Type;
+                    row.Slot = item.Slot;
+                    row.Rare = item.Rare;
+                    row.Upgrade = item.Upgrade;
+                    changed.Add(row);
+                }
+            }
+
+            await shopItemDao.TryInsertOrUpdateAsync(changed);
+            logger.LogInformation(logLanguage[LogLanguageKey.SHOPITEMS_PARSED], changed.Count);
         }
     }
 }
