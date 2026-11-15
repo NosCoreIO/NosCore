@@ -440,6 +440,10 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       own buff (card 4426) appears on your buff bar, and its debuff (card 4424) lands on the
       monster
 - [ ] Gear that triggers on defence puts its card on you, or on the attacker, when you are hit
+- [ ] A buff that hits back (card 144: "the attacker has a 100% chance of receiving" stun 372,
+      BCard type 48 subtypes 41 and 51) stuns the monster that hits you
+      (`/mnt/project-files/bcard-effects/reset-onhit.sh` puts it on Tester next to a hostile Large
+      Dander): the monster hits about once every four seconds instead of every second
 
 ### Double-drop and no-drop chances
 
