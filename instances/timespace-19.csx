@@ -12,6 +12,7 @@ public class TimeSpace19 : InstanceScript
             .ForLevels(29, 99)
             .StartingAt(9, 10)
             .Requiring(1012, 2)
+            .WithLives(3)
             .WithDraw(136, 1)
             .WithDraw(143, 1)
             .WithDraw(150, 1)

@@ -13,6 +13,8 @@ public class TimeSpace21 : InstanceScript
             .ForLevels(31, 99)
             .StartingAt(8, 14)
             .Requiring(1012, 3)
+            .WithLives(1)
+            .WithObjective(ObjectiveKind.KillMonster, 318, 1)
             .WithDraw(98, 1)
             .WithDraw(111, 1)
             .WithDraw(124, 1)

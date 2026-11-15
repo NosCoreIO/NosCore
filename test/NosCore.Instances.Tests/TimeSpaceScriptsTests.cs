@@ -39,6 +39,7 @@ namespace NosCore.Instances.Tests
             Assert.AreEqual($"timespace-{script.Definition.Id:00}", name);
             Assert.IsTrue(script.Definition.LevelMinimum > 0);
             Assert.IsFalse(string.IsNullOrWhiteSpace(script.Definition.Title));
+            Assert.IsTrue(script.Definition.Lives > 0);
         }
 
         [TestMethod]

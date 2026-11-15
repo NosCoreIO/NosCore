@@ -13,6 +13,7 @@ public class TimeSpace0 : InstanceScript
         Definition = InstanceDefinitionBuilder.Named(0, "Time-Space Tutorial", "Time-Space Tutorial")
             .ForLevels(1, 99)
             .StartingAt(11, 10)
+            .WithLives(2)
             .WithDraw(2023, 1)
             .WithDraw(2024, 1)
             .WithDraw(2025, 1)

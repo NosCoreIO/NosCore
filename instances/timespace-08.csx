@@ -17,6 +17,7 @@ public class TimeSpace8 : InstanceScript
             .ForLevels(17, 99)
             .StartingAt(14, 10)
             .Requiring(1012, 1)
+            .WithLives(2)
             .WithDraw(1031, 1)
             .WithDraw(1032, 1)
             .WithSpecialReward(1017, 2)

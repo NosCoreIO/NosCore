@@ -2864,6 +2864,13 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       Mission Clear without an exit portal
 - [ ] In `timespace-16`, using the seal in the last room starts a red one-minute clock with waves of
       monsters; when it runs out the monsters leave and the exit opens
+- [ ] In `timespace-14`, the mine room shows a red ten-minute clock and "The enemies are getting
+      reinforcements!" every 30 seconds, with bigger waves from the third one; the lever opens the
+      east portal without stopping them, and no more come once nobody is left in the mine
+- [ ] Dying in a time-space (`$Kill` works) shows "You can be revived 2 more time(s)." in `timespace-14`
+      and brings the character back 10 seconds later; the run fails only once its lives are spent
+- [ ] In `timespace-21`, walking onto the exit before beating Tom shows "You still have an incomplete
+      mission."; after beating him the same exit gives Mission Clear
 - [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
       guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders

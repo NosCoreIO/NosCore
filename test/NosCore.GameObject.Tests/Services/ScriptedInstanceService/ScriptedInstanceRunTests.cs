@@ -48,7 +48,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             public Action<IInstanceRun, int>? Exit { get; init; }
             public List<string> Calls { get; } = [];
 
-            public Script(byte id = 0) => Definition = new ScriptedInstanceDefinition { Id = id };
+            public Script(byte id = 0, params InstanceObjective[] objectives) =>
+                Definition = new ScriptedInstanceDefinition { Id = id, Objectives = objectives };
 
             public override void OnFirstEnter(IInstanceRun run)
             {
@@ -859,6 +860,50 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
             Assert.AreEqual(PortalType.TsEnd, exit.Type);
 
+            await run.ExitReachedAsync(_first.MapInstanceId);
+            Assert.AreEqual(EndStateType.Success, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task TheExitHoldsThePartyUntilTheMonsterToKillFallsAsync()
+        {
+            var run = Run(new Script(0, new InstanceObjective(ObjectiveKind.KillMonster, Boss, 1))
+            {
+                Enter = r => r.SpawnExit(1, new Spot(3, 3), locked: false),
+                Exit = (r, _) => r.Succeed()
+            });
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            await run.ExitReachedAsync(_first.MapInstanceId);
+            Assert.IsNull(run.EndState);
+            Assert.IsTrue(_first.LastPackets.OfType<MsgiPacket>().Any(m => m.Message == Game18NConstString.HaveIncompleteMission));
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Boss);
+            await run.ExitReachedAsync(_first.MapInstanceId);
+            Assert.AreEqual(EndStateType.Success, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task TheExitHoldsThePartyUntilEnoughObjectsAreUsedAsync()
+        {
+            var run = Run(new Script(0, new InstanceObjective(ObjectiveKind.UseObject, 1055, 2))
+            {
+                Enter = r =>
+                {
+                    r.SpawnExit(1, new Spot(3, 3), locked: false);
+                    r.PlaceButton(1, 1, new Spot(2, 2), 1055, 1056, kind: ButtonKind.Sculpture);
+                    r.PlaceButton(2, 1, new Spot(2, 2), 1055, 1056, kind: ButtonKind.Sculpture);
+                },
+                Exit = (r, _) => r.Succeed()
+            });
+            await run.StartAsync();
+
+            await run.UseButtonAsync(_first.MapInstanceId, 1, 1);
+            await run.ExitReachedAsync(_first.MapInstanceId);
+            Assert.IsNull(run.EndState);
+
+            await run.UseButtonAsync(_second.MapInstanceId, 1, 1);
             await run.ExitReachedAsync(_first.MapInstanceId);
             Assert.AreEqual(EndStateType.Success, run.EndState);
         }

@@ -13,6 +13,7 @@ public class TimeSpace4 : InstanceScript
             .ForLevels(12, 99)
             .StartingAt(12, 9)
             .Requiring(1012, 1)
+            .WithLives(3)
             .WithDraw(2024, 1)
             .WithDraw(211, 1)
             .WithSpecialReward(2042, 4)
