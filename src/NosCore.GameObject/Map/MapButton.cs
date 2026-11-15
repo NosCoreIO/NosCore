@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Instances.Abstractions;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
@@ -27,6 +28,8 @@ namespace NosCore.GameObject.Map
         public short OnVNum { get; init; }
 
         public bool Toggles { get; init; }
+
+        public ButtonKind Kind { get; init; }
 
         public bool IsOn { get; set; }
 

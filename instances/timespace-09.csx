@@ -359,32 +359,27 @@ public class TimeSpace9 : InstanceScript
     {
         if (room == _room6 && button == 1)
         {
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.NewGoal);
             r.UnlockPortal(_room4, _room7);
         }
         else if (room == _room11 && button == 1)
         {
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.NewGoal);
             r.UnlockPortal(_room9, _room12);
         }
         else if (room == _room14 && button == 1)
         {
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.NewGoal);
         }
         else if (room == _room17 && button == 1)
         {
             r.AddClockTime(TimeSpan.FromSeconds(167));
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.NewGoal);
             r.UnlockPortal(_room16, _room18);
         }
         else if (room == _room19 && button == 1)
         {
             r.AddClockTime(TimeSpan.FromSeconds(142));
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.NewGoal);
             r.UnlockPortal(_room18, _room20);
         }

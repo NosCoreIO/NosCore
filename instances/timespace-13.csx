@@ -152,7 +152,6 @@ public class TimeSpace13 : InstanceScript
         if (room == _room9 && button == 1)
         {
             r.UnlockPortal(_room9, _room10);
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.Message(Game18NConstString.ADoorHasOpened);
         }
     }

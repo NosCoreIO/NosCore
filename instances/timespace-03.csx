@@ -12,6 +12,11 @@ public class TimeSpace3 : InstanceScript
     private readonly int _room10;
     private readonly int _room11;
 
+    // Both keys of a room land on one of these pairs of spots, picked per run. The first key of
+    // a pair is the one that opens the way on.
+    private static readonly (Spot, Spot)[] FirstKeySpots = [(new(20, 11), new(24, 14)), (new(19, 6), new(13, 19)), (new(22, 8), new(23, 14))];
+    private static readonly (Spot, Spot)[] LastKeySpots = [(new(26, 16), new(3, 19)), (new(18, 27), new(13, 11)), (new(4, 21), new(12, 4))];
+
     public TimeSpace3()
     {
         Definition = InstanceDefinitionBuilder.Named(3, "A Difficult Decision", "A Difficult Decision")
@@ -46,8 +51,9 @@ public class TimeSpace3 : InstanceScript
         r.SpawnPortal(_room2, new(14, 1), _room1, new(14, 28), locked: false);
         r.SpawnPortal(_room2, new(28, 15), _room3, new(1, 15));
         r.SpawnPortal(_room2, new(1, 15), _room10, new(28, 15));
-        r.PlaceButton(_room2, 1, new(20, 11), 1057, 1057);
-        r.PlaceButton(_room2, 2, new(24, 14), 1057, 1057);
+        var (eastKey, westKey) = FirstKeySpots[Random.Shared.Next(FirstKeySpots.Length)];
+        r.PlaceButton(_room2, 1, eastKey, 1057, 1057, kind: ButtonKind.Key);
+        r.PlaceButton(_room2, 2, westKey, 1057, 1057, kind: ButtonKind.Key);
         r.SpawnPortal(_room3, new(14, 28), _room4, new(14, 1), locked: false);
         r.SpawnPortal(_room3, new(1, 15), _room2, new(28, 15));
         r.SpawnPortal(_room4, new(14, 1), _room3, new(14, 28));
@@ -105,8 +111,9 @@ public class TimeSpace3 : InstanceScript
         r.SpawnPortal(_room9, new(14, 1), _room11, new(14, 28));
         r.SpawnPortal(_room9, new(14, 28), _room8, new(14, 1));
         r.SpawnExit(_room9, new(1, 15));
-        r.PlaceButton(_room9, 1, new(26, 16), 1057, 1057);
-        r.PlaceButton(_room9, 2, new(3, 19), 1057, 1057);
+        var (exitKey, trapKey) = LastKeySpots[Random.Shared.Next(LastKeySpots.Length)];
+        r.PlaceButton(_room9, 1, exitKey, 1057, 1057, kind: ButtonKind.Key);
+        r.PlaceButton(_room9, 2, trapKey, 1057, 1057, kind: ButtonKind.Key);
         r.SpawnPortal(_room10, new(28, 15), _room2, new(1, 15));
         r.SpawnPortal(_room10, new(1, 15), _room11, new(28, 15));
         r.Summon(_room10, new MonsterSpawn(54, new(18, 9), OnDeath: r =>
@@ -171,6 +178,11 @@ public class TimeSpace3 : InstanceScript
             r.AddClockTime(TimeSpan.FromSeconds(60));
             r.Message(Game18NConstString.ADoorHasOpened);
         }
+        else if (room == _room9)
+        {
+            r.UnlockExit(_room9);
+            r.Message(Game18NConstString.ADoorHasOpened);
+        }
         else if (room == _room10)
         {
             r.UnlockPortal(_room10, _room11);
@@ -188,6 +200,7 @@ public class TimeSpace3 : InstanceScript
     {
         if (room == _room2 && button == 1)
         {
+            r.RemoveButton(_room2, 2);
             r.UnlockPortal(_room2, _room3);
             r.Message(Game18NConstString.DoorOpenedSomewhere);
             r.Message(Game18NConstString.ADoorHasOpened);
@@ -195,6 +208,7 @@ public class TimeSpace3 : InstanceScript
         }
         else if (room == _room2 && button == 2)
         {
+            r.RemoveButton(_room2, 1);
             r.UnlockPortal(_room2, _room10);
             r.Message(Game18NConstString.DoorOpenedSomewhere);
             r.Message(Game18NConstString.ADoorHasOpened);
@@ -202,6 +216,7 @@ public class TimeSpace3 : InstanceScript
         }
         else if (room == _room9 && button == 1)
         {
+            r.RemoveButton(_room9, 2);
             r.UnlockExit(_room9);
             r.Message(Game18NConstString.DoorOpenedSomewhere);
             r.Message(Game18NConstString.ADoorHasOpened);
@@ -209,8 +224,21 @@ public class TimeSpace3 : InstanceScript
         }
         else if (room == _room9 && button == 2)
         {
+            r.RemoveButton(_room9, 1);
             r.Message(Game18NConstString.DoorOpenedSomewhere);
             r.Message(Game18NConstString.FindKey);
+            r.Summon(_room9,
+                new MonsterSpawn(54, new(17, 11)),
+                new MonsterSpawn(54, new(13, 19), OnDeath: r =>
+                {
+                    r.Summon(_room9, new MonsterSpawn(129, new(21, 19), OnDeath: r =>
+                    {
+                        r.Summon(_room9, new MonsterSpawn(54, new(13, 10), OnDeath: r =>
+                        {
+                            r.Summon(_room9, new MonsterSpawn(129, new(15, 22)));
+                        }));
+                    }));
+                }));
         }
     }
 

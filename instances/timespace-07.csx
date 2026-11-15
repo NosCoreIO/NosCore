@@ -88,7 +88,7 @@ public class TimeSpace7 : InstanceScript
                 }));
             }));
         r.SpawnPortal(_room8, new(1, 15), _room7, new(28, 15));
-        r.PlaceButton(_room8, 1, new(15, 17), 1055, 1056);
+        r.PlaceButton(_room8, 1, new(15, 17), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnPortal(_room9, new(14, 1), _room6, new(14, 28));
         r.SpawnPortal(_room9, new(28, 15), _room10, new(1, 15), locked: false);
         r.Summon(_room9,
@@ -98,7 +98,7 @@ public class TimeSpace7 : InstanceScript
                 r.Summon(_room9, new MonsterSpawn(63, new(22, 17)));
             }));
         r.SpawnPortal(_room10, new(1, 15), _room9, new(28, 15));
-        r.PlaceButton(_room10, 1, new(15, 15), 1055, 1056);
+        r.PlaceButton(_room10, 1, new(15, 15), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnExit(_room11, new(28, 15), locked: false);
         r.SpawnPortal(_room11, new(1, 15), _room6, new(28, 15), locked: false);
     }

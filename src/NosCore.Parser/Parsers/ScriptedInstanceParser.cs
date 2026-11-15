@@ -54,8 +54,8 @@ namespace NosCore.Parser.Parsers
                             IsHeroic = ((byte)wp.PortalType & 8) != 0,
                             LevelMinimum = wp.LevelMinimum,
                             LevelMaximum = wp.LevelMaximum,
-                            Script = $"timespace-{wp.ScriptedInstanceId}"
-                        });
+                            Script = $"timespace-{wp.ScriptedInstanceId:00}"
+                        }, $"timespace-{wp.ScriptedInstanceId}");
                         continue;
 
                     case GpPacket gp when RaidPortals.Contains(gp.PortalType):
@@ -74,7 +74,8 @@ namespace NosCore.Parser.Parsers
             logger.LogInformation(logLanguage[LogLanguageKey.TIMESPACES_PARSED], found.Count);
             return;
 
-            void Collect(ScriptedInstanceDto entrance)
+            // An entrance a previous import pointed at the unpadded script name moves to the new one.
+            void Collect(ScriptedInstanceDto entrance, string? unpaddedScript = null)
             {
                 if (!maps.Contains(entrance.MapId))
                 {
@@ -91,7 +92,7 @@ namespace NosCore.Parser.Parsers
                 if (stored.TryGetValue(key, out var existing))
                 {
                     entrance.ScriptedInstanceId = existing.ScriptedInstanceId;
-                    entrance.Script = existing.Script ?? entrance.Script;
+                    entrance.Script = existing.Script is { } kept && kept != unpaddedScript ? kept : entrance.Script;
                 }
 
                 if (entrance.Type == ScriptedInstanceType.Raid && RaidGateScripts.All.TryGetValue(key, out var script))

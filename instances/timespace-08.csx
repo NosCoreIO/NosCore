@@ -189,7 +189,6 @@ public class TimeSpace8 : InstanceScript
     {
         if (room == _room6 && button == 1)
         {
-            r.Message(Game18NConstString.LeverHasBeenPulled);
             r.UnlockPortal(_room5, _room7);
         }
     }

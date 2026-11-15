@@ -2712,10 +2712,10 @@ Open the family window's Missions button and pick "Daily Challenges" in the filt
 ### Time-space entrances
 
 The parser points every time-space stone it imports at `timespace-<id>`, the time-space id
-the stone announces, so `timespace-1.csx` runs the level 5 stone. A stone
+the stone announces written with at least two digits, so `timespace-01.csx` runs the level 5 stone. A stone
 without a matching file stays shut. For a test stone anywhere else, add a `ScriptedInstance`
 row with `Type` 0 (time-space) on a map you can reach, its `Script` naming a file in the world
-server's `instances/` folder without the extension (`timespace-01` runs `instances/timespace-01.csx`).
+server's `instances/` folder without the extension (`timespace-sample` runs `instances/timespace-sample.csx`).
 The script holds the level range, required items, rooms and start coordinates. Stand on the
 stone.
 
@@ -2727,7 +2727,7 @@ same trust as the server's own code, so only the operator should be able to writ
 - [ ] Point the stone's `Script` at a file that is not in `instances/`: standing on the stone
       opens no panel, and the world server logs no error about it
 
-- [ ] A `Script` of `../timespace-01` opens no panel, and the world log says it is not a
+- [ ] A `Script` of `../timespace-sample` opens no panel, and the world log says it is not a
       script name
 
 - [ ] Walking onto the stone opens the time-space panel with its name and level range, and
@@ -2741,7 +2741,7 @@ same trust as the server's own code, so only the operator should be able to writ
 
 ### Inside a time-space
 
-Run `timespace-01`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
+Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
 dropping their `MaxHp` makes the run quick.
 
 - [ ] On entry a clock appears and counts down from ten minutes
@@ -2763,7 +2763,7 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
       from, not in a room, and the world log shows the run's rooms being removed and no
       failed disconnect step
-- [ ] Copy `timespace-01.csx` to a new script whose `OnFirstEnter` loops forever, and enter
+- [ ] Copy `timespace-sample.csx` to a new script whose `OnFirstEnter` loops forever, and enter
       it: about thirty seconds later (`InstanceScriptTimeout`) the score shows a failure, the
       world log says the script did not return, and ten seconds after that you are sent back
 - [ ] Do the same with an `OnFirstEnter` that throws: the failure score comes at once and
@@ -2781,8 +2781,8 @@ dropping their `MaxHp` makes the run quick.
 
 ### Logged time-spaces
 
-`instances/timespace-0.csx` to `timespace-13.csx` hold the time-spaces for levels 1 to 23, rebuilt
-from a packet log of each run. `timespace-1` ("The Time-Space", level 5) is the shortest: point a
+`instances/timespace-00.csx` to `timespace-23.csx` hold the time-spaces for levels 1 to 33, rebuilt
+from a packet log of each run. `timespace-01` ("The Time-Space", level 5) is the shortest: point a
 test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 
 - [ ] The panel shows "The Time-Space", level 5, the two draw items (2015, 2023), the special
@@ -2795,19 +2795,26 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In the last room the exit stays shut until the lever is pulled; pulling it shows "The lever
       has been pulled." and opens the exit, and walking onto it shows Mission Clear
 - [ ] Letting the clock run out shows Mission Fail with "Failed because time ran out."
-- [ ] In `timespace-3`, the room with two keys opens the east portal for one key and the west
+- [ ] In `timespace-03`, the two keys of the second room stand somewhere else on each run. Taking
+      one shows "A door has opened somewhere." and "Find a key!" without "The lever has been
+      pulled.", makes the other key vanish, and opens the east portal for one key and the west
       portal for the other
+- [ ] In the last room of `timespace-03`, one key opens the exit; the other one leaves it shut and
+      brings five monsters one after another, and killing the last of them opens the exit
 - [ ] In `timespace-11`, the third room shows a red five-minute clock and brings a wave of
       monsters every 30 seconds; when the clock runs out the monsters leave and both portals open
-- [ ] In `timespace-9` and `timespace-13`, killing the last room's monsters ends the run with
+- [ ] In `timespace-09` and `timespace-13`, killing the last room's monsters ends the run with
       Mission Clear without an exit portal
-- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on.
-      In `timespace-3` the key you did not pick should vanish; it stays, and picking it opens the
-      other portal too
+- [ ] In `timespace-16`, using the seal in the last room starts a red one-minute clock with waves of
+      monsters; when it runs out the monsters leave and the exit opens
+- [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
+- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
+      guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders
+      in the log, which NosCore does not do yet
 
 ### Time-space reward chest
 
-Copy `timespace-01.csx` to `timespace-chest.csx`, point the row's `Script` at it, and add to its
+Copy `timespace-sample.csx` to `timespace-chest.csx`, point the row's `Script` at it, and add to its
 definition `.WithGold(1000).WithReputation(50).WithReward(1012, 2).WithSpecialReward(2282, 1)
 .WithDraw(1013, 3).WithDraw(1014, 1).WithFamilyExperience(200)`. Play it with a character in a family.
 
@@ -2825,7 +2832,7 @@ definition `.WithGold(1000).WithReputation(50).WithReward(1012, 2).WithSpecialRe
 
 ### Time-space levers
 
-Copy `timespace-01.csx` to `timespace-lever.csx` and point the row's `Script` at it. In
+Copy `timespace-sample.csx` to `timespace-lever.csx` and point the row's `Script` at it. In
 `OnFirstEnter`, drop the hall's monsters and add `run.PlaceButton(_hall, 1, new Spot(22, 31),
 1000, 1045);`. Override `OnButtonUsed` to call `run.UnlockPortal(_hall, _lair)` and summon the
 lair's boss.
@@ -2843,7 +2850,7 @@ lair's boss.
 
 ### Time-space lives
 
-Copy `timespace-01.csx` to `timespace-lives.csx`, point the row's `Script` at it, and add
+Copy `timespace-sample.csx` to `timespace-lives.csx`, point the row's `Script` at it, and add
 `.WithLives(1)` to its definition. Leave the monsters' damage as it is and enter with a low HP
 character so they kill you.
 

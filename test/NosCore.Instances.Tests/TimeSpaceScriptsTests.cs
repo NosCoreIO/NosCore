@@ -23,7 +23,7 @@ namespace NosCore.Instances.Tests
         public static IEnumerable<object[]> TimeSpaces() =>
             Directory.GetFiles(Folder, "timespace-*.csx")
                 .Select(Path.GetFileNameWithoutExtension)
-                .Where(name => name != "timespace-01")
+                .Where(name => name != "timespace-sample")
                 .Select(name => new object[] { name! });
 
         private static async Task<IInstanceScript> LoadAsync(string name) =>
@@ -36,7 +36,7 @@ namespace NosCore.Instances.Tests
         {
             var script = await LoadAsync(name);
 
-            Assert.AreEqual($"timespace-{script.Definition.Id}", name);
+            Assert.AreEqual($"timespace-{script.Definition.Id:00}", name);
             Assert.IsTrue(script.Definition.LevelMinimum > 0);
             Assert.IsFalse(string.IsNullOrWhiteSpace(script.Definition.Title));
         }
