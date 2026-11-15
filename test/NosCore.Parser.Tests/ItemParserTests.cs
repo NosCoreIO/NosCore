@@ -727,6 +727,24 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_EventAmuletsBetLikeTheirOrdinaryCounterparts()
+        {
+            var content = string.Join("\n#========================================================\n",
+                CreateItemData(vnum: 8541), CreateItemData(vnum: 8542), CreateItemData(vnum: 8543),
+                CreateItemData(vnum: 8544));
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemEffectType.RedAmulet, _savedItems.Single(i => i.VNum == 8541).Effect);
+            Assert.AreEqual(ItemEffectType.BlueAmulet, _savedItems.Single(i => i.VNum == 8542).Effect);
+            Assert.AreEqual(ItemEffectType.RandomHeroic, _savedItems.Single(i => i.VNum == 8543).Effect);
+            Assert.AreEqual(ItemEffectType.Heroic, _savedItems.Single(i => i.VNum == 8544).Effect);
+            Assert.IsTrue(_savedItems.All(i => i.EffectValue == 3));
+        }
+
+        [TestMethod]
         public async Task ItemParser_VNumRange4101to4105OverridesEquipmentSlotToMainWeapon()
         {
             var content = CreateItemData(vnum: 4101, indexType: 4, equipmentSlot: 10) + "\n#========================================================\n" +
