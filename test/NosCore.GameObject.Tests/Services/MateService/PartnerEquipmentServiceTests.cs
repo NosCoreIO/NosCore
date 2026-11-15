@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 NoscorePocketType.Equipment, slot);
 
         private InventoryItemInstance? Worn(EquipmentType slot) =>
-            _session.Character.InventoryService.LoadBySlotAndType((short)slot, NoscorePocketType.FirstPartnerInventory);
+            _session.Character.InventoryService.LoadBySlotAndType(slot, NoscorePocketType.FirstPartnerInventory);
 
         [TestMethod]
         public async Task APartnerWeaponGoesIntoTheFirstPartnersPocket()

@@ -217,7 +217,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private SpecialistInstance WornCard() =>
             (SpecialistInstance)Session.Character.InventoryService
-                .LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear).NotNull().ItemInstance;
+                .LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear).NotNull().ItemInstance;
 
         private void TheCardIsLevelForty()
         {

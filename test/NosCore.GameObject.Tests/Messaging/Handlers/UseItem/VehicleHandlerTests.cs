@@ -294,7 +294,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             {
                 VisualType = VisualType.Player,
                 VisualId = _session.Character.CharacterId,
-                Type = (PocketType)_vehicle.Type,
+                Type = _vehicle.Type.ToPocketType(),
                 Slot = _vehicle.Slot,
                 Mode = mode,
                 Parameter = 0,

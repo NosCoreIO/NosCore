@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var wig = character.InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear);
+            var wig = character.InventoryService.LoadBySlotAndType(EquipmentType.Hat, NoscorePocketType.Wear);
             if (wig == null || !wig.ItemInstance.Item.IsColored)
             {
                 await session.SendPacketAsync(new MsgiPacket

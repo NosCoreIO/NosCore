@@ -439,7 +439,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
             {
                 VisualType = VisualType.Player,
                 VisualId = _session.Character.CharacterId,
-                Type = (PocketType)item.Type,
+                Type = item.Type.ToPocketType(),
                 Slot = item.Slot
             }));
         }

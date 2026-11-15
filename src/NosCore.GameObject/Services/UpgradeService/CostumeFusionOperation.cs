@@ -97,8 +97,8 @@ public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLang
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
-        yield return ((InventoryItemInstance?)null).GeneratePocketChange((PocketType)ctx.RequiredTarget.Type, ctx.RequiredTarget.Slot);
-        yield return ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot);
+        yield return ((InventoryItemInstance?)null).GeneratePocketChange(ctx.RequiredTarget.Type.ToPocketType(), ctx.RequiredTarget.Slot);
+        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
     }
 
     // Two different costumes of the same kind, worn by the same sex.

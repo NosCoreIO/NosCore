@@ -284,7 +284,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             Assert.AreEqual(vnum, _partner.Specialist(_session.Character.InventoryService)?.ItemVNum);
 
         private void ThePartnerShouldWearNoSpecialist() =>
-            Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType((short)EquipmentType.Sp,
+            Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(EquipmentType.Sp,
                 NoscorePocketType.FirstPartnerInventory));
 
         private void ScnShouldListTheSpecialist_(short vnum) =>

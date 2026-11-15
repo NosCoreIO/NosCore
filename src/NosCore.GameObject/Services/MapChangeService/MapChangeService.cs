@@ -1,4 +1,5 @@
 
+using NosCore.GameObject.Services.InventoryService;
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -205,7 +206,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 character.Group.LeaveGroup(character);
                 character.Group.JoinGroup(character);
 
-                var fairy = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
+                var fairy = character.InventoryService.LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
                 var group = character.Group;
                 var channelId = character.Channel?.Id;
                 var titInfoPacket = character.GenerateTitInfo();

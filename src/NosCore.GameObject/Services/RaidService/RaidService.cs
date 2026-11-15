@@ -98,7 +98,7 @@ namespace NosCore.GameObject.Services.RaidService
             }
 
             await leader.SendPacketAsync(character.InventoryService.LoadBySlotAndType(seal.Slot, seal.Type)
-                .GeneratePocketChange((PocketType)seal.Type, seal.Slot));
+                .GeneratePocketChange(seal.Type.ToPocketType(), seal.Slot));
 
             await MessageAsync(leader, Game18NConstString.YouAreRaidLeader);
             await leader.SendPacketsAsync(TeamPackets(character.CharacterId));
@@ -458,7 +458,7 @@ namespace NosCore.GameObject.Services.RaidService
                     continue;
                 }
 
-                await member.SendPacketAsync(added.GeneratePocketChange((PocketType)added.Type, added.Slot));
+                await member.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
                 await member.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                     2, gift.VNum.ToString(), gift.Amount));
             }

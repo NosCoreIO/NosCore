@@ -347,25 +347,25 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static InEquipmentSubPacket GetEquipmentSubPacket(this PlayerComponentBundle visualEntity) => new()
         {
-            Armor = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
+            Armor = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
-            CostumeHat = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)
+            CostumeHat = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.CostumeHat, NoscorePocketType.Wear)
                 ?.ItemInstance?.LookVNum(),
-            CostumeSuit = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)
+            CostumeSuit = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.CostumeSuit, NoscorePocketType.Wear)
                 ?.ItemInstance?.LookVNum(),
-            Fairy = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance?
+            Fairy = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
-            Hat = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            MainWeapon = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
+            Hat = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
+            MainWeapon = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.MainWeapon, NoscorePocketType.Wear)
                 ?.ItemInstance?.ItemVNum,
-            Mask = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance?
+            Mask = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
             SecondaryWeapon = visualEntity.InventoryService
-                .LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance?
+                .LoadBySlotAndType(EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
-            WeaponSkin = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.WeaponSkin, NoscorePocketType.Wear)
+            WeaponSkin = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.WeaponSkin, NoscorePocketType.Wear)
                 ?.ItemInstance?.ItemVNum,
-            WingSkin = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.WingSkin, NoscorePocketType.Wear)
+            WingSkin = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.WingSkin, NoscorePocketType.Wear)
                 ?.ItemInstance?.ItemVNum
         };
 

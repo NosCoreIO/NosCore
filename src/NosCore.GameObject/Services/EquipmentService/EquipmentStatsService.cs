@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using System;
 using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
@@ -113,7 +114,7 @@ public sealed class EquipmentStatsService(
         }
 
         if (character.UseSp
-            && inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+            && inventory.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
                 is SpecialistInstance specialist)
         {
             stats = AddSpecialist(stats, specialist, ShellLevelBoost(main, secondary));
@@ -121,7 +122,7 @@ public sealed class EquipmentStatsService(
 
         foreach (var slot in Enum.GetValues<EquipmentType>())
         {
-            var piece = inventory.LoadBySlotAndType((short)slot, NoscorePocketType.Wear)?.ItemInstance
+            var piece = inventory.LoadBySlotAndType(slot, NoscorePocketType.Wear)?.ItemInstance
                 as WearableInstance;
             if (piece?.Item == null)
             {

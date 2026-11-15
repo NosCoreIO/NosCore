@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.InventoryService;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
@@ -63,7 +64,7 @@ public sealed class FactionEggHandler
         {
             await session.SendPacketAsync(new QnaiPacket
             {
-                YesPacket = character.GenerateUseItem((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot, 1, 0),
+                YesPacket = character.GenerateUseItem(evt.InventoryItem.Type.ToPocketType(), evt.InventoryItem.Slot, 1, 0),
                 Question = faction == FactionType.Angel
                     ? Game18NConstString.MessageToChangeFactionToAngelWithPointsReset
                     : Game18NConstString.MessageToChangeFactionToDemonWithPointsReset
@@ -85,7 +86,7 @@ public sealed class FactionEggHandler
         character.CharacterDto.Act4Points = 0;
         character.CharacterDto.Act4Kill = 0;
         character.CharacterDto.Act4Dead = 0;
-        await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
+        await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange(evt.InventoryItem.Type.ToPocketType(), evt.InventoryItem.Slot));
         await session.SendPacketAsync(character.GenerateFaction());
         await character.MapInstance.SendPacketAsync(character.GenerateIn(string.Empty));
     }

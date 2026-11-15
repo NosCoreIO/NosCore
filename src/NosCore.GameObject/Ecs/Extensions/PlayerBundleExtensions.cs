@@ -342,7 +342,7 @@ public static class PlayerBundleExtensions
     /// </summary>
     public static InPacket GenerateIn(this PlayerComponentBundle player, string prefix)
     {
-        var fairy = player.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
+        var fairy = player.InventoryService.LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
         return new InPacket
         {
             VisualType = VisualType.Player,
@@ -399,7 +399,7 @@ public static class PlayerBundleExtensions
 
     public static UpgradeRareSubPacket GetWeaponUpgradeRareSubPacket(this PlayerComponentBundle player)
     {
-        var weapon = player.InventoryService.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear);
+        var weapon = player.InventoryService.LoadBySlotAndType(EquipmentType.MainWeapon, NoscorePocketType.Wear);
         return new UpgradeRareSubPacket
         {
             Upgrade = weapon?.ItemInstance?.Upgrade ?? 0,
@@ -409,7 +409,7 @@ public static class PlayerBundleExtensions
 
     public static UpgradeRareSubPacket GetArmorUpgradeRareSubPacket(this PlayerComponentBundle player)
     {
-        var armor = player.InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear);
+        var armor = player.InventoryService.LoadBySlotAndType(EquipmentType.Armor, NoscorePocketType.Wear);
         return new UpgradeRareSubPacket
         {
             Upgrade = armor?.ItemInstance?.Upgrade ?? 0,
@@ -472,7 +472,7 @@ public static class PlayerBundleExtensions
     {
         // While transformed the job slots carry the worn specialist card's level instead.
         var sp = player.UseSp
-            ? player.InventoryService.LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance
+            ? player.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance as SpecialistInstance
             : null;
         return new LevPacket
         {
@@ -508,13 +508,13 @@ public static class PlayerBundleExtensions
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
         var inv = player.InventoryService;
-        var weapon = (inv.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
+        var weapon = (inv.LoadBySlotAndType(EquipmentType.MainWeapon, NoscorePocketType.Wear)
             ?.ItemInstance) as WearableInstance;
-        var secondary = (inv.LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)
+        var secondary = (inv.LoadBySlotAndType(EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)
             ?.ItemInstance) as WearableInstance;
-        var armor = (inv.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)
+        var armor = (inv.LoadBySlotAndType(EquipmentType.Armor, NoscorePocketType.Wear)
             ?.ItemInstance) as WearableInstance;
-        var fairy = (inv.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)
+        var fairy = (inv.LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)
             ?.ItemInstance) as WearableInstance;
 
         return new TcInfoPacket
@@ -616,7 +616,7 @@ public static class PlayerBundleExtensions
     // A worn wig is drawn in its own colour instead of the hair's.
     public static HairColorType ShownHairColor(this PlayerComponentBundle player)
     {
-        var hat = player.InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear);
+        var hat = player.InventoryService.LoadBySlotAndType(EquipmentType.Hat, NoscorePocketType.Wear);
         return hat?.ItemInstance.Item.IsColored == true ? (HairColorType)hat.ItemInstance.Design : player.HairColor;
     }
 
@@ -643,7 +643,7 @@ public static class PlayerBundleExtensions
 
         EquipmentSubPacket? GenerateEquipmentSubPacket(EquipmentType eqType)
         {
-            var eq = inventory.LoadBySlotAndType((short)eqType, NoscorePocketType.Wear);
+            var eq = inventory.LoadBySlotAndType(eqType, NoscorePocketType.Wear);
             if (eq == null)
             {
                 return null;

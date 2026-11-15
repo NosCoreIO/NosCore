@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core.Configuration;
@@ -59,7 +60,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
             return SpecialistTransformationOutcome.Ignored;
         }
 
-        if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+        if (character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
             is not SpecialistInstance specialistInstance)
         {
             return SpecialistTransformationOutcome.NoSpecialistCardEquipped;
@@ -119,7 +120,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
     {
         var character = session.Character;
         if (!character.UseSp
-            || character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+            || character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
                 is not SpecialistInstance specialist
             || transportId != specialist.TransportId)
         {
@@ -140,7 +141,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
         var character = session.Character;
         var now = clock.GetCurrentInstant();
         if (!character.UseSp || character.IsVehicled || now - character.LastAttack > CombatWindow
-            || character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+            || character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
                 is not SpecialistInstance { Item.SpType: > 0 } specialist)
         {
             return;

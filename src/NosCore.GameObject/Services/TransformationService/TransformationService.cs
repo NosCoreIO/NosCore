@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
@@ -95,7 +96,7 @@ namespace NosCore.GameObject.Services.TransformationService
         public async Task ChangeSpAsync(ClientSession session)
         {
             var character = session.Character;
-            if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
+            if (character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
                 not SpecialistInstance sp)
             {
                 logger.LogError(logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
@@ -109,7 +110,7 @@ namespace NosCore.GameObject.Services.TransformationService
             }
 
             var inventoryService = character.InventoryService;
-            if (inventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is
+            if (inventoryService.LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is
                     WearableInstance fairy
                 && (sp.Item.Element != 0) && (fairy.Item.Element != sp.Item.Element)
                 && (fairy.Item.Element != sp.Item.SecondaryElement))
@@ -200,7 +201,7 @@ namespace NosCore.GameObject.Services.TransformationService
             var character = session.Character;
             if (character.UseSp)
             {
-                var sp = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
+                var sp = character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear);
                 if (sp != null)
                 {
                     character.Morph = sp.ItemInstance.Item.Morph;

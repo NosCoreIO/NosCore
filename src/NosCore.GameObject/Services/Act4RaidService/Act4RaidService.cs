@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Services.Act4RaidService
                     var item = itemProvider.Create(gift.VNum, gift.Amount, rare, 0, gift.Design);
                     if (character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId))?.FirstOrDefault() is { } added)
                     {
-                        await session.SendPacketAsync(added.GeneratePocketChange((PocketType)added.Type, added.Slot));
+                        await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
                         await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                             2, gift.VNum.ToString(), gift.Amount));
                         continue;

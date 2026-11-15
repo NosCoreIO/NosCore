@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Algorithm.FamilyUpgradeService;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -106,7 +107,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 var item = items.First(s => s.VNum == upgrade.ItemVNum);
                 return (NInvItemSubPacket?)new NInvItemSubPacket
                 {
-                    Type = (PocketType)item.Type,
+                    Type = item.Type.ToPocketType(),
                     Slot = (short)slot,
                     Price = (int)item.Price,
                     RareAmount = 1,
