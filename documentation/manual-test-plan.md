@@ -2616,8 +2616,8 @@ character so they kill you.
 
 ### Raids
 
-Set the `Script` column of a raid row (`Type` 1 in `ScriptedInstance`; the row only carries the script) to
-`raid-mother-cuby`, the raid shipped in `instances/`. It is opened by item 1127, for levels
+The parser gives each known raid gate (`Type` 1 in `ScriptedInstance`) its script from `instances/`.
+The checks below use Mother Cuby, `raid-mother-cuby`. It is opened by item 1127, for levels
 30 to 49 and teams of 5 to 15; the boss is 282 and its helpers 283, and dropping their `MaxHp`
 makes the run quick. Use five characters at level 30 to 49, called A to E below, all on one map.
 The raid's gate is the swirling portal its `ScriptedInstance` row places on a map (Mother Cuby's
@@ -2662,8 +2662,8 @@ confirms "Do you want to create the raid map?".
       question: B stays out of A's new team
 - [ ] With only A and B in the team, B disconnects before the start: A stays in the raid team
       and sees that B left
-- [ ] On Jelly Entrance the gate shows at the top of the path; Chicken Farm Path, whose raid row
-      has no script, shows none
+- [ ] On Jelly Entrance the gate shows at the top of the path; Chicken Farm Path, whose raid has
+      no script yet, shows none
 - [ ] D, in no raid team, steps on the gate: "A team must first be created for the raid." appears
 - [ ] B steps on the gate: "Team leader must lead the raid." appears. A team opened with another
       raid's seal gets "The raid does not match the seal."
@@ -2679,6 +2679,35 @@ confirms "Do you want to create the raid map?".
       no longer shows it; B trying the same is told only the leader can
 - [ ] A registers twice: "Already registered in the raid list." appears
 - [ ] A starts the raid: the team is gone from everyone's board
+- [ ] On a freshly parsed database, the Mother Cuby, Ginseng and Glacerus gates show without
+      touching the `Script` column
+
+#### Ginseng
+
+Seal 1128, levels 40 to 59, gate at the top of Ginseng Entrance (2520 at 25,1). Raise A to E to
+levels 40 to 59 first. Dropping `MaxHp` of the Ginseng (284) makes the end quick.
+
+- [ ] A starts at the gate: the team lands in the south-west of the field (2521) with a two-hour
+      clock, among the field's monsters, with nineteen levers spread over the map
+- [ ] The portal at the top of the field (31,13) stays shut while levers are pulled and monsters
+      fall
+- [ ] Pulling the levers at (113,145), (24,158), (83,113), (109,80), (126,14), (142,168) and
+      (177,103) and killing eight monsters opens it; the other twelve levers turn but open nothing
+- [ ] Through the portal the team lands at the bottom of the Ginseng Farm (2522) with the Ginseng
+      in the middle, plantlets around it and pots along the top
+- [ ] Killing the Ginseng wins: every member still inside gets a Raid Box of Ginseng (4685)
+
+#### Glacerus
+
+Seal 5512, levels 80 to 99, gate on Water Grotto (2587 at 12,43). Raise A to E to levels 80
+to 99 first.
+
+- [ ] A starts at the gate: the team lands at the bottom of the grotto (2588) with a one-hour clock
+- [ ] The portal at the top (13,7) stays shut until the lever at (13,21) is pulled
+- [ ] Through it the team lands in Glacerus' den (2589); killing Glacerus wins a Raid Box of
+      Glacerus (4772)
+- [ ] Not verifiable yet: whether the ghosts the packet trace shows around Glacerus fight for or
+      against the team, so the den has Glacerus alone
 
 ### Instant Combat
 

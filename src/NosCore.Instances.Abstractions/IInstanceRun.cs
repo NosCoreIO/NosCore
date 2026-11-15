@@ -62,10 +62,15 @@ namespace NosCore.Instances.Abstractions
         // A locker holds the room shut until that many of its monsters are dead.
         void SetMonsterLocker(int room, short count);
 
+        // Kills the room's locker still waits for; 0 once it has let go, or when it never had one.
+        int LockerLeft(int room);
+
         // A lever or switch drawn with offVNum until it is used, then with onVNum. Button ids run
         // from 1 to 99999 and are unique within their room. A toggling button can be used again
         // to switch it back; any other button is used once.
         void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false);
+
+        bool IsButtonOn(int room, int button);
 
         void StartClock(TimeSpan limit);
 

@@ -470,6 +470,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _lockers[room] = count;
         }
 
+        public int LockerLeft(int room) => _lockers.GetValueOrDefault(room);
+
+        public bool IsButtonOn(int room, int button) =>
+            _rooms[room].Buttons.TryGetValue(button, out var placed) && placed.IsOn;
+
         public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false)
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(button, 1);
@@ -778,6 +783,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
 
             public void SetMonsterLocker(int room, short count) => Do(() => run.SetMonsterLocker(room, count));
+
+            public int LockerLeft(int room) => run.LockerLeft(room);
+
+            public bool IsButtonOn(int room, int button) => run.IsButtonOn(room, button);
 
             public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
                 Do(() => run.PlaceButton(room, button, at, offVNum, onVNum, toggles));
