@@ -41,6 +41,13 @@ namespace NosCore.Parser.Parsers
         private static readonly short[] DesertAndBurningSword = [.. Desert, .. BurningSword];
         private static readonly short[] NosVilleAndPortAlveus = [.. NosVille, .. PortAlveus];
 
+        // "[With Speed Booster] Hidden for 5 seconds, only effective in Glacernon."
+        public static readonly IReadOnlyDictionary<short, short[]> BoostHides = new Dictionary<short, short[]>
+        {
+            [5226] = Glacernon,
+            [5228] = Glacernon,
+        };
+
         public static readonly IReadOnlyDictionary<short, (short[] Maps, byte Speed)[]> All =
             new Dictionary<short, (short[] Maps, byte Speed)[]>
             {

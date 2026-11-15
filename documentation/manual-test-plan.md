@@ -480,6 +480,19 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] A Blackout landed on a monster keeps it in place and stops its attacks until it ends
 - [ ] Haste (card 28/29) makes you walk faster; a slowing card makes you walk slower
 
+### Hidden players
+
+Use two clients on the same map.
+
+- [ ] Ride the Magical Skis (Invisible) (5226) on the angel citadel (130) and use a Speed
+      Booster: the other client stops drawing you and your name, and after 5 seconds you
+      appear again where you stand
+- [ ] The same booster on the same skis on any other map leaves you in sight
+- [ ] While hidden, attack a monster: the other client sees you again at once
+- [ ] A hostile monster does not notice a hidden player walking past, and one that was
+      chasing you gives up when you hide
+- [ ] Enter a map while hidden: players already there do not see you arrive
+
 ### Area skills and bystanders
 
 - [ ] Stand a second character next to a monster and cast an area skill at the monster: the

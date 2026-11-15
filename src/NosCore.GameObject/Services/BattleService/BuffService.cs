@@ -208,6 +208,23 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
     }
 
+    public async Task RemoveEffectAsync(IAliveEntity target, BCardEffect effect)
+    {
+        var buffs = target.BuffState();
+        if (buffs == null)
+        {
+            return;
+        }
+
+        foreach (var (cardId, buff) in buffs)
+        {
+            if (buff.BCards.Any(b => b.Effect() == effect) && buffs.TryRemove(cardId, out var removed))
+            {
+                await SendIconRemovalAsync(target, removed);
+            }
+        }
+    }
+
     public async Task RemoveBadAsync(IAliveEntity target, byte maxLevel)
     {
         var buffs = target.BuffState();
@@ -533,6 +550,11 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         if (buff.BCards.Any(b => b.Effect() == BCardEffect.IncreaseFairyElement))
         {
             await messageBus.PublishAsync(new FairyLookChangedEvent(target));
+        }
+
+        if (buff.BCards.Any(b => b.Effect() == BCardEffect.SpecialActionsHide))
+        {
+            await messageBus.PublishAsync(new HiddenChangedEvent(target));
         }
     }
 

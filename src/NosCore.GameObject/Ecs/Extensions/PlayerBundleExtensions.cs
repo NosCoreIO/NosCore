@@ -380,7 +380,7 @@ public static class PlayerBundleExtensions
                 FamilySubPacket = new FamilySubPacket(),
                 FamilyName = null,
                 ReputIco = GetIcon(player),
-                Invisible = false,
+                Invisible = player.Invisible,
                 MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
                 Faction = player.MapInstance is { IsAct4: true } ? player.Faction switch
                 {

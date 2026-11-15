@@ -317,6 +317,42 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(20, _speed.CalculateSpeed(_session.Character));
         }
 
+        [TestMethod]
+        public async Task ABoostWhereTheMountHidesItsRiderHidesThem()
+        {
+            HidingOn(_session.Character.MapInstance.Map.MapId);
+            Mount(speed: 20, boost: 3, seconds: 5);
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.IsTrue(_buffs.HasEffect(_session.Character, BCardEffect.SpecialActionsHide));
+        }
+
+        [TestMethod]
+        public async Task ABoostElsewhereLeavesTheRiderInSight()
+        {
+            HidingOn((short)(_session.Character.MapInstance.Map.MapId + 1));
+            Mount(speed: 20, boost: 3, seconds: 5);
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.IsTrue(_buffs.HasBuff(_session.Character, BoostCardId));
+            Assert.IsFalse(_buffs.HasEffect(_session.Character, BCardEffect.SpecialActionsHide));
+        }
+
+        private void HidingOn(short mapId)
+        {
+            World.Inject(new List<MountMapSpeedDto>
+            {
+                new() { MountMapSpeedId = 1, ItemVNum = MountVNum, MapId = mapId, Speed = 3, BoostHides = true },
+            });
+            _speed = World.Create<SpeedCalculationService>();
+            World.Inject(_speed);
+            _handler = World.Create<SpeedBoosterHandler>();
+        }
+
         private void Mount(byte speed, byte boost, byte seconds) =>
             Mount(new ItemDto { VNum = MountVNum, Speed = speed, SpeedBoost = boost, SpeedBoostDuration = seconds });
 

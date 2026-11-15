@@ -8,8 +8,8 @@ using System.Collections.Generic;
 namespace NosCore.Parser.Parsers
 {
     // What a Speed Booster does on each mount, as the mount's English description lists it under "[With Speed Booster]".
-    // Left out: the buffs that come with "a certain chance", for which no description gives a figure, and what the
-    // server cannot do yet - the hiding of 5226 and 5228 in Glacernon.
+    // Left out: the buffs that come with "a certain chance", for which no description gives a figure. The hiding
+    // of 5226 and 5228 is per map, so it lives in MountMapSpeeds.BoostHides.
     public static class MountSpeedBoosts
     {
         private const short Dizzy = 786;

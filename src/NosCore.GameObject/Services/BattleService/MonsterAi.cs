@@ -170,8 +170,9 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         var aggro = aggroService.Current(entity);
         if (!aggro.HasTarget) return null;
 
+        // A target that hides is lost.
         var target = ResolveTarget(entity, aggro.TargetVisualId);
-        if (target is { IsAlive: true }) return target;
+        if (target is { IsAlive: true } and not PlayerComponentBundle { Invisible: true }) return target;
 
         aggroService.Clear(entity);
         entity.ChasePath = null;
@@ -236,7 +237,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         {
             if (!session.HasPlayerEntity) continue;
             var player = session.Character;
-            if (!player.IsAlive) continue;
+            if (!player.IsAlive || player.Invisible) continue;
             var d = distanceCalculator.GetDistance(
                 (entity.PositionX, entity.PositionY),
                 (player.PositionX, player.PositionY));

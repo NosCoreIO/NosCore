@@ -144,6 +144,31 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task HostileMonsterDoesNotNoticeAHiddenPlayer()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 2);
+            _session.Character.Invisible = true;
+
+            Assert.IsFalse(await _ai.TickAsync(monster));
+            SwingsAtThePlayer(Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AMonsterLosesAPlayerWhoHides()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 2);
+            _aggro.AddThreat(monster, _session.Character, 5);
+            _session.Character.Invisible = true;
+
+            await _ai.TickAsync(monster);
+
+            Assert.IsFalse(_aggro.Current(monster).HasTarget);
+            SwingsAtThePlayer(Times.Never());
+        }
+
+        [TestMethod]
         public async Task PeacefulMonsterIgnoresAPlayerUntilItIsThreatened()
         {
             var monster = SpawnMonster(4, 1, m => m.IsHostile = false);

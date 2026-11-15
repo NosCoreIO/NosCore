@@ -32,6 +32,8 @@ namespace NosCore.Parser.Parsers
                     ItemVNum = g.Key.Mount,
                     MapId = g.Key.Map,
                     Speed = g.Max(r => r.Speed),
+                    BoostHides = MountMapSpeeds.BoostHides.TryGetValue(g.Key.Mount, out var hidingMaps)
+                        && hidingMaps.Contains(g.Key.Map),
                 })
                 .ToList();
 
