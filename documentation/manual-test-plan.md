@@ -491,6 +491,7 @@ Use two clients on the same map.
 - [ ] While hidden, attack a monster: the other client sees you again at once
 - [ ] A hostile monster does not notice a hidden player walking past, and one that was
       chasing you gives up when you hide
+- [ ] A monster that sees hidden things (BCard 40/52) still notices and attacks a hidden player
 - [ ] Enter a map while hidden: players already there do not see you arrive
 
 ### Area skills and bystanders

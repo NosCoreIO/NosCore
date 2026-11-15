@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Observability;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -164,6 +165,11 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         }
     }
 
+    private bool IsHiddenFrom(INonPlayableEntity entity, IAliveEntity target) =>
+        target is PlayerComponentBundle { Invisible: true }
+        && !catalog.GetNpcBCards(entity.NpcMonster.NpcMonsterVNum)
+            .Any(b => b.Effect() == BCardEffect.SpecialActionsSeeHiddenThings);
+
     // The aggro target, or null once it is gone or dead (which also drops the aggro).
     private IAliveEntity? CurrentTarget(INonPlayableEntity entity)
     {
@@ -172,7 +178,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
         // A target that hides is lost.
         var target = ResolveTarget(entity, aggro.TargetVisualId);
-        if (target is { IsAlive: true } and not PlayerComponentBundle { Invisible: true }) return target;
+        if (target is { IsAlive: true } && !IsHiddenFrom(entity, target)) return target;
 
         aggroService.Clear(entity);
         entity.ChasePath = null;
@@ -237,7 +243,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         {
             if (!session.HasPlayerEntity) continue;
             var player = session.Character;
-            if (!player.IsAlive || player.Invisible) continue;
+            if (!player.IsAlive || IsHiddenFrom(entity, player)) continue;
             var d = distanceCalculator.GetDistance(
                 (entity.PositionX, entity.PositionY),
                 (player.PositionX, player.PositionY));
