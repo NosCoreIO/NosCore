@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,7 +18,9 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MateService;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Entities;
@@ -30,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
     public class MateRevivalServiceTests
     {
         private const short SeedOfPowerVNum = 1012;
+        private const short PetSkill = 664;
         private TestWorld World;
         private ClientSession _session;
         private GameObject.Services.MateService.Mate _pet;
@@ -46,7 +50,11 @@ namespace NosCore.GameObject.Tests.Services.MateService
             await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
             World.Inject(UpgradeMaterials.Catalog());
             _specialists = World.Freeze<Mock<IPartnerSpecialistService>>();
-            _service = World.Create<MateRevivalService>();
+            World.Inject(new List<SkillDto> { new() { SkillVNum = PetSkill, SkillType = 5 } });
+            World.Inject(new List<NpcMonsterSkillDto> { new() { NpcMonsterVNum = 333, SkillVNum = PetSkill } });
+            _service = World.UseReal<INpcCombatCatalog, NpcCombatCatalog>()
+                .UseReal<IPetSkillBarService, PetSkillBarService>()
+                .Create<MateRevivalService>();
             _session.LastPackets.Clear();
             _session.Character.MapInstance.LastPackets.Clear();
         }
@@ -72,6 +80,18 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 .AndAsync(TheNosMateDies)
                 .WhenAsync(TheMapTicksAfter_Seconds, 180)
                 .Then(TheNosMateIsBackWithFullHealth)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AKnockedOutPetTakesItsSkillBarAwayAndBringsItBack()
+        {
+            await new Spec("A pet's skill bar goes when the pet is knocked out and comes back with it")
+                .Given(TheOwnerHas_Seeds, (short)5)
+                .WhenAsync(TheNosMateDies)
+                .Then(TheOwnerShouldSeeTheSkillBar_, (short)-1)
+                .WhenAsync(TheMapTicksAfter_Seconds, 180)
+                .Then(TheOwnerShouldSeeTheSkillBar_, PetSkill)
                 .ExecuteAsync();
         }
 
@@ -147,6 +167,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
         private void TheNosMateWasTurnedBack() =>
             _specialists.Verify(s => s.UntransformAsync(It.IsAny<PlayerComponentBundle>(), _pet), Times.Once);
+
+        private void TheOwnerShouldSeeTheSkillBar_(short firstSkill) =>
+            Assert.AreEqual(firstSkill, _session.LastPackets.OfType<PetskiPacket>().Last().FirstSkillVNum);
 
         private void TheNosMateIsStillInTheTeam() => Assert.IsTrue(_pet.IsTeamMember);
 

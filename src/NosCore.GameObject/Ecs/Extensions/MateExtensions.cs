@@ -92,8 +92,15 @@ namespace NosCore.GameObject.Ecs.Extensions
             ThirdSkill = SkillAt(skills, 2)
         };
 
-        private static short SkillAt(IReadOnlyList<SkillDto>? skills, int slot) =>
-            skills != null && slot < skills.Count ? skills[slot].SkillVNum : (short)0;
+        public static PetskiPacket GeneratePetski(this IReadOnlyList<SkillDto> skills) => new()
+        {
+            FirstSkillVNum = SkillAt(skills, 0, -1),
+            SecondSkillVNum = SkillAt(skills, 1, -1),
+            ThirdSkillVNum = SkillAt(skills, 2, -1)
+        };
+
+        private static short SkillAt(IReadOnlyList<SkillDto>? skills, int slot, short empty = 0) =>
+            skills != null && slot < skills.Count ? skills[slot].SkillVNum : empty;
 
         private static ScnPacket.ScSkillDetails? SkillDetails(IReadOnlyList<SkillDto>? skills, int slot) =>
             skills != null && slot < skills.Count
@@ -176,7 +183,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                     IsSitting = false,
                     Morph = mate.Morph(),
                     Name = mate.DisplayName(language),
-                    Unknow1 = (byte)(mate.MateType == MateType.Partner ? 1 : 0),
+                    // 1 marks a partner and 2 a pet; the client fires a pet's skill bar only when it is marked.
+                    Unknow1 = (byte)(mate.MateType == MateType.Partner ? 1 : 2),
                     Skill1 = SkillAt(skills, 0),
                     Skill2 = SkillAt(skills, 1),
                     Skill3 = SkillAt(skills, 2)

@@ -1397,6 +1397,31 @@ and the items in the Etc bag.
       on the map, and keeps it after changing map; on another partner "You cannot receive
       costumes that do not fit you."
 
+#### Pet skills
+
+A pet whose creature has skills of its own casts them from its skill bar: an Otter (683) has
+Sushi Party and Smackeroo, a Baby Raptor Blue (806) Tail Sweep, a Baby Panda (1488) Panda Roll.
+Have such a pet in the team and a second client on the map. A skill centred on the pet itself,
+Sushi Party among them, does nothing yet.
+
+- [ ] Log in with an Otter in the team: its skill bar shows Sushi Party then Smackeroo, and the
+      third slot is empty
+- [ ] With a pet that has no skill of its own (a Chicken, 333) in the team: no pet skill bar
+- [ ] With the Otter beside a monster, select the monster and press Smackeroo (Shift+S): the
+      Otter plays the skill, the damage number shows on both screens, the monster's bar drops
+      and the Otter's MP in the party panel goes down by 20
+- [ ] The slot greys out when the skill is used and is usable again 35 seconds later; pressing
+      it in between does nothing
+- [ ] With less MP left than the skill costs: nothing happens
+- [ ] Select a monster across the map and press Smackeroo: the Otter does not hit it
+- [ ] Kill a monster with a pet skill: it collapses as it does from your own hits
+- [ ] Change map: the bar is still there
+- [ ] Send the Otter back to the Miniland: the bar goes away; take it out again: the bar is back
+      with every slot usable
+- [ ] In the Miniland, Company on a pet with other skills: the bar shows that pet's skills
+- [ ] Let a monster knock the Otter out: the bar goes away, and comes back with the Otter
+- [ ] Catch a monster with no pet out: no pet skill bar appears for it
+
 ### Food and snacks
 
 Lose some HP first, otherwise there is nothing to watch.

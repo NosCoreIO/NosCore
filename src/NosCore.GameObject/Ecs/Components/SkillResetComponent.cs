@@ -9,5 +9,6 @@ using NodaTime;
 
 namespace NosCore.GameObject.Ecs.Components;
 
-// When each skill a player cast, by CastId, comes off cooldown and the client is told so.
+// When each skill that was cast comes off cooldown and the client is told so: a player's by CastId, a
+// pet's by the slot of its skill bar.
 public record struct SkillResetComponent(ConcurrentDictionary<long, Instant> PendingResets);

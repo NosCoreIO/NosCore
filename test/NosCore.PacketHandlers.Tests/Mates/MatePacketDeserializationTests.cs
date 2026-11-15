@@ -60,6 +60,29 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         [TestMethod]
+        public void APetSkillReachesItsHandler()
+        {
+            var packet = new UpetPacket { MateTransportId = 1135623, TargetType = VisualType.Monster, TargetId = 2045, SkillVNum = 664 };
+
+            Assert.IsInstanceOfType(RoundTrip(packet), HandledBy(typeof(UpetPacketHandler)));
+        }
+
+        [TestMethod]
+        public void TheSkillOfAPetOrderIsReadWithOrWithoutTheCellItIsSentWith()
+        {
+            var bare = (UpetPacket)RoundTrip(new UpetPacket { MateTransportId = 1135623, TargetType = VisualType.Monster, TargetId = 2045, SkillVNum = 664 });
+            var withCell = (UpetPacket)RoundTrip(new UpetPacket
+            {
+                MateTransportId = 1135623, TargetType = VisualType.Monster, TargetId = 2045, SkillVNum = 664, MapX = 144, MapY = 124
+            });
+
+            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, (short)664, (short?)null, (short?)null),
+                (bare.MateTransportId, bare.TargetType, bare.TargetId, bare.SkillVNum, bare.MapX, bare.MapY));
+            Assert.AreEqual((1135623L, VisualType.Monster, 2045L, (short)664, (short?)144, (short?)124),
+                (withCell.MateTransportId, withCell.TargetType, withCell.TargetId, withCell.SkillVNum, withCell.MapX, withCell.MapY));
+        }
+
+        [TestMethod]
         public void APetsWholeSentenceIsRead()
         {
             var packet = (SayPPacket)RoundTrip(new SayPPacket { PetId = 1135623, Message = "good boy, sit" });

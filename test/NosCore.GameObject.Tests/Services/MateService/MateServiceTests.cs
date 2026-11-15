@@ -209,7 +209,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task APartnerIsFlaggedDifferentlyFromAPetOnSpawnAsync()
         {
-            // Both partners in the capture carry 1 after the name where every pet carries 0.
+            // The capture carries 1 after a partner's name and 2 after a pet's.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet },
@@ -218,7 +218,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             var mates = await service.LoadAsync(CharacterId);
 
-            Assert.AreEqual(0, mates.Single(s => s.MateType == MateType.Pet)
+            Assert.AreEqual(2, mates.Single(s => s.MateType == MateType.Pet)
                 .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Unknow1);
             Assert.AreEqual(1, mates.Single(s => s.MateType == MateType.Partner)
                 .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Unknow1);
