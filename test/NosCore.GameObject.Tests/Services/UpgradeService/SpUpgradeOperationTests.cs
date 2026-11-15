@@ -23,6 +23,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
@@ -31,7 +32,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     {
         private TestWorld World;
         private ClientSession _session;
-        private Mock<IRandomNumberSource> _random;
+        private Mock<IRandomProvider> _random;
         private SpUpgradeOperation _unprotected;
         private SpUpgradeProtectedOperation _protected;
         private SpecialistInstance _card;
@@ -42,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _random = new Mock<IRandomNumberSource>();
+            _random = new Mock<IRandomProvider>();
             _unprotected = new SpUpgradeOperation(_random.Object, World.GameLanguageLocalizer,
                 new SpUpgradeService(), UpgradeMaterials.Catalog());
             _protected = new SpUpgradeProtectedOperation(_random.Object, World.GameLanguageLocalizer,

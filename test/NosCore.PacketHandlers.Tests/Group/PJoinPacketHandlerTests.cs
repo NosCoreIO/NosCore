@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             }
 
             BlacklistHub = new Mock<IBlacklistHub>();
-            PJoinPacketHandler = new PjoinPacketHandler(Logger, BlacklistHub.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object, new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new()));
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, BlacklistHub.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object, new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new(), new NosCore.GameObject.Services.BattleService.RandomProvider()));
         }
 
         [TestMethod]
@@ -252,7 +252,7 @@ namespace NosCore.PacketHandlers.Tests.Group
         }
 
         private void Session0SavedAPointOfReturnAt_(short mapId, short x, short y) =>
-            new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new())
+            new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new(), new NosCore.GameObject.Services.BattleService.RandomProvider())
                 .SetReturnPoint(Sessions[0].Character, mapId, x, y);
 
         private Task Session0SharesItsPointOfReturnAsync() =>
@@ -267,7 +267,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
         private void Session1PointOfReturnShouldBe_(short mapId, short x, short y)
         {
-            var point = new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new())
+            var point = new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new(), new NosCore.GameObject.Services.BattleService.RandomProvider())
                 .GetReturnPoint(Sessions[1].Character, mapId);
             Assert.AreEqual(((short)mapId, x, y), point);
         }

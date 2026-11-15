@@ -62,7 +62,6 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IMateService, MateService>();
         services.AddSingleton<IFamilyService, FamilyService>();
 
-        services.AddSingleton<IRandomNumberSource, RandomNumberSource>();
         foreach (var operation in typeof(IUpgradeOperation).Assembly.GetTypes()
                      .Where(t => typeof(IUpgradeOperation).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false }))
         {

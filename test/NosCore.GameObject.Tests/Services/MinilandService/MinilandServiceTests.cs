@@ -181,15 +181,15 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             _nosvilleInstance = new MapInstance(mapNosville, Guid.NewGuid(), false,
                 MapInstanceType.BaseMapInstance, mapItemProvider, logger, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock,
                 mapChangeService, sessionGroupFactory, World.SessionRegistry,
-                World.DistanceCalculator);
+                World.DistanceCalculator, new NosCore.GameObject.Services.BattleService.RandomProvider());
             _oldNosvilleInstance = new MapInstance(mapOldNosville, Guid.NewGuid(), false,
                 MapInstanceType.BaseMapInstance, mapItemProvider, logger, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock,
                 mapChangeService, sessionGroupFactory, World.SessionRegistry,
-                World.DistanceCalculator);
+                World.DistanceCalculator, new NosCore.GameObject.Services.BattleService.RandomProvider());
             _minilandInstance = new MapInstance(mapMiniland, Guid.NewGuid(), false,
                 MapInstanceType.NormalInstance, mapItemProvider, logger, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock,
                 mapChangeService, sessionGroupFactory, World.SessionRegistry,
-                World.DistanceCalculator);
+                World.DistanceCalculator, new NosCore.GameObject.Services.BattleService.RandomProvider());
 
             _isolatedAccessor = new Mock<IMapInstanceAccessorService>();
             _isolatedAccessor.Setup(a => a.GetBaseMapById(1)).Returns(_nosvilleInstance);

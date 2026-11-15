@@ -123,7 +123,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         // (targeting hostile mobs) flow through the same TickAsync — the AI
         // implementation decides what counts as a target based on the entity's
         // race/hostility.
-        public static async Task TickLifeAsync(this INonPlayableEntity entity, IMonsterAi? monsterAi, IHeuristic distanceCalculator, IClock clock, ILogger logger,
+        public static async Task TickLifeAsync(this INonPlayableEntity entity, IMonsterAi? monsterAi, IHeuristic distanceCalculator, IClock clock, IRandomProvider random, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             try
@@ -136,7 +136,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
                 if (!acted)
                 {
-                    await entity.MoveAsync(distanceCalculator, clock);
+                    await entity.MoveAsync(distanceCalculator, clock, random);
                 }
             }
             catch (Exception e)

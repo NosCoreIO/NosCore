@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                     Type = NoscorePocketType.Equipment, VNum = PlayerSpecialist, ItemType = ItemType.Specialist,
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 0, Morph = 1
                 }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             World.Inject(new List<SkillDto>
             {
                 new() { SkillVNum = 1317, CastId = 2, SkillType = 5, UpgradeType = SkillSet },

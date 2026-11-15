@@ -15,12 +15,13 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 // An operation on the specialist card in the slot the packet names: refused with a message
 // while the card cannot take it, and refreshing only that card afterwards.
-public abstract class SpecialistCardOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
+public abstract class SpecialistCardOperation(IRandomProvider random, IGameLanguageLocalizer localizer)
     : UpgradeOperation(random, localizer)
 {
     public const sbyte DestroyedSoulRare = -2;

@@ -25,6 +25,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Services.UpgradeService;
 //
 // A worn Amulet of Reinforcement lets a fixed item be upgraded again, spending one of its uses per
 // attempt; a success releases the fixed level. It does not protect against destruction.
-public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public abstract class EquipmentUpgradeOperationBase(IRandomProvider random, IGameLanguageLocalizer localizer,
         IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
     : UpgradeOperation(random, localizer)
 {

@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                         ReturnMapTypeId = RespawnType.ReturnAct1
                     }
                 },
-                new List<RespawnMapTypeDto>());
+                new List<RespawnMapTypeDto>(), new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         [TestMethod]

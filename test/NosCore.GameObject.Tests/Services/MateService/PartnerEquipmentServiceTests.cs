@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     Type = NoscorePocketType.Equipment, VNum = HighLevelGloves, ItemType = ItemType.Fashion,
                     EquipmentSlot = EquipmentType.Gloves, LevelMinimum = 50
                 }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             _partner = TestMates.Partner(_session.Character.CharacterId);
             _session.Character.Mates[_partner.MateTransportId] = _partner;
         }

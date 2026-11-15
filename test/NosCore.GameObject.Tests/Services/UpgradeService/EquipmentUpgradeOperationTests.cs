@@ -26,6 +26,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
@@ -42,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short ShardVNum = 2748;
 
         private ClientSession _session;
-        private Mock<IRandomNumberSource> _random;
+        private Mock<IRandomProvider> _random;
         private UpgradeItemOperation _unprotected;
         private UpgradeItemProtectedOperation _protected;
         private InventoryItemInstance _wearable;
@@ -53,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _random = new Mock<IRandomNumberSource>();
+            _random = new Mock<IRandomProvider>();
             _unprotected = new UpgradeItemOperation(_random.Object, World.GameLanguageLocalizer,
                 new EquipmentUpgradeService(), UpgradeMaterials.Catalog());
             _protected = new UpgradeItemProtectedOperation(_random.Object, World.GameLanguageLocalizer,

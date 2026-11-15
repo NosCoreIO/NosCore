@@ -20,7 +20,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     public sealed class BoxEffectHandler(
         IItemGenerationService itemProvider,
         IItemCatalog itemCatalog,
-        IDao<RollGeneratedItemDto, short> rollGeneratedItemDao)
+        IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, IRandomProvider random)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var roll = RandomHelper.Instance.RandomNumber(0, sum);
+            var roll = random.Next(0, sum);
             var cumulative = 0;
             List<RollGeneratedItemDto>? chosen = null;
             foreach (var set in sets)

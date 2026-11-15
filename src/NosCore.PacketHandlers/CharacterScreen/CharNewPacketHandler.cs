@@ -25,7 +25,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -34,6 +33,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService,
             IOptions<WorldConfiguration> worldConfiguration, IDao<CharacterSkillDto, Guid> characterSkillDao,
             IItemCatalog itemCatalog, ILoggerFactory loggerFactory, IDaoTransactionScope daoTransactionScope,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random)
         : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
         private readonly ILogger<CharNewPacketHandler> logger = loggerFactory.CreateLogger<CharNewPacketHandler>();
@@ -166,8 +166,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         JobLevel = jobLevel,
                         Level = level,
                         MapId = 1,
-                        MapX = (short)RandomHelper.Instance.RandomNumber(78, 81),
-                        MapY = (short)RandomHelper.Instance.RandomNumber(114, 118),
+                        MapX = (short)random.Next(78, 81),
+                        MapY = (short)random.Next(114, 118),
                         Mp = (int)mpService.GetMp(@class, level),
                         MaxMateCount = 10,
                         SpPoint = 10000,

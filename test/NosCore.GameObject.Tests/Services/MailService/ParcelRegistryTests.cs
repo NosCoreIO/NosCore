@@ -133,7 +133,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             var service = new GameObject.Services.MailService.MailService(_mails.Object, _itemInstances.Object,
                 pubSubHub.Object, channels.Object, new ItemCatalog(_items),
-                new ItemGenerationService(new ItemCatalog(_items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
+                new ItemGenerationService(new ItemCatalog(_items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider()),
                 _registry, _characters.Object);
 
             var results = await Task.WhenAll(Enumerable.Range(0, MailCount).Select(_ => Task.Run(() =>

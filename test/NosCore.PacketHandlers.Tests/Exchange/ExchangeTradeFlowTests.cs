@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     Type = NoscorePocketType.Equipment, VNum = 1, IsTradable = true, ItemType = ItemType.Armor,
                     EquipmentSlot = EquipmentType.Armor
                 }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         private TransferService CreateTransferService()

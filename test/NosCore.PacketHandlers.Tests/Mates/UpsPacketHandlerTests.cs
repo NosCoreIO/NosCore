@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                     Type = NoscorePocketType.Equipment, VNum = PartnerSpecialist, ItemType = ItemType.Specialist,
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, Morph = 2333, PartnerSkillSet = SkillSet
                 }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             _specialists = World.Create<PartnerSpecialistService>();
             _handler = new UpsPacketHandler(_specialists);
         }

@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             var itemBuilder = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             for (short slot = 0; slot < 3; slot++)
             {
                 Session.Character.InventoryService.AddItemToPocket(
@@ -263,7 +263,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1 }
             };
-            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             Session.Character.MapInstance = World.GetBaseMap(1);
@@ -275,7 +275,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1 }
             };
-            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, (short)value), 0),
                 NoscorePocketType.Etc, 0);
@@ -293,7 +293,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
             };
-            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);

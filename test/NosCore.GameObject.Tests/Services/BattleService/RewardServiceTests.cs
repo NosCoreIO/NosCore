@@ -171,6 +171,28 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ARollJustUnderTheDropChanceDrops()
+        {
+            MonsterDrops(DroppableVNum, chance: 2000);
+            World.Random.Setup(r => r.Next(0, 10000)).Returns(1999);
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            Assert.IsTrue(_map.GetMapItemBundles().Any(i => i.VNum == DroppableVNum));
+        }
+
+        [TestMethod]
+        public async Task ARollAtTheDropChanceDropsNothing()
+        {
+            MonsterDrops(DroppableVNum, chance: 2000);
+            World.Random.Setup(r => r.Next(0, 10000)).Returns(2000);
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            Assert.IsFalse(_map.GetMapItemBundles().Any(i => i.VNum == DroppableVNum));
+        }
+
+        [TestMethod]
         public async Task GoldFallsWithinTheMonstersLevelBand()
         {
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));

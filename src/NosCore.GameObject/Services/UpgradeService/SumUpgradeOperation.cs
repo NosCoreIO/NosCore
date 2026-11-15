@@ -24,13 +24,14 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 // Combines two boots or two gloves: on success the source gains the target's upgrade plus one
 // and both resistances; on failure both are lost. Gold and sand are spent either way.
 [UsedImplicitly]
-public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class SumUpgradeOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         IItemCatalog itemCatalog, ISumService sumService)
     : UpgradeOperation(random, localizer)
 {

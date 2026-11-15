@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
                 Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
                 NullLogger<MapInstance>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, World.Clock, World.MapChangeService,
                 World.SessionGroupFactory, World.SessionRegistry,
-                World.DistanceCalculator, buffService: buffs, regenerationService: regeneration);
+                World.DistanceCalculator, new NosCore.GameObject.Services.BattleService.RandomProvider(), buffService: buffs, regenerationService: regeneration);
 
         [TestMethod]
         public async Task OneFailingEntityDoesNotCostTheRestOfTheMapItsTick()

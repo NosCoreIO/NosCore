@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
                 new Item { Type = NoscorePocketType.Main, VNum = 1013 },
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon, IsTradable = true }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             JoinFamily(FamilyAuthority.Head, 21);
         }
 

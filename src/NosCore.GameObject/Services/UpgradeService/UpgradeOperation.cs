@@ -27,6 +27,7 @@ using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
@@ -44,9 +45,11 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // Concurrency: per-session packet handling is already serialized in WorldPacketHandlingStrategy
 // (see AcquirePacketLockAsync), so two upgrade packets from the same client cannot run in
 // parallel. No additional locking is needed at this layer.
-public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
+public abstract class UpgradeOperation(IRandomProvider random, IGameLanguageLocalizer localizer)
     : IUpgradeOperation
 {
+    protected IRandomProvider Random => random;
+
     public abstract UpgradePacketType Kind { get; }
 
     public virtual NpcDialogWindow Window => NpcDialogWindow.Upgrade;

@@ -13,12 +13,13 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.UpgradeService;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.ShellOptionService;
 
 public sealed class ShellOptionService(
     IShellService shellService,
-    IRandomNumberSource random,
+    IRandomProvider random,
     IDao<EquipmentOptionDto, Guid> equipmentOptionDao) : IShellOptionService
 {
     private const byte WeaponShell = 0;

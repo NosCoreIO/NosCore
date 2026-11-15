@@ -10,11 +10,12 @@ using NosCore.Data.Enumerations.Items;
 using JetBrains.Annotations;
 using NosCore.Core.I18N;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 [UsedImplicitly]
-public sealed class RarifyOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class RarifyOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         IItemCatalog itemCatalog, IRarityPointService rarityPoints)
     : RarifyOperationBase(random, localizer, itemCatalog, rarityPoints)
 {
@@ -24,7 +25,7 @@ public sealed class RarifyOperation(IRandomNumberSource random, IGameLanguageLoc
 }
 
 [UsedImplicitly]
-public sealed class RarifyProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public sealed class RarifyProtectedOperation(IRandomProvider random, IGameLanguageLocalizer localizer,
         IItemCatalog itemCatalog, IRarityPointService rarityPoints)
     : RarifyOperationBase(random, localizer, itemCatalog, rarityPoints)
 {

@@ -220,7 +220,7 @@ namespace NosCore.GameObject.Tests
             };
             return new ItemGenerationService(new ItemCatalog(items),
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer, new RarityPointService());
+                World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         private void CharacterHasGold_(long gold)
@@ -393,7 +393,7 @@ namespace NosCore.GameObject.Tests
                 {
                     new Item { Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon, VNum = 1, IsSoldable = true, Price = 1000 }
                 }),
-                NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+                NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             var shop = CreateShop(itemBuilder);
             await Session.Character.BuyAsync(shop, 0, (short)amount, World.WorldConfiguration, itemBuilder, World.Create<DignityService>());
         }

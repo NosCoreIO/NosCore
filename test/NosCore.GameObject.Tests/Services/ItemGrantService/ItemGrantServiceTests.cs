@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
                 World.WorldConfiguration,
                 ItemProvider.Object,
                 World.LogLanguageLocalizer,
-                new RarityPointService());
+                new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         [TestMethod]

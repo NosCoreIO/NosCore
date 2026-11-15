@@ -31,6 +31,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.BDD;
 using SpecLight;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             [EventPirateCard] = UpgradePacketType.UpgradeSpPirate,
         };
 
-        private Mock<IRandomNumberSource> _random;
+        private Mock<IRandomProvider> _random;
         private EventSpUpgradeOperationBase[] _operations;
         private SpecialistInstance _card;
         private IReadOnlyList<IPacket> _result = Array.Empty<IPacket>();
@@ -66,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            _random = new Mock<IRandomNumberSource>();
+            _random = new Mock<IRandomProvider>();
             var localizer = World.GameLanguageLocalizer;
             var catalog = new ItemCatalog(new[] { ChickenScroll, PyjamaScroll, PirateScroll }
                 .Select(vnum => (ItemDto)ScrollItem(vnum)).ToList());

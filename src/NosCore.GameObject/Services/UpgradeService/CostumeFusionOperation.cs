@@ -21,12 +21,13 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 // The first costume keeps its effects and takes on the look of the second, which is destroyed.
 [UsedImplicitly]
-public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
+public sealed class CostumeFusionOperation(IRandomProvider random, IGameLanguageLocalizer localizer)
     : UpgradeOperation(random, localizer), IItemOpenedUpgradeOperation
 {
     public const long GoldCost = 1_000_000;

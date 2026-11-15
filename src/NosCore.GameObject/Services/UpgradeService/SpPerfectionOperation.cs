@@ -25,6 +25,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // each take three faces, the four resistances one each.
 [UsedImplicitly]
 public sealed class SpPerfectionOperation(
-    IRandomNumberSource random,
+    IRandomProvider random,
     IGameLanguageLocalizer localizer,
     ISpPerfectionService spPerfectionService,
     IItemCatalog itemCatalog)

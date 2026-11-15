@@ -26,6 +26,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
@@ -47,7 +48,7 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // An Amulet for Increasing Rarity carried in the bag replaces the roll: the item gains one rarity
 // level, cannot fail, and the amulet is used up. The champion one only works on champion gear,
 // which it can raise to rare 8; the ordinary one only on other gear, up to rare 7.
-public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+public abstract class RarifyOperationBase(IRandomProvider random, IGameLanguageLocalizer localizer,
         IItemCatalog itemCatalog, IRarityPointService rarityPoints)
     : UpgradeOperation(random, localizer)
 {
@@ -232,7 +233,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         wearable.Rare = ctx.Data<RarifyRollState>().NewRare;
         // Re-roll the rarity-driven stat bonuses (defence for armor, damage/concentrate for
         // weapons) to match the new rare tier.
-        wearable.SetRarityPoint(rarityPoints);
+        wearable.SetRarityPoint(rarityPoints, Random);
     }
 
     protected override void ApplyFailure(ClientSession session, UpgradeContext ctx)

@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
                 Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
                 NullLogger<MapInstance>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, World.Clock, World.MapChangeService,
                 World.SessionGroupFactory, World.SessionRegistry,
-                World.DistanceCalculator);
+                World.DistanceCalculator, new NosCore.GameObject.Services.BattleService.RandomProvider());
             map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1 }, new() { MapMonsterId = 2, VNum = 1 } },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } });

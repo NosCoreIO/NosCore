@@ -7,7 +7,6 @@
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.PathFinder.Interfaces;
-using NosCore.Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +47,7 @@ namespace NosCore.GameObject.Map
 
         public byte this[short x, short y] => Data.AsSpan().Slice(4 + y * Width + x, 1)[0];
 
-        internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint)
+        internal bool GetFreePosition(ref short firstX, ref short firstY, byte xpoint, byte ypoint, IRandomProvider random)
         {
             var minX = (short)(-xpoint + firstX);
             var maxX = (short)(xpoint + firstX);
@@ -68,7 +67,7 @@ namespace NosCore.GameObject.Map
                 }
             }
 
-            foreach (var cell in cells.OrderBy(_ => RandomHelper.Instance.RandomNumber(0, int.MaxValue)))
+            foreach (var cell in cells.OrderBy(_ => random.Next(0, int.MaxValue)))
             {
                 if (IsBlockedZone(firstX, firstY, cell.X, cell.Y))
                 {

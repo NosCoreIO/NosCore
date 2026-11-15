@@ -24,6 +24,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 using SpecLight;
 using DbItemInstance = NosCore.Database.Entities.ItemInstance;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
@@ -35,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short SandVNum = 1027;
 
         private ClientSession _session;
-        private Mock<IRandomNumberSource> _random;
+        private Mock<IRandomProvider> _random;
         private SumUpgradeOperation _operation;
         private InventoryItemInstance _source;
         private InventoryItemInstance _target;
@@ -46,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _random = World.Freeze<Mock<IRandomNumberSource>>();
+            _random = World.Freeze<Mock<IRandomProvider>>();
             World.Inject(UpgradeMaterials.Catalog());
             World.Inject<ISumService>(new SumService());
             _operation = World.Create<SumUpgradeOperation>();

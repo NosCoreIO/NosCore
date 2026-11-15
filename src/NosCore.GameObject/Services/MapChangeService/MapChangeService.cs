@@ -33,6 +33,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.MapChangeService
 {
@@ -45,7 +46,7 @@ namespace NosCore.GameObject.Services.MapChangeService
             ScriptedInstanceService.IScriptedInstanceService scriptedInstanceService,
             BattleService.IBattleStatsProvider battleStatsProvider,
             FactionWarService.IFactionWarService factionWarService,
-            ChannelService.IChannelService channelService)
+            ChannelService.IChannelService channelService, IRandomProvider random)
         : IMapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -327,7 +328,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     foreach (var mate in character.Mates.Values.Where(s => !s.IsTeamMember))
                     {
-                        var (x, y) = MatePlacement.MinilandSpot(mate, newMapInstance.Map);
+                        var (x, y) = MatePlacement.MinilandSpot(mate, newMapInstance.Map, random);
                         await mate.SpawnAsync(character, newMapInstance, x, y);
                     }
                 }

@@ -16,18 +16,18 @@ using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class TimeSpaceRewardService(IScriptedInstanceService scriptedInstanceService,
             IItemGenerationService itemGenerationService, IItemDeliveryService itemDeliveryService,
             IFamilyContributionService familyContributionService,
-            IOptions<WorldConfiguration> worldConfiguration)
+            IOptions<WorldConfiguration> worldConfiguration, IRandomProvider random)
         : ITimeSpaceRewardService
     {
         public async Task<bool> OpenChestAsync(ClientSession session)
@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             var drawn = definition.DrawItems.Count == 0
                 ? null
-                : definition.DrawItems[RandomHelper.Instance.RandomNumber(0, definition.DrawItems.Count)];
+                : definition.DrawItems[random.Next(0, definition.DrawItems.Count)];
             foreach (var gift in definition.GiftItems.Concat(definition.SpecialItems).Append(drawn).OfType<InstanceGift>())
             {
                 await itemDeliveryService.DeliverAsync(character, itemGenerationService.Create(gift.VNum, gift.Amount, 0, 0, gift.Design));

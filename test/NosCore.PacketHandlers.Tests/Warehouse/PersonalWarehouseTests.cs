@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                 new Item { Type = NoscorePocketType.Main, VNum = 1012 },
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon },
                 new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 21, IsWarehouse = true }
-            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
         }
 
         private IPersonalWarehouseService Service()

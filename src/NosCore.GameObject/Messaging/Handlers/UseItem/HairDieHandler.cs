@@ -14,12 +14,12 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
-using NosCore.Shared.Helpers;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class HairDieHandler
+    public sealed class HairDieHandler(IRandomProvider random)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             if (isColor)
             {
                 var next = item.EffectValue == 99
-                    ? (byte)RandomHelper.Instance.RandomNumber(0, 128)
+                    ? (byte)random.Next(0, 128)
                     : (byte)item.EffectValue;
                 session.Character.HairColor = Enum.IsDefined(typeof(HairColorType), next)
                     ? (HairColorType)next

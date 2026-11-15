@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             Session = await World.CreateSessionAsync();
             MailHub = new Mock<IMailHub>();
             Handler = new PstClientPacketHandler(MailHub.Object, new Mock<IDao<CharacterDto, long>>().Object,
-                SystemClock.Instance);
+                World.Clock);
         }
 
         [TestMethod]

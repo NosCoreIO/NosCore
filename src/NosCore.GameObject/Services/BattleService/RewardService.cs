@@ -29,7 +29,6 @@ using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.EquipmentService;
-using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 using NosCore.Algorithm.ExperienceShareService;
 using NosCore.Algorithm.MonsterGoldService;
@@ -60,7 +59,7 @@ public sealed class RewardService(
     IEquipmentStatsService equipmentStatsService,
     IQuestDropService questDropService,
     IScriptedInstanceService scriptedInstanceService,
-    ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IRewardService
+    ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill.
     private const int FairyXpRate = 1;
@@ -258,7 +257,7 @@ public sealed class RewardService(
         public int Experience, JobExperience, HeroExperience, Reputation;
     }
 
-    private static bool Rolls(int percent) => percent > 0 && RandomHelper.Instance.RandomNumber(0, 100) < percent;
+    private bool Rolls(int percent) => percent > 0 && random.Next(0, 100) < percent;
 
     private (int Double, int None) DropChances(PlayerComponentBundle player)
     {
@@ -312,13 +311,13 @@ public sealed class RewardService(
         await player.SendPacketAsync(player.GenerateFd());
     }
 
-    private static async Task AwardDignityAsync(PlayerComponentBundle player, NpcMonsterDto mob)
+    private async Task AwardDignityAsync(PlayerComponentBundle player, NpcMonsterDto mob)
     {
         if (player.Level <= 20 || player.Level >= mob.Level || player.Dignity >= 100)
         {
             return;
         }
-        if (RandomHelper.Instance.RandomNumber(0, 2) != 0)
+        if (random.Next(0, 2) != 0)
         {
             return;
         }
@@ -351,7 +350,7 @@ public sealed class RewardService(
         {
             // DropChance is expressed per 10000 (i.e. 2000 means 20%). Scale by the map's
             // drop rate so GM-configured rates apply uniformly.
-            var roll = RandomHelper.Instance.RandomNumber(0, 10000);
+            var roll = random.Next(0, 10000);
             var threshold = drop.DropChance * mapInstance.DropRate;
             if (roll >= threshold) continue;
 
@@ -416,10 +415,10 @@ public sealed class RewardService(
         }
 
         var (minGold, maxGold) = monsterGoldService.GetGoldDrop(mob.Level);
-        var goldAmount = RandomHelper.Instance.RandomNumber(minGold, maxGold + 1);
+        var goldAmount = random.Next(minGold, maxGold + 1);
         if (topDamageDealer is { } owner)
         {
-            if (RandomHelper.Instance.RandomNumber(0, 100) >= levelPenaltyService.GetGoldPenalty(owner.Level, mob.Level) * 100)
+            if (random.Next(0, 100) >= levelPenaltyService.GetGoldPenalty(owner.Level, mob.Level) * 100)
             {
                 return;
             }

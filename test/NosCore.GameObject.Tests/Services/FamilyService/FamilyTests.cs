@@ -90,7 +90,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .Returns((Expression<Func<CharacterDto, bool>> p) => Task.FromResult<CharacterDto?>(characters.FirstOrDefault(p.Compile())));
 
             return new FamilyServiceImpl(familyDao.Object, membershipDao.Object, characterDao.Object,
-                new Mock<IDao<FamilyQuestProgressDto, long>>().Object, [], new Mock<IFamilyHub>().Object, SystemClock.Instance);
+                new Mock<IDao<FamilyQuestProgressDto, long>>().Object, [], new Mock<IFamilyHub>().Object, new NodaTime.Testing.FakeClock(NodaTime.Instant.FromUtc(2026, 1, 1, 0, 0)));
         }
 
         private static FamilyServiceImpl Nemesis()

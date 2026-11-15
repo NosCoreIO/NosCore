@@ -153,7 +153,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
                 NullLogger<MapInstance>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, clock, World.MapChangeService,
                 World.SessionGroupFactory, World.SessionRegistry,
-                World.DistanceCalculator);
+                World.DistanceCalculator, new NosCore.GameObject.Services.BattleService.RandomProvider());
             var sessions = new Mock<ISessionGroup>();
             map.Sessions = sessions.Object;
 

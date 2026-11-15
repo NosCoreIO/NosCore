@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
             var handler = new CharNewPacketHandler(World.CharacterDao, World.GenerateItemProvider(),
                 World.QuicklistEntryDao, itemInstances.Object, slots.Object, new HpService(), new MpService(),
-                _configuration, World.CharacterSkillDao, new ItemCatalog(World.ItemList), NullLoggerFactory.Instance, World.Create<IDaoTransactionScope>(), World.LogLanguageLocalizer);
+                _configuration, World.CharacterSkillDao, new ItemCatalog(World.ItemList), NullLoggerFactory.Instance, World.Create<IDaoTransactionScope>(), World.LogLanguageLocalizer, new NosCore.GameObject.Services.BattleService.RandomProvider());
             _session.ClearPlayerEntity();
             await handler.ExecuteAsync(new CharNewPacket { Name = "Starter", Slot = 2, TargetClass = @class }, _session);
         }

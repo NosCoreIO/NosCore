@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     // A shell dropped on a weapon or armour copies its options onto it and binds it.
     [UsedImplicitly]
-    public sealed class ShellHandler(IShellOptionService shellOptionService, IRandomNumberSource random,
+    public sealed class ShellHandler(IShellOptionService shellOptionService, IRandomProvider random,
         IBattleStatsProvider battleStatsProvider)
     {
         private const byte WeaponShell = 0;

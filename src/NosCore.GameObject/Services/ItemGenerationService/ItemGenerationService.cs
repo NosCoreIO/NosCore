@@ -17,6 +17,7 @@ using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.ItemGenerationService
 {
@@ -24,7 +25,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
         IItemCatalog itemCatalog,
         ILoggerFactory loggerFactory,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-        IRarityPointService rarityPoints) : IItemGenerationService
+        IRarityPointService rarityPoints, IRandomProvider random) : IItemGenerationService
     {
         public IItemInstance Convert(IItemInstanceDto k)
         {
@@ -97,7 +98,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                             };
                             if (wear.Rare > 0)
                             {
-                                wear.SetRarityPoint(rarityPoints);
+                                wear.SetRarityPoint(rarityPoints, random);
                             }
                             if (itemToCreate.Effect is ItemEffectType.RedAmulet or ItemEffectType.BlueAmulet
                                 or ItemEffectType.ReinforcementAmulet)

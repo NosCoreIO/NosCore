@@ -9,6 +9,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.UpgradeService;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.MinilandService
 {
@@ -24,7 +25,7 @@ namespace NosCore.GameObject.Services.MinilandService
     }
 
     public class MinigameRewardService(List<MinigameScoreDto> scores, List<MinigameRewardDto> rewards,
-        IRandomNumberSource random) : IMinigameRewardService
+        IRandomProvider random) : IMinigameRewardService
     {
         private readonly Dictionary<MinigameType, int[]> _maximumScores = scores
             .GroupBy(s => s.MinigameType)

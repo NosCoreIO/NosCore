@@ -24,6 +24,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
@@ -37,7 +38,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short RarityAmuletVNum = 259;
 
         private ClientSession _session;
-        private Mock<IRandomNumberSource> _random;
+        private Mock<IRandomProvider> _random;
         private RarifyOperation _unprotected;
         private RarifyProtectedOperation _protected;
         private InventoryItemInstance _wearable;
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _random = World.Freeze<Mock<IRandomNumberSource>>();
+            _random = World.Freeze<Mock<IRandomProvider>>();
             World.Inject(UpgradeMaterials.Catalog());
             _unprotected = World.Create<RarifyOperation>();
             _protected = World.Create<RarifyProtectedOperation>();
