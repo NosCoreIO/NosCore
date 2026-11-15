@@ -91,7 +91,11 @@ public readonly record struct CombatStats(
     // Type 84 subtype 3: percent chance that a hit calls an Onyx Dragon to strike again for half.
     int OnyxDragonChance = 0,
     // Type 81 subtype 2: percent chance of not being pushed, pulled or knocked back.
-    int ForcedMovementResistance = 0);
+    int ForcedMovementResistance = 0,
+    // Type 29 subtype 3: percent chance that a single-target hit also lands on everyone within
+    // SurroundingDamageRadius cells of the target.
+    int SurroundingDamageChance = 0,
+    int SurroundingDamageRadius = 0);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
 public readonly record struct ChanceDamage(int Chance, int Percent);

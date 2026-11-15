@@ -223,6 +223,15 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] The PvP-only push leaves monsters where they are and moves a player
 - [ ] A target resisting forced movement stays put, while your own jump back still happens
 
+### Surrounding damage — BCard type 29 subtype 31
+
+- [ ] Hit one of two monsters standing side by side while carrying the effect
+      (`/mnt/project-files/bcard-effects/reset-splash.sh` gives Tester's weapon a 100% chance over
+      2 cells and adds a second Large Dander; key 1 casts): both take a number, the target's
+      own and the neighbour's
+- [ ] A monster further away than the effect's range takes nothing
+- [ ] A skill that already hits several targets does not hit them a second time
+
 ### Elemental resistance — BCard types 13 and 14
 
 - [ ] A buff that raises your resistance to an element reduces the elemental damage you
