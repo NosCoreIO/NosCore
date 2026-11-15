@@ -16,7 +16,8 @@ namespace NosCore.Instances.Abstractions
     public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true, bool IsBonus = false,
         Action<IInstanceRun>? OnDeath = null);
 
-    public readonly record struct NpcSpawn(short VNum, Spot At);
+    // An escort joins the first player who comes near it and walks where that player's client sends it.
+    public readonly record struct NpcSpawn(short VNum, Spot At, bool IsEscort = false);
 
     // A lever says it has been pulled, a sculpture is moved without a word, and a key is taken
     // off the map by whoever uses it.

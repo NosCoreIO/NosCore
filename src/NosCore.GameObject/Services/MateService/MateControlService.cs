@@ -31,8 +31,12 @@ namespace NosCore.GameObject.Services.MateService
 
         public async Task<bool> MoveAsync(PlayerComponentBundle owner, long mateTransportId, short x, short y)
         {
-            if (!TryGetOutMate(owner, mateTransportId, out var mate, out var entity)
-                || !entity.IsAlive
+            if (!TryGetOutMate(owner, mateTransportId, out var mate, out var entity))
+            {
+                return await MoveEscortAsync(owner, mateTransportId, x, y);
+            }
+
+            if (!entity.IsAlive
                 || entity.NoMove
                 || !owner.MapInstance.Map.IsWalkable(x, y))
             {
@@ -56,6 +60,36 @@ namespace NosCore.GameObject.Services.MateService
                 MapX = x,
                 MapY = y,
                 Speed = mate.NpcMonster.Speed
+            });
+            return true;
+        }
+
+        private async Task<bool> MoveEscortAsync(PlayerComponentBundle owner, long npcId, short x, short y)
+        {
+            if (npcId is <= 0 or > int.MaxValue
+                || owner.MapInstance.GetNpcById((int)npcId) is not { IsAlive: true } escort
+                || escort.LeaderId != owner.CharacterId
+                || escort.NoMove
+                || !owner.MapInstance.Map.IsWalkable(x, y))
+            {
+                return false;
+            }
+
+            var distance = (int)distanceCalculator.GetDistance((escort.PositionX, escort.PositionY), (x, y));
+            if (!SkillReach.IsWithinOneStep(distance, escort.Speed))
+            {
+                return false;
+            }
+
+            escort.PositionX = x;
+            escort.PositionY = y;
+            await owner.MapInstance.SendPacketAsync(new MovePacket
+            {
+                VisualType = VisualType.Npc,
+                VisualEntityId = escort.VisualId,
+                MapX = x,
+                MapY = y,
+                Speed = escort.Speed
             });
             return true;
         }
