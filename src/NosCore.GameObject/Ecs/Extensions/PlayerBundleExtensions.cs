@@ -820,13 +820,18 @@ public static class PlayerBundleExtensions
 
     public static void LoadExpensions(this PlayerComponentBundle player)
     {
-        var backpack = player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.BackPack);
-        var backpackticket = player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.InventoryTicketUpgrade);
-        var expension = (byte)((backpack ? 12 : 0) + (backpackticket ? 60 : 0));
+        var expension = (byte)player.StaticBonusList.Sum(s => s.StaticBonusType switch
+        {
+            StaticBonusType.BackPack => 12,
+            StaticBonusType.InventoryTicketUpgrade => 60,
+            StaticBonusType.MedalOfErenia => 8,
+            StaticBonusType.AdventurersMedal => 4,
+            _ => 0,
+        });
 
-        player.InventoryService.Expensions[NoscorePocketType.Main] += expension;
-        player.InventoryService.Expensions[NoscorePocketType.Equipment] += expension;
-        player.InventoryService.Expensions[NoscorePocketType.Etc] += expension;
+        player.InventoryService.Expensions[NoscorePocketType.Main] = expension;
+        player.InventoryService.Expensions[NoscorePocketType.Equipment] = expension;
+        player.InventoryService.Expensions[NoscorePocketType.Etc] = expension;
     }
 
     public static ExtsPacket GenerateExts(this PlayerComponentBundle player, IOptions<WorldConfiguration> conf)

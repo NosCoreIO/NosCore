@@ -18,6 +18,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
@@ -41,6 +42,13 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             var session = evt.ClientSession;
+            if (bonus == StaticBonusType.BackPack && session.Character.StaticBonusList.Any(s =>
+                    s.StaticBonusType is StaticBonusType.MedalOfErenia or StaticBonusType.AdventurersMedal))
+            {
+                await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotWithKnapsack });
+                return;
+            }
+
             if (session.Character.StaticBonusList.Any(s => s.StaticBonusType == bonus))
             {
                 await session.SendPacketAsync(new SayiPacket

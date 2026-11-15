@@ -14,6 +14,10 @@ namespace NosCore.Data.Enumerations.Buff
         PetBasket = 3,
         PetBackPack = 4,
         InventoryTicketUpgrade = 5,
-        CuarryBankVip = 6
+        CuarryBankVip = 6,
+        MedalOfErenia = 7,
+        AdventurersMedal = 8,
+        MedalOfFriendship = 9,
+        MimisMedal = 10
     }
 }

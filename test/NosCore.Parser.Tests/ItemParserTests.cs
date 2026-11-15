@@ -159,6 +159,20 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_MimisMedalLastsThreeDaysWithItsBonuses()
+        {
+            CreateTestFile(CreateItemData(vnum: 1187, indexType: 1, indexSubType: 4, data: "206\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(3, _savedItems.Single().EffectValue);
+            CollectionAssert.AreEquivalent(
+                new[] { (BCardEffect.ItemExpIncreased, 30), (BCardEffect.ItemIncreaseEarnedGold, 20), (BCardEffect.IncreaseFameReceived, 20) },
+                _savedBCards.Where(b => b.ItemVNum == 1187).Select(b => (b.Effect(), b.FirstData)).ToList());
+        }
+
+        [TestMethod]
         public async Task ItemParser_AncelloansBlessingGrantsItsCard()
         {
             CreateTestFile(CreateItemData(vnum: 1286, indexType: 1, indexSubType: 4, data: "208\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));

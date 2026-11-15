@@ -1059,6 +1059,22 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] The Legendary Medal of Honour (`$CreateItem 5892`) adds 30 000
 - [ ] A Specialist Card Holder (`$CreateItem 287`) does not grant reputation
 
+### Experience medals
+
+Re-run the parser first: the medals' durations and bonuses come from it.
+
+- [ ] `$CreateItem 1115` and use the Medal of Erenia: "Medal of Erenia effect activated." shows,
+      the medal is gone, and the Equip, Main and Miscellaneous tabs each gain 8 slots
+- [ ] The Adventurer's Medal (1116) gains 4 slots per tab; it is refused with "You cannot use the
+      Medal of Erenia and the Adventurer's Medal together." while the Medal of Erenia runs, and
+      both are refused with "You cannot use it together with the Adventurer's Knapsack." while a
+      knapsack runs (and the knapsack while a medal runs)
+- [ ] Using a medal that is already running asks "You are already using this medal. Do you want
+      to extend it?"; Yes adds its days and uses it up
+- [ ] With Mimi's Medal (1187), a kill gives 30% more combat and job experience and 20% more gold
+      and reputation than without it
+- [ ] When a medal ends, its expiry message shows and the extra slots go away
+
 ### Buff potions
 
 - [ ] `$CreateItem 1246 3` and double-click the Attack Potion in the Main tab: the stack drops

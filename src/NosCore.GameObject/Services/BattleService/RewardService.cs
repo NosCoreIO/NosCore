@@ -62,6 +62,7 @@ public sealed class RewardService(
     IMateProgressionService mateProgression,
     IBuffService buffService,
     IEquipmentStatsService equipmentStatsService,
+    ICardCatalog cardCatalog,
     IQuestDropService questDropService,
     IScriptedInstanceService scriptedInstanceService,
     IItemDeliveryService itemDeliveryService,
@@ -226,7 +227,8 @@ public sealed class RewardService(
     {
         var bonus = new ExperienceBonus();
         var cards = buffService.GetActiveBuffs(player).SelectMany(b => b.BCards)
-            .Concat(equipmentStatsService.Resolve(player).BCards ?? []);
+            .Concat(equipmentStatsService.Resolve(player).BCards ?? [])
+            .Concat(player.MedalBCards(itemCatalog, cardCatalog));
         foreach (var bCard in cards)
         {
             var value = BattleStatsProvider.ScaleByLevel(bCard, player.Level);
@@ -275,7 +277,8 @@ public sealed class RewardService(
     {
         int doubleChance = 0, noDropChance = 0;
         var cards = buffService.GetActiveBuffs(player).SelectMany(b => b.BCards)
-            .Concat(equipmentStatsService.Resolve(player).BCards ?? []);
+            .Concat(equipmentStatsService.Resolve(player).BCards ?? [])
+            .Concat(player.MedalBCards(itemCatalog, cardCatalog));
         foreach (var bCard in cards)
         {
             switch (bCard.Effect())
@@ -296,7 +299,8 @@ public sealed class RewardService(
     {
         var percent = 0;
         var cards = buffService.GetActiveBuffs(player).SelectMany(b => b.BCards)
-            .Concat(equipmentStatsService.Resolve(player).BCards ?? []);
+            .Concat(equipmentStatsService.Resolve(player).BCards ?? [])
+            .Concat(player.MedalBCards(itemCatalog, cardCatalog));
         foreach (var bCard in cards)
         {
             switch (bCard.Effect())
