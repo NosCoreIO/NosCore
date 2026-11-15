@@ -202,6 +202,24 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
+        public async Task AStoredItemIsFoundByItsSlot()
+        {
+            Store(1012, 5, 3);
+
+            Assert.AreEqual((short?)1012, (await Service().GetItemAsync(_session, 3))?.ItemVNum);
+            Assert.IsNull(await Service().GetItemAsync(_session, 4));
+        }
+
+        [TestMethod]
+        public async Task AMemberWhoCannotOpenTheWarehouseIsNotShownItsItems()
+        {
+            JoinFamily(FamilyAuthority.Member, 21);
+            Store(1012, 5, 3);
+
+            Assert.IsNull(await Service().GetItemAsync(_session, 3));
+        }
+
+        [TestMethod]
         public async Task AFamilyWithoutAWarehouseCannotOpenOne()
         {
             JoinFamily(FamilyAuthority.Head, 0);

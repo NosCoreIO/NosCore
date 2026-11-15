@@ -1295,6 +1295,8 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] In a trade, have the other player offer a weapon, a costume and a hat, then right-click
       each of their cells: each opens the info window of that item, in the order offered
 - [ ] Open another player's shop and right-click each item on its shelf: its info window opens
+- [ ] Right-click an item in the miniland warehouse, the partner's backpack and the family warehouse:
+      its info window opens
 - [ ] Open one card's specialist window, close it, then right-click a different card: in the
       browser client the second window did not open although its slinfo arrived. Check
       whether the game client does the same

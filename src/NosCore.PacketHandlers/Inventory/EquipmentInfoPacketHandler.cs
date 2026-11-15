@@ -10,6 +10,9 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.FamilyService;
+using NosCore.GameObject.Services.WarehouseService;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -21,22 +24,26 @@ using NosCore.Data.Enumerations.Character;
 namespace NosCore.PacketHandlers.Inventory
 {
     public class EquipmentInfoPacketHandler(IItemInfoService itemInfoService, IItemCatalog itemCatalog,
-            IItemGenerationService itemProvider, ISessionRegistry sessionRegistry)
+            IItemGenerationService itemProvider, ISessionRegistry sessionRegistry,
+            IPersonalWarehouseService personalWarehouse, IFamilyWarehouseService familyWarehouse)
         : PacketHandler<EquipmentInfoPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(EquipmentInfoPacket packet, ClientSession clientSession)
         {
-            if (Find(packet, clientSession) is { } item && itemInfoService.GenerateInfo(item) is { } info)
+            if (await FindAsync(packet, clientSession) is { } item && itemInfoService.GenerateInfo(item) is { } info)
             {
                 await clientSession.SendPacketAsync(info);
             }
         }
 
-        private IItemInstance? Find(EquipmentInfoPacket packet, ClientSession clientSession)
+        private async Task<IItemInstance?> FindAsync(EquipmentInfoPacket packet, ClientSession clientSession)
         {
             var character = clientSession.Character;
             return packet.Type switch
             {
+                EquipmentInfoType.Warehouse => await personalWarehouse.GetItemAsync(clientSession, WarehouseType.Warehouse, packet.Slot),
+                EquipmentInfoType.PartnerWarehouse => await personalWarehouse.GetItemAsync(clientSession, WarehouseType.PetWarehouse, packet.Slot),
+                EquipmentInfoType.FamilyWarehouse => await familyWarehouse.GetItemAsync(clientSession, packet.Slot),
                 EquipmentInfoType.Worn => InPocket(NoscorePocketType.Wear, packet.Slot),
                 EquipmentInfoType.Equipment => InPocket(NoscorePocketType.Equipment, packet.Slot),
                 EquipmentInfoType.Specialist => InPocket(NoscorePocketType.Specialist, packet.Slot),

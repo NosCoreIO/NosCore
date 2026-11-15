@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
@@ -15,6 +16,8 @@ namespace NosCore.GameObject.Services.FamilyService
         Task OpenAsync(ClientSession session);
 
         Task OpenHistoryAsync(ClientSession session);
+
+        Task<IItemInstance?> GetItemAsync(ClientSession session, short warehouseSlot);
 
         Task DepositAsync(ClientSession session, PocketType pocket, short slot, short amount, short warehouseSlot);
 

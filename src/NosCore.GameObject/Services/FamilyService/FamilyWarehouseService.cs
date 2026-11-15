@@ -51,6 +51,14 @@ namespace NosCore.GameObject.Services.FamilyService
             });
         }
 
+        public Task<IItemInstance?> GetItemAsync(ClientSession session, short warehouseSlot)
+        {
+            var family = session.Character.Family;
+            return family == null || family.WarehouseSize == 0 || !CanPut(session, family)
+                ? Task.FromResult<IItemInstance?>(null)
+                : transfer.GetItemAsync(family.FamilyId, WarehouseType.FamilyWareHouse, warehouseSlot);
+        }
+
         public Task OpenHistoryAsync(ClientSession session)
         {
             var family = session.Character.Family;

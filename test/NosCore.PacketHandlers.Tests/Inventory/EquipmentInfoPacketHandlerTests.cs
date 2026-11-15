@@ -11,12 +11,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemInfoService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShopService;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
@@ -40,7 +43,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             itemInfoService.Setup(s => s.GenerateInfo(It.Is<IItemInstance>(i => i.ItemVNum == 1 || i.ItemVNum == 912))).Returns(_info);
             var itemCatalog = new Mock<IItemCatalog>();
             itemCatalog.Setup(c => c.GetItem(1)).Returns(new ItemDto { VNum = 1 });
-            _handler = new EquipmentInfoPacketHandler(itemInfoService.Object, itemCatalog.Object, ItemProvider, World.SessionRegistry);
+            var personalWarehouse = new Mock<IPersonalWarehouseService>();
+            personalWarehouse.Setup(w => w.GetItemAsync(Session, WarehouseType.Warehouse, 4)).ReturnsAsync(ItemProvider.Create(1, 1));
+            personalWarehouse.Setup(w => w.GetItemAsync(Session, WarehouseType.PetWarehouse, 5)).ReturnsAsync(ItemProvider.Create(1, 1));
+            var familyWarehouse = new Mock<IFamilyWarehouseService>();
+            familyWarehouse.Setup(w => w.GetItemAsync(Session, 6)).ReturnsAsync(ItemProvider.Create(1, 1));
+            _handler = new EquipmentInfoPacketHandler(itemInfoService.Object, itemCatalog.Object, ItemProvider, World.SessionRegistry,
+                personalWarehouse.Object, familyWarehouse.Object);
         }
 
         [TestMethod]
@@ -50,6 +59,27 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .Given(AWeaponIsInEquipmentSlot_, (short)0)
                 .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Equipment, (short)0)
                 .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [DataRow(EquipmentInfoType.Warehouse, (short)4)]
+        [DataRow(EquipmentInfoType.PartnerWarehouse, (short)5)]
+        [DataRow(EquipmentInfoType.FamilyWarehouse, (short)6)]
+        public async Task RightClickingAnItemInAWarehouseShowsItsDetails(EquipmentInfoType warehouse, short slot)
+        {
+            await new Spec("Right clicking an item in a warehouse shows its details")
+                .WhenAsync(AskingForInfoOn_Slot_, warehouse, slot)
+                .Then(TheDetailsAreSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RightClickingAnEmptyWarehouseSlotSendsNothing()
+        {
+            await new Spec("Right clicking an empty warehouse slot sends nothing")
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Warehouse, (short)5)
+                .Then(NothingIsSent)
                 .ExecuteAsync();
         }
 
