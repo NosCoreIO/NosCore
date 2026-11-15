@@ -19,4 +19,5 @@ public readonly record struct PvpShellStats(
     bool IgnoresFireResistance = false,
     bool IgnoresWaterResistance = false,
     bool IgnoresLightResistance = false,
-    bool IgnoresDarkResistance = false);
+    bool IgnoresDarkResistance = false,
+    int OccasionalDamagePercent = 0);

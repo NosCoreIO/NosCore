@@ -293,8 +293,7 @@ public sealed class EquipmentStatsService(
         _ => null,
     });
 
-    // The PvP damage option is a plain PvP attack bonus and goes through WeaponShellBCard; the
-    // option that hits at 15% has no known meaning yet and is left out.
+    // The PvP damage option is a plain PvP attack bonus and goes through WeaponShellBCard.
     private static PvpShellStats AddPvpShell(PvpShellStats pvp, IReadOnlyCollection<EquipmentOptionDto> options)
     {
         int Sum(WeaponShellOptionType type) => options.Where(o => o.Type == (byte)type).Sum(o => o.Value);
@@ -313,6 +312,7 @@ public sealed class EquipmentStatsService(
             IgnoresWaterResistance = pvp.IgnoresWaterResistance || Has(WeaponShellOptionType.PvpIgnoreWaterResistance),
             IgnoresLightResistance = pvp.IgnoresLightResistance || Has(WeaponShellOptionType.PvpIgnoreLightResistance),
             IgnoresDarkResistance = pvp.IgnoresDarkResistance || Has(WeaponShellOptionType.PvpIgnoreShadowResistance),
+            OccasionalDamagePercent = pvp.OccasionalDamagePercent + Sum(WeaponShellOptionType.PvpDamageAtFifteenPercent),
         };
     }
 
