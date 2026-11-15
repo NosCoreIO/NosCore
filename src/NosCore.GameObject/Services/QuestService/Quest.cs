@@ -21,6 +21,11 @@ namespace NosCore.GameObject.Services.QuestService
 
         public NodaTime.Instant? ObjectivesCompletedOn { get; set; }
 
+        private int _completionClaimed;
+
+        // Two events for one character can run on different threads, and only the first may complete the quest.
+        public bool TryClaimCompletion() => System.Threading.Interlocked.Exchange(ref _completionClaimed, 1) == 0;
+
         public byte Slot { get; set; }
 
         // Main quests take the first five quest window slots and secondary quests the last five. A quest that follows

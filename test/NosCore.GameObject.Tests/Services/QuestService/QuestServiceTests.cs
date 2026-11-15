@@ -210,6 +210,23 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .Any(e => e.Quest.QuestId == questId));
 
         [TestMethod]
+        public async Task TwoCompletionsAtOnceRewardAQuestOnce()
+        {
+            await new Spec("Two events completing the same quest at once complete and reward it once")
+                .Given(CharacterHasADefeatQuestNeedingTwoEnemiesInGlacernon)
+                .WhenAsync(CompletingTheTrackedQuestTwiceAtOnce)
+                .Then(QuestCompletedShouldBePublishedTimes_, 1)
+                .ExecuteAsync();
+        }
+
+        private Task CompletingTheTrackedQuestTwiceAtOnce() => Task.WhenAll(
+            Task.Run(() => Service.CompleteQuestAsync(Session.Character, _trackedQuest)),
+            Task.Run(() => Service.CompleteQuestAsync(Session.Character, _trackedQuest)));
+
+        private void QuestCompletedShouldBePublishedTimes_(int times) =>
+            Assert.AreEqual(times, Bus.Invocations.Select(i => i.Arguments[0]).OfType<GameObject.Messaging.Events.QuestCompletedEvent>().Count());
+
+        [TestMethod]
         public async Task AChapterAnNpcOffersDoesNotStartWhenThePreviousOneEnds()
         {
             await new Spec("Finishing a chapter waits for the NPC that offers the next one")

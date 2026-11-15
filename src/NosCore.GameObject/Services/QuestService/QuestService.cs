@@ -409,6 +409,11 @@ namespace NosCore.GameObject.Services.QuestService
 
         public async Task CompleteQuestAsync(PlayerComponentBundle character, CharacterQuest quest)
         {
+            if (!quest.TryClaimCompletion())
+            {
+                return;
+            }
+
             quest.ObjectivesCompletedOn ??= clock.GetCurrentInstant();
 
             var hasQPayStep = scripts.Any(s =>
