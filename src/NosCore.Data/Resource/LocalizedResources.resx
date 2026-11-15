@@ -846,6 +846,9 @@
   <data name="ICE_BREAKER_FAILED" xml:space="preserve">
     <value>Icebreaker failed</value>
   </data>
+  <data name="RAINBOW_BATTLE_FAILED" xml:space="preserve">
+    <value>Rainbow Battle failed</value>
+  </data>
   <data name="MISSING_KEEPALIVE" xml:space="preserve">
     <value>Session {SessionId} sent a packet without a keep-alive number and was disconnected</value>
   </data>

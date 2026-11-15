@@ -15,6 +15,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.FactionWarService;
 using NosCore.GameObject.Services.LandOfDeathService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Networking;
@@ -36,7 +37,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     //
     // A fall in an arena costs neither dignity nor reputation; the fighter is offered a paid revive
     // on the spot instead. A fall in an Instant Combat is out of it: back where they came from with 1 HP.
-    // A fall in an Icebreaker freezes the player where they stand until it ends.
+    // A fall in an Icebreaker freezes the player where they stand until it ends; one in a Rainbow
+    // Battle only until a teammate frees them or the ice melts.
     // A fall in the Land of Death offers to spend a Saver on the spot, or goes back to the entrance.
     // A fall to an enemy in Glacernon costs no dignity and counts toward the faction war; reviving at
     // the save point there means the faction's citadel.
@@ -47,7 +49,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IScriptedInstanceService scriptedInstanceService,
-        ILandOfDeathService landOfDeathService, IFactionWarService factionWarService, IQuestService questService)
+        ILandOfDeathService landOfDeathService, IFactionWarService factionWarService, IQuestService questService,
+        IRainbowBattleService rainbowBattleService)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -72,6 +75,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 if (player.MapInstance?.MapInstanceType == MapInstanceType.InstantCombatInstance)
                 {
                     await LeaveInstantCombatAsync(player);
+                    return;
+                }
+
+                if (player.MapInstance?.MapInstanceType == MapInstanceType.RainbowBattleInstance)
+                {
+                    await rainbowBattleService.PlayerDownAsync(player, evt.Killer);
                     return;
                 }
 

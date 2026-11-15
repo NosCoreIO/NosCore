@@ -78,6 +78,8 @@ namespace NosCore.Instances.Tests
         public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
             Calls.Add($"button({room},{button},{at.X},{at.Y},{offVNum},{onVNum},{toggles})");
 
+        public void PlaceNpc(int room, short vNum, Spot at) => Calls.Add($"npc({room},{vNum},{at.X},{at.Y})");
+
         public void StartClock(TimeSpan limit) => Calls.Add($"clock({limit.TotalMinutes}m)");
 
         public void ShowCountdown(int room, TimeSpan length) => Calls.Add($"countdown({room},{length.TotalSeconds}s)");
@@ -281,6 +283,29 @@ namespace NosCore.Instances.Tests
             run.Decided = true;
             check(run);
             Assert.AreEqual("succeed", run.Calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task ARainbowBattlePlacesItsCrystalsAndEndsAfterSevenMinutes()
+        {
+            var script = await LoadAsync("rainbow-battle");
+            var run = new RecordingRun { Players = 10 };
+
+            script.OnFirstEnter(run);
+            Assert.AreEqual(7, run.Calls.Count(c => c.StartsWith("npc(", StringComparison.Ordinal)));
+            Assert.AreEqual("npc(1,922,59,40)", run.Calls[0]);
+            CollectionAssert.AreEqual(new[] { "countdown(1,420s)", "message(BattleStarted)" }, run.Calls.Skip(7).ToArray());
+            CollectionAssert.AreEqual(new[] { 390d, 420 }, run.Scheduled.Select(s => s.At.TotalSeconds).OrderBy(s => s).ToArray());
+
+            while (run.Scheduled.Count > 0)
+            {
+                RunNextStep(run);
+            }
+
+            CollectionAssert.AreEqual(new[] { "message(TheBattleEndsShortly,30)", "succeed" }, run.Calls.Skip(9).ToArray());
+            Assert.AreEqual(2, script.Definition.Bases.Count);
+            Assert.AreEqual(10, script.Definition.TeamSizeMinimum);
+            Assert.AreEqual(30, script.Definition.TeamSizeMaximum);
         }
 
         [TestMethod]

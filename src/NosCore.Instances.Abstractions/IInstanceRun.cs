@@ -75,6 +75,9 @@ namespace NosCore.Instances.Abstractions
 
         bool IsButtonOn(int room, int button);
 
+        // An NPC that stands where it is put for the rest of the run, such as a Rainbow Crystal.
+        void PlaceNpc(int room, short vNum, Spot at);
+
         void StartClock(TimeSpan limit);
 
         // Shows the room a clock that ends nothing when it runs out.

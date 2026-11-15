@@ -393,6 +393,19 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _npcs = new ConcurrentDictionary<int, NpcComponentBundle>(entries);
         }
 
+        public NpcComponentBundle PlaceNpc(NpcMonsterDto npcMonster, short x, short y)
+        {
+            lock (_summonLock)
+            {
+                var id = _npcs.IsEmpty ? 1 : _npcs.Keys.Max() + 1;
+                var entity = EcsWorld.CreateNpc(id, npcMonster, this, x, y, 0, x, y,
+                    false, false, null, 0, 0, null);
+                var npc = new NpcComponentBundle(entity, EcsWorld);
+                _npcs[id] = npc;
+                return npc;
+            }
+        }
+
         public MonsterComponentBundle SummonMonster(NpcMonsterDto npcMonster, short x, short y, bool isHostile)
         {
             lock (_summonLock)

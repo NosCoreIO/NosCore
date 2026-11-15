@@ -17,6 +17,7 @@ namespace NosCore.Instances.Abstractions
         private readonly List<InstanceGift> _draws = [];
         private readonly List<InstanceGift> _specials = [];
         private readonly List<BoutSide> _sides = [];
+        private readonly List<SideBase> _bases = [];
 
         private byte _id;
         private string? _label;
@@ -139,6 +140,13 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        // Bases are taken in order: the first is the red team's, the second the blue team's.
+        public InstanceDefinitionBuilder WithBase(Spot from, Spot to)
+        {
+            _bases.Add(new SideBase(from, to));
+            return this;
+        }
+
         public ScriptedInstanceDefinition Build()
         {
             return new ScriptedInstanceDefinition
@@ -162,6 +170,7 @@ namespace NosCore.Instances.Abstractions
                 FamilyExperience = _familyExperience,
                 Lives = _lives,
                 Sides = [.. _sides],
+                Bases = [.. _bases],
                 Rooms = [.. _rooms]
             };
         }

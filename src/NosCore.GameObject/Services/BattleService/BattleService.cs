@@ -466,7 +466,7 @@ namespace NosCore.GameObject.Services.BattleService
             if (origin is PlayerComponentBundle attacker && target is PlayerComponentBundle defender)
             {
                 return Arena.AreOpponents(attacker, defender) || AreTalentArenaOpponents(attacker, defender)
-                    || AreOpponentsOnPvpMap(attacker, defender) || AreAct4Opponents(attacker, defender);
+                    || AreRainbowBattleOpponents(attacker, defender) || AreOpponentsOnPvpMap(attacker, defender) || AreAct4Opponents(attacker, defender);
             }
             if (AreAllies(origin, target)) return false;
             return true;
@@ -478,6 +478,14 @@ namespace NosCore.GameObject.Services.BattleService
             return attacker.InTalentArenaRing && defender.InTalentArenaRing
                 && attacker.TalentArenaTeam != defender.TalentArenaTeam
                 && attacker.MapInstance?.MapInstanceType == MapInstanceType.TalentArenaMapInstance
+                && defender.MapInstance?.MapInstanceId == attacker.MapInstance.MapInstanceId;
+        }
+
+        public static bool AreRainbowBattleOpponents(PlayerComponentBundle attacker, PlayerComponentBundle defender)
+        {
+            return attacker.RainbowBattleTeam is { } team && defender.RainbowBattleTeam is { } other && team != other
+                && attacker.RainbowBattleThawsAt == null && defender.RainbowBattleThawsAt == null
+                && attacker.MapInstance?.MapInstanceType == MapInstanceType.RainbowBattleInstance
                 && defender.MapInstance?.MapInstanceId == attacker.MapInstance.MapInstanceId;
         }
 

@@ -24,5 +24,9 @@ public record struct PlayerStateComponent(
     Instant ReviveAskedAt = default,
     ArenaTeamType? TalentArenaTeam = null,
     bool InTalentArenaRing = false,
+    RainbowBattleTeamType? RainbowBattleTeam = null,
+    // Set while a Rainbow Battle player is frozen: the moment they thaw on their own.
+    Instant? RainbowBattleThawsAt = null,
+    int RainbowBattleKills = 0,
     string? Biography = null
 );

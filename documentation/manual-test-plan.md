@@ -2857,6 +2857,45 @@ characters in the bracket on a base map, each with at least 500 gold.
       start notice appears and the world server logs no error. Instant Combat, Land of Death,
       the Arena of Talents and the Act 4 raids skip the same way without their script
 
+### Rainbow Battle
+
+Run `$Event RainbowBattle` as a GM for a 10-second sign-up, or wait for an odd hour (the countdown
+starts at :55). A battle needs 10 to 30 characters of level 70 or more; for a two-character test,
+set `ForTeams(2, 30)` in `instances/rainbow-battle.csx` and restart the world server.
+
+- [ ] "You can sign up for the Rainbow Battle now!" shows in the chat and as a notice, and each
+      character of level 70 or more on a base map gets "Do you want to take part in the Rainbow
+      Battle?"; the "Rainbow Battle Registration" choice of its NPC signs up the same way
+- [ ] The countdown says "The Rainbow Battle will start in 5 minute(s)!", then 1 minute, 30 and
+      10 seconds
+- [ ] Signing up shows "You have signed up for the Rainbow Battle." and the battle search window
+      with the time left; its Cancel button closes the window and takes the character off the list;
+      a character under level 70 reads "Your level is too low. You can only enter from level 70."
+- [ ] With too few characters, "The Rainbow Battle cannot start because there is no opponent
+      available." shows and nobody moves
+- [ ] Otherwise "The Rainbow Battle is starting." shows, each character lands on their side's edge
+      of map 2010 (red on the left, blue on the right) with full HP and MP, is told "You are in the
+      Red Team." or "You are in the Blue Team.", and the team window lists their teammates
+- [ ] "Battle started" shows with a 7-minute clock; seven Rainbow Crystals stand on the field (one
+      large in the middle, four medium, one small near each base), all neutral
+- [ ] Clicking a crystal not held by your side fills a 5-second bar; once full, the crystal takes
+      your team's colour, the other side reads "Enemy has captured: <crystal>" (or "Our team's
+      <crystal> has been captured." when it was theirs) and the crystal counts in the score window
+- [ ] Every 10 seconds each side earns 1 point per small, 2 per medium and 3 per large crystal it
+      holds, "the red/blue team has earned N points" shows, and the score window updates
+- [ ] Players of the other team can be hit; teammates cannot
+- [ ] A character whose HP reaches zero is frozen where they stand with full HP for 20 seconds
+      ("Ice effect" message), cannot move, attack or be hit, and "X defeated N players." shows
+      for the one who got them
+- [ ] Clicking a frozen teammate fills a 3-second bar, then "X freed Y from the ice." shows and the
+      teammate moves again; left alone, they thaw after 20 seconds back at their base
+- [ ] "The battle ends in 30 seconds." shows at 6:30; at 7:00 "Red Team won", "Blue Team won" or
+      "Draw" shows, winners read "You won the Rainbow Battle!" and get 3 Rainbow Coins, the others
+      read "You lost the Rainbow Battle." and get 1; 10 seconds later everyone is back where they
+      came from with the team window closed
+- [ ] Move `rainbow-battle.csx` out of `instances/` and run `$Event RainbowBattle`: no sign-up
+      appears and the world server logs no error
+
 ### Land of Death
 
 Run `$Event LandOfDeath` as a GM, or wait for 14:00 or 19:00 server time. It lasts an hour. Use a

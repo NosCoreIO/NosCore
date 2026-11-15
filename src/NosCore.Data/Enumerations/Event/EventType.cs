@@ -12,6 +12,7 @@ namespace NosCore.Data.Enumerations.Event
         IceBreaker,
         LandOfDeath,
         TalentArena,
-        Act4Ship
+        Act4Ship,
+        RainbowBattle
     }
 }

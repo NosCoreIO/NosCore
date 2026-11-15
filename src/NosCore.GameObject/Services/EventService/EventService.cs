@@ -9,6 +9,7 @@ using NosCore.GameObject.Services.Act4ShipService;
 using NosCore.GameObject.Services.IceBreakerService;
 using NosCore.GameObject.Services.InstantCombatService;
 using NosCore.GameObject.Services.LandOfDeathService;
+using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.GameObject.Services.TalentArenaService;
 using NodaTime;
 using System;
@@ -17,7 +18,8 @@ namespace NosCore.GameObject.Services.EventService
 {
     public class EventService(IInstantCombatService instantCombatService, IIceBreakerService iceBreakerService,
         ILandOfDeathService landOfDeathService,
-        ITalentArenaService talentArenaService, IAct4ShipService act4ShipService) : IEventService
+        ITalentArenaService talentArenaService, IAct4ShipService act4ShipService,
+        IRainbowBattleService rainbowBattleService) : IEventService
     {
         public Duration CountdownLength(EventType type) => type switch
         {
@@ -26,6 +28,7 @@ namespace NosCore.GameObject.Services.EventService
             EventType.LandOfDeath => Duration.Zero,
             EventType.TalentArena => Duration.Zero,
             EventType.Act4Ship => Duration.FromTimeSpan(Act4ShipService.Act4ShipService.CountdownLength),
+            EventType.RainbowBattle => Duration.FromTimeSpan(RainbowBattleService.RainbowBattleService.CountdownLength),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
         };
 
@@ -36,6 +39,7 @@ namespace NosCore.GameObject.Services.EventService
             EventType.LandOfDeath => landOfDeathService.TryStart(),
             EventType.TalentArena => talentArenaService.TryStart(),
             EventType.Act4Ship => act4ShipService.TryStart(),
+            EventType.RainbowBattle => rainbowBattleService.TryStart(withCountdown),
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
         };
     }

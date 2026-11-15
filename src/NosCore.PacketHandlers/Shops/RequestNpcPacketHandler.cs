@@ -5,11 +5,13 @@
 //
 
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -20,7 +22,7 @@ using Wolverine;
 namespace NosCore.PacketHandlers.Shops
 {
     public class RequestNpcPacketHandler(ILogger<RequestNpcPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
-            Wolverine.IMessageBus messageBus, INpcDialogService npcDialogService)
+            Wolverine.IMessageBus messageBus, INpcDialogService npcDialogService, IRainbowBattleService rainbowBattleService)
         : PacketHandler<RequestNpcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
@@ -32,6 +34,12 @@ namespace NosCore.PacketHandlers.Shops
                     if (sessionRegistry.TryGetCharacter(s => s.VisualId == requestNpcPacket.TargetId, out var player)
                         && npcDialogService.IsWithinReach(character, player))
                     {
+                        if (character.MapInstance.MapInstanceType == MapInstanceType.RainbowBattleInstance)
+                        {
+                            await rainbowBattleService.StartRescueAsync(character, player);
+                            return;
+                        }
+
                         npcDialogService.Open(character, player, NpcDialogWindow.Shop);
                         player.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
                         return;
@@ -41,7 +49,8 @@ namespace NosCore.PacketHandlers.Shops
                     var npc = character.MapInstance.FindNpc(s => s.VisualId == requestNpcPacket.TargetId);
                     if (npc is { } found && npcDialogService.IsWithinReach(character, found))
                     {
-                        if (found.NpcMonster is { CanCollect: true })
+                        if (found.NpcMonster is { CanCollect: true }
+                            || character.MapInstance.MapInstanceType == MapInstanceType.RainbowBattleInstance)
                         {
                             await messageBus.PublishAsync(new NpcTalkedEvent(character, found));
                             return;
