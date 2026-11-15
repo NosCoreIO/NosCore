@@ -24,6 +24,7 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
@@ -32,7 +33,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         ITransformationService transformationService,
         IClock clock,
         IDao<RollGeneratedItemDto, short> rollGeneratedItemDao,
-        List<ItemDto> items,
+        IItemCatalog itemCatalog,
         IRandomProvider random)
     {
         [UsedImplicitly]
@@ -43,7 +44,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var mount = item.Type == NoscorePocketType.Mount && item.Speed > 0 && item.Morph > 0;
             var scrollMounts = item.Type == NoscorePocketType.Mount && !mount
                 ? (rollGeneratedItemDao.Where(r => r.OriginalItemVNum == item.VNum) ?? [])
-                    .Select(r => items.Find(i => i.VNum == r.ItemGeneratedVNum))
+                    .Select(r => itemCatalog.GetItem(r.ItemGeneratedVNum))
                     .OfType<ItemDto>()
                     .OrderBy(i => i.VNum)
                     .ToList()

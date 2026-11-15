@@ -11,18 +11,19 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
     [UsedImplicitly]
-    public sealed class SpeedBoostEndHandler(IBuffService buffService, ICardCatalog cardCatalog, List<ItemDto> items)
+    public sealed class SpeedBoostEndHandler(IBuffService buffService, ICardCatalog cardCatalog, IItemCatalog itemCatalog)
     {
         [UsedImplicitly]
         public async Task Handle(BuffExpiredEvent evt)
         {
             var character = evt.Character;
             if (!character.IsVehicled || !cardCatalog.IsGrantedBy(evt.CardId, ItemEffectType.SpeedBooster)
-                || items.Find(i => i.VNum == character.VehicleVNum) is not { SpeedBoostEndCardId: > 0 } mount
+                || itemCatalog.GetItem(character.VehicleVNum) is not { SpeedBoostEndCardId: > 0 } mount
                 || cardCatalog.GetCard(mount.SpeedBoostEndCardId) is not { } card)
             {
                 return;

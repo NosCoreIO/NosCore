@@ -58,12 +58,12 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _items = new ItemGenerationService(new List<ItemDto>
+            _items = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
                 new Item { Type = NoscorePocketType.Main, VNum = 1013 },
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon, IsTradable = true }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             JoinFamily(FamilyAuthority.Head, 21);
         }
 

@@ -142,7 +142,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
+            _items = new ItemGenerationService(new ItemCatalog(Catalog), NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
             _options = new List<EquipmentOptionDto>();
             _optionReads = 0;

@@ -18,12 +18,13 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MovementService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class SpeedBoosterHandler(IBuffService buffService, ICardCatalog cardCatalog,
-        ISpeedCalculationService speedCalculationService, List<ItemDto> items, IRandomProvider random)
+        ISpeedCalculationService speedCalculationService, IItemCatalog itemCatalog, IRandomProvider random)
     {
         private const int TeleportAttempts = 100;
 
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var session = evt.ClientSession;
             var character = session.Character;
             if (evt.InventoryItem.ItemInstance.Item.Effect != ItemEffectType.SpeedBooster || !character.IsVehicled
-                || items.Find(i => i.VNum == character.VehicleVNum) is not { } mount
+                || itemCatalog.GetItem(character.VehicleVNum) is not { } mount
                 || mount is { SpeedBoostDuration: 0, SpeedBoostTeleportsRandomly: false }
                 || cardCatalog.GetItemCard(evt.InventoryItem.ItemInstance.ItemVNum) is not { } card
                 || buffService.HasBuff(character, card.CardId))

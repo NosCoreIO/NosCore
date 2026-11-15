@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 World.LogLanguageLocalizer,
                 World.PubSubHub.Object,
                 World.Clock,
-                new List<ItemDto>(),
+                new ItemCatalog(new List<ItemDto>()),
                 new HpService(),
                 new MpService(),
                 new SpeedService(),

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Services.MailService
 {
@@ -19,7 +20,7 @@ namespace NosCore.GameObject.Services.MailService
     {
         private readonly ConcurrentDictionary<(long CharacterId, bool IsSenderCopy), ConcurrentDictionary<long, MailData>> _parcels = new();
 
-        public ParcelRegistry(IDao<CharacterDto, long> characterDao, IDao<MailDto, long> mailDao, List<ItemDto> items,
+        public ParcelRegistry(IDao<CharacterDto, long> characterDao, IDao<MailDto, long> mailDao, IItemCatalog itemCatalog,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         {
             var mails = mailDao.LoadAll().ToList();
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.Services.MailService
                 var itemInstance = mail.ItemInstanceId is { } itemInstanceId
                     ? itemInstances.GetValueOrDefault(itemInstanceId)
                     : null;
-                var item = itemInstance == null ? null : items.FirstOrDefault(s => s.VNum == itemInstance.ItemVNum);
+                var item = itemInstance == null ? null : itemCatalog.GetItem(itemInstance.ItemVNum);
                 TryAddMail(mail.IsSenderCopy ? mail.SenderId ?? 0 : mail.ReceiverId, mail.IsSenderCopy,
                     new MailData
                     {

@@ -122,7 +122,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
 
         private void TheRegistryIsStarted()
         {
-            _registry = new ParcelRegistry(_characters.Object, _mails.Object, _items, _itemInstances.Object);
+            _registry = new ParcelRegistry(_characters.Object, _mails.Object, new ItemCatalog(_items), _itemInstances.Object);
         }
 
         private async Task SeveralGiftsAreSentAtOnce()
@@ -132,8 +132,8 @@ namespace NosCore.GameObject.Tests.Services.MailService
             var pubSubHub = new Mock<IPubSubHub>();
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             var service = new GameObject.Services.MailService.MailService(_mails.Object, _itemInstances.Object,
-                pubSubHub.Object, channels.Object, _items,
-                new ItemGenerationService(_items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
+                pubSubHub.Object, channels.Object, new ItemCatalog(_items),
+                new ItemGenerationService(new ItemCatalog(_items), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
                 _registry, _characters.Object);
 
             var results = await Task.WhenAll(Enumerable.Range(0, MailCount).Select(_ => Task.Run(() =>

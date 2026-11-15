@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _service = World.UseReal<IPartnerSpecialistService, PartnerSpecialistService>().Create<PartnerEquipmentService>();
-            _items = new ItemGenerationService(new List<ItemDto>
+            _items = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Equipment, VNum = PlayerWeapon, ItemType = ItemType.Weapon },
                 new Item
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     Type = NoscorePocketType.Equipment, VNum = HighLevelGloves, ItemType = ItemType.Fashion,
                     EquipmentSlot = EquipmentType.Gloves, LevelMinimum = 50
                 }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             _partner = TestMates.Partner(_session.Character.CharacterId);
             _session.Character.Mates[_partner.MateTransportId] = _partner;
         }

@@ -21,14 +21,14 @@ using System.Collections.Generic;
 namespace NosCore.GameObject.Services.ItemGenerationService
 {
     public class ItemGenerationService(
-        List<ItemDto> items,
+        IItemCatalog itemCatalog,
         ILoggerFactory loggerFactory,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IRarityPointService rarityPoints) : IItemGenerationService
     {
         public IItemInstance Convert(IItemInstanceDto k)
         {
-            var itemDto = items.Find(s => s.VNum == k.ItemVNum)
+            var itemDto = itemCatalog.GetItem(k.ItemVNum)
                 ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED]);
             var item = itemDto.Adapt<Item.Item>();
             IItemInstance instance = k switch
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
 
         public IItemInstance Generate(short itemToCreateVNum, short amount, sbyte rare, byte upgrade, byte design)
         {
-            var itemToCreate = (items.Find(s => s.VNum == itemToCreateVNum)
+            var itemToCreate = (itemCatalog.GetItem(itemToCreateVNum)
                 ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED])).Adapt<Item.Item>();
             switch (itemToCreate.Type)
             {

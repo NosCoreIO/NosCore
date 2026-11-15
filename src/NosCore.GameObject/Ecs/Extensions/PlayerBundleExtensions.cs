@@ -258,12 +258,14 @@ public static class PlayerBundleExtensions
         return new BlinitPacket { SubPackets = subpackets };
     }
 
-    public static async Task SetGoldAsync(this PlayerComponentBundle player, long gold, List<ItemDto> items)
+    public static async Task SetGoldAsync(this PlayerComponentBundle player, long gold, IItemCatalog itemCatalog)
     {
         player.Gold = gold;
         await player.SendPacketAsync(player.GenerateGold());
-        var goldName = items.First(i => i.Effect == ItemEffectType.Gold).Name[player.AccountLanguage];
-        await player.SendPacketAsync(player.GenerateGoldReceived(gold, goldName));
+        if (itemCatalog.GetItemWithEffect(ItemEffectType.Gold) is { } goldItem)
+        {
+            await player.SendPacketAsync(player.GenerateGoldReceived(gold, goldItem.Name[player.AccountLanguage]));
+        }
     }
 
     public static async Task SetReputationAsync(this PlayerComponentBundle player, long reputation)

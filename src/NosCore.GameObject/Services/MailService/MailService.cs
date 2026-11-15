@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Services.MailService
 {
     public class MailService(IDao<MailDto, long> mailDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IPubSubHub pubSubHub, IChannelHub channelHub,
-            List<ItemDto> items, IItemGenerationService itemProvider,
+            IItemCatalog itemCatalog, IItemGenerationService itemProvider,
             IParcelRegistry parcelRegistry,
             IDao<CharacterDto, long> characterDto)
         : IMailService
@@ -120,7 +120,7 @@ namespace NosCore.GameObject.Services.MailService
             }
 
             var receiverName = receivdto.Name;
-            var it = items.Find(item => item.VNum == vNum);
+            var it = vNum is { } itemVNum ? itemCatalog.GetItem(itemVNum) : null;
             IItemInstanceDto? itemInstance = null;
             if ((mail?.ItemInstanceId == null) && (vNum != null))
             {

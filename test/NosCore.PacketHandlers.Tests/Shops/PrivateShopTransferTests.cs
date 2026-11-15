@@ -68,11 +68,11 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _owner = await World.CreateSessionAsync();
             _buyer = await World.CreateSessionAsync();
             _secondBuyer = await World.CreateSessionAsync();
-            _items = new ItemGenerationService(new List<ItemDto>
+            _items = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = ItemVNum, IsTradable = true },
                 new Item { Type = NoscorePocketType.Equipment, VNum = WeaponVNum, ItemType = ItemType.Weapon, IsTradable = true }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             _mShop = World.Create<MShopPacketHandler>();
 
             _owner.Character.MapInstance = World.GetBaseMap(1);

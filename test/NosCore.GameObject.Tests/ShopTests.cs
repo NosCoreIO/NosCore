@@ -218,7 +218,7 @@ namespace NosCore.GameObject.Tests
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = price, ReputPrice = reputPrice }
             };
-            return new ItemGenerationService(items,
+            return new ItemGenerationService(new ItemCatalog(items),
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
         }
@@ -389,10 +389,10 @@ namespace NosCore.GameObject.Tests
 
         private async Task Buying_WeaponsAt1000GoldEachAsync(int amount)
         {
-            var itemBuilder = new ItemGenerationService(new List<ItemDto>
+            var itemBuilder = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
                 {
                     new Item { Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon, VNum = 1, IsSoldable = true, Price = 1000 }
-                },
+                }),
                 NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             var shop = CreateShop(itemBuilder);
             await Session.Character.BuyAsync(shop, 0, (short)amount, World.WorldConfiguration, itemBuilder, World.Create<DignityService>());

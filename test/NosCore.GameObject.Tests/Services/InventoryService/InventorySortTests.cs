@@ -20,6 +20,7 @@ using NosCore.Tests.Shared;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Tests.Services.InventoryService
 {
@@ -48,9 +49,9 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 new Item { Type = NoscorePocketType.Costume, VNum = 4201, Name = Name("Bunny Ears", "Oreilles de lapin") },
                 new Item { Type = NoscorePocketType.Costume, VNum = 4075, Name = Name("Wedding Dress", "Robe de mariee") },
             };
-            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(Items,
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(new ItemCatalog(Items),
                 NullLoggerFactory.Instance, TestLocalizers.Log, new RarityPointService());
-            Inventory = new GameObject.Services.InventoryService.InventoryService(Items,
+            Inventory = new GameObject.Services.InventoryService.InventoryService(new ItemCatalog(Items),
                 Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 48, MaxItemAmount = 999 }),
                 NullLogger<GameObject.Services.InventoryService.InventoryService>.Instance);
         }

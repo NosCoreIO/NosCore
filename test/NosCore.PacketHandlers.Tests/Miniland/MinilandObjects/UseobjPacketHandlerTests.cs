@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _warehouseHubMock = new Mock<IWarehouseHub>();
             _itemInstanceDaoMock = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new ItemGenerationService(
-                MinilandItems,
+                new ItemCatalog(MinilandItems),
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider,

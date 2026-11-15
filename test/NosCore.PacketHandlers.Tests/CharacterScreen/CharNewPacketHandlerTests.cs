@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             CharNewPacketHandler =
                 new CharNewPacketHandler(World.CharacterDao, World.GenerateItemProvider(), World.QuicklistEntryDao,
                     World.ItemInstanceDao, World.InventoryItemInstanceDao, new HpService(), new MpService(), World.WorldConfiguration,
-                    World.CharacterSkillDao, World.ItemList, NullLoggerFactory.Instance, World.Create<IDaoTransactionScope>(), World.LogLanguageLocalizer);
+                    World.CharacterSkillDao, new ItemCatalog(World.ItemList), NullLoggerFactory.Instance, World.Create<IDaoTransactionScope>(), World.LogLanguageLocalizer);
             Session = await World.CreateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
             MapChangeService = new Mock<IMapChangeService>();
             Session.ClearPlayerEntity();
@@ -189,7 +189,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             CharNewPacketHandler =
                 new CharNewPacketHandler(World.CharacterDao, World.GenerateItemProvider(), World.QuicklistEntryDao,
                     World.ItemInstanceDao, World.InventoryItemInstanceDao, new HpService(), new MpService(), World.WorldConfiguration,
-                    World.CharacterSkillDao, World.ItemList, NullLoggerFactory.Instance, scope.Object, World.LogLanguageLocalizer);
+                    World.CharacterSkillDao, new ItemCatalog(World.ItemList), NullLoggerFactory.Instance, scope.Object, World.LogLanguageLocalizer);
         }
 
         private void AStarterItemDoesNotExist()

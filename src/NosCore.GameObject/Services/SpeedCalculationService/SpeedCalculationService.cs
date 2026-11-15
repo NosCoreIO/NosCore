@@ -17,11 +17,12 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Services.SpeedCalculationService
 {
     public class SpeedCalculationService(ISpeedService speedService, IBuffService buffService, ICardCatalog cardCatalog,
-        List<ItemDto> items, List<MountMapSpeedDto> mountMapSpeeds) : ISpeedCalculationService
+        IItemCatalog itemCatalog, List<MountMapSpeedDto> mountMapSpeeds) : ISpeedCalculationService
     {
         private const int MaxSpeedOnFoot = 59;
 
@@ -75,7 +76,7 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
             {
                 var boost = buffService.GetActiveBuffs(characterEntity)
                         .Any(b => cardCatalog.IsGrantedBy(b.CardId, ItemEffectType.SpeedBooster))
-                    ? items.Find(i => i.VNum == characterEntity.VehicleVNum)?.SpeedBoost ?? 0
+                    ? itemCatalog.GetItem(characterEntity.VehicleVNum)?.SpeedBoost ?? 0
                     : 0;
                 var mapSpeed = characterEntity.MapInstance?.Map is { } map
                     ? _mapSpeeds.GetValueOrDefault((characterEntity.VehicleVNum, map.MapId))

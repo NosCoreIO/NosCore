@@ -99,6 +99,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         {
             World.ItemList.RemoveAll(i => i.VNum == mount.VNum);
             World.ItemList.Add(mount);
+            _handler = World.Create<SpeedBoostEndHandler>();
             _session.Character.IsVehicled = true;
             _session.Character.VehicleSpeed = mount.Speed;
             _session.Character.VehicleVNum = mount.VNum;

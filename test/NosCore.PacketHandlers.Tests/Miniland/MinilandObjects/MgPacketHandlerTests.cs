@@ -101,7 +101,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             var mapInstance = World.GetMap(miniland.MapInstanceId);
             _session.Character.MapInstance = mapInstance;
             _itemProvider = new ItemGenerationService(
-                MinilandItems,
+                new ItemCatalog(MinilandItems),
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
             World.Inject(_mailHub.Object);

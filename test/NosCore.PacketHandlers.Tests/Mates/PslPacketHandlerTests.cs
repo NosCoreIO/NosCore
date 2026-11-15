@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             _session.Character.MapInstance = World.GetBaseMap(0);
             _onlookers = new Mock<ISessionGroup>();
             _session.Character.MapInstance.Sessions = _onlookers.Object;
-            _items = new ItemGenerationService(new List<ItemDto>
+            _items = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item
                 {
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                     Type = NoscorePocketType.Equipment, VNum = PlayerSpecialist, ItemType = ItemType.Specialist,
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 0, Morph = 1
                 }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             World.Inject(new List<SkillDto>
             {
                 new() { SkillVNum = 1317, CastId = 2, SkillType = 5, UpgradeType = SkillSet },

@@ -58,6 +58,7 @@ using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.ItemGenerationService;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -175,6 +176,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<BazaarRegistry>().As<IBazaarRegistry>().SingleInstance();
             containerBuilder.RegisterType<FriendRequestRegistry>().As<IFriendRequestRegistry>().SingleInstance();
             containerBuilder.RegisterType<ParcelRegistry>().As<IParcelRegistry>().SingleInstance();
+            containerBuilder.RegisterType<ItemCatalog>().As<IItemCatalog>().SingleInstance();
 
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHub).Assembly)
                 .Where(t => t.Name.EndsWith("Hub") && t.Name != nameof(ChannelHub))
