@@ -93,6 +93,11 @@ namespace NosCore.Parser.Parsers
                     entrance.Script = existing.Script;
                 }
 
+                if (entrance.Type == ScriptedInstanceType.Raid && RaidGateScripts.All.TryGetValue(key, out var script))
+                {
+                    entrance.Script = script;
+                }
+
                 found.Add(entrance);
             }
         }

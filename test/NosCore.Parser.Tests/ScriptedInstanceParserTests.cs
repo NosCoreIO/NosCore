@@ -40,7 +40,7 @@ namespace NosCore.Parser.Tests
             _mapDao.Setup(s => s.LoadAll()).Returns(new List<MapDto>
             {
                 new() { MapId = 1 }, new() { MapId = 2 }, new() { MapId = 132 },
-                new() { MapId = 133 }, new() { MapId = 2500 }
+                new() { MapId = 133 }, new() { MapId = 2500 }, new() { MapId = 2520 }
             });
 
             _instanceDao = new Mock<IDao<ScriptedInstanceDto, short>>();
@@ -109,6 +109,39 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1, _saved.Count);
             Assert.AreEqual(ScriptedInstanceType.Raid, _saved[0].Type);
             Assert.AreEqual(2500, _saved[0].MapId);
+        }
+
+        [TestMethod]
+        public async Task AKnownRaidGateIsGivenItsRaidScriptAsync()
+        {
+            _existing.Add(new ScriptedInstanceDto
+            {
+                ScriptedInstanceId = 7, MapId = 2520, PositionX = 25, PositionY = 1, Type = ScriptedInstanceType.Raid
+            });
+
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(2520, 24, 47),
+                Captured.Portal(25, 1, 4996, PortalType.Raid)));
+
+            var gate = _saved.Single();
+            Assert.AreEqual(7, gate.ScriptedInstanceId);
+            Assert.AreEqual("raid-ginseng", gate.Script);
+        }
+
+        [TestMethod]
+        public async Task AnUnknownRaidGateKeepsTheScriptItHadAsync()
+        {
+            _existing.Add(new ScriptedInstanceDto
+            {
+                ScriptedInstanceId = 7, MapId = 2500, PositionX = 24, PositionY = 3, Type = ScriptedInstanceType.Raid,
+                Script = "my-raid"
+            });
+
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(2500, 24, 43),
+                Captured.Portal(24, 3, 4996, PortalType.Raid)));
+
+            Assert.AreEqual("my-raid", _saved.Single().Script);
         }
 
         [TestMethod]

@@ -64,6 +64,14 @@ namespace NosCore.Instances.Tests
 
         public void SetMonsterLocker(int room, short count) => Calls.Add($"monsterLocker({room},{count})");
 
+        public int LockerLeft { get; set; }
+
+        int IInstanceRun.LockerLeft(int room) => LockerLeft;
+
+        public HashSet<int> ButtonsOn { get; } = [];
+
+        public bool IsButtonOn(int room, int button) => ButtonsOn.Contains(button);
+
         public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false) =>
             Calls.Add($"button({room},{button},{at.X},{at.Y},{offVNum},{onVNum},{toggles})");
 
@@ -508,6 +516,76 @@ namespace NosCore.Instances.Tests
             script.OnMonsterKilled(run, 1, 282);
 
             CollectionAssert.AreEqual(new[] { "succeed" }, run.Calls);
+        }
+
+        [TestMethod]
+        [DataRow("raid-ginseng", 1, 1128, 40, 59, 4685)]
+        [DataRow("raid-glacerus", 17, 5512, 80, 99, 4772)]
+        public async Task EachRaidIsOpenedByItsOwnSeal(string name, int raid, int seal, int minimum, int maximum, int box)
+        {
+            var definition = (await LoadAsync(name)).Definition;
+
+            Assert.AreEqual(raid, definition.Id);
+            Assert.AreEqual(seal, definition.RequiredItems.Single().VNum);
+            Assert.AreEqual(minimum, definition.LevelMinimum);
+            Assert.AreEqual(maximum, definition.LevelMaximum);
+            Assert.AreEqual(box, definition.GiftItems.Single().VNum);
+        }
+
+        [TestMethod]
+        public async Task TheGinsengFarmStaysShutUntilTheLeversAndTheMonsterGoalAreDone()
+        {
+            var script = await LoadAsync("raid-ginseng");
+            var run = new RecordingRun { LockerLeft = 3 };
+            for (var lever = 1; lever <= 7; lever++)
+            {
+                run.ButtonsOn.Add(lever);
+                script.OnButtonUsed(run, 1, lever);
+            }
+
+            run.LockerLeft = 0;
+            script.OnRoomCleared(run, 1);
+
+            CollectionAssert.AreEqual(new[] { "unlock(1->2)" }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task AGinsengDecoyLeverDoesNotCount()
+        {
+            var script = await LoadAsync("raid-ginseng");
+            var run = new RecordingRun();
+            for (var lever = 2; lever <= 19; lever++)
+            {
+                run.ButtonsOn.Add(lever);
+                script.OnButtonUsed(run, 1, lever);
+            }
+
+            Assert.AreEqual(0, run.Calls.Count);
+        }
+
+        [TestMethod]
+        public async Task TheGinsengRaidPlacesItsLeversAndWaitsForEightKills()
+        {
+            var script = await LoadAsync("raid-ginseng");
+            var run = new RecordingRun();
+
+            script.OnFirstEnter(run);
+
+            CollectionAssert.AreEqual(new[] { "clock(120m)", "portal(1->2,locked)", "monsterLocker(1,8)" }, run.Calls.Take(3).ToList());
+            Assert.AreEqual(19, run.Calls.Count(c => c.StartsWith("button(1,")));
+            Assert.IsTrue(run.Calls.Contains("summon(2,284)"));
+        }
+
+        [TestMethod]
+        public async Task PullingTheGlacerusLeverOpensTheDen()
+        {
+            var script = await LoadAsync("raid-glacerus");
+            var run = new RecordingRun();
+
+            script.OnButtonUsed(run, 1, 1);
+            script.OnMonsterKilled(run, 2, 2049);
+
+            CollectionAssert.AreEqual(new[] { "unlock(1->2)", "succeed" }, run.Calls);
         }
 
         [TestMethod]
