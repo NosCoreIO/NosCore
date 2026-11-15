@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,6 +21,7 @@ using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
 
@@ -63,6 +65,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .Then(WearableRarityShouldBe_, (sbyte)7)
                 .And(CellonRemainingShouldBe_, (short)95)
                 .And(GoldShouldBe_, 99_500L)
+                .And(TheChatLineShouldCarryTheRarity_, 7L)
                 .ExecuteAsync();
         }
 
@@ -175,9 +178,130 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ABlessingAmuletWidensEveryBandAndSpendsAUse()
+        {
+            await new Spec("A roll just past the rare 1 band still lands on rare 1 with a Blessing Amulet worn")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.RedAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.52)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)1)
+                .And(TheAmuletShouldHave_UsesLeft, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AProtectionAmuletKeepsTheItemOnAFailedGamble()
+        {
+            await new Spec("A failed gamble with a Protection Amulet worn keeps the item at its rarity")
+                .Given(WearableAtRarity_, (sbyte)5)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.BlueAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)5)
+                .And(TheAmuletShouldHave_UsesLeft, 2)
+                .And(TheResultShouldSay_, Game18NConstString.ItemSurvivedWithProtection)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AProtectionAmuletDoesNotWidenTheBands()
+        {
+            await new Spec("A roll just past the rare 1 band fails with a Protection Amulet worn")
+                .Given(WearableAtRarity_, (sbyte)3)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.BlueAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.52)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)3)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnAmuletDisappearsWithItsLastUse()
+        {
+            await new Spec("The amulet is taken off and gone after its last gamble")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.RedAmulet, 1)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)7)
+                .And(NoAmuletShouldBeWorn)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AScrollGambleIsRefusedWhileAnAmuletIsWorn()
+        {
+            await new Spec("Gambling with a scroll while wearing a betting amulet is refused and charges nothing")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.RedAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(ProtectedRarifyIsExecuted)
+                .Then(TheRefusalShouldBe_, Game18NConstString.UnequipTheAmuletFirstThenYou)
+                .And(WearableRarityShouldBe_, (sbyte)0)
+                .And(GoldShouldBe_, 100_000L)
+                .And(TheAmuletShouldHave_UsesLeft, 3)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ABettingAmuletRefusesChampionGear()
+        {
+            await new Spec("A champion item cannot be gambled while wearing a normal betting amulet")
+                .Given(ChampionWearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.BlueAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(TheRefusalShouldBe_, Game18NConstString.YouAreWearingAnIncorrectAmulet)
+                .And(WearableRarityShouldBe_, (sbyte)0)
+                .And(GoldShouldBe_, 100_000L)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
         private void WearableAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Armor);
+
+        private void ChampionWearableAtRarity_(sbyte rare)
+        {
+            PlaceWearable(rare, EquipmentType.Armor);
+            _wearable.ItemInstance.Item.IsHeroic = true;
+        }
+
+        private void AmuletWith_UsesIsWorn_(ItemEffectType effect, int uses)
+        {
+            var item = new Item
+            {
+                VNum = 282,
+                Type = NoscorePocketType.Equipment,
+                ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.Amulet,
+                Effect = effect,
+                EffectValue = 3,
+            };
+            var amulet = InventoryItemInstance.Create(
+                new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object, World.LogLanguageLocalizer)
+                {
+                    DurabilityPoint = uses,
+                },
+                _session.Character.CharacterId);
+            amulet.Slot = (short)EquipmentType.Amulet;
+            amulet.Type = NoscorePocketType.Wear;
+            _session.Character.InventoryService[amulet.ItemInstanceId] = amulet;
+        }
 
         private void RingAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Ring);
 
@@ -268,6 +392,27 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(armour.CloseDefence, armour.MagicDefence);
             Assert.AreEqual(armour.DefenceDodge, armour.DistanceDefenceDodge);
         }
+
+        private InventoryItemInstance? WornAmulet() =>
+            _session.Character.InventoryService.LoadBySlotAndType((short)EquipmentType.Amulet, NoscorePocketType.Wear);
+
+        private void TheAmuletShouldHave_UsesLeft(int uses) =>
+            Assert.AreEqual(uses, WornAmulet().NotNull().ItemInstance.DurabilityPoint);
+
+        private void NoAmuletShouldBeWorn() => Assert.IsNull(WornAmulet());
+
+        private void TheResultShouldSay_(Game18NConstString message) =>
+            Assert.AreEqual(message, _result.OfType<MsgiPacket>().Single().Message);
+
+        private void TheChatLineShouldCarryTheRarity_(long rare)
+        {
+            var say = _result.OfType<NosCore.Packets.ServerPackets.Chats.SayiPacket>().Single();
+            Assert.AreEqual(Game18NConstString.GambleSuccessful, say.Message);
+            Assert.AreEqual(rare, say.Game18NArguments[0]);
+        }
+
+        private void TheRefusalShouldBe_(Game18NConstString message) =>
+            Assert.AreEqual(message, _result.OfType<MsgiPacket>().Single().Message);
 
         private void CellonRemainingShouldBe_(short expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(CellonVNum));

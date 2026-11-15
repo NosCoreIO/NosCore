@@ -20,6 +20,8 @@ using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 
@@ -35,6 +37,10 @@ namespace NosCore.GameObject.Services.UpgradeService;
 //
 // Materials per attempt: 5 Cella Powder + 500 gold. The protected variant also consumes an
 // Equipment Protection Scroll.
+//
+// A worn Blessing or Protection Amulet saves the item from destruction like the scroll does,
+// but leaves the downgrade bands in play; the Blessing Amulet also widens every band by 10%.
+// Each gamble spends one of the amulet's uses, and the amulet disappears with its last one.
 public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
         IItemCatalog itemCatalog, IRarityPointService rarityPoints)
     : UpgradeOperation(random, localizer)
@@ -42,6 +48,8 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     public const sbyte MaxRarity = 8;
     public const long BaseGoldCost = 500;
     public const short BaseCellonCost = 5;
+    private const double BlessingAmuletChanceFactor = 1.1;
+    private const byte IntegerArgument = 4;
 
     // Cumulative thresholds for Normal mode, roll in [0, 80).
     // The Rare 8 band is only reachable through the heroic-scroll path, so rare 7 is the ceiling here.
@@ -83,6 +91,27 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
             ? Game18NConstString.GambleFailedButSurvived
             : base.SayMessageFor(outcome);
 
+    protected override IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet)
+    {
+        if (WornBettingAmulet(session) is null)
+        {
+            return null;
+        }
+
+        Game18NConstString? refusal = IsProtected
+            ? Game18NConstString.UnequipTheAmuletFirstThenYou
+            : LoadSource(session, packet)?.ItemInstance is WearableInstance { Item.IsHeroic: true }
+                ? Game18NConstString.YouAreWearingAnIncorrectAmulet
+                : null;
+        return refusal is { } message
+            ? new IPacket[]
+            {
+                new MsgiPacket { Type = MessageType.Default, Message = message },
+                new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow },
+            }
+            : null;
+    }
+
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
         var source = LoadSource(session, packet);
@@ -110,7 +139,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
             Target: null,
             GoldCost: BaseGoldCost,
             MaterialCosts: materials,
-            ExtraData: new RarifyRollState((sbyte)wearable.Rare));
+            ExtraData: new RarifyRollState((sbyte)wearable.Rare, WornBettingAmulet(session)));
     }
 
     // Walk the bands descending from rare 7. First band the roll falls into whose
@@ -120,10 +149,13 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     {
         var state = ctx.Data<RarifyRollState>();
         var rnd = roll * 80.0;
+        var chanceFactor = state.Amulet?.ItemInstance.Item.Effect == ItemEffectType.RedAmulet
+            ? BlessingAmuletChanceFactor
+            : 1;
 
         foreach (var (rare, threshold) in NormalBands)
         {
-            if (rnd >= threshold)
+            if (rnd >= threshold * chanceFactor)
             {
                 continue;
             }
@@ -136,8 +168,49 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
             return UpgradeOutcome.Success;
         }
 
-        return IsProtected ? UpgradeOutcome.ProtectedSave : UpgradeOutcome.Failure;
+        return IsProtected || state.Amulet is not null ? UpgradeOutcome.ProtectedSave : UpgradeOutcome.Failure;
     }
+
+    protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
+    {
+        var state = ctx.Data<RarifyRollState>();
+        if (state.Amulet is not { } amulet)
+        {
+            return;
+        }
+
+        amulet.ItemInstance.DurabilityPoint--;
+        if (amulet.ItemInstance.DurabilityPoint <= 0)
+        {
+            session.Character.InventoryService.RemoveItemAmountFromInventory(1, amulet.ItemInstanceId);
+            state.AmuletExpired = true;
+        }
+    }
+
+    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
+        UpgradeOutcome outcome, List<IPacket> playerPackets)
+    {
+        await base.EmitOutcomeEffectsAsync(session, ctx, outcome, playerPackets);
+        if (!ctx.Data<RarifyRollState>().AmuletExpired)
+        {
+            return;
+        }
+
+        await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());
+        playerPackets.Add(session.Character.GenerateEquipment());
+        playerPackets.Add(session.Character.GenerateSayi(SayColorType.Red, Game18NConstString.AmuletExpired));
+    }
+
+    private bool SavedByAmulet(UpgradeContext ctx, UpgradeOutcome outcome) =>
+        outcome == UpgradeOutcome.ProtectedSave && !IsProtected && ctx.Data<RarifyRollState>().Amulet is not null;
+
+    private static InventoryItemInstance? WornBettingAmulet(ClientSession session) =>
+        session.Character.InventoryService.LoadBySlotAndType((short)EquipmentType.Amulet, NoscorePocketType.Wear) is
+        {
+            ItemInstance.Item.Effect: ItemEffectType.RedAmulet or ItemEffectType.BlueAmulet,
+        } amulet
+            ? amulet
+            : null;
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {
@@ -167,9 +240,28 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
 
     // Success message 147 "Gamble successful! Rarity level: %d" carries the new rare as a
     // long arg so the client renders the actual outcome rather than a generic confirmation.
+    protected override SayiPacket? BuildSay(ClientSession session, UpgradeContext ctx, UpgradeOutcome outcome,
+        Game18NConstString message)
+    {
+        var say = base.BuildSay(session, ctx, outcome,
+            SavedByAmulet(ctx, outcome) ? Game18NConstString.ItemSurvivedWithProtection : message);
+        if (say is not null && outcome == UpgradeOutcome.Success)
+        {
+            say.ArgumentType = IntegerArgument;
+            say.Game18NArguments.Add((long)ctx.Data<RarifyRollState>().NewRare);
+        }
+
+        return say;
+    }
+
     protected override MsgiPacket BuildMsgi(UpgradeContext ctx, UpgradeOutcome outcome,
         Game18NConstString message)
     {
+        if (SavedByAmulet(ctx, outcome))
+        {
+            return base.BuildMsgi(ctx, outcome, Game18NConstString.ItemSurvivedWithProtection);
+        }
+
         if (outcome != UpgradeOutcome.Success)
         {
             return base.BuildMsgi(ctx, outcome, message);
@@ -185,9 +277,17 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
 
     private sealed class RarifyRollState
     {
-        public RarifyRollState(sbyte originalRare) => OriginalRare = originalRare;
+        public RarifyRollState(sbyte originalRare, InventoryItemInstance? amulet)
+        {
+            OriginalRare = originalRare;
+            Amulet = amulet;
+        }
 
         public sbyte OriginalRare { get; }
+
+        public InventoryItemInstance? Amulet { get; }
+
+        public bool AmuletExpired { get; set; }
 
         public sbyte NewRare { get; set; }
     }

@@ -45,7 +45,9 @@ namespace NosCore.Data.Enumerations.Items
         PointInitialisation = 652,
         SealedTarotCard = 789,
         TarotCard = 790,
+        // Blessing Amulet: a betting chance bonus on top of the protection.
         RedAmulet = 791,
+        // Protection Amulet.
         BlueAmulet = 792,
         ReinforcementAmulet = 793,
         Heroic = 794,

@@ -754,6 +754,23 @@ window uses other ones, so the percentages the window shows are the check.
 - [ ] With the upgrade window open, accept a trade: the upgrade window closes, and Teoman cannot
       be talked to until the trade ends
 
+### Rarity gamble with an amulet
+
+Scene: `/mnt/project-files/rarify-amulets/scene.sh` (stack stopped; `USES=n` sets the amulet's uses).
+It gives Teoman's copy on Chicken Farm Path the gambling shop (shop type 4).
+
+- [ ] Wear a Blessing Amulet (282) and gamble a rarity 0 sword through Teoman's Bet window until
+      one fails: the sword stays, and the screen says "The item survived thanks to the protection
+      spell."
+- [ ] A successful gamble says "Gamble successful! Rarity level: N" in the chat with the real
+      number
+- [ ] After the amulet's last use (three for 282 and 283, two for 498 and 499) the chat says
+      "CAUTION: The amulet's protection has expired." and the amulet slot of the character
+      window is empty
+- [ ] Gamble with a protection scroll while the amulet is worn: the client is told to unequip the
+      amulet first, and nothing is charged
+- [ ] Gamble a champion item while wearing a normal amulet: "You are wearing an incorrect amulet."
+
 ### Specialist points
 
 - [ ] Wear a level 60 specialist card and right-click the SP button by the portrait: the card
