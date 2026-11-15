@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
 
             character = session.Character;
             await session.SendPacketAsync(character.GenerateGold());
-            await mapInstance.SendPacketAsync(character.GenerateGet(visualId));
+            await mapInstance.SendPacketAsync(evt.GenerateGet());
             await session.SendPacketAsync(new CancelPacket
             {
                 Type = CancelPacketType.CancelPicking,

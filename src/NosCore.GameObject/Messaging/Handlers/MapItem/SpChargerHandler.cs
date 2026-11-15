@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             }
             character.AddSpPoints(item.Item.EffectValue, worldConfiguration);
             await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
-            await mapInstance.SendPacketAsync(character.GenerateGet(visualId));
+            await mapInstance.SendPacketAsync(evt.GenerateGet());
         }
     }
 }

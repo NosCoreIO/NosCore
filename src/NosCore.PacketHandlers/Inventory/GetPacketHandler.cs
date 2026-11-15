@@ -43,13 +43,17 @@ namespace NosCore.PacketHandlers.Inventory
 
             var mapItem = mapItemNullable.Value;
 
-            bool canpick;
+            var character = clientSession.Character;
+            (short X, short Y) pickerPosition;
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = distanceCalculator.GetDistance(
-                        (clientSession.Character.PositionX, clientSession.Character.PositionY),
-                        (mapItem.PositionX, mapItem.PositionY)) < 8;
+                    pickerPosition = (character.PositionX, character.PositionY);
+                    break;
+
+                case VisualType.Npc when character.Mates.TryGetValue(getPacket.PickerId, out var mate)
+                    && mate.CanPickUp && mate.Entity is { } pet:
+                    pickerPosition = (pet.PositionX, pet.PositionY);
                     break;
 
                 case VisualType.Npc:
@@ -60,6 +64,7 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
             }
 
+            var canpick = distanceCalculator.GetDistance(pickerPosition, (mapItem.PositionX, mapItem.PositionY)) < 8;
             if (!canpick)
             {
                 return;

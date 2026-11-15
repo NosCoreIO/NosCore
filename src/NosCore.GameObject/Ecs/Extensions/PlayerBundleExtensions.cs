@@ -775,16 +775,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static ServerGetPacket GenerateGet(this PlayerComponentBundle player, long itemId)
-    {
-        return new ServerGetPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            ItemId = itemId
-        };
-    }
-
     public static MlobjlstPacket GenerateMlobjlst(this PlayerComponentBundle player)
     {
         var mlobj = new List<MlobjlstSubPacket?>();

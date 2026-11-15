@@ -25,6 +25,7 @@ using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Data.Dto;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -46,6 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private ClientSession Owner;
         private const short GoldVNum = 1046;
         private const short GoldAmount = 500;
+        private Mate Pet;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -149,6 +151,29 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task APetTrainedToCollectPicksUpAnItemBesideIt()
+        {
+            await new Spec("A pet trained to collect picks up an item beside it for its owner")
+                .GivenAsync(ThePetIsOut_TrainedToCollect, true)
+                .And(AnItemLiesNextToTheCharacter)
+                .WhenAsync(ThePetPicksItUp)
+                .Then(TheCharacterHolds_Items, 1)
+                .And(TheItemIsNoLongerOnTheMap)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnUntrainedPetLeavesTheItem()
+        {
+            await new Spec("A pet that was never trained to collect leaves the item where it is")
+                .GivenAsync(ThePetIsOut_TrainedToCollect, false)
+                .And(AnItemLiesNextToTheCharacter)
+                .WhenAsync(ThePetPicksItUp)
+                .Then(TheCharacterHolds_Items, 0)
+                .ExecuteAsync();
+        }
+
         private async Task AnotherCharacterOwnsTheDrop() => Owner = await World.CreateSessionAsync();
 
         private async Task TheCharacterIsInAPartyWithTheOwner()
@@ -204,6 +229,26 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             Assert.IsNotNull(packet);
             Assert.AreEqual(Game18NConstString.UnableToPickUp, packet.Message);
             Assert.IsNotNull(Session.Character.MapInstance.TryGetMapItem(MapItemVisualId));
+        }
+
+        private async Task ThePetIsOut_TrainedToCollect(bool trained)
+        {
+            Pet = TestMates.Pet(Session.Character.CharacterId);
+            Pet.CanPickUp = trained;
+            Session.Character.Mates[Pet.MateTransportId] = Pet;
+            await Pet.SpawnAsync(Session.Character, Session.Character.MapInstance,
+                Session.Character.PositionX, Session.Character.PositionY);
+        }
+
+        private async Task ThePetPicksItUp()
+        {
+            await Handler.ExecuteAsync(new GetPacket
+            {
+                PickerType = VisualType.Npc,
+                PickerId = Pet.MateTransportId,
+                VisualId = MapItemVisualId
+            }, Session);
+            await Bus.DeliverPublishedAsync();
         }
 
         private void TheCharacterHas_Gold(long gold) => Assert.AreEqual(gold, Session.Character.Gold);

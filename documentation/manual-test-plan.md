@@ -1510,6 +1510,9 @@ under half health first.
       defence 155 / 142 / 117 and dodge 254, not the level 1 creature's own values
 - [ ] Level a pet up: its attack, defence and dodge grow with the level; a partner keeps its
       creature's values
+- [ ] Use a pet pick-up training item on a pet, then drop an item beside it: the pet collects
+      the item into your inventory and the drop disappears for everyone on the map
+- [ ] A pet that was never trained leaves drops where they are
 
 Managing NosMates. Double-click one of your own NosMates to get Company / Stay / Send back
 under its target bar. `/mnt/project-files/pets-partners/reset-mates.sh` sets up a pet and a
