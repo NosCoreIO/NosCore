@@ -719,6 +719,8 @@ namespace NosCore.Parser.Parsers
                 282 or 498 => ItemEffectType.RedAmulet,
                 283 or 499 => ItemEffectType.BlueAmulet,
                 284 => ItemEffectType.ReinforcementAmulet,
+                259 => ItemEffectType.RarityIncreaseAmulet,
+                4261 or 4263 => ItemEffectType.HeroicRarityIncreaseAmulet,
                 4264 => ItemEffectType.Heroic,
                 4262 => ItemEffectType.RandomHeroic,
                 var x when x == 287 || x == 4240 || x == 4194 || x == 4106 => ItemEffectType.Undefined,

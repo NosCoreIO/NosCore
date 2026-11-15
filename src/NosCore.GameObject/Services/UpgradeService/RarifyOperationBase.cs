@@ -9,6 +9,7 @@ using NosCore.Algorithm.RarityPointService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Data.Enumerations.Items;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
@@ -42,6 +43,10 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // A worn Blessing or Protection Amulet saves the item from destruction like the scroll does,
 // but leaves the downgrade bands in play; the Blessing Amulet also widens every band by 10%.
 // Each gamble spends one of the amulet's uses, and the amulet disappears with its last one.
+//
+// An Amulet for Increasing Rarity carried in the bag replaces the roll: the item gains one rarity
+// level, cannot fail, and the amulet is used up. The champion one only works on champion gear,
+// which it can raise to rare 8; the ordinary one only on other gear, up to rare 7.
 public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
         IItemCatalog itemCatalog, IRarityPointService rarityPoints)
     : UpgradeOperation(random, localizer)
@@ -142,7 +147,8 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
             Target: null,
             GoldCost: BaseGoldCost,
             MaterialCosts: materials,
-            ExtraData: new RarifyRollState((sbyte)wearable.Rare, WornBettingAmulet(session)));
+            ExtraData: new RarifyRollState((sbyte)wearable.Rare, WornBettingAmulet(session),
+                CarriedRisingAmulet(session, wearable)));
     }
 
     // Walk the bands descending from rare 7. First band the roll falls into whose
@@ -151,6 +157,12 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
         var state = ctx.Data<RarifyRollState>();
+        if (state.RisingAmulet is not null)
+        {
+            state.NewRare = (sbyte)(state.OriginalRare + 1);
+            return UpgradeOutcome.Success;
+        }
+
         var rnd = roll * 80.0;
         var chanceFactor = state.Amulet?.ItemInstance.Item.Effect == ItemEffectType.RedAmulet
             ? BlessingAmuletChanceFactor
@@ -177,7 +189,11 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
     {
         var state = ctx.Data<RarifyRollState>();
-        if (state.Amulet is { } amulet)
+        if (state.RisingAmulet is { } rising)
+        {
+            session.Character.InventoryService.RemoveItemAmountFromInventory(1, rising.ItemInstanceId);
+        }
+        else if (state.Amulet is { } amulet)
         {
             state.AmuletExpired = SpendAmuletUse(session, amulet);
         }
@@ -199,6 +215,17 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     private static InventoryItemInstance? WornBettingAmulet(ClientSession session) =>
         WornAmulet(session, ItemEffectType.RedAmulet, ItemEffectType.BlueAmulet);
 
+    private static InventoryItemInstance? CarriedRisingAmulet(ClientSession session, WearableInstance wearable)
+    {
+        var (effect, ceiling) = wearable.Item.IsHeroic
+            ? (ItemEffectType.HeroicRarityIncreaseAmulet, MaxRarity)
+            : (ItemEffectType.RarityIncreaseAmulet, (sbyte)(MaxRarity - 1));
+        return wearable.Rare < ceiling
+            ? session.Character.InventoryService.GetAll()
+                .FirstOrDefault(i => i.Type != NoscorePocketType.Wear && i.ItemInstance.Item.Effect == effect)
+            : null;
+    }
+
     protected override void ApplySuccess(UpgradeContext ctx)
     {
         var wearable = (WearableInstance)ctx.Source.ItemInstance;
@@ -216,6 +243,10 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
         yield return RefreshSource(ctx, destroyed: outcome == UpgradeOutcome.Failure);
+        if (ctx.Data<RarifyRollState>().RisingAmulet is { } rising)
+        {
+            yield return ((InventoryItemInstance?)null).GeneratePocketChange(rising.Type.ToPocketType(), rising.Slot);
+        }
     }
 
     protected override int? OutcomeEffect(UpgradeOutcome outcome) => outcome switch
@@ -230,6 +261,11 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     protected override SayiPacket? BuildSay(ClientSession session, UpgradeContext ctx, UpgradeOutcome outcome,
         Game18NConstString message)
     {
+        if (ctx.Data<RarifyRollState>().RisingAmulet is not null)
+        {
+            return base.BuildSay(session, ctx, outcome, Game18NConstString.RarityLevelIncreased);
+        }
+
         var say = base.BuildSay(session, ctx, outcome,
             SavedByAmulet(ctx, outcome) ? Game18NConstString.ItemSurvivedWithProtection : message);
         if (say is not null && outcome == UpgradeOutcome.Success)
@@ -249,6 +285,11 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
             return base.BuildMsgi(ctx, outcome, Game18NConstString.ItemSurvivedWithProtection);
         }
 
+        if (ctx.Data<RarifyRollState>().RisingAmulet is not null)
+        {
+            return base.BuildMsgi(ctx, outcome, Game18NConstString.RarityLevelIncreased);
+        }
+
         if (outcome != UpgradeOutcome.Success)
         {
             return base.BuildMsgi(ctx, outcome, message);
@@ -264,15 +305,18 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
 
     private sealed class RarifyRollState
     {
-        public RarifyRollState(sbyte originalRare, InventoryItemInstance? amulet)
+        public RarifyRollState(sbyte originalRare, InventoryItemInstance? amulet, InventoryItemInstance? risingAmulet)
         {
             OriginalRare = originalRare;
             Amulet = amulet;
+            RisingAmulet = risingAmulet;
         }
 
         public sbyte OriginalRare { get; }
 
         public InventoryItemInstance? Amulet { get; }
+
+        public InventoryItemInstance? RisingAmulet { get; }
 
         public bool AmuletExpired { get; set; }
 

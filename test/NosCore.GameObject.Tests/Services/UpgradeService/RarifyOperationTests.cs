@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short ArmorVNum = 1;
         private const short CellonVNum = 1014;
         private const short ScrollVNum = 1218;
+        private const short RarityAmuletVNum = 259;
 
         private ClientSession _session;
         private Mock<IRandomNumberSource> _random;
@@ -271,6 +272,67 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ACarriedRarityAmuletRaisesTheRarityByOneWithoutRolling()
+        {
+            await new Spec("A gamble with an Amulet for Increasing Rarity in the bag adds one rarity level and uses it up")
+                .Given(WearableAtRarity_, (sbyte)3)
+                .And(RarityAmuletIsCarried_, ItemEffectType.RarityIncreaseAmulet)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)4)
+                .And(TheResultShouldSay_, Game18NConstString.RarityLevelIncreased)
+                .And(NoRarityAmuletShouldBeCarried)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARarityAmuletIsNotUsedOnARareSevenItem()
+        {
+            await new Spec("An item already at rare 7 rolls normally and keeps the Amulet for Increasing Rarity")
+                .Given(WearableAtRarity_, (sbyte)7)
+                .And(RarityAmuletIsCarried_, ItemEffectType.RarityIncreaseAmulet)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.01)
+                .WhenAsync(ProtectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)7)
+                .And(TheRarityAmuletShouldStillBeCarried)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChampionRarityAmuletRaisesChampionGearToRareEight()
+        {
+            await new Spec("A champion item at rare 7 reaches rare 8 with a Champion Amulet for Increasing Rarity")
+                .Given(ChampionWearableAtRarity_, (sbyte)7)
+                .And(RarityAmuletIsCarried_, ItemEffectType.HeroicRarityIncreaseAmulet)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)8)
+                .And(NoRarityAmuletShouldBeCarried)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChampionRarityAmuletIsIgnoredOnOrdinaryGear()
+        {
+            await new Spec("An ordinary item gambles normally and keeps a Champion Amulet for Increasing Rarity")
+                .Given(WearableAtRarity_, (sbyte)3)
+                .And(RarityAmuletIsCarried_, ItemEffectType.HeroicRarityIncreaseAmulet)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(SourceSlotShouldBeEmpty)
+                .And(TheRarityAmuletShouldStillBeCarried)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
         private void WearableAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Armor);
@@ -304,6 +366,24 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         private void RingAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Ring);
+
+        private void RarityAmuletIsCarried_(ItemEffectType effect)
+        {
+            var item = new Item
+            {
+                VNum = RarityAmuletVNum,
+                Type = NoscorePocketType.Equipment,
+                ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.Amulet,
+                Effect = effect,
+            };
+            var amulet = InventoryItemInstance.Create(
+                new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object, World.LogLanguageLocalizer),
+                _session.Character.CharacterId);
+            amulet.Slot = 1;
+            amulet.Type = NoscorePocketType.Equipment;
+            _session.Character.InventoryService[amulet.ItemInstanceId] = amulet;
+        }
 
         private void PlaceWearable(sbyte rare, EquipmentType slot)
         {
@@ -400,6 +480,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(uses, WornAmulet().NotNull().ItemInstance.DurabilityPoint);
 
         private void NoAmuletShouldBeWorn() => Assert.IsNull(WornAmulet());
+
+        private int CarriedRarityAmulets() => _session.Character.InventoryService.GetAll()
+            .Count(i => i.ItemInstance.Item.VNum == RarityAmuletVNum);
+
+        private void NoRarityAmuletShouldBeCarried() => Assert.AreEqual(0, CarriedRarityAmulets());
+
+        private void TheRarityAmuletShouldStillBeCarried() => Assert.AreEqual(1, CarriedRarityAmulets());
 
         private void TheResultShouldSay_(Game18NConstString message) =>
             Assert.AreEqual(message, _result.OfType<MsgiPacket>().Single().Message);
