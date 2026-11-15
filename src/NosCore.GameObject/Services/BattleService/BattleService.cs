@@ -249,14 +249,40 @@ namespace NosCore.GameObject.Services.BattleService
             else
             {
                 var recipients = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleAoeTargetHit
-                    ? FriendlyPlayersAround(origin, mapInstance, skill.TargetRange)
+                    ? FriendliesAround(origin, mapInstance, skill.TargetRange)
                     : new[] { recipient };
                 foreach (var friendly in recipients)
                 {
+                    if (!ReferenceEquals(friendly, recipient))
+                    {
+                        await mapInstance.SendPacketAsync(new SuPacket
+                        {
+                            VisualType = origin.VisualType,
+                            VisualId = origin.VisualId,
+                            TargetVisualType = friendly.VisualType,
+                            TargetId = friendly.VisualId,
+                            SkillVnum = skill.SkillVnum,
+                            SkillCooldown = skill.Cooldown,
+                            AttackAnimation = skill.AttackAnimation,
+                            SkillEffect = skill.Effect,
+                            TargetIsAlive = true,
+                            HpPercentage = friendly.MaxHp > 0 ? (byte)(friendly.Hp * 100 / friendly.MaxHp) : (byte)0,
+                            HitMode = SuPacketHitMode.AttackedInAoe,
+                            SkillTypeMinusOne = (int)skill.Type - 1,
+                            TargetCurrentHp = friendly.Hp,
+                            TargetMaxHp = friendly.MaxHp,
+                        });
+                    }
+
                     await buffService.InflictCardsAsync(friendly, origin, skill.BCards);
                     if (skill.Duration > 0 && skill.BCards.Count > 0)
                     {
                         await buffService.ApplySkillBuffAsync(friendly, skill.SkillVnum, skill.Duration, skill.BCards, origin);
+                    }
+
+                    if (friendly is MateComponentBundle)
+                    {
+                        await SendTargetStatAsync(friendly);
                     }
                 }
             }
@@ -267,21 +293,34 @@ namespace NosCore.GameObject.Services.BattleService
             return true;
         }
 
-        private IReadOnlyList<IAliveEntity> FriendlyPlayersAround(IAliveEntity origin, MapInstance mapInstance, byte range)
+        // The caster, the friendly players around it and the pets and partners those players have out.
+        private IReadOnlyList<IAliveEntity> FriendliesAround(IAliveEntity origin, MapInstance mapInstance, byte range)
         {
-            var players = new List<IAliveEntity> { origin };
+            bool InRange(IAliveEntity entity) =>
+                Math.Abs(entity.PositionX - origin.PositionX) <= range && Math.Abs(entity.PositionY - origin.PositionY) <= range;
+
+            var friendlies = new List<IAliveEntity> { origin };
             foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
             {
                 if (!session.HasPlayerEntity) continue;
                 var player = session.Character;
-                if (player.VisualId == origin.VisualId || !player.IsAlive || CanAttack(origin, player)) continue;
-                if (Math.Abs(player.PositionX - origin.PositionX) <= range && Math.Abs(player.PositionY - origin.PositionY) <= range)
+                var isCaster = player.VisualId == origin.VisualId && origin is PlayerComponentBundle;
+                if (!isCaster && (!player.IsAlive || CanAttack(origin, player))) continue;
+                if (!isCaster && InRange(player))
                 {
-                    players.Add(player);
+                    friendlies.Add(player);
+                }
+
+                foreach (var mate in player.Mates.Values)
+                {
+                    if (mate.Entity is { IsAlive: true } entity && ReferenceEquals(entity.MapInstance, mapInstance) && InRange(entity))
+                    {
+                        friendlies.Add(entity);
+                    }
                 }
             }
 
-            return players;
+            return friendlies;
         }
 
         private async Task TryProcessHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, bool isPrimary,
