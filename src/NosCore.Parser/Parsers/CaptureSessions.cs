@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -23,6 +24,7 @@ namespace NosCore.Parser.Parsers
     public static class CaptureSessions
     {
         private const long UnknownNpc = -1;
+        private const int WanderReach = 8;
 
         private readonly record struct Sighting(VisualType Type, short Map, string? VNum, long Id);
 
@@ -56,6 +58,7 @@ namespace NosCore.Parser.Parsers
             var ids = new Dictionary<Sighting, long>();
             var taken = new HashSet<(VisualType Type, long Id)>();
             var dropped = new HashSet<Sighting>();
+            var keptMonsters = new Dictionary<(short Map, string? VNum), List<(short X, short Y)>>();
             long nextId = 1;
             foreach (var entity in entities)
             {
@@ -65,12 +68,14 @@ namespace NosCore.Parser.Parsers
                     demand[(type, sighting.Id)]--;
                 }
 
-                // An id another entity can still want goes to it, and an NPC left without a free id gets
-                // a new one. A monster left without one is nearly always one already kept, met again in
-                // another session after it walked, so it is not imported twice.
+                // An id another entity can still want goes to it. An entity left without a free id gets a
+                // new one, unless it is a monster close to a kept one of its kind: that is the same monster
+                // met again in another session after it walked, and it is not imported twice.
                 long? id = entity.Select(e => e.Id).Where(c => !taken.Contains((type, c)))
                     .OrderBy(c => demand[(type, c)]).Select(c => (long?)c).FirstOrDefault();
-                if (id == null && type == VisualType.Npc)
+                var cell = (entity.Key.Map, entity.Key.VNum);
+                if (id == null && (type == VisualType.Npc || !keptMonsters.TryGetValue(cell, out var near)
+                    || !near.Any(k => Math.Abs(k.X - entity.Key.X) + Math.Abs(k.Y - entity.Key.Y) <= WanderReach)))
                 {
                     while (used.Contains((type, nextId)))
                     {
@@ -88,6 +93,11 @@ namespace NosCore.Parser.Parsers
                 }
 
                 taken.Add((type, kept));
+                if (type == VisualType.Monster)
+                {
+                    (keptMonsters.TryGetValue(cell, out var list) ? list : keptMonsters[cell] = []).Add((entity.Key.X, entity.Key.Y));
+                }
+
                 foreach (var sighting in entity)
                 {
                     ids[sighting] = kept;

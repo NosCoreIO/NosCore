@@ -139,13 +139,24 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public void AMonsterWhoseOnlyIdIsHeldIsNotImportedAgain()
+        public void AMonsterWhoseOnlyIdIsHeldNearAKeptOneOfItsKindIsNotImportedAgain()
         {
             var first = Captured.Monster(24, 500, 10, 10);
+            var other = Captured.Monster(30, 501, 50, 50);
 
-            var merged = Merge(Captured.Arrival(1), first, Captured.Arrival(2), Captured.Monster(25, 500, 30, 30));
+            var merged = Merge(Captured.Arrival(1), first, Captured.Arrival(2), other, Captured.Arrival(1), Captured.Monster(24, 501, 13, 12));
 
-            CollectionAssert.AreEqual(new[] { first }, merged.OfType<InPacket>().ToArray());
+            CollectionAssert.AreEqual(new[] { first, other }, merged.OfType<InPacket>().ToArray());
+        }
+
+        [TestMethod]
+        public void AMonsterWhoseOnlyIdIsHeldFarFromItsKindGetsAFreeOne()
+        {
+            var other = Captured.Monster(25, 500, 30, 30);
+
+            Merge(Captured.Arrival(1), Captured.Monster(24, 500, 10, 10), Captured.Arrival(2), other);
+
+            Assert.AreEqual(1, other.VisualId);
         }
 
         [TestMethod]
