@@ -61,18 +61,7 @@ public class TimeSpace14 : InstanceScript
             new MonsterSpawn(107, new(34, 20)),
             new MonsterSpawn(107, new(32, 38)),
             new MonsterSpawn(107, new(32, 34)),
-            new MonsterSpawn(111, new(32, 26)),
-            new MonsterSpawn(105, new(30, 27)),
-            new MonsterSpawn(105, new(32, 19)),
-            new MonsterSpawn(108, new(32, 24)),
-            new MonsterSpawn(108, new(32, 33)),
-            new MonsterSpawn(105, new(29, 21)),
-            new MonsterSpawn(105, new(29, 21)),
-            new MonsterSpawn(108, new(28, 23)),
-            new MonsterSpawn(105, new(30, 27)),
-            new MonsterSpawn(105, new(32, 19)),
-            new MonsterSpawn(108, new(32, 24)),
-            new MonsterSpawn(108, new(32, 33)));
+            new MonsterSpawn(111, new(32, 26)));
         r.SummonNpcs(_room3, new NpcSpawn(321, new(16, 29)), new NpcSpawn(321, new(16, 17)), new NpcSpawn(321, new(14, 17)), new NpcSpawn(321, new(14, 11)), new NpcSpawn(321, new(18, 10)), new NpcSpawn(321, new(14, 25)), new NpcSpawn(321, new(14, 21)), new NpcSpawn(321, new(14, 17)), new NpcSpawn(321, new(14, 14)), new NpcSpawn(321, new(12, 30)), new NpcSpawn(321, new(12, 29)), new NpcSpawn(321, new(14, 23)), new NpcSpawn(321, new(12, 14)), new NpcSpawn(321, new(14, 11)), new NpcSpawn(321, new(14, 13)));
         r.SpawnPortal(_room4, new(14, 28), _room5, new(14, 1), locked: false);
         r.SpawnPortal(_room4, new(1, 14), _room3, new(41, 26), locked: false);
@@ -180,7 +169,11 @@ public class TimeSpace14 : InstanceScript
         else if (room == _room3)
         {
             r.StartRoomClock(_room3, TimeSpan.FromSeconds(600));
-            r.Message(Game18NConstString.EnemiesReinforcements);
+            for (var wave = 0; wave < 20; wave++)
+            {
+                var large = wave >= 2;
+                r.At(r.Elapsed + TimeSpan.FromSeconds(30 * wave), r => Reinforce(r, large));
+            }
         }
         else if (room == _room4)
         {
@@ -220,7 +213,6 @@ public class TimeSpace14 : InstanceScript
         if (room == _room3 && button == 1)
         {
             r.UnlockPortal(_room3, _room4);
-            r.StartRoomClock(_room3, TimeSpan.FromSeconds(582));
             r.Message(Game18NConstString.ADoorHasOpened);
         }
         else if (room == _room8 && button == 1)
@@ -234,6 +226,28 @@ public class TimeSpace14 : InstanceScript
             r.UnlockPortal(_room11, _room7);
             r.AddClockTime(TimeSpan.FromSeconds(150));
             r.Message(Game18NConstString.ADoorHasOpened);
+        }
+    }
+
+    // The mine is attacked every 30 seconds while someone is in it, and harder from the third wave on.
+    private void Reinforce(IInstanceRun r, bool large)
+    {
+        if (r.PlayersIn(_room3) == 0)
+        {
+            return;
+        }
+
+        r.Message(Game18NConstString.EnemiesReinforcements);
+        r.Summon(_room3,
+            new MonsterSpawn(105, new(30, 27)),
+            new MonsterSpawn(105, new(32, 19)),
+            new MonsterSpawn(108, new(32, 24)),
+            new MonsterSpawn(108, new(32, 33)));
+        if (large)
+        {
+            r.Summon(_room3,
+                new MonsterSpawn(105, new(30, 32)),
+                new MonsterSpawn(109, new(33, 34)));
         }
     }
 
