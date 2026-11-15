@@ -642,6 +642,11 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Kill a Wiggy Wiggler (226): a Small Wiggler (229) appears within a few cells of where it
       died, from the summon card on its BASIC row. An Angry Beehive (208) releases an Angry Swarm
       of Bees (210) 40% of the time
+- [ ] Stand next to a Bone Drake (2662) until it uses its skill (1506): a Skull Swordsman (2665)
+      and the two other skeletons (2666, 2667) appear within a few cells of it. An Erenia
+      (2514) using its skill (1431) calls each of its adds about 70% of the time. A Chicken
+      Queen (774) laying eggs with skill 1042 sends `in` for monsters 797 and 798, but this
+      client draws neither egg
 
 ---
 
