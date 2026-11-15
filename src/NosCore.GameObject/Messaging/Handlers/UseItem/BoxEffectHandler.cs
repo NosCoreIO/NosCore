@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -14,6 +15,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
@@ -25,13 +27,15 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     [UsedImplicitly]
     public sealed class BoxEffectHandler(
         IItemGenerationService itemProvider,
+        IItemCatalog itemCatalog,
         IDao<RollGeneratedItemDto, short> rollGeneratedItemDao)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
         {
             var source = evt.InventoryItem;
-            if (source.ItemInstance.Item.Effect != ItemEffectType.BoxEffect)
+            var effect = source.ItemInstance.Item.Effect;
+            if (effect is not (ItemEffectType.BoxEffect or ItemEffectType.ClassBox))
             {
                 return;
             }
@@ -42,22 +46,29 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var boxRare = source.ItemInstance.Rare;
             var boxDesign = source.ItemInstance.Design;
 
-            var pool = (rollGeneratedItemDao.Where(r =>
+            var sets = (rollGeneratedItemDao.Where(r =>
                     r.OriginalItemVNum == boxVNum
                     && r.MinimumOriginalItemRare <= boxRare
                     && r.MaximumOriginalItemRare >= boxRare
                     && r.OriginalItemDesign == boxDesign
                     && r.Probability > 0)
                 ?? Enumerable.Empty<RollGeneratedItemDto>())
-                .OrderBy(r => r.ItemGeneratedVNum)
+                .GroupBy(r => r.RollGroup)
+                .OrderBy(g => g.Key)
+                .Select(g => g.OrderBy(r => r.ItemGeneratedVNum).ToList())
                 .ToList();
 
-            if (pool.Count == 0)
+            if (effect == ItemEffectType.ClassBox)
             {
-                return;
+                var fitting = sets.Where(set => set.All(r => itemCatalog.GetItem(r.ItemGeneratedVNum) is { } item
+                    && item.FitsClass(character.Class) && item.FitsGender(character.Gender))).ToList();
+                if (fitting.Count > 0)
+                {
+                    sets = fitting;
+                }
             }
 
-            var sum = pool.Sum(r => (int)r.Probability);
+            var sum = sets.Sum(set => (int)set[0].Probability);
             if (sum <= 0)
             {
                 return;
@@ -65,27 +76,27 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var roll = RandomHelper.Instance.RandomNumber(0, sum);
             var cumulative = 0;
-            RollGeneratedItemDto? chosen = null;
-            foreach (var entry in pool)
+            List<RollGeneratedItemDto>? chosen = null;
+            foreach (var set in sets)
             {
-                cumulative += entry.Probability;
+                cumulative += set[0].Probability;
                 if (roll < cumulative)
                 {
-                    chosen = entry;
+                    chosen = set;
                     break;
                 }
             }
             if (chosen == null) return;
 
-            var reward = itemProvider.Create(
-                chosen.ItemGeneratedVNum,
-                chosen.ItemGeneratedAmount,
-                chosen.IsRareRandom ? (sbyte)boxRare : (sbyte)0,
-                chosen.ItemGeneratedUpgrade);
-            if (reward == null) return;
+            var rewards = chosen.Select(r => itemProvider.Create(
+                r.ItemGeneratedVNum,
+                r.ItemGeneratedAmount,
+                r.IsRareRandom ? (sbyte)boxRare : (sbyte)0,
+                r.ItemGeneratedUpgrade)).OfType<IItemInstance>().ToList();
+            if (rewards.Count != chosen.Count) return;
 
             var inventory = character.InventoryService;
-            if (!inventory.HasRoomFor(reward))
+            if (!inventory.HasRoomFor(rewards))
             {
                 await SendNotEnoughSpaceAsync(evt);
                 return;
@@ -96,8 +107,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var added = inventory.AddItemToPocket(InventoryItemInstance.Create(reward, character.CharacterId));
-            if (added == null || added.Count == 0)
+            var added = rewards.SelectMany(reward => inventory.AddItemToPocket(InventoryItemInstance.Create(reward, character.CharacterId))
+                ?? []).ToList();
+            if (added.Count == 0)
             {
                 inventory.RestoreConsumed(source, 1);
                 await SendNotEnoughSpaceAsync(evt);
@@ -108,13 +120,16 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             {
                 await session.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
             }
-            await session.SendPacketAsync(new RdiPacket
+            foreach (var row in chosen)
             {
-                ItemVNum = chosen.ItemGeneratedVNum,
-                Amount = chosen.ItemGeneratedAmount,
-            });
-            await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
-                2, chosen.ItemGeneratedVNum.ToString(), chosen.ItemGeneratedAmount));
+                await session.SendPacketAsync(new RdiPacket
+                {
+                    ItemVNum = row.ItemGeneratedVNum,
+                    Amount = row.ItemGeneratedAmount,
+                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                    2, row.ItemGeneratedVNum.ToString(), row.ItemGeneratedAmount));
+            }
 
             await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)
                 .GeneratePocketChange(source.Type.ToPocketType(), source.Slot));

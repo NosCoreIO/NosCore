@@ -126,6 +126,47 @@ namespace NosCore.Parser.Tests
             CollectionAssert.Contains(_rolls.Select(r => r.ItemGeneratedAmount).ToArray(), (short)999);
         }
 
+        [TestMethod]
+        public async Task ARaidBoxTakesItsContentsFromItsRaidNumber()
+        {
+            const short defensiveBattleChest = 9912;
+            const int defensiveBattle = 37;
+            _items.Add(new ItemDto { VNum = defensiveBattleChest, Effect = ItemEffectType.SimpleRaidBox, EffectValue = defensiveBattle, ItemType = ItemType.Special });
+            var contents = BoxContents.Raids[defensiveBattle].Sets.SelectMany(set => set).ToList();
+            _items.AddRange(contents.Select(c => c.VNum).Distinct().Select(v => new ItemDto { VNum = v }));
+
+            await _parser.InsertBoxContentsAsync();
+
+            Assert.AreEqual(ItemEffectType.BoxEffect, _savedItems.Single().Effect);
+            CollectionAssert.AreEqual(contents.Select(c => c.VNum).ToArray(), _rolls.Select(r => r.ItemGeneratedVNum).ToArray());
+        }
+
+        [TestMethod]
+        public async Task ABoxWithoutARaidNumberIsNoRaidBox()
+        {
+            _items.Add(new ItemDto { VNum = 302, Effect = ItemEffectType.BoxEffect, ItemType = ItemType.Box });
+            _items.AddRange(BoxContents.Raids.Values.SelectMany(b => b.Sets).SelectMany(set => set).Select(c => c.VNum).Distinct()
+                .Select(v => new ItemDto { VNum = v }));
+
+            await _parser.InsertBoxContentsAsync();
+
+            Assert.IsFalse(_rolls.Any(r => r.OriginalItemVNum == 302));
+        }
+
+        [TestMethod]
+        public async Task APairChestRollsEachPairAsOneSetForItsWearer()
+        {
+            const short pairChest = 1463;
+            Items(pairChest, 666, 557, 681, 560, 684, 563, 728, 548, 737, 551, 746, 554);
+
+            await _parser.InsertBoxContentsAsync();
+
+            Assert.AreEqual(ItemEffectType.ClassBox, _savedItems.Single().Effect);
+            Assert.AreEqual(6, _rolls.Select(r => r.RollGroup).Distinct().Count());
+            CollectionAssert.AreEquivalent(new short[] { 666, 557 },
+                _rolls.Where(r => r.RollGroup == 0).Select(r => r.ItemGeneratedVNum).ToArray());
+        }
+
         private void Items(params short[] vnums) => _items.AddRange(vnums.Select(v => new ItemDto { VNum = v }));
     }
 }

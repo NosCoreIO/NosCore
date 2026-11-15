@@ -37,5 +37,8 @@ namespace NosCore.Database.Entities
         public virtual Item ItemGenerated { get; set; }
 
         public bool IsSuperReward { get; set; }
+
+        // Rows of one box sharing a group are given together.
+        public short RollGroup { get; set; }
     }
 }

@@ -65,10 +65,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             if (itemInstance.ItemInstance.Item.LevelMinimum > (itemInstance.ItemInstance.Item.IsHeroic
                     ? session.Character.HeroLevel : session.Character.Level)
-                || (itemInstance.ItemInstance.Item.Sex != 0 &&
-                    ((itemInstance.ItemInstance.Item.Sex >> (byte)session.Character.Gender) & 1) != 1)
-                || (itemInstance.ItemInstance.Item.Class != 0 &&
-                    ((itemInstance.ItemInstance.Item.Class >> (byte)session.Character.Class) & 1) != 1)
+                || !itemInstance.ItemInstance.Item.FitsGender(session.Character.Gender)
+                || !itemInstance.ItemInstance.Item.FitsClass(session.Character.Class)
                 || (itemInstance.ItemInstance.Item.ReputationMinimum > 0 &&
                     session.Character.ReputIconValue < itemInstance.ItemInstance.Item.ReputationMinimum))
             {
