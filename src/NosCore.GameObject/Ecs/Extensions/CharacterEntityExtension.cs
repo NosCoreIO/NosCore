@@ -534,7 +534,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
             var reputprice = itemReputPrice * amount;
 
-            var percent = shop.OwnerCharacter == null ? dignityService.GetShopPriceMultiplier(characterEntity.DignityIcon) : 1;
+            var percent = shop.OwnerCharacter == null ? dignityService.GetShopPriceMultiplier(characterEntity.DignityIcon,
+                characterEntity.MapInstance.IsAct4) : 1;
             if (amount > item.Amount)
             {
                 return;
