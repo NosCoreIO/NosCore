@@ -1407,9 +1407,9 @@ Sushi Party among them, does nothing yet.
 - [ ] Log in with an Otter in the team: its skill bar shows Sushi Party then Smackeroo, and the
       third slot is empty
 - [ ] With a pet that has no skill of its own (a Chicken, 333) in the team: no pet skill bar
-- [ ] With the Otter beside a monster, select the monster and press Smackeroo: the Otter plays
-      the skill, the damage number shows on both screens, the monster's bar drops and the
-      Otter's MP in the party panel goes down by 20
+- [ ] With the Otter beside a monster, select the monster and press Smackeroo (Shift+S): the
+      Otter plays the skill, the damage number shows on both screens, the monster's bar drops
+      and the Otter's MP in the party panel goes down by 20
 - [ ] The slot greys out when the skill is used and is usable again 35 seconds later; pressing
       it in between does nothing
 - [ ] With less MP left than the skill costs: nothing happens
