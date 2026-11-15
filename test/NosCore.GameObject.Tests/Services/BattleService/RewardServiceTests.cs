@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task ACertainDoubleDropChanceDropsTheItemTwice()
         {
             MonsterDrops(DroppableVNum, chance: 10000);
-            Wear(new BCardDto { Type = BCardType.CardType.Type95, SubType = 11, FirstData = 100 });
+            Wear(new BCardDto { Type = BCardType.CardType.DropAndTriggerChance, SubType = 11, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
@@ -194,7 +194,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task ACertainNoDropChanceDropsNothing()
         {
             MonsterDrops(DroppableVNum, chance: 10000);
-            Wear(new BCardDto { Type = BCardType.CardType.Type95, SubType = 12, FirstData = 100 });
+            Wear(new BCardDto { Type = BCardType.CardType.DropAndTriggerChance, SubType = 12, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
@@ -212,7 +212,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task OnlyTheTopDamageDealersGearDecidesTheDrops()
         {
             MonsterDrops(DroppableVNum, chance: 10000);
-            Wear(new BCardDto { Type = BCardType.CardType.Type95, SubType = 12, FirstData = 100 });
+            Wear(new BCardDto { Type = BCardType.CardType.DropAndTriggerChance, SubType = 12, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 99));
 

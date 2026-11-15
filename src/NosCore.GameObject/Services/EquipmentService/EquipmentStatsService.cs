@@ -288,7 +288,7 @@ public sealed class EquipmentStatsService(
         WeaponShellOptionType.IncreasedAllElements => BCardEffect.ElementAllIncreased,
         WeaponShellOptionType.IncreasedGold => BCardEffect.ItemIncreaseEarnedGold,
         WeaponShellOptionType.IncreasedCombatExperience => BCardEffect.ItemExpIncreased,
-        WeaponShellOptionType.IncreasedJobExperience => BCardEffect.Type101IncreaseJXpGain,
+        WeaponShellOptionType.IncreasedJobExperience => BCardEffect.IncreaseJXpGain,
         WeaponShellOptionType.PvpIncreasedDamage => BCardEffect.LeonaPassiveSkillAttackIncreasedInPvp,
         _ => null,
     });
@@ -354,8 +354,8 @@ public sealed class EquipmentStatsService(
         return card is { } id
             ? new BCardDto
             {
-                Type = BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack.Type(),
-                SubType = BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack.SubType(),
+                Type = BCardEffect.ChanceCausingXBuffOnEnemyOnAttack.Type(),
+                SubType = BCardEffect.ChanceCausingXBuffOnEnemyOnAttack.SubType(),
                 FirstData = option.Value,
                 SecondData = id,
             }

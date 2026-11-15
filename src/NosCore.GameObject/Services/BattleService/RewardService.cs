@@ -222,29 +222,29 @@ public sealed class RewardService(
             switch (bCard.Effect())
             {
                 case BCardEffect.ItemExpIncreased:
-                case BCardEffect.Type101IncreaseXpGain:
+                case BCardEffect.IncreaseXpGain:
                     bonus.Experience += value;
                     break;
                 case BCardEffect.ItemExpIncreasedNegated:
-                case BCardEffect.Type101DecreaseXpGain:
+                case BCardEffect.DecreaseXpGain:
                     bonus.Experience -= value;
                     break;
-                case BCardEffect.Type101IncreaseJXpGain:
+                case BCardEffect.IncreaseJXpGain:
                     bonus.JobExperience += value;
                     break;
-                case BCardEffect.Type101DecreaseJXpGain:
+                case BCardEffect.DecreaseJXpGain:
                     bonus.JobExperience -= value;
                     break;
-                case BCardEffect.Type87IncreaseHxpRecived:
+                case BCardEffect.IncreaseHeroXpReceived:
                     bonus.HeroExperience += value;
                     break;
-                case BCardEffect.Type87DecreaseHxpRecived:
+                case BCardEffect.DecreaseHeroXpReceived:
                     bonus.HeroExperience -= value;
                     break;
-                case BCardEffect.Type87IncreaseFameRecived:
+                case BCardEffect.IncreaseFameReceived:
                     bonus.Reputation += value;
                     break;
-                case BCardEffect.Type87DecreaseFameRecived:
+                case BCardEffect.DecreaseFameReceived:
                     bonus.Reputation -= value;
                     break;
             }
@@ -269,10 +269,10 @@ public sealed class RewardService(
         {
             switch (bCard.Effect())
             {
-                case BCardEffect.Type95DropX2Chance:
+                case BCardEffect.DropX2Chance:
                     doubleChance += BattleStatsProvider.ScaleByLevel(bCard, player.Level);
                     break;
-                case BCardEffect.Type95NoDropChance:
+                case BCardEffect.NoDropChance:
                     noDropChance += BattleStatsProvider.ScaleByLevel(bCard, player.Level);
                     break;
             }

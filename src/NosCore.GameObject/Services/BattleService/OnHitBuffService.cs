@@ -25,12 +25,12 @@ public sealed class OnHitBuffService(IBuffService buffService, IEquipmentStatsSe
         var defenderCards = Cards(defender);
         if (!defenderKilled)
         {
-            await InflictAsync(defender, attacker, attackerCards, BCardEffect.Type95ChanceCausingXBuffOnEnemyOnAttack);
-            await InflictAsync(defender, defender, defenderCards, BCardEffect.Type95ChanceReceivingXBuffOnDefence);
+            await InflictAsync(defender, attacker, attackerCards, BCardEffect.ChanceCausingXBuffOnEnemyOnAttack);
+            await InflictAsync(defender, defender, defenderCards, BCardEffect.ChanceReceivingXBuffOnDefence);
         }
 
-        await InflictAsync(attacker, attacker, attackerCards, BCardEffect.Type95ChanceReceivingXBuffOnAttack);
-        await InflictAsync(attacker, defender, defenderCards, BCardEffect.Type95ChanceCausingXBuffOnEnemyOnDefence);
+        await InflictAsync(attacker, attacker, attackerCards, BCardEffect.ChanceReceivingXBuffOnAttack);
+        await InflictAsync(attacker, defender, defenderCards, BCardEffect.ChanceCausingXBuffOnEnemyOnDefence);
     }
 
     private List<BCardDto> Cards(IAliveEntity entity) =>

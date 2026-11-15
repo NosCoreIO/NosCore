@@ -118,7 +118,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _session.Character.Level = 30;
             _session.Character.JobLevel = 30;
-            WearBCards(new BCardDto { Type = BCardType.CardType.Type101, SubType = 41, FirstData = 10 });
+            WearBCards(new BCardDto { Type = BCardType.CardType.DamageToAreaAndExperience, SubType = 41, FirstData = 10 });
 
             await KillAsync((_session, 100));
 
@@ -130,7 +130,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _session.Character.Level = 30;
             _session.Character.JobLevel = 30;
-            WearBCards(new BCardDto { Type = BCardType.CardType.Type87, SubType = 21, FirstData = 15 });
+            WearBCards(new BCardDto { Type = BCardType.CardType.FameAndHeroXp, SubType = 21, FirstData = 15 });
 
             await KillAsync((_session, 100));
 
@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _session.Character.Level = 30;
             _session.Character.JobLevel = 30;
             var before = _session.Character.Reputation;
-            WearBCards(new BCardDto { Type = BCardType.CardType.Type87, SubType = 11, FirstData = 20 });
+            WearBCards(new BCardDto { Type = BCardType.CardType.FameAndHeroXp, SubType = 11, FirstData = 20 });
 
             await KillAsync((_session, 100));
 

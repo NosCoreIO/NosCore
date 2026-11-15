@@ -43,8 +43,8 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         {
             new BCardDto
             {
-                Type = BCardEffect.Type96IncreaseFairyElement.Type(),
-                SubType = BCardEffect.Type96IncreaseFairyElement.SubType(),
+                Type = BCardEffect.IncreaseFairyElement.Type(),
+                SubType = BCardEffect.IncreaseFairyElement.SubType(),
                 FirstData = 30,
             },
         };

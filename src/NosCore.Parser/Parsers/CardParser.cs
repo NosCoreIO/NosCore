@@ -79,11 +79,11 @@ namespace NosCore.Parser.Parsers
         {
             switch (card.CardId)
             {
-                case 131 when card.BCards?.Any(b => b.Type == BCardType.CardType.Type96 && b.SubType == 11) != true:
+                case 131 when card.BCards?.Any(b => b.Type == BCardType.CardType.FairyElementAndFishing && b.SubType == 11) != true:
                     card.BCards = [.. card.BCards ?? [], new BCardDto
                     {
                         CardId = card.CardId,
-                        Type = BCardType.CardType.Type96,
+                        Type = BCardType.CardType.FairyElementAndFishing,
                         SubType = 11,
                         FirstData = 30,
                     }];

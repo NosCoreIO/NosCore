@@ -472,8 +472,8 @@ public sealed class BattleStatsProvider(
             [BCardEffect.DodgeAndDefencePercentDefenceReduced] = (t, v) => t.DefencePercent -= v,
 
             [BCardEffect.ItemAttackIncreased] = (t, v) => t.DamageAll += v,
-            [BCardEffect.Type103IncreaseAllAttack] = (t, v) => t.DamageAll += v,
-            [BCardEffect.Type103DecreaseAllAttack] = (t, v) => t.DamageAll -= v,
+            [BCardEffect.IncreaseAllAttack] = (t, v) => t.DamageAll += v,
+            [BCardEffect.DecreaseAllAttack] = (t, v) => t.DamageAll -= v,
 
             // Types 3 and 9 subtype 5 count in upgrade levels, the same scale as a weapon's or an
             // armour's +N.
@@ -507,8 +507,8 @@ public sealed class BattleStatsProvider(
 
             // Type 96, "the equipped fairy's element": the fairy's rate is the character's
             // element rate, so it lands there whatever element the fairy has.
-            [BCardEffect.Type96IncreaseFairyElement] = (t, v) => t.FairyElement += v,
-            [BCardEffect.Type96DecreaseFairyElement] = (t, v) => t.FairyElement -= v,
+            [BCardEffect.IncreaseFairyElement] = (t, v) => t.FairyElement += v,
+            [BCardEffect.DecreaseFairyElement] = (t, v) => t.FairyElement -= v,
 
             // Type 13, the defender's side of the elemental exchange. Not to be confused
             // with type 7 above, which is the attacker's element rate: these four are read

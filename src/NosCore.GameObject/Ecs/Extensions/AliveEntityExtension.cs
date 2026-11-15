@@ -327,7 +327,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         {
             var buffs = aliveEntity is PlayerComponentBundle ? aliveEntity.BuffState() : null;
             return buffs != null && buffs.Values.Any(buff =>
-                buff.BCards.Any(b => b.Effect() == BCardEffect.Type96IncreaseFairyElement));
+                buff.BCards.Any(b => b.Effect() == BCardEffect.IncreaseFairyElement));
         }
 
         public static ConcurrentDictionary<short, BuffInstance>? BuffState(this IAliveEntity aliveEntity) =>
