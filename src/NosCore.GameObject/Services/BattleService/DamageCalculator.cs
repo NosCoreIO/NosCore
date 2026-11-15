@@ -318,12 +318,12 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         switch (skill.Type)
         {
             case 0: // melee
-                if (attacker.Class == CharacterClassType.Archer) UseRanged();
+                if (skill.UsesSecondaryWeapon) UseRanged();
                 ctx.MonsterDefence = defender.Defence;
                 ctx.MonsterDodge = defender.DefenceDodge;
                 break;
             case 1: // ranged
-                if (attacker.Class != CharacterClassType.Archer) UseRanged();
+                if (skill.UsesSecondaryWeapon) UseRanged();
                 ctx.Kind = AttackKind.Ranged;
                 ctx.MonsterDefence = defender.DistanceDefence;
                 ctx.MonsterDodge = defender.DistanceDefenceDodge;

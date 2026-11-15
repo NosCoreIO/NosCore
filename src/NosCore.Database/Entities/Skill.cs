@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -69,6 +70,10 @@ namespace NosCore.Database.Entities
         public byte MinimumSwordmanLevel { get; set; }
 
         public bool MinimumLevelIsChampionLevel { get; set; }
+
+        public bool UsesSecondaryWeapon { get; set; }
+
+        public SkillKind Kind { get; set; }
 
         public short MpCost { get; set; }
 

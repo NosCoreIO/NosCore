@@ -402,21 +402,46 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(102, Hit(Player(CharacterClassType.Swordsman, 30, attack: -24, weapon: 100), Chicken(), MeleeSkill));
         }
 
-        // An archer's melee skill swings the secondary weapon, but melee bonuses still apply: 26 + 15 + 20 - 18 + 9.
+        // A dagger skill swings the archer's secondary weapon, but melee bonuses still apply: 26 + 15 + 20 - 18 + 9.
         [TestMethod]
-        public void AnArchersMeleeSkillTakesTheMeleeAttackBonus()
+        public void AnArchersDaggerSkillTakesTheMeleeAttackBonus()
         {
             var archer = StatsBuilder.Default() with
             {
                 IsPlayer = true, Class = CharacterClassType.Archer, Level = 10, Morale = 10, HitRate = 999,
                 DistanceRate = 999, MinDistance = 26, MaxDistance = 26,
             };
-            var meleeBonus = MeleeSkill with
+            var daggerWithBonus = MeleeSkill with
             {
+                UsesSecondaryWeapon = true,
                 BCards = new[] { new BCardDto { Type = 3, SubType = 21, FirstData = 20 } },
             };
 
-            Assert.AreEqual(52, Hit(archer, Chicken(), meleeBonus));
+            Assert.AreEqual(52, Hit(archer, Chicken(), daggerWithBonus));
+        }
+
+        [TestMethod]
+        public void AMeleeSkillFiredWithTheSecondaryWeaponUsesItsDamage()
+        {
+            var swordsman = Player(CharacterClassType.Swordsman, 10, attack: 26) with
+            {
+                DistanceRate = 999, MinDistance = 500, MaxDistance = 500,
+            };
+
+            Assert.IsTrue(Hit(swordsman, Chicken(), MeleeSkill with { UsesSecondaryWeapon = true })
+                > Hit(swordsman, Chicken(), MeleeSkill));
+        }
+
+        [TestMethod]
+        public void AnArchersMeleeSkillWithoutTheFlagUsesTheMainWeapon()
+        {
+            var archer = StatsBuilder.Default() with
+            {
+                IsPlayer = true, Class = CharacterClassType.Archer, Level = 10, Morale = 10, HitRate = 999,
+                MinHit = 26, MaxHit = 26, DistanceRate = 999, MinDistance = 500, MaxDistance = 500,
+            };
+
+            Assert.IsTrue(Hit(archer, Chicken(), MeleeSkill) < 100);
         }
 
         // A 70% critical adds 70% of attack less defence, 159, and not of the 29 level gap.

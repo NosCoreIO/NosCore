@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Battle;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -139,13 +140,16 @@ public sealed class HitQueue(
 
             var attackerStats = statsProvider.GetStats(request.Origin);
             var defenderStats = statsProvider.GetStats(target);
-            var damage = damageCalculator.Calculate(attackerStats, defenderStats, request.Skill);
-            if (isPvp)
+            var debuffOnly = request.Skill.Kind == SkillKind.Debuff;
+            var damage = debuffOnly
+                ? new DamageResult(0, SuPacketHitMode.NoDamageSuccess)
+                : damageCalculator.Calculate(attackerStats, defenderStats, request.Skill);
+            if (isPvp && !debuffOnly)
             {
                 damage = damage with { Damage = PvpDamage(damage.Damage, attackerStats, defenderStats) };
             }
 
-            if (damage.HitMode == SuPacketHitMode.Miss || damage.Damage <= 0)
+            if (damage.HitMode == SuPacketHitMode.Miss || (damage.Damage <= 0 && !debuffOnly))
             {
                 request.Completion.TrySetResult(new HitOutcome(HitStatus.Missed, 0, damage.HitMode, false));
                 return;
@@ -186,7 +190,10 @@ public sealed class HitQueue(
             // damage dealt. Overkill damage is clipped so late arrivals don't get
             // credit for more than the target actually had.
             var credited = damage.Damage - overkill;
-            target.HitList.AddOrUpdate(request.Origin.Handle, credited, (_, existing) => existing + credited);
+            if (credited > 0)
+            {
+                target.HitList.AddOrUpdate(request.Origin.Handle, credited, (_, existing) => existing + credited);
+            }
 
             // Players get no standing regen until 4s after being hit. Monster damage doesn't need tracking; they don't
             // regen.

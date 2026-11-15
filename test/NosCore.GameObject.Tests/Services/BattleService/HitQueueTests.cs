@@ -233,6 +233,35 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ADebuffOnlySkillLandsItsCardsWithoutDamage()
+        {
+            var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+            var buffs = new Mock<IBuffService>();
+            var stats = new Mock<IBattleStatsProvider>();
+            stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
+            var calc = new Mock<IDamageCalculator>();
+            calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
+                .Returns(new DamageResult(300, SuPacketHitMode.SuccessAttack));
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object,
+                new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object,
+                ManaShieldMock.Shieldless(), new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            var skill = MakeSkill() with
+            {
+                Kind = SkillKind.Debuff,
+                BCards = new[] { new BCardDto { Type = 25, FirstData = 400, SecondData = 144 } },
+            };
+
+            var outcome = await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
+
+            Assert.AreEqual(HitStatus.Landed, outcome.Status);
+            Assert.AreEqual(0, outcome.Damage);
+            Assert.AreEqual(SuPacketHitMode.NoDamageSuccess, outcome.HitMode);
+            Assert.AreEqual(600, target.Hp);
+            buffs.Verify(b => b.InflictCardsAsync(target, attacker, skill.BCards), Times.Once);
+        }
+
+        [TestMethod]
         public async Task WhatTheManaShieldPaysNeverReachesHp()
         {
             var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };

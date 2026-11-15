@@ -22,6 +22,7 @@
 | Element | Byte |  |  |
 | HitType | Byte |  |  |
 | ItemVNum | Int16 |  |  |
+| Kind | SkillKind |  |  |
 | LevelMinimum | Byte |  |  |
 | MinimumAdventurerLevel | Byte |  |  |
 | MinimumArcherLevel | Byte |  |  |
@@ -39,4 +40,5 @@
 | Type | Byte |  |  |
 | UpgradeSkill | Int16 |  |  |
 | UpgradeType | Int16 |  |  |
+| UsesSecondaryWeapon | Boolean |  |  |
 
