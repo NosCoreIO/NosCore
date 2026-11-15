@@ -2864,6 +2864,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-14`, the mine room shows a red ten-minute clock and "The enemies are getting
       reinforcements!" every 30 seconds, with bigger waves from the third one; the lever opens the
       east portal without stopping them, and no more come once nobody is left in the mine
+- [ ] Dying in a time-space (`$Kill` works) shows "You can be revived 2 more time(s)." in `timespace-14`
+      and brings the character back 10 seconds later; the run fails only once its lives are spent
 - [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
       guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders

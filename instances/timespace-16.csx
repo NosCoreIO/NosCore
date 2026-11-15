@@ -17,6 +17,7 @@ public class TimeSpace16 : InstanceScript
             .ForLevels(26, 99)
             .StartingAt(11, 10)
             .Requiring(1012, 2)
+            .WithLives(2)
             .WithDraw(70, 1)
             .WithDraw(80, 1)
             .WithDraw(88, 1)
