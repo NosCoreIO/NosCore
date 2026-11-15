@@ -218,9 +218,16 @@ namespace NosCore.GameObject.Services.TransformationService
                 character.Morph = 0;
             }
 
+            // A boost can swap the riding card for another of its group, which would otherwise outlive the ride.
             if (cardCatalog.GetItemCard(character.VehicleVNum) is { } ridingCard)
             {
-                await buffService.RemoveAsync(character, ridingCard.CardId);
+                foreach (var buff in buffService.GetActiveBuffs(character)
+                             .Where(b => b.CardId == ridingCard.CardId
+                                 || (ridingCard.GroupId != 0 && cardCatalog.GetCard(b.CardId)?.GroupId == ridingCard.GroupId))
+                             .ToList())
+                {
+                    await buffService.RemoveAsync(character, buff.CardId);
+                }
             }
 
             character.IsVehicled = false;

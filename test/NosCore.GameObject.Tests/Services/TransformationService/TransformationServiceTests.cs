@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private const short BoostCardId = 336;
         private const short MountWithABuff = 13752;
         private const short RidingCardId = 4328;
+        private const short BoostedRidingCardId = 4329;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -41,12 +42,17 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             Session = await World.CreateSessionAsync();
             Session.Character.MapInstance = World.GetBaseMap(1);
 
+            var cards = World.Freeze<Mock<NosCore.GameObject.Services.BattleService.ICardCatalog>>();
             Buffs = World.Create<NosCore.GameObject.Services.BattleService.BuffService>();
             World.Inject<NosCore.GameObject.Services.BattleService.IBuffService>(Buffs);
-            var cards = World.Freeze<Mock<NosCore.GameObject.Services.BattleService.ICardCatalog>>();
             cards.Setup(c => c.IsGrantedBy(BoostCardId, NosCore.Data.Enumerations.Items.ItemEffectType.SpeedBooster)).Returns(true);
-            cards.Setup(c => c.GetItemCard(MountWithABuff))
-                .Returns(new NosCore.Data.StaticEntities.CardDto { CardId = RidingCardId, Duration = 30000 });
+            var ridingCard = new NosCore.Data.StaticEntities.CardDto { CardId = RidingCardId, GroupId = RidingCardId, Duration = 30000 };
+            cards.Setup(c => c.GetItemCard(MountWithABuff)).Returns(ridingCard);
+            cards.Setup(c => c.GetCard(RidingCardId)).Returns(ridingCard);
+            cards.Setup(c => c.GetCard(BoostedRidingCardId)).Returns(new NosCore.Data.StaticEntities.CardDto
+            {
+                CardId = BoostedRidingCardId, GroupId = RidingCardId, Duration = 150
+            });
             cards.Setup(c => c.GetCardBCards(RidingCardId)).Returns(new List<NosCore.Data.StaticEntities.BCardDto>());
             Service = new GameObject.Services.TransformationService.TransformationService(
                 World.Clock,
@@ -172,6 +178,20 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
             await Service.RemoveVehicleAsync(Session);
             Assert.IsFalse(Buffs.HasBuff(Session.Character, RidingCardId));
+        }
+
+        [TestMethod]
+        public async Task DismountingEndsTheBuffABoostSwappedTheRidingBuffFor()
+        {
+            await Riding(MountWithABuff);
+            await Buffs.ApplyAsync(Session.Character, new NosCore.Data.StaticEntities.CardDto
+            {
+                CardId = BoostedRidingCardId, GroupId = RidingCardId, Duration = 150
+            }, new List<NosCore.Data.StaticEntities.BCardDto>(), Session.Character);
+            Assert.IsFalse(Buffs.HasBuff(Session.Character, RidingCardId));
+
+            await Service.RemoveVehicleAsync(Session);
+            Assert.AreEqual(0, Buffs.GetActiveBuffs(Session.Character).Count);
         }
 
         [TestMethod]

@@ -9,7 +9,7 @@ namespace NosCore.Parser.Parsers
 {
     // What a Speed Booster does on each mount, as the mount's English description lists it under "[With Speed Booster]".
     // Left out: the buffs that come with "a certain chance", for which no description gives a figure, and what the
-    // server cannot do yet - the hiding of 5226 and 5228 in Glacernon and the Power Loader's Strobe Shield.
+    // server cannot do yet - the hiding of 5226 and 5228 in Glacernon.
     public static class MountSpeedBoosts
     {
         private const short Dizzy = 786;
@@ -18,10 +18,12 @@ namespace NosCore.Parser.Parsers
         private const short MagicEggshell = 1439;
         private const short SteamBoost = 4223;
         private const short DivineGallop = 4329;
+        // Shares the riding Stealth Field's group, so it replaces it, and hands it back when it ends.
+        private const short StrobeShield = 4249;
 
         public static readonly IReadOnlyDictionary<short, MountSpeedBoost> All = new Dictionary<short, MountSpeedBoost>
         {
-            [1618] = new(Speed: -4, Duration: 10, RemovesDebuffsUpToLevel: 4),
+            [1618] = new(Speed: -4, Duration: 10, RemovesDebuffsUpToLevel: 4, StartCard: StrobeShield),
             [1906] = new(Speed: 2, Duration: 3),
             [1907] = new(Speed: 2, Duration: 3),
             [1965] = new(Speed: 2, Duration: 3),
