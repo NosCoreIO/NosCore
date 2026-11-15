@@ -34,6 +34,7 @@
 | Range | Byte |  |  |
 | SkillType | Byte |  |  |
 | SkillVNum | Int16 |  |  |
+| TargetKind | SkillTargetKind |  |  |
 | TargetRange | Byte |  |  |
 | TargetType | Byte |  |  |
 | Type | Byte |  |  |

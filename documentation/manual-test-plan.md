@@ -270,6 +270,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       bar in the group window. Their portrait there shows their specialist only while they are
       transformed.
 
+### Debuff skills deal no damage
+
+- [ ] As a Swordsman, stand next to a monster and use Suppress: the debuff's icon shows under
+      the monster's bars and its HP stays full
+- [ ] Use Provoke (Warrior specialist) on a group of monsters: each is provoked and none loses HP
+
 ### Debuff resistance
 
 - [ ] Let a monster whose skill causes Blackout hit you: Blackout lands on every hit that

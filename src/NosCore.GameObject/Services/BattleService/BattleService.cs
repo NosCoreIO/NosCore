@@ -368,7 +368,7 @@ namespace NosCore.GameObject.Services.BattleService
                 TargetIsAlive = target.IsAlive,
                 HpPercentage = target.MaxHp > 0 ? (byte)(target.Hp * 100 / target.MaxHp) : (byte)0,
                 Damage = (uint)outcome.Damage,
-                HitMode = presentation.InArea ? InArea(outcome.HitMode) : outcome.HitMode,
+                HitMode = presentation.InArea ? InArea(outcome.HitMode, target) : outcome.HitMode,
                 SkillTypeMinusOne = (int)skill.Type - 1,
                 TargetCurrentHp = target.Hp,
                 TargetMaxHp = target.MaxHp,
@@ -377,9 +377,11 @@ namespace NosCore.GameObject.Services.BattleService
         }
 
         // A blow from a ground skill is drawn as caught in the area, so the client plays it at the
-        // cast cell rather than as a strike from the caster.
-        private static SuPacketHitMode InArea(SuPacketHitMode hitMode) => hitMode switch
+        // cast cell rather than as a strike from the caster. A blow without damage keeps its own
+        // mode on a player.
+        private static SuPacketHitMode InArea(SuPacketHitMode hitMode, IAliveEntity target) => hitMode switch
         {
+            SuPacketHitMode.NoDamageSuccess when target.VisualType != VisualType.Player => SuPacketHitMode.AttackedInAoe,
             SuPacketHitMode.SuccessAttack => SuPacketHitMode.AttackedInAoe,
             SuPacketHitMode.CriticalAttack => SuPacketHitMode.AttackedInAoeCrit,
             SuPacketHitMode.Miss => SuPacketHitMode.MissAoe,

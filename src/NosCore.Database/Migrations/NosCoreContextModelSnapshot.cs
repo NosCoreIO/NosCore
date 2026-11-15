@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115012603_AddMapTypeAndRespawnTypeEnums";
+    public override string LastMigrationId => "20261115021209_AddSkillTargetKind";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -65,6 +65,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "region_type", new[] { "en", "de", "fr", "it", "pl", "es", "ru", "cs", "tr" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "respawn_type", new[] { "default_act1", "return_act1", "default_act3", "default_act5", "return_act5", "default_act6", "default_act62", "default_oasis", "act4angel", "act4demon" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "scripted_instance_type", new[] { "time_space", "raid", "raid_act4" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "skill_target_kind", new[] { "attack", "debuff_without_damage", "support", "couple_emote" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "static_bonus_type", new[] { "bazaar_medal_gold", "bazaar_medal_silver", "back_pack", "pet_basket", "pet_back_pack", "inventory_ticket_upgrade", "cuarry_bank_vip" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "teleporter_type", new[] { "teleporter", "teleporter_on_map" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "warehouse_type", new[] { "warehouse", "family_ware_house", "pet_warehouse" });
@@ -3290,6 +3291,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.Property<byte>("SkillType")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("TargetKind")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("TargetRange")

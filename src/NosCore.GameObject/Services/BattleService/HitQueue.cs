@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Arch.Core;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -139,13 +140,16 @@ public sealed class HitQueue(
 
             var attackerStats = statsProvider.GetStats(request.Origin);
             var defenderStats = statsProvider.GetStats(target);
-            var damage = damageCalculator.Calculate(attackerStats, defenderStats, request.Skill);
-            if (isPvp)
+            var debuffOnly = request.Skill.TargetKind == SkillTargetKind.DebuffWithoutDamage;
+            var damage = debuffOnly
+                ? new DamageResult(0, SuPacketHitMode.NoDamageSuccess)
+                : damageCalculator.Calculate(attackerStats, defenderStats, request.Skill);
+            if (isPvp && !debuffOnly)
             {
                 damage = damage with { Damage = PvpDamage(damage.Damage, attackerStats, defenderStats) };
             }
 
-            if (damage.HitMode == SuPacketHitMode.Miss || damage.Damage <= 0)
+            if (!debuffOnly && (damage.HitMode == SuPacketHitMode.Miss || damage.Damage <= 0))
             {
                 request.Completion.TrySetResult(new HitOutcome(HitStatus.Missed, 0, damage.HitMode, false));
                 return;

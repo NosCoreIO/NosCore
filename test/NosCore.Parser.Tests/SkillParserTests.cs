@@ -9,6 +9,7 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
@@ -96,6 +97,7 @@ namespace NosCore.Parser.Tests
             byte hitType = 0,
             byte range = 0,
             byte targetRange = 0,
+            byte targetKind = 0,
             short upgradeSkill = 0,
             short upgradeType = 0,
             short castTime = 0,
@@ -114,7 +116,7 @@ namespace NosCore.Parser.Tests
                    $"\tCOST\t{cpCost}\t{price}\t0{Triples(tailCells, 30)}\r\n" +
                    $"\tLEVEL\t{levelMinimum}\t-1\t-1\t-1\t-1\r\n" +
                    $"\tEFFECT\t0\t{castEffect}\t{castAnimation}\t{effect}\t{attackAnimation}\t0\t0\t0\t0\r\n" +
-                   $"\tTARGET\t{targetType}\t{hitType}\t{range}\t{targetRange}\t0\r\n" +
+                   $"\tTARGET\t{targetType}\t{hitType}\t{range}\t{targetRange}\t{targetKind}\r\n" +
                    $"\tDATA\t{upgradeSkill}\t{upgradeType}\t0\t0\t{castTime}\t{cooldown}\t0\t0\t{mpCost}\t0\t{itemVNum}\t0\t0\t0\t0\r\n" +
                    $"\tBASIC\t{firstBasic}\r\n" +
                    "\tBASIC\t1\t0\t0\t0\t0\t0\r\n" +
@@ -211,6 +213,14 @@ namespace NosCore.Parser.Tests
 
         // An empty CELL is the overwhelming majority - 1890 of the 1958 skills - and has to come
         // out as nothing rather than as a pattern of zero-zero cells.
+        [TestMethod]
+        public async Task TheLastTargetColumnTellsADebuffWithoutDamage()
+        {
+            var skill = await ParseOneAsync(CreateSkillData(skillVNum: 815, targetType: 1, hitType: 1, targetRange: 8, targetKind: 1));
+
+            Assert.AreEqual(SkillTargetKind.DebuffWithoutDamage, skill.TargetKind);
+        }
+
         [TestMethod]
         public async Task ASkillWithNoPatternHasNoCellPattern()
         {

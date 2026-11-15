@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -92,6 +93,8 @@ namespace NosCore.Database.Entities
         public short SkillVNum { get; set; }
 
         public byte TargetRange { get; set; }
+
+        public SkillTargetKind TargetKind { get; set; }
 
         public byte TargetType { get; set; }
 

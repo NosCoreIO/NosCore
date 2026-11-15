@@ -165,6 +165,7 @@ public sealed class SkillResolver : ISkillResolver
             BCards: _catalog.GetSkillBCards(main.SkillVNum),
             CellPattern: main.CellPattern,
             CastAnimation: main.CastAnimation,
-            CastTime: main.CastTime);
+            CastTime: main.CastTime,
+            TargetKind: main.TargetKind);
     }
 }

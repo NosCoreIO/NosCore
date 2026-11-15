@@ -119,6 +119,37 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ADebuffWithoutDamageLandsItsCardsAndLeavesHpAlone()
+        {
+            var target = new FakeBattleEntity { Hp = 100, MaxHp = 100 };
+            var attacker = new FakeBattleEntity();
+            var buffs = new Mock<IBuffService>();
+            var calc = new Mock<IDamageCalculator>();
+            calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
+                .Returns(new DamageResult(40, SuPacketHitMode.SuccessAttack));
+            var stats = new Mock<IBattleStatsProvider>();
+            stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
+
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IOnHitBuffService>().Object, new Mock<IDamageLeechService>().Object, ManaShieldMock.Shieldless(), new Mock<ILogger<HitQueue>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            var skill = MakeSkill() with
+            {
+                SkillVnum = 815,
+                Duration = 100,
+                BCards = new[] { new BCardDto { Type = 3, FirstData = 10 } },
+                TargetKind = SkillTargetKind.DebuffWithoutDamage,
+            };
+
+            var outcome = await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
+
+            Assert.AreEqual(HitStatus.Landed, outcome.Status);
+            Assert.AreEqual(0, outcome.Damage);
+            Assert.AreEqual(SuPacketHitMode.NoDamageSuccess, outcome.HitMode);
+            Assert.AreEqual(100, target.Hp);
+            buffs.Verify(b => b.ApplySkillBuffAsync(target, (short)815, (short)100, skill.BCards, attacker), Times.Once);
+            buffs.Verify(b => b.InflictCardsAsync(target, attacker, skill.BCards), Times.Once);
+        }
+
+        [TestMethod]
         public async Task ALandedHitDoesNotFinishBeforeTheCardIsApplied()
         {
             var target = new FakeBattleEntity { Hp = 100, MaxHp = 100 };

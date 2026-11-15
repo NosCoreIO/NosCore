@@ -5,6 +5,7 @@
 //
 
 using NosCore.Dao.Interfaces;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -85,6 +86,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.HitType, chunk => Convert.ToByte(chunk["TARGET"][0][3]))
                 .Field(x => x.Range, chunk => Convert.ToByte(chunk["TARGET"][0][4]))
                 .Field(x => x.TargetRange, chunk => Convert.ToByte(chunk["TARGET"][0][5]))
+                .Field(x => x.TargetKind, chunk => (SkillTargetKind)Convert.ToByte(chunk["TARGET"][0][6]))
                 .Field(x => x.UpgradeSkill, chunk => Convert.ToInt16(chunk["DATA"][0][2]))
                 .Field(x => x.UpgradeType, chunk => Convert.ToInt16(chunk["DATA"][0][3]))
                 .Field(x => x.CastTime, chunk => Convert.ToInt16(chunk["DATA"][0][6]))
