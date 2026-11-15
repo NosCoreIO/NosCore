@@ -25,8 +25,9 @@ namespace NosCore.GameObject.Services.EventService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // The Act 4 channel only hosts Glacernon.
             var events = worldConfiguration.Value.Events;
-            if (events.Count == 0)
+            if (events.Count == 0 || worldConfiguration.Value.Act4Channel)
             {
                 return;
             }

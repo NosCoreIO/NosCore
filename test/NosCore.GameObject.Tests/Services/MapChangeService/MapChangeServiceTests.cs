@@ -28,6 +28,7 @@ using SpecLight;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.ChannelService;
 
 namespace NosCore.GameObject.Tests.Services.MapChangeService
 {
@@ -40,6 +41,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         private ClientSession Session;
         private Mock<IMinilandService> MinilandService;
         private readonly Mock<GameObject.Services.ScriptedInstanceService.IScriptedInstanceService> ScriptedInstances = new();
+        private readonly Mock<IChannelService> ChannelService = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -68,7 +70,8 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 new Mock<Wolverine.IMessageBus>().Object,
                 ScriptedInstances.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
-                new Mock<NosCore.GameObject.Services.FactionWarService.IFactionWarService>().Object);
+                new Mock<NosCore.GameObject.Services.FactionWarService.IFactionWarService>().Object,
+                ChannelService.Object);
         }
 
         [TestMethod]
@@ -78,6 +81,28 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 .Given(CharacterIsOnMap)
                 .WhenAsync(ChangingToNonExistentMap)
                 .Then(MapInstanceShouldNotChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMapHostedByAnotherChannelMovesThePlayerThere()
+        {
+            await new Spec("A map hosted by another channel moves the player there")
+                .Given(CharacterIsOnMap)
+                .And(GlacernonIsHostedByTheAct4Channel)
+                .WhenAsync(ChangingToGlacernon)
+                .Then(ThePlayerIsSentToTheAct4ChannelOnGlacernon)
+                .And(MapInstanceShouldNotChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMapThisChannelHostsIsEnteredHere()
+        {
+            await new Spec("A map this channel hosts is entered here")
+                .Given(CharacterIsOnMap)
+                .WhenAsync(ChangingToGlacernon)
+                .Then(ThePlayerStaysOnThisChannel)
                 .ExecuteAsync();
         }
 
@@ -301,6 +326,28 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         {
             await Service.ChangeMapAsync(Session, null, null, null);
             OperationCompleted = true;
+        }
+
+        private void GlacernonIsHostedByTheAct4Channel()
+        {
+            ChannelService.Setup(s => s.TryMoveToHostAsync(Session, It.Is<MapInstance>(m => m.IsAct4), 12, 40))
+                .ReturnsAsync(true);
+        }
+
+        private async Task ChangingToGlacernon()
+        {
+            World.GetBaseMap(1).IsAct4 = true;
+            await Service.ChangeMapAsync(Session, 1, 12, 40);
+        }
+
+        private void ThePlayerIsSentToTheAct4ChannelOnGlacernon()
+        {
+            ChannelService.Verify(s => s.TryMoveToHostAsync(Session, World.GetBaseMap(1), 12, 40), Times.Once);
+        }
+
+        private void ThePlayerStaysOnThisChannel()
+        {
+            Assert.AreEqual(World.GetBaseMap(1).MapInstanceId, Session.Character.MapInstance.MapInstanceId);
         }
 
         private void MapInstanceShouldNotChange()

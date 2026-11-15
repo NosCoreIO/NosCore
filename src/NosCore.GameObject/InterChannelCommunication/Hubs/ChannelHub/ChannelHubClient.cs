@@ -61,6 +61,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
             StartInMaintenance = data.StartInMaintenance,
             Host = data.Host,
             ConnectedAccountLimit = data.ConnectedAccountLimit,
+            IsAct4 = data.IsAct4,
         };
     }
 }

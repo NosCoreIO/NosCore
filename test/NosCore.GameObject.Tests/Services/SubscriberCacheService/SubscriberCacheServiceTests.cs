@@ -59,6 +59,23 @@ namespace NosCore.GameObject.Tests.Services.SubscriberCacheService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ASessionThatMovedToAnotherChannelIsFoundThere()
+        {
+            await new Spec("A session that moved to another channel is found there once the master has caught up")
+                .GivenAsync(TheFriendIsOnlineAndKeptAsync)
+                .And(TheFriendsSessionLeavesThisChannel)
+                .And(TheMasterHasHadTimeToCatchUp)
+                .WhenAsync(LookingForTheFriendAsync)
+                .Then(TheSameSessionIsFound)
+                .ExecuteAsync();
+        }
+
+        private void TheMasterHasHadTimeToCatchUp() =>
+            World.Clock.Advance(GameObject.Services.SubscriberCacheService.SubscriberCacheService.DepartureDuration);
+
+        private void TheSameSessionIsFound() => Assert.AreEqual(LeftSession, Found?.Id);
+
         private async Task TheFriendIsOnlineAndKeptAsync()
         {
             Listed = new List<Subscriber> { Session(LeftSession) };

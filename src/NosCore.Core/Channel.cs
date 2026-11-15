@@ -32,5 +32,7 @@ namespace NosCore.Core
         public required string Host { get; set; }
 
         public int ConnectedAccountLimit { get; set; }
+
+        public bool IsAct4 { get; set; }
     }
 }

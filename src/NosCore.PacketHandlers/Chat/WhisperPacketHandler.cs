@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
@@ -34,7 +35,7 @@ namespace NosCore.PacketHandlers.Chat
 {
     public class WhisperPacketHandler(ILogger<WhisperPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISerializer packetSerializer,
             IBlacklistCacheService blacklistCache, ISubscriberCacheService subscriberCache,
-            IPubSubHub pubSubHub, Channel channel,
+            IPubSubHub pubSubHub, IChannelHub channelHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer,
             ISessionRegistry sessionRegistry)
         : PacketHandler<WhisperPacket>, IWorldPacketHandler
@@ -115,9 +116,15 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var receiverOnSameChannel = sessionRegistry.TryGetCharacter(s => s.Name == receiverName, out _);
-                speakPacket.Message = receiverOnSameChannel ? speakPacket.Message :
-                    $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Language]}: {channel.ChannelId}>";
+                if (!sessionRegistry.TryGetCharacter(s => s.Name == receiverName, out _))
+                {
+                    var channels = await channelHub.GetCommunicationChannels();
+                    if (channels.FirstOrDefault(c => c.Host == channel.Host && c.Port == channel.Port) is { } here)
+                    {
+                        speakPacket.Message =
+                            $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Language]}: {channels.NumberOf(here)}>";
+                    }
+                }
 
                 await pubSubHub.SendMessageAsync(new PostedPacket
                 {

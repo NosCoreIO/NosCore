@@ -7,11 +7,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ChannelService;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -90,6 +92,202 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                 .WhenAsync(MovingToChannel)
                 .Then(NoPacketsShouldBeSent)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOrdinaryChannelSendsGlacernonToTheAct4Channel()
+        {
+            await new Spec("An ordinary channel sends Glacernon to the Act 4 channel")
+                .Given(BothKindsOfChannelRun)
+                .WhenAsync(AskingWhoHostsGlacernon)
+                .Then(TheHostShouldBe_, 51L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOrdinaryChannelKeepsTheOtherMaps()
+        {
+            await new Spec("An ordinary channel keeps the other maps")
+                .Given(BothKindsOfChannelRun)
+                .WhenAsync(AskingWhoHostsAnOrdinaryMap)
+                .Then(ThisChannelShouldKeepThePlayer)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WithoutAnAct4ChannelGlacernonStaysHere()
+        {
+            await new Spec("Without an Act 4 channel Glacernon stays here")
+                .Given(TargetChannelExists)
+                .WhenAsync(AskingWhoHostsGlacernon)
+                .Then(ThisChannelShouldKeepThePlayer)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnAct4ChannelOfAnotherServerIsNotUsed()
+        {
+            await new Spec("An Act 4 channel of another server is not used")
+                .Given(OnlyAnotherServerHasAnAct4Channel)
+                .WhenAsync(AskingWhoHostsGlacernon)
+                .Then(ThisChannelShouldKeepThePlayer)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheAct4ChannelSendsOtherMapsToTheFirstOrdinaryChannel()
+        {
+            await new Spec("The Act 4 channel sends other maps to the first ordinary channel")
+                .Given(ThisIsTheAct4Channel)
+                .And(BothKindsOfChannelRun)
+                .WhenAsync(AskingWhoHostsAnOrdinaryMap)
+                .Then(TheHostShouldBe_, 2L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheAct4ChannelKeepsGlacernon()
+        {
+            await new Spec("The Act 4 channel keeps Glacernon")
+                .Given(ThisIsTheAct4Channel)
+                .And(BothKindsOfChannelRun)
+                .WhenAsync(AskingWhoHostsGlacernon)
+                .Then(ThisChannelShouldKeepThePlayer)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MovingToAMapOnAnotherChannelSavesThePlayerThere()
+        {
+            await new Spec("Moving to a map on another channel saves the player there")
+                .Given(BothKindsOfChannelRun)
+                .WhenAsync(SailingToTheAngelCitadel)
+                .Then(TheCharacterShouldStandInTheAngelCitadel)
+                .And(TheClientShouldShowTheCrossing)
+                .And(CharacterShouldBeSaved)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GlacernonOnAnOrdinaryChannelSendsThePlayerToTheAct4Channel()
+        {
+            await new Spec("Glacernon on an ordinary channel sends the player to the Act 4 channel")
+                .Given(BothKindsOfChannelRun)
+                .WhenAsync(EnteringGlacernon)
+                .Then(ThePlayerShouldHaveMoved)
+                .And(TheClientShouldShow_, ItModeType.ToAct4)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnInstanceNeverLeavesTheChannel()
+        {
+            await new Spec("An instance never leaves the channel")
+                .Given(BothKindsOfChannelRun)
+                .WhenAsync(EnteringAnAct4Instance)
+                .Then(ThePlayerShouldHaveStayed)
+                .ExecuteAsync();
+        }
+
+        private bool Moved;
+
+        private async Task EnteringGlacernon()
+        {
+            var map = World.GetBaseMap(1);
+            map.IsAct4 = true;
+            Moved = await Service.TryMoveToHostAsync(Session, map, 12, 38);
+        }
+
+        private async Task EnteringAnAct4Instance()
+        {
+            var map = World.GetBaseMap(1);
+            map.IsAct4 = true;
+            map.MapInstanceType = MapInstanceType.NormalInstance;
+            Moved = await Service.TryMoveToHostAsync(Session, map, 12, 38);
+        }
+
+        private void ThePlayerShouldHaveMoved()
+        {
+            Assert.IsTrue(Moved);
+        }
+
+        private void ThePlayerShouldHaveStayed()
+        {
+            Assert.IsFalse(Moved);
+            Assert.IsFalse(Session.LastPackets.OfType<MzPacket>().Any());
+        }
+
+        private void TheClientShouldShow_(ItModeType mode)
+        {
+            Assert.AreEqual(mode, Session.LastPackets.OfType<ItPacket>().Single().Mode);
+        }
+
+        private ChannelInfo? Host;
+
+        private void ThisIsTheAct4Channel()
+        {
+            World.WorldConfiguration.Value.Act4Channel = true;
+        }
+
+        private void BothKindsOfChannelRun()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo>
+                {
+                    new() { Id = 3, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1339 },
+                    new() { Id = 51, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1338, IsAct4 = true },
+                    new() { Id = 2, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1337 },
+                });
+        }
+
+        private void OnlyAnotherServerHasAnAct4Channel()
+        {
+            World.WorldConfiguration.Value.ServerId = 1;
+            ChannelHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo>
+                {
+                    new() { Id = 2, ServerId = 1, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1337 },
+                    new() { Id = 51, ServerId = 2, Type = ServerType.WorldServer, Host = "127.0.0.1", Port = 1338, IsAct4 = true },
+                });
+        }
+
+        private async Task AskingWhoHostsGlacernon()
+        {
+            Host = await Service.GetChannelHostingAsync(true);
+        }
+
+        private async Task AskingWhoHostsAnOrdinaryMap()
+        {
+            Host = await Service.GetChannelHostingAsync(false);
+        }
+
+        private void TheHostShouldBe_(long id)
+        {
+            Assert.AreEqual(id, Host?.Id);
+        }
+
+        private void ThisChannelShouldKeepThePlayer()
+        {
+            Assert.IsNull(Host);
+        }
+
+        private async Task SailingToTheAngelCitadel()
+        {
+            var act4 = (await ChannelHub.Object.GetCommunicationChannels()).Single(c => c.IsAct4);
+            await Service.MoveToMapAsync(Session, act4, ItModeType.ShipToAct4, 130, 12, 38);
+        }
+
+        private void TheCharacterShouldStandInTheAngelCitadel()
+        {
+            Assert.AreEqual((short)130, Session.Character.MapId);
+            Assert.AreEqual((short)12, Session.Character.MapX);
+            Assert.AreEqual((short)38, Session.Character.MapY);
+        }
+
+        private void TheClientShouldShowTheCrossing()
+        {
+            Assert.AreEqual(1338, Session.LastPackets.OfType<MzPacket>().Single().Port);
+            Assert.AreEqual(ItModeType.ShipToAct4, Session.LastPackets.OfType<ItPacket>().Single().Mode);
         }
 
         private void TargetChannelExists()

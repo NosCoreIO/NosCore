@@ -9,7 +9,9 @@ using Moq;
 using NosCore.Core;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
@@ -18,6 +20,7 @@ using NosCore.PacketHandlers.Chat;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
@@ -40,6 +43,9 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private Mock<IBlacklistHub> BlacklistHub;
         private Mock<IPubSubHub> PubSubHub;
         private Mock<ISerializer> Serializer;
+        private readonly Channel Channel = new() { ClientName = "TestChannel", Host = "localhost", Port = 1339 };
+        private string? Delivered;
+        private Mock<IChannelHub> ChannelHub;
         private readonly ILogger<WhisperPacketHandler> Logger = new Mock<ILogger<WhisperPacketHandler>>().Object;
 
         [TestInitialize]
@@ -50,6 +56,13 @@ namespace NosCore.PacketHandlers.Tests.Chat
             TargetSession = await World.CreateSessionAsync();
             BlacklistHub = World.Freeze<Mock<IBlacklistHub>>();
             PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
+            ChannelHub.Setup(x => x.GetCommunicationChannels()).ReturnsAsync(() =>
+            [
+                new ChannelInfo { Id = 3, Host = "localhost", Port = 1337, Type = ServerType.WorldServer },
+                new ChannelInfo { Id = 4, Host = "localhost", Port = 1338, Type = ServerType.WorldServer, IsAct4 = true },
+                new ChannelInfo { Id = 5, Host = "localhost", Port = 1339, Type = ServerType.WorldServer },
+            ]);
             Serializer = new Mock<ISerializer>();
 
             BlacklistHub.Setup(x => x.GetBlacklistedAsync(It.IsAny<long>()))
@@ -59,9 +72,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 .Returns(Task.FromResult(new List<Subscriber>()));
 
             Serializer.Setup(x => x.Serialize(It.IsAny<IPacket[]>()))
+                .Callback<IEnumerable<IPacket>>(p => Delivered = (p.Single() as SpeakPacket)?.Message)
                 .Returns("serialized");
-
-            var channel = new Channel { ChannelId = 1, ClientName = "TestChannel", Host = "localhost" };
 
             Handler = new WhisperPacketHandler(
                 Logger,
@@ -70,7 +82,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 World.Create<BlacklistCacheService>(),
                 World.Create<SubscriberCacheService>(),
                 PubSubHub.Object,
-                channel,
+                ChannelHub.Object,
+                Channel,
                 World.GameLanguageLocalizer,
                 World.SessionRegistry);
         }
@@ -206,6 +219,58 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 .WhenAsync(WhisperingToYourself)
                 .Then(NoMessageShouldBeSentViaPubSub)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AWhisperFromTheAct4ChannelNamesIt51()
+        {
+            await new Spec("A whisper from the Act 4 channel to another channel names it channel 51")
+                .Given(CharacterIsOnMap)
+                .And(TheSenderIsOnTheAct4Channel)
+                .And(TheTargetIsOnAnotherChannel)
+                .WhenAsync(WhisperingToTheFarawayTarget)
+                .Then(TheWhisperShouldEndWith_, ": 51>")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AWhisperFromAnOrdinaryChannelNamesItAsTheListDoes()
+        {
+            await new Spec("A whisper from an ordinary channel names it as the channel list does")
+                .Given(CharacterIsOnMap)
+                .And(TheTargetIsOnAnotherChannel)
+                .WhenAsync(WhisperingToTheFarawayTarget)
+                .Then(TheWhisperShouldEndWith_, ": 2>")
+                .ExecuteAsync();
+        }
+
+        private void TheSenderIsOnTheAct4Channel()
+        {
+            Channel.Port = 1338;
+            Channel.IsAct4 = true;
+        }
+
+        private void TheTargetIsOnAnotherChannel()
+        {
+            PubSubHub.Setup(x => x.GetSubscribersAsync())
+                .Returns(Task.FromResult(new List<Subscriber>
+                {
+                    new Subscriber
+                    {
+                        ConnectedCharacter = new Data.WebApi.Character { Id = 999_999, Name = "Faraway" }
+                    }
+                }));
+        }
+
+        private async Task WhisperingToTheFarawayTarget()
+        {
+            await Handler.ExecuteAsync(new WhisperPacket { Message = "Faraway Hello there!" }, Session);
+        }
+
+        private void TheWhisperShouldEndWith_(string suffix)
+        {
+            Assert.IsNotNull(Delivered);
+            Assert.IsTrue(Delivered.EndsWith(suffix), Delivered);
         }
 
         private void TheSenderIsOnline()
