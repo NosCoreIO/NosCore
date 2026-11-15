@@ -18,6 +18,7 @@ namespace NosCore.Data.Enumerations.Buff
         MedalOfErenia = 7,
         AdventurersMedal = 8,
         MedalOfFriendship = 9,
-        MimisMedal = 10
+        MimisMedal = 10,
+        FamilyExperienceBooster = 11
     }
 }

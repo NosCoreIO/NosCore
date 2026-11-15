@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             if (definition.FamilyExperience > 0 && character.Family is { } family)
             {
                 await familyContributionService.ExperienceEarnedAsync(family.FamilyId, character.CharacterId,
-                    character.Name, definition.FamilyExperience);
+                    character.Name, definition.FamilyExperience, character.HasFamilyExperienceBooster());
             }
 
             var drawn = definition.DrawItems.Count == 0

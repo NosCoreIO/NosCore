@@ -222,7 +222,8 @@ namespace NosCore.GameObject.Services.ExperienceService
                     await mapInstance.SendPacketAsync(player.GenerateEff(198));
                     if (player.Family is { } family)
                     {
-                        await familyContributionService.CharacterLevelledUpAsync(family.FamilyId, player.CharacterId, player.Name, previousLevel, player.Level);
+                        await familyContributionService.CharacterLevelledUpAsync(family.FamilyId, player.CharacterId, player.Name, previousLevel, player.Level,
+                            player.HasFamilyExperienceBooster());
                     }
                 }
 

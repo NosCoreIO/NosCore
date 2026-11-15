@@ -95,11 +95,11 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             var characterId = _session.Character.CharacterId;
             var name = _session.Character.Name;
-            _contribution.Verify(s => s.CharacterLevelledUpAsync(FamilyId, characterId, name, (byte)previous, (byte)level), Times.Once);
+            _contribution.Verify(s => s.CharacterLevelledUpAsync(FamilyId, characterId, name, (byte)previous, (byte)level, false), Times.Once);
         }
 
         private void NoFamilyShouldBeTold() =>
             _contribution.Verify(s => s.CharacterLevelledUpAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>(),
-                It.IsAny<byte>(), It.IsAny<byte>()), Times.Never);
+                It.IsAny<byte>(), It.IsAny<byte>(), It.IsAny<bool>()), Times.Never);
     }
 }

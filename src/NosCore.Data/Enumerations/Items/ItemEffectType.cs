@@ -73,6 +73,7 @@ namespace NosCore.Data.Enumerations.Items
         // The champion gear counterpart of RarityIncreaseAmulet.
         HeroicRarityIncreaseAmulet = 797,
         // Rolls only among the sets the opener can wear; an opener no set fits rolls among them all.
+        FamilyExperienceBooster = 825,
         ClassBox = 827,
         AttackAmulet = 932,
         DefenseAmulet = 933,
