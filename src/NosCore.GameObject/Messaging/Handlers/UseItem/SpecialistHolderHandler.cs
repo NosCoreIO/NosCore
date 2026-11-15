@@ -132,7 +132,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            if (owner.InventoryService.DeleteFromTypeAndSlot(pocket, (short)EquipmentType.Sp) != null)
+            if (owner.InventoryService.DeleteFromTypeAndSlot(pocket, EquipmentType.Sp) != null)
             {
                 return;
             }

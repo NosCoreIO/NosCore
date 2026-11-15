@@ -394,7 +394,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         private InventoryItemInstance? WornAmulet() =>
-            _session.Character.InventoryService.LoadBySlotAndType((short)EquipmentType.Amulet, NoscorePocketType.Wear);
+            _session.Character.InventoryService.LoadBySlotAndType(EquipmentType.Amulet, NoscorePocketType.Wear);
 
         private void TheAmuletShouldHave_UsesLeft(int uses) =>
             Assert.AreEqual(uses, WornAmulet().NotNull().ItemInstance.DurabilityPoint);

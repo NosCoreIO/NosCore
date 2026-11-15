@@ -19,6 +19,9 @@ namespace NosCore.GameObject.Services.InventoryService
         public static InventoryItemInstance? LoadBySlotAndType(this IInventoryService inventory, EquipmentType slot,
             NoscorePocketType type) => inventory.LoadBySlotAndType((short)slot, type);
 
+        public static InventoryItemInstance? DeleteFromTypeAndSlot(this IInventoryService inventory, NoscorePocketType type,
+            EquipmentType slot) => inventory.DeleteFromTypeAndSlot(type, (short)slot);
+
         // Takes the amount from as many stacks as it needs, never from what is worn, and returns
         // the refresh for every stack it touched.
         public static List<IvnPacket> RemoveItemAmountByVNum(this IInventoryService inventory, int vNum, int amount)

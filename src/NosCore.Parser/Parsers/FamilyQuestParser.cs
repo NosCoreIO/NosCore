@@ -52,7 +52,7 @@ namespace NosCore.Parser.Parsers
                         .Sum(prize => prize is { } vnum ? FamilyExperiencePrizes.All.GetValueOrDefault((short)vnum) : 0),
                     [("PRIZE", 0, 1), ("PRIZE", 0, 2), ("PRIZE", 0, 3), ("PRIZE", 0, 4)],
                     description: "Family experience from the reward items")
-                .Field(x => x.ResetsDaily, chunk => (Number(chunk["VNUM"][0][3]), Number(chunk["VNUM"][0][4])) is ((int)FamilyQuestKind.Mission, 1),
+                .Field(x => x.ResetsDaily, chunk => (Kind(chunk), Number(chunk["VNUM"][0][4])) is (FamilyQuestKind.Mission, 1),
                     [("VNUM", 0, 3), ("VNUM", 0, 4)], description: "Category 1 missions are daily")
                 .Field(x => x.OncePerMemberPerDay, chunk => FamilyMissionLimits.OncePerMemberPerDay.Contains(Convert.ToInt16(chunk["VNUM"][0][1])),
                     [("VNUM", 0, 1)], description: "Each member counts once a day");
@@ -67,15 +67,18 @@ namespace NosCore.Parser.Parsers
         }
 
         private static FamilyQuestObjective? Objective(Dictionary<string, string[][]> chunk) =>
-            (Number(chunk["VNUM"][0][3]), Number(chunk["VNUM"][0][4]), Number(chunk["VNUM"][0][5])) switch
+            (Kind(chunk), Number(chunk["VNUM"][0][4]), Number(chunk["VNUM"][0][5])) switch
             {
-                ((int)FamilyQuestKind.Achievement, 0, 0) => FamilyQuestObjective.FamilyLevel,
-                ((int)FamilyQuestKind.Achievement, 0, 1) => FamilyQuestObjective.DailyMessage,
-                ((int)FamilyQuestKind.Mission, 1, 4) => FamilyQuestObjective.InstantCombat,
-                ((int)FamilyQuestKind.Mission, 1, 3) => FamilyQuestObjective.Raid,
-                ((int)FamilyQuestKind.Mission, 1, 9) or ((int)FamilyQuestKind.Achievement, 3, _) => FamilyQuestObjective.HeroicRaid,
+                (FamilyQuestKind.Achievement, 0, 0) => FamilyQuestObjective.FamilyLevel,
+                (FamilyQuestKind.Achievement, 0, 1) => FamilyQuestObjective.DailyMessage,
+                (FamilyQuestKind.Mission, 1, 4) => FamilyQuestObjective.InstantCombat,
+                (FamilyQuestKind.Mission, 1, 3) => FamilyQuestObjective.Raid,
+                (FamilyQuestKind.Mission, 1, 9) or (FamilyQuestKind.Achievement, 3, _) => FamilyQuestObjective.HeroicRaid,
                 _ => null
             };
+
+        private static FamilyQuestKind? Kind(Dictionary<string, string[][]> chunk) =>
+            Number(chunk["VNUM"][0][3]) is { } kind ? (FamilyQuestKind)kind : null;
 
         private static int? Number(string value) => int.TryParse(value, out var number) && number != -1 ? number : null;
     }
