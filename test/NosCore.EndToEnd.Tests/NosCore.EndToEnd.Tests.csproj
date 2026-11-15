@@ -3,7 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net11.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <NoWarn>MSTEST0001;MSTEST0037;MSTEST0044;NU1701</NoWarn>
+    <!-- These scenarios drive real servers, so they read the real clock and pick unique names at random. -->
+    <NoWarn>MSTEST0001;MSTEST0037;MSTEST0044;NU1701;NosCoreDateTimeNow;NosCoreSharedRandom</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

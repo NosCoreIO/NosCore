@@ -16,9 +16,12 @@ public interface IRandomProvider
     double NextDouble();
 }
 
+// The one place that rolls on the shared random; everything else goes through the interface.
+#pragma warning disable NosCoreSharedRandom
 public sealed class RandomProvider : IRandomProvider
 {
     public int Next(int minInclusive, int maxExclusive) => Random.Shared.Next(minInclusive, maxExclusive);
 
     public double NextDouble() => Random.Shared.NextDouble();
 }
+#pragma warning restore NosCoreSharedRandom

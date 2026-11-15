@@ -103,7 +103,7 @@ namespace NosCore.GameObject.Tests.Messaging
             var services = new ServiceCollection();
 
             // Mirrors WorldServerBootstrap.ConfigureServices ordering.
-            services.AddSingleton<IClock>(_ => SystemClock.Instance);
+            services.AddSingleton<IClock>(_ => new NodaTime.Testing.FakeClock(NodaTime.Instant.FromUtc(2026, 1, 1, 0, 0)));
             services.AddTransient<NosCore.Core.I18N.IGameLanguageLocalizer, NosCore.Core.I18N.GameLanguageLocalizer>();
 
             foreach (var implType in new[] { typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly }

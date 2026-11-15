@@ -66,6 +66,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.MasterServer
 {
@@ -194,6 +195,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<FamilyUpgradeService>().As<IFamilyUpgradeService>().SingleInstance();
             containerBuilder.RegisterType<FamilyExperienceService>().As<IFamilyExperienceService>().SingleInstance();
             containerBuilder.RegisterType<RarityPointService>().As<IRarityPointService>().SingleInstance();
+            containerBuilder.RegisterType<RandomProvider>().As<IRandomProvider>().SingleInstance();
 
             RegisterDto(containerBuilder);
         }
