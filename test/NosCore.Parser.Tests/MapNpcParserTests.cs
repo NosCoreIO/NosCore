@@ -150,6 +150,43 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task MapNpcParser_TakesTheAuraFromTheMonsterData()
+        {
+            _npcMonsterDaoMock
+                .Setup(x => x.LoadAll())
+                .Returns(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 955, EffectIdConstantly = 857 } });
+            var packets = new List<string[]>
+            {
+                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
+                new[] { "in", "2", "955", "100", "50", "60", "2", "100", "0", "0", "0", "0", "0", "1", "0" },
+                new[] { "eff", "2", "100", "4" }
+            };
+
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.InsertMapNpcsAsync(packets);
+
+            Assert.AreEqual((short)857, _savedNpcs.Single().Effect);
+        }
+
+        [TestMethod]
+        public async Task MapNpcParser_UpdatesAnNpcAlreadyImported()
+        {
+            _mapNpcDaoMock
+                .Setup(x => x.LoadAll())
+                .Returns(new List<MapNpcDto> { new() { MapNpcId = 100, MapId = 1, VNum = 1 } });
+            var packets = new List<string[]>
+            {
+                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
+                new[] { "in", "2", "1", "100", "50", "60", "2", "100", "0", "1", "0", "0", "0", "1", "0" }
+            };
+
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.InsertMapNpcsAsync(packets);
+
+            Assert.AreEqual(1, _savedNpcs.Count);
+        }
+
+        [TestMethod]
         public async Task MapNpcParser_HandlesEmptyPacketList()
         {
             var packets = new List<string[]>();

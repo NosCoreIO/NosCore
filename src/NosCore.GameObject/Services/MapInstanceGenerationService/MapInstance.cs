@@ -32,6 +32,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
@@ -85,6 +86,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly List<Entity> _dueRespawns = new();
         private readonly BuffSystem _buffSystem = new();
         private readonly SkillResetSystem _skillResetSystem = new();
+        private readonly AmbientEffectSystem _ambientEffectSystem = new();
+        private readonly List<EffectPacket> _dueEffects = new();
         private readonly RegenerationSystem _regenerationSystem = new();
         private readonly List<Entity> _dueRegeneration = new();
         private readonly List<(Entity Entity, long CastId)> _readySkills = new();
@@ -580,6 +583,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             await GuardAsync(_digestionService == null ? null : () => _digestionService.TickAsync(this), "digestion");
             await GuardAsync(_mateRevivalService == null ? null : () => _mateRevivalService.TickAsync(this), "mate revival");
             await GuardAsync(SendSkillResetsAsync, "cooldown resets");
+            await GuardAsync(SendAmbientEffectsAsync, "ambient effects");
             await GuardAsync(SweepPendingRespawnsAsync, "respawns");
         }
 
@@ -655,6 +659,16 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 {
                     LogTickFailure(e, "regeneration", EcsWorld.TryGetComponent<EntityIdentityComponent>(entity)?.VisualId ?? 0);
                 }
+            }
+        }
+
+        private async Task SendAmbientEffectsAsync()
+        {
+            _dueEffects.Clear();
+            _ambientEffectSystem.TakeDue(EcsWorld, _clock.GetCurrentInstant(), _dueEffects);
+            foreach (var effect in _dueEffects)
+            {
+                await this.SendPacketAsync(effect);
             }
         }
 
