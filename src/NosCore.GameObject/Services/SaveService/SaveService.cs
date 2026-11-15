@@ -134,12 +134,19 @@ namespace NosCore.GameObject.Services.SaveService
                     return false;
                 }
 
-                var itemsToDelete = (inventoryItemInstanceDao
-                        .Where(i => i.CharacterId == characterId) ?? [])
+                var storedItems = (inventoryItemInstanceDao
+                        .Where(i => i.CharacterId == characterId) ?? []).ToList();
+                var itemsToDelete = storedItems
                     .Where(i => inventoryService.Values.All(o => o.Id != i.Id)).ToList();
+                // Rows that changed place are written again from scratch: updating them in place
+                // breaks the unique (CharacterId, Slot, Type) index as soon as two of them swap.
+                var heldPlaces = inventoryService.Values.ToDictionary(i => i.Id, i => (i.Slot, i.Type));
+                var movedItems = storedItems
+                    .Where(i => heldPlaces.TryGetValue(i.Id, out var place) && place != (i.Slot, i.Type))
+                    .Select(i => i.Id).ToArray();
 
                 // Inventory delete order: child rows first, then parent ItemInstance rows.
-                if (await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray()) == null)
+                if (await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).Concat(movedItems).ToArray()) == null)
                 {
                     Fail("InventoryItemInstance delete");
                     return false;

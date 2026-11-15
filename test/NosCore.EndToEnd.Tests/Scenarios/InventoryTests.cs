@@ -168,6 +168,51 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task AStackMovedOntoADifferentItemSwapsThem()
+        {
+            var player = await Harness.AddPlayerAsync("Alice");
+            await Harness.GiveAsync(player, WorldData.Seed, 5);
+            await Harness.GiveAsync(player, WorldData.Pebble, 3, slot: 1);
+            await using (var alice = await EnterAsync(player))
+            {
+                var moved = alice.Mark();
+
+                await alice.SendAsync(new MviPacket { InventoryType = PocketType.Etc, Slot = 0, Amount = 5, DestinationSlot = 1 });
+
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 1, WorldData.Seed, 5), "the seeds in the pebbles' slot");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Etc, 0, WorldData.Pebble, 3), "the pebbles in the seeds' slot");
+            }
+
+            await using var back = await Harness.ComeBackAsync(player);
+            Same([(0, WorldData.Pebble, 3), (1, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
+            Same([(0, WorldData.Pebble, 3), (1, WorldData.Seed, 5)], await StoredAsync(player.CharacterId, NoscorePocketType.Etc));
+        }
+
+        [TestMethod]
+        public async Task PuttingOnASecondWeaponPutsTheFirstBackInItsBagSlot()
+        {
+            var player = await Harness.AddPlayerAsync("Alice");
+            await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1, Rare = 5, Upgrade = 7 },
+                NoscorePocketType.Wear, (short)EquipmentType.MainWeapon);
+            await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1, Rare = 2, Upgrade = 1 },
+                NoscorePocketType.Equipment);
+            await using (var alice = await EnterAsync(player))
+            {
+                var worn = alice.Mark();
+
+                await alice.SendAsync(new WearPacket { InventorySlot = 0, PartnerSlot = 0 });
+
+                var equipment = await alice.ExpectSinceAsync<EquipPacket>(worn, null, "what is worn");
+                PacketAssert.AreEqual(Blade(2, 1), equipment.MainWeapon);
+                await alice.ExpectSinceAsync(worn, Slot(PocketType.Equipment, 0, WorldData.Blade, 5), "the first weapon in the bag");
+            }
+
+            await using var back = await Harness.ComeBackAsync(player);
+            PacketAssert.AreEqual(Blade(2, 1), back.Received.OfType<EquipPacket>().Single().MainWeapon);
+            Same([(0, WorldData.Blade, 5)], Listed(back, PocketType.Equipment));
+        }
+
+        [TestMethod]
         public async Task PartOfAStackMovedOntoAnotherOfTheSameItemMovesOnlyThatMany()
         {
             var player = await Harness.AddPlayerAsync("Alice");
