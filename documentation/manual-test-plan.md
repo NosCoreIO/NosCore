@@ -1138,8 +1138,12 @@ Needs two characters on the same channel. The commending one must be level 31 or
       item." box: the costume and the hat both arrive in Equipment with one "received" line each,
       and the set is gone; with the Equipment pocket full the set stays and the not-enough-space
       message appears
-- [ ] Double-click a raid package whose description names items the parser cannot match (1562):
-      nothing happens
+- [ ] Double-click Raid Package A (1562): both raid seals and 99 Huge Recovery Potions arrive
+- [ ] With a Legendary Raid Box of Mother Cuby (4684, rarity 7) in the bag: it shows in the Equipment
+      pocket, and double-clicking it gives one item from its list; a weapon or armour from it is
+      legendary too
+- [ ] Double-click an Angel's Feather Random Box (5749): one stack from 10 to 999 feathers arrives
+- [ ] Double-click a Simple Raid Box of Lord Hatus (9878): one item from the Hatus box arrives
 
 ### Perfume
 

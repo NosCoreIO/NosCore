@@ -28,42 +28,24 @@ namespace NosCore.Parser.Parsers
             var items = itemDao.LoadAll().ToDictionary(i => i.VNum);
             var rolls = new List<RollGeneratedItemDto>();
             var boxes = new List<ItemDto>();
-            foreach (var (vnum, (effect, contents)) in BoxContents.All)
+            foreach (var (vnum, box) in BoxContents.All)
             {
-                if (!items.TryGetValue(vnum, out var box) || contents.Any(c => !items.ContainsKey(c.VNum)))
+                if (!items.TryGetValue(vnum, out var item) || box.Items.Any(c => !items.ContainsKey(c.VNum)))
                 {
                     continue;
                 }
 
-                box.Effect = effect;
-                boxes.Add(box);
-                rolls.AddRange(contents.Select(c => new RollGeneratedItemDto
+                item.Effect = box.Effect;
+                boxes.Add(item);
+                rolls.AddRange(box.Items.Select(c => new RollGeneratedItemDto
                 {
                     OriginalItemVNum = vnum,
-                    ItemGeneratedVNum = c.VNum,
-                    ItemGeneratedAmount = c.Amount,
-                    Probability = 1,
-                }));
-            }
-
-            foreach (var (vnum, contents) in RaidBoxes.All)
-            {
-                if (!items.TryGetValue(vnum, out var box) || contents.Any(c => !items.ContainsKey(c.VNum)))
-                {
-                    continue;
-                }
-
-                box.Effect = ItemEffectType.BoxEffect;
-                boxes.Add(box);
-                rolls.AddRange(contents.Select(c => new RollGeneratedItemDto
-                {
-                    OriginalItemVNum = vnum,
-                    OriginalItemDesign = RaidBoxes.Design,
+                    OriginalItemDesign = box.Design,
                     MinimumOriginalItemRare = LowestRare,
                     MaximumOriginalItemRare = HighestRare,
                     ItemGeneratedVNum = c.VNum,
                     ItemGeneratedAmount = c.Amount,
-                    IsRareRandom = items[c.VNum].ItemType is ItemType.Weapon or ItemType.Armor,
+                    IsRareRandom = box.IsRaidBox && items[c.VNum].ItemType is ItemType.Weapon or ItemType.Armor,
                     Probability = 1,
                 }));
             }
