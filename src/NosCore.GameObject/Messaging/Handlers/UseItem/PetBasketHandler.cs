@@ -35,7 +35,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             {
                 ItemEffectType.PetSpaceUpgrade => StaticBonusType.PetBasket,
                 ItemEffectType.PetBasketUpgrade => StaticBonusType.PetBasket,
+                ItemEffectType.PermanentPetBasket => StaticBonusType.PetBasket,
                 ItemEffectType.PetBackpackUpgrade => StaticBonusType.PetBackPack,
+                ItemEffectType.PermanentPartnerBackpack => StaticBonusType.PetBackPack,
                 _ => (StaticBonusType?)null,
             };
             if (bonus == null)
