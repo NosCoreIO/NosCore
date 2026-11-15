@@ -100,6 +100,8 @@
 | PartnerSkillSet | Byte | DATA[14] (partner SP only) | Partner SP skill set: the UpgradeType shared by its three partner skills, one more than the raw value |
 | ReputationMinimum | Byte | DATA[varies] | Minimum reputation tier |
 | ReputPrice | Int64 | FLAG[20] + VNUM[1] | Reputation price when FLAG[20] is set |
+| RestoresAllHp | Boolean | FullRestorePotions | Potion that fills the HP bar |
+| RestoresAllMp | Boolean | FullRestorePotions | Potion that fills the MP bar |
 | Sex | Byte | FLAG[16] + FLAG[17] | Genders allowed, one bit per GenderType: 1=male only, 2=female only, 0=any |
 | ShellType | Nullable`1 | DATA[5] (shell only) | Shell kind, which decides the options it rolls |
 | Speed | Byte | DATA[varies] | Movement speed bonus / vehicle speed |

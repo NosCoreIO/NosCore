@@ -30,6 +30,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -211,6 +212,86 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .And(PotionCountShouldBe_, 1)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AFullHealthPotionFillsTheHpBar()
+        {
+            await new Spec("A potion that restores all HP fills the bar whatever its Hp says")
+                .Given(AFullRestorePotion_Hp_Mp, true, false)
+                .And(CharacterHas_Hp_Mp, 10, 20)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 1000)
+                .And(MpShouldBe_, 20)
+                .And(PotionCountShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFullRecoveryPotionFillsBothBars()
+        {
+            await new Spec("A potion that restores all HP and MP fills both bars")
+                .Given(AFullRestorePotion_Hp_Mp, true, true)
+                .And(CharacterHas_Hp_Mp, 10, 20)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 1000)
+                .And(MpShouldBe_, 800)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFullRestorePotionIsRefusedOnAPvpMap()
+        {
+            await new Spec("On a PvP map a full restore potion is refused and kept")
+                .Given(AFullRestorePotion_Hp_Mp, true, true)
+                .And(CharacterHas_Hp_Mp, 10, 20)
+                .And(TheMapIsPvp)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 10)
+                .And(PotionCountShouldBe_, 1)
+                .And(ThePlayerIsToldItCannotBeUsedInPvp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFullRestorePotionIsRefusedInAct4()
+        {
+            await new Spec("In Act 4 a full restore potion is refused and kept")
+                .Given(AFullRestorePotion_Hp_Mp, false, true)
+                .And(CharacterHas_Hp_Mp, 10, 20)
+                .And(TheMapIsInAct4)
+                .WhenAsync(DrinkingThePotion)
+                .Then(MpShouldBe_, 20)
+                .And(PotionCountShouldBe_, 1)
+                .And(ThePlayerIsToldItCannotBeUsedInPvp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOrdinaryPotionStillWorksInAct4()
+        {
+            await new Spec("A potion with a flat Hp still heals in Act 4")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .And(TheMapIsInAct4)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 400)
+                .ExecuteAsync();
+        }
+
+        private void AFullRestorePotion_Hp_Mp(bool hp, bool mp)
+        {
+            APotionRestoring_Hp_Mp(0, 0);
+            _potion.ItemInstance.Item.RestoresAllHp = hp;
+            _potion.ItemInstance.Item.RestoresAllMp = mp;
+        }
+
+        private void TheMapIsPvp() => _session.Character.MapInstance.IsPvp = true;
+
+        private void TheMapIsInAct4() => _session.Character.MapInstance.IsAct4 = true;
+
+        private void ThePlayerIsToldItCannotBeUsedInPvp() =>
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.CanNotUseInPvp },
+                _session.LastPackets.OfType<MsgiPacket>().Single());
 
         private void TheCharactersMapHasAPotionDelayOf_Ms(short delay)
         {

@@ -99,6 +99,11 @@ namespace NosCore.Database.Entities
 
         public short Hp { get; set; }
 
+        // A potion that fills the bar instead of adding Hp; refused on PvP and Act 4 maps.
+        public bool RestoresAllHp { get; set; }
+
+        public bool RestoresAllMp { get; set; }
+
         public short HpRegeneration { get; set; }
 
         public bool IsMinilandActionable { get; set; }

@@ -98,6 +98,10 @@ namespace NosCore.Parser.Parsers
                     source: "DATA[8] or DATA[16]", description: "Water resistance; SP uses DATA[16]")
                 .Field(x => x.Hp, chunk => ImportHp(chunk), source: "DATA[varies]", description: "Hp bonus on equip")
                 .Field(x => x.Mp, chunk => ImportMp(chunk), source: "DATA[varies]", description: "Mp bonus on equip")
+                .Field(x => x.RestoresAllHp, chunk => FullRestorePotions.All.TryGetValue(Convert.ToInt16(chunk["VNUM"][0][2]), out var bar) && bar.Hp,
+                    source: "FullRestorePotions", description: "Potion that fills the HP bar")
+                .Field(x => x.RestoresAllMp, chunk => FullRestorePotions.All.TryGetValue(Convert.ToInt16(chunk["VNUM"][0][2]), out var bar) && bar.Mp,
+                    source: "FullRestorePotions", description: "Potion that fills the MP bar")
                 .Field(x => x.MinilandObjectPoint, chunk => ImportMinilandObjectPoint(chunk),
                     source: "DATA[2] (miniland only)", description: "Miniland point value")
                 .Field(x => x.Width, chunk => ImportWidth(chunk),
