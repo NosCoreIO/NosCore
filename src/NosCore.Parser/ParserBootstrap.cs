@@ -23,7 +23,6 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
-using NosCore.ParserInputGenerator.Generator;
 using NosCore.Shared.Helpers;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.I18N;
@@ -99,8 +98,8 @@ namespace NosCore.Parser
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.GetBaseException().Message);
-                if (cli.Interactive)
+                Console.WriteLine(ex.Message);
+                if (!cli.HasFolder)
                 {
                     Console.ReadLine();
                 }
@@ -121,7 +120,6 @@ namespace NosCore.Parser
                     InitializeConfiguration(args, services);
 
                     services.AddSingleton(cli);
-                    services.AddParserInputGenerator();
                     services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);

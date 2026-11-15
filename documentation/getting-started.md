@@ -14,40 +14,100 @@ Nothing here needs configuration: every default in `configuration/` points at `l
   process below.
 - A NosTale client installed, to play with.
 
-## 1. Start the stack
+## 1. Get the game data
+
+The server reads its items, monsters, maps, skills and quests from the client's own data files.
+[NosCore.ParserInputGenerator](https://github.com/NosCoreIO/NosCore.ParserInputGenerator)
+downloads those archives and unpacks them into the layout the parser reads:
+
+```bash
+git clone https://github.com/NosCoreIO/NosCore.ParserInputGenerator
+```
+
+```bash
+cd NosCore.ParserInputGenerator
+```
+
+```bash
+dotnet build
+```
+
+```bash
+cd build/net11.0
+```
+
+```bash
+dotnet NosCore.ParserInputGenerator.Launcher.dll
+```
+
+The result is `NosCore.ParserInputGenerator/build/net11.0/output/parser`: the `.dat` files, one `_code_<language>_*.txt` per
+language, and a `map` folder.
+
+The parser also needs a file the client does not contain: **`packet.txt`**, a capture of what a
+server sends, one packet per line. Portals, monster and NPC positions, shops and teleporters
+exist only in those packets, so the file has to be recorded while playing on a server that
+already has them: walk through the maps you want filled and open the shops you want stocked.
+The Packet Logger in
+[NosCore.DeveloperTools](https://github.com/NosCoreIO/NosCore.DeveloperTools) attaches to the
+running client and writes the lines. Put the file in the same `parser` folder. Without it the
+parser warns and the maps get no monsters, NPCs, portals or shops; with a short one the maps
+that were not visited are empty.
+
+## 2. Build
 
 From the root of the NosCore clone:
 
 ```bash
-dotnet run --project src/NosCore.DevHost
+dotnet build NosCore.sln
 ```
 
-This builds everything into `build/net11.0` and starts the master, login and world servers in
-one terminal, each line prefixed with the server it comes from. Ctrl+C stops all three, and the
-world server saves its characters on the way out.
+Everything lands in `build/net11.0`. The servers find `configuration/` relative to that folder,
+so start them from there.
 
-To run them separately instead, for example to restart one or to attach a debugger, build with
-`dotnet build NosCore.sln` and start each from `build/net11.0`, in its own terminal and in any
-order: `dotnet NosCore.MasterServer.dll`, `dotnet NosCore.LoginServer.dll` and
-`dotnet NosCore.WorldServer.dll`. The servers find `configuration/` relative to that folder.
+## 3. Fill the database
 
-The first time, the world server finds an empty database and fills it before it opens: it
-downloads the client's data files into `build/net11.0/client-data`, creates the `noscore`
-database, applies the migrations and imports items, monsters, maps, skills and quests. That
-takes two to three minutes, most of it the download. The master and login servers wait for it
-and print `Waiting for a world server to do it` meanwhile.
-It is ready when the world prints `Successfully Loaded!`.
+```bash
+cd build/net11.0
+```
 
-After a `git pull` there is nothing to run either. The world server imports again, from the
-same folder, whenever the build or the client files changed since the last import, or a
-migration is pending.
+```bash
+dotnet NosCore.Parser.dll --folder /path/to/output/parser
+```
 
-The first import also creates two accounts, both with the password `test`:
+The parser creates the `noscore` database if it is missing, applies every migration, and
+imports the data. It takes a minute or two. Run it again after pulling: the servers do not
+migrate, and each of them stops with "The database is N migrations behind this build" when it
+meets an older schema. A change to what the parser imports needs the same run and has no
+such message. Running it again on a database it already filled is safe: it updates the game
+data in place.
+
+It also creates two accounts, both with the password `test`:
 
 | Account | Role |
 |---|---|
 | `admin` | game master: can use the `$` commands (`$Help` lists them) |
 | `test` | ordinary player |
+
+Without `--folder` the parser asks for the folder and for each import in turn.
+
+## 4. Start the servers
+
+Each in its own terminal, from `build/net11.0`, in this order:
+
+```bash
+dotnet NosCore.MasterServer.dll
+```
+
+```bash
+dotnet NosCore.LoginServer.dll
+```
+
+```bash
+dotnet NosCore.WorldServer.dll
+```
+
+Wait for `Successfully Loaded!` from the master and the world, and `Listening Port 4000` from
+the login server, before starting the next one.
 
 | Server | Listens on | What it does |
 |---|---|---|
@@ -62,32 +122,10 @@ The first import also creates two accounts, both with the password `test`:
 Stop the world server with Ctrl+C rather than killing it: it saves its characters on the way
 out.
 
-## 2. Add a packet capture
+Once the database is filled, `dotnet run --project src/NosCore.DevHost` from the root of the
+clone can also build and start the three servers in one terminal, if you prefer.
 
-The client's files do not say where monsters, NPCs, portals, shops and teleporters are: those
-exist only in what a server sends. Without a capture the server runs, but its maps are empty,
-and the import says so with `packet.txt is missing`.
-
-The capture is a file of server packets, one per line. Record it with the Packet Logger in
-[NosCore.DeveloperTools](https://github.com/NosCoreIO/NosCore.DeveloperTools) while playing on a
-server that already has them: walk through the maps you want filled and open the shops you want
-stocked. Put it at `build/net11.0/client-data/parser/packet.txt` and restart the world server;
-it notices the new file and imports again.
-
-## The parser on its own
-
-The world server runs the parser for you, but it can be run by hand, for instance to import
-from client files of your own:
-
-```bash
-dotnet NosCore.Parser.dll --folder /path/to/parser/input
-```
-
-Without `--folder` it downloads the client files as above. `--interactive` asks for the folder
-and for each import in turn. The world server remembers the folder of the last import and uses
-it from then on.
-
-## 3. Connect a client
+## 5. Connect a client
 
 The client has the official login server's address built in, so it needs a copy that points
 at yours. The Client Creator in
@@ -110,10 +148,10 @@ need the PostgreSQL from above and report themselves as not run without it.
 
 ## When something does not work
 
-- **A server keeps printing "Waiting for a world server to do it".** No world server has
-  imported the game data yet. Start one, or run the parser.
-- **The maps have no monsters or NPCs.** There is no `packet.txt` in the folder of the last
-  import; see step 2.
+- **A server stops with "The database is N migrations behind this build".** The schema is
+  older than the code. Run the parser again.
+- **The maps have no monsters or NPCs.** `packet.txt` was missing from the folder given to
+  `--folder`; the parser said so when it ran.
 - **"Already connected" at login.** The world server still holds the account's last session.
   It lets go when that connection closes; restarting the world server always clears it.
 - **`MSB3026` or `MSB3027` during a build.** A running server holds the files being replaced.

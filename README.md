@@ -45,21 +45,24 @@ Any editor that handles .NET 11 works: the build, the tests and every tool here 
 
 # Building and running #
 
-[documentation/getting-started.md](documentation/getting-started.md) goes from a fresh clone to a character in the world: the game data, the accounts that exist by default and how to point a client at your server.
+[documentation/getting-started.md](documentation/getting-started.md) goes from a fresh clone to a character in the world: the game data the parser needs, the database, the order to start the servers in, the accounts that exist by default and how to point a client at your server.
 
 [documentation/architecture.md](documentation/architecture.md) explains how the servers, the projects and the sibling packages fit together.
 
-In short, from the root of the clone:
+In short, with each server in its own terminal:
 
 ```
-dotnet run --project src/NosCore.DevHost
+dotnet build NosCore.sln
+cd build/net11.0
+dotnet NosCore.Parser.dll --folder <parser input folder>
+dotnet NosCore.MasterServer.dll
+dotnet NosCore.LoginServer.dll
+dotnet NosCore.WorldServer.dll
 ```
 
-It builds everything and starts the master, login and world servers together; Ctrl+C stops them. Each can also be started on its own from `build/net11.0`, in any order.
+It needs the .NET 11 SDK and a PostgreSQL on `localhost:5432` (user `postgres`, password `password`). The parser creates the database and applies the migrations itself.
 
-It needs the .NET 11 SDK and a PostgreSQL on `localhost:5432` (user `postgres`, password `password`). On first start the world server downloads the client's data files, creates the database and imports the game data, which takes two to three minutes; it imports again by itself whenever the build or the client files change. Monster, NPC and shop positions come from a packet capture you add yourself, as the guide explains.
-
-On Windows, `scripts\NosCore.cmd` does the same, `scripts\` has a `.cmd` for each server, and `docker-compose.yml` runs the same servers in containers.
+On Windows, `scripts\` has a `.cmd` for each of these, and `docker-compose.yml` runs the same servers in containers.
 
 ### Inter-server messaging ###
 Master, world, login and web API servers talk to each other through [Wolverine](https://wolverinefx.net). By default the queues live in the same PostgreSQL database as the game data, so there is nothing extra to install.

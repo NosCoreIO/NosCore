@@ -93,7 +93,7 @@ namespace NosCore.WorldServer
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" });
             var worldConfiguration = conf.Get<WorldConfiguration>()
                 ?? throw new InvalidOperationException("The WorldConfiguration section could not be read.");
-            GameDataRefresh.EnsureCurrent(worldConfiguration.Database.ConnectionString, args);
+            DatabaseReadiness.EnsureUpToDate(worldConfiguration.Database.ConnectionString);
             services.AddNosCoreContext(worldConfiguration.Database.ConnectionString);
             services.AddOptions<WorldConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();

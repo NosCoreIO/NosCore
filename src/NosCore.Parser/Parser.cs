@@ -4,10 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using NosCore.Database;
-using NosCore.ParserInputGenerator.Generator;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -23,22 +20,20 @@ namespace NosCore.Parser
         ILogger<Parser> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         ParserCliOptions cli,
-        IHostApplicationLifetime lifetime,
-        DbContext context,
-        ParserInputBuilder inputBuilder)
+        IHostApplicationLifetime lifetime)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                if (cli.Interactive)
+                if (cli.HasFolder)
                 {
-                    await RunInteractiveAsync(stoppingToken);
+                    await RunNonInteractiveAsync(cli.Folder, stoppingToken).ConfigureAwait(false);
                 }
                 else
                 {
-                    await RunNonInteractiveAsync(cli.Folder ?? await DownloadClientFilesAsync(), stoppingToken);
+                    await RunInteractiveAsync(stoppingToken).ConfigureAwait(false);
                 }
 
                 logger.LogInformation(logLanguage[LogLanguageKey.DONE]);
@@ -50,20 +45,11 @@ namespace NosCore.Parser
             }
             finally
             {
-                if (!cli.Interactive)
+                if (cli.HasFolder)
                 {
                     lifetime.StopApplication();
                 }
             }
-        }
-
-        // Without a folder the parser fetches the client files itself, next to its own binaries,
-        // and reuses the ones already there when they are still current.
-        private async Task<string> DownloadClientFilesAsync()
-        {
-            var workFolder = Path.Combine(AppContext.BaseDirectory, "client-data");
-            logger.LogInformation(logLanguage[LogLanguageKey.DOWNLOADING_CLIENT_FILES], workFolder);
-            return await inputBuilder.BuildAsync(workFolder);
         }
 
         private async Task RunNonInteractiveAsync(string folder, CancellationToken stoppingToken)
@@ -73,10 +59,9 @@ namespace NosCore.Parser
                 throw new DirectoryNotFoundException($"Folder not found: {folder}");
             }
             logger.LogInformation(logLanguage[LogLanguageKey.PARSING_FOLDER], folder);
-            var clientFiles = GameDataFingerprint.OfClientFiles(folder);
             factory.SetFolder(folder);
             await factory.ImportPacketsAsync().ConfigureAwait(false);
-            await RunFullImportAsync(folder, clientFiles).ConfigureAwait(false);
+            await RunFullImportAsync().ConfigureAwait(false);
         }
 
         private async Task RunInteractiveAsync(CancellationToken stoppingToken)
@@ -92,13 +77,12 @@ namespace NosCore.Parser
                 key = Console.ReadKey(true);
             }
 
-            var clientFiles = GameDataFingerprint.TryOfClientFiles(folder ?? string.Empty);
             factory.SetFolder(folder ?? string.Empty);
             await factory.ImportPacketsAsync().ConfigureAwait(false);
 
             if (inputRedirected || key.KeyChar != 'n')
             {
-                await RunFullImportAsync(folder ?? string.Empty, clientFiles ?? string.Empty).ConfigureAwait(false);
+                await RunFullImportAsync().ConfigureAwait(false);
                 await Task.Delay(5000, stoppingToken).ConfigureAwait(false);
                 return;
             }
@@ -107,15 +91,9 @@ namespace NosCore.Parser
             await Task.Delay(5000, stoppingToken).ConfigureAwait(false);
         }
 
-        // The client files are fingerprinted before they are read, so a file replaced mid-import
-        // makes the next start import again.
-        private async Task RunFullImportAsync(string folder, string clientFiles)
+        private async Task RunFullImportAsync()
         {
-            if (!cli.SkipAccounts)
-            {
-                await factory.ImportAccountsAsync().ConfigureAwait(false);
-            }
-
+            await factory.ImportAccountsAsync().ConfigureAwait(false);
             await factory.ImportMapsAsync().ConfigureAwait(false);
             await factory.ImportRespawnMapTypeAsync().ConfigureAwait(false);
             await factory.ImportMapTypeAsync().ConfigureAwait(false);
@@ -138,8 +116,6 @@ namespace NosCore.Parser
             await factory.ImportRecipesAsync();
             await factory.ImportScriptsAsync().ConfigureAwait(false);
             await factory.ImportQuestsAsync().ConfigureAwait(false);
-            DatabaseReadiness.RecordGameDataImport(context, GameDataFingerprint.OfParser(typeof(Parser).Assembly),
-                clientFiles, Path.GetFullPath(folder));
         }
 
         private async Task RunPromptedImportsAsync()
