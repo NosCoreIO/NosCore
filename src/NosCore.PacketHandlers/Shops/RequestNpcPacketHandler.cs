@@ -13,6 +13,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -59,6 +60,20 @@ namespace NosCore.PacketHandlers.Shops
                         npcDialogService.Open(character, found, NpcDialogWindow.Conversation);
                         found.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
                         await messageBus.PublishAsync(new NpcTalkedEvent(character, found));
+                        return;
+                    }
+                    break;
+                case VisualType.Monster:
+                    var monster = character.MapInstance.FindMonster(s => s.VisualId == requestNpcPacket.TargetId);
+                    if (monster is { } target && npcDialogService.IsWithinReach(character, target))
+                    {
+                        // Monsters have no dialog; the answer names dialog 0.
+                        await clientSession.SendPacketAsync(new NpcReqPacket
+                        {
+                            Type = VisualType.Monster,
+                            TargetId = target.VisualId,
+                            Data = 0
+                        });
                         return;
                     }
                     break;
