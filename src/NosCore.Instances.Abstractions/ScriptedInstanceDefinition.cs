@@ -24,7 +24,7 @@ namespace NosCore.Instances.Abstractions
 
     public record ScriptedInstanceDefinition
     {
-        public byte Id { get; init; }
+        public short Id { get; init; }
 
         public string? Label { get; init; }
 

@@ -54,8 +54,13 @@ namespace NosCore.Parser.Tests
         public static GpPacket Portal(short x, short y, short destination, PortalType type) =>
             new() { SourceX = x, SourceY = y, MapId = destination, PortalType = type };
 
-        public static WpPacket Waypoint(short x, short y, WpPortalType type, byte levelMinimum, byte levelMaximum) =>
-            new() { PositionX = x, PositionY = y, PortalType = type, LevelMinimum = levelMinimum, LevelMaximum = levelMaximum };
+        public static WpPacket Waypoint(short x, short y, WpPortalType type, byte levelMinimum, byte levelMaximum,
+            short timeSpaceId = 0) =>
+            new()
+            {
+                PositionX = x, PositionY = y, ScriptedInstanceId = timeSpaceId, PortalType = type,
+                LevelMinimum = levelMinimum, LevelMaximum = levelMaximum
+            };
 
         public static NrunPacket Talk(NrunRunnerType runner, short option, long npcId) =>
             new() { Runner = runner, Type = option, VisualType = VisualType.Npc, VisualId = npcId };

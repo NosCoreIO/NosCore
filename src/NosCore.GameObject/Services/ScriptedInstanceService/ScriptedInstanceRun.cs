@@ -23,6 +23,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System;
@@ -37,6 +38,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
     public class ScriptedInstanceRun : IInstanceRun
     {
         private static readonly Duration ReturnDelay = Duration.FromSeconds(10);
+
+        private const short BonusEffect = 826;
+        private const short BonusEffectDelay = 5000;
 
         private readonly IInstanceRunHost _host;
         private readonly IInstanceScript _script;
@@ -63,6 +67,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
         private int _nextPortalId;
+        private int _combo;
         private bool _started;
         private Instant? _clockEndsAt;
         private Duration _clockLimit;
@@ -113,6 +118,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public int MonstersKilled { get; private set; }
 
+        public int NpcsSummoned { get; private set; }
+
+        // Each kill scores; a run of bonus kills scores more the longer it lasts.
+        public int Points { get; private set; }
+
         public int RoomsVisited => _visited.Count;
 
         public TimeSpan Elapsed => _scriptStartedAt is { } startedAt
@@ -139,7 +149,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return CallScriptAsync(run => _script.OnFirstEnter(run));
         }
 
-        public Task MonsterKilledAsync(Guid mapInstanceId, short vNum)
+        public Task MonsterKilledAsync(Guid mapInstanceId, short vNum, bool isBonus = false,
+            Action<IInstanceRun>? deathStep = null)
         {
             return RunAsync(async () =>
             {
@@ -150,16 +161,32 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 MonstersKilled++;
-                _aliveByRoom[room.Value] = Math.Max(0, _aliveByRoom.GetValueOrDefault(room.Value) - 1);
+                _combo = isBonus ? _combo + 1 : 0;
+                Points += ComboPoints(isBonus ? _combo + 1 : 0);
+                var aliveBefore = _aliveByRoom.GetValueOrDefault(room.Value);
+                _aliveByRoom[room.Value] = Math.Max(0, aliveBefore - 1);
                 if (_abandoned)
                 {
                     return;
                 }
 
                 await CallScriptAsync(run => _script.OnMonsterKilled(run, room.Value, vNum));
+                if (deathStep != null)
+                {
+                    await CallScriptAsync(deathStep);
+                }
 
-                if (!_lockers.TryGetValue(room.Value, out var remaining) || remaining <= 0
-                    || (_lockerVNums.TryGetValue(room.Value, out var counted) && counted != vNum))
+                if (!_lockers.TryGetValue(room.Value, out var remaining))
+                {
+                    if (aliveBefore > 0 && _aliveByRoom[room.Value] == 0 && EndState == null)
+                    {
+                        await CallScriptAsync(run => _script.OnRoomCleared(run, room.Value));
+                    }
+
+                    return;
+                }
+
+                if (remaining <= 0 || (_lockerVNums.TryGetValue(room.Value, out var counted) && counted != vNum))
                 {
                     return;
                 }
@@ -168,6 +195,28 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (remaining == 0)
                 {
                     await CallScriptAsync(run => _script.OnRoomCleared(run, room.Value));
+                }
+            });
+        }
+
+        private static int ComboPoints(int combo)
+        {
+            var (points, next) = (4, 7);
+            for (var i = 0; i < combo; i++)
+            {
+                (points, next) = (next, points + next);
+            }
+
+            return points;
+        }
+
+        public Task ExitReachedAsync(Guid mapInstanceId)
+        {
+            return RunAsync(async () =>
+            {
+                if (RoomOf(mapInstanceId) is { } room && EndState == null && !_abandoned)
+                {
+                    await CallScriptAsync(run => _script.OnExitReached(run, room));
                 }
             });
         }
@@ -193,18 +242,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return RunAsync(async () =>
             {
                 var room = RoomOf(mapInstanceId);
-                if (room != null)
+                var discovered = room != null && _visited.Add(room.Value);
+                if (room != null && session.HasPlayerEntity)
                 {
-                    _visited.Add(room.Value);
-                    if (session.HasPlayerEntity)
-                    {
-                        _newestArrival[room.Value] = session.Character.CharacterId;
-                    }
+                    _newestArrival[room.Value] = session.Character.CharacterId;
                 }
 
                 if (!_started && !_abandoned && _host.StartsOnFirstEntry)
                 {
                     await BeginAsync();
+                }
+
+                if (discovered && room is { } entered && _started && !_abandoned && EndState == null)
+                {
+                    await CallScriptAsync(run => _script.OnRoomEntered(run, entered));
                 }
 
                 if (_clockEndsAt is { } endsAt && EndState == null)
@@ -373,8 +424,33 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 _pending.Add(() => OnRoom(mapInstance, () =>
                 {
                     var monster = mapInstance.SummonMonster(npcMonster, spawn.At.X, spawn.At.Y, spawn.IsHostile);
+                    monster.IsBonus = spawn.IsBonus;
+                    monster.DeathStep = spawn.OnDeath;
+                    if (spawn.IsBonus)
+                    {
+                        monster.Effect = BonusEffect;
+                        monster.EffectDelay = BonusEffectDelay;
+                    }
+
                     return mapInstance.SendPacketAsync(monster.GenerateIn());
                 }));
+            }
+        }
+
+        public void SummonNpcs(int room, params NpcSpawn[] npcs)
+        {
+            var mapInstance = _rooms[room];
+            foreach (var spawn in npcs)
+            {
+                if (!_npcMonsters.TryGetValue(spawn.VNum, out var npcMonster))
+                {
+                    _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, spawn.VNum);
+                    continue;
+                }
+
+                NpcsSummoned++;
+                _pending.Add(() => OnRoom(mapInstance, () =>
+                    mapInstance.SendPacketAsync(mapInstance.SummonNpc(npcMonster, spawn.At.X, spawn.At.Y).GenerateIn())));
             }
         }
 
@@ -467,6 +543,39 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public void SpawnExit(int room, Spot at, bool locked = true)
+        {
+            var mapInstance = _rooms[room];
+            var portal = new Portal
+            {
+                PortalId = ++_nextPortalId,
+                SourceMapId = mapInstance.Map.MapId,
+                SourceX = at.X,
+                SourceY = at.Y,
+                SourceMapInstanceId = mapInstance.MapInstanceId,
+                DestinationMapId = mapInstance.Map.MapId,
+                Type = locked ? PortalType.TsEndClosed : PortalType.TsEnd
+            };
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                mapInstance.Portals.Add(portal);
+                return mapInstance.SendPacketAsync(portal.GenerateGp());
+            }));
+        }
+
+        public void UnlockExit(int room)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, async () =>
+            {
+                foreach (var portal in mapInstance.Portals.Where(s => s.Type == PortalType.TsEndClosed).ToList())
+                {
+                    portal.Type = PortalType.TsEnd;
+                    await mapInstance.SendPacketAsync(portal.GenerateGp());
+                }
+            }));
+        }
+
         public void SetMonsterLocker(int room, short count)
         {
             _lockers[room] = count;
@@ -552,6 +661,61 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var endsAt = _clock.GetCurrentInstant().Plus(_clockLimit);
             _clockEndsAt = endsAt;
             _pending.Add(() => BroadcastAsync(GenerateClock(endsAt)));
+        }
+
+        public void AddClockTime(TimeSpan extra)
+        {
+            if (_clockEndsAt is not { } endsAt)
+            {
+                return;
+            }
+
+            var added = Duration.FromTimeSpan(extra);
+            _clockLimit += added;
+            _clockEndsAt = endsAt.Plus(added);
+            var newEnd = _clockEndsAt.Value;
+            _pending.Add(() => BroadcastAsync(GenerateClock(newEnd)));
+        }
+
+        public void StartRoomClock(int room, TimeSpan length)
+        {
+            var mapInstance = _rooms[room];
+            var deciseconds = (int)(length.TotalMilliseconds / 100);
+            _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
+            {
+                Type = EventPacketType.RedTimer,
+                Parameter = deciseconds,
+                SecondParameter = deciseconds
+            }));
+        }
+
+        public void StopRoomClock(int room)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
+            {
+                Type = EventPacketType.RedTimer,
+                IsDisabled = true,
+                Parameter = -1,
+                SecondParameter = -1
+            }));
+        }
+
+        public void Dialog(int room, int dialog)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(async () =>
+            {
+                foreach (var player in PlayersOf(mapInstance).ToList())
+                {
+                    await player.SendPacketAsync(new NpcReqPacket
+                    {
+                        Type = VisualType.Player,
+                        TargetId = player.CharacterId,
+                        Data = dialog
+                    });
+                }
+            });
         }
 
         public void ShowCountdown(int room, TimeSpan length)
@@ -789,6 +953,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void Throw(int room, Spot around, params ItemPile[] piles) => Do(() => run.Throw(room, around, piles));
 
+            public void SummonNpcs(int room, params NpcSpawn[] npcs) => Do(() => run.SummonNpcs(room, npcs));
+
             public int MonstersAlive(int room) => run.MonstersAlive(room);
 
             public int PlayersIn(int room) => run.PlayersIn(room);
@@ -808,6 +974,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
 
+            public void SpawnExit(int room, Spot at, bool locked = true) => Do(() => run.SpawnExit(room, at, locked));
+
+            public void UnlockExit(int room) => Do(() => run.UnlockExit(room));
+
             public void SetMonsterLocker(int room, short count) => Do(() => run.SetMonsterLocker(room, count));
 
             public void SetMonsterLocker(int room, short count, short countedVNum) =>
@@ -823,6 +993,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void PlaceNpc(int room, short vNum, Spot at) => Do(() => run.PlaceNpc(room, vNum, at));
 
             public void StartClock(TimeSpan limit) => Do(() => run.StartClock(limit));
+
+            public void AddClockTime(TimeSpan extra) => Do(() => run.AddClockTime(extra));
+
+            public void StartRoomClock(int room, TimeSpan length) => Do(() => run.StartRoomClock(room, length));
+
+            public void StopRoomClock(int room) => Do(() => run.StopRoomClock(room));
+
+            public void Dialog(int room, int dialog) => Do(() => run.Dialog(room, dialog));
 
             public void ShowCountdown(int room, TimeSpan length) => Do(() => run.ShowCountdown(room, length));
 

@@ -18,7 +18,7 @@ public sealed class TimeSpaceQuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.TimesSpace;
 
-    public Task<bool> OnScriptedInstanceSucceededAsync(PlayerComponentBundle character, ScriptedInstanceType type, byte instanceId,
+    public Task<bool> OnScriptedInstanceSucceededAsync(PlayerComponentBundle character, ScriptedInstanceType type, short instanceId,
         CharacterQuest quest) =>
         type == ScriptedInstanceType.TimeSpace
             ? NpcObjectiveProgress.RecordAsync(character, quest, instanceId, o => o.SecondData ?? 1)
