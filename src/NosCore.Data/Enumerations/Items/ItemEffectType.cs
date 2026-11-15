@@ -61,6 +61,10 @@ namespace NosCore.Data.Enumerations.Items
         ReinforcementAmulet = 793,
         Heroic = 794,
         RandomHeroic = 795,
+        // Carried while gambling, it raises the rarity by one instead of rolling.
+        RarityIncreaseAmulet = 796,
+        // The champion gear counterpart of RarityIncreaseAmulet.
+        HeroicRarityIncreaseAmulet = 797,
         // Rolls only among the sets the opener can wear; an opener no set fits rolls among them all.
         ClassBox = 827,
         AttackAmulet = 932,

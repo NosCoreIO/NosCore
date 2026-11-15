@@ -805,6 +805,13 @@ It gives Teoman's copy on Chicken Farm Path the gambling shop (shop type 4).
       amulet first, and nothing is charged
 - [ ] Gamble a champion item while wearing a normal amulet: "You are wearing an incorrect amulet."
 
+- [ ] Carry an Amulet for Increasing Rarity (259) in the equipment bag and gamble a rare 3 sword:
+      it becomes rare 4 whatever the roll, the screen says "The rarity level was increased by the
+      Amulet for Rare Rising.", and the amulet is gone from the bag
+- [ ] A rare 7 sword gambles normally with that amulet in the bag, and the amulet stays
+- [ ] A champion item ignores amulet 259 and is raised by one with the champion versions (4261,
+      4263) instead, up to rare 8; an ordinary item ignores the champion versions
+
 ### Services an NPC offers
 
 The parser imports `shoptype.dat`: each shop type lists the services its NPC offers. The client
