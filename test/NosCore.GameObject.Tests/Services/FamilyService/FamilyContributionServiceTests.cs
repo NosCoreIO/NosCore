@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.Interaction;
+using Act4RaidType = NosCore.Packets.Enumerations.Act4RaidType;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.FamilyService;

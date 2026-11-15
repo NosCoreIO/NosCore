@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Events
 {

@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService

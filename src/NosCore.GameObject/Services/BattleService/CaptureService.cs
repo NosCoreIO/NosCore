@@ -129,7 +129,7 @@ namespace NosCore.GameObject.Services.BattleService
 
             await owner.SendPacketAsync(new CtlPacket
             {
-                Type = (byte)VisualType.Npc, PetId = mate.MateTransportId, Action = 3, Unknown = 0
+                Type = VisualType.Npc, PetId = mate.MateTransportId, Action = 3, Unknown = 0
             });
             await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessful));
             await owner.SendPacketsAsync(owner.GenerateMateRoster());

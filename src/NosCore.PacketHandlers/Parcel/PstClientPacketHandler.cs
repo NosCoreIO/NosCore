@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Parcel
     {
         public override async Task ExecuteAsync(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
-            var isCopy = pstClientPacket.Type == 2;
+            var isCopy = pstClientPacket.Type == MailBoxType.Sent;
             var mail = pstClientPacket.Id < 0 ? null
                 : (await mailHttpClient.GetMails(pstClientPacket.Id, clientSession.Character.VisualId, isCopy))
                     .FirstOrDefault(s => s.MailId == pstClientPacket.Id);

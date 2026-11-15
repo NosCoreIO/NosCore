@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
@@ -193,19 +194,19 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         private void DeleteParcelPacketShouldBeSent()
         {
             var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet?.Type == 7);
+            Assert.IsTrue(packet?.Type == ParcelPacketType.Deleted);
         }
 
         private void ReceiveParcelPacketShouldBeSent()
         {
             var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet?.Type == 2);
+            Assert.IsTrue(packet?.Type == ParcelPacketType.Received);
         }
 
         private void NoSpaceParcelPacketShouldBeSent()
         {
             var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet?.Type == 5);
+            Assert.IsTrue(packet?.Type == ParcelPacketType.NotEnoughSpace);
         }
     }
 }

@@ -244,9 +244,6 @@ namespace NosCore.GameObject.Services.MailService
 
         private async Task NotifyAsync(byte notifyType, Subscriber? receiver, MailData mailData)
         {
-            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver?.ConnectedCharacter?.Name)
-                ? mailData.ItemInstance != null ? (byte)0 : (byte)1 : (byte)2;
-
             if (receiver?.ConnectedCharacter is not { } connected)
             {
                 return;
@@ -257,12 +254,12 @@ namespace NosCore.GameObject.Services.MailService
                 case 0:
                     await pubSubHub.SendMessageAsync(mailData);
                     break;
-                case 1:
+                case 1 when mailData.ItemInstance == null:
                     await pubSubHub.SendMessageAsync(new DeleteMailData()
                     {
                         CharacterId = connected.Id,
                         MailId = (short)mailData.MailId,
-                        PostType = type
+                        Box = mailData.BoxOf(connected.Name)
                     });
                     break;
             }

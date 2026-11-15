@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
 
         private async Task DeletingNote_(short id)
         {
-            await Handler.ExecuteAsync(new PstClientPacket { ActionType = PostActionType.Delete, Type = 1, Id = id }, Session);
+            await Handler.ExecuteAsync(new PstClientPacket { ActionType = PostActionType.Delete, Type = MailBoxType.Received, Id = id }, Session);
         }
 
         private void TheNoteShouldBeDeleted()

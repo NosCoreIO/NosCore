@@ -24,12 +24,15 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
         public ItemInstanceDto? ItemInstance { get; set; }
         public short ItemType { get; set; }
 
-        public PostPacket GeneratePostMessage(int type)
+        public MailBoxType BoxOf(string? characterName) =>
+            !MailDto.IsSenderCopy && ReceiverName == characterName ? MailBoxType.Received : MailBoxType.Sent;
+
+        public PostPacket GeneratePostMessage(MailBoxType box)
         {
             return new PostPacket
             {
-                Type = 5,
-                PostType = (byte)type,
+                Type = PostPacketType.Opened,
+                PostType = box,
                 Id = (short)MailId,
                 Unknown = 0,
                 PostSubPacket = new PostSubPacket
@@ -59,45 +62,40 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
             };
         }
 
-        public IPacket? GeneratePost(byte type)
+        public IPacket GeneratePost(MailBoxType box)
         {
-            switch (type)
+            if (ItemInstance != null)
             {
-                case 3:
-                case 0:
-                    return ItemInstance == null ? null : new ParcelPacket
+                return new ParcelPacket
+                {
+                    Type = ParcelPacketType.Listed,
+                    Box = box,
+                    Id = (short)MailId,
+                    ParcelAttachment = new ParcelAttachmentSubPacket
                     {
-                        Type = 1,
-                        Unknown = type == 0 ? (byte)1 : (byte)2,
-                        Id = (short)MailId,
-                        ParcelAttachment = new ParcelAttachmentSubPacket
-                        {
-                            TitleType = MailDto.Title == "NOSMALL" ? (byte)1 : (byte)4,
-                            Unknown2 = 0,
-                            Date = MailDto.Date.ToString("yyMMddHHmm", new DateTimeFormatInfo()),
-                            Title = MailDto.Title,
-                            AttachmentVNum = ItemInstance.ItemVNum,
-                            AttachmentAmount = ItemInstance.Amount,
-                            ItemType = ItemType
-                        }
-                    };
-                case 1:
-                case 2:
-                    return new PostPacket
-                    {
-                        Type = 1,
-                        PostType = type,
-                        Id = (short)MailId,
-                        Unknown = 0,
-                        IsOpened = MailDto.IsOpened,
-                        DateTime = MailDto.Date.ToString("yyMMddHHmm", new DateTimeFormatInfo()),
-                        SenderName = type == 2 ? ReceiverName : SenderName,
+                        TitleType = MailDto.Title == "NOSMALL" ? (byte)1 : (byte)4,
+                        Unknown2 = 0,
+                        Date = MailDto.Date.ToString("yyMMddHHmm", new DateTimeFormatInfo()),
                         Title = MailDto.Title,
-                        Message = MailDto.Message
-                    };
-                default:
-                    throw new ArgumentException();
+                        AttachmentVNum = ItemInstance.ItemVNum,
+                        AttachmentAmount = ItemInstance.Amount,
+                        ItemType = ItemType
+                    }
+                };
             }
+
+            return new PostPacket
+            {
+                Type = PostPacketType.Listed,
+                PostType = box,
+                Id = (short)MailId,
+                Unknown = 0,
+                IsOpened = MailDto.IsOpened,
+                DateTime = MailDto.Date.ToString("yyMMddHHmm", new DateTimeFormatInfo()),
+                SenderName = box == MailBoxType.Sent ? ReceiverName : SenderName,
+                Title = MailDto.Title,
+                Message = MailDto.Message
+            };
         }
 
         public Guid Id { get; set; } = Guid.NewGuid();
