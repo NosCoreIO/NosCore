@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private Mock<IFamilyHub> _hub;
         private FamilyContributionService _service;
         private bool _earned;
+        private bool _boosted;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -57,6 +58,17 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .Then(TheFamilyShouldHaveEarned_Once, 600)
                 .And(TheHistoryShouldSayTheMemberEarned_, 600)
                 .And(TheMembersShouldBeShownTheFamilyAgainWithoutALevelUp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFamilyExperienceBoosterDoublesWhatTheMemberEarns()
+        {
+            await new Spec("A member under an FXP Booster reaching level 30 earns the family 1 200 experience")
+                .Given(TheMemberUsesAnFxpBooster)
+                .WhenAsync(TheMemberGoesFromLevel_To_, 29, 30)
+                .Then(TheFamilyShouldHaveEarned_Once, 1200)
+                .And(TheHistoryShouldSayTheMemberEarned_, 1200)
                 .ExecuteAsync();
         }
 
@@ -178,15 +190,17 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, experience))
                 .ReturnsAsync(new FamilyExperienceGain((byte)level, true));
 
+        private void TheMemberUsesAnFxpBooster() => _boosted = true;
+
         private void TheMasterStoresNothing() =>
             _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, It.IsAny<int>()))
                 .ReturnsAsync((FamilyExperienceGain?)null);
 
         private Task TheMemberGoesFromLevel_To_(int previous, int level) =>
-            _service.CharacterLevelledUpAsync(FamilyId, CharacterId, CharacterName, (byte)previous, (byte)level);
+            _service.CharacterLevelledUpAsync(FamilyId, CharacterId, CharacterName, (byte)previous, (byte)level, _boosted);
 
         private async Task TheMemberEarns_(int experience) =>
-            _earned = await _service.ExperienceEarnedAsync(FamilyId, CharacterId, CharacterName, experience);
+            _earned = await _service.ExperienceEarnedAsync(FamilyId, CharacterId, CharacterName, experience, _boosted);
 
         private void TheFamilyShouldHaveEarned_Once(int experience) =>
             _hub.Verify(s => s.AddExperienceAsync(FamilyId, CharacterId, experience), Times.Once);

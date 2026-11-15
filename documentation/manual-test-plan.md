@@ -2462,6 +2462,14 @@ to 21 (or 49). Members stand next to Salim (vnum 1431, dialog 462).
       instead of the window; the head and assistants always see it
 - [ ] The family's own history window (fhis) still leaves warehouse entries out
 
+### FXP Booster
+
+- [ ] Use an FXP Booster (5738–5741): "FXP Booster (N Days) effect activated" shows in the chat and one
+      booster is used up
+- [ ] With the booster running, a family member reaching level 30 adds 1 200 family experience to the
+      family history instead of 600; a time-space's family experience is doubled the same way
+- [ ] A second booster used while one runs is used up and adds its days
+
 ### Family extensions
 
 The parser fills `FamilyUpgrade` only when `packet.txt` holds the family manager's list, e.g.

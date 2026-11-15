@@ -818,6 +818,9 @@ public static class PlayerBundleExtensions
         };
     }
 
+    public static bool HasFamilyExperienceBooster(this PlayerComponentBundle player) =>
+        player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.FamilyExperienceBooster);
+
     public static void LoadExpensions(this PlayerComponentBundle player)
     {
         var expension = (byte)player.StaticBonusList.Sum(s => s.StaticBonusType switch

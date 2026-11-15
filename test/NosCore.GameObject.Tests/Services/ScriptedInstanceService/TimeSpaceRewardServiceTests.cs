@@ -216,13 +216,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var characterId = _session.Character.CharacterId;
             var name = _session.Character.Name;
-            _families.Verify(f => f.ExperienceEarnedAsync(FamilyId, characterId, name, experience), Times.Once);
+            _families.Verify(f => f.ExperienceEarnedAsync(FamilyId, characterId, name, experience, false), Times.Once);
         }
 
         private void NoFamilyShouldEarnExperience()
         {
             _families.Verify(f => f.ExperienceEarnedAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<string>(),
-                It.IsAny<int>()), Times.Never);
+                It.IsAny<int>(), It.IsAny<bool>()), Times.Never);
         }
 
         private void ThePlayerHolds_Gold(long gold)

@@ -22,25 +22,34 @@ namespace NosCore.GameObject.Services.FamilyService
         // none of 600, 800 or 1 200 beside its level 30, 40 and 60 lines, so this amount is suspect.
         private const int ExperiencePerLevel = 20;
 
+        // "Increases FXP earned by 100%."
+        private const int FamilyExperienceBoost = 2;
+
         private static bool IsRewardedLevel(int level) => level > 20 && level % 10 == 0;
 
         public async Task CharacterLevelledUpAsync(long familyId, long characterId, string characterName,
-            byte previousLevel, byte level)
+            byte previousLevel, byte level, bool boosted)
         {
             await familyLogService.AddLevelUpsAsync(familyId, characterName, previousLevel, level);
 
             for (var reached = previousLevel + 1; reached <= level; reached++)
             {
                 if (IsRewardedLevel(reached)
-                    && !await ExperienceEarnedAsync(familyId, characterId, characterName, ExperiencePerLevel * reached))
+                    && !await ExperienceEarnedAsync(familyId, characterId, characterName, ExperiencePerLevel * reached, boosted))
                 {
                     return;
                 }
             }
         }
 
-        public async Task<bool> ExperienceEarnedAsync(long familyId, long characterId, string characterName, int experience)
+        public async Task<bool> ExperienceEarnedAsync(long familyId, long characterId, string characterName, int experience,
+            bool boosted)
         {
+            if (boosted)
+            {
+                experience *= FamilyExperienceBoost;
+            }
+
             var gain = await familyHub.AddExperienceAsync(familyId, characterId, experience);
             if (gain == null)
             {

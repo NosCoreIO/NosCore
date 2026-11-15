@@ -18,9 +18,10 @@ namespace NosCore.GameObject.Services.FamilyService
         /// history under the member's name and shown to every online member.
         /// </summary>
         /// <returns>false when the character is not in that family or nothing was stored.</returns>
-        Task<bool> ExperienceEarnedAsync(long familyId, long characterId, string characterName, int experience);
+        Task<bool> ExperienceEarnedAsync(long familyId, long characterId, string characterName, int experience, bool boosted);
 
-        Task CharacterLevelledUpAsync(long familyId, long characterId, string characterName, byte previousLevel, byte level);
+        Task CharacterLevelledUpAsync(long familyId, long characterId, string characterName, byte previousLevel, byte level,
+            bool boosted);
 
         Task DailyMessageWrittenAsync(long familyId);
 
