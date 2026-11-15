@@ -15,6 +15,7 @@ using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -44,6 +45,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<IBattleService> _battle;
         private AggroService _aggro;
         private Mock<IMonsterChatterService> _chatter;
+        private Mock<INpcCombatCatalog> _catalog;
         private MonsterAi _ai;
 
         [TestInitialize]
@@ -59,13 +61,15 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             AcceptSwings(true);
             _aggro = World.Create<AggroService>();
             _chatter = new Mock<IMonsterChatterService>();
+            _catalog = new Mock<INpcCombatCatalog>();
+            _catalog.Setup(c => c.GetNpcBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
             _ai = new MonsterAi(
                 _battle.Object,
                 _aggro,
                 World.Create<GameObject.Services.PathfindingService.PathfindingService>(),
                 World.SessionRegistry,
                 World.DistanceCalculator,
-                new Mock<INpcCombatCatalog>().Object,
+                _catalog.Object,
                 new Mock<IRandomProvider>().Object,
                 _chatter.Object,
                 World.Clock,
@@ -141,6 +145,57 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsFalse(acted);
             SwingsAtThePlayer(Times.Never());
             Assert.AreEqual((short)1, monster.PositionY);
+        }
+
+        [TestMethod]
+        public async Task HostileMonsterDoesNotNoticeAHiddenPlayer()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 2);
+            _session.Character.Invisible = true;
+
+            Assert.IsFalse(await _ai.TickAsync(monster));
+            SwingsAtThePlayer(Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AMonsterLosesAPlayerWhoHides()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 2);
+            _aggro.AddThreat(monster, _session.Character, 5);
+            _session.Character.Invisible = true;
+
+            await _ai.TickAsync(monster);
+
+            Assert.IsFalse(_aggro.Current(monster).HasTarget);
+            SwingsAtThePlayer(Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AMonsterThatSeesHiddenThingsStillAttacksAHiddenPlayer()
+        {
+            var catalog = new Mock<INpcCombatCatalog>();
+            catalog.Setup(c => c.GetNpcBCards(It.IsAny<short>())).Returns(new List<BCardDto>
+            {
+                new()
+                {
+                    Type = BCardEffect.SpecialActionsSeeHiddenThings.Type(),
+                    SubType = BCardEffect.SpecialActionsSeeHiddenThings.SubType()
+                }
+            });
+            var ai = new MonsterAi(_battle.Object, _aggro,
+                World.Create<GameObject.Services.PathfindingService.PathfindingService>(), World.SessionRegistry,
+                World.DistanceCalculator, catalog.Object, new Mock<IRandomProvider>().Object, _chatter.Object, World.Clock,
+                new Dictionary<short, SkillDto>(),
+                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 2);
+            _session.Character.Invisible = true;
+
+            await ai.TickAsync(monster);
+
+            SwingsAtThePlayer(Times.Once());
         }
 
         [TestMethod]

@@ -47,6 +47,9 @@ public interface IBuffService
 
     Task RemoveBadAsync(IAliveEntity target, byte maxLevel);
 
+    // Ends every buff that carries the effect.
+    Task RemoveEffectAsync(IAliveEntity target, BCardEffect effect);
+
     // Leaves out buffs that have run out, even if the life tick has not swept them away yet.
     IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target);
 

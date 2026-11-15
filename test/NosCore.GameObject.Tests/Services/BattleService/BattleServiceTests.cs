@@ -168,6 +168,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AnAttackRevealsAHiddenAttacker()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit));
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+
+            _buffs.Verify(b => b.RemoveEffectAsync(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialActionsHide), Times.Once);
+        }
+
+        [TestMethod]
         public async Task ACastSummonsItsAddsOnlyAfterItsHitsLanded()
         {
             var origin = new FakeEntity { Hp = 100 };

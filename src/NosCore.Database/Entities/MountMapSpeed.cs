@@ -24,5 +24,8 @@ namespace NosCore.Database.Entities
 
         /// <summary>Added to the mount's riding speed on that map.</summary>
         public byte Speed { get; set; }
+
+        /// <summary>A Speed Booster used on that map also hides the rider while it lasts.</summary>
+        public bool BoostHides { get; set; }
     }
 }

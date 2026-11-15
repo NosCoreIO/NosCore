@@ -105,6 +105,7 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
+            await buffService.RemoveEffectAsync(origin, BCardEffect.SpecialActionsHide);
             var targets = targetResolver.Resolve(origin, target, skill);
             if (skill.HitsSeveral && arguments.ListedTargets is { Count: > 0 } listed)
             {
@@ -168,6 +169,8 @@ namespace NosCore.GameObject.Services.BattleService
                 await CancelAsync(origin, null);
                 return false;
             }
+
+            await buffService.RemoveEffectAsync(origin, BCardEffect.SpecialActionsHide);
 
             if (skill.BCards.Any(b => b.Effect() == BCardEffect.FairyXpIncreaseTeleportToLocation)
                 && mapInstance.Map.IsWalkable(mapX, mapY))

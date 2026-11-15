@@ -62,6 +62,19 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task TheInvisibleSkisHideTheirRiderOnlyInGlacernon()
+        {
+            const short invisibleSkis = 5226;
+            _items.Add(new ItemDto { VNum = invisibleSkis });
+            _items.Add(new ItemDto { VNum = Jaguar });
+
+            await _parser.InsertMountMapSpeedsAsync();
+
+            Assert.IsTrue(_saved.Single(r => r.ItemVNum == invisibleSkis && r.MapId == Citadel).BoostHides);
+            Assert.IsFalse(_saved.Single(r => r.ItemVNum == Jaguar && r.MapId == Citadel).BoostHides);
+        }
+
+        [TestMethod]
         public async Task EveryRowHasItsOwnId()
         {
             _items.Add(new ItemDto { VNum = Jaguar });

@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Buff;
@@ -24,7 +25,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class SpeedBoosterHandler(IBuffService buffService, ICardCatalog cardCatalog,
-        ISpeedCalculationService speedCalculationService, IItemCatalog itemCatalog, IRandomProvider random)
+        ISpeedCalculationService speedCalculationService, IItemCatalog itemCatalog, List<MountMapSpeedDto> mountMapSpeeds,
+        IRandomProvider random)
     {
         private const int TeleportAttempts = 100;
 
@@ -53,7 +55,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             if (mount.SpeedBoostDuration > 0)
             {
-                await buffService.ApplyAsync(character, card, BoostEffects(card, mount), character,
+                await buffService.ApplyAsync(character, card, BoostEffects(card, mount, character.MapInstance.Map.MapId), character,
                     mount.SpeedBoostDuration * 1000);
                 character.Speed = speedCalculationService.CalculateSpeed(character);
                 await session.SendPacketAsync(character.GenerateCond());
@@ -85,17 +87,29 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         }
 
         // The dodge rides on the boost itself, so it ends with it.
-        private IReadOnlyList<BCardDto> BoostEffects(CardDto card, ItemDto mount)
+        private IReadOnlyList<BCardDto> BoostEffects(CardDto card, ItemDto mount, short mapId)
         {
-            var effects = cardCatalog.GetCardBCards(card.CardId);
-            return mount.SpeedBoostDodgeChance == 0
-                ? effects
-                : [.. effects, new BCardDto
+            var effects = cardCatalog.GetCardBCards(card.CardId).ToList();
+            if (mount.SpeedBoostDodgeChance > 0)
+            {
+                effects.Add(new BCardDto
                 {
                     Type = BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropability.Type(),
                     SubType = BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropability.SubType(),
                     FirstData = mount.SpeedBoostDodgeChance,
-                }];
+                });
+            }
+
+            if (mountMapSpeeds.Exists(s => s.ItemVNum == mount.VNum && s.MapId == mapId && s.BoostHides))
+            {
+                effects.Add(new BCardDto
+                {
+                    Type = BCardEffect.SpecialActionsHide.Type(),
+                    SubType = BCardEffect.SpecialActionsHide.SubType(),
+                });
+            }
+
+            return effects;
         }
 
         private static async Task DashAsync(PlayerComponentBundle character, int cells)

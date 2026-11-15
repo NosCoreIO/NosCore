@@ -302,13 +302,13 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (channelId != null)
                 {
+                    // A hidden player still arrives, flagged so the others do not draw them until they are revealed.
+                    var prefix = authority == AuthorityType.Moderator
+                        ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, accountLanguage]}]"
+                        : string.Empty;
+                    await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
                     if (!invisible)
                     {
-                        var prefix = authority == AuthorityType.Moderator
-                            ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, accountLanguage]}]"
-                            : string.Empty;
-                        await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
-
                         var watchers = sessionRegistry.GetSessions(s =>
                             s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId);
                         await Task.WhenAll(watchers.Select(watcher =>
