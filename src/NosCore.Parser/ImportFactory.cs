@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser
@@ -131,17 +132,28 @@ namespace NosCore.Parser
             return respawnMapTypeParser.InsertRespawnMapTypeAsync();
         }
 
+        // packet.txt carries no date, so it ranks below every dated capture log beside it.
         public async Task ImportPacketsAsync()
         {
+            var sources = new List<CapturedSession>();
             var filePacket = $"{_folder}{Path.DirectorySeparatorChar}packet.txt";
-            if (!File.Exists(filePacket))
+            if (File.Exists(filePacket))
+            {
+                sources.Add(new CapturedSession(DateTime.MinValue, await packetTrace.ReadAsync(filePacket)));
+            }
+
+            foreach (var file in Directory.EnumerateFiles(_folder, "*.txt").Where(f => f != filePacket).Order(StringComparer.Ordinal))
+            {
+                sources.AddRange(await packetTrace.ReadCaptureLogAsync(file));
+            }
+
+            if (sources.Count == 0)
             {
                 loggerFactory.CreateLogger<ImportFactory>().LogWarning(logLanguage[LogLanguageKey.PACKET_CAPTURE_MISSING], filePacket);
                 return;
             }
 
-            _packets = await packetTrace.ReadAsync(filePacket);
-            CaptureSessions.MergeRepeatedEntities(_packets);
+            _packets = CaptureSessions.Combine(sources.OrderBy(s => s.Start).Select(s => s.Packets).ToList());
         }
 
         public Task ImportSkillsAsync()

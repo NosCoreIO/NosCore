@@ -11,6 +11,7 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
@@ -31,6 +32,49 @@ namespace NosCore.Parser.Parsers
         // The NPCs the capture shows, whose shops, teleports and recipes the capture owns.
         public static HashSet<int> NpcIds(IEnumerable<IPacket> packets) => packets.OfType<InPacket>()
             .Where(s => s.VisualType == VisualType.Npc).Select(s => (int)s.VisualId).ToHashSet();
+
+        // Sources come oldest first. The newest source that shows a map replaces the NPCs, monsters and
+        // portals older sources show there, since the game moves and retires them between versions.
+        public static List<IPacket> Combine(IReadOnlyList<List<IPacket>> sources)
+        {
+            var source = new Dictionary<IPacket, int>(ReferenceEqualityComparer.Instance);
+            var owners = new Dictionary<short, int>();
+            for (var i = 0; i < sources.Count; i++)
+            {
+                foreach (var packet in sources[i])
+                {
+                    source[packet] = i;
+                    if (packet is AtPacket at)
+                    {
+                        owners[at.MapId] = i;
+                    }
+                }
+            }
+
+            var packets = sources.SelectMany(s => s).ToList();
+            MergeRepeatedEntities(packets);
+            var kept = new List<IPacket>(packets.Count);
+            short map = 0;
+            foreach (var packet in packets)
+            {
+                if (packet is AtPacket at)
+                {
+                    map = at.MapId;
+                }
+                else if (packet is InPacket { VisualType: VisualType.Npc or VisualType.Monster } or GpPacket
+                    && owners.TryGetValue(map, out var owner) && source[packet] != owner)
+                {
+                    continue;
+                }
+
+                kept.Add(packet);
+            }
+
+            return kept;
+        }
+
+        // The maps the capture shows, whose NPCs, monsters and portals it owns.
+        public static HashSet<short> Maps(IEnumerable<IPacket> packets) => packets.OfType<AtPacket>().Select(s => s.MapId).ToHashSet();
 
         public static void MergeRepeatedEntities(List<IPacket> packets)
         {

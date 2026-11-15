@@ -90,7 +90,7 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task ShopParser_SkipsDuplicateMapNpcId()
+        public async Task ShopParser_KeepsTheLatestShopOfAnNpc()
         {
             var packets = new List<IPacket>
             {
@@ -102,6 +102,7 @@ namespace NosCore.Parser.Tests
             await parser.InsertShopsAsync(packets);
 
             Assert.AreEqual(1, _savedShops.Count);
+            Assert.AreEqual(((byte)2, (byte)1), (_savedShops[0].MenuType, _savedShops[0].ShopType));
         }
 
         [TestMethod]

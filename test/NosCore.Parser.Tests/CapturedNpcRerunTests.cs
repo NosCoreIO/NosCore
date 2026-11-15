@@ -192,5 +192,23 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(first, database.Contents());
             CollectionAssert.AreEqual(ids, database.ShopItems.LoadAll().Select(s => s.ShopItemId).Order().ToList());
         }
+
+        [TestMethod]
+        public async Task AnNpcTheCaptureNoLongerShowsOnItsMapIsRemoved()
+        {
+            var database = new Database();
+            await database.MapNpcs.TryInsertOrUpdateAsync(new[]
+            {
+                new MapNpcDto { MapNpcId = 200, MapId = 1, VNum = 1, MapX = 30, MapY = 30 },
+                new MapNpcDto { MapNpcId = 201, MapId = 7, VNum = 1, MapX = 30, MapY = 30 },
+            });
+            await database.Shops.TryInsertOrUpdateAsync(new ShopDto { ShopId = 1, MapNpcId = 200, MenuType = 0, ShopType = 9 });
+
+            await database.ImportAsync();
+
+            Assert.IsFalse(database.MapNpcs.LoadAll().Any(s => s.MapNpcId == 200));
+            Assert.IsFalse(database.Shops.LoadAll().Any(s => s.MapNpcId == 200));
+            Assert.IsTrue(database.MapNpcs.LoadAll().Any(s => s.MapNpcId == 201));
+        }
     }
 }

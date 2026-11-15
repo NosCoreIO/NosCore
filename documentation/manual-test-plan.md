@@ -80,6 +80,15 @@ should give the same NPCs.
       keepers all stand on the map, and the minimap shows them
 - [ ] The shops, skill shops and teleporters of the NPCs above still open and work
 
+With a dated capture log (`=== session started ...` and `[time] [World] [Server] ...` lines) next
+to `packet.txt`, the newest capture that visits a map decides its NPCs, monsters and portals.
+
+- [ ] NosVille near (116, 82): one Barni's Soul instead of two, and Chef Terry stands at (121, 81)
+- [ ] NosVille: Fisherman Wade (145, 103), the Guard (88, 44), the Shell Master (88, 65) and the
+      Raid Token Manager (101, 69) stand on the map, and none of the ten Easter Sacks is left
+- [ ] Every portal on NosVille still leads where it did, and the miniland entrance at (48, 132)
+      still opens the miniland
+
 ---
 
 ## Movement

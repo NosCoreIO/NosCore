@@ -30,12 +30,13 @@ namespace NosCore.Parser.Parsers
             {
                 if (npcIds.Contains((int)packet.VisualId) && packet.ShopType is { } shopType)
                 {
-                    captured.TryAdd((int)packet.VisualId, new ShopDto
+                    // Captures run oldest first, so the latest shop line is the current one.
+                    captured[(int)packet.VisualId] = new ShopDto
                     {
                         MapNpcId = (int)packet.VisualId,
                         MenuType = packet.MenuType,
                         ShopType = shopType
-                    });
+                    };
                 }
             }
 
