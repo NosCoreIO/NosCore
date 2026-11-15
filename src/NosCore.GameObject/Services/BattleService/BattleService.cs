@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Services.BattleService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
-            if (origin is PlayerComponentBundle && CanCast(origin) && !IsStunned(origin)
+            if (origin is PlayerComponentBundle or MateComponentBundle && CanCast(origin) && !IsStunned(origin)
                 && Resolve(origin, arguments) is { TargetType: not SkillReach.TargetedSkill and not SkillReach.GroundSkill } supportSkill)
             {
                 return await CastOnSelfOrAllyAsync(origin, target, supportSkill);

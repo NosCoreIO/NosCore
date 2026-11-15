@@ -6,6 +6,7 @@
 
 using Microsoft.Extensions.Logging;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -30,14 +31,12 @@ namespace NosCore.PacketHandlers.Mates
         {
             var character = session.Character;
 
-            // The fourth field is the skill pressed on the pet's bar, and none means a basic attack. A mate
-            // is an ally of every player and npc, so a skill only goes for a monster.
+            // The fourth field is the skill pressed on the pet's bar, and none means a basic attack.
             if (packet.SkillVNum != 0)
             {
-                if (packet.TargetType == VisualType.Monster
-                    && character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId) is { } monster)
+                if (character.SkillTarget(packet.MateTransportId, packet.TargetType, packet.TargetId) is { } skillTarget)
                 {
-                    await petSkillService.CastAsync(character, packet.MateTransportId, packet.SkillVNum, monster);
+                    await petSkillService.CastAsync(character, packet.MateTransportId, packet.SkillVNum, skillTarget);
                 }
 
                 return;

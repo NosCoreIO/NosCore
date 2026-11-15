@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -29,6 +30,15 @@ namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class MateExtensions
     {
+        // A mate's skill goes for a monster, or for the mate itself when the skill is centred on it.
+        public static IAliveEntity? SkillTarget(this PlayerComponentBundle owner, long mateTransportId, VisualType targetType,
+            long targetId) => targetType switch
+        {
+            VisualType.Monster => owner.MapInstance.FindMonster(s => s.VisualId == targetId),
+            VisualType.Npc when targetId == mateTransportId && owner.Mates.TryGetValue(mateTransportId, out var mate) => mate.Entity,
+            _ => null
+        };
+
         public static ScpPacket GenerateScp(this Mate mate, RegionType language)
         {
             return new ScpPacket

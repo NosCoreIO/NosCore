@@ -1443,8 +1443,7 @@ and the items in the Etc bag.
 
 A pet whose creature has skills of its own casts them from its skill bar: an Otter (683) has
 Sushi Party and Smackeroo, a Baby Raptor Blue (806) Tail Sweep, a Baby Panda (1488) Panda Roll.
-Have such a pet in the team and a second client on the map. A skill centred on the pet itself,
-Sushi Party among them, does nothing yet.
+Have such a pet in the team and a second client on the map.
 
 - [ ] Log in with an Otter in the team: its skill bar shows Sushi Party then Smackeroo, and the
       third slot is empty
@@ -1456,6 +1455,9 @@ Sushi Party among them, does nothing yet.
       it in between does nothing
 - [ ] With less MP left than the skill costs: nothing happens
 - [ ] Select a monster across the map and press Smackeroo: the Otter does not hit it
+- [ ] With a monster within a few cells of the Otter, press Sushi Party (Shift+R): the Otter plays
+      the skill, the monster gets Delicious Tuna and Short Blackout in its buff row, the Otter's
+      MP goes down by 40 and the slot cools down for 70 seconds
 - [ ] Kill a monster with a pet skill: it collapses as it does from your own hits
 - [ ] Change map: the bar is still there
 - [ ] Send the Otter back to the Miniland: the bar goes away; take it out again: the bar is back
