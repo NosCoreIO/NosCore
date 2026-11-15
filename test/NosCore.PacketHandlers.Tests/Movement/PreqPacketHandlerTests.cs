@@ -12,6 +12,8 @@ using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System.Linq;
@@ -65,6 +67,20 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 .Then(NoPacketShouldBeSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AnEnemyCitadelPortalSaysSo()
+        {
+            await new Spec("A portal into the enemy's citadel says it cannot be used")
+                .Given(UsingThePortalWillBe_, PortalResult.EnemyCitadel)
+                .WhenAsync(UsingPortal)
+                .Then(ShouldBeToldTheEnemyCitadelIsClosed)
+                .ExecuteAsync();
+        }
+
+        private void ShouldBeToldTheEnemyCitadelIsClosed() =>
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.CannotMoveToEnemyCitadel },
+                Session.LastPackets.OfType<MsgiPacket>().Single());
 
         private void UsingThePortalWillBe_(PortalResult result)
         {

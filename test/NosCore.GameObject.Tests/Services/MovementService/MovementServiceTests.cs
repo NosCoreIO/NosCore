@@ -10,6 +10,7 @@ using Moq;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -54,8 +55,69 @@ namespace NosCore.GameObject.Tests.Services.MovementService
             MinilandService.Setup(x => x.GetMinilandPortals(It.IsAny<long>()))
                 .Returns(new List<NosCore.GameObject.Map.Portal>());
 
+            World.Inject(MapTypeMaps);
             Service = World.UseReal<IWalkService, WalkService>().Create<GameObject.Services.MovementService.MovementService>();
         }
+
+        private readonly List<MapTypeMapDto> MapTypeMaps =
+        [
+            new() { MapId = AngelCitadel, MapTypeId = MapTypeType.CitadelAngel },
+            new() { MapId = DemonCitadel, MapTypeId = MapTypeType.CitadelDemon },
+        ];
+
+        private const short AngelCitadel = 130;
+        private const short DemonCitadel = 131;
+
+        [TestMethod]
+        public async Task AnAngelCannotEnterTheDemonCitadel()
+        {
+            await new Spec("An angel stepping on the portal to the demon citadel stays where they are")
+                .Given(CharacterIsOnBaseMapAtTheEntryPortal)
+                .And(CharacterIsA_, FactionType.Angel)
+                .And(BaseMapHasPortalToMap_, DemonCitadel)
+                .And(PortalCooldownHasElapsed)
+                .WhenAsync(UsingPortal)
+                .Then(ThePortalShouldLeadToAnEnemyCitadel)
+                .And(ChangeMapInstanceAsyncWasNotCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ADemonEntersTheDemonCitadel()
+        {
+            await new Spec("A demon stepping on the portal to the demon citadel goes in")
+                .Given(CharacterIsOnBaseMapAtTheEntryPortal)
+                .And(CharacterIsA_, FactionType.Demon)
+                .And(BaseMapHasPortalToMap_, DemonCitadel)
+                .And(PortalCooldownHasElapsed)
+                .WhenAsync(UsingPortal)
+                .Then(ChangeMapInstanceAsyncWasCalledWithPortalCoords_, (short)5, (short)8)
+                .ExecuteAsync();
+        }
+
+        private void CharacterIsA_(FactionType faction) => Session.Character.Faction = faction;
+
+        private void BaseMapHasPortalToMap_(short mapId)
+        {
+            var miniland = World.GetMap(World.MinilandId);
+            miniland.MapInstanceType = MapInstanceType.NormalInstance;
+            Session.Character.MapInstance.Portals.Clear();
+            Session.Character.MapInstance.Portals.Add(new NosCore.GameObject.Map.Portal
+            {
+                SourceX = 10,
+                SourceY = 10,
+                DestinationX = 5,
+                DestinationY = 8,
+                SourceMapInstanceId = Session.Character.MapInstance.MapInstanceId,
+                DestinationMapInstanceId = miniland.MapInstanceId,
+                DestinationMapId = mapId,
+                Type = PortalType.MapPortal,
+            });
+            DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
+                .Returns(0);
+        }
+
+        private void ThePortalShouldLeadToAnEnemyCitadel() => Assert.AreEqual(PortalResult.EnemyCitadel, LastPortal);
 
         [TestMethod]
         public async Task WalkWithHighSpeedShouldBeIgnored()

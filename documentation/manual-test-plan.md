@@ -410,6 +410,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] With the amulet on, a meal heals two fifths more HP and MP per tick, never above the usual
       per-tick ceiling for meals
 
+### Citadel portals
+
+- [ ] As an angel, step on the Eastern Frost Land portal to the demon citadel (map 133 at 130,85):
+      "You cannot move to the enemy's citadel." appears and you stay on the map
+- [ ] As a demon, the same portal takes you into the demon citadel
+
 ### Full restore potions
 
 - [ ] Drink a Divine Health Potion (1242) with HP missing: the HP bar fills, MP stays where it was,
