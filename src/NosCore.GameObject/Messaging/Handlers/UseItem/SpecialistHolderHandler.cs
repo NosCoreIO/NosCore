@@ -6,13 +6,17 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SpecialistHolderService;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
@@ -23,7 +27,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var source = evt.InventoryItem;
-            if (!specialistHolderService.IsSpecialistHolder(source.ItemInstance))
+            var forPartner = specialistHolderService.IsPartnerSpecialistHolder(source.ItemInstance);
+            if (!forPartner && !specialistHolderService.IsSpecialistHolder(source.ItemInstance))
             {
                 return;
             }
@@ -31,6 +36,12 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var session = evt.ClientSession;
             var character = session.Character;
             var holder = (BoxInstance)source.ItemInstance;
+            if ((holder.HoldingVNum ?? 0) == 0 && forPartner)
+            {
+                await StorePartnerCardAsync(evt, holder);
+                return;
+            }
+
             if ((holder.HoldingVNum ?? 0) == 0)
             {
                 await session.SendPacketAsync(new WopenPacket
@@ -76,11 +87,69 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             });
         }
 
-        private static Task SendNotEnoughSpaceAsync(ItemUsedEvent evt) =>
+        private async Task StorePartnerCardAsync(ItemUsedEvent evt, BoxInstance holder)
+        {
+            var source = evt.InventoryItem;
+            var owner = evt.ClientSession.Character;
+            // The client names the partner the player has selected as the target of the item.
+            if (evt.Packet.VisualType != VisualType.Npc
+                || !owner.Mates.TryGetValue(evt.Packet.VisualId, out var partner)
+                || partner.MateType != MateType.Partner
+                || partner.EquipmentPocket() is not { } pocket
+                || partner.Specialist(owner.InventoryService) is not { } card)
+            {
+                await SendAsync(evt, Game18NConstString.NoSpecialistCardEquipped);
+                return;
+            }
+
+            if (partner.SpecialistMorph != null)
+            {
+                await SendAsync(evt, Game18NConstString.CantPutSpecialistInHolderWhileTransformed);
+                return;
+            }
+
+            if (!specialistHolderService.CanStore(card))
+            {
+                await SendAsync(evt, Game18NConstString.NotBeAbleToPutTheSelectedSpecialistCardIntoCardHolder);
+                return;
+            }
+
+            if (evt.Packet.Mode == 0)
+            {
+                await owner.SendPacketAsync(new QnaiPacket
+                {
+                    YesPacket = new UseItemPacket
+                    {
+                        VisualType = VisualType.Npc,
+                        VisualId = partner.MateTransportId,
+                        Type = source.Type.ToPocketType(),
+                        Slot = source.Slot,
+                        Mode = 1,
+                        Parameter = 0
+                    },
+                    Question = Game18NConstString.AskPutSpecialistInHolder
+                });
+                return;
+            }
+
+            if (owner.InventoryService.DeleteFromTypeAndSlot(pocket, (short)EquipmentType.Sp) != null)
+            {
+                return;
+            }
+
+            specialistHolderService.Store(card, holder);
+            await owner.SendPacketAsync(source.GeneratePocketChange(source.Type.ToPocketType(), source.Slot));
+            await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService));
+            await SendAsync(evt, Game18NConstString.SpecialistInTheHolder);
+        }
+
+        private static Task SendNotEnoughSpaceAsync(ItemUsedEvent evt) => SendAsync(evt, Game18NConstString.NotEnoughSpace);
+
+        private static Task SendAsync(ItemUsedEvent evt, Game18NConstString message) =>
             evt.ClientSession.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
-                Message = Game18NConstString.NotEnoughSpace
+                Message = message
             });
     }
 }
