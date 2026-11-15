@@ -1053,6 +1053,9 @@ success, on the assumption that the window says "Appearance changed" itself.
       in ten miss; once the boost is over they land as before
 - [ ] On a Power Loader (1618) the booster is used up and the loader rides slower for 10 seconds
       (speed 19 against 23), and a level 4 or lower debuff is removed
+- [ ] On the Power Loader the Stealth Field icon turns into Strobe Shield when the booster is used;
+      15 seconds later Stealth Field is back. Dismount while Strobe Shield is on: both icons are
+      gone and Stealth Field does not come back. `/mnt/project-files/strobe-shield/run.sh` sets this up
 
 ### Fireworks and event toys
 
