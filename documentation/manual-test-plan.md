@@ -511,11 +511,12 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Hit a Brown Bushi (156) many times with the same attack: about 4 hits in 10 deal a fifth
       of the usual damage, from its "40% chance that damage is reduced by 80%" passive. Any
       monster whose BASIC row carries an effect behaves the same way
-- [ ] Kill a Spider Egg (1921): a Strong Magmaros (1918) appears where it died. A Soft Pii Pod
+- [ ] Kill a Spider Egg (1921): a Strong Magmaros (1918) appears within a few cells of where it died. A Soft Pii Pod
       (45) summons two Soft Piis (36) the same way. Monsters with a "chance of summoning upon
       death" card, such as the Lava Pit (2014), summon only that often
 - [ ] Stand next to a Tired Chief Miner (111) until it uses its skill (407): two Happy Miners
-      (105) and a Weak Expy Miner (108) appear on its cell. Between skills its hits are plain
+      (105) and a Weak Expy Miner (108) appear within a few
+      cells of it. Between skills its hits are plain
       basic attacks, not that skill
 - [ ] Kill a Wiggy Wiggler (226): a Small Wiggler (229) appears within a few cells of where it
       died, from the summon card on its BASIC row. An Angry Beehive (208) releases an Angry Swarm
