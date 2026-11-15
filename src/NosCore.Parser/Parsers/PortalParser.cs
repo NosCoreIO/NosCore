@@ -8,6 +8,9 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,7 +25,7 @@ namespace NosCore.Parser.Parsers
         private readonly List<PortalDto> _listPortals2 = new();
         private List<PortalDto> _listPortals1 = new();
 
-        public async Task InsertPortalsAsync(List<string[]> packetList)
+        public async Task InsertPortalsAsync(IReadOnlyList<IPacket> packets)
         {
             var portalsdb = portalDao.LoadAll().ToList();
             var maps = mapDao.LoadAll().ToList();
@@ -150,15 +153,15 @@ namespace NosCore.Parser.Parsers
                 await portalDao.TryInsertOrUpdateAsync(arenaExit);
             }
 
-            foreach (var currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
+            foreach (var packet in packets)
             {
-                if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
+                if (packet is AtPacket at)
                 {
-                    map = short.Parse(currentPacket[2]);
+                    map = at.MapId;
                     continue;
                 }
 
-                if ((currentPacket.Length <= 4) || (currentPacket[0] != "gp"))
+                if (packet is not GpPacket gp)
                 {
                     continue;
                 }
@@ -166,10 +169,10 @@ namespace NosCore.Parser.Parsers
                 var portal = new PortalDto
                 {
                     SourceMapId = map,
-                    SourceX = short.Parse(currentPacket[1]),
-                    SourceY = short.Parse(currentPacket[2]),
-                    DestinationMapId = short.Parse(currentPacket[3]),
-                    Type = (PortalType)Enum.Parse(typeof(PortalType), currentPacket[4]),
+                    SourceX = gp.SourceX,
+                    SourceY = gp.SourceY,
+                    DestinationMapId = gp.MapId,
+                    Type = gp.PortalType,
                     DestinationX = -1,
                     DestinationY = -1,
                     IsDisabled = false

@@ -15,9 +15,11 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using NosCore.Packets.Enumerations;
 using SpecLight;
 
 namespace NosCore.Parser.Tests
@@ -51,15 +53,13 @@ namespace NosCore.Parser.Tests
                 new Mock<ILogger<TeleporterParser>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
-        private static string[] P(string line) => line.Split(' ');
-
         [TestMethod]
         public async Task TheArrivalAfterATeleportIsTheDestination()
         {
             await _parser.InsertTeleportersAsync([
-                P("n_run 16 1 2 1899"),
-                P("c_close"),
-                P("at 1 20 8 87 2 0 0 1 -1"),
+                Captured.Talk(NrunRunnerType.Teleport, 1, 1899),
+                new CClosePacket(),
+                Captured.Arrival(20, 8, 87),
             ]);
 
             var teleporter = _saved.Single(s => s.MapNpcId == 1899);
@@ -73,7 +73,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ADestinationOnTheSameMapIsMarkedSo()
         {
-            await _parser.InsertTeleportersAsync([P("n_run 26 1 2 9821"), P("at 1 177 148 71 2 0 0 1 -1")]);
+            await _parser.InsertTeleportersAsync([Captured.Talk(NrunRunnerType.TeleportActV, 1, 9821), Captured.Arrival(177, 148, 71)]);
 
             Assert.AreEqual(TeleporterType.TeleporterOnMap, _saved.Single().Type);
         }
@@ -82,8 +82,8 @@ namespace NosCore.Parser.Tests
         public async Task OtherRunnersAndUnknownNpcsAreIgnored()
         {
             await _parser.InsertTeleportersAsync([
-                P("n_run 17 0 2 1899"), P("at 1 2006 20 20 2 0 0 1 -1"),
-                P("n_run 16 0 2 5555"), P("at 1 1 80 110 2 0 0 1 -1"),
+                Captured.Talk(NrunRunnerType.GoToArena, 0, 1899), Captured.Arrival(2006, 20, 20),
+                Captured.Talk(NrunRunnerType.Teleport, 0, 5555), Captured.Arrival(1, 80, 110),
             ]);
 
             Assert.AreEqual(0, _saved.Count);
@@ -93,8 +93,8 @@ namespace NosCore.Parser.Tests
         public async Task OnlyTheFirstArrivalCounts()
         {
             await _parser.InsertTeleportersAsync([
-                P("n_run 16 1 2 1899"), P("at 1 20 8 87 2 0 0 1 -1"),
-                P("n_run 16 1 2 1899"), P("at 1 20 9 90 2 0 0 1 -1"),
+                Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 8, 87),
+                Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 9, 90),
             ]);
 
             Assert.AreEqual(8, _saved.Single(s => s.MapNpcId == 1899).MapX);
@@ -103,7 +103,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task AnAtWithoutATeleportBeforeItIsNotADestination()
         {
-            await _parser.InsertTeleportersAsync([P("at 1 20 8 87 2 0 0 1 -1"), P("n_run 16 1 2 1899")]);
+            await _parser.InsertTeleportersAsync([Captured.Arrival(20, 8, 87), Captured.Talk(NrunRunnerType.Teleport, 1, 1899)]);
 
             Assert.AreEqual(0, _saved.Count);
         }
@@ -111,7 +111,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task CopiesOfTheSameNpcShareItsDestinations()
         {
-            await _parser.InsertTeleportersAsync([P("n_run 16 1 2 1899"), P("at 1 20 8 87 2 0 0 1 -1")]);
+            await _parser.InsertTeleportersAsync([Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 8, 87)]);
 
             var copy = _saved.Single(s => s.MapNpcId == 2022);
             Assert.AreEqual(1, copy.Index);
@@ -123,7 +123,7 @@ namespace NosCore.Parser.Tests
         {
             _existing.Add(new TeleporterDto { MapNpcId = 1899, Runner = NrunRunnerType.Teleport, Index = 1, MapId = 20, MapX = 1, MapY = 1 });
 
-            await _parser.InsertTeleportersAsync([P("n_run 16 1 2 1899"), P("at 1 20 8 87 2 0 0 1 -1")]);
+            await _parser.InsertTeleportersAsync([Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 8, 87)]);
 
             Assert.IsFalse(_saved.Any(s => s.MapNpcId == 1899));
         }
@@ -132,7 +132,7 @@ namespace NosCore.Parser.Tests
         public async Task TheMenuOfADestinationIsStored()
         {
             await new Spec("A destination is stored with the runner of the menu it was picked from")
-                .WhenAsync(TheTraceIs_, new[] { "n_run 26 1 2 9821", "at 1 177 148 71 2 0 0 1 -1" })
+                .WhenAsync(TheTraceIs_, new IPacket[] { Captured.Talk(NrunRunnerType.TeleportActV, 1, 9821), Captured.Arrival(177, 148, 71) })
                 .Then(TheDestinationOf_Option_ShouldBeUnder_, 9821, (short)1, NrunRunnerType.TeleportActV)
                 .ExecuteAsync();
         }
@@ -141,10 +141,10 @@ namespace NosCore.Parser.Tests
         public async Task TheSameOptionOfTwoMenusIsKeptApart()
         {
             await new Spec("The same option index under two menus of one NPC gives two destinations")
-                .WhenAsync(TheTraceIs_, new[]
+                .WhenAsync(TheTraceIs_, new IPacket[]
                 {
-                    "n_run 16 1 2 9821", "at 1 20 8 87 2 0 0 1 -1",
-                    "n_run 26 1 2 9821", "at 1 177 148 71 2 0 0 1 -1",
+                    Captured.Talk(NrunRunnerType.Teleport, 1, 9821), Captured.Arrival(20, 8, 87),
+                    Captured.Talk(NrunRunnerType.TeleportActV, 1, 9821), Captured.Arrival(177, 148, 71),
                 })
                 .Then(TheDestinationOf_Option_ShouldBeUnder_, 9821, (short)1, NrunRunnerType.Teleport)
                 .And(TheDestinationOf_Option_ShouldBeUnder_, 9821, (short)1, NrunRunnerType.TeleportActV)
@@ -156,7 +156,7 @@ namespace NosCore.Parser.Tests
         {
             await new Spec("A destination stored without its menu is given the captured runner instead of a duplicate")
                 .Given(ADestinationWithoutAMenuIsStoredFor_Option_, 1899, (short)1)
-                .WhenAsync(TheTraceIs_, new[] { "n_run 16 1 2 1899", "at 1 20 8 87 2 0 0 1 -1" })
+                .WhenAsync(TheTraceIs_, new IPacket[] { Captured.Talk(NrunRunnerType.Teleport, 1, 1899), Captured.Arrival(20, 8, 87) })
                 .Then(TheStoredDestinationShouldNowBeUnder_, NrunRunnerType.Teleport)
                 .And(DestinationsSavedFor_ShouldBe_, 1899, 1)
                 .ExecuteAsync();
@@ -170,7 +170,7 @@ namespace NosCore.Parser.Tests
                 TeleporterId = StoredTeleporterId, MapNpcId = npcId, Index = index, MapId = 20, MapX = 8, MapY = 87
             });
 
-        private Task TheTraceIs_(string[] lines) => _parser.InsertTeleportersAsync(lines.Select(P).ToList());
+        private Task TheTraceIs_(IPacket[] packets) => _parser.InsertTeleportersAsync(packets);
 
         private void TheDestinationOf_Option_ShouldBeUnder_(int npcId, short index, NrunRunnerType runner) =>
             Assert.AreEqual(1, _saved.Count(s => s.MapNpcId == npcId && s.Index == index && s.Runner == runner));

@@ -11,6 +11,8 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
@@ -52,16 +54,14 @@ namespace NosCore.Parser.Tests
                 new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
-        private static string[] Line(string packet) => packet.Split(' ');
-
-        private static List<string[]> Capture(params string[] packets) => packets.Select(Line).ToList();
+        private static List<IPacket> Capture(params IPacket[] packets) => [.. packets];
 
         [TestMethod]
         public async Task AWaypointBecomesATimeSpaceEntranceOnTheMapItFollowsAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 1 79 108 2 0 0 0",
-                "wp 134 36 0 4 1 99"));
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99)));
 
             Assert.AreEqual(1, _saved.Count);
             var entrance = _saved[0];
@@ -77,10 +77,10 @@ namespace NosCore.Parser.Tests
         public async Task ThePortalTypeSaysHeroOrNormalAndNothingAboutTheCaptureSPlayerAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 1 79 108 2 0 0 0",
-                "wp 134 36 0 4 1 99",
-                "at 1234 132 79 108 2 0 0 0",
-                "wp 104 55 79 12 81 99"));
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99),
+                Captured.Arrival(132, 79, 108),
+                Captured.Waypoint(104, 55, (WpPortalType)12, 81, 99)));
 
             Assert.AreEqual(2, _saved.Count);
             Assert.IsFalse(_saved.Single(s => s.MapId == 1).IsHeroic);
@@ -91,10 +91,10 @@ namespace NosCore.Parser.Tests
         public async Task OneTimeSpaceReachedFromTwoMapsGivesTwoEntrancesAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 132 79 108 2 0 0 0",
-                "wp 104 55 79 12 81 99",
-                "at 1234 133 79 108 2 0 0 0",
-                "wp 36 55 79 12 81 99"));
+                Captured.Arrival(132, 79, 108),
+                Captured.Waypoint(104, 55, (WpPortalType)12, 81, 99),
+                Captured.Arrival(133, 79, 108),
+                Captured.Waypoint(36, 55, (WpPortalType)12, 81, 99)));
 
             Assert.AreEqual(2, _saved.Count);
         }
@@ -103,8 +103,8 @@ namespace NosCore.Parser.Tests
         public async Task ARaidPortalBecomesARaidEntranceAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 2500 79 108 2 0 0 0",
-                "gp 24 3 4996 8 0 0"));
+                Captured.Arrival(2500, 79, 108),
+                Captured.Portal(24, 3, 4996, PortalType.Raid)));
 
             Assert.AreEqual(1, _saved.Count);
             Assert.AreEqual(ScriptedInstanceType.Raid, _saved[0].Type);
@@ -115,9 +115,9 @@ namespace NosCore.Parser.Tests
         public async Task AnOrdinaryPortalIsNotAnEntranceAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 2 79 108 2 0 0 0",
-                "gp 24 3 1 -1 0 0",
-                "gp 25 3 1 3 0 0"));
+                Captured.Arrival(2, 79, 108),
+                Captured.Portal(24, 3, 1, PortalType.MapPortal),
+                Captured.Portal(25, 3, 1, PortalType.Miniland)));
 
             Assert.AreEqual(0, _saved.Count);
         }
@@ -126,10 +126,10 @@ namespace NosCore.Parser.Tests
         public async Task TheSameEntranceAnnouncedOnEveryVisitIsStoredOnceAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 1 79 108 2 0 0 0",
-                "wp 134 36 0 4 1 99",
-                "at 1234 1 79 108 2 0 0 0",
-                "wp 134 36 0 4 1 99"));
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99),
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99)));
 
             Assert.AreEqual(1, _saved.Count);
         }
@@ -147,8 +147,8 @@ namespace NosCore.Parser.Tests
             });
 
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 1 79 108 2 0 0 0",
-                "wp 134 36 0 4 1 99"));
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99)));
 
             var refreshed = _saved.Single();
             Assert.AreEqual(1, refreshed.LevelMinimum);
@@ -163,9 +163,9 @@ namespace NosCore.Parser.Tests
         {
             // The capture walks a map more than once, so the same wp comes round again.
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 1 79 108 2 0 0 0",
-                "wp 134 36 0 4 1 99",
-                "wp 134 36 0 4 1 99"));
+                Captured.Arrival(1, 79, 108),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99)));
 
             Assert.AreEqual(1, _saved.Count);
         }
@@ -174,22 +174,10 @@ namespace NosCore.Parser.Tests
         public async Task AnEntranceOnAMapTheServerDoesNotHaveIsDroppedAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 9999 79 108 2 0 0 0",
-                "wp 134 36 0 4 1 99"));
+                Captured.Arrival(9999, 79, 108),
+                Captured.Waypoint(134, 36, (WpPortalType)4, 1, 99)));
 
             Assert.AreEqual(0, _saved.Count);
-        }
-
-        [TestMethod]
-        public async Task ATruncatedLineDoesNotBringTheImportDownAsync()
-        {
-            await _parser.InsertScriptedInstancesAsync(Capture(
-                "at 1234 1 79 108 2 0 0 0",
-                "wp 134 36",
-                "gp 24",
-                "wp 134 36 0 4 1 99"));
-
-            Assert.AreEqual(1, _saved.Count);
         }
     }
 }

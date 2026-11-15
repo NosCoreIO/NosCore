@@ -7,6 +7,9 @@
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -17,59 +20,54 @@ namespace NosCore.Parser.Parsers
 {
     public class ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger<ShopItemParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        public async Task InsertShopItemsAsync(List<string[]> packetList)
+        public async Task InsertShopItemsAsync(IReadOnlyList<IPacket> packets)
         {
             var shopitems = new List<ShopItemDto>();
             var itemCounter = 0;
             byte type = 0;
             var shopItemdb = shopItemDao.LoadAll().ToList();
             var shopdb = shopDao.LoadAll().ToList();
-            foreach (var currentPacket in packetList.Where(o => o[0].Equals("n_inv") || o[0].Equals("shopping")))
+            foreach (var packet in packets)
             {
-                if (currentPacket[0].Equals("n_inv"))
+                if (packet is ShoppingPacket shopping)
                 {
-                    var npcid = short.Parse(currentPacket[2]);
-                    var shop = shopdb.FirstOrDefault(s => s.MapNpcId == npcid);
-                    if (shop == null)
+                    type = (byte)shopping.ShopType;
+                    continue;
+                }
+
+                if (packet is not NInvPacket { Items: { } items } nInv)
+                {
+                    continue;
+                }
+
+                var shop = shopdb.FirstOrDefault(s => s.MapNpcId == nInv.VisualId);
+                if (shop == null)
+                {
+                    continue;
+                }
+
+                foreach (var item in items.OfType<NInvItemSubPacket>())
+                {
+                    var sitem = new ShopItemDto
+                    {
+                        ShopId = shop.ShopId,
+                        Type = type,
+                        Slot = (byte)item.Slot,
+                        ItemVNum = item.VNum,
+                        Rare = item.UpgradeDesign != null ? (short)(item.RareAmount ?? -1) : (short)0,
+                        Upgrade = item.UpgradeDesign is { } upgrade ? (byte)upgrade : (byte)0
+                    };
+
+                    if (shopitems.Any(s =>
+                            s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
+                        || shopItemdb.Where(s => s.ShopId == sitem.ShopId)
+                            .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
                     {
                         continue;
                     }
 
-                    for (var i = 5; i < currentPacket.Length; i++)
-                    {
-                        var item = currentPacket[i].Split('.');
-
-                        if (item.Length < 5)
-                        {
-                            continue;
-                        }
-
-                        var sitem = new ShopItemDto
-                        {
-                            ShopId = shop.ShopId,
-                            Type = type,
-                            Slot = byte.Parse(item[1]),
-                            ItemVNum = short.Parse(item[2]),
-                            Rare = item.Length == 6 ? sbyte.Parse(item[3]) : (short)0,
-                            Upgrade = item.Length == 6 ? byte.Parse(item[4]) : (byte)0
-                        };
-
-
-                        if (shopitems.Any(s =>
-                                s.ItemVNum.Equals(sitem.ItemVNum) && s.ShopId.Equals(sitem.ShopId))
-                            || shopItemdb.Where(s => s.ShopId == sitem.ShopId)
-                                .Any(s => s.ItemVNum.Equals(sitem.ItemVNum)))
-                        {
-                            continue;
-                        }
-
-                        shopitems.Add(sitem);
-                        itemCounter++;
-                    }
-                }
-                else if (currentPacket.Length > 3)
-                {
-                    type = byte.Parse(currentPacket[1]);
+                    shopitems.Add(sitem);
+                    itemCounter++;
                 }
             }
 

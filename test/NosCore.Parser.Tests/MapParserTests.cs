@@ -9,10 +9,11 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
-using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.IO;
@@ -65,7 +66,7 @@ namespace NosCore.Parser.Tests
                 .Callback<IEnumerable<MapDto>>(m => saved.AddRange(m))
                 .ReturnsAsync(true);
             var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
-            await parser.InsertOrUpdateMapsAsync(_tempFolder, new List<string[]>());
+            await parser.InsertOrUpdateMapsAsync(_tempFolder, new List<IPacket>());
 
             Assert.AreEqual(ArenaType.None, saved.Single(m => m.MapId == 1).Arena);
             Assert.AreEqual(ArenaType.Individual, saved.Single(m => m.MapId == 2006).Arena);

@@ -10,6 +10,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -73,12 +74,12 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task PortalParser_ParsesPortalsBetweenMaps()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "gp", "100", "100", "2", "0" },
-                new[] { "at", "1", "2", "50", "50", "2", "0", "0", "0" },
-                new[] { "gp", "100", "100", "1", "0" }
+                Captured.Arrival(1),
+                Captured.Portal(100, 100, 2, PortalType.TsNormal),
+                Captured.Arrival(2),
+                Captured.Portal(100, 100, 1, PortalType.TsNormal)
             };
 
             var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
@@ -91,7 +92,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task PortalParser_CreatesHardcodedPortals()
         {
-            var packets = new List<string[]>();
+            var packets = new List<IPacket>();
 
             var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
             await parser.InsertPortalsAsync(packets);
@@ -106,7 +107,7 @@ namespace NosCore.Parser.Tests
         public async Task PortalParser_CreatesTheMinilandEntrances()
         {
             var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
-            await parser.InsertPortalsAsync(new List<string[]>());
+            await parser.InsertPortalsAsync(new List<IPacket>());
 
             var entrances = _savedPortals.Where(p => p.Type == PortalType.Miniland)
                 .Select(p => (p.SourceMapId, p.SourceX, p.SourceY, p.DestinationMapId))
@@ -122,7 +123,7 @@ namespace NosCore.Parser.Tests
         public async Task PortalParser_CreatesTheArenaExits()
         {
             var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
-            await parser.InsertPortalsAsync(new List<string[]>());
+            await parser.InsertPortalsAsync(new List<IPacket>());
 
             var individual = _savedPortals.Single(p => p.SourceMapId == 2006);
             var glory = _savedPortals.Single(p => p.SourceMapId == 2106);
@@ -135,10 +136,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task PortalParser_SkipsPortalsToUnknownMaps()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "gp", "100", "100", "999", "0" }
+                Captured.Arrival(1),
+                Captured.Portal(100, 100, 999, PortalType.TsNormal)
             };
 
             var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
@@ -150,11 +151,11 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task PortalParser_SkipsDuplicatePortals()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "gp", "100", "100", "2", "0" },
-                new[] { "gp", "100", "100", "2", "0" }
+                Captured.Arrival(1),
+                Captured.Portal(100, 100, 2, PortalType.TsNormal),
+                Captured.Portal(100, 100, 2, PortalType.TsNormal)
             };
 
             var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);

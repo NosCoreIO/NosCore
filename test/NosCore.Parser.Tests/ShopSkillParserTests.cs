@@ -10,6 +10,9 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
@@ -45,10 +48,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task EachTabKeepsItsSkillsInOrder()
         {
-            await _parser.InsertShopSkillsAsync(new List<string[]>
+            await _parser.InsertShopSkillsAsync(new List<IPacket>
             {
-                "n_inv 2 1893 0 0 20 24 28".Split(' '),
-                "n_inv 2 1893 0 1 240 241".Split(' ')
+                Captured.SkillShop(1893, 0, 20, 24, 28),
+                Captured.SkillShop(1893, 1, 240, 241)
             });
 
             CollectionAssert.AreEqual(new[] { "0:0:20", "0:1:24", "0:2:28", "1:0:240", "1:1:241" },
@@ -60,10 +63,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task TracesOfTheSameTabAreMerged()
         {
-            await _parser.InsertShopSkillsAsync(new List<string[]>
+            await _parser.InsertShopSkillsAsync(new List<IPacket>
             {
-                "n_inv 2 1893 0 1 220 221".Split(' '),
-                "n_inv 2 1893 0 1 240 220".Split(' ')
+                Captured.SkillShop(1893, 1, 220, 221),
+                Captured.SkillShop(1893, 1, 240, 220)
             });
 
             CollectionAssert.AreEqual(new short[] { 220, 221, 240 }, _saved.Select(s => s.SkillVNum).ToList());
@@ -73,10 +76,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ItemShopsAndUnknownNpcsAreSkipped()
         {
-            await _parser.InsertShopSkillsAsync(new List<string[]>
+            await _parser.InsertShopSkillsAsync(new List<IPacket>
             {
-                "n_inv 2 1894 0 100 0.0.1012.-1.0.10".Split(' '),
-                "n_inv 2 9999 0 0 20".Split(' ')
+                Captured.ItemShop(1894, new NInvItemSubPacket { Type = PocketType.Equipment, Slot = 0, VNum = 1012, UpgradeDesign = 0, Price = 10 }),
+                Captured.SkillShop(9999, 0, 20)
             });
 
             Assert.AreEqual(0, _saved.Count);

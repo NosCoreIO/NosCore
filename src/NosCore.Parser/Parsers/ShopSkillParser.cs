@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,26 +22,20 @@ namespace NosCore.Parser.Parsers
     public class ShopSkillParser(IDao<ShopSkillDto, int> shopSkillDao, IDao<ShopDto, int> shopDao,
         ILogger<ShopSkillParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        public async Task InsertShopSkillsAsync(List<string[]> packetList)
+        public async Task InsertShopSkillsAsync(IReadOnlyList<IPacket> packets)
         {
             var shops = shopDao.LoadAll().GroupBy(s => s.MapNpcId).ToDictionary(g => g.Key, g => g.First());
             var skills = shopSkillDao.LoadAll().ToList();
             var added = new List<ShopSkillDto>();
-            foreach (var packet in packetList.Where(p => p[0] == "n_inv" && p.Length > 5))
+            foreach (var packet in packets.OfType<NInvPacket>())
             {
-                if (!int.TryParse(packet[2], out var npcId) || !shops.TryGetValue(npcId, out var shop)
-                    || !byte.TryParse(packet[4], out var type))
+                if (packet.Skills is not { } listed || !shops.TryGetValue((int)packet.VisualId, out var shop) || packet.ShopKind is not { } type)
                 {
                     continue;
                 }
 
-                foreach (var entry in packet.Skip(5))
+                foreach (var skillVNum in listed)
                 {
-                    if (!short.TryParse(entry, out var skillVNum))
-                    {
-                        continue;
-                    }
-
                     var tab = skills.Where(s => s.ShopId == shop.ShopId && s.Type == type).ToList();
                     if (tab.Any(s => s.SkillVNum == skillVNum))
                     {

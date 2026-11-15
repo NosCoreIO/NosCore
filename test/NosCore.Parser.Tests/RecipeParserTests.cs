@@ -12,7 +12,12 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.ClientPackets.Battle;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,17 +66,17 @@ namespace NosCore.Parser.Tests
                 new Mock<ILogger<RecipeParser>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
-        private static List<string[]> Packets(params string[] lines) => lines.Select(l => l.Split(' ')).ToList();
+        private static List<IPacket> Packets(params IPacket[] packets) => [.. packets];
 
         [TestMethod]
         public async Task AListedRecipeTakesTheMaterialsShownForIt()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "n_run 14 17 2 1897",
-                "m_list 2 1002 1003 -100",
-                "pdtse 1 1002",
-                "ncif 2 1897",
-                "m_list 3 10 2029 10 2097 10 2102 30 -1"));
+                Captured.Talk(NrunRunnerType.OpenProduction, 17, 1897),
+                Captured.Makes(1002, 1003),
+                Captured.ShowRecipe(1002),
+                new NcifPacket { Type = VisualType.Npc, TargetId = 1897 },
+                Captured.Materials(10, (2029, 10), (2097, 10), (2102, 30))));
 
             var recipe = _savedRecipes.Single();
             Assert.AreEqual(1897, recipe.MapNpcId);
@@ -86,9 +91,9 @@ namespace NosCore.Parser.Tests
         public async Task ARecipeWithoutMaterialsIsSkipped()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "n_run 14 17 2 1897",
-                "m_list 2 1002 1003 -100",
-                "pdtse 1 1002"));
+                Captured.Talk(NrunRunnerType.OpenProduction, 17, 1897),
+                Captured.Makes(1002, 1003),
+                Captured.ShowRecipe(1002)));
 
             Assert.AreEqual(0, _savedRecipes.Count);
         }
@@ -97,12 +102,12 @@ namespace NosCore.Parser.Tests
         public async Task MaterialsAreOnlyKeptForTheNpcThatListsTheItem()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "n_run 14 17 2 1897",
-                "m_list 2 1002 -100",
-                "n_run 14 18 2 1895",
-                "m_list 2 2131 -100",
-                "pdtse 1 1002",
-                "m_list 3 10 2029 10 -1"));
+                Captured.Talk(NrunRunnerType.OpenProduction, 17, 1897),
+                Captured.Makes(1002),
+                Captured.Talk(NrunRunnerType.OpenProduction, 18, 1895),
+                Captured.Makes(2131),
+                Captured.ShowRecipe(1002),
+                Captured.Materials(10, (2029, 10))));
 
             Assert.AreEqual(0, _savedRecipes.Count);
         }
@@ -111,12 +116,12 @@ namespace NosCore.Parser.Tests
         public async Task AnAnswerIsNotReusedForALaterQuestion()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "n_run 14 17 2 1897",
-                "m_list 2 1002 1003 -100",
-                "pdtse 1 1002",
-                "m_list 3 10 2029 10 -1",
-                "pdtse 2 1003",
-                "m_list 3 1 2097 5 -1"));
+                Captured.Talk(NrunRunnerType.OpenProduction, 17, 1897),
+                Captured.Makes(1002, 1003),
+                Captured.ShowRecipe(1002),
+                Captured.Materials(10, (2029, 10)),
+                new PdtsePacket { Type = (PdtsePacketType)2, VNum = 1003 },
+                Captured.Materials(1, (2097, 5))));
 
             Assert.AreEqual(1002, _savedRecipes.Single().ItemVNum);
         }
@@ -125,11 +130,11 @@ namespace NosCore.Parser.Tests
         public async Task AScrollRecipeIsTakenFromTheScrollUsedInTheMainPocket()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "inv 1 0.2024.3 5.1241.1",
-                "u_i 1 610505 1 5 0 0",
-                "m_list 2 1246 -100",
-                "pdtse 1 1246",
-                "m_list 3 1 1241 1 2029 5 2097 5 -1"));
+                Captured.MainPocket((0, 2024), (5, 1241)),
+                Captured.Use(PocketType.Main, 5),
+                Captured.Makes(1246),
+                Captured.ShowRecipe(1246),
+                Captured.Materials(1, (1241, 1), (2029, 5), (2097, 5))));
 
             var recipe = _savedRecipes.Single();
             Assert.AreEqual((short)1241, recipe.ScrollVNum);
@@ -142,11 +147,11 @@ namespace NosCore.Parser.Tests
         public async Task UsingAnItemThatIsNotAScrollListsNothing()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "inv 1 0.2024.3 5.1241.1",
-                "u_i 1 610505 1 0 0 0",
-                "m_list 2 1246 -100",
-                "pdtse 1 1246",
-                "m_list 3 1 2029 5 -1"));
+                Captured.MainPocket((0, 2024), (5, 1241)),
+                Captured.Use(PocketType.Main, 0),
+                Captured.Makes(1246),
+                Captured.ShowRecipe(1246),
+                Captured.Materials(1, (2029, 5))));
 
             Assert.AreEqual(0, _savedRecipes.Count);
         }
@@ -155,12 +160,12 @@ namespace NosCore.Parser.Tests
         public async Task AScrollMovedIntoASlotIsFollowed()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "inv 1 0.2024.3",
-                "ivn 1 7.1241.1.0",
-                "u_i 1 610505 1 7 0 0",
-                "m_list 2 1246 -100",
-                "pdtse 1 1246",
-                "m_list 3 1 2029 5 -1"));
+                Captured.MainPocket((0, 2024)),
+                Captured.MainPocketChange(7, 1241),
+                Captured.Use(PocketType.Main, 7),
+                Captured.Makes(1246),
+                Captured.ShowRecipe(1246),
+                Captured.Materials(1, (2029, 5))));
 
             Assert.AreEqual((short)1241, _savedRecipes.Single().ScrollVNum);
         }
@@ -169,12 +174,12 @@ namespace NosCore.Parser.Tests
         public async Task AnNpcRecipeIsNotCreditedToAScrollUsedEarlier()
         {
             await _parser.InsertRecipesAsync(Packets(
-                "inv 1 5.1241.1",
-                "u_i 1 610505 1 5 0 0",
-                "n_run 14 17 2 1897",
-                "m_list 2 1002 -100",
-                "pdtse 1 1002",
-                "m_list 3 10 2029 10 -1"));
+                Captured.MainPocket((5, 1241)),
+                Captured.Use(PocketType.Main, 5),
+                Captured.Talk(NrunRunnerType.OpenProduction, 17, 1897),
+                Captured.Makes(1002),
+                Captured.ShowRecipe(1002),
+                Captured.Materials(10, (2029, 10))));
 
             var recipe = _savedRecipes.Single();
             Assert.AreEqual(1897, recipe.MapNpcId);

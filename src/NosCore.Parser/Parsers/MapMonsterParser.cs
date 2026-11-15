@@ -8,6 +8,10 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,23 +24,23 @@ namespace NosCore.Parser.Parsers
     public class MapMonsterParser(IDao<MapMonsterDto, int> mapMonsterDao, IDao<NpcMonsterDto, short> npcMonsterDao,
         ILogger<MapMonsterParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        public async Task InsertMapMonsterAsync(List<string[]> packetList)
+        public async Task InsertMapMonsterAsync(IReadOnlyList<IPacket> packets)
         {
             short map = 0;
             var monsters = new List<MapMonsterDto>();
             var mapMonsterdb = mapMonsterDao.LoadAll().ToList();
             var npcMonsterdb = npcMonsterDao.LoadAll().ToDictionary(n => n.NpcMonsterVNum);
 
-            foreach (var currentPacket in packetList.Where(o => (o.Length > 7 && o[0].Equals("in") && (o[1] == "3") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
+            foreach (var packet in packets)
             {
-                if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))
+                if (packet is AtPacket at)
                 {
-                    map = short.Parse(currentPacket[2]);
+                    map = at.MapId;
                     continue;
                 }
 
-                var vnum = short.Parse(currentPacket[2]);
-                if (!npcMonsterdb.TryGetValue(vnum, out var npcMonster))
+                if (packet is not InPacket { VisualType: VisualType.Monster, VisualId: <= 20000, InNonPlayerSubPacket: not null } inPacket
+                    || !short.TryParse(inPacket.VNum, out var vnum) || !npcMonsterdb.ContainsKey(vnum))
                 {
                     continue;
                 }
@@ -45,10 +49,10 @@ namespace NosCore.Parser.Parsers
                 {
                     MapId = map,
                     VNum = vnum,
-                    MapMonsterId = int.Parse(currentPacket[3]),
-                    MapX = short.Parse(currentPacket[4]),
-                    MapY = short.Parse(currentPacket[5]),
-                    Direction = (byte)(currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
+                    MapMonsterId = (int)inPacket.VisualId,
+                    MapX = inPacket.PositionX,
+                    MapY = inPacket.PositionY,
+                    Direction = inPacket.Direction ?? 0,
                     IsDisabled = false
                 };
 

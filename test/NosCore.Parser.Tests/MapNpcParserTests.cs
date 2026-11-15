@@ -10,6 +10,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -69,10 +70,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapNpcParser_ParsesSingleNpc()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "2", "1", "100", "50", "60", "2", "100", "0", "1", "0", "0", "0", "1", "0" }
+                Captured.Arrival(1),
+                Captured.Npc(1, 100, 50, 60, 2, dialog: 1)
             };
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -89,11 +90,11 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapNpcParser_ParsesMultipleNpcs()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "2", "1", "100", "50", "60", "2", "100", "0", "1", "0", "0", "0", "1", "0" },
-                new[] { "in", "2", "2", "101", "70", "80", "3", "100", "0", "2", "0", "0", "0", "1", "0" }
+                Captured.Arrival(1),
+                Captured.Npc(1, 100, 50, 60, 2, dialog: 1),
+                Captured.Npc(2, 101, 70, 80, 3, dialog: 2)
             };
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -105,11 +106,11 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapNpcParser_SkipsDuplicateMapNpcId()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "2", "1", "100", "50", "60", "2", "100", "0", "1", "0", "0", "0", "1", "0" },
-                new[] { "in", "2", "1", "100", "70", "80", "3", "100", "0", "2", "0", "0", "0", "1", "0" }
+                Captured.Arrival(1),
+                Captured.Npc(1, 100, 50, 60, 2, dialog: 1),
+                Captured.Npc(1, 100, 70, 80, 3, dialog: 2)
             };
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -121,10 +122,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapNpcParser_SkipsUnknownNpcVNum()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "2", "999", "100", "50", "60", "2", "100", "0", "1", "0", "0", "0", "1", "0" }
+                Captured.Arrival(1),
+                Captured.Npc(999, 100, 50, 60, 2, dialog: 1)
             };
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -136,10 +137,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapNpcParser_SetsDialogFromNpcTalk()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "2", "1", "100", "50", "60", "2", "100", "0", "1", "0", "0", "0", "1", "0" }
+                Captured.Arrival(1),
+                Captured.Npc(1, 100, 50, 60, 2, dialog: 1)
             };
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -150,16 +151,31 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task MapNpcParser_KeepsAnNpcSitting()
+        {
+            var packets = new List<IPacket>
+            {
+                Captured.Arrival(1),
+                Captured.Npc(1, 100, 50, 60, sitting: true),
+                Captured.Npc(2, 101, 70, 80)
+            };
+
+            var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.InsertMapNpcsAsync(packets);
+
+            CollectionAssert.AreEqual(new[] { true, false }, _savedNpcs.Select(s => s.IsSitting).ToList());
+        }
+
+        [TestMethod]
         public async Task MapNpcParser_TakesTheAuraFromTheMonsterData()
         {
             _npcMonsterDaoMock
                 .Setup(x => x.LoadAll())
                 .Returns(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 955, EffectIdConstantly = 857 } });
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "2", "955", "100", "50", "60", "2", "100", "0", "0", "0", "0", "0", "1", "0" },
-                new[] { "eff", "2", "100", "4" }
+                Captured.Arrival(1),
+                Captured.Npc(955, 100, 50, 60)
             };
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -174,10 +190,10 @@ namespace NosCore.Parser.Tests
             _mapNpcDaoMock
                 .Setup(x => x.LoadAll())
                 .Returns(new List<MapNpcDto> { new() { MapNpcId = 100, MapId = 1, VNum = 1 } });
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "2", "1", "100", "50", "60", "2", "100", "0", "1", "0", "0", "0", "1", "0" }
+                Captured.Arrival(1),
+                Captured.Npc(1, 100, 50, 60, dialog: 1)
             };
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -189,7 +205,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task MapNpcParser_HandlesEmptyPacketList()
         {
-            var packets = new List<string[]>();
+            var packets = new List<IPacket>();
 
             var parser = new MapNpcParser(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertMapNpcsAsync(packets);

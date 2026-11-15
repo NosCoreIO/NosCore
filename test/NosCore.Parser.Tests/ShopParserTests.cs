@@ -10,6 +10,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -59,9 +60,9 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ShopParser_ParsesSingleShop()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "shop", "2", "100", "0", "1", "0", "Shop", "Name" }
+                Captured.Shop(100, 1, 0, "Shop Name")
             };
 
             var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -76,10 +77,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ShopParser_ParsesMultipleShops()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "shop", "2", "100", "0", "1", "0", "Shop1" },
-                new[] { "shop", "2", "101", "0", "2", "1", "Shop2" }
+                Captured.Shop(100, 1, 0, "Shop1"),
+                Captured.Shop(101, 2, 1, "Shop2")
             };
 
             var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -91,10 +92,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ShopParser_SkipsDuplicateMapNpcId()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "shop", "2", "100", "0", "1", "0", "Shop1" },
-                new[] { "shop", "2", "100", "0", "2", "1", "Shop1Duplicate" }
+                Captured.Shop(100, 1, 0, "Shop1"),
+                Captured.Shop(100, 2, 1, "Shop1Duplicate")
             };
 
             var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -106,9 +107,9 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ShopParser_SkipsUnknownNpcId()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "shop", "2", "999", "0", "1", "0", "UnknownShop" }
+                Captured.Shop(999, 1, 0, "UnknownShop")
             };
 
             var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
@@ -120,7 +121,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ShopParser_HandlesEmptyPacketList()
         {
-            var packets = new List<string[]>();
+            var packets = new List<IPacket>();
 
             var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
             await parser.InsertShopsAsync(packets);
@@ -131,10 +132,10 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ShopParser_IgnoresNonShopPackets()
         {
-            var packets = new List<string[]>
+            var packets = new List<IPacket>
             {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "shop", "2", "100", "0", "1", "0", "Shop1" }
+                Captured.Arrival(1),
+                Captured.Shop(100, 1, 0, "Shop1")
             };
 
             var parser = new ShopParser(_shopDaoMock.Object, _mapNpcDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
