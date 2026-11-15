@@ -21,6 +21,10 @@ namespace NosCore.GameObject.Services.TalentArenaService
         // A player who already has teammates is asked to confirm first.
         Task CancelAsync(ClientSession session, bool confirmed);
 
+        // Takes a player from the arena into the stands of the match the named fighter is in, or of
+        // any match running when no name is given.
+        Task WatchAsync(ClientSession session, string? fighterName);
+
         // A fighter in the ring calls one of their two teammates in to help for a while.
         Task CallAsync(ClientSession session, byte calledIndex);
     }

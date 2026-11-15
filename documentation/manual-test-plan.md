@@ -2963,7 +2963,15 @@ arena) next to Tei Ken, the left NPC on the steps. Learned skills are needed to 
       the opponent and be hit; afterwards, or once they fall, they go back to the bench
 - [ ] A team gets five calls a match; a teammate who has fallen, is already called, or a
       fighter on the bench pressing the button calls nobody
-- [ ] Not verifiable yet: spectating a match by name (`taw`), which this client never sends
+- [ ] With a match running, Tei Ken's "Enter as Spectator (Normal)" takes a player to the stands
+      above the ring, with the score, both teams' fighters, the round clock still counting and a
+      camera button at the bottom left; double-clicking it shows the fighter in the ring
+- [ ] "Enter as Spectator (Selection)" opens "Take part as spectator"; a name nobody is fighting
+      under says "The opponent is not currently in combat.", a fighter's name goes to that match
+- [ ] With no match running, "Enter as Spectator (Normal)" says there is no battle at the moment;
+      a player waiting for a match is told they cannot watch while registered
+- [ ] When a fighter falls the spectator's camera moves to the next one, and at the end of the
+      match the spectator is back beside Tei Ken with the arena windows closed
 - [ ] When a team has nobody left the result window shows WIN/LOSE with won rounds and lives;
       winners get 1 Gold Medal, losers 3 Silver Medals, each with a chat line
 - [ ] Afterwards, right-clicking a fighter's HP bar at the top of the screen shows the match under

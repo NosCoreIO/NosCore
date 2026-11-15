@@ -13,6 +13,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -29,6 +30,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -43,6 +45,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
         IMapChangeService mapChangeService,
         ISessionRegistry sessionRegistry,
         IItemGenerationService itemGenerationService,
+        IRandomProvider random,
         ILogger<TalentArenaService> logger, TimeProvider time) : ITalentArenaService, ISingletonService
     {
         public const string Script = "talent-arena";
@@ -57,6 +60,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
         private readonly SemaphoreSlim _lock = new(1, 1);
         private readonly List<Registrant> _registrants = new();
+        private readonly ConcurrentDictionary<ScriptedInstanceRun, byte> _matches = new();
         private IInstanceScript? _script;
         private int _running;
         private int _nextTeam;
@@ -178,6 +182,42 @@ namespace NosCore.GameObject.Services.TalentArenaService
             {
                 _lock.Release();
             }
+        }
+
+        public async Task WatchAsync(ClientSession session, string? fighterName)
+        {
+            var player = session.Character;
+            if (player.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance)
+            {
+                return;
+            }
+
+            await _lock.WaitAsync();
+            try
+            {
+                if (_registrants.Any(r => r.CharacterId == player.CharacterId))
+                {
+                    await player.SendPacketAsync(Message(Game18NConstString.CanNotWatchWhileRegistered));
+                    return;
+                }
+            }
+            finally
+            {
+                _lock.Release();
+            }
+
+            var running = _matches.Keys.Where(r => r.EndState == null).ToList();
+            var run = fighterName == null
+                ? running.Count == 0 ? null : running[random.Next(0, running.Count)]
+                : running.FirstOrDefault(r => ((Match)r.Host).Fights(fighterName));
+            if (run == null)
+            {
+                await player.SendPacketAsync(Message(fighterName == null ? Game18NConstString.NoBattleCurrently
+                    : Game18NConstString.OpponentNotInBattle));
+                return;
+            }
+
+            await run.RunHostAsync(() => ((Match)run.Host).WatchAsync(run, session));
         }
 
         public Task CallAsync(ClientSession session, byte calledIndex) =>
@@ -320,6 +360,8 @@ namespace NosCore.GameObject.Services.TalentArenaService
             {
                 return;
             }
+
+            _matches[run] = 0;
 
             var ring = run.Rooms[script.Definition.Rooms[0].Key];
             foreach (var fighter in fighters)
@@ -522,10 +564,38 @@ namespace NosCore.GameObject.Services.TalentArenaService
         {
             private readonly Dictionary<ArenaTeamType, int> _wins = new() { [ArenaTeamType.Zenas] = 0, [ArenaTeamType.Erenia] = 0 };
             private readonly Dictionary<ArenaTeamType, int> _calls = new() { [ArenaTeamType.Zenas] = 0, [ArenaTeamType.Erenia] = 0 };
+            private readonly Dictionary<long, (Guid MapInstanceId, short X, short Y)> _spectators = new();
+            private TimeSpan _roundEndsAt;
 
             public string Name => "talent arena";
 
             public bool StartsOnFirstEntry => false;
+
+            public bool Fights(string name) => fighters.Any(f => !f.Left
+                && string.Equals(service.Session(f.CharacterId)?.Character.Name, name, StringComparison.OrdinalIgnoreCase));
+
+            // Spectators watch from the stands, seeing the match from Zenas' side.
+            public async Task WatchAsync(ScriptedInstanceRun run, ClientSession session)
+            {
+                var player = session.Character;
+                _spectators[player.CharacterId] = (player.MapInstanceId, player.PositionX, player.PositionY);
+                var ring = run.Rooms[definition.Rooms[0].Key];
+                await service.MapChange.ChangeMapInstanceAsync(session, ring, definition.StartX, definition.StartY);
+                await session.SendPacketAsync(Scores(TaWindowMode.Open));
+                var secondsLeft = (int)Math.Ceiling((_roundEndsAt - run.Elapsed).TotalSeconds);
+                if (secondsLeft > 0)
+                {
+                    await session.SendPacketAsync(Scores(TaWindowMode.Clock, secondsLeft));
+                }
+
+                await session.SendPacketAsync(Lists(ArenaTeamType.Zenas, TaWindowMode.Open));
+                await session.SendPacketAsync(new TawSvPacket { IsHidden = false });
+                await session.SendPacketAsync(new TaFcPacket { Side = ArenaSideType.Own, CharacterId = Fighting(ArenaTeamType.Zenas) });
+                await session.SendPacketAsync(new TaFcPacket { Side = ArenaSideType.Opponent, CharacterId = Fighting(ArenaTeamType.Erenia) });
+            }
+
+            private long Fighting(ArenaTeamType team) =>
+                fighters.Find(f => f.Team == team && f.InRing && !f.Defeated)?.CharacterId ?? 0;
 
             public BoutSide Side(ArenaTeamType team) => definition.Sides[team == ArenaTeamType.Zenas ? 0 : 1];
 
@@ -575,8 +645,11 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 }
             }
 
-            public Task CountdownAsync(ScriptedInstanceRun run, MapInstance room, TimeSpan length) =>
-                room.SendPacketAsync(Scores(TaWindowMode.Clock, (int)length.TotalSeconds));
+            public Task CountdownAsync(ScriptedInstanceRun run, MapInstance room, TimeSpan length)
+            {
+                _roundEndsAt = run.Elapsed + length;
+                return room.SendPacketAsync(Scores(TaWindowMode.Clock, (int)length.TotalSeconds));
+            }
 
             public async Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player)
             {
@@ -732,6 +805,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
             public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
             {
+                service._matches.TryRemove(run, out _);
                 var result = Result(fighters.Select(f => (f.Team, f.Defeated)).ToList()) ?? ArenaResultType.Draw;
                 foreach (var fighter in fighters.Where(f => !f.Left))
                 {
@@ -781,6 +855,16 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     await player.ReviveAsync(fully: true);
                 }
 
+                if (_spectators.Remove(player.CharacterId, out var stand))
+                {
+                    await session.SendPacketAsync(Scores(TaWindowMode.Close));
+                    await session.SendPacketAsync(Lists(ArenaTeamType.Zenas, TaWindowMode.Close));
+                    await session.SendPacketAsync(new TawSvPacket { IsHidden = true });
+                    await session.SendPacketAsync(new TeamArenaClosePacket());
+                    await service.MapChange.ChangeMapInstanceAsync(session, stand.MapInstanceId, stand.X, stand.Y);
+                    return;
+                }
+
                 if (fighters.Find(f => f.CharacterId == player.CharacterId) is not { } fighter)
                 {
                     await service.MapChange.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
@@ -828,10 +912,13 @@ namespace NosCore.GameObject.Services.TalentArenaService
                     await session.SendPacketAsync(Lists(team, TaWindowMode.Update));
                     await session.SendPacketAsync(new TaFcPacket { Side = ArenaSideType.Own, CharacterId = own?.CharacterId ?? 0 });
                     await session.SendPacketAsync(new TaFcPacket { Side = ArenaSideType.Opponent, CharacterId = opponent?.CharacterId ?? 0 });
-                    await session.SendPacketAsync(new TaStPacket
+                    if (!_spectators.ContainsKey(session.Character.CharacterId))
                     {
-                        Type = own?.CharacterId == session.Character.CharacterId ? TaStType.Call : TaStType.Watch,
-                    });
+                        await session.SendPacketAsync(new TaStPacket
+                        {
+                            Type = own?.CharacterId == session.Character.CharacterId ? TaStType.Call : TaStType.Watch,
+                        });
+                    }
                     await session.SendPacketAsync(Scores(TaWindowMode.Update));
                     await session.SendPacketAsync(new TaSPacket());
                 }
@@ -839,6 +926,11 @@ namespace NosCore.GameObject.Services.TalentArenaService
 
             private async Task BenchAsync(ScriptedInstanceRun run, Fighter fighter, Fighter? winner)
             {
+                foreach (var spectator in run.Players().Where(s => _spectators.ContainsKey(s.Character.CharacterId)))
+                {
+                    await spectator.SendPacketAsync(new TawDPacket { CharacterId = fighter.CharacterId });
+                }
+
                 if (service.Session(fighter.CharacterId) is not { } session || !run.Rooms.Values.Contains(session.Character.MapInstanceId))
                 {
                     return;

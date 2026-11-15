@@ -14,6 +14,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.TalentArenaService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using TalentArena = NosCore.GameObject.Services.TalentArenaService.TalentArenaService;
@@ -172,6 +174,47 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ARegisteredPlayerCannotWatch()
+        {
+            await new Spec("A player waiting for a match cannot go to the stands")
+                .Given(TheAttackerStandsInTheArena)
+                .And(TheArenaIsOpen)
+                .AndAsync(TheAttackerRegistersAsync)
+                .WhenAsync(TheAttackerWatches_Async, (string?)null)
+                .Then(TheAttackerShouldBeTold_, Game18NConstString.CanNotWatchWhileRegistered)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ThereIsNothingToWatchWithoutAMatch()
+        {
+            await new Spec("Asking to watch while no match runs says there is no battle")
+                .Given(TheAttackerStandsInTheArena)
+                .WhenAsync(TheAttackerWatches_Async, (string?)null)
+                .Then(TheAttackerShouldBeTold_, Game18NConstString.NoBattleCurrently)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WatchingAFighterWhoIsNotFightingIsRefused()
+        {
+            await new Spec("Naming a fighter who is in no match says they are not in battle")
+                .Given(TheAttackerStandsInTheArena)
+                .WhenAsync(TheAttackerWatches_Async, (string?)"Nobody")
+                .Then(TheAttackerShouldBeTold_, Game18NConstString.OpponentNotInBattle)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WatchingOutsideTheArenaDoesNothing()
+        {
+            await new Spec("Asking to watch away from the arena is ignored")
+                .WhenAsync(TheAttackerWatches_Async, (string?)null)
+                .Then(NothingShouldBeSentToTheAttacker)
+                .ExecuteAsync();
+        }
+
         private void TheAttackerFightsFor_(ArenaTeamType team) => _attacker.Character.TalentArenaTeam = team;
 
         private void TheDefenderFightsFor_(ArenaTeamType team) => _defender.Character.TalentArenaTeam = team;
@@ -222,6 +265,17 @@ namespace NosCore.GameObject.Tests.Services.TalentArenaService
         private Task TheAttackerCallsATeammateAsync() => _service.CallAsync(_attacker, 0);
 
         private void NothingShouldBeSentToTheAttacker() => Assert.IsFalse(_attacker.LastPackets.Any());
+
+        private void TheAttackerStandsInTheArena() => _map.MapInstanceType = MapInstanceType.ArenaInstance;
+
+        private void TheArenaIsOpen() => Assert.IsTrue(_service.TryStart());
+
+        private Task TheAttackerRegistersAsync() => _service.RegisterAsync(_attacker);
+
+        private Task TheAttackerWatches_Async(string? name) => _service.WatchAsync(_attacker, name);
+
+        private void TheAttackerShouldBeTold_(Game18NConstString message) =>
+            Assert.IsTrue(_attacker.LastPackets.OfType<MsgiPacket>().Any(p => p.Message == message));
 
         private void OpeningTheArenaShouldSucceed() => Assert.IsTrue(_service.TryStart());
 
