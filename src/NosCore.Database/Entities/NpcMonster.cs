@@ -201,6 +201,9 @@ namespace NosCore.Database.Entities
 
         public bool IsValhallaPartner { get; set; }
 
+        /// <summary>Monsters sharing a non-zero group shout the same lines when they notice an enemy.</summary>
+        public byte ChatterGroup { get; set; }
+
         public short EffectIdConstantly { get; set; }
 
         public short EffectIdOnDeath { get; set; }

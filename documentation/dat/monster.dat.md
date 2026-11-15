@@ -7,7 +7,7 @@
 	BASIC	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	CARD	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	EFF	{BasicSkill}	{EffectIdConstantly}	{EffectIdOnDeath}
-	ETC	{CanWalk}	{chatterGroup}	{IsPercentileDmg}	{CanOnlyBeDmgedByJajamaruLastSkill}	{unknown2}	{VisibleOnMinimapAsGreenDot}	{unknown3}	{IsValhallaPartner}
+	ETC	{CanWalk}	{ChatterGroup}	{IsPercentileDmg}	{CanOnlyBeDmgedByJajamaruLastSkill}	{unknown2}	{VisibleOnMinimapAsGreenDot}	{unknown3}	{IsValhallaPartner}
 	EXP	{monsterXpBonus}	{JobXp}
 	HP/MP	{monsterMaxHpBonus}	{monsterMaxMpBonus}
 	ITEM	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}
@@ -175,7 +175,7 @@
 | 2 | Parsed | OnDefenseOnlyOnce | Boolean | ETC bit 8 -> defensive AI fires once |
 | 2 | Parsed | RegenerateHpOverTime | Boolean | ETC bit 10 -> passive HP regen |
 | 2 | Parsed | VNumRequired | Int16 | VNum of the item required to tame/interact |
-| 3 | NonParsed | chatterGroup |  | Monsters sharing a non-zero value say the same lines, sent as raw say text that no client file holds: 2 miners, 3 Koarens, 4 and 5 Kenkos, 8 witches. 1 marks field animals and skeletons. |
+| 3 | Parsed | ChatterGroup | Byte | Monsters sharing a non-zero group shout the same lines |
 | 4 | Parsed | IsPercentileDmg | Boolean | Damage output is expressed as % of target max HP (boss mechanic) |
 | 5 | Parsed | CanOnlyBeDmgedByJajamaruLastSkill | Boolean | Only damageable by Jajamaru's final skill (Namaju) |
 | 6 | NonParsed | unknown2 |  | Always 0. |

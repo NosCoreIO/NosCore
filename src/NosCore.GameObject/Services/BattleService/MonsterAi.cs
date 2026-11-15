@@ -50,6 +50,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     private readonly IHeuristic distanceCalculator;
     private readonly INpcCombatCatalog catalog;
     private readonly IRandomProvider random;
+    private readonly IMonsterChatterService chatter;
     private readonly IClock clock;
     private readonly ILogger<MonsterAi> logger;
     private readonly ILogLanguageLocalizer<LogLanguageKey> logLanguage;
@@ -63,12 +64,13 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IHeuristic distanceCalculator,
         INpcCombatCatalog catalog,
         IRandomProvider random,
+        IMonsterChatterService chatter,
         IClock clock,
         List<SkillDto> skills,
         ILogger<MonsterAi> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : this(battleService, aggroService, pathfindingService, sessionRegistry, distanceCalculator,
-            catalog, random, clock, skills.ToDictionary(s => s.SkillVNum, s => s), logger, logLanguage)
+            catalog, random, chatter, clock, skills.ToDictionary(s => s.SkillVNum, s => s), logger, logLanguage)
     {
     }
 
@@ -80,6 +82,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IHeuristic distanceCalculator,
         INpcCombatCatalog catalog,
         IRandomProvider random,
+        IMonsterChatterService chatter,
         IClock clock,
         IReadOnlyDictionary<short, SkillDto> skillsByVnum,
         ILogger<MonsterAi> logger,
@@ -92,6 +95,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         this.distanceCalculator = distanceCalculator;
         this.catalog = catalog;
         this.random = random;
+        this.chatter = chatter;
         this.clock = clock;
         this.skillsByVnum = skillsByVnum;
         this.logger = logger;
@@ -116,6 +120,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
                 {
                     aggroService.AddThreat(entity, noticed, 1);
                     target = CurrentTarget(entity);
+                    await chatter.ShoutAsync(entity);
                 }
             }
 
