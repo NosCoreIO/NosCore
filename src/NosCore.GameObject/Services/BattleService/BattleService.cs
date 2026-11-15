@@ -532,7 +532,9 @@ namespace NosCore.GameObject.Services.BattleService
                 && attacker.Faction != defender.Faction;
         }
 
-        private static bool CanCast(IAliveEntity origin) => origin.IsAlive && !origin.NoAttack;
+        // A mate that has lost all loyalty no longer fights for its owner.
+        private static bool CanCast(IAliveEntity origin) =>
+            origin.IsAlive && !origin.NoAttack && origin is not MateComponentBundle { Mate.Loyalty: <= 0 };
 
         private bool IsStunned(IAliveEntity origin) => buffService.HasEffect(origin, BCardEffect.SpecialAttackNoAttack);
 

@@ -32,6 +32,8 @@ namespace NosCore.GameObject.Services.MateService
         /// <summary>Set while the mate is dead and waiting to come back to its owner.</summary>
         public Instant? RevivesAt { get; set; }
 
+        public Instant NextLoyaltyGainAt { get; set; }
+
         /// <summary>Set on load and on level-up, like <see cref="MaxMp"/> and <see cref="XpLoad"/>.</summary>
         public int MaxHp { get; set; }
 

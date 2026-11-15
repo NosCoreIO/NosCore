@@ -1563,6 +1563,12 @@ and the items in the Etc bag.
 - [ ] Pet Food (2077) on the pet: its loyalty in the pet window goes up by 100, it gains some
       experience, "The pet is happy with the food." shows, and the food is used up. A pet at 3000
       loyalty does not eat it; a partner does not either
+- [ ] Fight with the pet following you: now and then a monster's hit lowers its loyalty by a
+      few points (reopen the pet window to see it). When the pet is knocked out its loyalty drops
+      by 50. At 0 it no longer attacks, and "Your pet's loyalty has fallen to 0!" and "Feed your
+      pet or go to your Miniland." show
+- [ ] With the pet at 0 loyalty, go to your Miniland and wait: its loyalty rises by 100 every
+      5 seconds, up to 3000. On any other map it does not
 - [ ] Special Pet Food (2187): "The pet can collect items from now on." and the pet window shows
       the pick-up ability; a second one on the same pet stays in the bag
 - [ ] NosMate Summoning Book (2419) on a NosMate that cannot be summoned: it can be now; on one

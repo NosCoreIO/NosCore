@@ -52,7 +52,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             NosCore.GameObject.Services.BattleService.IHeatService heatService,
             NosCore.GameObject.Services.MateService.IMateRevivalService mateRevivalService,
             List<MapTypeMapDto> mapTypeMaps,
-            TimeProvider time)
+            TimeProvider time,
+            NosCore.GameObject.Services.MateService.IMateLoyaltyService mateLoyaltyService)
         : IMapInstanceGeneratorService
     {
         public Task AddMapInstanceAsync(MapInstance mapInstance, bool withMapPortals = true)
@@ -171,7 +172,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService,
                 loggerFactory.CreateLogger<MapInstance>(), logLanguage, clock,
-                mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, random, monsterAi, buffService, regenerationService, vitalityService, digestionService, speedCalculationService, battleStatsProvider, heatService, mateRevivalService, time);
+                mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, random, monsterAi, buffService, regenerationService, vitalityService, digestionService, speedCalculationService, battleStatsProvider, heatService, mateRevivalService, time, mateLoyaltyService);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)
