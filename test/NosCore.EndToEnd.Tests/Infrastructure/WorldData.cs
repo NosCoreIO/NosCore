@@ -13,7 +13,6 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.Parser;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
@@ -291,8 +290,6 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedFamilyManagerAsync(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
-            DatabaseReadiness.RecordGameDataImport(context, GameDataFingerprint.OfParser(typeof(ParserBootstrap).Assembly),
-                string.Empty, string.Empty);
         }
 
         private static async Task SeedMarketAsync(NosCoreContext context)
