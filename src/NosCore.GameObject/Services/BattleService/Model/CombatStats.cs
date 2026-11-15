@@ -87,7 +87,9 @@ public readonly record struct CombatStats(
     PvpShellStats PvpShell = default,
     // Magic hits read these rather than MinHit/MaxHit, which carry the melee bonuses.
     int? MinMagic = null,
-    int? MaxMagic = null);
+    int? MaxMagic = null,
+    // Type 84 subtype 3: percent chance that a hit calls an Onyx Dragon to strike again for half.
+    int OnyxDragonChance = 0);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
 public readonly record struct ChanceDamage(int Chance, int Percent);

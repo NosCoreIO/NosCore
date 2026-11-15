@@ -106,6 +106,26 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        [DataRow(true, 100, 0.5, true)]
+        [DataRow(true, 40, 0.5, false)]
+        [DataRow(true, 0, 0.0, false)]
+        [DataRow(false, 100, 0.0, false)]
+        public void OnlyAPlayerCallsTheOnyxDragon(bool isPlayer, int chance, double roll, bool expected)
+        {
+            var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, roll }, ints: new[] { 100 }).Object,
+                new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService());
+            var attacker = StatsBuilder.Default() with
+            {
+                IsPlayer = isPlayer, HitRate = 100, MinHit = 100, MaxHit = 100, OnyxDragonChance = chance
+            };
+            var defender = StatsBuilder.Default() with { DefenceDodge = 0 };
+
+            var result = calc.Calculate(attacker, defender, MeleeSkill);
+
+            Assert.AreEqual(expected, result.OnyxDragon);
+        }
+
+        [TestMethod]
         public void DamageFlooredWhenDefenceExceedsAttack()
         {
             // Big armor, small hit — damage should floor (it is randomised in 1..5 when

@@ -205,6 +205,15 @@ Boss skills declaring 90% should take most of a bar in one hit.
       Tester's level 40 mage, against single digits without the effect)
 - [ ] Its dodge is unchanged, and the defence comes back once the debuff ends
 
+### Onyx Dragon — BCard type 84 subtype 31
+
+- [ ] Hit a monster while carrying the effect (Onyx Wings on a transformed specialist, or
+      `/mnt/project-files/bcard-effects/reset-onyx.sh`, which gives Tester's weapon a 100% chance;
+      key 1 casts): an Onyx Dragon appears two cells right and down of you, strikes the target
+      for half of your hit a moment later and vanishes; the monster's HP drops by both numbers
+- [ ] The dragon never attacks you and cannot be targeted, and a monster or a pet never calls it
+- [ ] Against another player the same happens, with the PvP-reduced damage halved
+
 ### Elemental resistance — BCard types 13 and 14
 
 - [ ] A buff that raises your resistance to an element reduces the elemental damage you

@@ -157,8 +157,9 @@ public sealed class HitQueue(
 
             // Damage proportional to HP rather than to the stats, on top of the blow.
             var hpBefore = target.Hp;
+            var onyxDamage = damage.OnyxDragon ? damage.Damage / 2 : 0;
             var hpDamage = await manaShieldService.AbsorbAsync(target, damage.Damage);
-            var newHp = target.Hp - hpDamage - PercentageHpLoss(target, request.Skill.BCards);
+            var newHp = target.Hp - hpDamage - onyxDamage - PercentageHpLoss(target, request.Skill.BCards);
             var overkill = 0;
             var killed = false;
             if (newHp <= 0)
@@ -189,7 +190,7 @@ public sealed class HitQueue(
             // Track contribution per attacker so reward distribution can weight by
             // damage dealt. Overkill damage is clipped so late arrivals don't get
             // credit for more than the target actually had.
-            var credited = damage.Damage - overkill;
+            var credited = damage.Damage + onyxDamage - overkill;
             if (credited > 0)
             {
                 target.HitList.AddOrUpdate(request.Origin.Handle, credited, (_, existing) => existing + credited);
@@ -229,7 +230,7 @@ public sealed class HitQueue(
             await onHitBuffService.TriggerAsync(request.Origin, target, killed);
             await damageLeechService.ApplyAsync(request.Origin, hpBefore - newHp);
 
-            request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));
+            request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed, onyxDamage));
         }
         catch (Exception ex)
         {

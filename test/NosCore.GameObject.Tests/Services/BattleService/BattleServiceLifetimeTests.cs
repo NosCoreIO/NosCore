@@ -78,6 +78,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new NosCore.GameObject.Services.BattleService.SkillCastService(clock, new Mock<NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService>().Object, World.Create<BuffService>()),
                 new Mock<NosCore.GameObject.Services.BattleService.ISkillComboService>().Object,
                 new Mock<ISummonService>().Object,
+                new Mock<IOnyxDragonService>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             Assert.IsTrue(await service.Hit(session.Character, monster, new HitArguments { SkillId = 7 }));

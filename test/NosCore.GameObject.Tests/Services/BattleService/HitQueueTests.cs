@@ -219,11 +219,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             FirstData = percent
         };
 
-        private HitQueue QueueDealing(int ordinaryDamage, IDamageLeechService? leech = null, IManaShieldService? shield = null)
+        private HitQueue QueueDealing(int ordinaryDamage, IDamageLeechService? leech = null, IManaShieldService? shield = null,
+            bool onyxDragon = false)
         {
             var calc = new Mock<IDamageCalculator>();
             calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
-                .Returns(new DamageResult(ordinaryDamage, SuPacketHitMode.SuccessAttack));
+                .Returns(new DamageResult(ordinaryDamage, SuPacketHitMode.SuccessAttack, onyxDragon));
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
@@ -259,6 +260,42 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(SuPacketHitMode.NoDamageSuccess, outcome.HitMode);
             Assert.AreEqual(600, target.Hp);
             buffs.Verify(b => b.InflictCardsAsync(target, attacker, skill.BCards), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task TheOnyxDragonTakesHalfTheHitAgain()
+        {
+            var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+
+            var outcome = await QueueDealing(100, onyxDragon: true).EnqueueAsync(Request(attacker, target));
+
+            Assert.AreEqual(100, outcome.Damage);
+            Assert.AreEqual(50, outcome.OnyxDamage);
+            Assert.AreEqual(450, target.Hp);
+            Assert.AreEqual(150, target.HitList[attacker.Handle]);
+        }
+
+        [TestMethod]
+        public async Task TheOnyxDragonsShareCanKill()
+        {
+            var target = new FakeBattleEntity { Hp = 120, MaxHp = 1000 };
+
+            var outcome = await QueueDealing(100, onyxDragon: true).EnqueueAsync(Request(new FakeBattleEntity(), target));
+
+            Assert.IsTrue(outcome.Killed);
+            Assert.AreEqual(0, target.Hp);
+        }
+
+        [TestMethod]
+        public async Task WithoutTheDragonTheHitIsAlone()
+        {
+            var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };
+
+            var outcome = await QueueDealing(100).EnqueueAsync(Request(new FakeBattleEntity(), target));
+
+            Assert.AreEqual(0, outcome.OnyxDamage);
+            Assert.AreEqual(500, target.Hp);
         }
 
         [TestMethod]

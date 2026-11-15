@@ -51,6 +51,7 @@ namespace NosCore.GameObject.Services.BattleService
         ISkillCastService skillCastService,
         ISkillComboService skillComboService,
         ISummonService summonService,
+        IOnyxDragonService onyxDragonService,
         ILogger<BattleService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -287,6 +288,11 @@ namespace NosCore.GameObject.Services.BattleService
             // re-reads its cached HP for the bar, so a stat arriving later leaves the bar frozen.
             await SendTargetStatAsync(target).ConfigureAwait(false);
             await BroadcastHitAsync(origin, target, skill, outcome, presentation);
+            if (outcome.OnyxDamage > 0)
+            {
+                await onyxDragonService.StrikeAsync(origin, target, skill, outcome.OnyxDamage);
+            }
+
             await BroadcastTargetInfoAsync(target).ConfigureAwait(false);
             await messageBus.PublishAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed)).ConfigureAwait(false);
 
