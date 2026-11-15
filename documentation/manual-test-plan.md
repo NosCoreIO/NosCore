@@ -1940,6 +1940,19 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
       Seals of Witch Laurena
 - [ ] With the pocket full, an exchange keeps the materials and shows "Not enough space"
 
+### Seasonal NPCs
+
+Eric and Mary stand in the world only while `Seasons` in `world.yml` lists Halloween, and the Easter
+Sacks only while it lists Easter. Restart the world server after changing it. Eric and Mary only
+appear when packet.txt places them (an `in 2 1515` or `in 2 1516` line).
+
+- [ ] With `Seasons: []`, no Easter Sack, Eric or Mary is on their maps
+- [ ] With `Seasons: [Easter]`, the Easter Sacks are back
+- [ ] With `Seasons: [Halloween]`, Eric stands in NosVille; Exchange Sweets turns 10 Yellow or 10 Black
+      Pumpkin Sweets into a Halloween Costume Scroll, and 30 into a Raid Seal of Jack O'Lantern
+- [ ] Eric's Exchange Bags of Sweets turns a Bag of Sweets into a Raid Seal of Jack O'Lantern, and the
+      Halloween Blessing icon appears next to the portrait
+
 ### The ship to the Mortaz Desert
 
 - [ ] Talk to the harbour sailor (dialog "Act 5 - The Joys of Sailing") and choose Go to Mortaz Desert
