@@ -168,6 +168,31 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task AMooncakeRestoresLikeAPotion()
+        {
+            await new Spec("An event food with Hp and Mp heals at once and is used up")
+                .Given(A_Restoring_Hp_Mp, ItemType.Event, 300, 300)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 400)
+                .And(MpShouldBe_, 400)
+                .And(PotionCountShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEventItemWithoutHpOrMpIsNotDrunk()
+        {
+            await new Spec("An event item that restores nothing is left to its own handler")
+                .Given(A_Restoring_Hp_Mp, ItemType.Event, 0, 0)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .WhenAsync(DrinkingThePotion)
+                .Then(PotionCountShouldBe_, 1)
+                .And(NoStatBarShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ASecondPotionWithinTheDelayIsKept()
         {
             await new Spec("A potion drunk before the map's potion delay is over heals nothing and is kept")

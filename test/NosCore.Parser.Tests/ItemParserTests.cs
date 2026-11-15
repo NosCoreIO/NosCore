@@ -142,6 +142,23 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow(1, 1500, 0)]
+        [DataRow(2, 0, 1500)]
+        [DataRow(3, 1500, 1500)]
+        public async Task ItemParser_MooncakesRestoreWhatTheirKindNames(int kind, int hp, int mp)
+        {
+            CreateTestFile(CreateItemData(vnum: 1300, indexType: 1, indexSubType: 6, data: $"220\t0\t{kind}\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var mooncake = _savedItems.Single();
+            Assert.AreEqual(ItemType.Event, mooncake.ItemType);
+            Assert.AreEqual(hp, mooncake.Hp);
+            Assert.AreEqual(mp, mooncake.Mp);
+        }
+
+        [TestMethod]
         public async Task ItemParser_AncelloansBlessingGrantsItsCard()
         {
             CreateTestFile(CreateItemData(vnum: 1286, indexType: 1, indexSubType: 4, data: "208\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
