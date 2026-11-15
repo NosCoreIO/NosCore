@@ -217,6 +217,23 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
+            foreach (var item in items)
+            {
+                if (!Medals.All.TryGetValue(item.VNum, out var medal))
+                {
+                    continue;
+                }
+
+                item.EffectValue = medal.Days;
+                item.BCards = [.. item.BCards ?? [], .. Medals.Bonuses(medal).Select(b => new BCardDto
+                {
+                    ItemVNum = item.VNum,
+                    Type = b.Effect.Type(),
+                    SubType = b.Effect.SubType(),
+                    FirstData = b.Value,
+                })];
+            }
+
             await itemDao.TryInsertOrUpdateAsync(items);
             var itemVNums = items.Select(s => (short?)s.VNum).ToHashSet();
             await bCardDao.TryDeleteAsync(bCardDao.Where(s => itemVNums.Contains(s.ItemVNum))?.Select(s => s.BCardId).ToList() ?? []);

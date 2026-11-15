@@ -127,8 +127,8 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
 
         private void TheExpiredBonusCleanupRuns()
         {
-            Job = new RemoveTimeoutStaticBonusesHandler(Clock, SessionRegistry.Object)
-                .Handle(new RemoveTimeoutStaticBonusesMessage());
+            World.Inject<IClock>(Clock);
+            Job = World.Create<RemoveTimeoutStaticBonusesHandler>().Handle(new RemoveTimeoutStaticBonusesMessage());
         }
 
         private void NothingShouldBeSavedYet()
