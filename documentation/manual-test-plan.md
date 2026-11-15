@@ -2744,6 +2744,19 @@ same trust as the server's own code, so only the operator should be able to writ
 - [ ] The required items leave the inventory, across stacks if split, and no more than asked
 - [ ] A `Script` naming a missing or broken file opens no panel, and the world log says why
 
+### Escorts in a time-space
+
+A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`; Guards in
+Danger (`timespace-20`) does it for the five guards (vnum 320) of its last room.
+
+- [ ] An escort stands still until you walk within four cells of it; within about a second a
+      sparkle plays on it and it joins you
+- [ ] Once joined, it walks behind you as your pet and partner do, and keeps following when
+      you walk across the room
+- [ ] A second player in the room sees the escort move with you
+- [ ] An escort that joined somebody else does not follow you
+- [ ] Not verifiable yet: an escort following its leader through a portal into the next room
+
 ### Inside a time-space
 
 Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;

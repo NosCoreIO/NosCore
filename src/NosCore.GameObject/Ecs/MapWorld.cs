@@ -316,7 +316,8 @@ public class MapWorld : IDisposable
             new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
             new HitListComponent(new ConcurrentDictionary<Entity, int>()),
-            new RespawnComponent(null, true)
+            new RespawnComponent(null, true),
+            new EscortComponent(false, 0)
         );
         return entity;
     }

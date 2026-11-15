@@ -21,6 +21,7 @@ using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -569,6 +570,45 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             public Task ReturnAsync(NosCore.GameObject.Networking.ClientSession.ClientSession session) =>
                 Task.CompletedTask;
+        }
+
+        [TestMethod]
+        public async Task AnEscortJoinsThePlayerWhoComesNearAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2), IsEscort: true))
+            });
+            var player = await PlayerInFirstRoomAsync();
+            player.Character.PositionX = 1;
+            player.Character.PositionY = 1;
+            await run.EnteredAsync(player, _first.MapInstanceId);
+
+            await run.TickAsync();
+
+            var escort = _first.EnumerateNpcs().Single();
+            Assert.AreEqual(player.Character.CharacterId, escort.LeaderId);
+            var joined = player.LastPackets.OfType<CtlPacket>().Single();
+            Assert.AreEqual(escort.VisualId, joined.PetId);
+            Assert.AreEqual(player.Character.CharacterId, escort.GenerateIn().InNonPlayerSubPacket?.Owner);
+        }
+
+        [TestMethod]
+        public async Task AnOrdinaryNpcNeverJoinsAPlayerAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2)))
+            });
+            var player = await PlayerInFirstRoomAsync();
+            player.Character.PositionX = 1;
+            player.Character.PositionY = 1;
+            await run.EnteredAsync(player, _first.MapInstanceId);
+
+            await run.TickAsync();
+
+            Assert.AreEqual(0, _first.EnumerateNpcs().Single().LeaderId);
+            Assert.IsFalse(player.LastPackets.OfType<CtlPacket>().Any());
         }
 
         [TestMethod]

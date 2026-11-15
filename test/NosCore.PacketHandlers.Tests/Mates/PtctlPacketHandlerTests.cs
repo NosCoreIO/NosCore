@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -122,6 +124,63 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .And(NothingShouldBeBroadcast)
                 .And(TheOwnerShouldSeeThePetMove)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEscortWalksWhereItsLeaderOrders()
+        {
+            await new Spec("An escort following the player walks to the cell it is ordered to")
+                .Given(AnEscortLedBy_At_, _session, (short)5, (short)5)
+                .WhenAsync(OrderingTheEscortTo_, (short)6, (short)4)
+                .Then(TheEscortShouldStandAt_, (short)6, (short)4)
+                .And(TheMapShouldSeeTheEscortMove)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEscortLedByAnotherPlayerIsIgnored()
+        {
+            await new Spec("A ptctl naming an escort that follows another player leaves it where it is")
+                .Given(AnEscortLedBy_At_, _otherSession, (short)5, (short)5)
+                .WhenAsync(OrderingTheEscortTo_, (short)6, (short)4)
+                .Then(TheEscortShouldStandAt_, (short)5, (short)5)
+                .And(NothingShouldBeBroadcast)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANpcNobodyLeadsIsIgnored()
+        {
+            await new Spec("A ptctl naming an npc that follows nobody leaves it where it is")
+                .Given(AnEscortLedBy_At_, (ClientSession?)null, (short)5, (short)5)
+                .WhenAsync(OrderingTheEscortTo_, (short)6, (short)4)
+                .Then(TheEscortShouldStandAt_, (short)5, (short)5)
+                .And(NothingShouldBeBroadcast)
+                .ExecuteAsync();
+        }
+
+        private NpcComponentBundle _escort;
+
+        private void AnEscortLedBy_At_(ClientSession? leader, short x, short y)
+        {
+            _escort = _map.SummonNpc(new NpcMonsterDto { NpcMonsterVNum = 320, MaxHp = 10, Speed = 10 }, x, y);
+            _escort.IsEscort = true;
+            _escort.LeaderId = leader?.Character.CharacterId ?? 0;
+            _map.LastPackets.Clear();
+        }
+
+        private Task OrderingTheEscortTo_(short x, short y) => Order(_session, (_escort.VisualId, x, y));
+
+        private void TheEscortShouldStandAt_(short x, short y)
+        {
+            Assert.AreEqual((x, y), (_escort.PositionX, _escort.PositionY));
+        }
+
+        private void TheMapShouldSeeTheEscortMove()
+        {
+            var move = _map.LastPackets.OfType<MovePacket>().Single();
+            Assert.AreEqual(VisualType.Npc, move.VisualType);
+            Assert.AreEqual(_escort.VisualId, move.VisualEntityId);
         }
 
         private async Task APetOutAt_(short x, short y)

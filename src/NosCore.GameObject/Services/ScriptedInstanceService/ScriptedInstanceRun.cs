@@ -24,6 +24,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -39,6 +40,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
     public class ScriptedInstanceRun : IInstanceRun
     {
         private static readonly Duration ReturnDelay = Duration.FromSeconds(10);
+        private const int EscortReach = 4;
+        private const int EscortJoinedEffect = 5004;
+        private const byte EscortJoinedAction = 3;
 
         private const short BonusEffect = 826;
         private const short BonusEffectDelay = 5000;
@@ -65,6 +69,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
         private readonly Dictionary<int, long> _newestArrival = [];
+        private readonly List<(MapInstance Room, int NpcId)> _escorts = [];
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
         private int _nextPortalId;
@@ -292,6 +297,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (EndState == null && _started)
                 {
                     _pending.Add(() => _host.TickAsync(this));
+                    if (_escorts.Count > 0)
+                    {
+                        _pending.Add(RecruitEscortsAsync);
+                    }
                 }
 
                 if (EndState == null && _clockEndsAt is { } endsAt && now >= endsAt)
@@ -451,7 +460,44 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
                 NpcsSummoned++;
                 _pending.Add(() => OnRoom(mapInstance, () =>
-                    mapInstance.SendPacketAsync(mapInstance.SummonNpc(npcMonster, spawn.At.X, spawn.At.Y).GenerateIn())));
+                {
+                    var npc = mapInstance.SummonNpc(npcMonster, spawn.At.X, spawn.At.Y);
+                    if (spawn.IsEscort)
+                    {
+                        npc.IsEscort = true;
+                        _escorts.Add((mapInstance, (int)npc.VisualId));
+                    }
+
+                    return mapInstance.SendPacketAsync(npc.GenerateIn());
+                }));
+            }
+        }
+
+        private async Task RecruitEscortsAsync()
+        {
+            foreach (var (room, npcId) in _escorts)
+            {
+                if (room.GetNpcById(npcId) is not { IsAlive: true, LeaderId: 0 } escort)
+                {
+                    continue;
+                }
+
+                if (PlayersOf(room)
+                        .Where(p => p.IsAlive && Math.Max(Math.Abs(p.PositionX - escort.PositionX),
+                            Math.Abs(p.PositionY - escort.PositionY)) <= EscortReach)
+                        .Select(p => (PlayerComponentBundle?)p)
+                        .FirstOrDefault() is not { } leader)
+                {
+                    continue;
+                }
+
+                escort.LeaderId = leader.CharacterId;
+                await room.SendPacketAsync(escort.GenerateEff(EscortJoinedEffect));
+                await leader.SendPacketAsync(new CtlPacket
+                {
+                    Type = VisualType.Npc, PetId = escort.VisualId, Action = EscortJoinedAction, Unknown = 0
+                });
+                await room.SendPacketAsync(escort.GenerateCond());
             }
         }
 

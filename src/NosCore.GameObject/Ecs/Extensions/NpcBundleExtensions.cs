@@ -11,6 +11,17 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class NpcBundleExtensions
 {
-    public static InPacket GenerateIn(this NpcComponentBundle npc, short? dialog = null) =>
-        npc.GenerateIn(SpawnEffectType.NoEffect, dialog ?? npc.Dialog ?? 0);
+    private const short LedGroupEffect = 3;
+
+    public static InPacket GenerateIn(this NpcComponentBundle npc, short? dialog = null)
+    {
+        var packet = npc.GenerateIn(SpawnEffectType.NoEffect, dialog ?? npc.Dialog ?? 0);
+        if (npc.LeaderId != 0 && packet.InNonPlayerSubPacket is { } nonPlayer)
+        {
+            nonPlayer.GroupEffect = LedGroupEffect;
+            nonPlayer.Owner = npc.LeaderId;
+        }
+
+        return packet;
+    }
 }
