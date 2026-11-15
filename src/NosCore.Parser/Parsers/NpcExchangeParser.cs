@@ -17,13 +17,14 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class NpcExchangeParser(IDao<ItemDto, short> itemDao, IDao<NpcExchangeDto, short> npcExchangeDao,
+    public class NpcExchangeParser(IDao<ItemDto, short> itemDao, IDao<CardDto, short> cardDao, IDao<NpcExchangeDto, short> npcExchangeDao,
         IDao<NpcExchangeMaterialDto, short> npcExchangeMaterialDao, ILogger<NpcExchangeParser> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertNpcExchangesAsync()
         {
             var items = itemDao.LoadAll().Select(s => s.VNum).ToHashSet();
+            var cards = cardDao.LoadAll().Select(s => s.CardId).ToHashSet();
             var exchanges = new List<NpcExchangeDto>();
             var materials = new List<NpcExchangeMaterialDto>();
             short exchangeId = 0;
@@ -31,7 +32,8 @@ namespace NosCore.Parser.Parsers
             foreach (var exchange in NpcExchanges.All)
             {
                 exchangeId++;
-                if (!items.Contains(exchange.ItemVNum) || exchange.Materials.Any(m => !items.Contains(m.ItemVNum)))
+                if (!items.Contains(exchange.ItemVNum) || exchange.Materials.Any(m => !items.Contains(m.ItemVNum))
+                    || exchange.CardId is { } card && !cards.Contains(card))
                 {
                     materialId += (short)exchange.Materials.Length;
                     continue;
@@ -43,6 +45,7 @@ namespace NosCore.Parser.Parsers
                     Runner = exchange.Runner,
                     ItemVNum = exchange.ItemVNum,
                     Amount = exchange.Amount,
+                    CardId = exchange.CardId,
                 });
                 materials.AddRange(exchange.Materials.Select(m => new NpcExchangeMaterialDto
                 {

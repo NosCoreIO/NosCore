@@ -34,6 +34,11 @@ namespace NosCore.Database.Entities
 
         public short Amount { get; set; }
 
+        // A buff the NPC casts on the player along with the item.
+        public virtual Card? Card { get; set; }
+
+        public short? CardId { get; set; }
+
         public virtual ICollection<NpcExchangeMaterial> NpcExchangeMaterial { get; set; }
     }
 }

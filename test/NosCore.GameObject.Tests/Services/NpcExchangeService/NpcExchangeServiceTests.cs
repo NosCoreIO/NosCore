@@ -22,6 +22,9 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.BattleService;
+using Moq;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Tests.Services.NpcExchangeService
 {
@@ -34,11 +37,13 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
         private const short Claw = 2522;
         private const short SwordsmanCard = 4500;
         private const short ArcherCard = 4501;
+        private const short HalloweenBlessing = 375;
 
         private TestWorld World;
         private ClientSession _session;
         private IItemGenerationService _itemProvider;
         private GameObject.Services.NpcExchangeService.NpcExchangeService _service;
+        private Mock<IBuffService> _buffs;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -65,6 +70,7 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new() { NpcExchangeId = 2, Runner = NrunRunnerType.ExchangeForSP5, ItemVNum = SwordsmanCard, Amount = 1 },
                 new() { NpcExchangeId = 3, Runner = NrunRunnerType.ExchangeForSP5, ItemVNum = ArcherCard, Amount = 1 },
                 new() { NpcExchangeId = 4, Runner = NrunRunnerType.ExchangeForSP6, ItemVNum = Seal, Amount = 1 },
+                new() { NpcExchangeId = 5, Runner = NrunRunnerType.ExchangeForJackOLanternSealPlusHalloweenBlessing, ItemVNum = Seal, Amount = 1, CardId = HalloweenBlessing },
             });
             World.Inject(new List<NpcExchangeMaterialDto>
             {
@@ -72,7 +78,12 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new() { NpcExchangeMaterialId = 2, NpcExchangeId = 1, ItemVNum = RightHalf, Amount = 1 },
                 new() { NpcExchangeMaterialId = 3, NpcExchangeId = 2, ItemVNum = Claw, Amount = 50 },
                 new() { NpcExchangeMaterialId = 4, NpcExchangeId = 3, ItemVNum = Claw, Amount = 50 },
+                new() { NpcExchangeMaterialId = 5, NpcExchangeId = 5, ItemVNum = LeftHalf, Amount = 1 },
             });
+            var cards = World.Freeze<Mock<ICardCatalog>>();
+            cards.Setup(s => s.GetCard(HalloweenBlessing)).Returns(new CardDto { CardId = HalloweenBlessing });
+            cards.Setup(s => s.GetCardBCards(HalloweenBlessing)).Returns(new List<BCardDto>());
+            _buffs = World.Freeze<Mock<IBuffService>>();
             _service = World.Create<GameObject.Services.NpcExchangeService.NpcExchangeService>();
         }
 
@@ -147,6 +158,36 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 .Then(TheCharacterShouldHave__, Claw, 50)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AnExchangeWithABuffCastsItOnThePlayer()
+        {
+            await new Spec("Trading the bag of sweets also gives the Halloween Blessing")
+                .Given(TheCharacterHas__, LeftHalf, (short)1)
+                .WhenAsync(Exchanging_, NrunRunnerType.ExchangeForJackOLanternSealPlusHalloweenBlessing)
+                .Then(TheCharacterShouldHave__, Seal, 1)
+                .And(TheHalloweenBlessingShouldBeCast)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARefusedExchangeCastsNoBuff()
+        {
+            await new Spec("Without the bag of sweets there is no blessing")
+                .WhenAsync(Exchanging_, NrunRunnerType.ExchangeForJackOLanternSealPlusHalloweenBlessing)
+                .Then(NoBuffShouldBeCast)
+                .ExecuteAsync();
+        }
+
+        private void TheHalloweenBlessingShouldBeCast()
+        {
+            var player = _session.Character.VisualId;
+            _buffs.Verify(s => s.ApplyAsync(It.Is<IAliveEntity>(e => e.VisualId == player),
+            It.Is<CardDto>(c => c.CardId == HalloweenBlessing), It.IsAny<IReadOnlyList<BCardDto>>(), It.IsAny<IAliveEntity>(), -1), Times.Once);
+        }
+
+        private void NoBuffShouldBeCast() => _buffs.Verify(s => s.ApplyAsync(It.IsAny<IAliveEntity>(),
+            It.IsAny<CardDto>(), It.IsAny<IReadOnlyList<BCardDto>>(), It.IsAny<IAliveEntity>(), It.IsAny<int>()), Times.Never);
 
         private void TheBackpackHas_Slots(int slots) => World.WorldConfiguration.Value.BackpackSize = (byte)slots;
 

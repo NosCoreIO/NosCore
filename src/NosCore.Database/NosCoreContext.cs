@@ -526,6 +526,12 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<NpcExchange>()
+                .HasOne(e => e.Card)
+                .WithMany()
+                .HasForeignKey(e => e.CardId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<NpcExchange>()
                 .HasMany(e => e.NpcExchangeMaterial)
                 .WithOne(e => e.NpcExchange)
                 .OnDelete(DeleteBehavior.Cascade);

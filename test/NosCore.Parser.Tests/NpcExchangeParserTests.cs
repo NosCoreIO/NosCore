@@ -25,6 +25,7 @@ namespace NosCore.Parser.Tests
     public class NpcExchangeParserTests
     {
         private readonly List<ItemDto> _items = new();
+        private readonly List<CardDto> _cards = new();
         private readonly List<NpcExchangeDto> _exchanges = new();
         private readonly List<NpcExchangeMaterialDto> _materials = new();
         private NpcExchangeParser _parser;
@@ -34,6 +35,8 @@ namespace NosCore.Parser.Tests
         {
             var items = new Mock<IDao<ItemDto, short>>();
             items.Setup(s => s.LoadAll()).Returns(_items);
+            var cards = new Mock<IDao<CardDto, short>>();
+            cards.Setup(s => s.LoadAll()).Returns(_cards);
             var exchanges = new Mock<IDao<NpcExchangeDto, short>>();
             exchanges.Setup(s => s.LoadAll()).Returns(() => _exchanges.ToList());
             exchanges.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<NpcExchangeDto>>()))
@@ -44,7 +47,7 @@ namespace NosCore.Parser.Tests
             materials.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<NpcExchangeMaterialDto>>()))
                 .Callback<IEnumerable<NpcExchangeMaterialDto>>(rows => Upsert(_materials, rows, r => r.NpcExchangeMaterialId))
                 .ReturnsAsync(true);
-            _parser = new NpcExchangeParser(items.Object, exchanges.Object, materials.Object,
+            _parser = new NpcExchangeParser(items.Object, cards.Object, exchanges.Object, materials.Object,
                 NullLogger<NpcExchangeParser>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
@@ -95,9 +98,35 @@ namespace NosCore.Parser.Tests
             Assert.IsFalse(_exchanges.Any(s => s.Runner == NrunRunnerType.ExchangeForGrenigasRaidSeal));
         }
 
-        private void AllItemsExist() =>
+        [TestMethod]
+        public async Task TheBagOfSweetsAlsoCastsTheHalloweenBlessing()
+        {
+            AllItemsExist();
+
+            await _parser.InsertNpcExchangesAsync();
+
+            var bag = _exchanges.Single(s => s.Runner == NrunRunnerType.ExchangeForJackOLanternSealPlusHalloweenBlessing);
+            Assert.AreEqual(((short)1916, (short?)375), (bag.ItemVNum, bag.CardId));
+        }
+
+        [TestMethod]
+        public async Task AnExchangeWithAnUnknownCardIsLeftOut()
+        {
+            AllItemsExist();
+            _cards.Clear();
+
+            await _parser.InsertNpcExchangesAsync();
+
+            Assert.IsFalse(_exchanges.Any(s => s.Runner == NrunRunnerType.ExchangeForJackOLanternSealPlusHalloweenBlessing));
+            Assert.IsTrue(_exchanges.Any(s => s.Runner == NrunRunnerType.ExchangeForJackOLanternSeal));
+        }
+
+        private void AllItemsExist()
+        {
             _items.AddRange(NpcExchanges.All.SelectMany(s => s.Materials.Select(m => m.ItemVNum).Append(s.ItemVNum))
                 .Distinct().Select(v => new ItemDto { VNum = v }));
+            _cards.AddRange(NpcExchanges.All.Select(s => s.CardId).OfType<short>().Distinct().Select(c => new CardDto { CardId = c }));
+        }
 
         private static void Upsert<T>(List<T> stored, IEnumerable<T> rows, System.Func<T, short> key)
         {

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -23,7 +24,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.NpcExchangeService
 {
     public class NpcExchangeService(List<NpcExchangeDto> exchanges, List<NpcExchangeMaterialDto> materials,
-            IItemCatalog itemCatalog, IItemGenerationService itemProvider)
+            IItemCatalog itemCatalog, IItemGenerationService itemProvider, ICardCatalog cardCatalog, IBuffService buffService)
         : INpcExchangeService, ISingletonService
     {
         private readonly ILookup<short, NpcExchangeMaterialDto> _materials = materials.ToLookup(s => s.NpcExchangeId);
@@ -71,6 +72,10 @@ namespace NosCore.GameObject.Services.NpcExchangeService
             packets.Add(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                 2, exchange.ItemVNum.ToString(), exchange.Amount));
             await session.SendPacketsAsync(packets);
+            if (exchange.CardId is { } cardId && cardCatalog.GetCard(cardId) is { } card)
+            {
+                await buffService.ApplyAsync(character, card, cardCatalog.GetCardBCards(cardId), character);
+            }
         }
     }
 }

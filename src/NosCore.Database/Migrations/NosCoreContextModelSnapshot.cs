@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115120755_AddFamilyExperienceBooster";
+    public override string LastMigrationId => "20261115125448_AddSeasonalNpcsAndExchangeBuffs";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2005,6 +2005,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<short>("MapY")
                     .HasColumnType("smallint");
 
+                b.Property<byte?>("Season")
+                    .HasColumnType("smallint");
+
                 b.Property<short>("VNum")
                     .HasColumnType("smallint");
 
@@ -2297,6 +2300,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<short>("Amount")
                     .HasColumnType("smallint");
 
+                b.Property<short?>("CardId")
+                    .HasColumnType("smallint");
+
                 b.Property<short>("ItemVNum")
                     .HasColumnType("smallint");
 
@@ -2304,6 +2310,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.HasKey("NpcExchangeId");
+
+                b.HasIndex("CardId");
 
                 b.HasIndex("ItemVNum");
 
@@ -4315,11 +4323,18 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
         modelBuilder.Entity("NosCore.Database.Entities.NpcExchange", b =>
             {
+                b.HasOne("NosCore.Database.Entities.Card", "Card")
+                    .WithMany()
+                    .HasForeignKey("CardId")
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 b.HasOne("NosCore.Database.Entities.Item", "Item")
                     .WithMany("NpcExchange")
                     .HasForeignKey("ItemVNum")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired();
+
+                b.Navigation("Card");
 
                 b.Navigation("Item");
             });
