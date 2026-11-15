@@ -196,6 +196,11 @@ namespace NosCore.GameObject.Ecs.Extensions
                 }
             }
 
+            foreach (var pocket in new[] { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 })
+            {
+                pocket.IvnSubPackets?.ForEach(item => item.ShapedFor(pocket.Type));
+            }
+
             return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 };
         }
 
@@ -360,6 +365,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             WeaponSkin = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.WeaponSkin, NoscorePocketType.Wear)
                 ?.ItemInstance?.ItemVNum,
             WingSkin = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.WingSkin, NoscorePocketType.Wear)
+                ?.ItemInstance?.ItemVNum,
+            MiniPet = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.MiniPet, NoscorePocketType.Wear)
                 ?.ItemInstance?.ItemVNum
         };
 

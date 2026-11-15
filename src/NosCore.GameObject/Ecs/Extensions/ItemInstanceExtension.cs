@@ -25,19 +25,44 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return new IvnSubPacket
                 {
                     Slot = slot
-                };
+                }.ShapedFor(type);
             }
 
             return new IvnSubPacket
             {
                 Slot = slot,
                 VNum = itemInstance.ItemVNum,
-                RareAmount =
-                    type != PocketType.Equipment ? itemInstance.Amount
-                        : itemInstance.Rare,
+                RareAmount = type is PocketType.Equipment or PocketType.Specialist or PocketType.Costume
+                    ? itemInstance.Rare
+                    : itemInstance.Amount,
                 UpgradeDesign = itemInstance.Upgrade,
                 SecondUpgrade = itemInstance is SpecialistInstance specialist ? specialist.SpStoneUpgrade : (byte)0
-            };
+            }.ShapedFor(type);
+        }
+
+        // The client reads a different number of item fields per pocket: equipment all seven,
+        // specialist cards and costumes five, mounts three and the other pockets four.
+        public static IvnSubPacket ShapedFor(this IvnSubPacket packet, PocketType type)
+        {
+            if (type == PocketType.Equipment)
+            {
+                return packet;
+            }
+
+            packet.Unknown5 = null;
+            packet.Unknown6 = null;
+            if (type is PocketType.Specialist or PocketType.Costume)
+            {
+                return packet;
+            }
+
+            packet.SecondUpgrade = null;
+            if (type == PocketType.Mount)
+            {
+                packet.UpgradeDesign = null;
+            }
+
+            return packet;
         }
 
         public static WarehouseSubPacket GenerateWarehouseSubPacket(this IItemInstance? itemInstance, short slot)

@@ -43,7 +43,7 @@
     <PackageVersion Include="NosCore.Analyzers" Version="2.5.0" />
     <PackageVersion Include="NosCore.Dao" Version="6.1.1" />
     <PackageVersion Include="NosCore.Networking" Version="9.2.0" />
-    <PackageVersion Include="NosCore.Packets" Version="47.0.0" />
+    <PackageVersion Include="NosCore.Packets" Version="48.0.0" />
     <PackageVersion Include="NosCore.PathFinder" Version="3.0.0" />
     <PackageVersion Include="NosCore.Shared" Version="7.0.1" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0-rc.3" />

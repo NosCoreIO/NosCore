@@ -113,7 +113,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 CurrentMp = aliveEntity.Mp,
                 MaxHp = aliveEntity.MaxHp,
                 MaxMp = aliveEntity.MaxMp,
-                BuffIds = aliveEntity.ShownBuffIds()
+                Buffs = aliveEntity.ShownBuffs()
             };
         }
 
@@ -324,12 +324,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
 
         // Permanent buffs (a fairy booster) have no icon on another player's bars.
-        public static List<short>? ShownBuffIds(this IAliveEntity aliveEntity) =>
-            aliveEntity.BuffState()?.Values.Where(b => !b.Static).Select(b => b.CardId).ToList() is { Count: > 0 } buffs
-                ? buffs
-                : null;
-
-        public static List<PstBuffSubPacket?>? ShownPstBuffs(this IAliveEntity aliveEntity) =>
+        public static List<PstBuffSubPacket?>? ShownBuffs(this IAliveEntity aliveEntity) =>
             aliveEntity.BuffState()?.Values.Where(b => !b.Static)
                 .Select(b => new PstBuffSubPacket { CardId = b.CardId, Level = b.CasterLevel ?? 0 }).ToList<PstBuffSubPacket?>() is { Count: > 0 } buffs
                 ? buffs
