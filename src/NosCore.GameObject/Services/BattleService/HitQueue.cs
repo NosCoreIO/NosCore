@@ -231,6 +231,10 @@ public sealed class HitQueue(
 
             await onHitBuffService.TriggerAsync(request.Origin, target, killed);
             await damageLeechService.ApplyAsync(request.Origin, hpBefore - newHp);
+            if (!killed)
+            {
+                await damageLeechService.DrainAsync(request.Origin, target, request.Skill.BCards);
+            }
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed, onyxDamage));
         }
