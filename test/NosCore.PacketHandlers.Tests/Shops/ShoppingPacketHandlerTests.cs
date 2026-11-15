@@ -41,7 +41,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session = await World.CreateSessionAsync();
             DignityService = World.Freeze<Mock<IDignityService>>();
             DignityService.Setup(x => x.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);
-            DignityService.Setup(x => x.GetShopPriceMultiplier(It.IsAny<DignityType>())).Returns(1);
+            var prices = new NosCore.Algorithm.DignityService.DignityService();
+            DignityService.Setup(x => x.GetShopPriceMultiplier(It.IsAny<DignityType>(), It.IsAny<bool>()))
+                .Returns((DignityType level, bool inGlacernon) => prices.GetShopPriceMultiplier(level, inGlacernon));
 
             Handler = World.Create<ShoppingPacketHandler>();
         }
@@ -96,6 +98,34 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Then(TheShopShouldBeSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AShopInGlacernonChargesHalfAsMuchAgain()
+        {
+            await new Spec("A shop in Glacernon charges half as much again")
+                .Given(AShopNpcStandsNextToTheCharacter)
+                .And(TheMapIsInGlacernon)
+                .And(TheNpcsDialogIsOpen)
+                .WhenAsync(ShoppingFromTheShopNpc)
+                .Then(TheShopShouldShowPricesAt_Percent, 150)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AShopOutsideGlacernonKeepsItsPrices()
+        {
+            await new Spec("A shop outside Glacernon keeps its prices")
+                .Given(AShopNpcStandsNextToTheCharacter)
+                .And(TheNpcsDialogIsOpen)
+                .WhenAsync(ShoppingFromTheShopNpc)
+                .Then(TheShopShouldShowPricesAt_Percent, 100)
+                .ExecuteAsync();
+        }
+
+        private void TheMapIsInGlacernon() => Session.Character.MapInstance.IsAct4 = true;
+
+        private void TheShopShouldShowPricesAt_Percent(int percent) =>
+            Assert.AreEqual((byte)percent, Session.GetLastPacket<NosCore.Packets.ServerPackets.Shop.NInvPacket>()?.ShopKind);
 
         [TestMethod]
         public async Task ASkillShopListsThePassivesAndTheViewersClassSkills()
