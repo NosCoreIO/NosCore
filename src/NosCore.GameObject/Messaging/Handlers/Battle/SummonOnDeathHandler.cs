@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 return Task.CompletedTask;
             }
 
-            return summonService.SummonAsync(victim, catalog.GetDeathBCards(victim.NpcMonster.NpcMonsterVNum));
+            return summonService.SummonAsync(victim, catalog.GetNpcBCards(victim.NpcMonster.NpcMonsterVNum));
         }
     }
 }

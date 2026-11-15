@@ -18,7 +18,7 @@ namespace NosCore.GameObject.Services.BattleService;
 
 public interface ISummonService
 {
-    // Spawns, on the source's cell, every monster its summon cards call for.
+    // Spawns, within a few cells of the source, every monster its summon cards call for.
     Task SummonAsync(IAliveEntity source, IEnumerable<BCardDto> cards);
 }
 
@@ -54,9 +54,18 @@ public sealed class SummonService(List<NpcMonsterDto> npcMonsters, IRandomProvid
             var map = source.MapInstance;
             foreach (var npcMonster in summons)
             {
-                var monster = map.SpawnMonster(npcMonster, source.PositionX, source.PositionY, true);
+                var (x, y) = CellNear(map.Map, source.PositionX, source.PositionY);
+                var monster = map.SpawnMonster(npcMonster, x, y, true);
                 await map.SendPacketAsync(monster.GenerateIn());
             }
         });
+    }
+
+    private const int Spread = 3;
+
+    private (short X, short Y) CellNear(Map.Map map, short x, short y)
+    {
+        var cell = ((short)(x + random.Next(-Spread, Spread + 1)), (short)(y + random.Next(-Spread, Spread + 1)));
+        return map.IsWalkable(cell.Item1, cell.Item2) ? cell : (x, y);
     }
 }
