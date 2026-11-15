@@ -91,37 +91,31 @@ namespace NosCore.GameObject.Ecs.Extensions
                 switch (inv.Type)
                 {
                     case NoscorePocketType.Equipment:
-                        if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
+                        if (inv.ItemInstance is SpecialistInstance specialistInstance)
                         {
-                            if (inv.ItemInstance is SpecialistInstance specialistInstance)
+                            inv0.IvnSubPackets.Add(new IvnSubPacket
                             {
-                                inv0.IvnSubPackets.Add(new IvnSubPacket
-                                {
-                                    Slot = inv.Slot,
-                                    VNum = inv.ItemInstance.ItemVNum,
-                                    RareAmount = specialistInstance.Rare,
-                                    UpgradeDesign = specialistInstance.Upgrade,
-                                    SecondUpgrade = specialistInstance.SpStoneUpgrade
-                                });
-                            }
+                                Slot = inv.Slot,
+                                VNum = inv.ItemInstance.ItemVNum,
+                                RareAmount = specialistInstance.Rare,
+                                UpgradeDesign = specialistInstance.Upgrade,
+                                SecondUpgrade = specialistInstance.SpStoneUpgrade
+                            });
                         }
-                        else
+                        else if (inv.ItemInstance is BoxInstance box)
                         {
-                            if (inv.ItemInstance is WearableInstance wearableInstance)
+                            inv0.IvnSubPackets.Add(box.GenerateIvnSubPacket(PocketType.Equipment, inv.Slot));
+                        }
+                        else if (inv.ItemInstance is WearableInstance wearableInstance)
+                        {
+                            inv0.IvnSubPackets.Add(new IvnSubPacket
                             {
-                                inv0.IvnSubPackets.Add(new IvnSubPacket
-                                {
-                                    Slot = inv.Slot,
-                                    VNum = inv.ItemInstance.ItemVNum,
-                                    RareAmount = wearableInstance.Rare,
-                                    UpgradeDesign = inv.ItemInstance.Item.IsColored ? wearableInstance.Design
-                                        : wearableInstance.Upgrade
-                                });
-                            }
-                            else if (inv.ItemInstance is BoxInstance box)
-                            {
-                                inv0.IvnSubPackets.Add(box.GenerateIvnSubPacket(PocketType.Equipment, inv.Slot));
-                            }
+                                Slot = inv.Slot,
+                                VNum = inv.ItemInstance.ItemVNum,
+                                RareAmount = wearableInstance.Rare,
+                                UpgradeDesign = inv.ItemInstance.Item.IsColored ? wearableInstance.Design
+                                    : wearableInstance.Upgrade
+                            });
                         }
 
                         break;

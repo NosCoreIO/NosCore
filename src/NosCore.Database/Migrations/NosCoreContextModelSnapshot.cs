@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115020638_AddSkillWeaponAndKind";
+    public override string LastMigrationId => "20261115024502_WidenRollGeneratedAmount";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2983,7 +2983,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<bool>("IsSuperReward")
                     .HasColumnType("boolean");
 
-                b.Property<byte>("ItemGeneratedAmount")
+                b.Property<short>("ItemGeneratedAmount")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("ItemGeneratedUpgrade")

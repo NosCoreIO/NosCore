@@ -66,7 +66,7 @@ namespace NosCore.Parser.Tests
             await _parser.InsertBoxContentsAsync();
 
             Assert.AreEqual(ItemEffectType.ItemPack, _savedItems.Single().Effect);
-            CollectionAssert.AreEqual(new byte[] { 1, 1, 70 }, _rolls.Select(r => r.ItemGeneratedAmount).ToArray());
+            CollectionAssert.AreEqual(new short[] { 1, 1, 70 }, _rolls.Select(r => r.ItemGeneratedAmount).ToArray());
         }
 
         [TestMethod]
@@ -93,11 +93,37 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(ItemEffectType.BoxEffect, _savedItems.Single().Effect);
             Assert.AreEqual(17, _rolls.Count);
-            Assert.IsTrue(_rolls.All(r => r.OriginalItemDesign == RaidBoxes.Design && r.MinimumOriginalItemRare == -2
+            Assert.IsTrue(_rolls.All(r => r.OriginalItemDesign == BoxContents.Act4RaidDesign && r.MinimumOriginalItemRare == -2
                 && r.MaximumOriginalItemRare == 8 && r.Probability == 1));
             CollectionAssert.AreEquivalent(new short[] { 199, 940, 941, 4979 },
                 _rolls.Where(r => r.IsRareRandom).Select(r => r.ItemGeneratedVNum).ToArray());
             Assert.AreEqual(5, _rolls.Single(r => r.ItemGeneratedVNum == 1429).ItemGeneratedAmount);
+        }
+
+        [TestMethod]
+        public async Task ARaidBoxOutsideAct4RollsAtTheDefaultDesign()
+        {
+            const short motherCubyBox = 4684;
+            _items.Add(new ItemDto { VNum = motherCubyBox, ItemType = ItemType.Box });
+            _items.AddRange(new short[] { 315, 321, 9357 }.Select(v => new ItemDto { VNum = v, ItemType = ItemType.Armor }));
+            _items.AddRange(new short[] { 262, 265, 268, 26, 40, 54 }.Select(v => new ItemDto { VNum = v, ItemType = ItemType.Weapon }));
+
+            await _parser.InsertBoxContentsAsync();
+
+            Assert.AreEqual(ItemEffectType.BoxEffect, _savedItems.Single().Effect);
+            Assert.AreEqual(9, _rolls.Count);
+            Assert.IsTrue(_rolls.All(r => r.OriginalItemDesign == 0 && r.IsRareRandom));
+        }
+
+        [TestMethod]
+        public async Task ABoxCanGiveMoreThanAByteOfOneItem()
+        {
+            const short featherBox = 5749;
+            Items(featherBox, 2282);
+
+            await _parser.InsertBoxContentsAsync();
+
+            CollectionAssert.Contains(_rolls.Select(r => r.ItemGeneratedAmount).ToArray(), (short)999);
         }
 
         private void Items(params short[] vnums) => _items.AddRange(vnums.Select(v => new ItemDto { VNum = v }));

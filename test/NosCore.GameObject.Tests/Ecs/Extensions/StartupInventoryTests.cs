@@ -86,6 +86,26 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         }
 
         [TestMethod]
+        public void ARaidBoxWhoseSlotColumnReadsAsSpIsStillListed()
+        {
+            var box = new BoxInstance(new Item
+            {
+                VNum = 4684, Type = NoscorePocketType.Equipment, ItemType = ItemType.Box, ItemSubType = 3, EquipmentSlot = EquipmentType.Sp
+            })
+            {
+                Amount = 1,
+                Rare = 7,
+            };
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(box, _session.Character.CharacterId), NoscorePocketType.Equipment, 0);
+
+            var listed = Pocket(PocketType.Equipment).IvnSubPackets.NotNull().Single();
+
+            Assert.AreEqual((short)4684, listed.VNum);
+            Assert.AreEqual((short)7, listed.RareAmount);
+        }
+
+        [TestMethod]
         public void ASpecialistCardMovedIntoTheBagKeepsItsPerfection()
         {
             var card = new SpecialistInstance(new Item { VNum = 901, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp })
