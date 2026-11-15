@@ -40,6 +40,7 @@ public sealed class HitQueue(
     IOnHitBuffService onHitBuffService,
     IDamageLeechService damageLeechService,
     IManaShieldService manaShieldService,
+    IRandomProvider random,
     ILogger<HitQueue> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IHitQueue, ISingletonService
 {
     // For entities that are on no map at all.
@@ -183,7 +184,8 @@ public sealed class HitQueue(
             // anybody ended up, but a later reader will expect the position to be settled.
             if (!killed)
             {
-                await ApplySpecialActionsAsync(request.Skill.BCards, request.Origin, target)
+                await ApplySpecialActionsAsync(request.Skill.BCards, request.Origin, target,
+                        defenderStats.ForcedMovementResistance, isPvp)
                     .ConfigureAwait(false);
             }
 
@@ -302,7 +304,7 @@ public sealed class HitQueue(
     /// written here: there is nothing to check them against.
     /// </remarks>
     private async Task ApplySpecialActionsAsync(IReadOnlyList<BCardDto> bCards, IAliveEntity origin,
-        IAliveEntity target)
+        IAliveEntity target, int resistance, bool isPvp)
     {
         for (var i = 0; i < bCards.Count; i++)
         {
@@ -311,25 +313,45 @@ public sealed class HitQueue(
             switch (bCard.Effect())
             {
                 // The target slides backwards along the line joining it to whoever struck.
-                case BCardEffect.SpecialActionsPushBack:
-                    await SlideAsync(target, origin.MapX, origin.MapY, Math.Max(1, fields),
+                case BCardEffect.SpecialActionsPushBack when !Resists(resistance):
+                    await SlideAsync(target, origin.PositionX, origin.PositionY, Math.Max(1, fields),
                         away: true, stopAt: 0).ConfigureAwait(false);
                     break;
 
                 // The target is drawn in until it is `fields` away from the caster.
-                case BCardEffect.SpecialActionsDrawEnemies:
-                    await SlideAsync(target, origin.MapX, origin.MapY, int.MaxValue,
+                case BCardEffect.SpecialActionsDrawEnemies when !Resists(resistance):
+                    await SlideAsync(target, origin.PositionX, origin.PositionY, int.MaxValue,
                         away: false, stopAt: fields).ConfigureAwait(false);
+                    break;
+
+                // Type 75: a chance (first) of moving `second` fields, the caster back from the
+                // target or the target away from the caster; the second push only counts in PvP.
+                case BCardEffect.JumpBackPushJumpBackChance or BCardEffect.JumpBackPushMoveBackChanceNegated
+                    when Rolls(bCard.FirstData):
+                    await SlideAsync(origin, target.PositionX, target.PositionY, Math.Max(1, (int)bCard.SecondData),
+                        away: true, stopAt: 0).ConfigureAwait(false);
+                    break;
+
+                case BCardEffect.JumpBackPushPushBackChance or BCardEffect.JumpBackPushPushBackChanceNegated
+                    when (isPvp || bCard.Effect() == BCardEffect.JumpBackPushPushBackChance)
+                        && Rolls(bCard.FirstData) && !Resists(resistance):
+                    await SlideAsync(target, origin.PositionX, origin.PositionY, Math.Max(1, (int)bCard.SecondData),
+                        away: true, stopAt: 0).ConfigureAwait(false);
                     break;
 
                 // The caster closes on the target and stops beside it.
                 case BCardEffect.SpecialActionsCharge:
-                    await SlideAsync(origin, target.MapX, target.MapY, Math.Max(1, fields),
+                    await SlideAsync(origin, target.PositionX, target.PositionY, Math.Max(1, fields),
                         away: false, stopAt: 1).ConfigureAwait(false);
                     break;
             }
         }
     }
+
+    private bool Rolls(int percent) => percent > 0 && random.Next(0, 100) < percent;
+
+    // Type 81 subtype 2: the target's chance of staying where it is.
+    private bool Resists(int percent) => Rolls(percent);
 
     /// <summary>
     /// Walks <paramref name="entity" /> one cell at a time along the line to (towardsX, towardsY),
@@ -347,8 +369,8 @@ public sealed class HitQueue(
 
         // The step is the sign of the difference, so it runs diagonally when both coordinates
         // differ - the same way everything else in the game moves.
-        var stepX = Math.Sign(entity.MapX - towardsX);
-        var stepY = Math.Sign(entity.MapY - towardsY);
+        var stepX = Math.Sign(entity.PositionX - towardsX);
+        var stepY = Math.Sign(entity.PositionY - towardsY);
         if (!away)
         {
             stepX = -stepX;
@@ -360,10 +382,10 @@ public sealed class HitQueue(
             return;
         }
 
-        var (x, y) = ForcedMovement.Destination(entity.MapX, entity.MapY, towardsX, towardsY, steps, stepX, stepY,
+        var (x, y) = ForcedMovement.Destination(entity.PositionX, entity.PositionY, towardsX, towardsY, steps, stepX, stepY,
             stopAt, map.IsWalkable);
 
-        if (x == entity.MapX && y == entity.MapY)
+        if (x == entity.PositionX && y == entity.PositionY)
         {
             return;
         }

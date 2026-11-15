@@ -214,6 +214,15 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] The dragon never attacks you and cannot be targeted, and a monster or a pet never calls it
 - [ ] Against another player the same happens, with the PvP-reduced damage halved
 
+### Knock-back — BCard type 75 subtypes 11/12 and 21/22, resistance 81/21
+
+- [ ] Hit a monster with a skill that pushes the enemy away
+      (`/mnt/project-files/bcard-effects/reset-knockback.sh` gives Tester's skill 262 a 100% push of
+      3 cells; key 1 casts): the monster slides 3 cells away from you on each cast
+- [ ] A "move back" skill slides you away from the target instead
+- [ ] The PvP-only push leaves monsters where they are and moves a player
+- [ ] A target resisting forced movement stays put, while your own jump back still happens
+
 ### Elemental resistance — BCard types 13 and 14
 
 - [ ] A buff that raises your resistance to an element reduces the elemental damage you
