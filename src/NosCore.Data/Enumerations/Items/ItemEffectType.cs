@@ -42,6 +42,8 @@ namespace NosCore.Data.Enumerations.Items
         AncelloansBlessing = 208,
         FairyBooster = 250,
         FriendshipWings = 199,
+        // Brings the user's raid team to them while they lead it at a raid gate.
+        TeamStone = 300,
         RaidSeal = 301,
         // A raid's reward box sold or handed out apart from the raid; EffectValue is that raid's number.
         SimpleRaidBox = 304,

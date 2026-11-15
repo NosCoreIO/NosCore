@@ -1298,6 +1298,12 @@ Needs two characters on the same channel. The commending one must be level 31 or
       one scroll is used up and the weapon can be upgraded again
 - [ ] Drop it on equipment that isn't fixed: "Can only be used for fixed level weapons and
       equipment." and the scroll stays
+- [ ] Lead a raid team at a raid gate (`/mnt/project-files/item-effects/reset-teamstone.sh`: Buddy
+      uses the Mother Cuby seal on Jelly Entrance and invites Tester on Chicken Farm Path) and use a
+      Team Stone: every member, the leader included, is moved to a random spot on the gate's map
+      and one stone is used up
+- [ ] Use it as a team member, outside a raid team or away from a raid gate: nothing happens and
+      the stone stays
 
 ### Resting in combat
 
