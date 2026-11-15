@@ -341,7 +341,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
     {
         public static Arrival Of(string line) => new(Wire.Deserialize(line), line);
 
-        public override string ToString() => Line.Length <= 120 ? Line : Line[..120] + "...";
+        public override string ToString()
+        {
+            var shown = Packet is UndecodedPacket undecoded ? $"{undecoded.Reason}: {Line}" : Line;
+            return shown.Length <= 120 ? shown : shown[..120] + "...";
+        }
     }
 
     public sealed record LoginReply(IPacket? Packet)

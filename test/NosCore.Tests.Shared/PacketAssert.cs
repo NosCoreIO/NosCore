@@ -52,7 +52,7 @@ namespace NosCore.Tests.Shared
             }
 
             // Untyped values, such as i18n arguments, come off the wire as long whatever they were written as.
-            if (IsNumber(expected.GetType()) && IsNumber(actual.GetType()))
+            if (IsIntegral(expected.GetType()) && IsIntegral(actual.GetType()))
             {
                 if (Convert.ToDecimal(expected, CultureInfo.InvariantCulture) != Convert.ToDecimal(actual, CultureInfo.InvariantCulture))
                 {
@@ -134,7 +134,8 @@ namespace NosCore.Tests.Shared
             return properties.Where(p => !packetBase.Contains(p.Name));
         }
 
-        private static bool IsNumber(Type type) => type.IsPrimitive && type != typeof(bool) && type != typeof(char);
+        private static bool IsIntegral(Type type) => type.IsPrimitive && type != typeof(bool) && type != typeof(char)
+            && type != typeof(float) && type != typeof(double);
 
         private static bool IsLeaf(Type type)
         {
