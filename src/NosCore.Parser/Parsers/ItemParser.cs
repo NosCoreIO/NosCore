@@ -102,6 +102,10 @@ namespace NosCore.Parser.Parsers
                     source: "FullRestorePotions", description: "Potion that fills the HP bar")
                 .Field(x => x.RestoresAllMp, chunk => FullRestorePotions.All.TryGetValue(Convert.ToInt16(chunk["VNUM"][0][2]), out var bar) && bar.Mp,
                     source: "FullRestorePotions", description: "Potion that fills the MP bar")
+                .Field(x => x.RestoresPercent, chunk => SpecialPotions.All.TryGetValue(Convert.ToInt16(chunk["VNUM"][0][2]), out var potion) ? potion.RestoresPercent : (byte)0,
+                    source: "SpecialPotions", description: "HP and MP restored on use, in percent of the maximum")
+                .Field(x => x.RemovesDebuffsUpToLevel, chunk => SpecialPotions.All.TryGetValue(Convert.ToInt16(chunk["VNUM"][0][2]), out var potion) ? potion.RemovesDebuffsUpToLevel : (byte)0,
+                    source: "SpecialPotions", description: "Negative effects up to this card level end on use")
                 .Field(x => x.MinilandObjectPoint, chunk => ImportMinilandObjectPoint(chunk),
                     source: "DATA[2] (miniland only)", description: "Miniland point value")
                 .Field(x => x.Width, chunk => ImportWidth(chunk),
@@ -696,6 +700,7 @@ namespace NosCore.Parser.Parsers
                 var x when x == 9063 || x == 1987 => 879,
                 var x when x == 1988 || x == 9064 => 880,
                 4503 => 4544,
+                5904 => 100,
                 4504 => 4294,
                 var x when x == 282 || x == 283 || x == 284 || x == 4264 || x == 4262 || x == 4194 || x == 1248 || x == 9022
                     || x == 8541 || x == 8542 || x == 8543 || x == 8544 => 3,

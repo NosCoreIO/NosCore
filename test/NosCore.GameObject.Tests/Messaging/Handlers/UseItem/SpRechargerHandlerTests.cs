@@ -11,12 +11,16 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Configuration;
+using System.Collections.Generic;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -38,6 +42,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private ClientSession _session;
         private SpRechargerHandler _handler;
         private InventoryItemInstance _recharger;
+        private BuffService _buffs;
+        private const short LowDebuff = 900;
+        private const short HighDebuff = 901;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -45,6 +52,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             World.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
+            var cards = World.Freeze<Mock<ICardCatalog>>();
+            cards.Setup(c => c.GetCard(LowDebuff)).Returns(new CardDto { CardId = LowDebuff, Level = 3, BuffType = BuffType.Bad, Duration = 600 });
+            cards.Setup(c => c.GetCard(HighDebuff)).Returns(new CardDto { CardId = HighDebuff, Level = 4, BuffType = BuffType.Bad, Duration = 600 });
+            _buffs = World.Create<BuffService>();
+            World.Inject<IBuffService>(_buffs);
             _handler = World.Create<SpRechargerHandler>();
         }
 
@@ -95,6 +107,44 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .Then(RechargerStackCountShouldBe_, (short)0)
                 .And(SpAdditionPointShouldBe_, MaxAdditionalSp)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task FafnirsFriedDinnerRestoresAFifthAndRemovesLowDebuffs()
+        {
+            RechargerInInventoryWith_EffectAndValue_(ItemEffectType.PremiumSpRecharger, 100);
+            _recharger.ItemInstance.Item.RestoresPercent = 20;
+            _recharger.ItemInstance.Item.RemovesDebuffsUpToLevel = 3;
+            var character = _session.Character;
+            character.SpAdditionPoint = 0;
+            character.Hp = 1;
+            character.Mp = 1;
+            await _buffs.ApplyAsync(character, new CardDto { CardId = LowDebuff, Level = 3, BuffType = BuffType.Bad, Duration = 600 }, new List<BCardDto>(), null);
+            await _buffs.ApplyAsync(character, new CardDto { CardId = HighDebuff, Level = 4, BuffType = BuffType.Bad, Duration = 600 }, new List<BCardDto>(), null);
+
+            await UsingTheRecharger();
+
+            character = _session.Character;
+            Assert.AreEqual(100, character.SpAdditionPoint);
+            Assert.AreEqual(1 + character.MaxHp / 5, character.Hp);
+            Assert.AreEqual(1 + character.MaxMp / 5, character.Mp);
+            Assert.IsFalse(_buffs.HasBuff(character, LowDebuff));
+            Assert.IsTrue(_buffs.HasBuff(character, HighDebuff));
+        }
+
+        [TestMethod]
+        public async Task APlainRechargerLeavesHpAndDebuffsAlone()
+        {
+            RechargerInInventoryWith_EffectAndValue_(ItemEffectType.PremiumSpRecharger, 30_000);
+            var character = _session.Character;
+            character.SpAdditionPoint = 0;
+            character.Hp = 1;
+            await _buffs.ApplyAsync(character, new CardDto { CardId = LowDebuff, Level = 3, BuffType = BuffType.Bad, Duration = 600 }, new List<BCardDto>(), null);
+
+            await UsingTheRecharger();
+
+            Assert.AreEqual(1, _session.Character.Hp);
+            Assert.IsTrue(_buffs.HasBuff(_session.Character, LowDebuff));
         }
 
         private void RechargerInInventoryWith_EffectAndValue_(ItemEffectType effect, int effectValue)

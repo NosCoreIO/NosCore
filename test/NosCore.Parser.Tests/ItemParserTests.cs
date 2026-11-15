@@ -850,5 +850,28 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(6, _savedItems[0].MaxCellonLvl);
             Assert.AreEqual(2, _savedItems[0].MaxCellon);
         }
+
+        [TestMethod]
+        public async Task ItemParser_SpecialPotionsHealAndCleanseAsTheirTextSays()
+        {
+            const string data = "151\t0\t{0}\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0";
+            var content = string.Join("\n#========================================================\n",
+                CreateItemData(vnum: 5904, indexType: 1, indexSubType: 4, data: string.Format(data, 4)),
+                CreateItemData(vnum: 1120, indexType: 1, indexSubType: 4, data: string.Format(data, 3)),
+                CreateItemData(vnum: 1118, indexType: 1, indexSubType: 4, data: string.Format(data, 1)));
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var dinner = _savedItems.Single(i => i.VNum == 5904);
+            Assert.AreEqual(100, dinner.EffectValue);
+            Assert.AreEqual(20, dinner.RestoresPercent);
+            Assert.AreEqual(3, dinner.RemovesDebuffsUpToLevel);
+            var large = _savedItems.Single(i => i.VNum == 1120);
+            Assert.AreEqual(180000, large.EffectValue);
+            Assert.AreEqual(byte.MaxValue, large.RemovesDebuffsUpToLevel);
+            Assert.AreEqual(0, _savedItems.Single(i => i.VNum == 1118).RemovesDebuffsUpToLevel);
+        }
     }
 }

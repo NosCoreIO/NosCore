@@ -106,6 +106,12 @@ namespace NosCore.Database.Entities
 
         public bool RestoresAllMp { get; set; }
 
+        // HP and MP restored on use, in percent of the maximum.
+        public byte RestoresPercent { get; set; }
+
+        // Negative effects up to this card level end on use; 0 for none.
+        public byte RemovesDebuffsUpToLevel { get; set; }
+
         public short HpRegeneration { get; set; }
 
         public bool IsMinilandActionable { get; set; }
