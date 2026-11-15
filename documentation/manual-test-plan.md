@@ -1323,6 +1323,8 @@ Needs two characters on the same channel. The commending one must be level 31 or
       rises by 300 and one potion is gone
 - [ ] A Large Recovery Potion (`$CreateItem 1010`) refills both bars, never past their maximum
 - [ ] At full HP a health potion stays in the inventory, even with MP missing
+- [ ] Mooncakes, from the Main tab: a White one (`$CreateItem 1301`) adds 1500 HP, a Green one
+      (1299) 1500 MP and a Red one (1300) both, never past the maximum; one is used up each time
 - [ ] Potions dragged to the quick bar work the same way as from the inventory
 - [ ] Use potions from the quick bar as fast as the client lets you: each one heals and is used
       up, none is lost

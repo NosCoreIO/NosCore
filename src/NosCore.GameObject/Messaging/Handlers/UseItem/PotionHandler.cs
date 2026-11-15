@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
-            if (item.ItemType != ItemType.Potion)
+            if (item.ItemType != ItemType.Potion && (item.ItemType != ItemType.Event || item is { Hp: 0, Mp: 0 }))
             {
                 return;
             }

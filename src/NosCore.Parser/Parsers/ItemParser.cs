@@ -346,6 +346,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Food => chunk["DATA"][0][4],
                 ItemType.Potion => chunk["DATA"][0][4],
                 ItemType.Snack => chunk["DATA"][0][4],
+                ItemType.Event => EventFoodRestore(chunk, 2),
                 _ => "0"
             });
         }
@@ -499,9 +500,14 @@ namespace NosCore.Parser.Parsers
                 ItemType.Food => chunk["DATA"][0][2],
                 ItemType.Potion => chunk["DATA"][0][2],
                 ItemType.Snack => chunk["DATA"][0][2],
+                ItemType.Event => EventFoodRestore(chunk, 1),
                 _ => "0"
             });
         }
+
+        // Event foods read 220 then a kind: 1 restores HP, 2 MP, 3 both. Each restores the 1500 its description names.
+        private static string EventFoodRestore(Dictionary<string, string[][]> chunk, int kind) =>
+            chunk["DATA"][0][2] == "220" && (Convert.ToInt32(chunk["DATA"][0][4]) & kind) != 0 ? "1500" : "0";
 
         private short ImportWaitDelay(Dictionary<string, string[][]> chunk)
         {
