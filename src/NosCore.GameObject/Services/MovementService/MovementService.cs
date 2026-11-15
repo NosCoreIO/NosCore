@@ -9,6 +9,7 @@ using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Messaging.Events;
@@ -39,7 +40,7 @@ public interface IMovementService
 public sealed class MovementService(IHeuristic distanceCalculator, ILogger<MovementService> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus, IWalkService walkService,
         IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandService, IClock clock,
-        IMapChangeService mapChangeService, IBuffService buffService)
+        IMapChangeService mapChangeService, IBuffService buffService, List<MapTypeMapDto> mapTypeMaps)
     : IMovementService
 {
     // Leaves room for network jitter so it is not counted as a speed hack.
@@ -152,6 +153,11 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
             return PortalResult.NoPortal;
         }
 
+        if (IsEnemyCitadel(portal.DestinationMapId, character.Faction))
+        {
+            return PortalResult.EnemyCitadel;
+        }
+
         character.LastPortal = clock.GetCurrentInstant();
 
         if ((mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)?.MapInstanceType
@@ -168,6 +174,17 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         }
 
         return PortalResult.Used;
+    }
+
+    private bool IsEnemyCitadel(short mapId, FactionType faction)
+    {
+        var enemyCitadel = faction switch
+        {
+            FactionType.Angel => MapTypeType.CitadelDemon,
+            FactionType.Demon => MapTypeType.CitadelAngel,
+            _ => (MapTypeType?)null,
+        };
+        return enemyCitadel != null && mapTypeMaps.Any(m => m.MapId == mapId && m.MapTypeId == enemyCitadel);
     }
 
     private static bool IsPortalAccessible(PortalType type) => type switch

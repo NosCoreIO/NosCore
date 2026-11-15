@@ -11,4 +11,5 @@ public enum PortalResult
     Used,
     TooSoon,
     NoPortal,
+    EnemyCitadel,
 }

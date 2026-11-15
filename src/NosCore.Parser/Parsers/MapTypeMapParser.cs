@@ -154,33 +154,35 @@ namespace NosCore.Parser.Parsers
                     mapTypeId = MapTypeType.CleftOfDarkness;
                     objectset = true;
                 }
-                else if (i == 130)
+
+                // add "act6.1a" and "act6.1d" when ids found
+                if (objectset)
                 {
-                    // "Citadel"
-                    mapTypeId = MapTypeType.CitadelAngel;
-                    objectset = true;
+                    Add(i, mapTypeId);
+                }
+
+                // The citadels are Act 4 maps that also belong to one faction.
+                if (i == 130)
+                {
+                    Add(i, MapTypeType.CitadelAngel);
                 }
                 else if (i == 131)
                 {
-                    mapTypeId = MapTypeType.CitadelDemon;
-                    objectset = true;
-                }
-
-                // add "act6.1a" and "act6.1d" when ids found
-                var i1 = (short)i;
-                var id = mapTypeId;
-                if (objectset && (mapsdb.FirstOrDefault(s => s.MapId == i) !=
-                        null)
-                    && (maptypemapdb
-                            .FirstOrDefault(s => (s.MapId == i1) && (s.MapTypeId == id))
-                        == null))
-                {
-                    maptypemaps.Add(new MapTypeMapDto { MapId = (short)i, MapTypeId = mapTypeId });
+                    Add(i, MapTypeType.CitadelDemon);
                 }
             }
 
             IEnumerable<MapTypeMapDto> mapDtos = maptypemaps;
             return mapTypeMapDao.TryInsertOrUpdateAsync(mapDtos);
+
+            void Add(int mapId, MapTypeType type)
+            {
+                if (mapsdb.Any(s => s.MapId == mapId)
+                    && !maptypemapdb.Any(s => s.MapId == mapId && s.MapTypeId == type))
+                {
+                    maptypemaps.Add(new MapTypeMapDto { MapId = (short)mapId, MapTypeId = type });
+                }
+            }
         }
     }
 }

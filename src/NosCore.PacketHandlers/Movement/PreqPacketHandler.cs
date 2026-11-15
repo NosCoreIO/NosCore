@@ -13,6 +13,7 @@ using NosCore.GameObject.Services.RaidService;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
@@ -32,6 +33,16 @@ namespace NosCore.PacketHandlers.Movement
                     await raidService.UseGateAsync(session);
                 }
 
+                return;
+            }
+
+            if (result == PortalResult.EnemyCitadel)
+            {
+                await session.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.CannotMoveToEnemyCitadel
+                });
                 return;
             }
 
