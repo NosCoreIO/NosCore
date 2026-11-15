@@ -21,9 +21,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // A stored row on a map the capture shows that the capture no longer holds is a copy or a retired
-    // NPC from an earlier import, so it is removed with its shops, teleports and recipes; the NPC's own
-    // row is brought in line with the capture.
+    // Rows already stored on the cell of a captured NPC under another id are copies from an earlier
+    // import, so they are removed with their shops, teleports and recipes; the NPC's own row is
+    // brought in line with the capture.
     public class MapNpcParser(IDao<MapNpcDto, int> mapNpcDao, IDao<NpcMonsterDto, short> npcMonsterDao, IDao<NpcTalkDto, short> npcTalkDao,
         IDao<ShopDto, int> shopDao, IDao<ShopItemDto, int> shopItemDao, IDao<ShopSkillDto, int> shopSkillDao,
         IDao<TeleporterDto, short> teleporterDao, IDao<RecipeDto, short> recipeDao, IDao<RecipeItemDto, short> recipeItemDao,
@@ -75,9 +75,9 @@ namespace NosCore.Parser.Parsers
             }
 
             var ids = npcs.Select(s => s.MapNpcId).ToHashSet();
-            var maps = CaptureSessions.Maps(packets);
+            var cells = npcs.Select(s => (s.MapId, s.VNum, s.MapX, s.MapY)).ToHashSet();
             await DeleteCopiesAsync(stored.Values
-                .Where(s => !ids.Contains(s.MapNpcId) && maps.Contains(s.MapId))
+                .Where(s => !ids.Contains(s.MapNpcId) && cells.Contains((s.MapId, s.VNum, s.MapX, s.MapY)))
                 .Select(s => s.MapNpcId).ToList());
 
             var changed = npcs.Where(s => !stored.TryGetValue(s.MapNpcId, out var row) || !Fields(row).Equals(Fields(s))).ToList();

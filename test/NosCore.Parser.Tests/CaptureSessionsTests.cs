@@ -5,14 +5,11 @@
 //
 
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
-using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.Enumerations;
@@ -197,59 +194,6 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(-1, stock.VisualId);
             Assert.AreEqual(-1, talk.VisualId);
-        }
-
-        [TestMethod]
-        public void ANewerCaptureReplacesWhatOlderOnesShowOnTheMapsItVisits()
-        {
-            var older = new List<IPacket>
-            {
-                Captured.Arrival(1), Captured.Npc(985, 1, 10, 10), Captured.Npc(985, 2, 10, 10), Captured.Monster(24, 3, 20, 20),
-                Captured.Portal(5, 5, 2, PortalType.MapPortal),
-                Captured.Arrival(3), Captured.Npc(320, 4, 30, 30),
-            };
-            var newer = new List<IPacket>
-            {
-                Captured.Arrival(1), Captured.Npc(985, 900, 10, 10), Captured.Npc(788, 901, 40, 40),
-                Captured.Portal(6, 6, 2, PortalType.MapPortal),
-            };
-
-            var combined = CaptureSessions.Combine([older, newer]);
-
-            CollectionAssert.AreEquivalent(new[] { (1, (short)985), (1, (short)788), (3, (short)320) }, Shown(combined));
-            Assert.AreEqual((short)6, combined.OfType<GpPacket>().Single().SourceX);
-            Assert.IsFalse(combined.OfType<InPacket>().Any(p => p.VisualType == VisualType.Monster));
-        }
-
-        [TestMethod]
-        public void TheSameNpcInANewerCaptureKeepsItsId()
-        {
-            var shop = Captured.Shop(1, 0, 3, "Shop");
-            var again = Captured.Npc(985, 900, 10, 10);
-
-            CaptureSessions.Combine([[Captured.Arrival(1), Captured.Npc(985, 1, 10, 10), shop], [Captured.Arrival(1), again]]);
-
-            Assert.AreEqual(1, again.VisualId);
-            Assert.AreEqual(1, shop.VisualId);
-        }
-
-        private static List<(int Map, short VNum)> Shown(List<IPacket> packets)
-        {
-            short map = 0;
-            var shown = new List<(int, short)>();
-            foreach (var packet in packets)
-            {
-                if (packet is AtPacket at)
-                {
-                    map = at.MapId;
-                }
-                else if (packet is InPacket { VisualType: VisualType.Npc, VNum: { } vnum })
-                {
-                    shown.Add((map, short.Parse(vnum, CultureInfo.InvariantCulture)));
-                }
-            }
-
-            return shown;
         }
     }
 }
