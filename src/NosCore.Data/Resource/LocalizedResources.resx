@@ -1056,4 +1056,130 @@
   <data name="TIMESPACE_LONG_WAY_AHEAD" xml:space="preserve">
     <value>It may be a long way!</value>
   </data>
+  <data name="CHATTER_YOU_DARE_MESS_WITH_US" xml:space="preserve">
+    <value>You dare mess with us?</value>
+  </data>
+  <data name="CHATTER_WHY_TORTURE_US" xml:space="preserve">
+    <value>Why are you torturing us?</value>
+  </data>
+  <data name="CHATTER_GRR" xml:space="preserve">
+    <value>*grr*</value>
+  </data>
+  <data name="CHATTER_NOBODY_CONTROLS_US" xml:space="preserve">
+    <value>Nobody controls us anymore!</value>
+  </data>
+  <data name="CHATTER_WONT_BE_PUSHED_AROUND" xml:space="preserve">
+    <value>We won't be pushed around anymore!</value>
+  </data>
+  <data name="CHATTER_IMPROVE_WORKING_CONDITIONS" xml:space="preserve">
+    <value>Improve our working conditions!</value>
+  </data>
+  <data name="CHATTER_NOT_YOUR_SLAVES" xml:space="preserve">
+    <value>We are not your slaves!</value>
+  </data>
+  <data name="CHATTER_HUMANS_KILL_US" xml:space="preserve">
+    <value>Humans kill us without mercy!</value>
+  </data>
+  <data name="CHATTER_HUMANS_BEG_FOR_MERCY" xml:space="preserve">
+    <value>Humans! Beg for our mercy!</value>
+  </data>
+  <data name="CHATTER_VICTORY" xml:space="preserve">
+    <value>Victory! Victory!</value>
+  </data>
+  <data name="CHATTER_FOR_THE_KOARENS" xml:space="preserve">
+    <value>For the Koarens!</value>
+  </data>
+  <data name="CHATTER_KOARENS_WONT_FORGIVE" xml:space="preserve">
+    <value>The Koarens will never forgive you!</value>
+  </data>
+  <data name="CHATTER_KOVOLTS_ARE_FREE" xml:space="preserve">
+    <value>The Kovolts are free!</value>
+  </data>
+  <data name="CHATTER_SHOW_US" xml:space="preserve">
+    <value>Show us!</value>
+  </data>
+  <data name="CHATTER_GROWL" xml:space="preserve">
+    <value>Grrrrrrr!!!</value>
+  </data>
+  <data name="CHATTER_LONG_GROWL" xml:space="preserve">
+    <value>Grrrrrrr!!!!!!!</value>
+  </data>
+  <data name="CHATTER_GROWL_WOOF" xml:space="preserve">
+    <value>Grrrrrr!! *Woof*</value>
+  </data>
+  <data name="CHATTER_SNIFF_HEHE" xml:space="preserve">
+    <value>*Sniff* ..hehehehehe!!!</value>
+  </data>
+  <data name="CHATTER_LOOK_AT_THE_DIRT" xml:space="preserve">
+    <value>My god! Look at the dirt.</value>
+  </data>
+  <data name="CHATTER_NEW_DRESS" xml:space="preserve">
+    <value>I'm upset today. It's the new dress.</value>
+  </data>
+  <data name="CHATTER_CATCH_IT_FOR_A_BONUS" xml:space="preserve">
+    <value>Catch it to win a bonus!</value>
+  </data>
+  <data name="CHATTER_SHOW_WHAT_YOU_CAN_DO" xml:space="preserve">
+    <value>Mwahaha! Show me what you can do!</value>
+  </data>
+  <data name="CHATTER_KILL_THEM_ALL" xml:space="preserve">
+    <value>Kill them all!</value>
+  </data>
+  <data name="CHATTER_ATTACK" xml:space="preserve">
+    <value>Attack!</value>
+  </data>
+  <data name="CHATTER_YOU_GOT_LUCKY" xml:space="preserve">
+    <value>You got lucky...</value>
+  </data>
+  <data name="CHATTER_HERE_WE_GO" xml:space="preserve">
+    <value>Here we go!</value>
+  </data>
+  <data name="CHATTER_AAAAH" xml:space="preserve">
+    <value>Aaaaaahhhh...</value>
+  </data>
+  <data name="CHATTER_FOR_NOSVILLE" xml:space="preserve">
+    <value>Let's do it for NosVille!</value>
+  </data>
+  <data name="CHATTER_FOR_THE_VILLAGE" xml:space="preserve">
+    <value>For the peace of the village!</value>
+  </data>
+  <data name="CHATTER_HURRY_UP" xml:space="preserve">
+    <value>Hey, hurry up!</value>
+  </data>
+  <data name="CHATTER_WRETCH" xml:space="preserve">
+    <value>Wretch!</value>
+  </data>
+  <data name="CHATTER_WHEN_WILL_IT_END" xml:space="preserve">
+    <value>When will this end?</value>
+  </data>
+  <data name="CHATTER_CROAK_SIP" xml:space="preserve">
+    <value>*Croak* *sip*</value>
+  </data>
+  <data name="CHATTER_DONT_ANNOY_ME" xml:space="preserve">
+    <value>Don't annoy me!</value>
+  </data>
+  <data name="CHATTER_CAN_WE_GET_A_BONUS" xml:space="preserve">
+    <value>Can we get a bonus?</value>
+  </data>
+  <data name="CHATTER_GET_AWAY_FROM_ME" xml:space="preserve">
+    <value>Get away from me!</value>
+  </data>
+  <data name="CHATTER_FIGHT_TOGETHER" xml:space="preserve">
+    <value>We'll fight together!</value>
+  </data>
+  <data name="CHATTER_TOO_LATE_TO_LEAVE" xml:space="preserve">
+    <value>It's too late to get back out.</value>
+  </data>
+  <data name="CHATTER_CRUSH_GLACERUS" xml:space="preserve">
+    <value>We're going to crush you, Glacerus!</value>
+  </data>
+  <data name="CHATTER_REST_AFTER_GLACERUS" xml:space="preserve">
+    <value>We can rest once we've defeated Glacerus!</value>
+  </data>
+  <data name="CHATTER_FIGHT_SIDE_BY_SIDE" xml:space="preserve">
+    <value>We'll help you! Let's fight side by side!</value>
+  </data>
+  <data name="CHATTER_GLACERUS_MUST_FALL" xml:space="preserve">
+    <value>Whatever happens, Glacerus must be eliminated!</value>
+  </data>
 </root>

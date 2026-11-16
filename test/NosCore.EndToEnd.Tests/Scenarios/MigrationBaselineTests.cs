@@ -35,10 +35,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         // The baseline's schema is the squashed history's, so a database left at the last
-        // squashed migration is the baseline's schema with the old history rows.
+        // squashed migration is the baseline's schema, without the migrations added since, with
+        // the old history rows.
         private static async Task<TestDatabase> DatabaseWithHistoryAsync(params string[] migrationIds)
         {
-            var database = await CreateAsync();
+            var database = await CreateAsync(migrationsBehind: MigrationCount() - 1);
             await using var context = database.CreateContext();
             await context.Database.ExecuteSqlRawAsync("DELETE FROM \"__EFMigrationsHistory\"");
             foreach (var id in migrationIds)
