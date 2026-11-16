@@ -109,60 +109,52 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
     public async Task<bool> TickAsync(INonPlayableEntity entity)
     {
-        try
+        if (!entity.IsAlive || entity.NpcMonster == null) return false;
+
+        if (entity.CastingUntil > clock.GetCurrentInstant()) return true;
+
+        var target = CurrentTarget(entity);
+        if (target == null && entity.NpcMonster.IsHostile)
         {
-            if (!entity.IsAlive || entity.NpcMonster == null) return false;
-
-            if (entity.CastingUntil > clock.GetCurrentInstant()) return true;
-
-            var target = CurrentTarget(entity);
-            if (target == null && entity.NpcMonster.IsHostile)
+            var noticed = DetectNearbyEnemy(entity);
+            if (noticed != null)
             {
-                var noticed = DetectNearbyEnemy(entity);
-                if (noticed != null)
-                {
-                    aggroService.AddThreat(entity, noticed, 1);
-                    target = CurrentTarget(entity);
-                    await chatter.ShoutAsync(entity);
-                }
+                aggroService.AddThreat(entity, noticed, 1);
+                target = CurrentTarget(entity);
+                await chatter.ShoutAsync(entity);
             }
-
-            if (target == null && entity.NpcMonster.GroupAttack != (byte)GroupAttackType.None)
-            {
-                var groupTarget = TargetOfGroup(entity);
-                if (groupTarget != null)
-                {
-                    aggroService.AddThreat(entity, groupTarget, 1);
-                    target = CurrentTarget(entity);
-                }
-            }
-
-            if (target == null)
-            {
-                return await TryReturnHomeAsync(entity);
-            }
-
-            var skill = PickSkill(entity) ?? BasicAttack(entity);
-            var distance = (int)distanceCalculator.GetDistance(
-                (entity.PositionX, entity.PositionY),
-                (target.PositionX, target.PositionY));
-
-            if (distance <= skill.SkillRange)
-            {
-                await AttackAsync(entity, target, skill);
-            }
-            else if (entity.NpcMonster.CanWalk)
-            {
-                await StepAlongPathAsync(entity, target.PositionX, target.PositionY, cellsToLeave: 1);
-            }
-
-            return true;
         }
-        catch (Exception ex)
+
+        if (target == null && entity.NpcMonster.GroupAttack != (byte)GroupAttackType.None)
         {
-            logger.LogError(ex, logLanguage[LogLanguageKey.AI_TICK_FAILED], entity.VisualId);
-            return false;
+            var groupTarget = TargetOfGroup(entity);
+            if (groupTarget != null)
+            {
+                aggroService.AddThreat(entity, groupTarget, 1);
+                target = CurrentTarget(entity);
+            }
         }
+
+        if (target == null)
+        {
+            return await TryReturnHomeAsync(entity);
+        }
+
+        var skill = PickSkill(entity) ?? BasicAttack(entity);
+        var distance = (int)distanceCalculator.GetDistance(
+            (entity.PositionX, entity.PositionY),
+            (target.PositionX, target.PositionY));
+
+        if (distance <= skill.SkillRange)
+        {
+            await AttackAsync(entity, target, skill);
+        }
+        else if (entity.NpcMonster.CanWalk)
+        {
+            await StepAlongPathAsync(entity, target.PositionX, target.PositionY, cellsToLeave: 1);
+        }
+
+        return true;
     }
 
     private bool IsHiddenFrom(INonPlayableEntity entity, IAliveEntity target) =>
@@ -446,6 +438,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         catch (Exception ex)
         {
             logger.LogError(ex, logLanguage[LogLanguageKey.MONSTER_CAST_FAILED], skill.SkillVnum, entity.VisualId);
+            NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "map_entity"));
         }
         finally
         {

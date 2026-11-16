@@ -86,16 +86,8 @@ namespace NosCore.GameObject.Services.BattleService
             // failed attempt still costs the cooldown below.
             if (captureService.IsCaptureSkill(skill))
             {
-                try
-                {
-                    await captureService.TryCaptureAsync(origin, target, skill);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, logLanguage[LogLanguageKey.CAPTURE_FAILED], origin.VisualId, target.VisualId);
-                }
-
                 ScheduleCooldownReset(origin, skill);
+                await captureService.TryCaptureAsync(origin, target, skill);
                 return true;
             }
 

@@ -623,7 +623,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 try
                 {
-                    await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _random, _logger, _logLanguage);
+                    await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _random);
                 }
                 catch (Exception e)
                 {
@@ -635,7 +635,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 try
                 {
-                    await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _random, _logger, _logLanguage);
+                    await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _random);
                 }
                 catch (Exception e)
                 {
