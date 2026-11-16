@@ -45,10 +45,14 @@ public sealed class MonsterChatterService(List<ChatterLineDto> chatterLines, IRa
             return;
         }
 
-        foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstance.MapInstanceId)
-                     .Where(s => s.HasPlayerEntity))
+        foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstance.MapInstanceId))
         {
-            await session.SendPacketAsync(entity.GenerateSay(localizer[text, session.Character.AccountLanguage],
+            if (!session.TryGetCharacter(out var character))
+            {
+                continue;
+            }
+
+            await session.SendPacketAsync(entity.GenerateSay(localizer[text, character.AccountLanguage],
                 SayColorType.Default));
         }
     }
