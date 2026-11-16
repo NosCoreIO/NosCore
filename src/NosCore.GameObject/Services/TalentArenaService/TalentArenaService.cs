@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core.Observability;
 
 namespace NosCore.GameObject.Services.TalentArenaService
 {
@@ -331,6 +332,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
             catch (Exception e)
             {
                 logger.LogError(e, logLanguage[LogLanguageKey.TALENT_ARENA_FAILED]);
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "event_run"));
                 await _lock.WaitAsync();
                 try
                 {

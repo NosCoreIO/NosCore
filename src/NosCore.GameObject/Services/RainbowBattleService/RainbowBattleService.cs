@@ -35,6 +35,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
+using NosCore.Core.Observability;
 
 namespace NosCore.GameObject.Services.RainbowBattleService
 {
@@ -134,6 +135,7 @@ namespace NosCore.GameObject.Services.RainbowBattleService
                 catch (Exception e)
                 {
                     logger.LogError(e, logLanguage[LogLanguageKey.RAINBOW_BATTLE_FAILED]);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "event_run"));
                 }
                 finally
                 {

@@ -4,6 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ScriptedInstanceService;
+using Moq;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -143,5 +146,42 @@ namespace NosCore.GameObject.Tests.Services.IceBreakerService
         private void StartingAnIcebreaker() => Assert.IsTrue(_service.TryStart(true));
 
         private void StartingAnotherShouldBeRefused() => Assert.IsFalse(_service.TryStart(true));
+
+        [TestMethod]
+        public async Task AFailingRunIsCountedAndFreesTheChannel()
+        {
+            using var failures = new FailureCounter("event_run");
+            _failures = failures;
+            await new Spec("A run that throws is counted, and the channel can start an Ice Breaker again")
+                .Given(TheEventScriptCannotBeLoaded)
+                .WhenAsync(ARunFails)
+                .Then(TheFailureShouldBeCounted)
+                .And(AnotherRunCanStart)
+                .ExecuteAsync();
+        }
+
+        private FailureCounter _failures;
+        private IceBreaker _failing;
+
+        private void TheEventScriptCannotBeLoaded()
+        {
+            World.Freeze<Mock<IScriptedInstanceService>>()
+                .Setup(s => s.LoadScriptAsync(It.IsAny<string>()))
+                .ThrowsAsync(new InvalidOperationException());
+            _failing = World.Create<IceBreaker>();
+        }
+
+        private async Task ARunFails()
+        {
+            Assert.IsTrue(_failing.TryStart(true));
+            for (var i = 0; i < 200 && _failing.IsRunning; i++)
+            {
+                await Task.Delay(10);
+            }
+        }
+
+        private void TheFailureShouldBeCounted() => Assert.IsTrue(_failures.Count >= 1);
+
+        private void AnotherRunCanStart() => Assert.IsTrue(_failing.TryStart(true));
     }
 }
