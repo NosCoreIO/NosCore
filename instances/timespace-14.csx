@@ -13,6 +13,8 @@ public class TimeSpace14 : InstanceScript
     private readonly int _room11;
     private readonly int _room12;
 
+    private static readonly Spot[] LeverSpots = [new(16, 12), new(19, 15), new(22, 23)];
+
     public TimeSpace14()
     {
         Definition = InstanceDefinitionBuilder.Named(14, "The Mine Manager", "The Mine Manager")
@@ -95,7 +97,7 @@ public class TimeSpace14 : InstanceScript
         r.SpawnPortal(_room7, new(1, 14), _room11, new(28, 14), locked: false);
         r.SpawnPortal(_room8, new(14, 1), _room9, new(14, 28));
         r.SpawnPortal(_room8, new(1, 14), _room7, new(28, 15));
-        r.PlaceButton(_room8, 1, new(16, 12), 1000, 1045);
+        r.PlaceButton(_room8, 1, LeverSpots[Random.Shared.Next(LeverSpots.Length)], 1000, 1045);
         r.Summon(_room8,
             new MonsterSpawn(136, new(14, 20)),
             new MonsterSpawn(136, new(10, 16)),

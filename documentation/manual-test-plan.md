@@ -2871,6 +2871,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-14`, the mine room shows a red ten-minute clock and "The enemies are getting
       reinforcements!" every 30 seconds, with bigger waves from the third one; the lever opens the
       east portal without stopping them, and no more come once nobody is left in the mine
+- [ ] In `timespace-14`, the lever of the room east of the 4105 crossroads (map 4107) stands at
+      (16,12), (19,15) or (22,23), and over a few runs it shows up in more than one of them
 - [ ] Dying in a time-space (`$Kill` works) shows "You can be revived 2 more time(s)." in `timespace-14`
       and brings the character back 10 seconds later; the run fails only once its lives are spent
 - [ ] In `timespace-21`, walking onto the exit before beating Tom shows "You still have an incomplete
