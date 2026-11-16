@@ -6,6 +6,7 @@
 
 using Mapster;
 using NosCore.Core.Concurrency;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
@@ -388,7 +389,9 @@ namespace NosCore.GameObject.Services.WarehouseService
             }
 
             instance.Amount += split.Amount;
-            _ = await itemInstanceDao.TryInsertOrUpdateAsync(instance);
+            // Throwing rather than returning false keeps the caller from deleting the split copy,
+            // which then still holds the amount the source lost.
+            await itemInstanceDao.TryInsertOrUpdateAsync(instance).OrThrowAsync();
             return false;
         }
     }

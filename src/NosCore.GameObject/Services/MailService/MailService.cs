@@ -61,16 +61,13 @@ namespace NosCore.GameObject.Services.MailService
 
         public async Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy)
         {
-            if (!parcelRegistry.RemoveMail(characterId, senderCopy, id, out var maildata) || maildata == null)
+            var maildata = parcelRegistry.GetMail(characterId, senderCopy, id);
+            if (maildata == null || await mailDao.TryDeleteAsync(maildata.MailDto.MailId) == null)
             {
                 return false;
             }
 
-            if (await mailDao.TryDeleteAsync(maildata.MailDto.MailId) == null)
-            {
-                parcelRegistry.TryAddMail(characterId, senderCopy, maildata);
-                return false;
-            }
+            _ = parcelRegistry.RemoveMail(characterId, senderCopy, id, out _);
 
             if (maildata.ItemInstance != null)
             {
