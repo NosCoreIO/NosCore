@@ -5,9 +5,11 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NosCore.Core.Observability;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
@@ -32,26 +34,20 @@ public sealed class DigestionService(
 
     public async Task TickAsync(MapInstance mapInstance)
     {
-        try
+        foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
         {
-            foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
+            try
             {
-                try
+                if (session.HasPlayerEntity)
                 {
-                    if (session.HasPlayerEntity)
-                    {
-                        await TickPlayerAsync(session.Character);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, logLanguage[LogLanguageKey.DIGESTION_SESSION_TICK_FAILED], session.SessionId);
+                    await TickPlayerAsync(session.Character);
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, logLanguage[LogLanguageKey.DIGESTION_MAP_TICK_FAILED], mapInstance.Map.MapId);
+            catch (Exception ex)
+            {
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "map_entity"));
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.DIGESTION_SESSION_TICK_FAILED], session.SessionId);
+            }
         }
     }
 
