@@ -14,6 +14,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
@@ -36,7 +37,7 @@ namespace NosCore.GameObject.Services.QuestService
             List<QuestObjectiveDto> questObjectives, ILogger<QuestService> logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IEnumerable<IQuestTypeHandler> questTypeHandlers,
-            Wolverine.IMessageBus messageBus,
+            IGameEventDispatcher gameEvents,
             IQuestRewardService questRewardService, TimeProvider time)
         : IQuestService
     {
@@ -227,7 +228,7 @@ namespace NosCore.GameObject.Services.QuestService
             await questRewardService.GiveAsync(character, charQuest);
 
             await character.SendPacketAsync(character.GenerateQuestPacket());
-            await messageBus.PublishAsync(new QuestCompletedEvent(character, charQuest));
+            await gameEvents.RaiseAsync(new QuestCompletedEvent(character, charQuest));
             return true;
         }
 
@@ -442,7 +443,7 @@ namespace NosCore.GameObject.Services.QuestService
             if (!hasQPayStep)
             {
                 await questRewardService.GiveAsync(character, quest);
-                await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
+                await gameEvents.RaiseAsync(new QuestCompletedEvent(character, quest));
             }
         }
     }

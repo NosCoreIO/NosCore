@@ -6,18 +6,18 @@
 
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.UI;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class GuriPacketHandler(IMessageBus messageBus) : PacketHandler<GuriPacket>, IWorldPacketHandler
+    public class GuriPacketHandler(IGameEventDispatcher gameEvents) : PacketHandler<GuriPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(GuriPacket guriPacket, ClientSession session)
         {
-            return messageBus.InvokeAsync(new GuriPacketReceivedEvent(session, guriPacket));
+            return gameEvents.RaiseAsync(new GuriPacketReceivedEvent(session, guriPacket));
         }
     }
 }

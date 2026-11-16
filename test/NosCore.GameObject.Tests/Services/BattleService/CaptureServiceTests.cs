@@ -17,6 +17,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -76,7 +77,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto> { creature },
                 new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             _service = new CaptureService(World.MateDao, _mateService,
-                new Mock<Wolverine.IMessageBus>().Object, World.Clock, _random.Object,
+                new Mock<IGameEventDispatcher>().Object, World.Clock, _random.Object,
                 World.DistanceCalculator,
                 World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
 
@@ -182,7 +183,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
                     return await World.MateDao.TryInsertOrUpdateAsync(row);
                 });
-            service = new CaptureService(dao.Object, _mateService, new Mock<Wolverine.IMessageBus>().Object,
+            service = new CaptureService(dao.Object, _mateService, new Mock<IGameEventDispatcher>().Object,
                 World.Clock, _random.Object, World.DistanceCalculator,
                 World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
 

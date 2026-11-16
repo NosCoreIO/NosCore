@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.MateService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
 
             await new RemovePacketHandler(new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                     new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object, partners.Object,
-                    new Mock<Wolverine.IMessageBus>().Object)
+                    new Mock<IGameEventDispatcher>().Object)
                 .ExecuteAsync(new RemovePacket { InventorySlot = EquipmentType.Boots, Type = 1 }, session);
 
             partners.Verify(s => s.RemoveAsync(It.IsAny<PlayerComponentBundle>(), EquipmentType.Boots, 1), Times.Once);

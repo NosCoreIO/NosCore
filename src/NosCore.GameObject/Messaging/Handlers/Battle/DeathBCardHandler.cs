@@ -57,9 +57,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
             if (!changed) return;
 
-            // HP mutation above is already committed. Make the notifications
-            // best-effort — if Wolverine retries the handler after a send
-            // failure we'd double-apply the damage/heal.
+            // HP mutation above is already committed, so a failed notification must not undo it.
             try
             {
                 await killer.SendPacketAsync(killer.GenerateStat());

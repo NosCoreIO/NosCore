@@ -11,7 +11,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.GameObject.Messaging.Events;
-using Wolverine;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -19,6 +18,7 @@ using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Services.BattleService;
 // Expiration is pull-based: the map's life loop asks BuffSystem which entities are due and
 // calls TickAsync on those, so the service needs no timers or background tasks.
 public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
-    IRandomProvider randomProvider, IDebuffResistanceService debuffResistanceService, IMessageBus messageBus) : IBuffService
+    IRandomProvider randomProvider, IDebuffResistanceService debuffResistanceService, IGameEventDispatcher gameEvents) : IBuffService
 {
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
@@ -389,7 +389,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             await ApplyTimeoutBuffAsync(target, buff);
             if (target is PlayerComponentBundle player && !buff.FromSkill)
             {
-                await messageBus.PublishAsync(new BuffExpiredEvent(player, buff.CardId));
+                await gameEvents.RaiseAsync(new BuffExpiredEvent(player, buff.CardId));
             }
         }
 
@@ -569,17 +569,17 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         if (buff.BCards.Any(b => b.Effect() is BCardEffect.SpecialAttackNoAttack or BCardEffect.MoveMovementImpossible
                 or BCardEffect.MoveMovementSpeedIncreased or BCardEffect.MoveMovementSpeedDecreased))
         {
-            await messageBus.PublishAsync(new MovementConditionChangedEvent(target));
+            await gameEvents.RaiseAsync(new MovementConditionChangedEvent(target));
         }
 
         if (buff.BCards.Any(b => b.Effect() == BCardEffect.IncreaseFairyElement))
         {
-            await messageBus.PublishAsync(new FairyLookChangedEvent(target));
+            await gameEvents.RaiseAsync(new FairyLookChangedEvent(target));
         }
 
         if (buff.BCards.Any(b => b.Effect() == BCardEffect.SpecialActionsHide))
         {
-            await messageBus.PublishAsync(new HiddenChangedEvent(target));
+            await gameEvents.RaiseAsync(new HiddenChangedEvent(target));
         }
     }
 

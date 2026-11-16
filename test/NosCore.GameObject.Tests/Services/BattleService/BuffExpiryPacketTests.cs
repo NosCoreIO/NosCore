@@ -16,6 +16,7 @@ using NodaTime.Testing;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking.SessionGroup;
@@ -35,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private FakeClock _clock;
         private BuffService _service;
         private ClientSession _session;
-        private Mock<Wolverine.IMessageBus> _bus;
+        private Mock<IGameEventDispatcher> _gameEvents;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -51,7 +52,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .Returns(Task.CompletedTask);
             _session.Character.MapInstance.Sessions = mapSessions.Object;
             _clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
-            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, (_bus = new Mock<Wolverine.IMessageBus>()).Object);
+            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, (_gameEvents = new Mock<IGameEventDispatcher>()).Object);
         }
 
         [TestMethod]
@@ -78,7 +79,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _clock.Advance(Duration.FromSeconds(10));
             await _service.TickAsync(_session.Character);
 
-            _bus.Verify(b => b.PublishAsync(It.IsAny<MovementConditionChangedEvent>(), It.IsAny<Wolverine.DeliveryOptions>()), Times.Exactly(2));
+            _gameEvents.Verify(b => b.RaiseAsync(It.IsAny<MovementConditionChangedEvent>()), Times.Exactly(2));
         }
 
         [TestMethod]
@@ -88,7 +89,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _clock.Advance(Duration.FromSeconds(10));
             await _service.TickAsync(_session.Character);
 
-            _bus.Verify(b => b.PublishAsync(It.IsAny<MovementConditionChangedEvent>(), It.IsAny<Wolverine.DeliveryOptions>()), Times.Never);
+            _gameEvents.Verify(b => b.RaiseAsync(It.IsAny<MovementConditionChangedEvent>()), Times.Never);
         }
 
         [TestMethod]
@@ -98,7 +99,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _clock.Advance(Duration.FromSeconds(10));
             await _service.TickAsync(_session.Character);
 
-            _bus.Verify(b => b.PublishAsync(It.Is<BuffExpiredEvent>(e => e.CardId == Card.CardId), It.IsAny<Wolverine.DeliveryOptions>()), Times.Once);
+            _gameEvents.Verify(b => b.RaiseAsync(It.Is<BuffExpiredEvent>(e => e.CardId == Card.CardId)), Times.Once);
         }
 
         [TestMethod]
@@ -109,7 +110,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _clock.Advance(Duration.FromSeconds(10));
             await _service.TickAsync(_session.Character);
 
-            _bus.Verify(b => b.PublishAsync(It.IsAny<BuffExpiredEvent>(), It.IsAny<Wolverine.DeliveryOptions>()), Times.Never);
+            _gameEvents.Verify(b => b.RaiseAsync(It.IsAny<BuffExpiredEvent>()), Times.Never);
         }
 
         [TestMethod]

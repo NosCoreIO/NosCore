@@ -16,6 +16,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MateService;
@@ -28,12 +29,11 @@ using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
-using Wolverine;
 
 namespace NosCore.GameObject.Services.BattleService
 {
     public sealed class CaptureService(IDao<MateDto, long> mateDao, IMateService mateService,
-        IMessageBus messageBus, IClock clock, IRandomProvider random, IHeuristic distanceCalculator,
+        IGameEventDispatcher gameEvents, IClock clock, IRandomProvider random, IHeuristic distanceCalculator,
         IPartnerSkillCatalog partnerSkillCatalog) : ICaptureService
     {
         private const int CaptureHpThresholdPercent = 50;
@@ -109,7 +109,7 @@ namespace NosCore.GameObject.Services.BattleService
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessfulQuest));
                 await ShowCaughtAsync(owner, monster, caughtAt);
-                await messageBus.PublishAsync(new EntityCapturedEvent(monster, owner));
+                await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner));
                 return;
             }
 
@@ -149,7 +149,7 @@ namespace NosCore.GameObject.Services.BattleService
                 await owner.SendPacketAsync(mate.GeneratePst());
             }
 
-            await messageBus.PublishAsync(new EntityCapturedEvent(monster, owner));
+            await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner));
         }
 
         private static async Task ShowCaughtAsync(PlayerComponentBundle owner, MonsterComponentBundle monster, SuPacket caughtAt)

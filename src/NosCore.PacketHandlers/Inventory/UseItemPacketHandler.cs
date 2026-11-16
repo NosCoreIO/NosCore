@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Infastructure;
@@ -11,11 +12,10 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class UseItemPacketHandler(IMessageBus messageBus) : PacketHandler<UseItemPacket>, IWorldPacketHandler
+    public class UseItemPacketHandler(IGameEventDispatcher gameEvents) : PacketHandler<UseItemPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(UseItemPacket useItemPacket, ClientSession clientSession)
         {
@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return Task.CompletedTask;
             }
 
-            return messageBus.InvokeAsync(new ItemUsedEvent(clientSession, inv, useItemPacket));
+            return gameEvents.RaiseAsync(new ItemUsedEvent(clientSession, inv, useItemPacket));
         }
     }
 }

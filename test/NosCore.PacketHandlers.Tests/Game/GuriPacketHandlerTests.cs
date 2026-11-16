@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
@@ -17,7 +18,6 @@ using SpecLight;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Tests.Game
 {
@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private TestWorld World;
         private GuriPacketHandler Handler;
         private ClientSession Session;
-        private Mock<IMessageBus> MessageBus;
+        private Mock<IGameEventDispatcher> GameEvents;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
 
-            MessageBus = World.Freeze<Mock<IMessageBus>>();
+            GameEvents = World.Freeze<Mock<IGameEventDispatcher>>();
             Handler = World.Create<GuriPacketHandler>();
         }
 
@@ -89,16 +89,14 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void MessageBusShouldBeCalled()
         {
-            MessageBus.Verify(x => x.InvokeAsync(
-                It.IsAny<GuriPacketReceivedEvent>(),
-                It.IsAny<CancellationToken>(), It.IsAny<TimeSpan?>()), Times.Once);
+            GameEvents.Verify(x => x.RaiseAsync(
+                It.IsAny<GuriPacketReceivedEvent>()), Times.Once);
         }
 
         private void MessageBusShouldBeCalledWithCorrectType()
         {
-            MessageBus.Verify(x => x.InvokeAsync(
-                It.Is<GuriPacketReceivedEvent>(e => e.Packet.Type == GuriPacketType.Title),
-                It.IsAny<CancellationToken>(), It.IsAny<TimeSpan?>()), Times.Once);
+            GameEvents.Verify(x => x.RaiseAsync(
+                It.Is<GuriPacketReceivedEvent>(e => e.Packet.Type == GuriPacketType.Title)), Times.Once);
         }
     }
 }

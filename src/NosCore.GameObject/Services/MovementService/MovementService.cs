@@ -13,6 +13,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
@@ -26,7 +27,6 @@ using NosCore.Shared.I18N;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.GameObject.Services.MovementService;
 
@@ -38,7 +38,7 @@ public interface IMovementService
 }
 
 public sealed class MovementService(IHeuristic distanceCalculator, ILogger<MovementService> logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus, IWalkService walkService,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameEventDispatcher gameEvents, IWalkService walkService,
         IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandService, IClock clock,
         IMapChangeService mapChangeService, IBuffService buffService, List<MapTypeMapDto> mapTypeMaps)
     : IMovementService
@@ -126,7 +126,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         await character.MapInstance.SendPacketAsync(character.GenerateMove(),
             new EveryoneBut(session.ConnectedChannel.Id));
 
-        await messageBus.PublishAsync(new CharacterMovedEvent(
+        await gameEvents.RaiseAsync(new CharacterMovedEvent(
             character, character.MapX, character.MapY, character.MapId));
         return WalkResult.Accepted;
     }

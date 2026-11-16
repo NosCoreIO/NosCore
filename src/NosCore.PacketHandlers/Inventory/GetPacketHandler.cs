@@ -8,6 +8,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
@@ -19,12 +20,11 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class GetPacketHandler(ILogger<GetPacketHandler> logger, IHeuristic distanceCalculator, IGroupLootService groupLootService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus, IMapButtonService mapButtonService)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameEventDispatcher gameEvents, IMapButtonService mapButtonService)
         : PacketHandler<GetPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            await messageBus.InvokeAsync(new MapItemPickedUpEvent(
+            await gameEvents.RaiseAsync(new MapItemPickedUpEvent(
                 clientSession,
                 mapItem.VisualId,
                 mapItem.VNum,

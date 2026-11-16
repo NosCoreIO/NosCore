@@ -705,6 +705,9 @@
   <data name="RECURRING_PUBLISH_FAILED" xml:space="preserve">
     <value>Recurring publish of {Message} failed</value>
   </data>
+  <data name="GAME_EVENT_HANDLER_FAILED" xml:space="preserve">
+    <value>{Handler} failed to handle {Event}</value>
+  </data>
   <data name="KILL_QUEST_PROGRESS_FAILED" xml:space="preserve">
     <value>Failed to progress kill quest for character {CharacterId}</value>
   </data>

@@ -17,6 +17,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
                     new NpcStateComponent())),
                 _world);
-            _service = new BuffService(_clock, catalog.Object, _random.Object, new Mock<IDebuffResistanceService>().Object, new Mock<Wolverine.IMessageBus>().Object);
+            _service = new BuffService(_clock, catalog.Object, _random.Object, new Mock<IDebuffResistanceService>().Object, new Mock<IGameEventDispatcher>().Object);
         }
 
         private void RollGives(int value) => _random.Setup(r => r.Next(0, 100)).Returns(value);
@@ -110,7 +111,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 CardId = FollowUpCardId, Duration = 1200, BuffType = NosCore.Data.Enumerations.Buff.BuffType.Bad
             });
             catalog.Setup(c => c.GetCardBCards(It.IsAny<short>())).Returns(Array.Empty<BCardDto>());
-            var service = new BuffService(_clock, catalog.Object, _random.Object, new Mock<IDebuffResistanceService>().Object, new Mock<Wolverine.IMessageBus>().Object);
+            var service = new BuffService(_clock, catalog.Object, _random.Object, new Mock<IDebuffResistanceService>().Object, new Mock<IGameEventDispatcher>().Object);
             var immune = new MonsterComponentBundle(
                 _world.Exclusive(w => w.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),

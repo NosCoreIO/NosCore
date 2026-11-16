@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Messaging.Events
 {
     // Invoked inline by UseItemPacketHandler, so every handler runs under the session's packet lock.
     // Each handler filters by ItemType/Effect internally.
-    public sealed record ItemUsedEvent(ClientSession ClientSession, InventoryItemInstance InventoryItem, UseItemPacket Packet) : IPlayerEvent
+    public sealed record ItemUsedEvent(ClientSession ClientSession, InventoryItemInstance InventoryItem, UseItemPacket Packet) : IGameEvent, IPlayerEvent
     {
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
     }

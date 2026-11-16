@@ -17,6 +17,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 
@@ -72,7 +73,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _resistance = new Mock<IDebuffResistanceService>();
             _service = new BuffService(clock,
-                _catalog.Object, _random.Object, _resistance.Object, new Mock<Wolverine.IMessageBus>().Object);
+                _catalog.Object, _random.Object, _resistance.Object, new Mock<IGameEventDispatcher>().Object);
         }
 
         // A bundle carrying only the three components the buff path reads. MapInstance comes off

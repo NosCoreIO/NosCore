@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private ClientSession Session;
         private IItemGenerationService ItemProvider;
         private GetPacketHandler Handler;
-        private InlineOrDeferredMessageBus<MapItemPickedUpEvent> Bus;
+        private InlineGameEvents<MapItemPickedUpEvent> GameEvents;
         private long MapItemVisualId;
         private Guid DroppedInstanceId;
         private ClientSession Owner;
@@ -58,14 +58,14 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             var dropHandler = World.Create<DropHandler>();
             var goldHandler = World.Create<GoldDropHandler>();
             var spChargerHandler = World.Create<SpChargerHandler>();
-            Bus = new InlineOrDeferredMessageBus<MapItemPickedUpEvent>(async evt =>
+            GameEvents = new InlineGameEvents<MapItemPickedUpEvent>(async evt =>
             {
                 await dropHandler.Handle(evt);
                 await goldHandler.Handle(evt);
                 await spChargerHandler.Handle(evt);
             });
             Handler = new GetPacketHandler(NullLogger<GetPacketHandler>.Instance, World.DistanceCalculator,
-                World.GroupLootService, World.LogLanguageLocalizer, Bus.Object, World.Create<MapButtonService>());
+                World.GroupLootService, World.LogLanguageLocalizer, GameEvents.Object, World.Create<MapButtonService>());
         }
 
         [TestMethod]
@@ -220,7 +220,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private async Task TheCharacterPicksItUp()
         {
             await Handler.ExecuteAsync(new GetPacket { PickerType = VisualType.Player, VisualId = MapItemVisualId }, Session);
-            await Bus.DeliverPublishedAsync();
         }
 
         private void TheCharacterIsToldItCannotPickThatUp()
@@ -248,7 +247,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = Pet.MateTransportId,
                 VisualId = MapItemVisualId
             }, Session);
-            await Bus.DeliverPublishedAsync();
         }
 
         private void TheCharacterHas_Gold(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
@@ -269,7 +267,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             var packet = new GetPacket { PickerType = VisualType.Player, VisualId = MapItemVisualId };
             await Task.WhenAll(Handler.ExecuteAsync(packet, Session), Handler.ExecuteAsync(packet, Session));
-            await Bus.DeliverPublishedAsync();
         }
 
         private void TheCharacterHolds_Items(int amount) =>

@@ -9,12 +9,12 @@ using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
 {
-    // Published by CaptureService after a successful pet capture. Intentionally
+    // Raised by CaptureService after a successful pet capture. Intentionally
     // separate from EntityDiedEvent so capture doesn't inherit the kill pipeline's
     // side effects (xp/gold rewards, death bcards, kill-count quest credit).
     // Capture-specific quest objectives and any other capture-only reactions
     // subscribe to this instead.
-    public sealed record EntityCapturedEvent(IAliveEntity Victim, IAliveEntity Captor)
+    public sealed record EntityCapturedEvent(IAliveEntity Victim, IAliveEntity Captor) : IGameEvent
     {
         // Read when handled, possibly after a map change replaced a player's entity.
         public IAliveEntity Victim { get => field.Live(); init; } = Victim;

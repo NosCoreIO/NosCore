@@ -14,6 +14,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NodaTime;
+using NosCore.GameObject.Messaging;
 using NosCore.Packets.ServerPackets.Portals;
 using System;
 using System.Collections.Concurrent;
@@ -57,7 +58,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
         private readonly IRandomProvider _random;
-        private readonly Wolverine.IMessageBus _messageBus;
+        private readonly IGameEventDispatcher _gameEvents;
 
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
@@ -82,7 +83,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
             IRandomProvider random,
-            Wolverine.IMessageBus messageBus,
+            IGameEventDispatcher gameEvents,
             IOptions<WorldConfiguration> worldConfiguration,
             ILogger<ScriptedInstanceService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
@@ -90,7 +91,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         {
             _gameLanguage = gameLanguage;
             _scriptTimeout = worldConfiguration.Value.InstanceScriptTimeout;
-            _messageBus = messageBus;
+            _gameEvents = gameEvents;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _mapInstanceRegistry = mapInstanceRegistry;
             _scriptLoader = scriptLoader;
@@ -182,7 +183,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 ? MapInstanceType.TimeSpaceInstance
                 : MapInstanceType.RaidInstance;
 
-            return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _messageBus, _clock));
+            return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _gameEvents, _clock));
         }
 
         public async Task<IInstanceScript?> LoadScriptAsync(string script)

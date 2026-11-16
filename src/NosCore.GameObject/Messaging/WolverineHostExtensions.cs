@@ -56,14 +56,10 @@ namespace NosCore.GameObject.Messaging
                 // handlers backed by Autofac registrations take IServiceProvider and resolve there.
                 opts.ServiceLocationPolicy = ServiceLocationPolicy.AlwaysAllowed;
                 opts.UseSystemTextJsonForSerialization(ConfigureMessageSerialization);
-                ConfigurePolicies(opts);
                 ConfigureTransport(opts, messaging, database, node);
                 configure?.Invoke(opts);
             }, ExtensionDiscovery.ManualOnly);
         }
-
-        public static void ConfigurePolicies(WolverineOptions opts) =>
-            opts.Policies.ForMessagesOfType<IPlayerEvent>().AddMiddleware(typeof(DropEventsOfPlayersWhoLeft));
 
         public static void ConfigureMessageSerialization(JsonSerializerOptions json)
         {

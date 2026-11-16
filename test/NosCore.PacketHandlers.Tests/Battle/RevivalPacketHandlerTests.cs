@@ -8,6 +8,7 @@ using NosCore.Data.Enumerations.Interaction;
 using System;
 using NosCore.GameObject.Ecs;
 using System.Linq;
+using NosCore.GameObject.Messaging;
 using NosCore.Packets.ServerPackets.Entities;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -76,7 +77,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             var catalog = new Mock<ICardCatalog>();
             catalog.Setup(c => c.GetTriggeredCard(CardTrigger.ArenaRevival)).Returns(RevivalProtectionCard.Card);
             catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
-            _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, new Mock<Wolverine.IMessageBus>().Object);
+            _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, new Mock<IGameEventDispatcher>().Object);
 
             _handler = new RevivalPacketHandler(
                 new Mock<ILogger<RevivalPacketHandler>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object,
@@ -430,7 +431,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             var run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<Wolverine.IMessageBus>().Object, World.Clock),
+                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
                 script,
                 new Dictionary<int, GameObject.Services.MapInstanceGenerationService.MapInstance> { [1] = _session.Character.MapInstance },
                 new Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),

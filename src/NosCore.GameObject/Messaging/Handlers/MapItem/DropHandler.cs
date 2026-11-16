@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -19,12 +20,11 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using Wolverine;
 
 namespace NosCore.GameObject.Messaging.Handlers.MapItem
 {
     [UsedImplicitly]
-    public sealed class DropHandler(IMessageBus messageBus)
+    public sealed class DropHandler(IGameEventDispatcher gameEvents)
     {
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                         $"{session.Character.Name} {inv.ItemInstance.Item.VNum}"));
                 }
 
-                await messageBus.PublishAsync(new ItemsReceivedEvent(session.Character, inv.ItemInstance.ItemVNum, amount));
+                await gameEvents.RaiseAsync(new ItemsReceivedEvent(session.Character, inv.ItemInstance.ItemVNum, amount));
             }
             else
             {

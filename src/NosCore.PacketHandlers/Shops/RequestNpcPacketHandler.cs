@@ -8,6 +8,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.NpcDialogService;
@@ -18,12 +19,11 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Shops
 {
     public class RequestNpcPacketHandler(ILogger<RequestNpcPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
-            Wolverine.IMessageBus messageBus, INpcDialogService npcDialogService, IRainbowBattleService rainbowBattleService)
+            IGameEventDispatcher gameEvents, INpcDialogService npcDialogService, IRainbowBattleService rainbowBattleService)
         : PacketHandler<RequestNpcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
@@ -53,13 +53,13 @@ namespace NosCore.PacketHandlers.Shops
                         if (found.NpcMonster is { CanCollect: true }
                             || character.MapInstance.MapInstanceType == MapInstanceType.RainbowBattleInstance)
                         {
-                            await messageBus.PublishAsync(new NpcTalkedEvent(character, found));
+                            await gameEvents.RaiseAsync(new NpcTalkedEvent(character, found));
                             return;
                         }
 
                         npcDialogService.Open(character, found, NpcDialogWindow.Conversation);
                         found.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
-                        await messageBus.PublishAsync(new NpcTalkedEvent(character, found));
+                        await gameEvents.RaiseAsync(new NpcTalkedEvent(character, found));
                         return;
                     }
                     break;

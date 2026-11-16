@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -86,7 +87,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private MapInstance _first;
         private MapInstance _second;
         private IInstanceRunHost? _host;
-        private readonly Mock<Wolverine.IMessageBus> _bus = new();
+        private readonly Mock<IGameEventDispatcher> _gameEvents = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -108,7 +109,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private ScriptedInstanceRun Run(Script script, TimeSpan? timeout = null) =>
             new(_host ?? new TimeSpaceRunHost(
                     new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, Logic = script },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _bus.Object, World.Clock),
+                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _gameEvents.Object, World.Clock),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
@@ -488,7 +489,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
 
             var characterId = session.Character.CharacterId;
-            var published = _bus.Invocations.Select(i => i.Arguments[0]).OfType<ScriptedInstanceSucceededEvent>().Single();
+            var published = _gameEvents.Invocations.Select(i => i.Arguments[0]).OfType<ScriptedInstanceSucceededEvent>().Single();
             Assert.AreEqual(characterId, published.Character.CharacterId);
             Assert.AreEqual(ScriptedInstanceType.TimeSpace, published.Type);
             Assert.AreEqual(42, published.InstanceId);
@@ -502,7 +503,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.StartAsync();
 
-            Assert.IsFalse(_bus.Invocations.Any(i => i.Arguments[0] is ScriptedInstanceSucceededEvent));
+            Assert.IsFalse(_gameEvents.Invocations.Any(i => i.Arguments[0] is ScriptedInstanceSucceededEvent));
         }
 
         [TestMethod]

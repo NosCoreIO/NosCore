@@ -14,6 +14,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Guri;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.CollectService;
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         private const short ObjectVNum = 2004;
         private const short ItemVNum = 1012;
         private ClientSession _session;
-        private Mock<Wolverine.IMessageBus> _messageBus;
+        private Mock<IGameEventDispatcher> _gameEvents;
         private GameObject.Services.CollectService.CollectService _service;
         private bool _started;
         private readonly DropDto _drop = new() { VNum = ItemVNum, Amount = 1, MonsterVNum = ObjectVNum, DropChance = 100000 };
@@ -51,9 +52,9 @@ namespace NosCore.GameObject.Tests.Services.CollectService
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(ObjectVNum)).Returns(new List<DropDto> { _drop });
             catalog.Setup(c => c.GetDrops(It.Is<short>(v => v != ObjectVNum))).Returns(new List<DropDto>());
-            _messageBus = new Mock<Wolverine.IMessageBus>();
+            _gameEvents = new Mock<IGameEventDispatcher>();
             _service = new GameObject.Services.CollectService.CollectService(catalog.Object,
-                World.GenerateItemProvider(), World.Clock, _messageBus.Object);
+                World.GenerateItemProvider(), World.Clock, _gameEvents.Object);
         }
 
         [TestMethod]
@@ -86,7 +87,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
                 .WhenAsync(SendingTheCollectGuri)
                 .Then(ThePlayerShouldHave_OfTheItem, 1)
                 .And(TheObjectShouldBeOut)
-                .And(TheCollectShouldBePublished)
+                .And(TheCollectShouldBeRaised)
                 .ExecuteAsync();
         }
 
@@ -235,9 +236,9 @@ namespace NosCore.GameObject.Tests.Services.CollectService
             Assert.IsTrue(_session.Character.MapInstance.GetNpcById(MapNpcId).NotNull().IsAlive);
         }
 
-        private void TheCollectShouldBePublished()
+        private void TheCollectShouldBeRaised()
         {
-            _messageBus.Verify(b => b.PublishAsync(It.IsAny<MapEntityCollectedEvent>(), null), Times.Once);
+            _gameEvents.Verify(b => b.RaiseAsync(It.IsAny<MapEntityCollectedEvent>()), Times.Once);
         }
     }
 }

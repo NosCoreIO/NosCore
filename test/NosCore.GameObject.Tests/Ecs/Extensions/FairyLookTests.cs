@@ -16,6 +16,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
@@ -35,7 +36,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         private TestWorld World;
         private ClientSession _session;
         private BuffService _buffs;
-        private Mock<Wolverine.IMessageBus> _bus;
+        private Mock<IGameEventDispatcher> _gameEvents;
         private WearableInstance _fairy;
 
         private static readonly CardDto Booster = new() { CardId = BoostCardId };
@@ -54,7 +55,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _bus = World.Freeze<Mock<Wolverine.IMessageBus>>();
+            _gameEvents = World.Freeze<Mock<IGameEventDispatcher>>();
             _buffs = World.Create<BuffService>();
             WearFairy();
         }
@@ -85,7 +86,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             await _buffs.RemoveAsync(_session.Character, BoostCardId);
 
             Assert.AreEqual(12, _session.Character.GeneratePairy(_fairy).Morph);
-            _bus.Verify(b => b.PublishAsync(It.IsAny<FairyLookChangedEvent>(), It.IsAny<Wolverine.DeliveryOptions>()),
+            _gameEvents.Verify(b => b.RaiseAsync(It.IsAny<FairyLookChangedEvent>()),
                 Times.Exactly(2));
         }
 

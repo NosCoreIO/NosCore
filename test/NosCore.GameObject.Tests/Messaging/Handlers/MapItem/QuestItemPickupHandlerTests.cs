@@ -13,12 +13,12 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
-using Wolverine;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
 {
@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private const short Feather = 1099;
         private TestWorld World;
         private ClientSession _session;
-        private Mock<IMessageBus> _messageBus;
+        private Mock<IGameEventDispatcher> _gameEvents;
         private long _visualId;
 
         [TestInitialize]
@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _messageBus = World.Freeze<Mock<IMessageBus>>();
+            _gameEvents = World.Freeze<Mock<IGameEventDispatcher>>();
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
                 .Given(A_MapItemLiesNextToTheCharacter, ItemEffectType.RaidCollectQuestItem)
                 .WhenAsync(TheCharacterPicksItUp)
                 .Then(TheItemShouldBeGoneFromTheMap)
-                .And(TheReceivedItemShouldBePublished_Times, 1)
+                .And(TheReceivedItemShouldBeRaised_Times, 1)
                 .And(TheBagShouldNotHoldIt)
                 .ExecuteAsync();
         }
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
             await new Spec("A map item with another effect is not picked up as a quest item")
                 .Given(A_MapItemLiesNextToTheCharacter, ItemEffectType.NoEffect)
                 .WhenAsync(TheCharacterPicksItUp)
-                .Then(TheReceivedItemShouldBePublished_Times, 0)
+                .Then(TheReceivedItemShouldBeRaised_Times, 0)
                 .ExecuteAsync();
         }
 
@@ -83,9 +83,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private void TheItemShouldBeGoneFromTheMap() =>
             Assert.IsNull(_session.Character.MapInstance.TryGetMapItem(_visualId));
 
-        private void TheReceivedItemShouldBePublished_Times(int times) =>
-            _messageBus.Verify(b => b.PublishAsync(It.Is<ItemsReceivedEvent>(e => e.VNum == Feather && e.Amount == 1),
-                It.IsAny<DeliveryOptions?>()), Times.Exactly(times));
+        private void TheReceivedItemShouldBeRaised_Times(int times) =>
+            _gameEvents.Verify(b => b.RaiseAsync(It.Is<ItemsReceivedEvent>(e => e.VNum == Feather && e.Amount == 1)), Times.Exactly(times));
 
         private void TheBagShouldNotHoldIt() =>
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(Feather));

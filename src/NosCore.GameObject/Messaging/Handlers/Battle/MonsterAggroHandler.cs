@@ -14,7 +14,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
     // When a monster takes damage, bump its aggro toward the attacker. Players getting
     // hit is ignored here — player UI/combat feedback is handled by the SuPacket
-    // broadcast in BattleService. Wolverine auto-discovers this handler by convention.
+    // broadcast in BattleService.
     [UsedImplicitly]
     public sealed class MonsterAggroHandler(IAggroService aggroService)
     {

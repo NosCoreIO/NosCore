@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -32,7 +33,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         IOptions<WorldConfiguration> worldConfiguration,
         Services.BattleService.IVitalityService vitalityService,
         Services.BattleService.IBattleStatsProvider battleStatsProvider,
-        Wolverine.IMessageBus messageBus)
+        IGameEventDispatcher gameEvents)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -187,8 +188,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             await vitalityService.RefreshAndNotifyAsync(session.Character);
-            await messageBus.PublishAsync(new MovementConditionChangedEvent(session.Character));
-            await messageBus.PublishAsync(new ItemWornEvent(session.Character, itemInstance.ItemInstance.ItemVNum));
+            await gameEvents.RaiseAsync(new MovementConditionChangedEvent(session.Character));
+            await gameEvents.RaiseAsync(new ItemWornEvent(session.Character, itemInstance.ItemInstance.ItemVNum));
         }
     }
 }

@@ -10,6 +10,7 @@ using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
@@ -164,7 +165,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChange.Object), new Mock<Wolverine.IMessageBus>().Object, World.Clock),
+                    new Lazy<IMapChangeService>(_mapChange.Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
                 script,
                 new Dictionary<int, MapInstance> { [1] = room },
                 new Dictionary<short, NpcMonsterDto>(),

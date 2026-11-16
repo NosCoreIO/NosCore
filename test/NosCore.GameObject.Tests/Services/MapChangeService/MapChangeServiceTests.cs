@@ -6,6 +6,7 @@
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using Moq;
 using NosCore.Algorithm.ExperienceService;
@@ -67,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 World.LogLanguageLocalizer,
                 World.GameLanguageLocalizer,
                 World.SessionRegistry,
-                new Mock<Wolverine.IMessageBus>().Object,
+                new Mock<IGameEventDispatcher>().Object,
                 ScriptedInstances.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
                 new Mock<NosCore.GameObject.Services.FactionWarService.IFactionWarService>().Object,
@@ -170,7 +171,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             new(new GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance(),
                     new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object),
-                    new Mock<Wolverine.IMessageBus>().Object, World.Clock),
+                    new Mock<IGameEventDispatcher>().Object, World.Clock),
                 new EmptyScript(),
                 new System.Collections.Generic.Dictionary<int, MapInstance>(),
                 new System.Collections.Generic.Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
