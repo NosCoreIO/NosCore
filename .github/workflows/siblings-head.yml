@@ -67,7 +67,9 @@ jobs:
               behind=1
             fi
           done < <(grep -rHoE --include='*.csproj' --include='*.props' \
-              "Include=\"NosCore\.$name\" Version=\"[0-9]+[^\"]*\"" NosCore NosCore.{Analyzers,Shared,Dao,Packets,Algorithm,PathFinder,Networking})
+              -e "Include=\"NosCore\.$name\"[^>]*Version=\"[0-9]+[^\"]*\"" \
+              -e "Version=\"[0-9]+[^\"]*\"[^>]*Include=\"NosCore\.$name\"" \
+              NosCore NosCore.{Analyzers,Shared,Dao,Packets,Algorithm,PathFinder,Networking})
         done
         exit $behind
 
