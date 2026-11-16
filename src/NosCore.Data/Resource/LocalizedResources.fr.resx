@@ -916,7 +916,7 @@
     <value>Survis pendant 1 minute et le monstre disparaîtra.</value>
   </data>
   <data name="TIMESPACE_GOAL_TOM_FIGHTS_MONSTERS" xml:space="preserve">
-    <value>Tom combat les montres.</value>
+    <value>Tom combat les monstres.</value>
   </data>
   <data name="TIMESPACE_GOAL_FIGHT_KNIGHT_TOM" xml:space="preserve">
     <value>Combats le chevalier Tom !</value>

@@ -361,7 +361,10 @@ public class TimeSpace10 : InstanceScript
         else if (room == _room14 && button == 1)
         {
             r.Message(Game18NConstString.NewGoal);
-            r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_BUTTON_SUMMONED_ENEMIES);
+            if (r.MonstersAlive(_room14) > 0)
+            {
+                r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_BUTTON_SUMMONED_ENEMIES);
+            }
         }
         else if (room == _room15 && button == 1)
         {

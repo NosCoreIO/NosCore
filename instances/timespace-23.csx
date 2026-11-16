@@ -339,6 +339,7 @@ public class TimeSpace23 : InstanceScript
         else if (room == _room29)
         {
             r.Dialog(_room29, 6206);
+            r.Objective(_room29, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
     }
 
@@ -406,7 +407,6 @@ public class TimeSpace23 : InstanceScript
         if (room == _room13 && button == 1)
         {
             r.Message(Game18NConstString.ObjectHasBeenMoved);
-            r.Objective(_room13, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
             r.UnlockPortal(_room13, _room29);
         }
     }

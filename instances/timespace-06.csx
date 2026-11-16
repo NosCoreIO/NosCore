@@ -309,7 +309,10 @@ public class TimeSpace6 : InstanceScript
         }
         else if (room == _room14 && button == 1)
         {
-            r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
+            if (r.MonstersAlive(_room14) > 0)
+            {
+                r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
+            }
         }
     }
 
