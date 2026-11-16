@@ -77,14 +77,7 @@ namespace NosCore.MasterServer
 
         public static async Task Main(string[] args)
         {
-            try
-            {
-                await BuildApp(args).RunAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            await ProcessBoundary.RunAsync<DatabaseNotReadyException>(() => BuildApp(args).RunAsync(), false);
         }
 
         private static WebApplication BuildApp(string[] args)
