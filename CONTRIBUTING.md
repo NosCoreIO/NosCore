@@ -43,6 +43,7 @@ Catch everything only at a boundary. Each boundary logs the exception, counts it
 | Boundary | Unit | Tag |
 |---|---|---|
 | `ClientSession.HandlePacketAsync` | one client package; the session is disconnected | `packet` |
+| `ClientSession.OnDisconnectedAsync` | one disconnect step, or one hub release once the player is gone | `disconnect` |
 | `MapInstance` life loop | one tick of one map | `map_tick` |
 | `MapInstance` per-entity tick steps, a player's digestion, a mate's revival, and a monster's skill that lands after its cast time | one monster, NPC, player or mate in a tick; one delayed monster hit | `map_entity` |
 | `GameEventDispatcher` | one handler of one game event | `game_event` |

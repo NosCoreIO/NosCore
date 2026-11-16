@@ -34,6 +34,8 @@ namespace NosCore.GameObject.Tests.Networking
         private Task DisconnectTask;
         private Task QueuedPacketTask;
         private int ClaimedSessionId;
+        private ClientSession OtherSession;
+        private FailureCounter Failures;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -184,6 +186,34 @@ namespace NosCore.GameObject.Tests.Networking
                 .ThenAsync(ThePacketLockShouldBeFree)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AFailingDisconnectStepIsCountedAndTheNextOneStillRuns()
+        {
+            using var failures = new FailureCounter("disconnect");
+            Failures = failures;
+            await new Spec("A disconnect step that throws is counted, and the steps after it still run")
+                .GivenAsync(ASessionWhoseFirstDisconnectStepFails)
+                .WhenAsync(ThatSessionDisconnects)
+                .Then(TheDisconnectSaveShouldHaveRun)
+                .And(TheFailureShouldBeCounted)
+                .ExecuteAsync();
+        }
+
+        private async Task ASessionWhoseFirstDisconnectStepFails()
+        {
+            var failing = new Mock<ISessionDisconnectHandler>();
+            failing.Setup(h => h.Order).Returns(int.MinValue);
+            failing.Setup(h => h.HandleDisconnectAsync(It.IsAny<ClientSession>())).ThrowsAsync(new InvalidOperationException());
+            DisconnectHandler.Setup(h => h.Order).Returns(int.MaxValue);
+            OtherSession = await World.CreateSessionAsync(
+                new List<IPacketHandler> { PulseHandler },
+                new List<ISessionDisconnectHandler> { failing.Object, DisconnectHandler.Object });
+        }
+
+        private async Task ThatSessionDisconnects() => await OtherSession.OnDisconnectedAsync();
+
+        private void TheFailureShouldBeCounted() => Assert.IsTrue(Failures.Count >= 1);
 
         private void TheMasterFailsToUnsubscribe() =>
             World.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
