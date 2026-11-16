@@ -6,12 +6,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging;
@@ -86,6 +89,35 @@ namespace NosCore.GameObject.Tests.Messaging
             await _dispatcher.RaiseAsync(new Probe("fail", PlayerHasLeft: false));
 
             CollectionAssert.AreEqual(new List<string> { "first fail", "third fail" }, _handled.Names);
+        }
+
+        [TestMethod]
+        public async Task AFailingHandlerIsCountedAsAGameEventFailure()
+        {
+            var counted = 0;
+            using var listener = new MeterListener();
+            listener.InstrumentPublished = (instrument, l) =>
+            {
+                if (instrument == NosCoreMetrics.Failures)
+                {
+                    l.EnableMeasurementEvents(instrument);
+                }
+            };
+            listener.SetMeasurementEventCallback<long>((_, value, tags, _) =>
+            {
+                foreach (var tag in tags)
+                {
+                    if (tag is { Key: "boundary", Value: "game_event" })
+                    {
+                        Interlocked.Add(ref counted, (int)value);
+                    }
+                }
+            });
+            listener.Start();
+
+            await _dispatcher.RaiseAsync(new Probe("fail", PlayerHasLeft: false));
+
+            Assert.IsGreaterThanOrEqualTo(1, counted);
         }
 
         [TestMethod]

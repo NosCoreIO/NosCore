@@ -24,9 +24,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using Microsoft.Extensions.Logging;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
@@ -47,7 +44,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
     //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power.
     [UsedImplicitly]
-    public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
+    public sealed class PlayerRevivalHandler(ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IScriptedInstanceService scriptedInstanceService,
         ILandOfDeathService landOfDeathService, IFactionWarService factionWarService, IQuestService questService,
         IRainbowBattleService rainbowBattleService)
@@ -62,103 +59,96 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             if (evt.Victim.VisualType != VisualType.Player) return;
             if (evt.Victim is not PlayerComponentBundle player) return;
 
-            try
+            await player.OnMapAsync(() =>
             {
-                await player.OnMapAsync(() =>
-                {
-                    player.IsAlive = false;
-                    player.Hp = 0;
-                    player.Mp = 0;
-                    return Task.CompletedTask;
-                });
+                player.IsAlive = false;
+                player.Hp = 0;
+                player.Mp = 0;
+                return Task.CompletedTask;
+            });
 
-                if (player.MapInstance?.MapInstanceType == MapInstanceType.InstantCombatInstance)
+            if (player.MapInstance?.MapInstanceType == MapInstanceType.InstantCombatInstance)
+            {
+                await LeaveInstantCombatAsync(player);
+                return;
+            }
+
+            if (player.MapInstance?.MapInstanceType == MapInstanceType.RainbowBattleInstance)
+            {
+                await rainbowBattleService.PlayerDownAsync(player, evt.Killer);
+                return;
+            }
+
+            if (player.MapInstance?.MapInstanceType is MapInstanceType.IceBreakerInstance or MapInstanceType.RaidInstance
+                or MapInstanceType.TalentArenaMapInstance or MapInstanceType.Act4Instance or MapInstanceType.TimeSpaceInstance)
+            {
+                if (player.MapInstance is { } room && scriptedInstanceService.GetRun(room.MapInstanceId) is { } run)
                 {
-                    await LeaveInstantCombatAsync(player);
-                    return;
+                    await run.PlayerDownAsync(player);
                 }
 
-                if (player.MapInstance?.MapInstanceType == MapInstanceType.RainbowBattleInstance)
-                {
-                    await rainbowBattleService.PlayerDownAsync(player, evt.Killer);
-                    return;
-                }
+                return;
+            }
 
-                if (player.MapInstance?.MapInstanceType is MapInstanceType.IceBreakerInstance or MapInstanceType.RaidInstance
-                    or MapInstanceType.TalentArenaMapInstance or MapInstanceType.Act4Instance or MapInstanceType.TimeSpaceInstance)
-                {
-                    if (player.MapInstance is { } room && scriptedInstanceService.GetRun(room.MapInstanceId) is { } run)
-                    {
-                        await run.PlayerDownAsync(player);
-                    }
+            if (player.MapInstance?.MapInstanceType == MapInstanceType.LodInstance)
+            {
+                await landOfDeathService.AskReviveAsync(player);
+                return;
+            }
 
-                    return;
-                }
-
-                if (player.MapInstance?.MapInstanceType == MapInstanceType.LodInstance)
-                {
-                    await landOfDeathService.AskReviveAsync(player);
-                    return;
-                }
-
-                if (player.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance)
-                {
-                    await player.SendPacketAsync(player.GenerateStat());
-                    await player.SendPacketAsync(new DlgiPacket
-                    {
-                        YesPacket = new RevivalPacket { Type = RevivalType.InArena },
-                        NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
-                        Question = Game18NConstString.AskRevive,
-                    });
-                    return;
-                }
-
-                if (player.MapInstance is { IsAct4: true } && evt.Killer is PlayerComponentBundle enemy
-                    && enemy.CharacterId != player.CharacterId)
-                {
-                    if (await factionWarService.RecordKillAsync(enemy, player))
-                    {
-                        try
-                        {
-                            await questService.OnEnemyPlayerDefeatedAsync(enemy);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogWarning(ex, logLanguage[LogLanguageKey.KILL_QUEST_PROGRESS_FAILED], enemy.CharacterId);
-                        }
-                    }
-                }
-                else
-                {
-                    player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
-                }
-
-                if (evt.Killer is PlayerComponentBundle killer && killer.CharacterId != player.CharacterId
-                    && player.Reputation >= 50000)
-                {
-                    var transfer = player.Level * 50L;
-                    player.Reputation -= transfer;
-                    killer.Reputation += transfer;
-                    await killer.SendPacketAsync(killer.GenerateFd());
-                }
-
+            if (player.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance)
+            {
                 await player.SendPacketAsync(player.GenerateStat());
-                await player.SendPacketAsync(player.GenerateFd());
-
-                var question = player.Level > 20
-                    ? Game18NConstString.ContinueHereTenSeeds
-                    : Game18NConstString.ContinueHereFree;
-
                 await player.SendPacketAsync(new DlgiPacket
                 {
-                    YesPacket = new RevivalPacket { Type = RevivalType.InPlace },
+                    YesPacket = new RevivalPacket { Type = RevivalType.InArena },
                     NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
-                    Question = question,
+                    Question = Game18NConstString.AskRevive,
                 });
+                return;
             }
-            catch (Exception ex)
+
+            PlayerComponentBundle? factionEnemy = null;
+            if (player.MapInstance is { IsAct4: true } && evt.Killer is PlayerComponentBundle enemy
+                && enemy.CharacterId != player.CharacterId)
             {
-                logger.LogWarning(ex, logLanguage[LogLanguageKey.PLAYER_REVIVAL_FAILED], player.CharacterId);
+                if (await factionWarService.RecordKillAsync(enemy, player))
+                {
+                    factionEnemy = enemy;
+                }
+            }
+            else
+            {
+                player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
+            }
+
+            if (evt.Killer is PlayerComponentBundle killer && killer.CharacterId != player.CharacterId
+                && player.Reputation >= 50000)
+            {
+                var transfer = player.Level * 50L;
+                player.Reputation -= transfer;
+                killer.Reputation += transfer;
+                await killer.SendPacketAsync(killer.GenerateFd());
+            }
+
+            await player.SendPacketAsync(player.GenerateStat());
+            await player.SendPacketAsync(player.GenerateFd());
+
+            var question = player.Level > 20
+                ? Game18NConstString.ContinueHereTenSeeds
+                : Game18NConstString.ContinueHereFree;
+
+            await player.SendPacketAsync(new DlgiPacket
+            {
+                YesPacket = new RevivalPacket { Type = RevivalType.InPlace },
+                NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
+                Question = question,
+            });
+
+            // Last, so a failure in the enemy's quests still leaves the victim with the revive dialog.
+            if (factionEnemy is { } defeatedBy)
+            {
+                await questService.OnEnemyPlayerDefeatedAsync(defeatedBy);
             }
         }
 

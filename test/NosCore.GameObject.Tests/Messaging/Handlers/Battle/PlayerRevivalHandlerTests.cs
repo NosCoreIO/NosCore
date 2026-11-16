@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -95,6 +96,29 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
                 .Then(TheKillerShouldBeCreditedForQuests_, 0)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AFailureInTheKillersQuestsStillOffersTheVictimARevive()
+        {
+            await new Spec("The victim is offered a revive even when crediting the killer's quests fails")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(TheCharacterIsInGlacernon)
+                .And(TheWarCountsTheKill_, true)
+                .And(TheKillersQuestsFail)
+                .WhenAsync(PlayerDiesKilledByOtherPlayerWhileTheFailureReachesTheBoundary)
+                .Then(TheVictimShouldBeOfferedARevive)
+                .ExecuteAsync();
+        }
+
+        private void TheKillersQuestsFail() =>
+            _quests.Setup(q => q.OnEnemyPlayerDefeatedAsync(It.IsAny<PlayerComponentBundle>()))
+                .ThrowsAsync(new InvalidOperationException());
+
+        private Task PlayerDiesKilledByOtherPlayerWhileTheFailureReachesTheBoundary() =>
+            Assert.ThrowsExactlyAsync<InvalidOperationException>(PlayerDiesKilledByOtherPlayer);
+
+        private void TheVictimShouldBeOfferedARevive() =>
+            Assert.IsTrue(_session.LastPackets.OfType<DlgiPacket>().Any());
 
         private void TheWarCountsTheKill_(bool counted) =>
             _factionWar.Setup(w => w.RecordKillAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<PlayerComponentBundle>()))
