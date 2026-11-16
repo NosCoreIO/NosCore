@@ -36,9 +36,13 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(ChatterLineParser.Lines.Sum(group => group.Value.Length), saved.Count);
             Assert.AreEqual(saved.Count, saved.Select(line => line.ChatterLineId).Distinct().Count());
-            CollectionAssert.AreEquivalent(
-                new[] { (short)Game18NConstString.Huh, (short)Game18NConstString.Uurk },
-                saved.Where(line => line.ChatterGroup == 2).Select(line => line.Message).ToArray());
+            Assert.IsTrue(saved.All(line => (line.Message == null) != (line.Text == null)));
+            CollectionAssert.Contains(
+                saved.Where(line => line.ChatterGroup == 2).Select(line => line.Text).ToArray(),
+                nameof(LanguageKey.CHATTER_IMPROVE_WORKING_CONDITIONS));
+            CollectionAssert.Contains(
+                saved.Where(line => line.ChatterGroup == 1).Select(line => line.Message).ToArray(),
+                (short?)(short)Game18NConstString.KeeeKeeee);
         }
     }
 }

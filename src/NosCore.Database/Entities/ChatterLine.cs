@@ -22,7 +22,11 @@ namespace NosCore.Database.Entities
 
         public byte ChatterGroup { get; set; }
 
-        /// <summary>A Game18NConstString id.</summary>
-        public short Message { get; set; }
+        /// <summary>A Game18NConstString id, for lines the client holds.</summary>
+        public short? Message { get; set; }
+
+        /// <summary>A LanguageKey name, for lines the client has no text for.</summary>
+        [MaxLength(255)]
+        public string? Text { get; set; }
     }
 }
