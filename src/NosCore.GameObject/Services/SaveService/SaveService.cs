@@ -18,6 +18,7 @@ using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -294,7 +295,7 @@ namespace NosCore.GameObject.Services.SaveService
                 await transaction.CommitAsync();
                 return true;
             }
-            catch (Exception e)
+            catch (DbException e)
             {
                 logger.LogError(e, logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
                 return false;

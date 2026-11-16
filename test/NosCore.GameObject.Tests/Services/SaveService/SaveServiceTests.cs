@@ -30,6 +30,7 @@ using SpecLight;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
@@ -125,6 +126,26 @@ namespace NosCore.GameObject.Tests.Services.SaveService
 
             Assert.IsFalse(await Build.NotNull()(titles.Object).SaveAsync(Session));
         }
+
+        [TestMethod]
+        public async Task ADatabaseFailureReportsFailure()
+        {
+            var titles = new Mock<IDao<TitleDto, Guid>>();
+            titles.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<TitleDto>>())).ThrowsAsync(new LostConnection());
+
+            Assert.IsFalse(await Build.NotNull()(titles.Object).SaveAsync(Session));
+        }
+
+        [TestMethod]
+        public async Task AnyOtherFailureReachesTheCaller()
+        {
+            var titles = new Mock<IDao<TitleDto, Guid>>();
+            titles.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<TitleDto>>())).ThrowsAsync(new InvalidOperationException());
+
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => Build.NotNull()(titles.Object).SaveAsync(Session));
+        }
+
+        private sealed class LostConnection : DbException;
 
         [TestMethod]
         public async Task SavingWritesThePetsCurrentState()
