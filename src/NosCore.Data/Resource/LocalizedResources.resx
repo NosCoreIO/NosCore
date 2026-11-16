@@ -699,9 +699,6 @@
   <data name="BOX_CONTENTS_PARSED" xml:space="preserve">
     <value>{Boxes} boxes and packs get their {Rolls} items</value>
   </data>
-  <data name="LIFE_TICK_FAILED" xml:space="preserve">
-    <value>Life tick failed</value>
-  </data>
   <data name="RECURRING_PUBLISH_FAILED" xml:space="preserve">
     <value>Recurring publish of {Message} failed</value>
   </data>
@@ -771,14 +768,8 @@
   <data name="QUEST_REWARD_LOST_INVENTORY_FULL" xml:space="preserve">
     <value>Quest reward {VNum}x{Amount} lost: inventory full for character {CharacterId}</value>
   </data>
-  <data name="CAPTURE_FAILED" xml:space="preserve">
-    <value>Capture attempt failed: {Attacker} -&gt; {Target}</value>
-  </data>
   <data name="HIT_PROCESSING_FAILED" xml:space="preserve">
     <value>Hit processing failed: {Attacker} -&gt; {Target}</value>
-  </data>
-  <data name="AI_TICK_FAILED" xml:space="preserve">
-    <value>AI tick failed for {VisualId}</value>
   </data>
   <data name="MONSTER_CAST_FAILED" xml:space="preserve">
     <value>Cast of skill {Skill} by {VisualId} failed</value>

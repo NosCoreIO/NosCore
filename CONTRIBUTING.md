@@ -44,7 +44,7 @@ Catch everything only at a boundary. Each boundary logs the exception, counts it
 |---|---|---|
 | `ClientSession.HandlePacketAsync` | one client package; the session is disconnected | `packet` |
 | `MapInstance` life loop | one tick of one map | `map_tick` |
-| `MapInstance` per-entity tick steps | one monster, NPC or player in a tick | `map_entity` |
+| `MapInstance` per-entity tick steps, and a monster's skill that lands after its cast time | one monster, NPC or player in a tick; one delayed monster hit | `map_entity` |
 | `GameEventDispatcher` | one handler of one game event | `game_event` |
 | Script loading and each call into a time-space or raid script | one script load or one trigger; a failed call abandons the run | `script` |
 | `ScriptedInstanceRun` triggers and steps, `ScriptedInstanceService.TickAsync` | one trigger, one step of a trigger, one run in a tick | `scripted_instance` |
