@@ -174,6 +174,36 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ARoomMessageIsShownOnlyInThatRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Message(2, Game18NConstString.EnemiesReinforcements) });
+
+            await run.StartAsync();
+
+            Assert.IsTrue(_second.LastPackets.OfType<MsgiPacket>().Any(packet => packet.Message == Game18NConstString.EnemiesReinforcements));
+            Assert.IsFalse(_first.LastPackets.OfType<MsgiPacket>().Any(packet => packet.Message == Game18NConstString.EnemiesReinforcements));
+        }
+
+        [TestMethod]
+        public async Task ARoomServerTextMessageReachesOnlyThePlayersInThatRoomAsync()
+        {
+            var inside = await PlayerInFirstRoomAsync();
+            var elsewhere = await PlayerInRoomAsync(_second);
+            Mock.Get(World.GameLanguageLocalizer)
+                .Setup(x => x[LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, It.IsAny<RegionType>(), It.IsAny<object[]>()])
+                .Returns(new LocalizedString("TIMESPACE_STRIKE_CENTRE_FLOOR", "Centre floor"));
+            var run = Run(new Script { Enter = r => r.Message(1, LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 2) });
+
+            await run.StartAsync();
+
+#pragma warning disable CS0618
+            PacketAssert.AreEqual(new MsgPacket { Type = MessageType.Default, Message = "Centre floor" },
+                inside.LastPackets.OfType<MsgPacket>().Single());
+            Assert.IsFalse(elsewhere.LastPackets.OfType<MsgPacket>().Any());
+#pragma warning restore CS0618
+        }
+
+        [TestMethod]
         public async Task ARoomObjectiveShowsInThePanelOfThePlayersInTheRoomAsync()
         {
             var inside = await PlayerInFirstRoomAsync();

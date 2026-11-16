@@ -981,6 +981,29 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return session.SendPacketAsync(new SinfoPacket { Message = string.Empty });
         }
 
+        public void Message(int room, Game18NConstString message)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () => mapInstance.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = message })));
+        }
+
+        public void Message(int room, LanguageKey message, params object[] arguments)
+        {
+            _pending.Add(async () =>
+            {
+                foreach (var session in SessionsIn(room))
+                {
+#pragma warning disable CS0618
+                    await session.SendPacketAsync(new MsgPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = _gameLanguage[message, session.Account.Language, arguments]
+                    });
+#pragma warning restore CS0618
+                }
+            });
+        }
+
         public void Succeed() => End(EndStateType.Success);
 
         // Each player opens the reward chest of a successful run once.
@@ -1261,6 +1284,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void Message(Game18NConstString message, long value) => Do(() => run.Message(message, value));
 
             public void Message(LanguageKey message, params object[] arguments) => Do(() => run.Message(message, arguments));
+
+            public void Message(int room, Game18NConstString message) => Do(() => run.Message(room, message));
+
+            public void Message(int room, LanguageKey message, params object[] arguments) => Do(() => run.Message(room, message, arguments));
 
             public void Objective(int room, LanguageKey objective) => Do(() => run.Objective(room, objective));
 
