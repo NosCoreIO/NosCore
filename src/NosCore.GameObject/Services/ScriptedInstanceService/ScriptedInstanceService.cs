@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
+using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Infastructure;
 using NosCore.Dao.Interfaces;
@@ -128,16 +129,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return false;
             }
 
-            try
-            {
-                entrance.Logic = await _scriptLoader.LoadAsync(entrance.Script).WaitAsync(_scriptTimeout);
-                return entrance.Logic != null;
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE], entrance.Script);
-                return false;
-            }
+            entrance.Logic = await LoadScriptAsync(entrance.Script);
+            return entrance.Logic != null;
         }
 
         public async Task<ScriptedInstance?> GetRaidBySealAsync(short sealVNum)
@@ -195,6 +188,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             catch (Exception exception)
             {
                 _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE], script);
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "script"));
                 return null;
             }
         }
@@ -278,6 +272,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 catch (Exception exception)
                 {
                     _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_TICK_FAILED], run.Name);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
                 }
             }
         }

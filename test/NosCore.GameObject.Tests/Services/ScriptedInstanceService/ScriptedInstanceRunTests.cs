@@ -4,6 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Diagnostics.Metrics;
+using System.Threading;
+using NosCore.Core.Observability;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -290,6 +293,29 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.AreEqual(0, _first.EnumerateMonsters().Count());
             Assert.AreEqual(1, _second.EnumerateMonsters().Count());
+        }
+
+        [TestMethod]
+        public async Task AFailingStepIsCountedAsAScriptedInstanceFailureAsync()
+        {
+            using var failures = new FailureCounter("scripted_instance");
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1))) });
+            await _first.Executor.CloseAsync();
+
+            await run.StartAsync();
+
+            Assert.IsGreaterThanOrEqualTo(1, failures.Count);
+        }
+
+        [TestMethod]
+        public async Task AScriptThatThrowsIsCountedAsAScriptFailureAsync()
+        {
+            using var failures = new FailureCounter("script");
+            var run = Run(new Script { Enter = _ => throw new InvalidOperationException() });
+
+            await run.StartAsync();
+
+            Assert.IsGreaterThanOrEqualTo(1, failures.Count);
         }
 
         [TestMethod]
@@ -1121,6 +1147,38 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             var score = _first.LastPackets.OfType<NosCore.Packets.ClientPackets.Instance.ScorePacket>().Single();
             Assert.AreEqual(4, score.Points);
+        }
+
+        private sealed class FailureCounter : IDisposable
+        {
+            private readonly MeterListener _listener = new();
+            private int _count;
+
+            public FailureCounter(string boundary)
+            {
+                _listener.InstrumentPublished = (instrument, l) =>
+                {
+                    if (instrument == NosCoreMetrics.Failures)
+                    {
+                        l.EnableMeasurementEvents(instrument);
+                    }
+                };
+                _listener.SetMeasurementEventCallback<long>((_, value, tags, _) =>
+                {
+                    foreach (var tag in tags)
+                    {
+                        if (tag.Key == "boundary" && Equals(tag.Value, boundary))
+                        {
+                            Interlocked.Add(ref _count, (int)value);
+                        }
+                    }
+                });
+                _listener.Start();
+            }
+
+            public int Count => Volatile.Read(ref _count);
+
+            public void Dispose() => _listener.Dispose();
         }
     }
 }
