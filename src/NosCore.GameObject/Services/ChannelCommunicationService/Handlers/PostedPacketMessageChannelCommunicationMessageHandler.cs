@@ -16,6 +16,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
+using NosCore.Core.Observability;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
@@ -41,6 +43,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                             catch (Exception ex)
                             {
                                 logger.LogWarning(ex, logLanguage[LogLanguageKey.HERO_MESSAGE_FAILED], c.CharacterId);
+                                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "broadcast"));
                             }
                         }));
                     break;

@@ -49,6 +49,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.Core.Observability;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -122,6 +123,7 @@ namespace NosCore.PacketHandlers.Game
                 {
                     logger.LogError(ex, logLanguage[LogLanguageKey.FIRST_QUEST_SCRIPT_FAILED],
                         session.Character.CharacterId);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "script"));
                 }
             }
             else if (session.Character.Script is { } currentStep)

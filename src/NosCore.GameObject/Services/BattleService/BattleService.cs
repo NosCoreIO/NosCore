@@ -31,6 +31,7 @@ using NosCore.Packets.ServerPackets.Battle;
 using Microsoft.Extensions.Logging;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.Core.Observability;
 
 namespace NosCore.GameObject.Services.BattleService
 {
@@ -325,6 +326,7 @@ namespace NosCore.GameObject.Services.BattleService
             catch (Exception ex)
             {
                 logger.LogError(ex, logLanguage[LogLanguageKey.HIT_PROCESSING_FAILED], origin.VisualId, target.VisualId);
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "hit"));
             }
         }
 

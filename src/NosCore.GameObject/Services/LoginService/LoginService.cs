@@ -188,7 +188,7 @@ namespace NosCore.GameObject.Services.LoginService
                 {
                     Type = LoginFailType.UnhandledError
                 });
-                await clientSession.DisconnectAsync();
+                throw;
             }
         }
     }

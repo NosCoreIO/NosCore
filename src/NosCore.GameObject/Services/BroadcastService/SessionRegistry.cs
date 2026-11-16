@@ -184,6 +184,7 @@ namespace NosCore.GameObject.Services.BroadcastService
                 catch (Exception ex)
                 {
                     logger.LogWarning(ex, logLanguage[LogLanguageKey.BROADCAST_FAILED], s.ChannelId);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "broadcast"));
                 }
             }));
 

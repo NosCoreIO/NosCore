@@ -101,6 +101,16 @@ namespace NosCore.PacketHandlers.Tests.Login
         }
 
         [TestMethod]
+        public async Task ALoginThatFailsUnexpectedlyTellsTheClientAndReachesThePacketBoundary()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ThrowsAsync(new InvalidOperationException());
+
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(LoggingInWithToken);
+
+            Assert.AreEqual(LoginFailType.UnhandledError, Session.LastPackets.OfType<FailcPacket>().Single().Type);
+        }
+
+        [TestMethod]
         public async Task LoginWithOldClientShouldFail()
         {
             await new Spec("Login with old client should fail")
