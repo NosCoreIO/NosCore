@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             Assert.AreEqual(1, entry.GroupPosition);
             Assert.AreEqual(2, entry.Level);
             Assert.AreEqual(-1, entry.Unknown);
-            Assert.AreEqual(333, entry.Unknown2, "the field after -1 carries the creature's vnum");
+            Assert.AreEqual(333, entry.VNum);
         }
 
         [TestMethod]

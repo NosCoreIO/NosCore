@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 await session.SendPacketAsync(new WopenPacket
                 {
                     Type = WindowType.GoldenSPCardHolder,
-                    Unknown = (byte)source.Slot
+                    Argument = (byte)source.Slot
                 });
                 return;
             }

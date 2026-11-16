@@ -20,9 +20,9 @@ public static class BazaarPackets
         return new WopenPacket
         {
             Type = WindowType.NosBazaar,
-            Unknown = medal == null ? (byte)0
+            Argument = medal == null ? (byte)0
                 : medal.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver,
-            Unknown2 = medal == null ? (byte)0
+            Argument2 = medal == null ? (byte)0
                 : (byte)(int)(medal.DateEnd == null ? 720 : (medal.DateEnd.Value - clock.GetCurrentInstant()).TotalHours),
         };
     }

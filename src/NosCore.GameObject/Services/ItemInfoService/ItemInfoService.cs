@@ -359,7 +359,7 @@ public sealed class ItemInfoService(
             SpLevel = specialist.SpLevel,
             LevelJobMinimum = item.LevelJobMinimum,
             ReputationMinimum = item.ReputationMinimum,
-            Unknown2 = item.Speed,
+            Speed = item.Speed,
             SpType = item.SpType,
             FireResistance = item.FireResistance,
             WaterResistance = item.WaterResistance,
