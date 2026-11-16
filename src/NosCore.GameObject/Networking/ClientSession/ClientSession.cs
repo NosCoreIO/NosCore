@@ -6,6 +6,7 @@
 
 using Arch.Core;
 using NosCore.Core.Concurrency;
+using NosCore.Core.Observability;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.Data.Enumerations.I18N;
@@ -306,6 +307,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "packet"));
                 _logger.LogError(ex, logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR]);
                 await DisconnectAsync();
             }

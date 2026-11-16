@@ -35,6 +35,25 @@ rather than adding a lock next to it.
 
 If a new feature needs cross-cutting coordination (e.g. "all map instances must agree on X"), prefer an event handled by the code that owns the state — not adding a lock that spans subsystems.
 
+## Exceptions
+
+Catch everything only at a boundary. Each boundary logs the exception, counts it in the
+`noscore.failures` metric under its `boundary` tag, and carries on with the next unit of work:
+
+| Boundary | Unit | Tag |
+|---|---|---|
+| `ClientSession.HandlePacketAsync` | one client package; the session is disconnected | `packet` |
+| `MapInstance` life loop | one tick of one map | `map_tick` |
+| `MapInstance` per-entity tick steps | one monster, NPC or player in a tick | `map_entity` |
+| `GameEventDispatcher` | one handler of one game event | `game_event` |
+| Hosted service loops, Wolverine handlers | one iteration, one message | not counted yet |
+
+Everywhere else, catch only an exception the code can handle, by its type (`catch (DbUpdateConcurrencyException)`),
+and let the rest reach the boundary. A catch-all deeper down turns a bug into a log line and leaves the
+operation half applied. Where one failure must not stop the work for others, isolate per item (one
+contributor of a kill, one listener of a broadcast), never around the whole loop; and when one step of an
+operation must happen even if a later one fails, order the steps that way rather than catching.
+
 ## Background work & scheduled jobs
 
 For "do X every N minutes" jobs, use the Wolverine pattern in `NosCore.GameObject.Messaging.ScheduledJobs/`:

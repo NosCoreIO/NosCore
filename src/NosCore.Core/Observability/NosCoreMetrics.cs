@@ -47,6 +47,9 @@ namespace NosCore.Core.Observability
         public static readonly Counter<long> MasterRequestTimeouts =
             NosCoreTelemetry.Meter.CreateCounter<long>("noscore.master.request.timeouts", "{request}", "Requests to the master that got no answer in time, by message type");
 
+        public static readonly Counter<long> Failures =
+            NosCoreTelemetry.Meter.CreateCounter<long>("noscore.failures", "{failure}", "Exceptions caught at a boundary, by boundary");
+
         public static readonly Counter<long> PathSearches =
             NosCoreTelemetry.Meter.CreateCounter<long>("noscore.pathfinding.searches", "{search}", "Monster path searches, by whether a path was found");
 

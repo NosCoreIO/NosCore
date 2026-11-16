@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.Shared.I18N;
@@ -44,6 +45,7 @@ namespace NosCore.GameObject.Messaging
                 }
                 catch (Exception ex)
                 {
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "game_event"));
                     logger.LogError(ex, logLanguage[LogLanguageKey.GAME_EVENT_HANDLER_FAILED], handler.Type.Name, typeof(TEvent).Name);
                 }
             }

@@ -4,21 +4,17 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System;
 using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.QuestService;
-using Microsoft.Extensions.Logging;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
     [UsedImplicitly]
-    public sealed class OnEntityCapturedHandler(IQuestService questService, ILogger<OnEntityCapturedHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public sealed class OnEntityCapturedHandler(IQuestService questService)
     {
         [UsedImplicitly]
         public async Task Handle(EntityCapturedEvent evt)
@@ -26,14 +22,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             if (evt.Captor is not PlayerComponentBundle character) return;
             if (evt.Victim is not INonPlayableEntity npc || npc.NpcMonster is null) return;
 
-            try
-            {
-                await questService.OnMonsterCapturedAsync(character, npc.NpcMonster);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, logLanguage[LogLanguageKey.CAPTURE_QUEST_PROGRESS_FAILED], character.VisualId);
-            }
+            await questService.OnMonsterCapturedAsync(character, npc.NpcMonster);
         }
     }
 }

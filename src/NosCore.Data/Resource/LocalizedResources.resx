@@ -714,17 +714,8 @@
   <data name="ITEM_QUEST_PROGRESS_FAILED" xml:space="preserve">
     <value>Failed to progress quest {QuestId} for character {CharacterId}</value>
   </data>
-  <data name="CAPTURE_QUEST_PROGRESS_FAILED" xml:space="preserve">
-    <value>Failed to progress capture quest for character {CharacterId}</value>
-  </data>
   <data name="SPEAKER_MESSAGE_FAILED" xml:space="preserve">
     <value>Speaker message to {CharacterId} failed</value>
-  </data>
-  <data name="PLAYER_REVIVAL_FAILED" xml:space="preserve">
-    <value>PlayerRevivalHandler failed for {CharacterId}</value>
-  </data>
-  <data name="DEATH_BCARD_BROADCAST_FAILED" xml:space="preserve">
-    <value>Failed to broadcast death-BCard stat update for character {CharacterId}</value>
   </data>
   <data name="PACKET_PROCESSING_FAILED" xml:space="preserve">
     <value>Unhandled exception while processing packet for session {SessionId}</value>
@@ -779,9 +770,6 @@
   </data>
   <data name="QUEST_REWARD_LOST_INVENTORY_FULL" xml:space="preserve">
     <value>Quest reward {VNum}x{Amount} lost: inventory full for character {CharacterId}</value>
-  </data>
-  <data name="QUEST_PROGRESS_SEND_FAILED" xml:space="preserve">
-    <value>Failed to send quest progress for character {CharacterId} quest {QuestId}</value>
   </data>
   <data name="CAPTURE_FAILED" xml:space="preserve">
     <value>Capture attempt failed: {Attacker} -&gt; {Target}</value>

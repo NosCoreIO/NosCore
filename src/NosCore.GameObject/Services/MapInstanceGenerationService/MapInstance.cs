@@ -582,6 +582,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     }
                     catch (Exception e)
                     {
+                        NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "map_tick"));
                         _logger.LogError(e, _logLanguage[LogLanguageKey.MAP_LIFE_TICK_FAILED], Map.MapId);
                     }
                 }
@@ -792,12 +793,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
             catch (Exception e)
             {
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "map_tick"));
                 _logger.LogError(e, _logLanguage[LogLanguageKey.MAP_LIFE_STEP_FAILED], what, Map.MapId);
             }
         }
 
         private void LogTickFailure(Exception e, string what, long id)
         {
+            NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "map_entity"));
             _logger.LogError(e, _logLanguage[LogLanguageKey.ENTITY_LIFE_TICK_FAILED], what, id, Map.MapId);
         }
 

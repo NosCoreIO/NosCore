@@ -84,7 +84,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 new Mock<IGameEventDispatcher>().Object,
                 new Mock<IQuestRewardService>().Object,
                 World.Clock);
-            var capturedHandler = new OnEntityCapturedHandler(questService, NullLogger<OnEntityCapturedHandler>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            var capturedHandler = new OnEntityCapturedHandler(questService);
             GameEvents = new InlineGameEvents<EntityCapturedEvent>(capturedHandler.Handle);
 
             var random = new Mock<IRandomProvider>();

@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System;
 using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,13 +14,10 @@ using NosCore.Packets;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
-using Microsoft.Extensions.Logging;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
-public abstract class KillQuestHandlerBase(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IQuestTypeHandler
+public abstract class KillQuestHandlerBase : IQuestTypeHandler
 {
     public abstract QuestType QuestType { get; }
 
@@ -57,18 +53,10 @@ public abstract class KillQuestHandlerBase(ILogger logger, ILogLanguageLocalizer
             return;
         }
 
-        try
+        foreach (var (mobVNum, current, required) in progressSnapshots)
         {
-            foreach (var (mobVNum, current, required) in progressSnapshots)
-            {
-                await character.SendPacketAsync(character.GenerateSayi2(SayColorType.Red, Game18NConstString.Hunting, 6, mobVNum, $"{current}/{required}"));
-            }
-            await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+            await character.SendPacketAsync(character.GenerateSayi2(SayColorType.Red, Game18NConstString.Hunting, 6, mobVNum, $"{current}/{required}"));
         }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, logLanguage[LogLanguageKey.QUEST_PROGRESS_SEND_FAILED],
-                character.CharacterId, quest.QuestId);
-        }
+        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
     }
 }
