@@ -68,7 +68,11 @@ namespace NosCore.Parser
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>()
-                .OnActivated(c => c.Instance.Database.Migrate());
+                .OnActivated(c =>
+                {
+                    c.Instance.Database.AdoptSquashedHistory();
+                    c.Instance.Database.Migrate();
+                });
             containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                 .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                 .AsSelf();

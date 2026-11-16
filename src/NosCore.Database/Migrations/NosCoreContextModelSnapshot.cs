@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261116014952_AddNpcMonsterOwnerBlessingCard";
+    public override string LastMigrationId => "20261116064352_Baseline";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {

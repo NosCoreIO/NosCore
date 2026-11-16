@@ -129,6 +129,15 @@ Additive where possible. When a value's source changes, rewire the parser rather
 dropping or renaming columns. Expand a bitmask field into one boolean column per flag;
 never store the raw mask as a single aggregate column.
 
+The migration history is squashed into one baseline at each major release, so the folder holds
+the baseline plus the migrations since. To squash: delete `Migrations/`, run
+`dotnet ef migrations add Baseline --project src/NosCore.Database`, and set
+`MigrationBaseline.LastSquashedMigration` to the last migration that was deleted. Before
+merging, compare `pg_dump --schema-only` of a database migrated through the old history with
+one created from the baseline. A database at that last migration is then adopted as the
+baseline; an older one is refused with the reason. `MigrationTests` fails any PR whose model
+changes have no migration.
+
 ---
 
 ## Research sources

@@ -64,7 +64,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 await using var context = database.CreateContext();
                 var migrations = context.Database.GetMigrations().ToList();
-                await context.GetService<IMigrator>().MigrateAsync(migrations[^(1 + migrationsBehind)]);
+                await context.GetService<IMigrator>().MigrateAsync(migrationsBehind == migrations.Count
+                    ? Migration.InitialDatabase
+                    : migrations[^(1 + migrationsBehind)]);
             }
             catch
             {
