@@ -153,9 +153,33 @@ public class TimeSpace3 : InstanceScript
         {
             r.Dialog(_room2, 6012);
         }
+        else if (room == _room4)
+        {
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
+        }
+        else if (room == _room6)
+        {
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
+        }
+        else if (room == _room7)
+        {
+            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_ENEMIES_IN_SIGHT);
+        }
+        else if (room == _room8)
+        {
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
+        }
         else if (room == _room9)
         {
             r.Message(LanguageKey.TIMESPACE_CHOOSE_A_KEY);
+        }
+        else if (room == _room10)
+        {
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
+        }
+        else if (room == _room11)
+        {
+            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_ENEMIES_IN_SIGHT);
         }
     }
 
@@ -252,6 +276,7 @@ public class TimeSpace3 : InstanceScript
                         }));
                     }));
                 }));
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
         }
     }
 

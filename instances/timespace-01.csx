@@ -92,14 +92,20 @@ public class TimeSpace1 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 6001);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6002);
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_MONSTERS_KILL_THEM_ALL);
         }
         else if (room == _room5)
         {
             r.Message(LanguageKey.TIMESPACE_EXIT_IS_NEAR);
+        }
+        else if (room == _room6)
+        {
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_ENEMIES_APPROACHING_KILL_ALL);
         }
         else if (room == _room7)
         {

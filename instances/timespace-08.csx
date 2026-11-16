@@ -122,22 +122,33 @@ public class TimeSpace8 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 6038);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6040);
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
         }
         else if (room == _room5)
         {
             r.Dialog(_room5, 6042);
+            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
         }
         else if (room == _room6)
         {
             r.Dialog(_room6, 6044);
         }
+        else if (room == _room7)
+        {
+            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_PROTECT_GUARD_SOLDIER);
+        }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6048);
+        }
+        else if (room == _room10)
+        {
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
         }
     }
 

@@ -102,9 +102,21 @@ public class TimeSpace13 : InstanceScript
         {
             r.Dialog(_room2, 6070);
         }
+        else if (room == _room3)
+        {
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_ENEMIES_DRAWING_NEAR);
+        }
+        else if (room == _room4)
+        {
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_ENEMIES_DRAWING_NEAR);
+        }
         else if (room == _room5)
         {
             r.Message(LanguageKey.TIMESPACE_ONLY_TRACES_OF_FIGHTING);
+        }
+        else if (room == _room7)
+        {
+            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_ENEMIES_DRAWING_NEAR);
         }
         else if (room == _room8)
         {
@@ -118,6 +130,7 @@ public class TimeSpace13 : InstanceScript
         {
             r.Dialog(_room10, 6073);
             r.Message(LanguageKey.TIMESPACE_FOUND_GUARD_BOB);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_SAVE_BOB);
         }
     }
 

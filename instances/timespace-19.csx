@@ -64,6 +64,7 @@ public class TimeSpace19 : InstanceScript
             r.StartRoomClock(_room2, TimeSpan.FromSeconds(120));
             r.Message(Game18NConstString.EnemiesReinforcements);
             r.Dialog(_room2, 6101);
+            r.Objective(_room2, LanguageKey.TIMESPACE_GOAL_SURVIVE_TWO_MINUTES);
             r.Summon(_room2,
                 new MonsterSpawn(4, new(13, 6)),
                 new MonsterSpawn(140, new(14, 9)),
@@ -115,6 +116,7 @@ public class TimeSpace19 : InstanceScript
             r.StartRoomClock(_room3, TimeSpan.FromSeconds(60));
             r.Message(Game18NConstString.EnemiesReinforcements);
             r.Dialog(_room3, 6102);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_SURVIVE_ONE_MINUTE);
             r.Summon(_room3,
                 new MonsterSpawn(141, new(12, 18)),
                 new MonsterSpawn(13, new(16, 12)),
@@ -147,6 +149,7 @@ public class TimeSpace19 : InstanceScript
         {
             r.StartRoomClock(_room4, TimeSpan.FromSeconds(120));
             r.Message(Game18NConstString.EnemiesReinforcements);
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_SURVIVE_TWO_MINUTES);
             r.Summon(_room4,
                 new MonsterSpawn(66, new(12, 11)),
                 new MonsterSpawn(141, new(13, 22)),

@@ -2885,10 +2885,13 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-01`, clearing the third and fourth rooms shows "You have defeated all the monsters!" across
       the top of the screen, and entering the room on map 4104 shows "The exit is near!"; with the account
       language set to French the same lines read "Tu as éliminé tous les monstres !" and "La sortie est proche !"
+- [ ] In `timespace-01`, entering the third room shows "Watch out, enemies!" in the time-space panel; the line
+      goes blank once the room is cleared, and walking back into a room that still has monsters shows its
+      line again. In French it reads "Attention, des ennemis !"
 - [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
-- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
-      guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders
-      in the log, which NosCore does not do yet
+- [ ] Not verifiable yet: the mission objectives window (`minfo`) and the room objective line (`sinfo`),
+      which this client freezes on (NosCoreIO/NosCore.ClientLab#32); the guards of `timespace-20` and the
+      companion of `timespace-22` follow the player and take orders in the log, which NosCore does not do yet
 
 ### Time-space reward chest
 

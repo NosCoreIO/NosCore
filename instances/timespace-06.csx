@@ -224,6 +224,7 @@ public class TimeSpace6 : InstanceScript
         else if (room == _room6)
         {
             r.StartRoomClock(_room6, TimeSpan.FromSeconds(60));
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_SURVIVE_UNTIL_DOOR_OPENS);
             r.At(r.Elapsed + TimeSpan.FromSeconds(60), r =>
             {
                 r.Dismiss(_room6, 18);
@@ -249,6 +250,10 @@ public class TimeSpace6 : InstanceScript
         else if (room == _room10)
         {
             r.Message(LanguageKey.TIMESPACE_NO_SHAME_IN_FLEEING);
+        }
+        else if (room == _room11)
+        {
+            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ENEMIES_FOR_BONUS_TIME);
         }
         else if (room == _room12)
         {
@@ -301,6 +306,10 @@ public class TimeSpace6 : InstanceScript
             r.UnlockPortal(_room13, _room14);
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(LanguageKey.TIMESPACE_LEVER_TOO_DANGEROUS);
+        }
+        else if (room == _room14 && button == 1)
+        {
+            r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
         }
     }
 

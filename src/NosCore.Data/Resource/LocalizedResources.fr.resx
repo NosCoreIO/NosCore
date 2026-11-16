@@ -822,4 +822,121 @@
   <data name="CHATTER_GLACERUS_MUST_FALL" xml:space="preserve">
     <value>Quoi qu'il arrive, Glacerus doit être éliminé !</value>
   </data>
+  <data name="TIMESPACE_GOAL_UNDER_ATTACK" xml:space="preserve">
+    <value>Tu es attaqué !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_IN_TIME" xml:space="preserve">
+    <value>Élimine tous les ennemis dans le temps imparti.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PROTECT_GUARD_KILL_ALL" xml:space="preserve">
+    <value>Protège la garde de NosVille et élimine tous les monstres !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_WATCH_OUT_ENEMIES" xml:space="preserve">
+    <value>Attention, des ennemis !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MONSTERS_KILL_THEM_ALL" xml:space="preserve">
+    <value>Des monstres ! Élimine-les tous !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_APPROACHING_KILL_ALL" xml:space="preserve">
+    <value>Des ennemis s'approchent ! Élimine-les tous !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MUST_KILL_ALL_IN_TIME" xml:space="preserve">
+    <value>Tu dois éliminer tous les monstres dans le temps imparti !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_IS_IT_A_DEAD_END" xml:space="preserve">
+    <value>Est-ce un cul-de-sac ?</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DEAD_END_HURRY" xml:space="preserve">
+    <value>C'est un cul-de-sac ! Dépêche-toi, le temps presse !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_FOR_BONUS_TIME" xml:space="preserve">
+    <value>Élimine toutes les créatures pour gagner du temps bonus.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_IN_SIGHT" xml:space="preserve">
+    <value>Ennemis en vue !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMY_CREATURES_APPROACHING" xml:space="preserve">
+    <value>Des créatures ennemies s'approchent !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MORE_MONSTERS_KILL_THEM" xml:space="preserve">
+    <value>Toujours plus de monstres sont arrivés ! Élimine-les !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_BOSS_APPROACHING" xml:space="preserve">
+    <value>Le boss approche !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_BOSS_APPEARED" xml:space="preserve">
+    <value>Le boss est apparu !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_UNTIL_DOOR_OPENS" xml:space="preserve">
+    <value>Survis pendant 1 minute jusqu'à ce que la porte s'ouvre.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ENEMIES_FOR_BONUS_TIME" xml:space="preserve">
+    <value>Élimine tous les ennemis pour gagner du temps bonus !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_CAREFUL_MONSTERS_IN_SIGHT" xml:space="preserve">
+    <value>Prudence, monstres en vue !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_COMING" xml:space="preserve">
+    <value>Les ennemis arrivent !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_IMPS_ATTACK" xml:space="preserve">
+    <value>Les diablotins attaquent !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PROTECT_GUARD_SOLDIER" xml:space="preserve">
+    <value>Protège le soldat de la garde de NosVille contre les attaques.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_ENEMIES" xml:space="preserve">
+    <value>Élimine tous les ennemis !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_BUTTON_SUMMONED_ENEMIES" xml:space="preserve">
+    <value>C'était un bouton pour invoquer des ennemis !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_HOLD_OFF_MINERS" xml:space="preserve">
+    <value>Bloque les attaques des mineurs pendant 5 minutes !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PROTECT_CAPTAIN" xml:space="preserve">
+    <value>Protège le capitaine de la garde de NosVille pendant 3 minutes.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_DRAWING_NEAR" xml:space="preserve">
+    <value>Des ennemis approchent !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SAVE_BOB" xml:space="preserve">
+    <value>Bob est en danger ! Sauve-le !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIND_LEVER_AND_FLEE" xml:space="preserve">
+    <value>Tu ne peux pas gagner ce combat. Trouve un levier et prends la fuite.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_KILL_THEM" xml:space="preserve">
+    <value>Des ennemis ! Élimine-les !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DARK_GARGS_NOT_HERE" xml:space="preserve">
+    <value>Le gargs sombre ne se trouve pas ici. Élimine tous les adversaires !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_UNTIL_MONSTER_LEAVES" xml:space="preserve">
+    <value>Survis pendant 1 minute et le monstre disparaîtra.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_TOM_FIGHTS_MONSTERS" xml:space="preserve">
+    <value>Tom combat les montres.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIGHT_KNIGHT_TOM" xml:space="preserve">
+    <value>Combats le chevalier Tom !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIGHT_TOM_AGAIN" xml:space="preserve">
+    <value>Combats Tom une seconde fois !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_UNTIL_PORTAL_OPENS" xml:space="preserve">
+    <value>Survis pendant 1 minute et le portail s'ouvrira.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_TWO_MINUTES" xml:space="preserve">
+    <value>Survis à l'attaque des monstres pendant 2 minutes.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_ONE_MINUTE" xml:space="preserve">
+    <value>Survis à l'attaque des monstres pendant 1 minute.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES" xml:space="preserve">
+    <value>Des ennemis !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_KOARENS" xml:space="preserve">
+    <value>Tente de survivre 1 minute à l'attaque des Koarens.</value>
+  </data>
 </root>

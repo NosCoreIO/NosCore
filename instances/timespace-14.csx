@@ -182,9 +182,17 @@ public class TimeSpace14 : InstanceScript
         {
             r.Dialog(_room4, 6076);
         }
+        else if (room == _room6)
+        {
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_ENEMIES_KILL_THEM);
+        }
         else if (room == _room8)
         {
             r.Message(LanguageKey.TIMESPACE_LEVER_OVER_THERE);
+        }
+        else if (room == _room9)
+        {
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_ENEMIES_KILL_THEM);
         }
         else if (room == _room10)
         {
@@ -194,6 +202,10 @@ public class TimeSpace14 : InstanceScript
         else if (room == _room11)
         {
             r.Message(LanguageKey.TIMESPACE_PULL_LEVER_OPEN_PORTAL);
+        }
+        else if (room == _room12)
+        {
+            r.Objective(_room12, LanguageKey.TIMESPACE_GOAL_ENEMIES_KILL_THEM);
         }
     }
 
@@ -226,6 +238,7 @@ public class TimeSpace14 : InstanceScript
         {
             r.UnlockPortal(_room3, _room4);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_FIND_LEVER_AND_FLEE);
         }
         else if (room == _room8 && button == 1)
         {

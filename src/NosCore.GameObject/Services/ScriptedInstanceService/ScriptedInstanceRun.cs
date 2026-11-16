@@ -27,6 +27,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Npcs;
+using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System;
@@ -66,6 +67,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, short> _lockers = [];
         private readonly Dictionary<int, short> _lockerVNums = [];
         private readonly HashSet<int> _visited = [];
+        private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
+        private readonly HashSet<long> _showingObjective = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
         private readonly Dictionary<(ObjectiveKind Kind, short VNum), int> _objectiveProgress = [];
@@ -191,7 +194,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 {
                     if (aliveBefore > 0 && _aliveByRoom[room.Value] == 0 && EndState == null)
                     {
-                        await CallScriptAsync(run => _script.OnRoomCleared(run, room.Value));
+                        await RoomClearedAsync(room.Value);
                     }
 
                     return;
@@ -205,9 +208,22 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 _lockers[room.Value] = --remaining;
                 if (remaining == 0)
                 {
-                    await CallScriptAsync(run => _script.OnRoomCleared(run, room.Value));
+                    await RoomClearedAsync(room.Value);
                 }
             });
+        }
+
+        private Task RoomClearedAsync(int room)
+        {
+            if (_roomObjectives.Remove(room))
+            {
+                foreach (var session in SessionsIn(room))
+                {
+                    _pending.Add(() => HideObjectiveAsync(session));
+                }
+            }
+
+            return CallScriptAsync(run => _script.OnRoomCleared(run, room));
         }
 
         private void Advance(ObjectiveKind kind, short vNum)
@@ -286,6 +302,22 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (discovered && room is { } entered && _started && !_abandoned && EndState == null)
                 {
                     await CallScriptAsync(run => _script.OnRoomEntered(run, entered));
+                }
+
+                // A room's objective set while discovering it reaches this player through Objective.
+                if (room is { } current && session.HasPlayerEntity && EndState == null)
+                {
+                    if (_roomObjectives.TryGetValue(current, out var objective))
+                    {
+                        if (!discovered)
+                        {
+                            _pending.Add(() => ShowObjectiveAsync(session, objective));
+                        }
+                    }
+                    else if (_showingObjective.Contains(session.Character.CharacterId))
+                    {
+                        _pending.Add(() => HideObjectiveAsync(session));
+                    }
                 }
 
                 if (_clockEndsAt is { } endsAt && EndState == null)
@@ -917,6 +949,30 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        public void Objective(int room, LanguageKey objective)
+        {
+            _roomObjectives[room] = objective;
+            foreach (var session in SessionsIn(room))
+            {
+                _pending.Add(() => ShowObjectiveAsync(session, objective));
+            }
+        }
+
+        private IEnumerable<ClientSession> SessionsIn(int room) =>
+            _sessionRegistry.GetClientSessionsByMapInstance(_rooms[room].MapInstanceId).Where(s => s.HasPlayerEntity).ToList();
+
+        private Task ShowObjectiveAsync(ClientSession session, LanguageKey objective)
+        {
+            _showingObjective.Add(session.Character.CharacterId);
+            return session.SendPacketAsync(new SinfoPacket { Message = _gameLanguage[objective, session.Account.Language] });
+        }
+
+        private Task HideObjectiveAsync(ClientSession session)
+        {
+            _showingObjective.Remove(session.Character.CharacterId);
+            return session.SendPacketAsync(new SinfoPacket { Message = string.Empty });
+        }
+
         public void Succeed() => End(EndStateType.Success);
 
         // Each player opens the reward chest of a successful run once.
@@ -1190,6 +1246,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void Message(Game18NConstString message, long value) => Do(() => run.Message(message, value));
 
             public void Message(LanguageKey message, params object[] arguments) => Do(() => run.Message(message, arguments));
+
+            public void Objective(int room, LanguageKey objective) => Do(() => run.Objective(room, objective));
 
             public void Succeed() => Do(run.Succeed);
 

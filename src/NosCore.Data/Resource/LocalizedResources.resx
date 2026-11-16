@@ -1182,4 +1182,121 @@
   <data name="CHATTER_GLACERUS_MUST_FALL" xml:space="preserve">
     <value>Whatever happens, Glacerus must be eliminated!</value>
   </data>
+  <data name="TIMESPACE_GOAL_UNDER_ATTACK" xml:space="preserve">
+    <value>You are under attack!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_IN_TIME" xml:space="preserve">
+    <value>Defeat all the enemies within the time limit.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PROTECT_GUARD_KILL_ALL" xml:space="preserve">
+    <value>Protect the NosVille guard and defeat all the monsters!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_WATCH_OUT_ENEMIES" xml:space="preserve">
+    <value>Watch out, enemies!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MONSTERS_KILL_THEM_ALL" xml:space="preserve">
+    <value>Monsters! Defeat them all!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_APPROACHING_KILL_ALL" xml:space="preserve">
+    <value>Enemies are approaching! Defeat them all!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MUST_KILL_ALL_IN_TIME" xml:space="preserve">
+    <value>You must defeat all the monsters within the time limit!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_IS_IT_A_DEAD_END" xml:space="preserve">
+    <value>Is this a dead end?</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DEAD_END_HURRY" xml:space="preserve">
+    <value>It's a dead end! Hurry, time is running out!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_FOR_BONUS_TIME" xml:space="preserve">
+    <value>Defeat all the creatures to earn bonus time.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_IN_SIGHT" xml:space="preserve">
+    <value>Enemies in sight!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMY_CREATURES_APPROACHING" xml:space="preserve">
+    <value>Enemy creatures are approaching!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MORE_MONSTERS_KILL_THEM" xml:space="preserve">
+    <value>More and more monsters have arrived! Defeat them!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_BOSS_APPROACHING" xml:space="preserve">
+    <value>The boss is approaching!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_BOSS_APPEARED" xml:space="preserve">
+    <value>The boss has appeared!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_UNTIL_DOOR_OPENS" xml:space="preserve">
+    <value>Survive for 1 minute until the door opens.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ENEMIES_FOR_BONUS_TIME" xml:space="preserve">
+    <value>Defeat all the enemies to earn bonus time!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_CAREFUL_MONSTERS_IN_SIGHT" xml:space="preserve">
+    <value>Careful, monsters in sight!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_COMING" xml:space="preserve">
+    <value>The enemies are coming!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_IMPS_ATTACK" xml:space="preserve">
+    <value>The imps are attacking!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PROTECT_GUARD_SOLDIER" xml:space="preserve">
+    <value>Protect the NosVille guard soldier from the attacks.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_ENEMIES" xml:space="preserve">
+    <value>Defeat all the enemies!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_BUTTON_SUMMONED_ENEMIES" xml:space="preserve">
+    <value>That button summoned enemies!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_HOLD_OFF_MINERS" xml:space="preserve">
+    <value>Hold off the miners' attacks for 5 minutes!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PROTECT_CAPTAIN" xml:space="preserve">
+    <value>Protect the captain of the NosVille guard for 3 minutes.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_DRAWING_NEAR" xml:space="preserve">
+    <value>Enemies are drawing near!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SAVE_BOB" xml:space="preserve">
+    <value>Bob is in danger! Save him!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIND_LEVER_AND_FLEE" xml:space="preserve">
+    <value>You cannot win this fight. Find a lever and flee.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES_KILL_THEM" xml:space="preserve">
+    <value>Enemies! Defeat them!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DARK_GARGS_NOT_HERE" xml:space="preserve">
+    <value>The dark Gargs is not here. Defeat all your opponents!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_UNTIL_MONSTER_LEAVES" xml:space="preserve">
+    <value>Survive for 1 minute and the monster will vanish.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_TOM_FIGHTS_MONSTERS" xml:space="preserve">
+    <value>Tom is fighting the monsters.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIGHT_KNIGHT_TOM" xml:space="preserve">
+    <value>Fight Tom the knight!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIGHT_TOM_AGAIN" xml:space="preserve">
+    <value>Fight Tom a second time!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_UNTIL_PORTAL_OPENS" xml:space="preserve">
+    <value>Survive for 1 minute and the portal will open.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_TWO_MINUTES" xml:space="preserve">
+    <value>Survive the monsters' attack for 2 minutes.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_ONE_MINUTE" xml:space="preserve">
+    <value>Survive the monsters' attack for 1 minute.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_ENEMIES" xml:space="preserve">
+    <value>Enemies!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_KOARENS" xml:space="preserve">
+    <value>Try to survive the Koarens' attack for 1 minute.</value>
+  </data>
 </root>

@@ -65,6 +65,7 @@ public class TimeSpace11 : InstanceScript
         {
             r.StartRoomClock(_room3, TimeSpan.FromSeconds(300));
             r.Message(Game18NConstString.EnemiesReinforcements);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_HOLD_OFF_MINERS);
             r.Summon(_room3,
                 new MonsterSpawn(108, new(18, 21)),
                 new MonsterSpawn(105, new(18, 24)),

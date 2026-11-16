@@ -273,6 +273,7 @@ public class TimeSpace23 : InstanceScript
             r.StartRoomClock(_room8, TimeSpan.FromSeconds(60));
             r.Message(Game18NConstString.EnemiesReinforcements);
             r.Dialog(_room8, 6201);
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_SURVIVE_KOARENS);
             r.Summon(_room8,
                 new MonsterSpawn(118, new(3, 10)),
                 new MonsterSpawn(115, new(4, 13)),
@@ -315,14 +316,17 @@ public class TimeSpace23 : InstanceScript
         {
             r.Dialog(_room10, 6204);
             r.Message(LanguageKey.TIMESPACE_ESCAPE_WITH_THE_CAPTAIN);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room11)
         {
             r.Dialog(_room11, 6204);
+            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room12)
         {
             r.Dialog(_room12, 6204);
+            r.Objective(_room12, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room13)
         {
@@ -402,6 +406,7 @@ public class TimeSpace23 : InstanceScript
         if (room == _room13 && button == 1)
         {
             r.Message(Game18NConstString.ObjectHasBeenMoved);
+            r.Objective(_room13, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
             r.UnlockPortal(_room13, _room29);
         }
     }

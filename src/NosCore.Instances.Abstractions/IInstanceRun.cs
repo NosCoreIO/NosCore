@@ -142,6 +142,9 @@ namespace NosCore.Instances.Abstractions
         // A centred line the client has no text for, in each player's own language.
         void Message(LanguageKey message, params object[] arguments);
 
+        // The room's line in the mission panel, shown to whoever is in it until the room is cleared.
+        void Objective(int room, LanguageKey objective);
+
         void Succeed();
 
         void Fail();
