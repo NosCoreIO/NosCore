@@ -47,6 +47,7 @@ Catch everything only at a boundary. Each boundary logs the exception, counts it
 | `MapInstance` per-entity tick steps | one monster, NPC or player in a tick | `map_entity` |
 | `GameEventDispatcher` | one handler of one game event | `game_event` |
 | Hosted service loops, Wolverine handlers | one iteration, one message | not counted yet |
+| `BazaarHubOperations.RequestAsync` | one request to the master; after its retries it throws `MasterUnreachableException`, and the caller settles the operation by its id | not counted |
 
 Everywhere else, catch only an exception the code can handle, by its type (`catch (DbUpdateConcurrencyException)`),
 and let the rest reach the boundary. A catch-all deeper down turns a bug into a log line and leaves the

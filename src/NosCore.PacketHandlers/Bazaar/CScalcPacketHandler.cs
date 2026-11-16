@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 claim = await BazaarHubOperations.RequestAsync(() =>
                     bazaarHttpClient.ClaimBazaarAsync(operationId, packet.BazaarId, clientSession.Character.CharacterId));
             }
-            catch (Exception e)
+            catch (MasterUnreachableException e)
             {
                 logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_DELETE_ERROR]);
                 await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);

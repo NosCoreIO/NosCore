@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             claimed = await BazaarHubOperations.RequestAsync(() => bazaarHttpClient.BuyBazaarAsync(
                                 operationId, packet.BazaarId, packet.Amount, packet.Price, clientSession.Character.CharacterId));
                         }
-                        catch (Exception e)
+                        catch (MasterUnreachableException e)
                         {
                             logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_BUY_ERROR]);
                             await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);

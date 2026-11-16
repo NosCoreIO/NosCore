@@ -26,6 +26,8 @@ public static class BazaarHubOperations
 {
     private const int Attempts = 3;
 
+    // A request to the master is a boundary: whatever made it fail, the master's answer is
+    // unknown, and the operation id is how the caller settles that.
     public static async Task<T> RequestAsync<T>(Func<Task<T>> request)
     {
         for (var attempt = 1; ; attempt++)
@@ -34,8 +36,12 @@ public static class BazaarHubOperations
             {
                 return await request();
             }
-            catch (Exception) when (attempt < Attempts)
+            catch (Exception e)
             {
+                if (attempt == Attempts)
+                {
+                    throw new MasterUnreachableException(e);
+                }
             }
         }
     }
@@ -51,16 +57,10 @@ public static class BazaarHubOperations
             return true;
         }
 
-        try
+        if ((await itemInstanceDao.TryInsertOrUpdateAsync(item) != null)
+            && await shellOptionService.CopyAsync(fromInstanceId, item.Id))
         {
-            if ((await itemInstanceDao.TryInsertOrUpdateAsync(item) != null)
-                && await shellOptionService.CopyAsync(fromInstanceId, item.Id))
-            {
-                return true;
-            }
-        }
-        catch (Exception)
-        {
+            return true;
         }
 
         await DropAsync(itemInstanceDao, item);
@@ -90,14 +90,7 @@ public static class BazaarHubOperations
     public static async Task SettleAsync(this IBazaarHub hub, ISaveService saveService, ClientSession session,
         Guid operationId, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        try
-        {
-            await saveService.SaveAsync(session);
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_SETTLE_FAILED], operationId);
-        }
+        await saveService.SaveAsync(session);
 
         await ResolveAsync(() => hub.SettleBazaarAsync(operationId), LogLanguageKey.BAZAAR_SETTLE_FAILED,
             operationId, logger, logLanguage);
@@ -142,10 +135,13 @@ public static class BazaarHubOperations
 
             return true;
         }
-        catch (Exception e)
+        catch (MasterUnreachableException e)
         {
             logger.LogError(e, logLanguage[failure], operationId);
             return false;
         }
     }
 }
+
+public sealed class MasterUnreachableException(Exception cause)
+    : Exception("The master did not answer a bazaar request.", cause);
