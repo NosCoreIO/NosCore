@@ -19,6 +19,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.ArenaService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
@@ -28,21 +29,20 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using Microsoft.Extensions.Logging;
-using Wolverine;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.BattleService
 {
-    // Orchestrator: validate → resolve skill → resolve targets → enqueue hits → publish
-    // packets + Wolverine events. Almost nothing happens here directly; the heavy lifting
+    // Orchestrator: validate → resolve skill → resolve targets → enqueue hits → send
+    // packets and raise game events. Almost nothing happens here directly; the heavy lifting
     // lives in IDamageCalculator / IHitQueue / IBuffService / IRewardService. This class
     // stays testable because every collaborator is an interface.
     public sealed class BattleService(
         ISkillResolver skillResolver,
         ITargetResolver targetResolver,
         IHitQueue hitQueue,
-        IMessageBus messageBus,
+        IGameEventDispatcher gameEvents,
         ISessionRegistry sessionRegistry,
         IClock clock,
         ICaptureService captureService,
@@ -363,7 +363,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await BroadcastTargetInfoAsync(target);
-            await messageBus.PublishAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed));
+            await gameEvents.RaiseAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed));
 
             if (outcome.Killed)
             {
@@ -390,7 +390,7 @@ namespace NosCore.GameObject.Services.BattleService
                         await spectator.SendPacketAsync(diePacket);
                     }
                 }
-                await messageBus.PublishAsync(new EntityDiedEvent(target, origin));
+                await gameEvents.RaiseAsync(new EntityDiedEvent(target, origin));
             }
         }
 

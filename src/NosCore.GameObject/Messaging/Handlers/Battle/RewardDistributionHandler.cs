@@ -11,9 +11,7 @@ using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
-    // Single responsibility: when an entity dies, hand the HitList to the reward service
-    // so it can credit XP/gold/drops. Split out of the damage hot path as a Wolverine
-    // handler so slow drops / XP calculations never block an in-flight hit.
+    // When an entity dies, hand the HitList to the reward service so it can credit XP, gold and drops.
     [UsedImplicitly]
     public sealed class RewardDistributionHandler(IRewardService rewardService)
     {

@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private ClientSession Session;
         private IItemGenerationService ItemProvider;
         private UseItemPacketHandler Handler;
-        private InlineOrDeferredMessageBus<ItemUsedEvent> Bus;
+        private InlineGameEvents<ItemUsedEvent> GameEvents;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -59,8 +59,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                     },
                 });
             var boxHandler = new BoxEffectHandler(ItemProvider, Mock.Of<IItemCatalog>(), rollDao.Object, new NosCore.GameObject.Services.BattleService.RandomProvider());
-            Bus = new InlineOrDeferredMessageBus<ItemUsedEvent>(evt => boxHandler.Handle(evt));
-            Handler = new UseItemPacketHandler(Bus.Object);
+            GameEvents = new InlineGameEvents<ItemUsedEvent>(evt => boxHandler.Handle(evt));
+            Handler = new UseItemPacketHandler(GameEvents.Object);
         }
 
         [TestMethod]
@@ -93,7 +93,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Mode = 1,
             };
             await Task.WhenAll(Handler.ExecuteAsync(packet, Session), Handler.ExecuteAsync(packet, Session));
-            await Bus.DeliverPublishedAsync();
         }
 
         private void TheCharacterHolds__(short vnum, int amount) =>

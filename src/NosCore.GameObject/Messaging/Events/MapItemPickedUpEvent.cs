@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Messaging.Events
         short VNum,
         short Amount,
         IItemInstance? ItemInstance,
-        GetPacket Packet) : IPlayerEvent
+        GetPacket Packet) : IGameEvent, IPlayerEvent
     {
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
 

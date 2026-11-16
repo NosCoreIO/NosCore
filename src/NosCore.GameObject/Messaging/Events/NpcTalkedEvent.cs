@@ -11,7 +11,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 namespace NosCore.GameObject.Messaging.Events
 {
     // Fired by RequestNpcPacketHandler when a character opens an NPC or map object.
-    public sealed record NpcTalkedEvent(PlayerComponentBundle Character, INonPlayableEntity Npc) : IPlayerEvent
+    public sealed record NpcTalkedEvent(PlayerComponentBundle Character, INonPlayableEntity Npc) : IGameEvent, IPlayerEvent
     {
         // Read when handled, possibly after a map change replaced a player's entity.
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;

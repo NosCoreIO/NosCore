@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -23,7 +24,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using SpecLight;
-using Wolverine;
 using FakeEntity = NosCore.GameObject.Tests.Services.BattleService.BattleServiceTests.FakeEntity;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _skillResolver.Object,
                 targetResolver.Object,
                 hitQueue.Object,
-                new Mock<IMessageBus>().Object,
+                new Mock<IGameEventDispatcher>().Object,
                 World.SessionRegistry,
                 World.Clock,
                 new Mock<ICaptureService>().Object,

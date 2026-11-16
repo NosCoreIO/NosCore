@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
@@ -17,7 +18,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
 using NosCore.GameObject.Messaging.Events;
-using Wolverine;
 
 
 namespace NosCore.PacketHandlers.Inventory
@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Inventory
     public class RemovePacketHandler(NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             NosCore.GameObject.Services.BattleService.IBattleStatsProvider battleStatsProvider,
             NosCore.GameObject.Services.MateService.IPartnerEquipmentService partnerEquipmentService,
-            IMessageBus messageBus)
+            IGameEventDispatcher gameEvents)
         : PacketHandler<RemovePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             await vitalityService.RefreshAndNotifyAsync(clientSession.Character);
-            await messageBus.PublishAsync(new MovementConditionChangedEvent(clientSession.Character));
+            await gameEvents.RaiseAsync(new MovementConditionChangedEvent(clientSession.Character));
         }
     }
 }

@@ -20,6 +20,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Quest;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -54,7 +55,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
         private ClientSession Session;
         private CaptureService Captures;
-        private InlineOrDeferredMessageBus<EntityCapturedEvent> Bus;
+        private InlineGameEvents<EntityCapturedEvent> GameEvents;
         private CharacterQuest TrackedQuest;
         private readonly Dictionary<short, NpcMonsterDto> Creatures = new()
         {
@@ -80,17 +81,17 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 World.Clock,
                 World.LogLanguageLocalizer,
                 new IQuestTypeHandler[] { World.Create<CaptureQuestHandler>(), World.Create<CaptureWithoutGettingTheMonsterQuestHandler>() },
-                new Mock<Wolverine.IMessageBus>().Object,
+                new Mock<IGameEventDispatcher>().Object,
                 new Mock<IQuestRewardService>().Object,
                 World.Clock);
             var capturedHandler = new OnEntityCapturedHandler(questService, NullLogger<OnEntityCapturedHandler>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
-            Bus = new InlineOrDeferredMessageBus<EntityCapturedEvent>(capturedHandler.Handle);
+            GameEvents = new InlineGameEvents<EntityCapturedEvent>(capturedHandler.Handle);
 
             var random = new Mock<IRandomProvider>();
             random.Setup(r => r.Next(0, 100)).Returns(0);
             var mateService = new MateServiceImpl(World.MateDao, Creatures.Values.ToList(),
                 new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
-            Captures = new CaptureService(World.MateDao, mateService, Bus.Object,
+            Captures = new CaptureService(World.MateDao, mateService, GameEvents.Object,
                 World.Clock, random.Object, World.DistanceCalculator,
                 World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
         }
@@ -231,7 +232,6 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Session.LastPackets.Clear();
 
             await Captures.TryCaptureAsync(Session.Character, monster, CaptureSkill);
-            await Bus.DeliverPublishedAsync();
         }
 
         private void ObjectiveShouldBeAt_(int expected)

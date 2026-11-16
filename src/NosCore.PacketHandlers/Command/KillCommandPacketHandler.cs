@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class KillCommandPacketHandler(IMessageBus messageBus) : PacketHandler<KillPacket>, IWorldPacketHandler
+    public class KillCommandPacketHandler(IGameEventDispatcher gameEvents) : PacketHandler<KillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(KillPacket _, ClientSession session)
         {
@@ -23,7 +23,7 @@ namespace NosCore.PacketHandlers.Command
             }
 
             session.Character.Hp = 0;
-            await messageBus.PublishAsync(new EntityDiedEvent(session.Character, session.Character));
+            await gameEvents.RaiseAsync(new EntityDiedEvent(session.Character, session.Character));
         }
     }
 }

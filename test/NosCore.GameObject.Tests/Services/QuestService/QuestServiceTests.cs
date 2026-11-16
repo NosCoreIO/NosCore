@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.QuestService.Handlers;
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private List<ScriptOfferDto> ScriptOffers;
         private List<QuestDto> Quests;
         private List<QuestObjectiveDto> QuestObjectives;
-        private readonly Mock<Wolverine.IMessageBus> Bus = new();
+        private readonly Mock<IGameEventDispatcher> GameEvents = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -167,7 +168,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     World.Create<GoToQuestHandler>(),
                     new NpcButtonQuestHandler(Quests),
                 },
-                Bus.Object,
+                GameEvents.Object,
                 new Mock<IQuestRewardService>().Object,
                 World.Clock);
         }
@@ -178,7 +179,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             await new Spec("A quest with no objective, paired with the quest it links to, ends when taken so that quest follows")
                 .WhenAsync(TakingQuest_, (short)6)
                 .Then(Quest_ShouldBeDone_, (short)6, true)
-                .And(QuestCompletedShouldBePublishedFor_, (short)6)
+                .And(QuestCompletedShouldBeRaisedFor_, (short)6)
                 .ExecuteAsync();
         }
 
@@ -206,8 +207,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void Quest_ShouldBeDone_(short questId, bool done) =>
             Assert.AreEqual(done, Session.Character.Quests.Values.Single(q => q.QuestId == questId).CompletedOn is not null);
 
-        private void QuestCompletedShouldBePublishedFor_(short questId) =>
-            Assert.IsTrue(Bus.Invocations.Select(i => i.Arguments[0]).OfType<GameObject.Messaging.Events.QuestCompletedEvent>()
+        private void QuestCompletedShouldBeRaisedFor_(short questId) =>
+            Assert.IsTrue(GameEvents.Invocations.Select(i => i.Arguments[0]).OfType<GameObject.Messaging.Events.QuestCompletedEvent>()
                 .Any(e => e.Quest.QuestId == questId));
 
         [TestMethod]
@@ -216,7 +217,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             await new Spec("Two events completing the same quest at once complete and reward it once")
                 .Given(CharacterHasADefeatQuestNeedingTwoEnemiesInGlacernon)
                 .WhenAsync(CompletingTheTrackedQuestTwiceAtOnce)
-                .Then(QuestCompletedShouldBePublishedTimes_, 1)
+                .Then(QuestCompletedShouldBeRaisedTimes_, 1)
                 .ExecuteAsync();
         }
 
@@ -224,8 +225,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Task.Run(() => Service.CompleteQuestAsync(Session.Character, _trackedQuest)),
             Task.Run(() => Service.CompleteQuestAsync(Session.Character, _trackedQuest)));
 
-        private void QuestCompletedShouldBePublishedTimes_(int times) =>
-            Assert.AreEqual(times, Bus.Invocations.Select(i => i.Arguments[0]).OfType<GameObject.Messaging.Events.QuestCompletedEvent>().Count());
+        private void QuestCompletedShouldBeRaisedTimes_(int times) =>
+            Assert.AreEqual(times, GameEvents.Invocations.Select(i => i.Arguments[0]).OfType<GameObject.Messaging.Events.QuestCompletedEvent>().Count());
 
         [TestMethod]
         public async Task AChapterAnNpcOffersDoesNotStartWhenThePreviousOneEnds()

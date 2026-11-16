@@ -75,8 +75,9 @@ Players, monsters, NPCs and mates are [Arch](https://github.com/genaray/Arch) en
    (`entity.OnMapAsync`), one item at a time with the life-loop tick.
 5. A change to state that other channels share goes to the master, which re-reads the row and
    writes it under its own lock.
-6. Reactions that cross features (a kill gives experience, moves a quest, writes a family log) are
-   Wolverine events handled in `Messaging/Handlers`.
+6. Reactions that cross features (a kill gives experience, moves a quest) are game events raised
+   through `IGameEventDispatcher` and handled in `Messaging/Handlers` before the raise returns.
+   Work that crosses a server or waits for later is a Wolverine message carrying ids and values.
 
 ## Tests
 

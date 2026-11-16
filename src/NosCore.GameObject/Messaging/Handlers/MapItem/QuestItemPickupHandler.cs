@@ -9,13 +9,13 @@ using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.Networking;
-using Wolverine;
 
 namespace NosCore.GameObject.Messaging.Handlers.MapItem
 {
     [UsedImplicitly]
-    public sealed class QuestItemPickupHandler(IMessageBus messageBus)
+    public sealed class QuestItemPickupHandler(IGameEventDispatcher gameEvents)
     {
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             }
 
             await mapInstance.SendPacketAsync(evt.GenerateGet());
-            await messageBus.PublishAsync(new ItemsReceivedEvent(character, evt.VNum, evt.Amount));
+            await gameEvents.RaiseAsync(new ItemsReceivedEvent(character, evt.VNum, evt.Amount));
         }
     }
 }

@@ -10,6 +10,7 @@ using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
@@ -25,7 +26,7 @@ using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 namespace NosCore.GameObject.Services.CollectService;
 
 public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationService itemProvider, IClock clock,
-    Wolverine.IMessageBus messageBus) : ICollectService
+    IGameEventDispatcher gameEvents) : ICollectService
 {
     public const int CollectDelay = 5000;
 
@@ -80,7 +81,7 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
         npc.IsAlive = false;
         await npc.MapInstance.SendPacketAsync(npc.GenerateOut());
         npc.RespawnAt = clock.GetCurrentInstant().Plus(RespawnTiming.For(mapObject));
-        await messageBus.PublishAsync(new MapEntityCollectedEvent(character, npc));
+        await gameEvents.RaiseAsync(new MapEntityCollectedEvent(character, npc));
         return true;
     }
 }

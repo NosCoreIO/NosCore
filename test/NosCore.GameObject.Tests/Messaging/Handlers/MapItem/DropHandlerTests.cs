@@ -11,6 +11,7 @@ using Moq;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Drops;
@@ -18,7 +19,6 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
-using Wolverine;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
 {
@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private const short PickedItem = 1012;
 
         private ClientSession _session;
-        private Mock<IMessageBus> _messageBus;
+        private Mock<IGameEventDispatcher> _gameEvents;
         private MapItemComponentBundle _drop;
         private short _droppedVNum;
         private short _droppedAmount;
@@ -40,17 +40,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(0);
-            _messageBus = World.Freeze<Mock<IMessageBus>>();
+            _gameEvents = World.Freeze<Mock<IGameEventDispatcher>>();
         }
 
         [TestMethod]
         public async Task PickingUpAnItemAnnouncesIt()
         {
-            await new Spec("A drop that lands in the inventory publishes the item and amount received")
+            await new Spec("A drop that lands in the inventory raises the item and amount received")
                 .Given(ADropOf_Of_, 3, PickedItem)
                 .WhenAsync(PickingItUp)
                 .Then(TheCharacterShouldCarry_Of_, 3, PickedItem)
-                .And(TheReceivedItemsShouldBePublished_Of_, 3, PickedItem)
+                .And(TheReceivedItemsShouldBeRaised_Of_, 3, PickedItem)
                 .ExecuteAsync();
         }
 
@@ -95,9 +95,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private void TheCharacterShouldCarry_Of_(int amount, short vNum) =>
             Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(vNum));
 
-        private void TheReceivedItemsShouldBePublished_Of_(int amount, short vNum) =>
-            _messageBus.Verify(b => b.PublishAsync(
-                It.Is<ItemsReceivedEvent>(e => e.VNum == vNum && e.Amount == amount),
-                It.IsAny<DeliveryOptions?>()), Times.Once);
+        private void TheReceivedItemsShouldBeRaised_Of_(int amount, short vNum) =>
+            _gameEvents.Verify(b => b.RaiseAsync(
+                It.Is<ItemsReceivedEvent>(e => e.VNum == vNum && e.Amount == amount)), Times.Once);
     }
 }

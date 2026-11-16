@@ -10,7 +10,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 namespace NosCore.GameObject.Messaging.Events
 {
     // A buff that raises the worn fairy's element landed or ended.
-    public sealed record FairyLookChangedEvent(IAliveEntity Target)
+    public sealed record FairyLookChangedEvent(IAliveEntity Target) : IGameEvent
     {
         public IAliveEntity Target { get => field.Live(); init; } = Target;
     }

@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Messaging.Handlers.Quest;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.QuestService.Handlers;
@@ -72,7 +73,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 World.Clock,
                 World.LogLanguageLocalizer,
                 handlers,
-                new Mock<Wolverine.IMessageBus>().Object,
+                new Mock<IGameEventDispatcher>().Object,
                 new Mock<IQuestRewardService>().Object,
                 World.Clock);
             TalkedHandler = new OnNpcTalkedHandler(questService, handlers);

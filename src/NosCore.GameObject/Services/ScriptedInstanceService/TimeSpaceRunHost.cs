@@ -8,6 +8,7 @@ using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -19,12 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
-        IMessageBus messageBus, IClock clock)
+        IGameEventDispatcher gameEvents, IClock clock)
         : IInstanceRunHost
     {
         private static readonly Duration ReviveDelay = Duration.FromSeconds(10);
@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
             {
-                await messageBus.PublishAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
+                await gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
             }
         }
 

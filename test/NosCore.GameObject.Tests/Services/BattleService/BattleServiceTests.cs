@@ -16,6 +16,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.ShopService;
@@ -23,7 +24,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Wolverine;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<ISkillResolver> _skillResolver;
         private Mock<ITargetResolver> _targetResolver;
         private Mock<IHitQueue> _hitQueue;
-        private Mock<IMessageBus> _bus;
+        private Mock<IGameEventDispatcher> _gameEvents;
         private Mock<ICastDelayService> _castDelay;
         private Mock<IBuffService> _buffs;
         private Mock<ISummonService> _summons;
@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _skillResolver = new Mock<ISkillResolver>();
             _targetResolver = new Mock<ITargetResolver>();
             _hitQueue = new Mock<IHitQueue>();
-            _bus = new Mock<IMessageBus>();
+            _gameEvents = new Mock<IGameEventDispatcher>();
             _castDelay = new Mock<ICastDelayService>();
             _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>())).Returns(Task.CompletedTask);
             _buffs = new Mock<IBuffService>();
@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _skillResolver.Object,
                 _targetResolver.Object,
                 _hitQueue.Object,
-                _bus.Object,
+                _gameEvents.Object,
                 new Mock<GameObject.Services.BroadcastService.ISessionRegistry>().Object,
                 new NodaTime.Testing.FakeClock(NodaTime.Instant.FromUtc(2026, 1, 1, 0, 0)),
                 new Mock<NosCore.GameObject.Services.BattleService.ICaptureService>().Object,
@@ -312,7 +312,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public async Task KillPublishesEntityDiedEvent()
+        public async Task AKillRaisesEntityDiedEvent()
         {
             var origin = new FakeEntity { Hp = 100 };
             var target = new FakeEntity { Hp = 1, VisualType = VisualType.Monster };
@@ -325,7 +325,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
 
-            _bus.Verify(b => b.PublishAsync(It.Is<EntityDiedEvent>(e => e.Victim == target && e.Killer == origin), null), Times.Once);
+            _gameEvents.Verify(b => b.RaiseAsync(It.Is<EntityDiedEvent>(e => e.Victim == target && e.Killer == origin)), Times.Once);
         }
 
         [TestMethod]

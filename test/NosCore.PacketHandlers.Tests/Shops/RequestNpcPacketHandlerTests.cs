@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Algorithm.DignityService;
@@ -40,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private TestWorld World;
         private RequestNpcPacketHandler _requestNpcPacketHandler;
         private ClientSession _session;
-        private readonly Mock<Wolverine.IMessageBus> MessageBus = new();
+        private readonly Mock<IGameEventDispatcher> GameEvents = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -54,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NullLogger<RequestNpcPacketHandler>.Instance,
                 World.LogLanguageLocalizer,
                 World.SessionRegistry,
-                MessageBus.Object, World.NpcDialogService, new Mock<IRainbowBattleService>().Object);
+                GameEvents.Object, World.NpcDialogService, new Mock<IRainbowBattleService>().Object);
         }
 
         [TestMethod]
@@ -99,12 +100,12 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         [TestMethod]
-        public async Task RequestNpcPublishesThatTheNpcWasTalkedTo()
+        public async Task RequestNpcRaisesThatTheNpcWasTalkedTo()
         {
-            await new Spec("Opening an NPC publishes that the character talked to it, for quest objectives")
+            await new Spec("Opening an NPC raises that the character talked to it, for quest objectives")
                 .Given(NpcWithDialogExistsOnMap)
                 .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
-                .Then(NpcTalkedEventShouldBePublished)
+                .Then(NpcTalkedEventShouldBeRaised)
                 .ExecuteAsync();
         }
 
@@ -141,10 +142,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Assert.AreEqual(0, answer.Data);
         }
 
-        private void NpcTalkedEventShouldBePublished()
+        private void NpcTalkedEventShouldBeRaised()
         {
-            var published = MessageBus.Invocations
-                .Where(i => i.Method.Name == nameof(Wolverine.IMessageBus.PublishAsync))
+            var published = GameEvents.Invocations
+                .Where(i => i.Method.Name == nameof(IGameEventDispatcher.RaiseAsync))
                 .Select(i => i.Arguments[0])
                 .OfType<NosCore.GameObject.Messaging.Events.NpcTalkedEvent>()
                 .Single();
@@ -177,10 +178,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestMethod]
         public async Task RequestNpcOnACollectableStartsTheCollectWithoutADialog()
         {
-            await new Spec("req_npc on a collectable map object publishes the talk for the collect and opens no dialog")
+            await new Spec("req_npc on a collectable map object raises the talk for the collect and opens no dialog")
                 .Given(CollectableNpcWithDialogExistsOnMap)
                 .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
-                .Then(NpcTalkedEventShouldBePublished)
+                .Then(NpcTalkedEventShouldBeRaised)
                 .And(NoDialogShouldBeRecorded)
                 .ExecuteAsync();
         }

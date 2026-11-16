@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.Enumerations;
@@ -50,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var catalog = new Mock<ICardCatalog>();
             catalog.Setup(c => c.GetCard(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.Card);
             catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
-            _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, new Mock<Wolverine.IMessageBus>().Object);
+            _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, new Mock<IGameEventDispatcher>().Object);
 
             var calculator = new Mock<IDamageCalculator>();
             calculator.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))

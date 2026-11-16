@@ -8,6 +8,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -27,7 +28,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ProductionService
 {
     public class ProductionService(IItemGenerationService itemProvider, IHeuristic distanceCalculator,
-            List<RecipeDto> recipes, List<RecipeItemDto> recipeItems, Wolverine.IMessageBus messageBus)
+            List<RecipeDto> recipes, List<RecipeItemDto> recipeItems, IGameEventDispatcher gameEvents)
         : IProductionService, ISingletonService
     {
         private const int MaxDistance = 5;
@@ -124,7 +125,7 @@ namespace NosCore.GameObject.Services.ProductionService
                 Value = ProducedEffect
             });
             await session.SendPacketsAsync(packets);
-            await messageBus.PublishAsync(new ItemProducedEvent(character, item.ItemVNum, recipe.Amount));
+            await gameEvents.RaiseAsync(new ItemProducedEvent(character, item.ItemVNum, recipe.Amount));
         }
 
         private static async Task<bool> HasMaterialsAsync(ClientSession session, Recipe recipe)

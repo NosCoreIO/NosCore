@@ -19,6 +19,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Generated;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -26,7 +27,6 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Tests.Shared;
-using Wolverine;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .ReturnsAsync(new HitOutcome(HitStatus.Landed, 1, SuPacketHitMode.SuccessAttack, false));
             var clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             var service = new GameObject.Services.BattleService.BattleService(
-                skillResolver.Object, targetResolver.Object, hitQueue.Object, new Mock<IMessageBus>().Object,
+                skillResolver.Object, targetResolver.Object, hitQueue.Object, new Mock<IGameEventDispatcher>().Object,
                 World.SessionRegistry, clock, new Mock<ICaptureService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.ICastDelayService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,

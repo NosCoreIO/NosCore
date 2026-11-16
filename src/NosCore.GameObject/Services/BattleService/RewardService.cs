@@ -17,6 +17,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.GroupService;
@@ -40,7 +41,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.Packets.ServerPackets.UI;
-using Wolverine;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -66,7 +66,7 @@ public sealed class RewardService(
     IQuestDropService questDropService,
     IScriptedInstanceService scriptedInstanceService,
     IItemDeliveryService itemDeliveryService,
-    IMessageBus messageBus,
+    IGameEventDispatcher gameEvents,
     IOptions<WorldConfiguration> worldConfiguration,
     ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random) : IRewardService
 {
@@ -452,7 +452,7 @@ public sealed class RewardService(
                 try
                 {
                     await itemDeliveryService.DeliverAsync(attacker, itemGenerationService.Create(drop.VNum, (short)drop.Amount));
-                    await messageBus.PublishAsync(new ItemsReceivedEvent(attacker, drop.VNum, (short)drop.Amount));
+                    await gameEvents.RaiseAsync(new ItemsReceivedEvent(attacker, drop.VNum, (short)drop.Amount));
                 }
                 catch (System.Exception ex)
                 {

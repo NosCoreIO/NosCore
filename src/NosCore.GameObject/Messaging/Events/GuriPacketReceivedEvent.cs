@@ -9,10 +9,9 @@ using NosCore.Packets.ClientPackets.UI;
 
 namespace NosCore.GameObject.Messaging.Events
 {
-    // Published by GuriPacketHandler when a guri packet arrives. Wolverine fans out to every handler
-    // with a Handle/HandleAsync(GuriPacketReceivedEvent) method; each handler filters internally
-    // (no central Condition() registry).
-    public sealed record GuriPacketReceivedEvent(ClientSession ClientSession, GuriPacket Packet) : IPlayerEvent
+    // Raised by GuriPacketHandler when a guri packet arrives. Every handler with a
+    // Handle/HandleAsync(GuriPacketReceivedEvent) method runs and filters it itself.
+    public sealed record GuriPacketReceivedEvent(ClientSession ClientSession, GuriPacket Packet) : IGameEvent, IPlayerEvent
     {
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
     }

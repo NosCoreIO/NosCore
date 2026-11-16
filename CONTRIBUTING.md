@@ -33,7 +33,7 @@ rather than adding a lock next to it.
    their purpose.
 6. **Don't acquire two locks at once** unless the order is documented at both call sites.
 
-If a new feature needs cross-cutting coordination (e.g. "all map instances must agree on X"), prefer publishing a Wolverine message to a handler that owns the state — not adding a lock that spans subsystems.
+If a new feature needs cross-cutting coordination (e.g. "all map instances must agree on X"), prefer an event handled by the code that owns the state — not adding a lock that spans subsystems.
 
 ## Background work & scheduled jobs
 
@@ -47,14 +47,19 @@ For one-shot delayed work, publish via `IMessageBus.PublishAsync` with a `Delive
 
 ## Domain events
 
-Cross-cutting reactions ("on monster killed → award XP, update quest progress, write family log") should be Wolverine messages, not direct calls between services. See `NosCore.GameObject.Messaging.Events/MonsterKilledEvent.cs` for the template.
+Cross-cutting reactions ("on monster killed → award XP, update quest progress, write family log") are events, not direct calls between services. There are two kinds:
+
+- **Game events** happen inside one world server: a hit, a death, a step, an item used, a map entered. They implement `IGameEvent` and are raised with `IGameEventDispatcher.RaiseAsync`. Every handler runs before `RaiseAsync` returns, one after another, still under the caller's packet lock and map executor, so a kill is rewarded and counted for quests before the player's next packet is read. They may carry entities and sessions. A handler that throws is logged and the others still run.
+- **Integration messages** cross a server or wait for later: master requests, scheduled and recurring jobs, a won raid written to the family. They go through Wolverine (`IMessageBus`) and carry ids and values only, never an entity, a bundle or a session, because by the time they are handled that entity may be gone.
+
+Game events: `BuffExpiredEvent`, `CharacterMovedEvent`, `EntityCapturedEvent`, `EntityDamagedEvent`, `EntityDiedEvent`, `FairyLookChangedEvent`, `GuriPacketReceivedEvent`, `HiddenChangedEvent`, `ItemProducedEvent`, `ItemUsedEvent`, `ItemWornEvent`, `ItemsReceivedEvent`, `MapEntityCollectedEvent`, `MapInstanceEnteredEvent`, `MapItemPickedUpEvent`, `MovementConditionChangedEvent`, `NpcTalkedEvent`, `QuestCompletedEvent`, `ScriptedInstanceSucceededEvent`. Integration messages among the events: `GlacernonRaidWonEvent`, `RaidWonEvent`.
 
 ### Conventions
 
 - **Events** live in `NosCore.GameObject.Messaging.Events/` as `sealed record EventNameEvent(...)`. Use past tense — `XHappenedEvent` — to make it clear the event represents something that already occurred.
-- **Handlers** live in `NosCore.GameObject.Messaging.Handlers/<Domain>/`, one folder per packet/feature area (e.g. `Guri/`, `Nrun/`, `UseItem/`, `MapItem/`, `Map/`). Class names always end with `Handler`, never `EventHandler`. Handlers are plain classes — Wolverine discovers them by convention via the `Handle`/`HandleAsync` method.
-- **One handler per file.** Multiple handlers can subscribe to the same event; each filters internally with an early `return` if the event isn't relevant.
-- **Publishing**: inject `Wolverine.IMessageBus` and call `messageBus.PublishAsync(new XEvent(...))`. Don't introduce per-domain "runner" services — the bus is the runner.
+- **Handlers** live in `NosCore.GameObject.Messaging.Handlers/<Domain>/`, one folder per packet/feature area (e.g. `Guri/`, `Nrun/`, `UseItem/`, `MapItem/`, `Map/`). Class names always end with `Handler`, never `EventHandler`. Handlers are plain classes with a public `Handle`/`HandleAsync` method taking the event; the dispatcher (game events) or Wolverine (messages) finds them by that method.
+- **One handler per file.** Multiple handlers can subscribe to the same event; each filters internally with an early `return` if the event isn't relevant. Handlers of one game event run by name; `[GameEventOrder]` moves one earlier or later when the order matters.
+- **Raising**: inject `IGameEventDispatcher` and call `gameEvents.RaiseAsync(new XEvent(...))`. Publish an integration message with `IMessageBus.PublishAsync`. Don't introduce per-domain "runner" services.
 
 ### Recurring & scheduled work
 

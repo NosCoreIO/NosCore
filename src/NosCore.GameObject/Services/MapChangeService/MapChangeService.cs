@@ -1,4 +1,5 @@
 
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.GroupService;
@@ -45,7 +46,7 @@ namespace NosCore.GameObject.Services.MapChangeService
             IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger<MapChangeService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
-            ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus,
+            ISessionRegistry sessionRegistry, IGameEventDispatcher gameEvents,
             ScriptedInstanceService.IScriptedInstanceService scriptedInstanceService,
             BattleService.IBattleStatsProvider battleStatsProvider,
             FactionWarService.IFactionWarService factionWarService,
@@ -345,8 +346,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketsAsync(teamMates.Select(s => s.GenerateCond()));
                 await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
 
-                await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance, currentMapInstance));
-                await messageBus.PublishAsync(new MovementConditionChangedEvent(character));
+                await gameEvents.RaiseAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance, currentMapInstance));
+                await gameEvents.RaiseAsync(new MovementConditionChangedEvent(character));
             }
             catch (Exception ex)
             {

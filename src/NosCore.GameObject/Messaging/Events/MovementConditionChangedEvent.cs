@@ -11,7 +11,7 @@ namespace NosCore.GameObject.Messaging.Events
 {
     // A buff that changes speed, or stops its bearer from moving or attacking, landed or ended, or
     // the worn gear changed.
-    public sealed record MovementConditionChangedEvent(IAliveEntity Target)
+    public sealed record MovementConditionChangedEvent(IAliveEntity Target) : IGameEvent
     {
         public IAliveEntity Target { get => field.Live(); init; } = Target;
     }

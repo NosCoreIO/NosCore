@@ -24,8 +24,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
     // Bumps kill-count quests (Hunt / NumberOfKill) for each character that
     // contributed damage to the dead NPC. Runs off the same EntityDiedEvent
     // the reward distributor uses so the quest logic never has to be called
-    // from BattleService or RewardService directly.
+    // from BattleService or RewardService directly. It runs after the rewards for the kill.
     [UsedImplicitly]
+    [GameEventOrder(1)]
     public sealed class OnEntityDiedHandler(IQuestService questService, ILogger<OnEntityDiedHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         [UsedImplicitly]
@@ -37,9 +38,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             }
 
             var mob = npc.NpcMonster;
-            // Process contributors independently so one failure doesn't abort
-            // the rest; Wolverine would retry the whole event and double-count
-            // the contributors that already succeeded.
+            // Process contributors independently so one failure doesn't abort the rest.
             foreach (var (handle, _) in evt.HitSnapshot)
             {
                 if (!TryFindCharacter(evt.Victim, handle, out var character))

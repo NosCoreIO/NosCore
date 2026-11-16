@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         private IItemGenerationService _itemProvider;
         private GameObject.Services.ProductionService.ProductionService _service;
         private InventoryItemInstance _materialStack;
-        private Mock<Wolverine.IMessageBus> _messageBus;
+        private Mock<IGameEventDispatcher> _gameEvents;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -60,7 +61,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
                     new() { RecipeId = 1, ItemVNum = Material, Amount = 3 },
                     new() { RecipeId = 3, ItemVNum = Material, Amount = 5 }
                 },
-                (_messageBus = new Mock<Wolverine.IMessageBus>()).Object);
+                (_gameEvents = new Mock<IGameEventDispatcher>()).Object);
         }
 
         [TestMethod]
@@ -109,34 +110,32 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         [TestMethod]
         public async Task ProducingAnnouncesWhatWasMade()
         {
-            await new Spec("A finished production publishes the item and the amount made")
+            await new Spec("A finished production raises the item and the amount made")
                 .Given(AnNpcAt_CellsMakes_From_Materials, 0, (short)5)
                 .And(TheCharacterHas_Materials, (short)5)
                 .WhenAsync(TheItemIsProduced)
-                .Then(TheProductionShouldBePublishedWith_Items, (short)2)
+                .Then(TheProductionShouldBeRaisedWith_Items, (short)2)
                 .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task AFailedProductionAnnouncesNothing()
         {
-            await new Spec("A production missing materials publishes nothing")
+            await new Spec("A production missing materials raises nothing")
                 .Given(AnNpcAt_CellsMakes_From_Materials, 0, (short)5)
                 .And(TheCharacterHas_Materials, (short)4)
                 .WhenAsync(TheItemIsProduced)
-                .Then(NoProductionShouldBePublished)
+                .Then(NoProductionShouldBeRaised)
                 .ExecuteAsync();
         }
 
-        private void TheProductionShouldBePublishedWith_Items(short amount) =>
-            _messageBus.Verify(b => b.PublishAsync(
-                It.Is<GameObject.Messaging.Events.ItemProducedEvent>(e => e.VNum == Product && e.Amount == amount),
-                It.IsAny<Wolverine.DeliveryOptions?>()), Times.Once);
+        private void TheProductionShouldBeRaisedWith_Items(short amount) =>
+            _gameEvents.Verify(b => b.RaiseAsync(
+                It.Is<GameObject.Messaging.Events.ItemProducedEvent>(e => e.VNum == Product && e.Amount == amount)), Times.Once);
 
-        private void NoProductionShouldBePublished() =>
-            _messageBus.Verify(b => b.PublishAsync(
-                It.IsAny<GameObject.Messaging.Events.ItemProducedEvent>(),
-                It.IsAny<Wolverine.DeliveryOptions?>()), Times.Never);
+        private void NoProductionShouldBeRaised() =>
+            _gameEvents.Verify(b => b.RaiseAsync(
+                It.IsAny<GameObject.Messaging.Events.ItemProducedEvent>()), Times.Never);
 
         [TestMethod]
         public async Task OpeningListsTheRecipesThenOpensTheWindow()
