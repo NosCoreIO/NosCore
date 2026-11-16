@@ -11,6 +11,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Networking;
 
 namespace NosCore.GameObject.Messaging.Handlers.MapItem

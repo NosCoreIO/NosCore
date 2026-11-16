@@ -11,6 +11,7 @@ using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Networking;
 
 namespace NosCore.PacketHandlers.Command

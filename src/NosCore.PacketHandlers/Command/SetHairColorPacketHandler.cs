@@ -11,6 +11,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 

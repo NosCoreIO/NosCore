@@ -10,6 +10,7 @@ using NosCore.Algorithm.BankService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BankService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.Enumerations;
 

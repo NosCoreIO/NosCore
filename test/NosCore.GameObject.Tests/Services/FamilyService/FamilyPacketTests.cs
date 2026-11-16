@@ -10,6 +10,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;

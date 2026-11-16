@@ -5,57 +5,39 @@
 //
 
 using NosCore.Algorithm.DignityService;
-using NosCore.GameObject.Ecs;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
-using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject.Ecs.Interfaces;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ClientPackets.Shops;
-using NosCore.Packets.ServerPackets.Groups;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.Data.Dto;
-using NosCore.Data.StaticEntities;
 using NosCore.Dao.Interfaces;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
-using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Packets.ServerPackets.Entities;
-using NosCore.Packets.ServerPackets.Exchanges;
-using NosCore.Packets.ServerPackets.Inventory;
-using NosCore.Packets.ServerPackets.MiniMap;
-using NosCore.Packets.ServerPackets.Player;
-using NosCore.Packets.ServerPackets.Quest;
-using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
 using NosCore.Core.I18N;
-using NosCore.Shared.I18N;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -66,199 +48,12 @@ namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class CharacterEntityExtension
     {
-        // A system message the client shows as said by this character, which is how it tells
-        // a player about their own actions.
-        [Obsolete(
-           "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
-        public static IEnumerable<IPacket> GenerateInv(this PlayerComponentBundle characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
-        {
-            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv9 = new InvPacket { Type = PocketType.Mount, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv10 = new InvPacket { Type = PocketType.Raid, IvnSubPackets = new List<IvnSubPacket>() };
-
-            if (characterEntity.InventoryService == null)
-            {
-                return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 };
-            }
-
-            foreach (var inv in characterEntity.InventoryService.Select(s => s.Value))
-            {
-                switch (inv.Type)
-                {
-                    case NoscorePocketType.Equipment:
-                        if (inv.ItemInstance is SpecialistInstance specialistInstance)
-                        {
-                            inv0.IvnSubPackets.Add(new IvnSubPacket
-                            {
-                                Slot = inv.Slot,
-                                VNum = inv.ItemInstance.ItemVNum,
-                                RareAmount = specialistInstance.Rare,
-                                UpgradeDesign = specialistInstance.Upgrade,
-                                SecondUpgrade = specialistInstance.SpStoneUpgrade
-                            });
-                        }
-                        else if (inv.ItemInstance is BoxInstance box)
-                        {
-                            inv0.IvnSubPackets.Add(box.GenerateIvnSubPacket(PocketType.Equipment, inv.Slot));
-                        }
-                        else if (inv.ItemInstance is WearableInstance wearableInstance)
-                        {
-                            inv0.IvnSubPackets.Add(new IvnSubPacket
-                            {
-                                Slot = inv.Slot,
-                                VNum = inv.ItemInstance.ItemVNum,
-                                RareAmount = wearableInstance.Rare,
-                                UpgradeDesign = inv.ItemInstance.Item.IsColored ? wearableInstance.Design
-                                    : wearableInstance.Upgrade
-                            });
-                        }
-
-                        break;
-
-                    case NoscorePocketType.Main:
-                        inv1.IvnSubPackets.Add(new IvnSubPacket
-                        {
-                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                        });
-                        break;
-
-                    case NoscorePocketType.Etc:
-                        inv2.IvnSubPackets.Add(new IvnSubPacket
-                        {
-                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                        });
-                        break;
-
-                    case NoscorePocketType.Miniland:
-                        inv3.IvnSubPackets.Add(new IvnSubPacket
-                        {
-                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                        });
-                        break;
-
-                    case NoscorePocketType.Specialist:
-                        if (inv.ItemInstance is SpecialistInstance specialist)
-                        {
-                            inv6.IvnSubPackets.Add(new IvnSubPacket
-                            {
-                                Slot = inv.Slot,
-                                VNum = inv.ItemInstance.ItemVNum,
-                                RareAmount = specialist.Rare,
-                                UpgradeDesign = specialist.Upgrade,
-                                SecondUpgrade = specialist.SpStoneUpgrade
-                            });
-                        }
-
-                        break;
-
-                    case NoscorePocketType.Costume:
-                        if (inv.ItemInstance is WearableInstance costumeInstance)
-                        {
-                            inv7.IvnSubPackets.Add(new IvnSubPacket
-                            {
-                                Slot = inv.Slot,
-                                VNum = inv.ItemInstance.ItemVNum,
-                                RareAmount = costumeInstance.Rare,
-                                UpgradeDesign = costumeInstance.Upgrade
-                            });
-                        }
-
-                        break;
-
-                    case NoscorePocketType.Mount:
-                        inv9.IvnSubPackets.Add(new IvnSubPacket
-                        {
-                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                        });
-                        break;
-
-                    case NoscorePocketType.Raid:
-                        inv10.IvnSubPackets.Add(new IvnSubPacket
-                        {
-                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
-                        });
-                        break;
-
-                    case NoscorePocketType.Wear:
-                    case NoscorePocketType.FirstPartnerInventory:
-                    case NoscorePocketType.SecondPartnerInventory:
-                    case NoscorePocketType.ThirdPartnerInventory:
-                        break;
-                    default:
-                        logger.LogInformation(
-                            logLanguageLocalizer[LogLanguageKey.POCKETTYPE_UNKNOWN]);
-                        break;
-                }
-            }
-
-            foreach (var pocket in new[] { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 })
-            {
-                pocket.IvnSubPackets?.ForEach(item => item.ShapedFor(pocket.Type));
-            }
-
-            return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 };
-        }
-
         // Passives and specialist card skills are free; only the class skills spend CP.
         public static int RemainingSkillPoints(this PlayerComponentBundle characterEntity, ISkillPointService skillPointService)
             => skillPointService.GetSkillPoints(characterEntity.Class, characterEntity.JobLevel)
                - characterEntity.Skills.Values
                    .Where(s => s.Skill != null && !s.Skill.IsPassive() && !s.Skill.IsSpecialist())
                    .Sum(s => s.Skill.CpCost);
-
-        public static SkiPacket GenerateSki(this PlayerComponentBundle characterEntity, bool useSpecialist)
-        {
-            // The client takes the first listed skill for the basic attack, so passives go last.
-            var ordered = characterEntity.Skills.Values
-                .Where(s => s.Skill != null && s.Skill.IsSpecialist() == useSpecialist)
-                .OrderBy(s => s.Skill.IsPassive())
-                .ThenBy(s => s.Skill.CastId)
-                .Select(s => s.SkillVNum)
-                .ToList();
-
-            var classByte = (byte)characterEntity.Class;
-            var cardAttack = ordered.Count > 0 ? ordered[0] : (short)0;
-            return new SkiPacket
-            {
-                PrimarySkillVnum = useSpecialist ? cardAttack : (short)(200 + 20 * classByte),
-                SecondarySkillVnum = useSpecialist ? cardAttack : (short)(201 + 20 * classByte),
-                SkillVnums = ordered,
-            };
-        }
-
-        public static IEnumerable<QSlotPacket> GenerateQuicklist(this PlayerComponentBundle characterEntity)
-        {
-            var pktQs = new QSlotPacket[2];
-            for (var i = 0; i < pktQs.Length; i++)
-            {
-                var subpacket = new List<QsetClientSubPacket?>();
-                for (var j = 0; j < 30; j++)
-                {
-                    var qi = characterEntity.QuicklistEntries.FirstOrDefault(n =>
-                        (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == (characterEntity.UseSp ? characterEntity.Morph : 0)));
-
-                    subpacket.Add(new QsetClientSubPacket
-                    {
-                        OriginQuickList = qi?.Type ?? 7,
-                        OriginQuickListSlot = qi?.IconType ?? -1,
-                        Data = qi?.IconVNum ?? -1
-                    });
-                }
-
-                pktQs[i] = new QSlotPacket
-                {
-                    Slot = i,
-                    Data = subpacket
-                };
-            }
-
-            return pktQs;
-        }
 
         public static NosCore.Packets.ServerPackets.Player.RsfiPacket GenerateRsfi(this PlayerComponentBundle characterEntity)
         {
@@ -270,19 +65,6 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Unknown2 = 9,
                 Ts = 0,
                 TsMax = 9
-            };
-        }
-
-        public static ServerExcListPacket GenerateServerExcListPacket(this PlayerComponentBundle aliveEntity, long? gold,
-            long? bankGold, List<ServerExcListSubPacket?>? subPackets)
-        {
-            return new ServerExcListPacket
-            {
-                VisualType = aliveEntity.VisualType,
-                VisualId = aliveEntity.VisualId,
-                Gold = gold,
-                SubPackets = subPackets,
-                BankGold = bankGold
             };
         }
 
@@ -327,22 +109,6 @@ namespace NosCore.GameObject.Ecs.Extensions
                     }
                 })));
         }
-
-        public static QstlistPacket GenerateQuestPacket(this PlayerComponentBundle visualEntity, CharacterQuest? taken = null)
-        {
-            return new QstlistPacket(visualEntity.Quests.Values
-                .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(quest == taken)).ToList());
-        }
-
-        public static SqstPacket GenerateCompletedQuests(this PlayerComponentBundle visualEntity, byte block, NodaTime.Instant now) =>
-            SqstPacket.FromCompletedQuests(block, visualEntity.Quests.Values
-                .Where(q => q.IsDoneAt(now))
-                .Select(q => (int)q.QuestId));
-
-        public static IEnumerable<SqstPacket> GenerateCompletedQuests(this PlayerComponentBundle visualEntity, IEnumerable<QuestDto> quests,
-            NodaTime.Instant now) =>
-            Enumerable.Range(0, SqstPacket.BlockOf(quests.Select(q => (int)q.QuestId).DefaultIfEmpty().Max()) + 1)
-                .Select(block => visualEntity.GenerateCompletedQuests((byte)block, now));
 
         public static InEquipmentSubPacket GetEquipmentSubPacket(this PlayerComponentBundle visualEntity) => new()
         {
@@ -418,24 +184,6 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Type = MessageType.Default,
                 Message = Game18NConstString.HeroLevelIncreased
             });
-        }
-
-        // Alone, the official server lists nobody; in a group the players come first. Either way
-        // the recipient's own pets that are out follow.
-        public static PinitPacket GeneratePinit(this PlayerComponentBundle character)
-        {
-            var group = character.Group;
-            var entries = group is { Count: > 1 }
-                ? group.GeneratePinit().PinitSubPackets ?? new List<PinitSubPacket?>()
-                : new List<PinitSubPacket?>();
-            if (character is PlayerComponentBundle player)
-            {
-                entries.AddRange(player.Mates.Values
-                    .Where(s => s.IsTeamMember)
-                    .Select(s => (PinitSubPacket?)s.GenerateSubPinit(player.AccountLanguage)));
-            }
-
-            return new PinitPacket { GroupSize = entries.Count, PinitSubPackets = entries };
         }
 
         public static void JoinGroup(this PlayerComponentBundle characterEntity, Group group)

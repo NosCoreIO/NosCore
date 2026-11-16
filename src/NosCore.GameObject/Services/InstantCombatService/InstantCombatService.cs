@@ -23,6 +23,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;

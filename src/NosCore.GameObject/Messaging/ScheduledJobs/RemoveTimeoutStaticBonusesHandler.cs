@@ -13,6 +13,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 

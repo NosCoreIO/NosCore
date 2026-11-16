@@ -4,25 +4,25 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.Core.I18N;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.I18N;
-using FamilyRankingType = NosCore.Packets.Enumerations.FamilyRankingType;
-using FamilyRankingTypeExtensions = NosCore.Packets.Enumerations.FamilyRankingTypeExtensions;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.ServerPackets.Families;
+using NosCore.Shared.Enumerations;
 using FamilyQuestKind = NosCore.Packets.Enumerations.FamilyQuestKind;
 using FamilyQuestState = NosCore.Packets.Enumerations.FamilyQuestState;
-using NosCore.Shared.Enumerations;
-using NodaTime;
-using NosCore.Data.Dto;
-using NosCore.GameObject.Services.FamilyService;
+using FamilyRankingType = NosCore.Packets.Enumerations.FamilyRankingType;
+using FamilyRankingTypeExtensions = NosCore.Packets.Enumerations.FamilyRankingTypeExtensions;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NosCore.GameObject.Ecs.Extensions;
+namespace NosCore.GameObject.Services.FamilyService;
 
-public static class FamilyExtensions
+public static class FamilyPackets
 {
     public static GidxPacket GenerateGidx(this PlayerComponentBundle player,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
