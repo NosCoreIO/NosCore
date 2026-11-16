@@ -7,6 +7,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -34,7 +35,7 @@ namespace NosCore.PacketHandlers.Inventory
                     IvnSubPackets = inventory.Select(s => s.Value)
                         .Where(i => i.Type == pocket)
                         .OrderBy(i => i.Slot)
-                        .Select(GenerateSubPacket)
+                        .Select(item => GenerateSubPacket(item).ShapedFor(pocket.ToPocketType()))
                         .ToList()
                 });
             }

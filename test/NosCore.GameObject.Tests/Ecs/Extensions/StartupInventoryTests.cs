@@ -137,5 +137,49 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             Assert.AreEqual((short)7, listed.UpgradeDesign);
             Assert.AreEqual((byte)3, listed.SecondUpgrade);
         }
+
+        [TestMethod]
+        public void AMountIsListedWithOnlyItsSlotVnumAndAmount()
+        {
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                new ItemInstance(new Item { VNum = 9149, Type = NoscorePocketType.Mount }) { Amount = 1 },
+                _session.Character.CharacterId), NoscorePocketType.Mount, 0);
+
+            PacketAssert.AreEqual(new IvnSubPacket
+            {
+                Slot = 0, VNum = 9149, RareAmount = 1, UpgradeDesign = null, SecondUpgrade = null, Unknown5 = null, Unknown6 = null,
+            }, Pocket(PocketType.Mount).IvnSubPackets.NotNull().Single());
+        }
+
+        [TestMethod]
+        public void AnEtcItemIsListedWithFourFields()
+        {
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                new ItemInstance(new Item { VNum = 2025, Type = NoscorePocketType.Etc }) { Amount = 1 },
+                _session.Character.CharacterId), NoscorePocketType.Etc, 0);
+
+            PacketAssert.AreEqual(new IvnSubPacket
+            {
+                Slot = 0, VNum = 2025, RareAmount = 1, UpgradeDesign = 0, SecondUpgrade = null, Unknown5 = null, Unknown6 = null,
+            }, Pocket(PocketType.Etc).IvnSubPackets.NotNull().Single());
+        }
+
+        [TestMethod]
+        public void ASpecialistCardInItsOwnPocketIsListedWithFiveFields()
+        {
+            var card = new SpecialistInstance(new Item
+            {
+                VNum = 904, Type = NoscorePocketType.Specialist, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp
+            })
+            {
+                Amount = 1,
+                SpStoneUpgrade = 2,
+            };
+
+            PacketAssert.AreEqual(new IvnSubPacket
+            {
+                Slot = 0, VNum = 904, RareAmount = 0, UpgradeDesign = 0, SecondUpgrade = 2, Unknown5 = null, Unknown6 = null,
+            }, card.GenerateIvnSubPacket(PocketType.Specialist, 0));
+        }
     }
 }

@@ -321,7 +321,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Race = 0,
                 Gender = GenderType.Male,
                 Morph = 0,
-                Buffs = mate.Entity?.ShownPstBuffs()
+                Buffs = mate.Entity?.ShownBuffs()
             };
         }
 

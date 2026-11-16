@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Services.GroupService
                 Race = member.Race,
                 Gender = member is PlayerComponentBundle player ? player.Gender : GenderType.Male,
                 Morph = member is PlayerComponentBundle { UseSp: false } ? (short)0 : member.Morph,
-                Buffs = member.ShownPstBuffs()
+                Buffs = member.ShownBuffs()
             }).ToList();
         }
 

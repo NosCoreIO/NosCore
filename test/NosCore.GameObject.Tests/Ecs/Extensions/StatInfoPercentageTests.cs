@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NodaTime;
@@ -78,13 +79,13 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
 
             var packet = _session.Character.GenerateStatInfo();
 
-            CollectionAssert.AreEqual(new short[] { 116 }, packet.BuffIds);
+            CollectionAssert.AreEqual(new short[] { 116 }, packet.Buffs.NotNull().Select(b => b.NotNull().CardId).ToList());
         }
 
         [TestMethod]
         public void WithoutABuffTheListIsLeftOut()
         {
-            Assert.IsNull(_session.Character.GenerateStatInfo().BuffIds);
+            Assert.IsNull(_session.Character.GenerateStatInfo().Buffs);
         }
 
         private void Buff(short cardId, bool isStatic) =>
