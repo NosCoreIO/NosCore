@@ -201,7 +201,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new Dictionary<short, NpcMonsterDto>(),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance,
-                World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
+                World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
             _session.Character.MapInstance = room;
             _instances.Setup(s => s.GetRun(room.MapInstanceId)).Returns(_run);
             await _run.StartAsync();

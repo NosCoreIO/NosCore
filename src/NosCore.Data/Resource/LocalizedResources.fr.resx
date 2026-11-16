@@ -567,4 +567,133 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Veux-tu faire de ce village ton lieu de résurrection ?</value>
   </data>
+  <data name="TIMESPACE_LOBBY" xml:space="preserve">
+    <value>Voici le lobby.</value>
+  </data>
+  <data name="TIMESPACE_NOSVILLE_GUARD_SAFE" xml:space="preserve">
+    <value>La garde de NosVille est en sécurité.</value>
+  </data>
+  <data name="TIMESPACE_ALL_MONSTERS_DEFEATED" xml:space="preserve">
+    <value>Tu as éliminé tous les monstres !</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IS_NEAR" xml:space="preserve">
+    <value>La sortie est proche !</value>
+  </data>
+  <data name="TIMESPACE_CHOOSE_A_KEY" xml:space="preserve">
+    <value>Choisis une des clés !</value>
+  </data>
+  <data name="TIMESPACE_SWEET_SCENT_PURE_GLOW" xml:space="preserve">
+    <value>Douce odeur et lueur pure ?</value>
+  </data>
+  <data name="TIMESPACE_GUARDS_ARRIVING" xml:space="preserve">
+    <value>Les gardes arrivent !</value>
+  </data>
+  <data name="TIMESPACE_MORE_KEEP_COMING" xml:space="preserve">
+    <value>Il en arrive toujours plus !</value>
+  </data>
+  <data name="TIMESPACE_LABYRINTH_ENTRANCE" xml:space="preserve">
+    <value>L'entrée du labyrinthe...</value>
+  </data>
+  <data name="TIMESPACE_NO_SHAME_IN_FLEEING" xml:space="preserve">
+    <value>Il n'y a rien de honteux à s'enfuir face à des monstres encore trop puissants pour toi.</value>
+  </data>
+  <data name="TIMESPACE_ALL_LOCKED_DOORS_OPENED" xml:space="preserve">
+    <value>Toutes les portes verrouillées se sont ouvertes.</value>
+  </data>
+  <data name="TIMESPACE_CAN_YOU_SEE_THE_EXIT" xml:space="preserve">
+    <value>Peux-tu voir si la sortie est proche ?</value>
+  </data>
+  <data name="TIMESPACE_FIND_KEY_FOR_BONUS_TIME" xml:space="preserve">
+    <value>Trouve la clé pour gagner du temps bonus.</value>
+  </data>
+  <data name="TIMESPACE_BONUS_TIME_ROOM" xml:space="preserve">
+    <value>C'est une salle dotée d'un temps bonus...</value>
+  </data>
+  <data name="TIMESPACE_BONUS_TIME_EARNED" xml:space="preserve">
+    <value>Tu as tué tous les ennemis. Tu gagnes {0} secondes de temps bonus.</value>
+  </data>
+  <data name="TIMESPACE_LEVER_TOO_DANGEROUS" xml:space="preserve">
+    <value>Si seulement nous pouvions actionner le levier ! Mais ça a l'air très dangereux. Mieux vaut retourner sur nos pas...</value>
+  </data>
+  <data name="TIMESPACE_ROOM_WITH_A_WAY_OUT" xml:space="preserve">
+    <value>Une salle avec une issue !</value>
+  </data>
+  <data name="TIMESPACE_MINERS_PROTESTING" xml:space="preserve">
+    <value>Les mineurs manifestent...</value>
+  </data>
+  <data name="TIMESPACE_DEAD_END_TURN_BACK" xml:space="preserve">
+    <value>Un cul-de-sac ! Fais demi-tour !</value>
+  </data>
+  <data name="TIMESPACE_SEALED_SCULPTURE" xml:space="preserve">
+    <value>Il y a une sculpture scellée.</value>
+  </data>
+  <data name="TIMESPACE_STRANGE_BUTTON" xml:space="preserve">
+    <value>Tu remarques un bouton étrange.</value>
+  </data>
+  <data name="TIMESPACE_SEALED_SCULPTURE_AND_EXIT" xml:space="preserve">
+    <value>Tu vois une sculpture scellée et la sortie.</value>
+  </data>
+  <data name="TIMESPACE_EXIT_OPENED_GET_OUT" xml:space="preserve">
+    <value>La sortie s'est ouverte. Filons d'ici !</value>
+  </data>
+  <data name="TIMESPACE_ONLY_TRACES_OF_FIGHTING" xml:space="preserve">
+    <value>À part des traces de combat, tu ne trouves aucun indice ici.</value>
+  </data>
+  <data name="TIMESPACE_FOUND_GUARD_BOB" xml:space="preserve">
+    <value>Tu as trouvé le garde Bob !</value>
+  </data>
+  <data name="TIMESPACE_LEVER_OVER_THERE" xml:space="preserve">
+    <value>Il y a un levier là-bas ! Actionne-le et sors d'ici !</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IN_SIGHT" xml:space="preserve">
+    <value>La sortie est en vue !</value>
+  </data>
+  <data name="TIMESPACE_PULL_LEVER_OPEN_PORTAL" xml:space="preserve">
+    <value>Actionne le levier et ouvre le portail.</value>
+  </data>
+  <data name="TIMESPACE_STRIKE_CENTRE_FLOOR" xml:space="preserve">
+    <value>Centre de grève, étage {0}</value>
+  </data>
+  <data name="TIMESPACE_ATTACK_FAILED" xml:space="preserve">
+    <value>Échec de l'attaque</value>
+  </data>
+  <data name="TIMESPACE_USE_LEVER_TO_ESCAPE" xml:space="preserve">
+    <value>Utilise le levier pour t'échapper !</value>
+  </data>
+  <data name="TIMESPACE_NO_EXIT_IN_THIS_ROOM" xml:space="preserve">
+    <value>On dirait qu'il n'y a pas de sortie dans cette pièce.</value>
+  </data>
+  <data name="TIMESPACE_SEAL_ROOM" xml:space="preserve">
+    <value>Salle du sceau</value>
+  </data>
+  <data name="TIMESPACE_DARK_GARGS_GONE_EXIT_OPENS" xml:space="preserve">
+    <value>Le gargs sombre disparaît et la sortie s'ouvre !</value>
+  </data>
+  <data name="TIMESPACE_MONSTERS_GONE_EXIT_OPENED" xml:space="preserve">
+    <value>Les monstres ont disparus et la sortie s'est ouverte !</value>
+  </data>
+  <data name="TIMESPACE_LITTLE_TIME_LEFT" xml:space="preserve">
+    <value>Il te reste peu de temps, tu dois réussir du premier coup !</value>
+  </data>
+  <data name="TIMESPACE_SECOND_PLACE_TO_VISIT" xml:space="preserve">
+    <value>C'est le deuxième endroit à visiter.</value>
+  </data>
+  <data name="TIMESPACE_TOP_DOOR_OPENED" xml:space="preserve">
+    <value>La porte du haut s'est ouverte !</value>
+  </data>
+  <data name="TIMESPACE_THIRD_PLACE_TO_VISIT" xml:space="preserve">
+    <value>C'est le troisième endroit à visiter.</value>
+  </data>
+  <data name="TIMESPACE_FOURTH_PLACE_TO_VISIT" xml:space="preserve">
+    <value>C'est le quatrième endroit à visiter.</value>
+  </data>
+  <data name="TIMESPACE_ENEMY_DEFEATED" xml:space="preserve">
+    <value>L'ennemi a été vaincu !</value>
+  </data>
+  <data name="TIMESPACE_ESCAPE_WITH_THE_CAPTAIN" xml:space="preserve">
+    <value>Échappe-toi tout en protégeant le capitaine de la garde de NosVille.</value>
+  </data>
+  <data name="TIMESPACE_LONG_WAY_AHEAD" xml:space="preserve">
+    <value>Le chemin risque d'être long !</value>
+  </data>
 </root>

@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Infastructure;
 using NosCore.Dao.Interfaces;
@@ -63,6 +64,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<short, NpcMonsterDto> _npcMonsters;
         private readonly ILogger<ScriptedInstanceService> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly IGameLanguageLocalizer _gameLanguage;
         private readonly TimeSpan _scriptTimeout;
 
         public ScriptedInstanceService(List<ScriptedInstanceDto> scriptedInstances,
@@ -83,8 +85,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             Wolverine.IMessageBus messageBus,
             IOptions<WorldConfiguration> worldConfiguration,
             ILogger<ScriptedInstanceService> logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IGameLanguageLocalizer gameLanguage)
         {
+            _gameLanguage = gameLanguage;
             _scriptTimeout = worldConfiguration.Value.InstanceScriptTimeout;
             _messageBus = messageBus;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
@@ -238,7 +242,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             var run = new ScriptedInstanceRun(host, logic, built, _npcMonsters, _random, _clock,
-                _sessionRegistry, _aggroService, _itemThrowService, _logger, _logLanguage, _scriptTimeout);
+                _sessionRegistry, _aggroService, _itemThrowService, _logger, _logLanguage, _gameLanguage, _scriptTimeout);
             foreach (var id in run.Rooms.Values)
             {
                 _runsByRoom[id] = run;

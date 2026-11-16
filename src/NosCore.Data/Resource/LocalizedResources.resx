@@ -936,4 +936,133 @@
   <data name="TALENT_ARENA_FAILED" xml:space="preserve">
     <value>Arena of Talents failed</value>
   </data>
+  <data name="TIMESPACE_LOBBY" xml:space="preserve">
+    <value>This is the lobby.</value>
+  </data>
+  <data name="TIMESPACE_NOSVILLE_GUARD_SAFE" xml:space="preserve">
+    <value>The NosVille guard is safe.</value>
+  </data>
+  <data name="TIMESPACE_ALL_MONSTERS_DEFEATED" xml:space="preserve">
+    <value>You have defeated all the monsters!</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IS_NEAR" xml:space="preserve">
+    <value>The exit is near!</value>
+  </data>
+  <data name="TIMESPACE_CHOOSE_A_KEY" xml:space="preserve">
+    <value>Choose one of the keys!</value>
+  </data>
+  <data name="TIMESPACE_SWEET_SCENT_PURE_GLOW" xml:space="preserve">
+    <value>A sweet scent and a pure glow?</value>
+  </data>
+  <data name="TIMESPACE_GUARDS_ARRIVING" xml:space="preserve">
+    <value>The guards are coming!</value>
+  </data>
+  <data name="TIMESPACE_MORE_KEEP_COMING" xml:space="preserve">
+    <value>More and more keep coming!</value>
+  </data>
+  <data name="TIMESPACE_LABYRINTH_ENTRANCE" xml:space="preserve">
+    <value>The entrance to the labyrinth...</value>
+  </data>
+  <data name="TIMESPACE_NO_SHAME_IN_FLEEING" xml:space="preserve">
+    <value>There is no shame in running from monsters that are still too strong for you.</value>
+  </data>
+  <data name="TIMESPACE_ALL_LOCKED_DOORS_OPENED" xml:space="preserve">
+    <value>All the locked doors have opened.</value>
+  </data>
+  <data name="TIMESPACE_CAN_YOU_SEE_THE_EXIT" xml:space="preserve">
+    <value>Can you see whether the exit is near?</value>
+  </data>
+  <data name="TIMESPACE_FIND_KEY_FOR_BONUS_TIME" xml:space="preserve">
+    <value>Find the key to earn bonus time.</value>
+  </data>
+  <data name="TIMESPACE_BONUS_TIME_ROOM" xml:space="preserve">
+    <value>This room holds bonus time...</value>
+  </data>
+  <data name="TIMESPACE_BONUS_TIME_EARNED" xml:space="preserve">
+    <value>You have killed all the enemies. You earn {0} seconds of bonus time.</value>
+  </data>
+  <data name="TIMESPACE_LEVER_TOO_DANGEROUS" xml:space="preserve">
+    <value>If only we could pull the lever! But it looks very dangerous. Better to turn back...</value>
+  </data>
+  <data name="TIMESPACE_ROOM_WITH_A_WAY_OUT" xml:space="preserve">
+    <value>A room with a way out!</value>
+  </data>
+  <data name="TIMESPACE_MINERS_PROTESTING" xml:space="preserve">
+    <value>The miners are protesting...</value>
+  </data>
+  <data name="TIMESPACE_DEAD_END_TURN_BACK" xml:space="preserve">
+    <value>A dead end! Turn back!</value>
+  </data>
+  <data name="TIMESPACE_SEALED_SCULPTURE" xml:space="preserve">
+    <value>There is a sealed sculpture.</value>
+  </data>
+  <data name="TIMESPACE_STRANGE_BUTTON" xml:space="preserve">
+    <value>You notice a strange button.</value>
+  </data>
+  <data name="TIMESPACE_SEALED_SCULPTURE_AND_EXIT" xml:space="preserve">
+    <value>You see a sealed sculpture and the exit.</value>
+  </data>
+  <data name="TIMESPACE_EXIT_OPENED_GET_OUT" xml:space="preserve">
+    <value>The exit has opened. Let's get out of here!</value>
+  </data>
+  <data name="TIMESPACE_ONLY_TRACES_OF_FIGHTING" xml:space="preserve">
+    <value>Apart from traces of fighting, you find no clue here.</value>
+  </data>
+  <data name="TIMESPACE_FOUND_GUARD_BOB" xml:space="preserve">
+    <value>You have found Bob the guard!</value>
+  </data>
+  <data name="TIMESPACE_LEVER_OVER_THERE" xml:space="preserve">
+    <value>There is a lever over there! Pull it and get out of here!</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IN_SIGHT" xml:space="preserve">
+    <value>The exit is in sight!</value>
+  </data>
+  <data name="TIMESPACE_PULL_LEVER_OPEN_PORTAL" xml:space="preserve">
+    <value>Pull the lever and open the portal.</value>
+  </data>
+  <data name="TIMESPACE_STRIKE_CENTRE_FLOOR" xml:space="preserve">
+    <value>Strike centre, floor {0}</value>
+  </data>
+  <data name="TIMESPACE_ATTACK_FAILED" xml:space="preserve">
+    <value>The attack failed</value>
+  </data>
+  <data name="TIMESPACE_USE_LEVER_TO_ESCAPE" xml:space="preserve">
+    <value>Use the lever to escape!</value>
+  </data>
+  <data name="TIMESPACE_NO_EXIT_IN_THIS_ROOM" xml:space="preserve">
+    <value>There seems to be no exit in this room.</value>
+  </data>
+  <data name="TIMESPACE_SEAL_ROOM" xml:space="preserve">
+    <value>Seal room</value>
+  </data>
+  <data name="TIMESPACE_DARK_GARGS_GONE_EXIT_OPENS" xml:space="preserve">
+    <value>The dark Gargs vanishes and the exit opens!</value>
+  </data>
+  <data name="TIMESPACE_MONSTERS_GONE_EXIT_OPENED" xml:space="preserve">
+    <value>The monsters have vanished and the exit has opened!</value>
+  </data>
+  <data name="TIMESPACE_LITTLE_TIME_LEFT" xml:space="preserve">
+    <value>You have little time left, you must succeed on the first try!</value>
+  </data>
+  <data name="TIMESPACE_SECOND_PLACE_TO_VISIT" xml:space="preserve">
+    <value>This is the second place to visit.</value>
+  </data>
+  <data name="TIMESPACE_TOP_DOOR_OPENED" xml:space="preserve">
+    <value>The top door has opened!</value>
+  </data>
+  <data name="TIMESPACE_THIRD_PLACE_TO_VISIT" xml:space="preserve">
+    <value>This is the third place to visit.</value>
+  </data>
+  <data name="TIMESPACE_FOURTH_PLACE_TO_VISIT" xml:space="preserve">
+    <value>This is the fourth place to visit.</value>
+  </data>
+  <data name="TIMESPACE_ENEMY_DEFEATED" xml:space="preserve">
+    <value>The enemy has been defeated!</value>
+  </data>
+  <data name="TIMESPACE_ESCAPE_WITH_THE_CAPTAIN" xml:space="preserve">
+    <value>Escape while protecting the captain of the NosVille guard.</value>
+  </data>
+  <data name="TIMESPACE_LONG_WAY_AHEAD" xml:space="preserve">
+    <value>It may be a long way!</value>
+  </data>
 </root>

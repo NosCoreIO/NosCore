@@ -97,6 +97,10 @@ public class TimeSpace1 : InstanceScript
         {
             r.Dialog(_room4, 6002);
         }
+        else if (room == _room5)
+        {
+            r.Message(LanguageKey.TIMESPACE_EXIT_IS_NEAR);
+        }
         else if (room == _room7)
         {
             r.Dialog(_room7, 6004);
@@ -109,12 +113,14 @@ public class TimeSpace1 : InstanceScript
         {
             r.UnlockPortal(_room3, _room4);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
         else if (room == _room4)
         {
             r.UnlockPortal(_room4, _room5);
             r.AddClockTime(TimeSpan.FromSeconds(100));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
         else if (room == _room6)
         {

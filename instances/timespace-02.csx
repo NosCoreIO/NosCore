@@ -124,6 +124,7 @@ public class TimeSpace2 : InstanceScript
             r.UnlockPortal(_room9, _room5);
             r.AddClockTime(TimeSpan.FromSeconds(30));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
     }
 

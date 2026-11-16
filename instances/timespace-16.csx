@@ -155,26 +155,32 @@ public class TimeSpace16 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 6079);
+            r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6079);
+            r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
         }
         else if (room == _room5)
         {
             r.Dialog(_room5, 6079);
+            r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
         }
         else if (room == _room7)
         {
             r.Dialog(_room7, 6079);
+            r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
         }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6079);
+            r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
         }
         else if (room == _room10)
         {
             r.Dialog(_room10, 6081);
+            r.Message(LanguageKey.TIMESPACE_SEAL_ROOM);
         }
     }
 
@@ -192,6 +198,7 @@ public class TimeSpace16 : InstanceScript
             r.UnlockPortal(_room9, _room8);
             r.AddClockTime(TimeSpan.FromSeconds(100));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_NO_EXIT_IN_THIS_ROOM);
         }
     }
 
@@ -233,6 +240,7 @@ public class TimeSpace16 : InstanceScript
             r.AddClockTime(TimeSpan.FromSeconds(80));
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(Game18NConstString.NewGoal);
+            r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
         }
         else if (room == _room10 && button == 1)
         {
@@ -318,6 +326,7 @@ public class TimeSpace16 : InstanceScript
                 r.UnlockExit(_room10);
                 r.Message(Game18NConstString.ADoorHasOpened);
                 r.Message(Game18NConstString.NewGoal);
+                r.Message(LanguageKey.TIMESPACE_DARK_GARGS_GONE_EXIT_OPENS);
                 r.StopRoomClock(_room10);
             });
         }

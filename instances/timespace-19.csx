@@ -106,6 +106,7 @@ public class TimeSpace19 : InstanceScript
                 r.UnlockPortal(_room2, _room3);
                 r.AddClockTime(TimeSpan.FromSeconds(70));
                 r.Message(Game18NConstString.ADoorHasOpened);
+                r.Message(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED);
                 r.StopRoomClock(_room2);
             });
         }
@@ -138,6 +139,7 @@ public class TimeSpace19 : InstanceScript
                 r.UnlockPortal(_room3, _room4);
                 r.AddClockTime(TimeSpan.FromSeconds(120));
                 r.Message(Game18NConstString.ADoorHasOpened);
+                r.Message(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED);
                 r.StopRoomClock(_room3);
             });
         }
@@ -191,6 +193,7 @@ public class TimeSpace19 : InstanceScript
                 r.UnlockPortal(_room4, _room5);
                 r.AddClockTime(TimeSpan.FromSeconds(10));
                 r.Message(Game18NConstString.ADoorHasOpened);
+                r.Message(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED);
                 r.StopRoomClock(_room4);
             });
         }

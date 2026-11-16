@@ -5,6 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Instances.Abstractions;
 using NosCore.Instances.Scripting;
 using NosCore.Packets.Enumerations;
@@ -149,6 +150,9 @@ namespace NosCore.Instances.Tests
         public void Message(Game18NConstString message) => Calls.Add($"message({message})");
 
         public void Message(Game18NConstString message, long value) => Calls.Add($"message({message},{value})");
+
+        public void Message(LanguageKey message, params object[] arguments) =>
+            Calls.Add($"message({message}{string.Concat(arguments.Select(a => $",{a}"))})");
 
         public void Succeed() => Calls.Add("succeed");
 

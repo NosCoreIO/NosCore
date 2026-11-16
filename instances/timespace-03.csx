@@ -153,6 +153,10 @@ public class TimeSpace3 : InstanceScript
         {
             r.Dialog(_room2, 6012);
         }
+        else if (room == _room9)
+        {
+            r.Message(LanguageKey.TIMESPACE_CHOOSE_A_KEY);
+        }
     }
 
     public override void OnRoomCleared(IInstanceRun r, int room)
@@ -161,39 +165,46 @@ public class TimeSpace3 : InstanceScript
         {
             r.UnlockPortal(_room4, _room5);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
         else if (room == _room6)
         {
             r.UnlockPortal(_room6, _room7);
             r.AddClockTime(TimeSpan.FromSeconds(70));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
         else if (room == _room7)
         {
             r.UnlockPortal(_room7, _room8);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
         else if (room == _room8)
         {
             r.UnlockPortal(_room8, _room9);
             r.AddClockTime(TimeSpan.FromSeconds(60));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
         else if (room == _room9)
         {
             r.UnlockExit(_room9);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_SWEET_SCENT_PURE_GLOW);
         }
         else if (room == _room10)
         {
             r.UnlockPortal(_room10, _room11);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
         else if (room == _room11)
         {
             r.UnlockPortal(_room11, _room9);
             r.AddClockTime(TimeSpan.FromSeconds(100));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED);
         }
     }
 
@@ -222,6 +233,7 @@ public class TimeSpace3 : InstanceScript
             r.Message(Game18NConstString.DoorOpenedSomewhere);
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(Game18NConstString.FindKey);
+            r.Message(LanguageKey.TIMESPACE_CHOOSE_A_KEY);
         }
         else if (room == _room9 && button == 2)
         {

@@ -314,6 +314,7 @@ public class TimeSpace23 : InstanceScript
         else if (room == _room10)
         {
             r.Dialog(_room10, 6204);
+            r.Message(LanguageKey.TIMESPACE_ESCAPE_WITH_THE_CAPTAIN);
         }
         else if (room == _room11)
         {
@@ -326,6 +327,10 @@ public class TimeSpace23 : InstanceScript
         else if (room == _room13)
         {
             r.Dialog(_room13, 6205);
+        }
+        else if (room == _room14)
+        {
+            r.Message(LanguageKey.TIMESPACE_LONG_WAY_AHEAD);
         }
         else if (room == _room29)
         {

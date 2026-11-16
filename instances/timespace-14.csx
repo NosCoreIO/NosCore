@@ -182,9 +182,18 @@ public class TimeSpace14 : InstanceScript
         {
             r.Dialog(_room4, 6076);
         }
+        else if (room == _room8)
+        {
+            r.Message(LanguageKey.TIMESPACE_LEVER_OVER_THERE);
+        }
         else if (room == _room10)
         {
             r.Dialog(_room10, 6077);
+            r.Message(LanguageKey.TIMESPACE_EXIT_IN_SIGHT);
+        }
+        else if (room == _room11)
+        {
+            r.Message(LanguageKey.TIMESPACE_PULL_LEVER_OPEN_PORTAL);
         }
     }
 
@@ -223,12 +232,14 @@ public class TimeSpace14 : InstanceScript
             r.UnlockPortal(_room8, _room9);
             r.AddClockTime(TimeSpan.FromSeconds(100));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_LEVER_OVER_THERE);
         }
         else if (room == _room11 && button == 1)
         {
             r.UnlockPortal(_room11, _room7);
             r.AddClockTime(TimeSpan.FromSeconds(150));
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_PULL_LEVER_OPEN_PORTAL);
         }
     }
 

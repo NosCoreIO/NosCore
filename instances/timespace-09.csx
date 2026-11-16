@@ -235,6 +235,7 @@ public class TimeSpace9 : InstanceScript
         else if (room == _room2)
         {
             r.Dialog(_room2, 6175);
+            r.Message(LanguageKey.TIMESPACE_MINERS_PROTESTING);
         }
         else if (room == _room4)
         {
@@ -247,6 +248,7 @@ public class TimeSpace9 : InstanceScript
         else if (room == _room9)
         {
             r.Dialog(_room9, 6178);
+            r.Message(LanguageKey.TIMESPACE_MINERS_PROTESTING);
         }
         else if (room == _room10)
         {
@@ -299,6 +301,7 @@ public class TimeSpace9 : InstanceScript
             r.AddClockTime(TimeSpan.FromSeconds(200));
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(Game18NConstString.QuickMissionComplete);
+            r.Message(LanguageKey.TIMESPACE_DEAD_END_TURN_BACK);
         }
         else if (room == _room9)
         {

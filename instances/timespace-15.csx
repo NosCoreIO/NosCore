@@ -205,10 +205,12 @@ public class TimeSpace15 : InstanceScript
         else if (room == _room4)
         {
             r.Dialog(_room4, 6190);
+            r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 2);
         }
         else if (room == _room5)
         {
             r.Dialog(_room5, 6190);
+            r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 3);
         }
         else if (room == _room6)
         {
@@ -217,26 +219,32 @@ public class TimeSpace15 : InstanceScript
         else if (room == _room7)
         {
             r.Dialog(_room7, 6190);
+            r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 5);
         }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6190);
+            r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 6);
         }
         else if (room == _room9)
         {
             r.Dialog(_room9, 6190);
+            r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 7);
         }
         else if (room == _room10)
         {
             r.Dialog(_room10, 6191);
+            r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 8);
         }
         else if (room == _room11)
         {
             r.Dialog(_room11, 6192);
+            r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 9);
         }
         else if (room == _room12)
         {
             r.Dialog(_room12, 6193);
+            r.Message(LanguageKey.TIMESPACE_ATTACK_FAILED);
         }
         else if (room == _room13)
         {

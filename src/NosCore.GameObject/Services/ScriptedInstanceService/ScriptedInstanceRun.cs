@@ -6,6 +6,7 @@
 
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using NosCore.Data.StaticEntities;
@@ -58,6 +59,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IItemThrowService _itemThrowService;
         private readonly ILogger _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly IGameLanguageLocalizer _gameLanguage;
 
         private readonly SemaphoreSlim _gate = new(1, 1);
         private readonly List<Func<Task>> _pending = [];
@@ -86,7 +88,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public ScriptedInstanceRun(IInstanceRunHost host, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
             IRandomProvider random, IClock clock, ISessionRegistry sessionRegistry, IAggroService aggroService,
-            IItemThrowService itemThrowService, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, TimeSpan stepTimeout)
+            IItemThrowService itemThrowService, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguage, TimeSpan stepTimeout)
         {
             _stepTimeout = stepTimeout;
             _host = host;
@@ -100,6 +102,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _itemThrowService = itemThrowService;
             _logger = logger;
             _logLanguage = logLanguage;
+            _gameLanguage = gameLanguage;
             Rooms = rooms.ToDictionary(s => s.Key, s => s.Value.MapInstanceId);
             StartedAt = clock.GetCurrentInstant();
         }
@@ -896,6 +899,24 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public void Message(LanguageKey message, params object[] arguments)
+        {
+            _pending.Add(async () =>
+            {
+                foreach (var session in Players().ToList())
+                {
+                    // The client holds no text for these lines, so the i18n msgi cannot carry them.
+#pragma warning disable CS0618
+                    await session.SendPacketAsync(new MsgPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = _gameLanguage[message, session.Account.Language, arguments]
+                    });
+#pragma warning restore CS0618
+                }
+            });
+        }
+
         public void Succeed() => End(EndStateType.Success);
 
         // Each player opens the reward chest of a successful run once.
@@ -1167,6 +1188,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void Message(Game18NConstString message) => Do(() => run.Message(message));
 
             public void Message(Game18NConstString message, long value) => Do(() => run.Message(message, value));
+
+            public void Message(LanguageKey message, params object[] arguments) => Do(() => run.Message(message, arguments));
 
             public void Succeed() => Do(run.Succeed);
 
