@@ -5,6 +5,7 @@
 //
 
 using Mapster;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -139,8 +140,9 @@ namespace NosCore.GameObject.Services.WarehouseService
                 // A partial amount merges back into the stack still stored, so it needs no row of its own.
                 if (await itemInstanceDao.TryInsertOrUpdateAsync(back) != null || !whole)
                 {
+                    // A failed return leaves the taken amount in its own row rather than in the warehouse.
                     await warehouseHub.ReturnWarehouseItemAsync(warehouse.OwnerId, warehouse.Type, warehouseSlot,
-                        back.Adapt<ItemInstanceDto>());
+                        back.Adapt<ItemInstanceDto>()).OrThrowAsync();
                 }
 
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace });
