@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             var window = GetLastPacket<WopenPacket>();
             Assert.IsNotNull(window);
             Assert.AreEqual(WindowType.GoldenSPCardHolder, window.Type);
-            Assert.AreEqual(HolderSlot, window.Unknown);
+            Assert.AreEqual(HolderSlot, window.Argument);
         }
 
         private void TheHolderIsStillInTheBag() =>

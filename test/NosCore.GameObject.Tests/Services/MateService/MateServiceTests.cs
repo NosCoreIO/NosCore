@@ -219,10 +219,10 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             var mates = await service.LoadAsync(CharacterId);
 
-            Assert.AreEqual(2, mates.Single(s => s.MateType == MateType.Pet)
-                .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Unknow1);
-            Assert.AreEqual(1, mates.Single(s => s.MateType == MateType.Partner)
-                .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Unknow1);
+            Assert.AreEqual(MateVisualType.Pet, mates.Single(s => s.MateType == MateType.Pet)
+                .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().MateType);
+            Assert.AreEqual(MateVisualType.Partner, mates.Single(s => s.MateType == MateType.Partner)
+                .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().MateType);
         }
 
         [TestMethod]

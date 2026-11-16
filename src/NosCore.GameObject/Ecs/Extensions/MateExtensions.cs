@@ -197,8 +197,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                     IsSitting = false,
                     Morph = mate.Morph(),
                     Name = mate.DisplayName(language),
-                    // 1 marks a partner and 2 a pet; the client fires a pet's skill bar only when it is marked.
-                    Unknow1 = (byte)(mate.MateType == MateType.Partner ? 1 : 2),
+                    // The client fires a pet's skill bar only when it is marked.
+                    MateType = mate.MateType == MateType.Partner ? MateVisualType.Partner : MateVisualType.Pet,
                     Skill1 = SkillAt(skills, 0),
                     Skill2 = SkillAt(skills, 1),
                     Skill3 = SkillAt(skills, 2)
@@ -216,7 +216,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Level = mate.Level,
                 Name = mate.DisplayName(language),
                 Unknown = -1,
-                Unknown2 = mate.VNum
+                VNum = mate.VNum
             };
         }
 
