@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using NosCore.Core.I18N;
+using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using NosCore.Data.StaticEntities;
@@ -1019,12 +1020,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 scope.Close();
                 _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_SCRIPT_TIMED_OUT], Name, _stepTimeout);
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "script"));
                 throw new ScriptAbandonedException();
             }
             catch (Exception exception)
             {
                 scope.Close();
                 _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_SCRIPT_FAILED], Name);
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "script"));
                 throw new ScriptAbandonedException();
             }
         }
@@ -1053,6 +1056,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 {
                     _pending.Clear();
                     _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_FAILED], Name);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
                     return;
                 }
 
@@ -1077,6 +1081,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 catch (TimeoutException)
                 {
                     _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_STEP_TIMED_OUT], Name, _stepTimeout);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
                     _pending.Clear();
                     if (!_abandoned)
                     {
@@ -1086,6 +1091,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 catch (Exception exception)
                 {
                     _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_STEP_FAILED], Name);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
                 }
             }
         }
