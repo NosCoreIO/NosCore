@@ -148,6 +148,11 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         var portal = portals.Find(port =>
             distanceCalculator.GetDistance((character.PositionX, character.PositionY), (port.SourceX, port.SourceY))
             <= 2);
+        if (portal?.Type == PortalType.Closed)
+        {
+            return PortalResult.Locked;
+        }
+
         if (portal == null || portal.DestinationMapInstanceId == default || !IsPortalAccessible(portal.Type))
         {
             return PortalResult.NoPortal;

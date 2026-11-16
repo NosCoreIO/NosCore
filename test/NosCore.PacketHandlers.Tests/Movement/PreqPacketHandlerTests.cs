@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MovementService;
 using NosCore.PacketHandlers.Movement;
@@ -77,6 +78,20 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 .Then(ShouldBeToldTheEnemyCitadelIsClosed)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ALockedPortalSaysTheGateIsLocked()
+        {
+            await new Spec("A locked portal says the gate is locked")
+                .Given(UsingThePortalWillBe_, PortalResult.Locked)
+                .WhenAsync(UsingPortal)
+                .Then(ShouldBeToldTheGateIsLocked)
+                .ExecuteAsync();
+        }
+
+        private void ShouldBeToldTheGateIsLocked() =>
+            PacketAssert.AreEqual(Session.Character.GenerateSayi(SayColorType.Default, Game18NConstString.GateLocked),
+                Session.LastPackets.OfType<SayiPacket>().Single());
 
         private void ShouldBeToldTheEnemyCitadelIsClosed() =>
             PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.CannotMoveToEnemyCitadel },
