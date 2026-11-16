@@ -158,6 +158,29 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         }
 
         [TestMethod]
+        public async Task AQuestThatFailsToCompleteIsCounted()
+        {
+            using var failures = new FailureCounter("game_event");
+            _failures = failures;
+            await new Spec("A quest whose completion throws is counted, and the item still arrives")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.Collect, 5, QuestItem)
+                .And(TheCharacterCarries_Of_, 5, QuestItem)
+                .And(CompletingTheQuestFails)
+                .WhenAsync(TheCharacterReceives_, QuestItem)
+                .Then(TheFailureShouldBeCounted)
+                .And(TheCharacterShouldStillCarry_Of_, 5, QuestItem)
+                .ExecuteAsync();
+        }
+
+        private FailureCounter _failures;
+
+        private void CompletingTheQuestFails() =>
+            _questService.Setup(s => s.CompleteQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<CharacterQuest>()))
+                .ThrowsAsync(new InvalidOperationException());
+
+        private void TheFailureShouldBeCounted() => Assert.IsTrue(_failures.Count >= 1);
+
+        [TestMethod]
         public async Task CollectingAnotherItemIsIgnored()
         {
             await new Spec("Picking up an item a collect quest does not ask for changes nothing")

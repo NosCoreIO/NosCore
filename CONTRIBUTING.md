@@ -46,7 +46,7 @@ Catch everything only at a boundary. Each boundary logs the exception, counts it
 | `ClientSession.OnDisconnectedAsync` | one disconnect step, or one hub release once the player is gone | `disconnect` |
 | `MapInstance` life loop | one tick of one map | `map_tick` |
 | `MapInstance` per-entity tick steps, a player's digestion, a mate's revival, and a monster's skill that lands after its cast time | one monster, NPC, player or mate in a tick; one delayed monster hit | `map_entity` |
-| `GameEventDispatcher` | one handler of one game event | `game_event` |
+| `GameEventDispatcher`, and inside a handler the per-item isolation of a kill's quest progress, an item quest's progress and a speaker broadcast | one handler of one game event; one contributor, one quest, one listener | `game_event` |
 | Script loading and each call into a time-space or raid script | one script load or one trigger; a failed call abandons the run | `script` |
 | `ScriptedInstanceRun` triggers and steps, `ScriptedInstanceService.TickAsync` | one trigger, one step of a trigger, one run in a tick | `scripted_instance` |
 | A Rainbow Battle, Ice Breaker or Instant Combat run, the Talent Arena registration loop, and a Land of Death return once the revive prompt times out | one run, one pass of the loop, one return | `event_run` |

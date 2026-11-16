@@ -18,6 +18,8 @@ using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.Core.Observability;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
@@ -52,6 +54,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                 catch (Exception ex)
                 {
                     logger.LogWarning(ex, logLanguage[LogLanguageKey.KILL_QUEST_PROGRESS_FAILED], character.VisualId);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "game_event"));
                 }
             }
         }
