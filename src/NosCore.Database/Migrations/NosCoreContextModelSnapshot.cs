@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261115131109_AddSpecialPotionEffects";
+    public override string LastMigrationId => "20261116012352_AddMiniPetEquipmentType";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -38,7 +38,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_relation_type", new[] { "friend", "hidden_spouse", "spouse", "blocked" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_state", new[] { "active", "inactive" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_type", new[] { "neutral", "fire", "water", "light", "dark" });
-        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "equipment_type", new[] { "main_weapon", "armor", "hat", "gloves", "boots", "secondary_weapon", "necklace", "ring", "bracelet", "mask", "fairy", "amulet", "sp", "costume_suit", "costume_hat", "weapon_skin", "wing_skin" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "equipment_type", new[] { "main_weapon", "armor", "hat", "gloves", "boots", "secondary_weapon", "necklace", "ring", "bracelet", "mask", "fairy", "amulet", "sp", "costume_suit", "costume_hat", "weapon_skin", "wing_skin", "mini_pet" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "faction_type", new[] { "neutral", "angel", "demon" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority", new[] { "head", "assistant", "manager", "member" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority_type", new[] { "none", "put", "all" });
