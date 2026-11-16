@@ -147,6 +147,52 @@ in the game folder. Started without arguments, that copy opens the account and p
 Log in as `admin` / `test`, pick the server and the channel, create a character and press
 Start.
 
+## With Docker instead
+
+`docker-compose.yml` builds the servers and the parser into containers, with PostgreSQL in a
+container of its own. Docker replaces the PostgreSQL install and steps 2 to 4, but not the game
+data of step 1, which still needs the .NET SDK, or the client of step 5.
+
+From the root of the clone, put the parser input of step 1 in a folder named `dats` (the parser
+container reads `./dats`):
+
+```bash
+mv /path/to/output/parser dats
+```
+
+Docker publishes every port of the compose file, the database's included, on all the network
+interfaces of the machine. On a machine others can reach, close them with a firewall or prefix
+each mapping in `docker-compose.yml` with `127.0.0.1:` before going further.
+
+Build the images, start the database, then run the parser once in its container:
+
+```bash
+docker compose --profile tools build
+```
+
+```bash
+docker compose up -d --wait db
+```
+
+```bash
+docker compose run --rm parser
+```
+
+It ends with `Parsing done!`. Then start the servers; `--wait` returns once each reports healthy:
+
+```bash
+docker compose up -d --wait
+```
+
+The same ports as in step 4 are published, the Act 4 channel included, and the accounts are the
+ones of step 3. The database keeps its data in `./postgres17`. `docker compose
+logs -f world` follows a server's log, and `docker compose down` stops them all; the world saves
+its characters on the way out. After pulling, run the `build` and `parser` commands again before
+`up`.
+
+The `Docker smoke` workflow runs these commands every night, so a change that breaks them shows
+up there.
+
 ## Running the tests
 
 ```bash
