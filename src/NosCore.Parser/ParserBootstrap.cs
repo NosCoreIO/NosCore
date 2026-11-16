@@ -97,18 +97,7 @@ namespace NosCore.Parser
         public static async Task Main(string[] args)
         {
             var cli = ParserCliOptions.Parse(args);
-            try
-            {
-                await BuildHost(args, cli).RunAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                if (!cli.HasFolder)
-                {
-                    Console.ReadLine();
-                }
-            }
+            await ProcessBoundary.RunAsync<DatabaseNotReadyException>(() => BuildHost(args, cli).RunAsync(), !cli.HasFolder);
         }
 
         private static IHost BuildHost(string[] args, ParserCliOptions cli)

@@ -137,15 +137,7 @@ namespace NosCore.LoginServer
 
         public static async Task Main(string[] args)
         {
-            try
-            {
-                await BuildHost(args).RunAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.ReadLine();
-            }
+            await ProcessBoundary.RunAsync<DatabaseNotReadyException>(() => BuildHost(args).RunAsync(), true);
         }
 
         private static IHost BuildHost(string[] args)

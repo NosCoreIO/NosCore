@@ -51,6 +51,7 @@ Catch everything only at a boundary. Each boundary logs the exception, counts it
 | `ScriptedInstanceRun` triggers and steps, `ScriptedInstanceService.TickAsync` | one trigger, one step of a trigger, one run in a tick | `scripted_instance` |
 | A Rainbow Battle, Ice Breaker or Instant Combat run, the Talent Arena registration loop, and a Land of Death return once the revive prompt times out | one run, one pass of the loop, one return | `event_run` |
 | A map change that `MapChangeService` starts in the background because it was asked from inside a map's executor | one map change | `map_change` |
+| `ProcessBoundary.RunAsync`, around each server's and the parser's `Main` | the process: it writes the whole exception to stderr (only the message for one that already tells the operator what to do, such as `DatabaseNotReadyException`) and exits with code 1 | not counted |
 | Hosted service loops, Wolverine handlers | one iteration, one message | not counted yet |
 | `BazaarHubOperations.RequestAsync` | one request to the master; after its retries it throws `MasterUnreachableException`, and the caller settles the operation by its id | not counted |
 
