@@ -42,6 +42,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
     public class ScriptedInstanceRun : IInstanceRun
     {
         private static readonly Duration ReturnDelay = Duration.FromSeconds(10);
+        private static readonly Duration TimeoutReturnDelay = Duration.FromSeconds(120);
         private const int EscortReach = 4;
         private const int EscortJoinedEffect = 5004;
         private const byte EscortJoinedAction = 3;
@@ -993,7 +994,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             EndState = state;
             _clockEndsAt = null;
             _scheduled.Clear();
-            _returnAt = _clock.GetCurrentInstant().Plus(ReturnDelay);
+            _returnAt = _clock.GetCurrentInstant().Plus(state == EndStateType.Timeout ? TimeoutReturnDelay : ReturnDelay);
             foreach (var room in _rooms.Values)
             {
                 room.IsPvp = false;

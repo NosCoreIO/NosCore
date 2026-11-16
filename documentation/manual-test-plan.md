@@ -2819,8 +2819,9 @@ dropping their `MaxHp` makes the run quick.
       with the stone's minimum level and no raw placeholder
 - [ ] About ten seconds later you are back beside the stone on the open world, and the clock
       is gone
-- [ ] Let the clock run out instead: the score says "Failed because time ran out." and you
-      are sent back the same way
+- [ ] Let the clock run out instead: the score says "Failed because time ran out.", the chat
+      says "Dignity reduced: 50", and you stay in the room for two minutes before being sent
+      back to the stone
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
       from, not in a room, and the world log shows the run's rooms being removed and no
       failed disconnect step

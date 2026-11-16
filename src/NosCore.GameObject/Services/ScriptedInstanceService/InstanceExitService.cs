@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IDignityService dignityService)
         : IInstanceExitService, ISingletonService
     {
+        // Giving up a time-space that has already started costs dignity.
         private const short GiveUpDignity = 20;
 
         public async Task LeaveAsync(ClientSession session)
@@ -48,35 +49,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 });
                 if (gaveUp)
                 {
-                    await LoseDignityAsync(session);
+                    await session.Character.LoseDignityAsync(dignityService, GiveUpDignity);
                 }
             }
 
             await run.Host.ReturnAsync(session);
-        }
-
-        // Giving up a time-space that has already started costs dignity, down to the lowest band's floor.
-        private async Task LoseDignityAsync(ClientSession session)
-        {
-            var character = session.Character;
-            var (_, floor) = dignityService.GetDignity(DignityType.Failed);
-            var lost = (short)Math.Min(GiveUpDignity, Math.Max(0, character.Dignity - floor));
-            if (lost == 0)
-            {
-                return;
-            }
-
-            character.Dignity -= lost;
-            await session.SendPacketAsync(character.GenerateFd());
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.CharacterId,
-                Type = SayColorType.Red,
-                Message = Game18NConstString.DignityReduced,
-                ArgumentType = 4,
-                Game18NArguments = { lost }
-            });
         }
     }
 }

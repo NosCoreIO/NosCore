@@ -11,14 +11,19 @@ using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging.Handlers.TimeSpace;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
+using NosCore.Networking.SessionGroup;
+using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
@@ -38,11 +43,15 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private ScriptedInstanceRun _run;
         private Mock<IScriptedInstanceService> _instances;
         private Mock<IMapChangeService> _mapChange;
+        private Mock<IGameEventDispatcher> _bus;
+        private readonly Mock<ISessionGroup> _roomSessions = new();
 
         private sealed class Script : InstanceScript
         {
             public Script(byte lives) =>
                 Definition = InstanceDefinitionBuilder.Named(1, "timespace", "timespace").WithLives(lives).Build();
+
+            public override void OnFirstEnter(IInstanceRun run) => run.StartClock(TimeSpan.FromSeconds(60));
         }
 
         [TestInitialize]
@@ -52,6 +61,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _session = await World.CreateSessionAsync();
             _instances = World.Freeze<Mock<IScriptedInstanceService>>();
             _mapChange = new Mock<IMapChangeService>();
+            _bus = new Mock<IGameEventDispatcher>();
         }
 
         [TestMethod]
@@ -152,6 +162,43 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ARunOutOfTimeScoresNothingAndCostsDignity()
+        {
+            await new Spec("When the clock runs out the score is all zeros and each player inside loses dignity")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .AndAsync(TheRunHasStarted)
+                .WhenAsync(TheClockRunsOut)
+                .Then(TheScoreShouldBeEmpty)
+                .And(EachPlayerShouldBeChargedForTheTimeout)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PlayersStayTwoMinutesAfterRunningOutOfTime()
+        {
+            await new Spec("A run that ran out of time keeps its players for two minutes before sending them back")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .AndAsync(TheRunHasStarted)
+                .AndAsync(TheClockRunsOut)
+                .WhenAsync(TenSecondsPass)
+                .Then(ThePlayerShouldNotBeSentBack)
+                .AndAsync(TwoMinutesPass)
+                .Then(ThePlayerShouldBeSentBack)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RunningOutOfTimeCostsFiftyDignity()
+        {
+            await new Spec("A player whose time-space ran out of time loses 50 dignity and is told so")
+                .Given(ThePlayerHas_Dignity, (short)100)
+                .WhenAsync(TheTimeoutIsCharged)
+                .Then(ThePlayerShouldHave_Dignity, (short)50)
+                .And(ThePlayerShouldBeToldTheDignityLost)
+                .ExecuteAsync();
+        }
+
         private Task ATimeSpaceWith_Lives(byte lives)
         {
             var room = World.MapInstanceGeneratorService.CreateMapInstance(
@@ -161,11 +208,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     NameI18NKey = "instanceRoom",
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
+            room.Sessions = _roomSessions.Object;
             var script = new Script(lives);
             _run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChange.Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
+                    new Lazy<IMapChangeService>(_mapChange.Object), _bus.Object, World.Clock),
                 script,
                 new Dictionary<int, MapInstance> { [1] = room },
                 new Dictionary<short, NpcMonsterDto>(),
@@ -209,6 +257,45 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             World.Clock.Advance(Duration.FromSeconds(10));
             await _run.TickAsync();
+        }
+
+        private async Task TheClockRunsOut()
+        {
+            _session.LastPackets.Clear();
+            World.Clock.Advance(Duration.FromSeconds(60));
+            await _run.TickAsync();
+        }
+
+        private async Task TwoMinutesPass()
+        {
+            World.Clock.Advance(Duration.FromSeconds(110));
+            await _run.TickAsync();
+        }
+
+        private Task TheTimeoutIsCharged()
+        {
+            _session.LastPackets.Clear();
+            return World.Create<TimeSpaceTimedOutHandler>().Handle(new ScriptedInstanceTimedOutEvent(_session.Character));
+        }
+
+        private void TheScoreShouldBeEmpty()
+        {
+            var broadcast = _roomSessions.Invocations.SelectMany(call => call.Arguments.OfType<IPacket[]>()).SelectMany(packets => packets);
+            PacketAssert.AreEqual(new ScorePacket { EndState = EndStateType.Timeout }, broadcast.OfType<ScorePacket>().Single());
+        }
+
+        private void EachPlayerShouldBeChargedForTheTimeout()
+        {
+            var characterId = _session.Character.CharacterId;
+            _bus.Verify(b => b.RaiseAsync(It.Is<ScriptedInstanceTimedOutEvent>(e => IsFor(e, characterId))), Times.Once);
+        }
+
+        private static bool IsFor(ScriptedInstanceTimedOutEvent timedOut, long characterId) =>
+            timedOut.Character.CharacterId == characterId;
+
+        private void ThePlayerShouldNotBeSentBack()
+        {
+            _mapChange.Verify(m => m.ChangeMapAsync(_session, It.IsAny<short?>(), It.IsAny<short?>(), It.IsAny<short?>()), Times.Never);
         }
 
         private async Task ThePlayerLeaves()
