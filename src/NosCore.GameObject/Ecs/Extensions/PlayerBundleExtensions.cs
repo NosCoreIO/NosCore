@@ -6,6 +6,7 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.BankService;
+using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.SpExperienceService;
@@ -390,6 +391,29 @@ public static class PlayerBundleExtensions
             Dignity = player.Dignity,
             DignityIcon = player.DignityIcon
         };
+    }
+
+    // Dignity never drops below the floor of the lowest band.
+    public static async Task LoseDignityAsync(this PlayerComponentBundle player, IDignityService dignityService, short amount)
+    {
+        var (_, floor) = dignityService.GetDignity(DignityType.Failed);
+        var lost = (short)Math.Min(amount, Math.Max(0, player.Dignity - floor));
+        if (lost == 0)
+        {
+            return;
+        }
+
+        player.Dignity -= lost;
+        await player.SendPacketAsync(player.GenerateFd());
+        await player.SendPacketAsync(new SayiPacket
+        {
+            VisualType = VisualType.Player,
+            VisualId = player.CharacterId,
+            Type = SayColorType.Red,
+            Message = Game18NConstString.DignityReduced,
+            ArgumentType = 4,
+            Game18NArguments = { lost }
+        });
     }
 
     // The right-click info card for a player: class, level, family, worn gear, faction and PvP stats.
