@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Services.BlackListService
                 RelationType = CharacterRelationType.Blocked
             };
 
-            await characterRelationDao.TryInsertOrUpdateAsync(data);
+            await characterRelationDao.TryInsertOrUpdateAsync(data).OrThrowAsync();
             return LanguageKey.BLACKLIST_ADDED;
 
         }
@@ -77,8 +78,7 @@ namespace NosCore.GameObject.Services.BlackListService
             {
                 return false;
             }
-            await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId);
-            return true;
+            return await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId) != null;
         }
     }
 }

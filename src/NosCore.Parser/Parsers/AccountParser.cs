@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System.Threading.Tasks;
 using NosCore.Core.Encryption;
 using NosCore.Dao.Interfaces;
@@ -24,7 +25,7 @@ namespace NosCore.Parser.Parsers
             {
                 if (await accountDao.FirstOrDefaultAsync(s => s.Name == name) == null)
                 {
-                    await accountDao.TryInsertOrUpdateAsync(new AccountDto { Authority = authority, Name = name, Password = password });
+                    await accountDao.TryInsertOrUpdateAsync(new AccountDto { Authority = authority, Name = name, Password = password }).OrThrowAsync();
                 }
             }
         }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -98,7 +99,7 @@ namespace NosCore.GameObject.Services.FriendService
                             RelationType = CharacterRelationType.Friend
                         };
 
-                        await characterRelationDao.TryInsertOrUpdateAsync(data);
+                        await characterRelationDao.TryInsertOrUpdateAsync(data).OrThrowAsync();
                         var data2 = new CharacterRelationDto
                         {
                             CharacterId = secondCharacterId,
@@ -106,7 +107,7 @@ namespace NosCore.GameObject.Services.FriendService
                             RelationType = CharacterRelationType.Friend
                         };
 
-                        await characterRelationDao.TryInsertOrUpdateAsync(data2);
+                        await characterRelationDao.TryInsertOrUpdateAsync(data2).OrThrowAsync();
                         friendRequestRegistry.UnregisterRequest(friendRequest.First().Key);
                         return LanguageKey.FRIEND_ADDED;
                     case FinsPacketType.Rejected:
@@ -172,10 +173,14 @@ namespace NosCore.GameObject.Services.FriendService
             var mirror = await characterRelationDao.FirstOrDefaultAsync(s =>
                 s.CharacterId == relation.RelatedCharacterId && s.RelatedCharacterId == characterId
                 && s.RelationType == CharacterRelationType.Spouse);
-            await characterRelationDao.TryDeleteAsync(relation.CharacterRelationId);
+            if (await characterRelationDao.TryDeleteAsync(relation.CharacterRelationId) == null)
+            {
+                return null;
+            }
+
             if (mirror != null)
             {
-                await characterRelationDao.TryDeleteAsync(mirror.CharacterRelationId);
+                await characterRelationDao.TryDeleteAsync(mirror.CharacterRelationId).OrThrowAsync();
             }
 
             return relation.RelatedCharacterId;
@@ -196,8 +201,12 @@ namespace NosCore.GameObject.Services.FriendService
             {
                 return false;
             }
-            await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId);
-            await characterRelationDao.TryDeleteAsync(rel2.CharacterRelationId);
+            if (await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId) == null)
+            {
+                return false;
+            }
+
+            await characterRelationDao.TryDeleteAsync(rel2.CharacterRelationId).OrThrowAsync();
             return true;
         }
     }

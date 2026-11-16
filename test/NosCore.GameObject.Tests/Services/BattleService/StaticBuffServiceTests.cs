@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Data.Enumerations.Buff;
 using System.Collections.Generic;
 using System.Linq;
@@ -133,7 +134,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _staticBuffDao.TryInsertOrUpdateAsync(new StaticBuffDto
             {
                 CharacterId = CharacterId, CardId = BlessingCardId, RemainingTime = 3000
-            });
+            }).OrThrowAsync();
 
             _service.Load(_session.Character);
 
@@ -150,7 +151,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _staticBuffDao.TryInsertOrUpdateAsync(new StaticBuffDto
             {
                 CharacterId = CharacterId, CardId = BlessingCardId, RemainingTime = 3000
-            });
+            }).OrThrowAsync();
             _service.Load(_session.Character);
             await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = CoupleCardId }, []);
             _session.LastPackets.Clear();
@@ -170,7 +171,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _staticBuffDao.TryInsertOrUpdateAsync(new StaticBuffDto
             {
                 CharacterId = CharacterId, CardId = BlessingCardId, RemainingTime = 3000
-            });
+            }).OrThrowAsync();
             _service.Load(_session.Character);
 
             Assert.IsTrue(await _service.SaveAsync(_session.Character));
@@ -199,7 +200,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _staticBuffDao.TryInsertOrUpdateAsync(new StaticBuffDto
             {
                 CharacterId = CharacterId, CardId = 9999, RemainingTime = 3000
-            });
+            }).OrThrowAsync();
 
             _service.Load(_session.Character);
 
@@ -212,7 +213,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _staticBuffDao.TryInsertOrUpdateAsync(new StaticBuffDto
             {
                 CharacterId = CharacterId + 1, CardId = BlessingCardId, RemainingTime = 3000
-            });
+            }).OrThrowAsync();
 
             _service.Load(_session.Character);
 

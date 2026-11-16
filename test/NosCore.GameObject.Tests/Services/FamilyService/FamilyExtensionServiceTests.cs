@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Algorithm.FamilyUpgradeService;
@@ -47,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             await familyUpgradeDao.TryInsertOrUpdateAsync(new FamilyUpgradeDto
             {
                 ItemVNum = Warehouse, FamilyLevelMinimum = 2, UpgradeType = FamilyUpgradeType.Warehouse, UpgradeLevel = 0
-            });
+            }).OrThrowAsync();
             _familyId = (await _familyDao.TryInsertOrUpdateAsync(new FamilyDto
             {
                 Name = "Testers", FamilyLevel = 2, MaxSize = 50, FamilyMessage = string.Empty
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             {
                 new FamilyCharacterDto { FamilyId = _familyId, CharacterId = HeadId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty },
                 new FamilyCharacterDto { FamilyId = _familyId, CharacterId = DeputyId, Authority = FamilyAuthority.Assistant, DailyMessage = string.Empty }
-            });
+            }).OrThrowAsync();
             _service = new FamilyExtensionService(_familyDao, familyCharacterDao, familyUpgradeDao, new FamilyUpgradeService());
         }
 

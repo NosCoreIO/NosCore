@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -63,7 +64,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await shopDao.TryInsertOrUpdateAsync(shops);
+            await shopDao.TryInsertOrUpdateAsync(shops).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SHOPS_PARSED], shops.Count);
         }
     }

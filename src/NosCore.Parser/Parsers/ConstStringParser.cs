@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
@@ -59,7 +60,7 @@ namespace NosCore.Parser.Parsers
                 return;
             }
 
-            await dao.TryInsertOrUpdateAsync(levels);
+            await dao.TryInsertOrUpdateAsync(levels).OrThrowAsync();
             logger.LogInformation(logLanguage[parsed], levels.Count);
         }
 

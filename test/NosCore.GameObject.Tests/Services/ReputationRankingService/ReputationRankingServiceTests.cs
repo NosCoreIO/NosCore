@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Encryption;
 using NosCore.Data.Dto;
@@ -152,7 +153,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
                 Name = "RankedAccount" + id,
                 Password = new Sha512Hasher().Hash("test"),
                 Authority = authority
-            });
+            }).OrThrowAsync();
             await World.CharacterDao.TryInsertOrUpdateAsync(new CharacterDto
             {
                 CharacterId = id,
@@ -163,7 +164,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
                 State = state,
                 Reput = reputation,
                 ServerId = World.WorldConfiguration.Value.ServerId
-            });
+            }).OrThrowAsync();
         }
     }
 }

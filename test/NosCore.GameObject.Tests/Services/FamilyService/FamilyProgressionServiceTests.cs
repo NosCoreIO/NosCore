@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Algorithm.FamilyExperienceService;
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             await _familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
             {
                 FamilyId = _familyId, CharacterId = MemberId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty
-            });
+            }).OrThrowAsync();
             _questProgressDao = new Dao<Database.Entities.FamilyQuestProgress, FamilyQuestProgressDto, long>(
                 NullLogger<Dao<Database.Entities.FamilyQuestProgress, FamilyQuestProgressDto, long>>.Instance, context);
             _quests =
@@ -140,7 +141,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             var family = (await FamilyAsync()).NotNull();
             family.FamilyLevel = 30;
-            await _familyDao.TryInsertOrUpdateAsync(family);
+            await _familyDao.TryInsertOrUpdateAsync(family).OrThrowAsync();
 
             var gain = (await _service.AddExperienceAsync(_familyId, MemberId, (int)_curve.GetFamilyExperience(30))).NotNull();
 

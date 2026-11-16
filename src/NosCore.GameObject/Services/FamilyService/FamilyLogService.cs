@@ -31,7 +31,8 @@ namespace NosCore.GameObject.Services.FamilyService
                 throw new ArgumentOutOfRangeException(nameof(arguments), arguments.Length, null);
             }
 
-            await familyLogDao.TryInsertOrUpdateAsync(new FamilyLogDto
+            // A lost history line does not undo the action it records.
+            _ = await familyLogDao.TryInsertOrUpdateAsync(new FamilyLogDto
             {
                 FamilyId = familyId,
                 FamilyLogType = type,

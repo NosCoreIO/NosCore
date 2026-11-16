@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -44,7 +45,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Logger.Invocations.Clear();
             Session = await World.CreateSessionAsync();
             AccountName = Session.Account.Name;
-            await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
+            await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto).OrThrowAsync();
             Session.ClearPlayerEntity();
             Session.Account = null;
             AuthHttpClient = new Mock<IAuthHub>();

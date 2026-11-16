@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +68,7 @@ public sealed class ShellOptionService(
 
     public async Task SaveAsync(Guid wearableInstanceId, IEnumerable<EquipmentOptionDto> options)
     {
-        await equipmentOptionDao.TryInsertOrUpdateAsync(options.Select(o => o.CopyFor(wearableInstanceId)).ToList());
+        await equipmentOptionDao.TryInsertOrUpdateAsync(options.Select(o => o.CopyFor(wearableInstanceId)).ToList()).OrThrowAsync();
     }
 
     public async Task<bool> CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId)
@@ -82,7 +83,7 @@ public sealed class ShellOptionService(
         var ids = Load(wearableInstanceId).Select(o => o.Id).ToList();
         if (ids.Count > 0)
         {
-            await equipmentOptionDao.TryDeleteAsync(ids);
+            await equipmentOptionDao.TryDeleteAsync(ids).OrThrowAsync();
         }
     }
 

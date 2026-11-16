@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -189,7 +190,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                     CharacterId = CharacterId,
                     RelatedCharacterId = friend.CharacterId,
                     RelationType = CharacterRelationType.Friend
-                });
+                }).OrThrowAsync();
             }
 
             PubSubHub.Setup(s => s.GetSubscribersAsync())
@@ -265,11 +266,11 @@ namespace NosCore.GameObject.Tests.Services.FriendService
             await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
             {
                 CharacterRelationId = Guid.NewGuid(), CharacterId = first, RelatedCharacterId = second, RelationType = type
-            });
+            }).OrThrowAsync();
             await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
             {
                 CharacterRelationId = Guid.NewGuid(), CharacterId = second, RelatedCharacterId = first, RelationType = type
-            });
+            }).OrThrowAsync();
         }
 
         private async Task BothPlayersAreOnlineSameChannel()
@@ -319,7 +320,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                 RelatedCharacterId = CharacterId,
                 RelationType = CharacterRelationType.Friend
             };
-            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation2);
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation2).OrThrowAsync();
         }
 
         private async Task TargetIsBlocked()
@@ -330,7 +331,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                 RelatedCharacterId = TargetCharacterId,
                 RelationType = CharacterRelationType.Blocked
             };
-            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation).OrThrowAsync();
         }
 
         private async Task AddingFriendWithoutExistingRequest()

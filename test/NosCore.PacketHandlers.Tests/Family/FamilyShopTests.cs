@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -99,7 +100,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 NullLogger<Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>>.Instance, context);
             var familyUpgradeDao = new Dao<Database.Entities.FamilyUpgrade, FamilyUpgradeDto, short>(
                 NullLogger<Dao<Database.Entities.FamilyUpgrade, FamilyUpgradeDto, short>>.Instance, context);
-            await familyUpgradeDao.TryInsertOrUpdateAsync(Upgrades);
+            await familyUpgradeDao.TryInsertOrUpdateAsync(Upgrades).OrThrowAsync();
 
             _familyId = (await _familyDao.TryInsertOrUpdateAsync(new FamilyDto
             {
@@ -112,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             {
                 Membership(_head, FamilyAuthority.Head),
                 Membership(_member, FamilyAuthority.Member)
-            });
+            }).OrThrowAsync();
 
             var master = new FamilyExtensionService(_familyDao, _familyCharacterDao, familyUpgradeDao, new FamilyUpgradeService());
             var familyHub = new Mock<IFamilyHub>();
@@ -368,7 +369,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             var family = (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId)).NotNull();
             change(family);
-            await _familyDao.TryInsertOrUpdateAsync(family);
+            await _familyDao.TryInsertOrUpdateAsync(family).OrThrowAsync();
             await RefreshAsync();
         }
 
@@ -389,7 +390,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             var headId = _head.Character.CharacterId;
             var membership = (await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == headId)).NotNull();
             membership.Authority = FamilyAuthority.Assistant;
-            await _familyCharacterDao.TryInsertOrUpdateAsync(membership);
+            await _familyCharacterDao.TryInsertOrUpdateAsync(membership).OrThrowAsync();
             await RefreshAsync();
         }
 

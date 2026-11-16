@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NosCore.Dao;
@@ -62,7 +63,7 @@ namespace NosCore.Tests.Shared
             bool isPackage = false, bool medal = false)
         {
             var amount = instance.Amount;
-            await ItemInstanceDao.TryInsertOrUpdateAsync(instance);
+            await ItemInstanceDao.TryInsertOrUpdateAsync(instance).OrThrowAsync();
             var operationId = Guid.NewGuid();
             await Hub.AddBazaarAsync(new BazaarRequest
             {

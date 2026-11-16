@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
@@ -287,13 +288,13 @@ namespace NosCore.Parser.Parsers
             _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
             var parser = BuildParser(folder).Build(_loggerFactory, _logLanguage);
             var monsters = (await parser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
-            await _npcMonsterDao.TryInsertOrUpdateAsync(monsters);
+            await _npcMonsterDao.TryInsertOrUpdateAsync(monsters).OrThrowAsync();
             var monsterVNums = monsters.Select(s => s.NpcMonsterVNum).ToHashSet();
-            await _bCardDao.TryDeleteAsync(_bCardDao.Where(s => s.NpcMonsterVNum != null && monsterVNums.Contains(s.NpcMonsterVNum.Value))?.Select(s => s.BCardId).ToList() ?? []);
-            await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
-            await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
-            await _npcMonsterSkillDao.TryDeleteAsync(_npcMonsterSkillDao.Where(s => monsterVNums.Contains(s.NpcMonsterVNum))?.Select(s => s.NpcMonsterSkillId).ToList() ?? []);
-            await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
+            await _bCardDao.TryDeleteAsync(_bCardDao.Where(s => s.NpcMonsterVNum != null && monsterVNums.Contains(s.NpcMonsterVNum.Value))?.Select(s => s.BCardId).ToList() ?? []).OrThrowAsync();
+            await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards)).OrThrowAsync();
+            await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop)).OrThrowAsync();
+            await _npcMonsterSkillDao.TryDeleteAsync(_npcMonsterSkillDao.Where(s => monsterVNums.Contains(s.NpcMonsterVNum))?.Select(s => s.NpcMonsterSkillId).ToList() ?? []).OrThrowAsync();
+            await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill)).OrThrowAsync();
             _logger.LogInformation(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
         }
 

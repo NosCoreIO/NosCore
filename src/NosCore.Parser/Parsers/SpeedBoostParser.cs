@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.StaticEntities;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,7 @@ namespace NosCore.Parser.Parsers
                 boosted.Add(item);
             }
 
-            await itemDao.TryInsertOrUpdateAsync(boosted);
+            await itemDao.TryInsertOrUpdateAsync(boosted).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SPEED_BOOSTERS_PARSED], boosted.Count);
         }
     }

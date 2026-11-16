@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
@@ -49,7 +50,7 @@ namespace NosCore.Parser.Parsers
                     Message = (short)message,
                 }))
                 .ToList();
-            await chatterLineDao.TryInsertOrUpdateAsync(lines);
+            await chatterLineDao.TryInsertOrUpdateAsync(lines).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.CHATTER_LINES_PARSED], lines.Count);
         }
     }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -212,8 +213,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public async Task AMapRoomComesWithItsMapsMonstersAsync()
         {
-            await World.MapMonsterDao.TryInsertOrUpdateAsync(new MapMonsterDto { MapMonsterId = 1, MapId = 2004, VNum = 58, MapX = 1, MapY = 1 });
-            await World.MapMonsterDao.TryInsertOrUpdateAsync(new MapMonsterDto { MapMonsterId = 2, MapId = 2005, VNum = 58, MapX = 1, MapY = 1 });
+            await World.MapMonsterDao.TryInsertOrUpdateAsync(new MapMonsterDto { MapMonsterId = 1, MapId = 2004, VNum = 58, MapX = 1, MapY = 1 }).OrThrowAsync();
+            await World.MapMonsterDao.TryInsertOrUpdateAsync(new MapMonsterDto { MapMonsterId = 2, MapId = 2005, VNum = 58, MapX = 1, MapY = 1 }).OrThrowAsync();
             var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, MapRooms),
                 [new NpcMonsterDto { NpcMonsterVNum = 58, MaxHp = 10 }], 2004);
             var built = new List<GameObject.Services.MapInstanceGenerationService.MapInstance>();

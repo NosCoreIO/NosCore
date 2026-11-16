@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
@@ -28,7 +29,7 @@ namespace NosCore.Parser.Parsers
         public async Task InsertShopTypeServicesAsync(string folder)
         {
             var rows = Parse(await File.ReadAllTextAsync(Path.Combine(folder, FileName)));
-            await shopTypeServiceDao.TryInsertOrUpdateAsync(rows);
+            await shopTypeServiceDao.TryInsertOrUpdateAsync(rows).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SHOP_TYPE_SERVICES_PARSED], rows.Count,
                 rows.Select(r => r.ShopType).Distinct().Count());
         }

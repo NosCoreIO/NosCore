@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -106,7 +107,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 DateEnd = now.Plus(NodaTime.Duration.FromMinutes(45)),
                 AdminName = "admin",
                 Reason = "test",
-            });
+            }).OrThrowAsync();
             World.Inject<NosCore.GameObject.Services.PenaltyService.IPenaltyService>(
                 World.Create<NosCore.GameObject.Services.PenaltyService.PenaltyService>());
             _handler = World.Create<SpeakerHandler>();

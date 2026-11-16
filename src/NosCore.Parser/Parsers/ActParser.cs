@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -82,8 +83,8 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await actDao.TryInsertOrUpdateAsync(acts);
-            await actDescDao.TryInsertOrUpdateAsync(actParts);
+            await actDao.TryInsertOrUpdateAsync(acts).OrThrowAsync();
+            await actDescDao.TryInsertOrUpdateAsync(actParts).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.ACTS_PARTS_PARSED], actParts.Count);
         }
     }

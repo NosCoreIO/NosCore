@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -228,7 +229,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private async Task AccountIsGameMaster()
         {
             Session.Account.Authority = AuthorityType.GameMaster;
-            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account).OrThrowAsync();
         }
 
         private async Task LoggingInWithToken()

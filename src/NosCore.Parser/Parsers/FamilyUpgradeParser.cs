@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Family;
@@ -57,7 +58,7 @@ namespace NosCore.Parser.Parsers
                 .GroupBy(s => s.ItemVNum)
                 .Select(s => s.First())
                 .ToList();
-            await familyUpgradeDao.TryInsertOrUpdateAsync(upgrades);
+            await familyUpgradeDao.TryInsertOrUpdateAsync(upgrades).OrThrowAsync();
             _logger.LogInformation(logLanguage[LogLanguageKey.FAMILY_UPGRADES_PARSED], upgrades.Count);
         }
     }

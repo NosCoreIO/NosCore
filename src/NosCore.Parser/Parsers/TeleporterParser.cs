@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -130,8 +131,8 @@ namespace NosCore.Parser.Parsers
 
             await teleporterDao.TryDeleteAsync(stored
                 .Where(s => capturedNpcs.Contains(s.MapNpcId) && !kept.Contains(s.TeleporterId))
-                .Select(s => s.TeleporterId).ToList());
-            await teleporterDao.TryInsertOrUpdateAsync(teleporters);
+                .Select(s => s.TeleporterId).ToList()).OrThrowAsync();
+            await teleporterDao.TryInsertOrUpdateAsync(teleporters).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.TELEPORTERS_PARSED], teleporters.Count);
         }
     }

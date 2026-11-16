@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -49,7 +50,7 @@ namespace NosCore.Parser.Parsers
                 "%", 0, actionList, loggerFactory.CreateLogger<GenericParser<NpcTalkDto>>(), logLanguage);
             var npcTalks = (await genericParser.GetDtosAsync(" ")).ToList();
             npcTalks.Add(new NpcTalkDto { DialogId = 99, NameI18NKey = "" });
-            await npcTalkDao.TryInsertOrUpdateAsync(npcTalks);
+            await npcTalkDao.TryInsertOrUpdateAsync(npcTalks).OrThrowAsync();
 
             _logger.LogInformation(logLanguage[LogLanguageKey.NPCTALKS_PARSED], npcTalks.Count);
         }

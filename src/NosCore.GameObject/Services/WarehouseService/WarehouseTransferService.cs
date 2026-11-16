@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -75,7 +76,11 @@ namespace NosCore.GameObject.Services.WarehouseService
             var stored = (IItemInstance)source.ItemInstance.Clone();
             stored.Id = Guid.NewGuid();
             stored.Amount = amount;
-            await itemInstanceDao.TryInsertOrUpdateAsync(stored);
+            if (await itemInstanceDao.TryInsertOrUpdateAsync(stored) == null)
+            {
+                return null;
+            }
+
             if (!await warehouseHub.AddWarehouseItemAsync(new WareHouseDepositRequest
             {
                 OwnerId = warehouse.OwnerId,
@@ -84,14 +89,16 @@ namespace NosCore.GameObject.Services.WarehouseService
                 Slot = warehouseSlot
             }))
             {
-                await itemInstanceDao.TryDeleteAsync(stored.Id);
+                // Nothing points at the copy, so one left behind is unreachable.
+                _ = await itemInstanceDao.TryDeleteAsync(stored.Id);
                 return null;
             }
 
             InventoryItemInstance? remaining;
             if (amount == source.ItemInstance.Amount)
             {
-                await inventoryItemInstanceDao.TryDeleteAsync(source.Id);
+                // The save below drops a bag row the inventory no longer holds, should this miss it.
+                _ = await inventoryItemInstanceDao.TryDeleteAsync(source.Id);
                 session.Character.InventoryService.DeleteById(source.ItemInstanceId);
                 remaining = null;
             }
@@ -130,7 +137,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             if (added == null || added.Count == 0)
             {
                 var back = whole ? stored.Item : taken;
-                await itemInstanceDao.TryInsertOrUpdateAsync(back);
+                await itemInstanceDao.TryInsertOrUpdateAsync(back).OrThrowAsync();
                 await warehouseHub.ReturnWarehouseItemAsync(warehouse.OwnerId, warehouse.Type, warehouseSlot,
                     back.Adapt<ItemInstanceDto>());
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace });
@@ -167,11 +174,15 @@ namespace NosCore.GameObject.Services.WarehouseService
                 var split = (IItemInstance)source.Item.Clone();
                 split.Id = Guid.NewGuid();
                 split.Amount = amount;
-                await itemInstanceDao.TryInsertOrUpdateAsync(split);
+                if (await itemInstanceDao.TryInsertOrUpdateAsync(split) == null)
+                {
+                    return;
+                }
+
                 if (!await warehouseHub.SplitWarehouseItemAsync(warehouse.OwnerId, warehouse.Type,
                         sourceSlot, destinationSlot, split.Adapt<ItemInstanceDto>()))
                 {
-                    await itemInstanceDao.TryDeleteAsync(split.Id);
+                    _ = await itemInstanceDao.TryDeleteAsync(split.Id);
                     return;
                 }
 

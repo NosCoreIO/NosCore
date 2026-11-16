@@ -71,7 +71,7 @@ public static class BazaarHubOperations
     {
         if (item is WearableInstance)
         {
-            await itemInstanceDao.TryDeleteAsync(item.Id);
+            _ = await itemInstanceDao.TryDeleteAsync(item.Id);
         }
     }
 

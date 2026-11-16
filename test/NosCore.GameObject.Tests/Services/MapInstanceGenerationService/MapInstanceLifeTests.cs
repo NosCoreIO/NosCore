@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -116,7 +117,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
             {
                 PortalId = 9100, SourceMapId = 0, SourceX = 1, SourceY = 1, DestinationMapId = 1, DestinationX = 2,
                 DestinationY = 2, Type = PortalType.MapPortal,
-            });
+            }).OrThrowAsync();
             var map = NewMap();
 
             await World.MapInstanceGeneratorService.AddMapInstanceAsync(map);
@@ -131,7 +132,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
             {
                 PortalId = 9100, SourceMapId = 0, SourceX = 1, SourceY = 1, DestinationMapId = 1, DestinationX = 2,
                 DestinationY = 2, Type = PortalType.MapPortal,
-            });
+            }).OrThrowAsync();
             var map = NewMap();
 
             await World.MapInstanceGeneratorService.AddMapInstanceAsync(map, withMapPortals: false);

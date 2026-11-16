@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -123,7 +124,7 @@ namespace NosCore.Parser.Parsers
                         continue;
                     }
 
-                    await recipeItemDao.TryDeleteAsync(current.Select(s => s.RecipeItemId).ToList());
+                    await recipeItemDao.TryDeleteAsync(current.Select(s => s.RecipeItemId).ToList()).OrThrowAsync();
                     row.Amount = amount;
                     recipe = await recipeDao.TryInsertOrUpdateAsync(row);
                 }
@@ -148,7 +149,7 @@ namespace NosCore.Parser.Parsers
                 count++;
             }
 
-            await recipeItemDao.TryInsertOrUpdateAsync(recipeItems);
+            await recipeItemDao.TryInsertOrUpdateAsync(recipeItems).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.RECIPES_PARSED], count);
         }
 

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -534,8 +535,8 @@ namespace NosCore.Parser.Parsers
                 GenerateDropDto(1211, 1, null, 250, MapTypeType.LandOfTheDead),
                 GenerateDropDto(5119, 1, null, 100, MapTypeType.LandOfTheDead )
             };
-            await dropDao.TryDeleteAsync(dropDao.Where(s => s.MonsterVNum == null)?.Select(s => s.DropId).ToList() ?? []);
-            await dropDao.TryInsertOrUpdateAsync(drops);
+            await dropDao.TryDeleteAsync(dropDao.Where(s => s.MonsterVNum == null)?.Select(s => s.DropId).ToList() ?? []).OrThrowAsync();
+            await dropDao.TryInsertOrUpdateAsync(drops).OrThrowAsync();
         }
     }
 }

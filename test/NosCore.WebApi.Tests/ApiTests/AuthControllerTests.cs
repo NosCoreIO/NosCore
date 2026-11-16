@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -146,7 +147,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             Tfa = new TwoFactorAuth();
             Session.Account.MfaSecret = Tfa.CreateSecret();
-            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account).OrThrowAsync();
         }
 
         private async Task UserConnectsWithInvalidMfaCode()
@@ -320,7 +321,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         private async Task UserHasMfaSecret()
         {
             Session.Account.MfaSecret = "12345";
-            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account).OrThrowAsync();
         }
 
         private async Task CheckingIfMfaEnabled()

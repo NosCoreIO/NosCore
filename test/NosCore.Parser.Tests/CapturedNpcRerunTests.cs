@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core.Dao;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -120,34 +121,34 @@ namespace NosCore.Parser.Tests
             {
                 new MapNpcDto { MapNpcId = 5, MapId = 1, VNum = 1, MapX = 10, MapY = 10, Direction = 0 },
                 new MapNpcDto { MapNpcId = 100, MapId = 1, VNum = 1, MapX = 10, MapY = 10, Direction = 2 },
-            });
+            }).OrThrowAsync();
             await database.Shops.TryInsertOrUpdateAsync(new[]
             {
                 new ShopDto { ShopId = 1, MapNpcId = 5, MenuType = 0, ShopType = 9 },
                 new ShopDto { ShopId = 2, MapNpcId = 100, MenuType = 0, ShopType = 3 },
-            });
+            }).OrThrowAsync();
             await database.ShopItems.TryInsertOrUpdateAsync(new[]
             {
                 new ShopItemDto { ShopId = 1, Type = 1, Slot = 3, ItemVNum = 1002 },
                 new ShopItemDto { ShopId = 1, Type = 1, Slot = 0, ItemVNum = 2029 },
                 new ShopItemDto { ShopId = 2, Type = 1, Slot = 0, ItemVNum = 1003 },
-            });
-            await database.ShopSkills.TryInsertOrUpdateAsync(new[] { new ShopSkillDto { ShopId = 2, Type = 0, Slot = 0, SkillVNum = 200 } });
+            }).OrThrowAsync();
+            await database.ShopSkills.TryInsertOrUpdateAsync(new[] { new ShopSkillDto { ShopId = 2, Type = 0, Slot = 0, SkillVNum = 200 } }).OrThrowAsync();
             await database.Teleporters.TryInsertOrUpdateAsync(new[]
             {
                 new TeleporterDto { MapNpcId = 5, Index = 1, MapId = 20, MapX = 1, MapY = 1 },
                 new TeleporterDto { MapNpcId = 100, Runner = NrunRunnerType.Teleport, Index = 1, MapId = 20, MapX = 8, MapY = 87 },
-            });
+            }).OrThrowAsync();
             await database.Recipes.TryInsertOrUpdateAsync(new[]
             {
                 new RecipeDto { RecipeId = 1, MapNpcId = 100, ItemVNum = 1002, Amount = 1 },
                 new RecipeDto { RecipeId = 2, MapNpcId = 5, ItemVNum = 1002, Amount = 3 },
-            });
+            }).OrThrowAsync();
             await database.RecipeItems.TryInsertOrUpdateAsync(new[]
             {
                 new RecipeItemDto { RecipeId = 1, ItemVNum = 2029, Amount = 5 },
                 new RecipeItemDto { RecipeId = 2, ItemVNum = 1003, Amount = 1 },
-            });
+            }).OrThrowAsync();
             return database;
         }
 

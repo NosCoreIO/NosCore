@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
@@ -51,7 +52,7 @@ namespace NosCore.Parser.Parsers
                 });
             }
 
-            await scriptOfferDao.TryInsertOrUpdateAsync(offers);
+            await scriptOfferDao.TryInsertOrUpdateAsync(offers).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SCRIPT_OFFERS_PARSED], offers.Count);
         }
 

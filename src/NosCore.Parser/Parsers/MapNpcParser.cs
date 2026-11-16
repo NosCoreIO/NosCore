@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -81,7 +82,7 @@ namespace NosCore.Parser.Parsers
                 .Select(s => s.MapNpcId).ToList());
 
             var changed = npcs.Where(s => !stored.TryGetValue(s.MapNpcId, out var row) || !Fields(row).Equals(Fields(s))).ToList();
-            await mapNpcDao.TryInsertOrUpdateAsync(changed);
+            await mapNpcDao.TryInsertOrUpdateAsync(changed).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.NPCS_PARSED], changed.Count);
         }
 
@@ -97,10 +98,10 @@ namespace NosCore.Parser.Parsers
 
             await CapturedRows.DeleteShopsAsync(shopDao, shopItemDao, shopSkillDao,
                 shopDao.Where(s => copies.Contains(s.MapNpcId))?.Select(s => s.ShopId).ToList() ?? []);
-            await teleporterDao.TryDeleteAsync(teleporterDao.Where(s => copies.Contains(s.MapNpcId))?.Select(s => s.TeleporterId).ToList() ?? []);
+            await teleporterDao.TryDeleteAsync(teleporterDao.Where(s => copies.Contains(s.MapNpcId))?.Select(s => s.TeleporterId).ToList() ?? []).OrThrowAsync();
             await CapturedRows.DeleteRecipesAsync(recipeDao, recipeItemDao,
                 recipeDao.Where(s => s.MapNpcId != null && copies.Contains(s.MapNpcId.Value))?.Select(s => s.RecipeId).ToList() ?? []);
-            await mapNpcDao.TryDeleteAsync(copies);
+            await mapNpcDao.TryDeleteAsync(copies).OrThrowAsync();
         }
     }
 }

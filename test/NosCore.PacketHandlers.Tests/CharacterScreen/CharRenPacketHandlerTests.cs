@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
@@ -52,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             });
             ExistingCharacter = Session.Character.CharacterDto;
             ExistingCharacter.ShouldRename = true;
-            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter).OrThrowAsync();
             Session.ClearPlayerEntity();
         }
 
@@ -103,7 +104,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterIsNotFlaggedForRename()
         {
             ExistingCharacter.ShouldRename = false;
-            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter).OrThrowAsync();
         }
 
         private async Task RenamingCharacterViaPacket()

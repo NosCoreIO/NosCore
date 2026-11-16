@@ -134,7 +134,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> WithdrawItemAsync(Guid id)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             return await WithdrawUnlockedAsync(id);
         }
 
@@ -146,13 +146,18 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return false;
             }
 
-            await warehouseItemDao.TryDeleteAsync(item.Id);
-            await itemInstanceDao.TryDeleteAsync(item.ItemInstanceId);
+            if (await warehouseItemDao.TryDeleteAsync(item.Id) == null)
+            {
+                return false;
+            }
+
+            // Once its slot row is gone, an instance or an empty warehouse left behind is unreachable.
+            _ = await itemInstanceDao.TryDeleteAsync(item.ItemInstanceId);
 
             var remainingItemsInWarehouse = warehouseItemDao.Where(wi => wi.WarehouseId == item.WarehouseId)?.Any() ?? false;
             if (!remainingItemsInWarehouse)
             {
-                await warehouseDao.TryDeleteAsync(item.WarehouseId);
+                _ = await warehouseDao.TryDeleteAsync(item.WarehouseId);
             }
 
             return true;
@@ -160,7 +165,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<WarehouseItem?> WithdrawItemFromSlotAsync(long ownerId, WarehouseType warehouseType, short slot)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             var item = await GetItemBySlotAsync(ownerId, warehouseType, slot);
             if (item == null)
             {
@@ -173,7 +178,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, ItemInstanceDto? itemInstance, short slot)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             return await DepositUnlockedAsync(ownerId, warehouseType, itemInstance, slot);
         }
 
@@ -233,14 +238,12 @@ namespace NosCore.GameObject.Services.WarehouseService
                 ItemInstanceId = item.Id,
                 WarehouseId = warehouse.Id
             };
-            await warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem);
-
-            return true;
+            return await warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem) != null;
         }
 
         public async Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, IItemInstance itemInstance)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             var freeSlot = await GetFreeSlotAsync(ownerId, warehouseType);
             if (!freeSlot.HasValue)
             {
@@ -253,7 +256,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> MoveItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             if (sourceSlot == destinationSlot)
             {
                 return false;
@@ -277,8 +280,11 @@ namespace NosCore.GameObject.Services.WarehouseService
                     sourceWarehouseItem.Slot = destinationSlot;
                     destWarehouseItem.Slot = sourceSlot;
 
-                    await warehouseItemDao.TryInsertOrUpdateAsync(sourceWarehouseItem);
-                    await warehouseItemDao.TryInsertOrUpdateAsync(destWarehouseItem);
+                    if (await warehouseItemDao.TryInsertOrUpdateAsync(sourceWarehouseItem) == null
+                        || await warehouseItemDao.TryInsertOrUpdateAsync(destWarehouseItem) == null)
+                    {
+                        return false;
+                    }
                 }
             }
             else
@@ -287,7 +293,10 @@ namespace NosCore.GameObject.Services.WarehouseService
                 if (warehouseItem != null)
                 {
                     warehouseItem.Slot = destinationSlot;
-                    await warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem);
+                    if (await warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem) == null)
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -295,7 +304,7 @@ namespace NosCore.GameObject.Services.WarehouseService
         }
             public async Task<bool> TakeItemAsync(Guid id, short amount)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             var warehouseItem = await warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id);
             if (warehouseItem == null || amount <= 0)
             {
@@ -314,13 +323,12 @@ namespace NosCore.GameObject.Services.WarehouseService
             }
 
             instance.Amount -= amount;
-            await itemInstanceDao.TryInsertOrUpdateAsync(instance);
-            return true;
+            return await itemInstanceDao.TryInsertOrUpdateAsync(instance) != null;
         }
 
         public async Task<bool> ReturnItemAsync(long ownerId, WarehouseType warehouseType, short slot, ItemInstanceDto itemInstance)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             var existing = await GetItemBySlotAsync(ownerId, warehouseType, slot);
             if (existing?.ItemInstance != null && existing.ItemInstance.ItemVNum == itemInstance.ItemVNum)
             {
@@ -328,10 +336,15 @@ namespace NosCore.GameObject.Services.WarehouseService
                 if (stored != null)
                 {
                     stored.Amount += itemInstance.Amount;
-                    await itemInstanceDao.TryInsertOrUpdateAsync(stored);
+                    if (await itemInstanceDao.TryInsertOrUpdateAsync(stored) == null)
+                    {
+                        return false;
+                    }
+
                     if (stored.Id != itemInstance.Id)
                     {
-                        await itemInstanceDao.TryDeleteAsync(itemInstance.Id);
+                        // The returned stack now lives in the stored one; its own row is unreachable.
+                        _ = await itemInstanceDao.TryDeleteAsync(itemInstance.Id);
                     }
 
                     return true;
@@ -350,7 +363,7 @@ namespace NosCore.GameObject.Services.WarehouseService
         public async Task<bool> SplitItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot,
             ItemInstanceDto split)
         {
-            using var _ = await Mutations.AcquireAsync();
+            using var held = await Mutations.AcquireAsync();
             if (sourceSlot == destinationSlot || await GetItemBySlotAsync(ownerId, warehouseType, destinationSlot) != null)
             {
                 return false;
@@ -364,7 +377,11 @@ namespace NosCore.GameObject.Services.WarehouseService
             }
 
             instance.Amount -= split.Amount;
-            await itemInstanceDao.TryInsertOrUpdateAsync(instance);
+            if (await itemInstanceDao.TryInsertOrUpdateAsync(instance) == null)
+            {
+                return false;
+            }
+
             return await DepositUnlockedAsync(ownerId, warehouseType, split, destinationSlot);
         }
     }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Data.Enumerations.Interaction;
 using System;
 using System.Collections.Generic;
@@ -126,7 +127,7 @@ public sealed class CellonOperation(
         var rolled = ctx.Data<CellonRollData>().Rolled;
         if (rolled is not null)
         {
-            await equipmentOptionDao.TryInsertOrUpdateAsync(rolled);
+            await equipmentOptionDao.TryInsertOrUpdateAsync(rolled).OrThrowAsync();
             // Dropped rather than appended to: combat may be reading the list being replaced.
             ((WearableInstance)ctx.Source.ItemInstance).EquipmentOptions = null;
         }

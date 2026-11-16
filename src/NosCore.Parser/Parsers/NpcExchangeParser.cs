@@ -6,6 +6,7 @@
 
 
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -55,12 +56,12 @@ namespace NosCore.Parser.Parsers
 
             var materialIds = materials.Select(s => s.NpcExchangeMaterialId).ToHashSet();
             await npcExchangeMaterialDao.TryDeleteAsync(npcExchangeMaterialDao.LoadAll()
-                .Where(s => !materialIds.Contains(s.NpcExchangeMaterialId)).Select(s => s.NpcExchangeMaterialId).ToList());
+                .Where(s => !materialIds.Contains(s.NpcExchangeMaterialId)).Select(s => s.NpcExchangeMaterialId).ToList()).OrThrowAsync();
             var exchangeIds = exchanges.Select(s => s.NpcExchangeId).ToHashSet();
             await npcExchangeDao.TryDeleteAsync(npcExchangeDao.LoadAll()
-                .Where(s => !exchangeIds.Contains(s.NpcExchangeId)).Select(s => s.NpcExchangeId).ToList());
-            await npcExchangeDao.TryInsertOrUpdateAsync(exchanges);
-            await npcExchangeMaterialDao.TryInsertOrUpdateAsync(materials);
+                .Where(s => !exchangeIds.Contains(s.NpcExchangeId)).Select(s => s.NpcExchangeId).ToList()).OrThrowAsync();
+            await npcExchangeDao.TryInsertOrUpdateAsync(exchanges).OrThrowAsync();
+            await npcExchangeMaterialDao.TryInsertOrUpdateAsync(materials).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.NPC_EXCHANGES_PARSED], exchanges.Count);
         }
     }
