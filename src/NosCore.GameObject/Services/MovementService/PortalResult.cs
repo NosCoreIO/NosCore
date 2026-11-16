@@ -12,4 +12,5 @@ public enum PortalResult
     TooSoon,
     NoPortal,
     EnemyCitadel,
+    Locked,
 }

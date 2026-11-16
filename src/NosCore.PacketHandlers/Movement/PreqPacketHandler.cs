@@ -52,6 +52,12 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
+            if (result == PortalResult.Locked)
+            {
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Default, Game18NConstString.GateLocked));
+                return;
+            }
+
             if (result != PortalResult.TooSoon)
             {
                 return;

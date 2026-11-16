@@ -2880,6 +2880,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-18`, the room with the locked exit shows a red one-minute clock and "The enemies are
       getting reinforcements!" with a wave of knights on entry and again 30 seconds later; when the
       minute ends the west door and the south door of the room before it open
+- [ ] Walking onto a locked portal in a time-space shows "The gate is locked!" over the character and
+      in the chat, and the character stays in the room
 - [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
       guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders

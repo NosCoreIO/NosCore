@@ -95,6 +95,24 @@ namespace NosCore.GameObject.Tests.Services.MovementService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ALockedPortalDoesNotMoveTheCharacter()
+        {
+            await new Spec("A locked portal reports itself locked and leaves the character where they are")
+                .Given(CharacterIsOnBaseMapAtTheEntryPortal)
+                .And(BaseMapHasPortalToMap_, (short)1)
+                .And(ThePortalIsLocked)
+                .And(PortalCooldownHasElapsed)
+                .WhenAsync(UsingPortal)
+                .Then(ThePortalShouldBeLocked)
+                .And(ChangeMapInstanceAsyncWasNotCalled)
+                .ExecuteAsync();
+        }
+
+        private void ThePortalIsLocked() => Session.Character.MapInstance.Portals[0].Type = PortalType.Closed;
+
+        private void ThePortalShouldBeLocked() => Assert.AreEqual(PortalResult.Locked, LastPortal);
+
         private void CharacterIsA_(FactionType faction) => Session.Character.Faction = faction;
 
         private void BaseMapHasPortalToMap_(short mapId)
