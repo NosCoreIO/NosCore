@@ -240,6 +240,28 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task KillingAWaveInATimedRoomKeepsItsObjectiveAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            ObjectiveText("Élimine tous les ennemis !");
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartRoomClock(1, TimeSpan.FromMinutes(3));
+                    r.SetMonsterLocker(1, 1);
+                    r.Objective(1, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+                }
+            });
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            PacketAssert.AreEqual(new SinfoPacket { Message = "Élimine tous les ennemis !" },
+                session.LastPackets.OfType<SinfoPacket>().Last());
+        }
+
+        [TestMethod]
         public async Task TheObjectiveFollowsThePlayerBetweenRoomsAsync()
         {
             var session = await PlayerInFirstRoomAsync();

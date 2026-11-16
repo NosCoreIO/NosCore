@@ -2930,6 +2930,10 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       goes blank once the room is cleared, and walking back into a room that still has monsters shows its
       line again. In French it reads "Attention, des ennemis !"
 - [ ] Each of `timespace-14` to `timespace-32` can be finished with Mission Clear
+- [ ] In `timespace-26`, the last room shows a red three-minute clock with a wave every 30 seconds,
+      and "Reinforcements have arrived!" from the fifth wave on. Killing a wave leaves the objective up.
+      When the clock ends the monsters vanish and the exit opens; killing them all before then does not
+      open it
 - [ ] In `timespace-32`, each hunting room shows its red clock and "The enemies are getting
       reinforcements!" every 30 seconds. Its other messages reach only the players in that room: a
       second character waiting in the hub sees none of them

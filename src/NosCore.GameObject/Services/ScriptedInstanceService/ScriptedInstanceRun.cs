@@ -70,6 +70,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, short> _lockerVNums = [];
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
+        private readonly HashSet<int> _timedRooms = [];
         private readonly HashSet<long> _showingObjective = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
@@ -217,7 +218,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private Task RoomClearedAsync(int room)
         {
-            if (_roomObjectives.Remove(room))
+            // A room on its own clock is not over when one wave dies, so its objective stays up.
+            if (!_timedRooms.Contains(room) && _roomObjectives.Remove(room))
             {
                 foreach (var session in SessionsIn(room))
                 {
@@ -867,6 +869,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StartRoomClock(int room, TimeSpan length)
         {
+            _timedRooms.Add(room);
             var mapInstance = _rooms[room];
             var deciseconds = (int)(length.TotalMilliseconds / 100);
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
@@ -879,6 +882,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StopRoomClock(int room)
         {
+            _timedRooms.Remove(room);
             var mapInstance = _rooms[room];
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
             {
