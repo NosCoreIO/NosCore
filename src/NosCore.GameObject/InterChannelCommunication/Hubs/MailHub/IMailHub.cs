@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 
+[MasterHub]
+
 public interface IMailHub
 {
     Task<List<MailData>> GetMails(long id, long characterId, bool senderCopy);

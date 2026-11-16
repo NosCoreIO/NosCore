@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -30,7 +29,7 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
 
         private readonly MessagingConfiguration Messaging = new();
         private readonly Dictionary<string, Mock<IDestinationEndpoint>> Endpoints = new();
-        private IServiceProvider Services;
+        private PubSubHub Hub;
 
         [TestInitialize]
         public void Setup()
@@ -48,9 +47,7 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
                 bus.Setup(b => b.EndpointFor(Messaging.QueueUri(channel))).Returns(endpoint.Object);
             }
 
-            Services = new ServiceCollection()
-                .AddSingleton(new PubSubHub(clients, bus.Object, Messaging))
-                .BuildServiceProvider();
+            Hub = new PubSubHub(clients, bus.Object, Messaging);
         }
 
         [TestMethod]
@@ -82,7 +79,7 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
 
         private async Task AWorldChannelPublishesAMessage()
         {
-            await PubSubHub.Handle(new PublishMessagesRequest(new List<IMessage> { new PostedPacket { Packet = string.Empty } }), Services);
+            await PubSubHub.Handle(new PublishMessagesRequest(new List<IMessage> { new PostedPacket { Packet = string.Empty } }), Hub);
         }
 
         private void TheChannelShouldReceiveIt_(string channel)

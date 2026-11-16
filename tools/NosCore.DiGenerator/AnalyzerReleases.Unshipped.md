@@ -10,3 +10,6 @@ NOSDI002 | NosCore.DependencyInjection | Warning | ServiceRegistrationGenerator,
 NOSDI003 | NosCore.DependencyInjection | Error | PacketHandlerGenerator, two packet handlers claim the same packet
 NOSDI004 | NosCore.DependencyInjection | Warning | PacketHandlerGenerator, handled packet has no PacketHeader attribute
 NOSDI005 | NosCore.DependencyInjection | Warning | PacketHandlerGenerator, packet handler declares no server scope
+NOSHUB001 | NosCore.Hubs | Error | MasterHubGenerator, master hub has no implementation
+NOSHUB002 | NosCore.Hubs | Error | MasterHubGenerator, master hub method must return a Task
+NOSHUB003 | NosCore.Hubs | Error | MasterHubGenerator, master hub methods need distinct names

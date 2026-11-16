@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.DependencyInjection;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Services.FriendService;
@@ -25,15 +24,5 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
         public Task<bool> MarryAsync(long characterId, long spouseId) => friendService.MarryAsync(characterId, spouseId);
 
         public Task<long?> SeparateAsync(long characterId) => friendService.SeparateAsync(characterId);
-
-        public static async Task<Reply<LanguageKey>> Handle(AddFriendRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().AddFriendAsync(r.FriendShipRequest));
-
-        public static async Task<Reply<List<CharacterRelationStatus>>> Handle(GetFriendsRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().GetFriendsAsync(r.Id));
-
-        public static async Task<Reply<bool>> Handle(DeleteFriendRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().DeleteAsync(r.Id));
-
-        public static async Task<Reply<bool>> Handle(MarryRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().MarryAsync(r.CharacterId, r.SpouseId));
-
-        public static async Task<Reply<long?>> Handle(SeparateRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().SeparateAsync(r.CharacterId));
     }
 }

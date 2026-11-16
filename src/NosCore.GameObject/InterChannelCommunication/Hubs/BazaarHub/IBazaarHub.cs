@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
+[MasterHub]
+
 public interface IBazaarHub
 {
     Task<List<BazaarLink>> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,

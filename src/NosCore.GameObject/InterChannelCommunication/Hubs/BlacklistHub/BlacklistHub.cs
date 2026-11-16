@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.DependencyInjection;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Services.BlackListService;
@@ -21,11 +20,5 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub
         public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => blacklistService.GetBlacklistedListAsync(id);
 
         public async Task<bool> DeleteAsync(Guid id) => await blacklistService.UnblacklistAsync(id);
-
-        public static async Task<Reply<LanguageKey>> Handle(AddBlacklistRequest r, IServiceProvider services) => new(await services.GetRequiredService<BlacklistHub>().AddBlacklistAsync(r.BlacklistRequest));
-
-        public static async Task<Reply<List<CharacterRelationStatus>>> Handle(GetBlacklistedRequest r, IServiceProvider services) => new(await services.GetRequiredService<BlacklistHub>().GetBlacklistedAsync(r.Id));
-
-        public static async Task<Reply<bool>> Handle(DeleteBlacklistRequest r, IServiceProvider services) => new(await services.GetRequiredService<BlacklistHub>().DeleteAsync(r.Id));
     }
 }

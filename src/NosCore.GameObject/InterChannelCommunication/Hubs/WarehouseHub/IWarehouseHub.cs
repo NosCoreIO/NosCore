@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 
+[MasterHub]
+
 public interface IWarehouseHub
 {
     Task<List<WarehouseLink>> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot);

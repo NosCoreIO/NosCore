@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.DependencyInjection;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Services.BazaarService;
@@ -38,27 +37,5 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
 
         public Task<BazaarLink?> ModifyBazaarAsync(Guid operationId, long id, long sellerId, long price) =>
             bazaarService.ModifyBazaarAsync(operationId, id, sellerId, price);
-
-        public static async Task<Reply<List<BazaarLink>>> Handle(GetBazaarRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<BazaarHub>().GetBazaar(r.Id, r.Index, r.PageSize, r.TypeFilter, r.SubTypeFilter, r.LevelFilter, r.RareFilter, r.UpgradeFilter, r.SellerFilter));
-
-        public static async Task<Reply<bool>> Handle(BuyBazaarRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<BazaarHub>().BuyBazaarAsync(r.OperationId, r.Id, r.Count, r.Price, r.BuyerId));
-
-        public static async Task<Reply<BazaarClaim?>> Handle(ClaimBazaarRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<BazaarHub>().ClaimBazaarAsync(r.OperationId, r.Id, r.SellerId));
-
-        public static async Task<Reply<bool>> Handle(SettleBazaarRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<BazaarHub>().SettleBazaarAsync(r.OperationId));
-
-        public static async Task<Reply<bool>> Handle(CompensateBazaarRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<BazaarHub>().CompensateBazaarAsync(r.OperationId));
-
-        public static async Task<Reply<List<BazaarLink>>> Handle(SearchBazaarRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<BazaarHub>().SearchBazaarAsync(r.Search));
-
-        public static async Task<Reply<LanguageKey>> Handle(AddBazaarRequest r, IServiceProvider services) => new(await services.GetRequiredService<BazaarHub>().AddBazaarAsync(r.BazaarRequest));
-
-        public static async Task<Reply<BazaarLink?>> Handle(ModifyBazaarRequest r, IServiceProvider services) => new(await services.GetRequiredService<BazaarHub>().ModifyBazaarAsync(r.OperationId, r.Id, r.SellerId, r.Price));
     }
 }

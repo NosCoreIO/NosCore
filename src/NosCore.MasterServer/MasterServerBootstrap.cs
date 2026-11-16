@@ -122,6 +122,11 @@ namespace NosCore.MasterServer
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             DatabaseReadiness.EnsureUpToDate(masterConfiguration.Database.ConnectionString);
             services.AddNosCoreContext(masterConfiguration.Database.ConnectionString);
+            services.AddMasterHubs();
+            services.AddTransient(static provider => ActivatorUtilities.CreateInstance<AuthHub>(provider));
+            services.AddTransient(static provider => ActivatorUtilities.CreateInstance<PubSubHub>(provider));
+            services.AddSingleton(static provider => ActivatorUtilities.CreateInstance<ChannelHub>(provider));
+            services.AddSingleton<IChannelHub>(static provider => provider.GetRequiredService<ChannelHub>());
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(b => b.AddFilter("Microsoft", LogLevel.Warning));
@@ -130,15 +135,10 @@ namespace NosCore.MasterServer
             builder.Host.UseNosCoreWolverine(configuration, InterChannelNode.Master(), opts =>
             {
                 opts.Discovery.DisableConventionalDiscovery();
+                opts.IncludeMasterHubReceivers();
                 opts.Discovery.IncludeType<AuthHub>();
-                opts.Discovery.IncludeType<BazaarHub>();
-                opts.Discovery.IncludeType<BlacklistHub>();
                 opts.Discovery.IncludeType<ChannelHub>();
-                opts.Discovery.IncludeType<FriendHub>();
-                opts.Discovery.IncludeType<MailHub>();
                 opts.Discovery.IncludeType<PubSubHub>();
-                opts.Discovery.IncludeType<WarehouseHub>();
-                opts.Discovery.IncludeType<FamilyHub>();
             });
 
             services.AddHealthChecks().AddDbContextCheck<NosCoreContext>("database");
@@ -153,7 +153,6 @@ namespace NosCore.MasterServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<ChannelHub>().AsSelf().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.RegisterHasher();
             containerBuilder.Register(c =>
