@@ -81,15 +81,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public async Task InitializeAsync()
         {
             _logger.LogInformation(logLanguage[LogLanguageKey.LOADING_MAPINSTANCES]);
-            try
-            {
-                mapMonsters.LoadAll();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
             var monsters = mapMonsters.LoadAll().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 

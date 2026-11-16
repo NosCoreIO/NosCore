@@ -47,12 +47,15 @@ Catch everything only at a boundary. Each boundary logs the exception, counts it
 | `MapInstance` life loop | one tick of one map | `map_tick` |
 | `MapInstance` per-entity tick steps, a player's digestion, a mate's revival, and a monster's skill that lands after its cast time | one monster, NPC, player or mate in a tick; one delayed monster hit | `map_entity` |
 | `GameEventDispatcher`, and inside a handler the per-item isolation of a kill's quest progress, an item quest's progress and a speaker broadcast | one handler of one game event; one contributor, one quest, one listener | `game_event` |
-| Script loading and each call into a time-space or raid script | one script load or one trigger; a failed call abandons the run | `script` |
+| Script loading, each call into a time-space or raid script, and a new character's first quest script at game start | one script load or one trigger; a failed call abandons the run | `script` |
 | `ScriptedInstanceRun` triggers and steps, `ScriptedInstanceService.TickAsync` | one trigger, one step of a trigger, one run in a tick | `scripted_instance` |
 | A Rainbow Battle, Ice Breaker or Instant Combat run, the Talent Arena registration loop, and a Land of Death return once the revive prompt times out | one run, one pass of the loop, one return | `event_run` |
+| `BattleService` per target of one hit | one target; the others still take the hit | `hit` |
+| `SessionRegistry` broadcasts and the hero chat relay | one listener | `broadcast` |
 | A map change that `MapChangeService` starts in the background because it was asked from inside a map's executor | one map change | `map_change` |
 | `ProcessBoundary.RunAsync`, around each server's and the parser's `Main` | the process: it writes the whole exception to stderr (only the message for one that already tells the operator what to do, such as `DatabaseNotReadyException`) and exits with code 1 | not counted |
 | Hosted service loops, Wolverine handlers | one iteration, one message | not counted yet |
+| `GenericParser`, per chunk of a `.dat` file | one chunk; logged at trace, since a short or malformed chunk is expected | not counted |
 | `BazaarHubOperations.RequestAsync` | one request to the master; after its retries it throws `MasterUnreachableException`, and the caller settles the operation by its id | not counted |
 
 Everywhere else, catch only an exception the code can handle, by its type (`catch (DbUpdateConcurrencyException)`),

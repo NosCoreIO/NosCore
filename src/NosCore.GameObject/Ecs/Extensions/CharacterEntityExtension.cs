@@ -422,9 +422,10 @@ namespace NosCore.GameObject.Ecs.Extensions
                                 carried = (await itemInstanceDao.TryInsertOrUpdateAsync(copy) != null)
                                     && await shellOptionService.CopyAsync(live.ItemInstance.Id, copy.Id);
                             }
-                            catch (Exception)
+                            catch
                             {
-                                carried = false;
+                                _ = await itemInstanceDao.TryDeleteAsync(copy.Id);
+                                throw;
                             }
 
                             if (!carried)
