@@ -45,8 +45,14 @@ namespace NosCore.WorldServer
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
-            await Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync));
-            await base.StopAsync(cancellationToken);
+            try
+            {
+                await Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync));
+            }
+            finally
+            {
+                await base.StopAsync(cancellationToken);
+            }
         }
     }
 }
