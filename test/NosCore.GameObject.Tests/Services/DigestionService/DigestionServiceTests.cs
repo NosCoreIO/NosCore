@@ -8,8 +8,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NodaTime;
 using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Player;
@@ -194,7 +196,7 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         {
             using var failures = new FailureCounter("map_entity");
             _failures = failures;
-            await new Spec("A player whose digestion throws is counted, and the rest of the map still heals")
+            await new Spec("A player whose digestion throws first is counted, and the player after them still heals")
                 .GivenAsync(AnotherPlayerOnTheMapWhoseDigestionFails)
                 .And(CharacterHas_Hp_Mp, 100, 100)
                 .And(FoodOwes_Hp_MpPerTick, 140, 0)
@@ -237,6 +239,11 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         {
             var other = await World.CreateSessionAsync();
             other.Character.Digestion.Lock.Dispose();
+            var mapInstanceId = _session.Character.MapInstance.MapInstanceId;
+            var registry = World.Freeze<Mock<ISessionRegistry>>();
+            registry.Setup(r => r.GetClientSessionsByMapInstance(mapInstanceId))
+                .Returns(new[] { other, _session });
+            _service = World.Create<GameObject.Services.DigestionService.DigestionService>();
         }
 
         private void TheFailureShouldBeCounted() => Assert.IsTrue(_failures.Count >= 1);
