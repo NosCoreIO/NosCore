@@ -31,6 +31,7 @@ namespace NosCore.GameObject.Services.MateService
         IPartnerSpecialistService partnerSpecialistService,
         IPartnerSkillCatalog partnerSkillCatalog,
         IPetSkillBarService petSkillBarService,
+        IMateBlessingService mateBlessingService,
         ILogger<MateRevivalService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IMateRevivalService, ISingletonService
     {
         public const short SeedsRequired = 5;
@@ -104,6 +105,7 @@ namespace NosCore.GameObject.Services.MateService
             await owner.SendPacketAsync(mate.GenerateCond());
             await owner.SendPacketAsync(mate.GeneratePst());
             await petSkillBarService.RefreshAsync(owner);
+            await mateBlessingService.BlessAsync(owner);
         }
 
         private static MsgiPacket Message(Game18NConstString message) => new()

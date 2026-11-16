@@ -24,6 +24,7 @@ using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -105,6 +106,39 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
                 .Then(NpcTalkedEventShouldBePublished)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TalkingToAMonsterAnswersWithNoDialog()
+        {
+            await new Spec("Talking to a monster answers with dialog 0")
+                .Given(AMonsterStandsBesideTheCharacter)
+                .WhenAsync(TheCharacterTalksToTheMonster)
+                .Then(TheMonsterAnswersWithNoDialog)
+                .ExecuteAsync();
+        }
+
+        private void AMonsterStandsBesideTheCharacter() =>
+            _session.Character.MapInstance.LoadMonsters(
+                new List<MapMonsterDto>
+                {
+                    new()
+                    {
+                        MapMonsterId = 200, VNum = 2, MapId = _session.Character.MapInstance.Map.MapId,
+                        MapX = _session.Character.PositionX, MapY = _session.Character.PositionY
+                    }
+                },
+                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2 } });
+
+        private async Task TheCharacterTalksToTheMonster() =>
+            await _requestNpcPacketHandler.ExecuteAsync(new RequestNpcPacket { Type = VisualType.Monster, TargetId = 200 }, _session);
+
+        private void TheMonsterAnswersWithNoDialog()
+        {
+            var answer = _session.LastPackets.OfType<NpcReqPacket>().Single();
+            Assert.AreEqual(VisualType.Monster, answer.Type);
+            Assert.AreEqual(200, answer.TargetId);
+            Assert.AreEqual(0, answer.Data);
         }
 
         private void NpcTalkedEventShouldBePublished()

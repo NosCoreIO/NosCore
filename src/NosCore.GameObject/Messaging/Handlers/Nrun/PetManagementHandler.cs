@@ -25,7 +25,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
     public sealed class PetManagementHandler(IMinilandService minilandService, IClock clock,
-            IPartnerSpecialistService partnerSpecialistService, IPetSkillBarService petSkillBarService) : INrunEventHandler
+            IPartnerSpecialistService partnerSpecialistService, IPetSkillBarService petSkillBarService,
+            IMateBlessingService mateBlessingService) : INrunEventHandler
     {
         private const int BarDuration = 3000;
 
@@ -155,6 +156,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 .Where(s => s.IsTeamMember)
                 .Select(s => s.GeneratePst()));
             await petSkillBarService.RefreshAsync(character);
+            await mateBlessingService.BlessAsync(character);
         }
 
         private static async Task<bool> CheckLevelAsync(PlayerComponentBundle character, Services.MateService.Mate mate)

@@ -1528,6 +1528,10 @@ under half health first.
 - [ ] Use a pet pick-up training item on a pet, then drop an item beside it: the pet collects
       the item into your inventory and the drop disappears for everyone on the map
 - [ ] A pet that was never trained leaves drops where they are
+- [ ] Take a Golden Gloopy Cake (709) out in the team: its blessing icon shows on your buff
+      bar, a beam plays from the pet to you, and the blessing comes back each time it runs out
+      while the pet stays out
+- [ ] Send that pet back home: the blessing is not renewed once it runs out
 
 Managing NosMates. Double-click one of your own NosMates to get Company / Stay / Send back
 under its target bar. `/mnt/project-files/pets-partners/reset-mates.sh` sets up a pet and a

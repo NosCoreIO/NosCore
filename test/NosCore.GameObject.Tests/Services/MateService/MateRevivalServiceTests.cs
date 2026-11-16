@@ -39,6 +39,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         private GameObject.Services.MateService.Mate _pet;
         private MateRevivalService _service;
         private Mock<IPartnerSpecialistService> _specialists;
+        private Mock<IMateBlessingService> _blessings;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -50,6 +51,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
             World.Inject(UpgradeMaterials.Catalog());
             _specialists = World.Freeze<Mock<IPartnerSpecialistService>>();
+            _blessings = World.Freeze<Mock<IMateBlessingService>>();
             World.Inject(new List<SkillDto> { new() { SkillVNum = PetSkill, SkillType = 5 } });
             World.Inject(new List<NpcMonsterSkillDto> { new() { NpcMonsterVNum = 333, SkillVNum = PetSkill } });
             _service = World.UseReal<INpcCombatCatalog, NpcCombatCatalog>()
@@ -92,6 +94,17 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 .Then(TheOwnerShouldSeeTheSkillBar_, (short)-1)
                 .WhenAsync(TheMapTicksAfter_Seconds, 180)
                 .Then(TheOwnerShouldSeeTheSkillBar_, PetSkill)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARevivedPetBlessesItsOwnerAgain()
+        {
+            await new Spec("A pet that comes back blesses its owner again")
+                .Given(TheOwnerHas_Seeds, (short)5)
+                .AndAsync(TheNosMateDies)
+                .WhenAsync(TheMapTicksAfter_Seconds, 180)
+                .Then(TheOwnerWasBlessedAgain)
                 .ExecuteAsync();
         }
 
@@ -170,6 +183,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
         private void TheOwnerShouldSeeTheSkillBar_(short firstSkill) =>
             Assert.AreEqual(firstSkill, _session.LastPackets.OfType<PetskiPacket>().Last().FirstSkillVNum);
+
+        private void TheOwnerWasBlessedAgain() =>
+            _blessings.Verify(s => s.BlessAsync(It.IsAny<PlayerComponentBundle>()), Times.Once);
 
         private void TheNosMateIsStillInTheTeam() => Assert.IsTrue(_pet.IsTeamMember);
 
