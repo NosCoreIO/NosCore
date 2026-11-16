@@ -140,6 +140,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.CModeVNum, "MODE", 0, 30, s => Convert.ToInt16(s), "c_mode vnum (transform target)")
                 .Field(x => x.CellMinRange, "MODE", 0, 31, s => Convert.ToInt16(s), "Minimum cells before the mode engages")
                 .Field(x => x.Midgard, "MODE", 0, 32, s => Convert.ToInt32(s), "Midgard-specific data")
+                .Field(x => x.OwnerBlessingCardId, "MODE", 0, 32, s => Convert.ToInt32(s) < 0 ? (short)-Convert.ToInt32(s) : (short)0, "Negative on a pet: the card it grants its owner")
                 .Field(x => x.Level, chunk => Level(chunk),
                     reads: new[] { ("LEVEL", 0, 2) },
                     source: "LEVEL[2]", description: "Parsed by Level(chunk) helper")

@@ -74,6 +74,9 @@ namespace NosCore.Database.Entities
 
         public int Midgard { get; set; }
 
+        // The card a pet grants its owner while it is in the team, 0 for none.
+        public short OwnerBlessingCardId { get; set; }
+
         public byte AttackUpgrade { get; set; }
 
         public byte BasicArea { get; set; }

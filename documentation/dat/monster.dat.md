@@ -321,6 +321,7 @@
 | 30 | Parsed | CModeVNum | Int16 | c_mode vnum (transform target) |
 | 31 | Parsed | CellMinRange | Int16 | Minimum cells before the mode engages |
 | 32 | Parsed | Midgard | Int32 | Midgard-specific data |
+| 32 | Parsed | OwnerBlessingCardId | Int16 | Negative on a pet: the card it grants its owner |
 
 ## NAME
 
