@@ -199,10 +199,12 @@ public class TimeSpace18 : InstanceScript
         else if (room == _room10)
         {
             r.Dialog(_room10, 6096);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room12)
         {
             r.Dialog(_room12, 6097);
+            r.Objective(_room12, LanguageKey.TIMESPACE_GOAL_SURVIVE_UNTIL_PORTAL_OPENS);
             r.StartRoomClock(_room12, TimeSpan.FromSeconds(60));
             Reinforce(r);
             r.At(r.Elapsed + TimeSpan.FromSeconds(30), Reinforce);

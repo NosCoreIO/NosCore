@@ -90,9 +90,21 @@ public class TimeSpace2 : InstanceScript
         {
             r.Dialog(_room3, 6006);
         }
+        else if (room == _room4)
+        {
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_IS_IT_A_DEAD_END);
+        }
         else if (room == _room7)
         {
             r.Dialog(_room7, 6011);
+        }
+        else if (room == _room8)
+        {
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_DEAD_END_HURRY);
+        }
+        else if (room == _room9)
+        {
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_KILL_ALL_FOR_BONUS_TIME);
         }
     }
 
@@ -133,6 +145,7 @@ public class TimeSpace2 : InstanceScript
         if (room == _room3 && button == 1)
         {
             r.AddClockTime(TimeSpan.FromSeconds(1));
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_MUST_KILL_ALL_IN_TIME);
             r.Summon(_room3,
                 new MonsterSpawn(31, new(11, 15)),
                 new MonsterSpawn(31, new(11, 12)));

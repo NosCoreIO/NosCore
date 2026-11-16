@@ -268,6 +268,7 @@ public class TimeSpace10 : InstanceScript
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room5, 6055);
+            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
             r.Summon(_room5,
                 new MonsterSpawn(129, new(25, 19)),
                 new MonsterSpawn(129, new(25, 17), IsBonus: true),
@@ -288,6 +289,7 @@ public class TimeSpace10 : InstanceScript
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room7, 6054);
+            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
             r.Summon(_room7,
                 new MonsterSpawn(130, new(15, 15)),
                 new MonsterSpawn(130, new(15, 8), IsBonus: true, OnDeath: r =>
@@ -314,6 +316,7 @@ public class TimeSpace10 : InstanceScript
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room10, 6056);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
             r.Summon(_room10,
                 new MonsterSpawn(57, new(17, 16), OnDeath: r =>
                 {
@@ -338,6 +341,7 @@ public class TimeSpace10 : InstanceScript
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room12, 6057);
+            r.Objective(_room12, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
             r.Summon(_room12,
                 new MonsterSpawn(129, new(9, 22), OnDeath: r =>
                 {
@@ -357,12 +361,17 @@ public class TimeSpace10 : InstanceScript
         else if (room == _room14 && button == 1)
         {
             r.Message(Game18NConstString.NewGoal);
+            if (r.MonstersAlive(_room14) > 0)
+            {
+                r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_BUTTON_SUMMONED_ENEMIES);
+            }
         }
         else if (room == _room15 && button == 1)
         {
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room15, 6058);
+            r.Objective(_room15, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
             r.Summon(_room15,
                 new MonsterSpawn(57, new(12, 10), OnDeath: r =>
                 {

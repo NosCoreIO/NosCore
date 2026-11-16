@@ -26,6 +26,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Npcs;
+using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
@@ -171,6 +172,67 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 session.LastPackets.OfType<MsgPacket>().Single());
 #pragma warning restore CS0618
         }
+
+        [TestMethod]
+        public async Task ARoomObjectiveShowsInThePanelOfThePlayersInTheRoomAsync()
+        {
+            var inside = await PlayerInFirstRoomAsync();
+            var elsewhere = await PlayerInRoomAsync(_second);
+            ObjectiveText("Élimine tous les ennemis !");
+            var run = Run(new Script { Enter = r => r.Objective(1, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES) });
+
+            await run.StartAsync();
+
+            PacketAssert.AreEqual(new SinfoPacket { Message = "Élimine tous les ennemis !" },
+                inside.LastPackets.OfType<SinfoPacket>().Single());
+            Assert.IsFalse(elsewhere.LastPackets.OfType<SinfoPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task ClearingTheRoomEmptiesTheObjectivePanelAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            ObjectiveText("Élimine tous les ennemis !");
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.SetMonsterLocker(1, 1);
+                    r.Objective(1, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+                }
+            });
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            PacketAssert.AreEqual(new SinfoPacket { Message = string.Empty },
+                session.LastPackets.OfType<SinfoPacket>().Last());
+        }
+
+        [TestMethod]
+        public async Task TheObjectiveFollowsThePlayerBetweenRoomsAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            ObjectiveText("Élimine tous les ennemis !");
+            var run = Run(new Script { Enter = r => r.Objective(1, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES) });
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            Move(session, _second);
+            await run.EnteredAsync(session, _second.MapInstanceId);
+            PacketAssert.AreEqual(new SinfoPacket { Message = string.Empty },
+                session.LastPackets.OfType<SinfoPacket>().Last());
+
+            Move(session, _first);
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            PacketAssert.AreEqual(new SinfoPacket { Message = "Élimine tous les ennemis !" },
+                session.LastPackets.OfType<SinfoPacket>().Last());
+            Assert.AreEqual(3, session.LastPackets.OfType<SinfoPacket>().Count());
+        }
+
+        private void ObjectiveText(string text) =>
+            Mock.Get(World.GameLanguageLocalizer)
+                .Setup(x => x[LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES, It.IsAny<RegionType>()])
+                .Returns(new LocalizedString("TIMESPACE_GOAL_KILL_ALL_ENEMIES", text));
 
         [TestMethod]
         public async Task SummonedMonstersAppearInTheirRoomAsync()
@@ -472,12 +534,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 Task.CompletedTask;
         }
 
-        private async Task<NosCore.GameObject.Networking.ClientSession.ClientSession> PlayerInFirstRoomAsync()
+        private Task<NosCore.GameObject.Networking.ClientSession.ClientSession> PlayerInFirstRoomAsync() =>
+            PlayerInRoomAsync(_first);
+
+        private async Task<NosCore.GameObject.Networking.ClientSession.ClientSession> PlayerInRoomAsync(MapInstance room)
         {
             var session = await World.CreateSessionAsync();
-            session.Character.MapInstance = _first;
-            World.SessionRegistry.UpdateCharacter(session.Channel?.Id ?? string.Empty, session.Character.CharacterId, _first.MapInstanceId);
+            Move(session, room);
             return session;
+        }
+
+        private void Move(NosCore.GameObject.Networking.ClientSession.ClientSession session, MapInstance room)
+        {
+            session.Character.MapInstance = room;
+            World.SessionRegistry.UpdateCharacter(session.Channel?.Id ?? string.Empty, session.Character.CharacterId, room.MapInstanceId);
         }
 
         [TestMethod]

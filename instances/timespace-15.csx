@@ -201,45 +201,54 @@ public class TimeSpace15 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 6190);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 2);
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room5)
         {
             r.Dialog(_room5, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 3);
+            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room6)
         {
             r.Dialog(_room6, 6190);
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room7)
         {
             r.Dialog(_room7, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 5);
+            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 6);
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room9)
         {
             r.Dialog(_room9, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 7);
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room10)
         {
             r.Dialog(_room10, 6191);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 8);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room11)
         {
             r.Dialog(_room11, 6192);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 9);
+            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room12)
         {

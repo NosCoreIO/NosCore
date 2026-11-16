@@ -219,6 +219,10 @@ public class TimeSpace20 : InstanceScript
         {
             r.Message(LanguageKey.TIMESPACE_TOP_DOOR_OPENED);
         }
+        else if (room == _room8)
+        {
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_ENEMIES);
+        }
         else if (room == _room9)
         {
             r.Message(LanguageKey.TIMESPACE_THIRD_PLACE_TO_VISIT);
@@ -226,6 +230,10 @@ public class TimeSpace20 : InstanceScript
         else if (room == _room10)
         {
             r.Message(LanguageKey.TIMESPACE_FOURTH_PLACE_TO_VISIT);
+        }
+        else if (room == _room14)
+        {
+            r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_ENEMIES);
         }
     }
 

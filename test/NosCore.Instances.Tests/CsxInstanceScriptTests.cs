@@ -154,6 +154,8 @@ namespace NosCore.Instances.Tests
         public void Message(LanguageKey message, params object[] arguments) =>
             Calls.Add($"message({message}{string.Concat(arguments.Select(a => $",{a}"))})");
 
+        public void Objective(int room, LanguageKey objective) => Calls.Add($"objective({room},{objective})");
+
         public void Succeed() => Calls.Add("succeed");
 
         public void Fail() => Calls.Add("fail");

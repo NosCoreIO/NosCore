@@ -97,13 +97,19 @@ public class TimeSpace17 : InstanceScript
         {
             r.Dialog(_room2, 6083);
         }
+        else if (room == _room4)
+        {
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_TOM_FIGHTS_MONSTERS);
+        }
         else if (room == _room6)
         {
             r.Dialog(_room6, 6085);
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_FIGHT_KNIGHT_TOM);
         }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6087);
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_FIGHT_TOM_AGAIN);
         }
     }
 

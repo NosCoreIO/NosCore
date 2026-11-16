@@ -60,6 +60,7 @@ public class TimeSpace12 : InstanceScript
         {
             r.StartRoomClock(_room3, TimeSpan.FromSeconds(180));
             r.Message(Game18NConstString.EnemiesReinforcements);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_PROTECT_CAPTAIN);
             r.Summon(_room3,
                 new MonsterSpawn(131, new(30, 22)),
                 new MonsterSpawn(56, new(30, 25)),

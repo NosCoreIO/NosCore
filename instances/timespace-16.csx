@@ -167,6 +167,10 @@ public class TimeSpace16 : InstanceScript
             r.Dialog(_room5, 6079);
             r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
         }
+        else if (room == _room6)
+        {
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
         else if (room == _room7)
         {
             r.Dialog(_room7, 6079);
@@ -176,6 +180,10 @@ public class TimeSpace16 : InstanceScript
         {
             r.Dialog(_room8, 6079);
             r.Message(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE);
+        }
+        else if (room == _room9)
+        {
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_DARK_GARGS_NOT_HERE);
         }
         else if (room == _room10)
         {
@@ -248,6 +256,7 @@ public class TimeSpace16 : InstanceScript
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room10, 6082);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_SURVIVE_UNTIL_MONSTER_LEAVES);
             r.Summon(_room10,
                 new MonsterSpawn(18, new(25, 12), OnDeath: r =>
                 {

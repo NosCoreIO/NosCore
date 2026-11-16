@@ -120,9 +120,17 @@ public class TimeSpace7 : InstanceScript
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room6, 6031);
         }
+        else if (room == _room7)
+        {
+            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_CAREFUL_MONSTERS_IN_SIGHT);
+        }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6033);
+        }
+        else if (room == _room9)
+        {
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_CAREFUL_MONSTERS_IN_SIGHT);
         }
         else if (room == _room10)
         {
@@ -176,6 +184,7 @@ public class TimeSpace7 : InstanceScript
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room8, 6034);
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_CAREFUL_MONSTERS_IN_SIGHT);
             r.Summon(_room8,
                 new MonsterSpawn(27, new(14, 12), OnDeath: r =>
                 {
@@ -193,6 +202,7 @@ public class TimeSpace7 : InstanceScript
             r.Message(Game18NConstString.ObjectHasBeenMoved);
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room10, 6035);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_ENEMIES_COMING);
             r.Summon(_room10,
                 new MonsterSpawn(130, new(13, 17), OnDeath: r =>
                 {

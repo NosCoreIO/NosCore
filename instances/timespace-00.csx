@@ -81,6 +81,7 @@ public class TimeSpace0 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 8006);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_UNDER_ATTACK);
         }
         else if (room == _room4)
         {
@@ -90,10 +91,12 @@ public class TimeSpace0 : InstanceScript
         {
             r.StartRoomClock(_room5, TimeSpan.FromSeconds(120));
             r.Dialog(_room5, 8010);
+            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_IN_TIME);
         }
         else if (room == _room6)
         {
             r.Dialog(_room6, 8013);
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_PROTECT_GUARD_KILL_ALL);
         }
         else if (room == _room7)
         {

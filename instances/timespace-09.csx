@@ -236,27 +236,33 @@ public class TimeSpace9 : InstanceScript
         {
             r.Dialog(_room2, 6175);
             r.Message(LanguageKey.TIMESPACE_MINERS_PROTESTING);
+            r.Objective(_room2, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6176);
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room6)
         {
             r.Dialog(_room6, 6177);
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room9)
         {
             r.Dialog(_room9, 6178);
             r.Message(LanguageKey.TIMESPACE_MINERS_PROTESTING);
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room10)
         {
             r.Dialog(_room10, 6179);
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room11)
         {
             r.Dialog(_room11, 6180);
+            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room14)
         {
@@ -265,18 +271,22 @@ public class TimeSpace9 : InstanceScript
         else if (room == _room16)
         {
             r.Dialog(_room16, 6183);
+            r.Objective(_room16, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room17)
         {
             r.Dialog(_room17, 6184);
+            r.Objective(_room17, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room19)
         {
             r.Dialog(_room19, 6185);
+            r.Objective(_room19, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room23)
         {
             r.Dialog(_room23, 6187);
+            r.Objective(_room23, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
     }
 
