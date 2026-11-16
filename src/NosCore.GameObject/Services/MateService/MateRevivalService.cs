@@ -5,10 +5,12 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -86,6 +88,7 @@ namespace NosCore.GameObject.Services.MateService
                     }
                     catch (Exception ex)
                     {
+                        NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "map_entity"));
                         logger.LogWarning(ex, logLanguage[LogLanguageKey.MATE_REVIVAL_FAILED], mate.MateId);
                     }
                 }

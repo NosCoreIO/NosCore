@@ -786,9 +786,6 @@
   <data name="DIGESTION_SESSION_TICK_FAILED" xml:space="preserve">
     <value>Digestion tick failed for session {SessionId}</value>
   </data>
-  <data name="DIGESTION_MAP_TICK_FAILED" xml:space="preserve">
-    <value>Digestion tick failed for map {MapId}</value>
-  </data>
   <data name="LAND_OF_DEATH_REVIVE_FAILED" xml:space="preserve">
     <value>Land of Death revive failed for {CharacterId}</value>
   </data>

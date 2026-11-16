@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         private ClientSession _session;
         private GameObject.Services.DigestionService.DigestionService _service;
         private DigestionState _digestion;
+        private FailureCounter _failures;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -188,6 +189,22 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task OnePlayerFailingDoesNotStopTheOthersDigesting()
+        {
+            using var failures = new FailureCounter("map_entity");
+            _failures = failures;
+            await new Spec("A player whose digestion throws is counted, and the rest of the map still heals")
+                .GivenAsync(AnotherPlayerOnTheMapWhoseDigestionFails)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .And(FoodOwes_Hp_MpPerTick, 140, 0)
+                .And(_SecondsPass, 2)
+                .WhenAsync(TheWholeMapTicks)
+                .Then(HpShouldBe_, 240)
+                .And(TheFailureShouldBeCounted)
+                .ExecuteAsync();
+        }
+
         private void CharacterHas_Hp_Mp(int hp, int mp)
         {
             _session.Character.Hp = hp;
@@ -215,6 +232,16 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
             _session.Character.MapInstance.LastPackets.Clear();
             await _service.TickPlayerAsync(_session.Character);
         }
+
+        private async Task AnotherPlayerOnTheMapWhoseDigestionFails()
+        {
+            var other = await World.CreateSessionAsync();
+            other.Character.Digestion.Lock.Dispose();
+        }
+
+        private void TheFailureShouldBeCounted() => Assert.IsTrue(_failures.Count >= 1);
+
+        private async Task TheWholeMapTicks() => await _service.TickAsync(_session.Character.MapInstance);
 
         private void HpShouldBe_(int expected) => Assert.AreEqual(expected, _session.Character.Hp);
 
