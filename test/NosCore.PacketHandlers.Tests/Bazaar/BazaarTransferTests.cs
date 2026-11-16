@@ -207,6 +207,19 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         }
 
         [TestMethod]
+        public async Task ABuyWhoseAnswerNeverArrivesIsCompensated()
+        {
+            await new Spec("A buy the master applied but whose answer never arrives is compensated")
+                .GivenAsync(AListingOf_At_, (short)10, 50L)
+                .And(TheBuyerHas_Gold, 1000L)
+                .And(TheMastersAnswerToTheBuyIsLost)
+                .WhenAsync(TheBuyerBuys_, (short)3)
+                .Then(TheBuyerShouldHave_Gold, 1000L)
+                .And(TheListingShouldHold_, (short)10)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task CollectingPaysForASaleThatLandsAfterTheListingWasRead()
         {
             await new Spec("Collecting pays for a sale that lands after the listing was read")
@@ -483,6 +496,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 return result;
             };
         }
+
+        private void TheMastersAnswerToTheBuyIsLost() =>
+            _hub.Buy = async (operation, id, count, price, buyer) =>
+            {
+                await _master.Hub.BuyBazaarAsync(operation, id, count, price, buyer);
+                throw new TimeoutException();
+            };
 
         private void TheBuyersInventoryFillsWhileTheMasterAnswers()
         {

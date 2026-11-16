@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     Amount = cRegPacket.Amount
                 }));
             }
-            catch (Exception e)
+            catch (MasterUnreachableException e)
             {
                 logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_ADD_ERROR]);
                 await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);

@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         bzMod = await BazaarHubOperations.RequestAsync(() => bazaarHttpClient.ModifyBazaarAsync(
                             operationId, packet.BazaarId, clientSession.Character.CharacterId, packet.NewPrice));
                     }
-                    catch (Exception e)
+                    catch (MasterUnreachableException e)
                     {
                         logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_MOD_ERROR]);
                         bzMod = null;
