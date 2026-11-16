@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -57,9 +58,9 @@ namespace NosCore.Parser.Parsers
                 rolls[i].RollGeneratedItemId = (short)(i + 1);
             }
 
-            await rollGeneratedItemDao.TryDeleteAsync(rollGeneratedItemDao.LoadAll().Select(r => r.RollGeneratedItemId).ToList());
-            await itemDao.TryInsertOrUpdateAsync(boxes);
-            await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls);
+            await rollGeneratedItemDao.TryDeleteAsync(rollGeneratedItemDao.LoadAll().Select(r => r.RollGeneratedItemId).ToList()).OrThrowAsync();
+            await itemDao.TryInsertOrUpdateAsync(boxes).OrThrowAsync();
+            await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.BOX_CONTENTS_PARSED], boxes.Count, rolls.Count);
         }
 

@@ -89,7 +89,8 @@ namespace NosCore.GameObject.Services.MinilandService
             var miniland = mapInstanceAccessorService.GetMapInstance(minilandInfo.MapInstanceId);
             foreach (var obj in miniland?.MapDesignObjects.Values ?? Enumerable.Empty<MapDesignObject>())
             {
-                await minilandObjectsDao.TryInsertOrUpdateAsync(obj);
+                // A position that fails to save keeps the one stored before.
+                _ = await minilandObjectsDao.TryInsertOrUpdateAsync(obj);
             }
 
             if (minilandRegistry.Unregister(characterId, out var removedMiniland))
@@ -241,7 +242,8 @@ namespace NosCore.GameObject.Services.MinilandService
                 return null;
             }
 
-            await minilandObjectsDao.TryDeleteAsync(mapObject.MinilandObjectId);
+            // An object placed since the last save has no row yet, which the DAO reports like a failure.
+            _ = await minilandObjectsDao.TryDeleteAsync(mapObject.MinilandObjectId);
             return mapObject;
         }
     }

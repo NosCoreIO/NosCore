@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Bazaar;
@@ -228,7 +229,7 @@ namespace NosCore.GameObject.Tests
             await Master.ItemInstanceDao.TryInsertOrUpdateAsync(new ItemInstanceDto
             {
                 Id = InstanceId, ItemVNum = 1012, Amount = amount
-            });
+            }).OrThrowAsync();
         }
 
         private async Task RegisteringIt_(short amount)

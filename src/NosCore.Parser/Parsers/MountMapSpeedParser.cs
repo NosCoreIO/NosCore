@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -37,7 +38,7 @@ namespace NosCore.Parser.Parsers
                 })
                 .ToList();
 
-            await mountMapSpeedDao.TryInsertOrUpdateAsync(rows);
+            await mountMapSpeedDao.TryInsertOrUpdateAsync(rows).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.MOUNT_MAP_SPEEDS_PARSED], rows.Count, mounts.Count);
         }
     }

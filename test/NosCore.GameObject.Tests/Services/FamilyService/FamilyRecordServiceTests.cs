@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -60,11 +61,11 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             await _familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
             {
                 FamilyId = _familyId, CharacterId = HeadId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty
-            });
+            }).OrThrowAsync();
             await _familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
             {
                 FamilyId = _familyId, CharacterId = DeputyId, Authority = FamilyAuthority.Assistant, DailyMessage = string.Empty
-            });
+            }).OrThrowAsync();
             World.Inject(_familyDao);
             World.Inject(_familyCharacterDao);
             World.Inject(_familyLogDao);
@@ -85,7 +86,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             var family = (await FamilyAsync()).NotNull();
             family.FamilyLevel = 4;
             family.FamilyExperience = 1200;
-            await _familyDao.TryInsertOrUpdateAsync(family);
+            await _familyDao.TryInsertOrUpdateAsync(family).OrThrowAsync();
 
             Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, new FamilyChange { FamilyMessage = "meet at the bank" }, []));
 
@@ -100,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             var membership = (await MemberAsync(DeputyId)).NotNull();
             membership.Experience = 500;
-            await _familyCharacterDao.TryInsertOrUpdateAsync(membership);
+            await _familyCharacterDao.TryInsertOrUpdateAsync(membership).OrThrowAsync();
 
             Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, null,
                 [new FamilyMemberChange(DeputyId) { Rank = FamilyMemberRank.Uncle }]));
@@ -181,7 +182,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             var membership = (await MemberAsync(characterId)).NotNull();
             membership.Authority = authority;
-            await _familyCharacterDao.TryInsertOrUpdateAsync(membership);
+            await _familyCharacterDao.TryInsertOrUpdateAsync(membership).OrThrowAsync();
         }
 
         private Task<bool> NoticeAsync(long actorId) =>
@@ -328,7 +329,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             await _familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
             {
                 FamilyId = other.FamilyId, CharacterId = OutsiderId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty
-            });
+            }).OrThrowAsync();
 
             Assert.AreEqual(FamilyMemberAddition.NotAdded, await _service.AddMemberAsync(other.FamilyId, OutsiderId, DeputyId));
 
@@ -395,7 +396,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task DisbandingDeletesTheHistoryTheMembersTheWarehouseAndTheFamily()
         {
-            await _familyLogDao.TryInsertOrUpdateAsync(new FamilyLogDto { FamilyId = _familyId, FamilyLogType = FamilyLogType.DailyMessage });
+            await _familyLogDao.TryInsertOrUpdateAsync(new FamilyLogDto { FamilyId = _familyId, FamilyLogType = FamilyLogType.DailyMessage }).OrThrowAsync();
             var storedItem = Guid.NewGuid();
             _warehouse.Setup(s => s.GetItemsAsync(null, _familyId, WarehouseType.FamilyWareHouse, null))
                 .ReturnsAsync([new WarehouseLink { WarehouseItemId = storedItem, ItemInstance = new ItemInstanceDto() }]);

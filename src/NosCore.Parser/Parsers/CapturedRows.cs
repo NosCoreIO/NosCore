@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,9 +25,9 @@ namespace NosCore.Parser.Parsers
                 return;
             }
 
-            await shopItemDao.TryDeleteAsync(shopItemDao.Where(s => shopIds.Contains(s.ShopId))?.Select(s => s.ShopItemId).ToList() ?? []);
-            await shopSkillDao.TryDeleteAsync(shopSkillDao.Where(s => shopIds.Contains(s.ShopId))?.Select(s => s.ShopSkillId).ToList() ?? []);
-            await shopDao.TryDeleteAsync(shopIds);
+            await shopItemDao.TryDeleteAsync(shopItemDao.Where(s => shopIds.Contains(s.ShopId))?.Select(s => s.ShopItemId).ToList() ?? []).OrThrowAsync();
+            await shopSkillDao.TryDeleteAsync(shopSkillDao.Where(s => shopIds.Contains(s.ShopId))?.Select(s => s.ShopSkillId).ToList() ?? []).OrThrowAsync();
+            await shopDao.TryDeleteAsync(shopIds).OrThrowAsync();
         }
 
         public static async Task DeleteRecipesAsync(IDao<RecipeDto, short> recipeDao, IDao<RecipeItemDto, short> recipeItemDao,
@@ -37,8 +38,8 @@ namespace NosCore.Parser.Parsers
                 return;
             }
 
-            await recipeItemDao.TryDeleteAsync(recipeItemDao.Where(s => recipeIds.Contains(s.RecipeId))?.Select(s => s.RecipeItemId).ToList() ?? []);
-            await recipeDao.TryDeleteAsync(recipeIds);
+            await recipeItemDao.TryDeleteAsync(recipeItemDao.Where(s => recipeIds.Contains(s.RecipeId))?.Select(s => s.RecipeItemId).ToList() ?? []).OrThrowAsync();
+            await recipeDao.TryDeleteAsync(recipeIds).OrThrowAsync();
         }
     }
 }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Ecs;
 using Moq;
@@ -149,7 +150,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             row.GroupRequestBlocked = true;
             row.HeroChatBlocked = true;
             row.EmoticonsBlocked = true;
-            await World.CharacterDao.TryInsertOrUpdateAsync(row);
+            await World.CharacterDao.TryInsertOrUpdateAsync(row).OrThrowAsync();
         }
 
         private void OptionsShouldBeRestored()
@@ -191,7 +192,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             var dto = (await World.CharacterDao.FirstOrDefaultAsync(c => c.Slot == slot)).NotNull();
             dto.SpPoint = points;
             dto.SpAdditionPoint = additional;
-            await World.CharacterDao.TryInsertOrUpdateAsync(dto);
+            await World.CharacterDao.TryInsertOrUpdateAsync(dto).OrThrowAsync();
         }
 
         private void TheCharacterShouldHaveSpecialistPoints_AndAdditionalPoints_(int points, int additional)

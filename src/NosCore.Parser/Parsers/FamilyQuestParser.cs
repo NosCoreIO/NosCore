@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Family;
@@ -62,7 +63,7 @@ namespace NosCore.Parser.Parsers
         {
             var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var quests = (await parser.GetDtosAsync()).Where(s => IsFamilyQuest(s.QuestId)).ToList();
-            await familyQuestDao.TryInsertOrUpdateAsync(quests);
+            await familyQuestDao.TryInsertOrUpdateAsync(quests).OrThrowAsync();
             _logger.LogInformation(logLanguage[LogLanguageKey.FAMILY_QUESTS_PARSED], quests.Count);
         }
 

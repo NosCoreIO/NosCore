@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Dao;
@@ -227,7 +228,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
         private async Task<ItemInstanceDto> SavedInstanceAsync(short amount)
         {
             var instance = new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = amount };
-            await ItemInstanceDao.TryInsertOrUpdateAsync(instance);
+            await ItemInstanceDao.TryInsertOrUpdateAsync(instance).OrThrowAsync();
             return instance;
         }
 

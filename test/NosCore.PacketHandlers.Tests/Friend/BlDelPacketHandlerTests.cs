@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
@@ -154,7 +155,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     CharacterId = Session.Character.CharacterId,
                     RelationType = CharacterRelationType.Blocked
                 }
-            });
+            }).OrThrowAsync();
         }
 
         private async Task CharacterHasBlockedTarget()
@@ -169,7 +170,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     CharacterId = Session.Character.CharacterId,
                     RelationType = CharacterRelationType.Blocked
                 }
-            });
+            }).OrThrowAsync();
         }
 
         private async Task DeletingFromBlacklist()

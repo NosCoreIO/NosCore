@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.StaticEntities;
@@ -125,9 +126,9 @@ namespace NosCore.Parser.Parsers
                 }))
                 .ToList();
 
-            await minigameRewardDao.TryDeleteAsync(minigameRewardDao.LoadAll().Select(s => s.MinigameRewardId).ToList());
-            await minigameRewardDao.TryInsertOrUpdateAsync(rewards);
-            await minigameScoreDao.TryInsertOrUpdateAsync(scores);
+            await minigameRewardDao.TryDeleteAsync(minigameRewardDao.LoadAll().Select(s => s.MinigameRewardId).ToList()).OrThrowAsync();
+            await minigameRewardDao.TryInsertOrUpdateAsync(rewards).OrThrowAsync();
+            await minigameScoreDao.TryInsertOrUpdateAsync(scores).OrThrowAsync();
         }
     }
 }

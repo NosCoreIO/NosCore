@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -81,7 +82,7 @@ namespace NosCore.Parser.Parsers
             var desired = shopitems.Select(s => (s.ShopId, s.ItemVNum)).ToHashSet();
             await shopItemDao.TryDeleteAsync(stored
                 .Where(s => capturedShops.Contains(s.ShopId) && !desired.Contains((s.ShopId, s.ItemVNum)))
-                .Select(s => s.ShopItemId).ToList());
+                .Select(s => s.ShopItemId).ToList()).OrThrowAsync();
 
             var storedByKey = stored.GroupBy(s => (s.ShopId, s.ItemVNum)).ToDictionary(g => g.Key, g => g.First());
             var changed = new List<ShopItemDto>();
@@ -101,7 +102,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await shopItemDao.TryInsertOrUpdateAsync(changed);
+            await shopItemDao.TryInsertOrUpdateAsync(changed).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SHOPITEMS_PARSED], changed.Count);
         }
     }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -74,9 +75,9 @@ namespace NosCore.Parser.Parsers
             KeepExistingIds(quests);
             SetQuestLines(quests);
 
-            await questDao.TryInsertOrUpdateAsync(quests);
-            await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));
-            await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective));
+            await questDao.TryInsertOrUpdateAsync(quests).OrThrowAsync();
+            await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward)).OrThrowAsync();
+            await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective)).OrThrowAsync();
 
             _logger.LogInformation(logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
         }

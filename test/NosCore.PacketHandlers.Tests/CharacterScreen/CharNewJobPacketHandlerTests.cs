@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Networking.ClientSession;
@@ -67,14 +68,14 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterIsLevel_Async(int level)
         {
             ExistingCharacter.Level = (byte)level;
-            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter).OrThrowAsync();
         }
 
         private async Task CharacterIsAlreadyMartialArtistAsync()
         {
             ExistingCharacter.Class = CharacterClassType.MartialArtist;
             ExistingCharacter.Level = 80;
-            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter).OrThrowAsync();
         }
 
         private async Task CreatingMartialArtistAsync()

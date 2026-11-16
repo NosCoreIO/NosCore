@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -32,7 +33,7 @@ namespace NosCore.Parser.Parsers
                 }))
                 .ToList();
 
-            await itemSummonDao.TryInsertOrUpdateAsync(rows);
+            await itemSummonDao.TryInsertOrUpdateAsync(rows).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.ITEM_SUMMONS_PARSED], rows.Count, rows.Select(r => r.ItemVNum).Distinct().Count());
         }
     }

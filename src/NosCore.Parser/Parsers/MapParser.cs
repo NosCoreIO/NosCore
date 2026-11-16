@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
@@ -74,7 +75,7 @@ namespace NosCore.Parser.Parsers
                 }
             }).ToList();
 
-            await mapDao.TryInsertOrUpdateAsync(maps);
+            await mapDao.TryInsertOrUpdateAsync(maps).OrThrowAsync();
             _logger.LogInformation(logLanguage[LogLanguageKey.MAPS_PARSED], maps.Count);
         }
     }

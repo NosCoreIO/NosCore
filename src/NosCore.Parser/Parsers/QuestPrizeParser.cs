@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -45,7 +46,7 @@ namespace NosCore.Parser.Parsers
             var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList,
                 loggerFactory.CreateLogger<GenericParser<QuestRewardDto>>(), logLanguage);
             var questRewardDtos = await genericParser.GetDtosAsync();
-            await questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos);
+            await questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).OrThrowAsync();
             _logger.LogInformation(logLanguage[LogLanguageKey.QUEST_PRIZES_PARSED], questRewardDtos.Count);
         }
 

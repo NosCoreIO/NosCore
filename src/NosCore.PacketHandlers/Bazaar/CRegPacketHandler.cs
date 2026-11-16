@@ -172,14 +172,14 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_ADD_ERROR]);
                 await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);
-                await itemInstanceDao.TryDeleteAsync(listed.Id);
+                _ = await itemInstanceDao.TryDeleteAsync(listed.Id);
                 return;
             }
 
             switch (result)
             {
                 case LanguageKey.LIMIT_EXCEEDED:
-                    await itemInstanceDao.TryDeleteAsync(listed.Id);
+                    _ = await itemInstanceDao.TryDeleteAsync(listed.Id);
                     await clientSession.SendPacketAsync(new ModaliPacket
                     {
                         Type = 1,

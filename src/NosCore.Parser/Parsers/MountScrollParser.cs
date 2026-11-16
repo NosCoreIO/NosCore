@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -47,8 +48,8 @@ namespace NosCore.Parser.Parsers
                 }));
             }
 
-            await itemDao.TryInsertOrUpdateAsync(scrolls);
-            await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls);
+            await itemDao.TryInsertOrUpdateAsync(scrolls).OrThrowAsync();
+            await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.MOUNT_SCROLLS_PARSED], scrolls.Count, rolls.Count);
         }
     }

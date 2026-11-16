@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -69,11 +70,11 @@ namespace NosCore.Parser.Parsers
             var cells = monsters.Select(s => (s.MapId, s.VNum, s.MapX, s.MapY)).ToHashSet();
             await mapMonsterDao.TryDeleteAsync(stored.Values
                 .Where(s => !ids.Contains(s.MapMonsterId) && cells.Contains((s.MapId, s.VNum, s.MapX, s.MapY)))
-                .Select(s => s.MapMonsterId).ToList());
+                .Select(s => s.MapMonsterId).ToList()).OrThrowAsync();
 
             var changed = monsters.Where(s => !stored.TryGetValue(s.MapMonsterId, out var row)
                 || (row.MapId, row.VNum, row.MapX, row.MapY, row.Direction, row.IsDisabled) != (s.MapId, s.VNum, s.MapX, s.MapY, s.Direction, s.IsDisabled)).ToList();
-            await mapMonsterDao.TryInsertOrUpdateAsync(changed);
+            await mapMonsterDao.TryInsertOrUpdateAsync(changed).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.MONSTERS_PARSED], changed.Count);
         }
     }

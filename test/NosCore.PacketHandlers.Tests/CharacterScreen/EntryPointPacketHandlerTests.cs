@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.CommandPackets;
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Logger.Invocations.Clear();
             Session = await World.CreateSessionAsync();
             AccountName = Session.Account.Name;
-            await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
+            await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto).OrThrowAsync();
             Session.ClearPlayerEntity();
             Session.Account = null;
             AuthHttpClient = new Mock<IAuthHub>();
@@ -232,7 +233,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             var account = (await World.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
             account.Authority = authority;
-            await World.AccountDao.TryInsertOrUpdateAsync(account);
+            await World.AccountDao.TryInsertOrUpdateAsync(account).OrThrowAsync();
         }
 
         private void TheChannelIsInMaintenance()
@@ -244,7 +245,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             var account = (await World.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
             account.MfaSecret = "testsecret";
-            await World.AccountDao.TryInsertOrUpdateAsync(account);
+            await World.AccountDao.TryInsertOrUpdateAsync(account).OrThrowAsync();
         }
 
         private async Task AccountIsAlreadyInitialized()

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -364,7 +365,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
             {
                 Id = Guid.NewGuid(), WearableInstanceId = weapon, Level = 1, Type = 1, Value = value
-            });
+            }).OrThrowAsync();
         }
 
         private async Task TheSellerHoldsAWeaponWithAnOptionOfValue_(int value)
@@ -377,7 +378,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
             {
                 Id = Guid.NewGuid(), WearableInstanceId = weapon.Id, Level = 1, Type = 1, Value = value
-            });
+            }).OrThrowAsync();
         }
 
         private Task TheSellerListsTheWeapon() =>

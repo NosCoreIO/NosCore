@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
             {
                 OwnerId = Session.Character.CharacterId
-            });
+            }).OrThrowAsync();
 
             await World.SeedMinilandEntrancesAsync();
 

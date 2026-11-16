@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -95,7 +96,7 @@ namespace NosCore.Parser.Parsers
                     Name = "Act4Demon"
                 }
             };
-            await respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps);
+            await respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.RESPAWNTYPE_PARSED],
                 respawnmaptypemaps.Count());
         }

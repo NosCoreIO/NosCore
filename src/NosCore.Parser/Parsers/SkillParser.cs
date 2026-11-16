@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
@@ -134,12 +135,12 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await skillDao.TryInsertOrUpdateAsync(skills);
+            await skillDao.TryInsertOrUpdateAsync(skills).OrThrowAsync();
             var skillVNums = skills.Select(s => s.SkillVNum).ToHashSet();
-            await comboDao.TryDeleteAsync(comboDao.Where(s => skillVNums.Contains(s.SkillVNum))?.Select(s => s.ComboId).ToList() ?? []);
-            await comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo));
-            await bCardDao.TryDeleteAsync(bCardDao.Where(s => s.SkillVNum != null && skillVNums.Contains(s.SkillVNum.Value))?.Select(s => s.BCardId).ToList() ?? []);
-            await bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            await comboDao.TryDeleteAsync(comboDao.Where(s => skillVNums.Contains(s.SkillVNum))?.Select(s => s.ComboId).ToList() ?? []).OrThrowAsync();
+            await comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo)).OrThrowAsync();
+            await bCardDao.TryDeleteAsync(bCardDao.Where(s => s.SkillVNum != null && skillVNums.Contains(s.SkillVNum.Value))?.Select(s => s.BCardId).ToList() ?? []).OrThrowAsync();
+            await bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards)).OrThrowAsync();
 
             _logger.LogInformation(logLanguage[LogLanguageKey.SKILLS_PARSED], skills.Count);
         }

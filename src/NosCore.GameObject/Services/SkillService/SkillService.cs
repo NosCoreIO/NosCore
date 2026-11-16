@@ -1,3 +1,4 @@
+using NosCore.Core.Dao;
 using Mapster;
 using NosCore.GameObject.Ecs;
 using NosCore.Algorithm.ExperienceService;
@@ -149,7 +150,7 @@ namespace NosCore.GameObject.Services.SkillService
             foreach (var stale in characterSkillDao.Where(x => x.CharacterId == characterId)?
                          .Where(x => !keep.Contains(x.SkillVNum) && !passives.Contains(x.SkillVNum)).ToList() ?? [])
             {
-                await characterSkillDao.TryDeleteAsync(stale.Id);
+                await characterSkillDao.TryDeleteAsync(stale.Id).OrThrowAsync();
                 character.Skills.TryRemove(stale.SkillVNum, out _);
             }
         }
@@ -184,7 +185,12 @@ namespace NosCore.GameObject.Services.SkillService
                 };
                 if (character.Skills.TryAdd(skill.SkillVNum, entry))
                 {
-                    await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>());
+                    if (await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>()) == null)
+                    {
+                        character.Skills.TryRemove(skill.SkillVNum, out _);
+                        throw new DaoWriteFailedException();
+                    }
+
                     learned = true;
                 }
             }
@@ -237,7 +243,8 @@ namespace NosCore.GameObject.Services.SkillService
                 foreach (var weaker in character.Skills.Values
                              .Where(s => s.Skill.IsPassive() && s.Skill.CastId == skill.CastId).ToList())
                 {
-                    await characterSkillDao.TryDeleteAsync(weaker.Id);
+                    // A skill learnt since the last save has no row yet, which the DAO reports like a failure.
+                    _ = await characterSkillDao.TryDeleteAsync(weaker.Id);
                     character.Skills.TryRemove(weaker.SkillVNum, out _);
                 }
             }

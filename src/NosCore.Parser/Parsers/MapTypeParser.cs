@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -208,7 +209,7 @@ namespace NosCore.Parser.Parsers
                     PotionDelay = 5000
                 }
             };
-            await dropDao.TryInsertOrUpdateAsync(mts);
+            await dropDao.TryInsertOrUpdateAsync(mts).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.MAPTYPES_PARSED]);
         }
     }

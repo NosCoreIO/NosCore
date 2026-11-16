@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -47,7 +48,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(lodPortal);
+                await portalDao.TryInsertOrUpdateAsync(lodPortal).OrThrowAsync();
             }
 
             var minilandPortal = new PortalDto
@@ -67,7 +68,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(minilandPortal);
+                await portalDao.TryInsertOrUpdateAsync(minilandPortal).OrThrowAsync();
             }
 
             // A miniland entrance leads to the miniland of whoever walks in, so the server
@@ -86,7 +87,7 @@ namespace NosCore.Parser.Parsers
                     && s.SourceX == minilandEntrance.SourceX && s.SourceY == minilandEntrance.SourceY))
                 {
                     portalCounter++;
-                    await portalDao.TryInsertOrUpdateAsync(minilandEntrance);
+                    await portalDao.TryInsertOrUpdateAsync(minilandEntrance).OrThrowAsync();
                 }
             }
 
@@ -106,7 +107,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(weddingPortal);
+                await portalDao.TryInsertOrUpdateAsync(weddingPortal).OrThrowAsync();
             }
 
             var glacerusCavernPortal = new PortalDto
@@ -125,7 +126,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal);
+                await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal).OrThrowAsync();
             }
 
             // The arenas are entered through an NPC, so no portal leads out of them.
@@ -150,7 +151,7 @@ namespace NosCore.Parser.Parsers
                 }
 
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(arenaExit);
+                await portalDao.TryInsertOrUpdateAsync(arenaExit).OrThrowAsync();
             }
 
             foreach (var packet in packets)
@@ -216,7 +217,7 @@ namespace NosCore.Parser.Parsers
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
                     s => (s.DestinationMapId == portal.DestinationMapId) && (s.SourceX == portal.SourceX)
                         && (s.SourceY == portal.SourceY))).ToList();
-            await portalDao.TryInsertOrUpdateAsync(portalsDtos);
+            await portalDao.TryInsertOrUpdateAsync(portalsDtos).OrThrowAsync();
 
             logger.LogInformation(logLanguage[LogLanguageKey.PORTALS_PARSED],
                 portalsDtos.Count + portalCounter);

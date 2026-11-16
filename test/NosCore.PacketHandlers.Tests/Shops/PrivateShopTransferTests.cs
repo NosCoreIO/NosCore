@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Algorithm.RarityPointService;
 using NosCore.Algorithm.DignityService;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -285,7 +286,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
             {
                 Id = Guid.NewGuid(), WearableInstanceId = weapon.Id, Level = 1, Type = 1, Value = value
-            });
+            }).OrThrowAsync();
             await _mShop.ExecuteAsync(new MShopPacket
             {
                 Type = CreateShopPacketType.Open,

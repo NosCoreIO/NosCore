@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -119,7 +120,7 @@ namespace NosCore.Parser.Tests
             var options = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
             var dropDao = new Dao<Database.Entities.Drop, DropDto, short>(NullLogger<Dao<Database.Entities.Drop, DropDto, short>>.Instance, () => new NosCoreContext(options));
             var parser = new DropParser(dropDao);
-            await dropDao.TryInsertOrUpdateAsync(parser.GenerateDropDto(1012, 1, 24, 5000, 0));
+            await dropDao.TryInsertOrUpdateAsync(parser.GenerateDropDto(1012, 1, 24, 5000, 0)).OrThrowAsync();
 
             await parser.InsertDropAsync();
             var generalDrops = dropDao.LoadAll().Count(s => s.MonsterVNum == null);

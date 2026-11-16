@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
@@ -59,7 +60,7 @@ namespace NosCore.Parser.Parsers
             var desired = skills.Select(s => (s.ShopId, s.Type, s.SkillVNum)).ToHashSet();
             await shopSkillDao.TryDeleteAsync(stored
                 .Where(s => capturedShops.Contains(s.ShopId) && !desired.Contains((s.ShopId, s.Type, s.SkillVNum)))
-                .Select(s => s.ShopSkillId).ToList());
+                .Select(s => s.ShopSkillId).ToList()).OrThrowAsync();
 
             var storedByKey = stored.GroupBy(s => (s.ShopId, s.Type, s.SkillVNum)).ToDictionary(g => g.Key, g => g.First());
             var changed = new List<ShopSkillDto>();
@@ -76,7 +77,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await shopSkillDao.TryInsertOrUpdateAsync(changed);
+            await shopSkillDao.TryInsertOrUpdateAsync(changed).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SHOPSKILLS_PARSED], changed.Count);
         }
     }

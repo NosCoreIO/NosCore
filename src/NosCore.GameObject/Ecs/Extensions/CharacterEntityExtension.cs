@@ -681,7 +681,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
                             if (!carried)
                             {
-                                await itemInstanceDao.TryDeleteAsync(copy.Id);
+                                _ = await itemInstanceDao.TryDeleteAsync(copy.Id);
                                 return;
                             }
 
@@ -716,7 +716,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                         buyer.Gold += cost;
                         if (persisted != null && itemInstanceDao != null)
                         {
-                            await itemInstanceDao.TryDeleteAsync(persisted.Id);
+                            _ = await itemInstanceDao.TryDeleteAsync(persisted.Id);
                         }
 
                         failure = new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace };

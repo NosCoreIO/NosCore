@@ -1,3 +1,4 @@
+using NosCore.Core.Dao;
 using NosCore.GameObject.Services.ExchangeService;
 using System;
 using System.Linq;
@@ -216,7 +217,7 @@ public class FactionEggHandlerTests
     public async Task ResetPointsSurvivePersistence()
     {
         await UseAsync(1);
-        await World.CharacterDao.TryInsertOrUpdateAsync(_session.Character.CharacterDto);
+        await World.CharacterDao.TryInsertOrUpdateAsync(_session.Character.CharacterDto).OrThrowAsync();
         var characterId = _session.Character.CharacterId;
         var saved = await World.CharacterDao.FirstOrDefaultAsync(character =>
             character.CharacterId == characterId);

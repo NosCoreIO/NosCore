@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -39,10 +40,10 @@ namespace NosCore.Parser.Parsers
                 Amount = d.Amount,
             }).ToList();
 
-            await monsterDao.TryDeleteAsync(monsterDao.LoadAll().Select(m => m.InstantCombatMonsterId).ToList());
-            await dropDao.TryDeleteAsync(dropDao.LoadAll().Select(d => d.InstantCombatDropId).ToList());
-            await monsterDao.TryInsertOrUpdateAsync(monsters);
-            await dropDao.TryInsertOrUpdateAsync(drops);
+            await monsterDao.TryDeleteAsync(monsterDao.LoadAll().Select(m => m.InstantCombatMonsterId).ToList()).OrThrowAsync();
+            await dropDao.TryDeleteAsync(dropDao.LoadAll().Select(d => d.InstantCombatDropId).ToList()).OrThrowAsync();
+            await monsterDao.TryInsertOrUpdateAsync(monsters).OrThrowAsync();
+            await dropDao.TryInsertOrUpdateAsync(drops).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.INSTANT_COMBAT_PARSED], monsters.Count, drops.Count);
         }
     }

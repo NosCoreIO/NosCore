@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -193,12 +194,12 @@ namespace NosCore.GameObject.Tests.Services.TransferService
                 DurabilityPoint = 40
             };
             _armorEntry = _second.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_armor, _second.Character.CharacterId)).NotNull().First();
-            await _itemInstanceDao.TryInsertOrUpdateAsync(_armor);
-            await _inventoryDao.TryInsertOrUpdateAsync(_armorEntry);
+            await _itemInstanceDao.TryInsertOrUpdateAsync(_armor).OrThrowAsync();
+            await _inventoryDao.TryInsertOrUpdateAsync(_armorEntry).OrThrowAsync();
             await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
             {
                 Id = Guid.NewGuid(), WearableInstanceId = _armor.Id, Level = 1, Type = 2, Value = 3
-            });
+            }).OrThrowAsync();
             _secondOffer = new TransferOffer(0, 5_000, new Dictionary<InventoryItemInstance, short> { [_armorEntry] = 1 });
             _before = new Snapshot(_first, _second);
         }

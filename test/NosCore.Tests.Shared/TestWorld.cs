@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Data.Enumerations.Interaction;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
@@ -178,7 +179,7 @@ namespace NosCore.Tests.Shared
             GameObject.Ecs.ReputationLevels.Load(ClientLadders.ReputationLevels());
             GameObject.Ecs.DignityLevels.Load(ClientLadders.DignityLevels());
             var world = new TestWorld();
-            await world.MapNpcDao.TryInsertOrUpdateAsync(new MapNpcDto());
+            await world.MapNpcDao.TryInsertOrUpdateAsync(new MapNpcDto()).OrThrowAsync();
             await world.MapInstanceGeneratorService.InitializeAsync();
             await world.MapInstanceGeneratorService.AddMapInstanceAsync(new MapInstance((Map)world._maps[2], world.MinilandId, false,
                 MapInstanceType.NormalInstance, world.MapItemProvider, NullLogger<MapInstance>.Instance, world.LogLanguageLocalizer, world.Clock,
@@ -307,12 +308,12 @@ namespace NosCore.Tests.Shared
             {
                 PortalId = 9001, SourceMapId = 1, SourceX = 48, SourceY = 132,
                 DestinationMapId = 20001, DestinationX = 5, DestinationY = 8, Type = PortalType.Miniland,
-            });
+            }).OrThrowAsync();
             await PortalDao.TryInsertOrUpdateAsync(new PortalDto
             {
                 PortalId = 9002, SourceMapId = 145, SourceX = 9, SourceY = 171,
                 DestinationMapId = 20001, DestinationX = 5, DestinationY = 8, Type = PortalType.Miniland,
-            });
+            }).OrThrowAsync();
         }
 
         public async Task<ClientSession> CreateSessionAsync(List<IPacketHandler>? packetHandlers = null,
@@ -371,7 +372,7 @@ namespace NosCore.Tests.Shared
                 HairStyle = HairStyleType.HairStyleA,
                 HairColor = HairColorType.Black
             };
-            await CharacterDao.TryInsertOrUpdateAsync(characterDto);
+            await CharacterDao.TryInsertOrUpdateAsync(characterDto).OrThrowAsync();
             var channel = new Mock<IChannel>();
             channel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
             session.RegisterChannel(channel.Object);

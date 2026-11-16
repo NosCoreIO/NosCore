@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -172,7 +173,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
                     CharacterId = CharacterId,
                     RelatedCharacterId = blocked.CharacterId,
                     RelationType = CharacterRelationType.Blocked
-                });
+                }).OrThrowAsync();
             }
 
             PubSubHub.Setup(s => s.GetSubscribersAsync())
@@ -246,7 +247,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
                 RelatedCharacterId = TargetCharacterId,
                 RelationType = CharacterRelationType.Friend
             };
-            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation).OrThrowAsync();
         }
 
         private async Task BlacklistingTarget()

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Data.Enumerations.Interaction;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -319,7 +320,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 ItemInstanceId = _sharedInstanceId,
                 Slot = 0,
                 Type = held.Type
-            });
+            }).OrThrowAsync();
         }
 
         private void TheCharacterNoLongerHoldsTheItem()

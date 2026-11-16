@@ -61,15 +61,18 @@ namespace NosCore.GameObject.Services.MailService
 
         public async Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy)
         {
-            if (!parcelRegistry.RemoveMail(characterId, senderCopy, id, out var maildata) || maildata == null)
+            var maildata = parcelRegistry.GetMail(characterId, senderCopy, id);
+            if (maildata == null || await mailDao.TryDeleteAsync(maildata.MailDto.MailId) == null)
             {
                 return false;
             }
 
-            await mailDao.TryDeleteAsync(maildata.MailDto.MailId);
+            _ = parcelRegistry.RemoveMail(characterId, senderCopy, id, out _);
+
             if (maildata.ItemInstance != null)
             {
-                await itemInstanceDao.TryDeleteAsync(maildata.ItemInstance.Id);
+                // With its mail gone the attachment is unreachable.
+                _ = await itemInstanceDao.TryDeleteAsync(maildata.ItemInstance.Id);
             }
 
             var receiver = await pubSubHub.GetWorldSubscriberAsync(channelHub, characterId);
@@ -94,7 +97,11 @@ namespace NosCore.GameObject.Services.MailService
             }
 
             mail = edited;
-            await mailDao.TryInsertOrUpdateAsync(mail);
+            if (await mailDao.TryInsertOrUpdateAsync(mail) == null)
+            {
+                return null;
+            }
+
             var targetCharacterId = mail.IsSenderCopy && mail.SenderId is { } senderId ? senderId : mail.ReceiverId;
             var savedData = parcelRegistry.GetMails(targetCharacterId, mail.IsSenderCopy)
                     .FirstOrDefault(s => s.Value.MailDto.MailId == id);
@@ -218,10 +225,11 @@ namespace NosCore.GameObject.Services.MailService
                 return true;
             }
 
-            await mailDao.TryDeleteAsync(mailData.MailDto.MailId);
+            // Undoes a mail nobody can see; whatever is left behind is unreachable.
+            _ = await mailDao.TryDeleteAsync(mailData.MailDto.MailId);
             if (mailData.ItemInstance != null)
             {
-                await itemInstanceDao.TryDeleteAsync(mailData.ItemInstance.Id);
+                _ = await itemInstanceDao.TryDeleteAsync(mailData.ItemInstance.Id);
             }
 
             return false;

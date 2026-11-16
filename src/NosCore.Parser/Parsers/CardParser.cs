@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
@@ -66,10 +67,10 @@ namespace NosCore.Parser.Parsers
                 HardcodeCard(card);
             }
 
-            await cardDao.TryInsertOrUpdateAsync(cards);
+            await cardDao.TryInsertOrUpdateAsync(cards).OrThrowAsync();
             var cardIds = cards.Select(s => (short?)s.CardId).ToHashSet();
-            await bcardDao.TryDeleteAsync(bcardDao.Where(s => cardIds.Contains(s.CardId))?.Select(s => s.BCardId).ToList() ?? []);
-            await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            await bcardDao.TryDeleteAsync(bcardDao.Where(s => cardIds.Contains(s.CardId))?.Select(s => s.BCardId).ToList() ?? []).OrThrowAsync();
+            await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards)).OrThrowAsync();
 
             _logger.LogInformation(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
         }

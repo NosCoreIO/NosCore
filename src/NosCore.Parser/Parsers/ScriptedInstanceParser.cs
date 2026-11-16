@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -70,7 +71,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await scriptedInstanceDao.TryInsertOrUpdateAsync(found);
+            await scriptedInstanceDao.TryInsertOrUpdateAsync(found).OrThrowAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.TIMESPACES_PARSED], found.Count);
             return;
 

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Algorithm.RarityPointService;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
             {
                 OwnerId = _session.Character.CharacterId,
-            });
+            }).OrThrowAsync();
             await World.SeedMinilandEntrancesAsync();
             _minilandProvider = new MinilandService(World.MapInstanceAccessorService,
                 World.FriendHub.Object,

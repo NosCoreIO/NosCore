@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
@@ -238,10 +239,10 @@ namespace NosCore.Parser.Parsers
                 })];
             }
 
-            await itemDao.TryInsertOrUpdateAsync(items);
+            await itemDao.TryInsertOrUpdateAsync(items).OrThrowAsync();
             var itemVNums = items.Select(s => (short?)s.VNum).ToHashSet();
-            await bCardDao.TryDeleteAsync(bCardDao.Where(s => itemVNums.Contains(s.ItemVNum))?.Select(s => s.BCardId).ToList() ?? []);
-            await bCardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            await bCardDao.TryDeleteAsync(bCardDao.Where(s => itemVNums.Contains(s.ItemVNum))?.Select(s => s.BCardId).ToList() ?? []).OrThrowAsync();
+            await bCardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards)).OrThrowAsync();
 
             _logger.LogInformation(logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
         }
