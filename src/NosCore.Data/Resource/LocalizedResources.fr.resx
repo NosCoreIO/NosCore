@@ -939,4 +939,64 @@
   <data name="TIMESPACE_GOAL_SURVIVE_KOARENS" xml:space="preserve">
     <value>Tente de survivre 1 minute à l'attaque des Koarens.</value>
   </data>
+  <data name="TIMESPACE_DEMONS_CRUSH_KOVOLTS" xml:space="preserve">
+    <value>Les démons infligent aux Kovolts une défaite cuisante !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_CUARRY_KNIGHTS_AND_DEMONS" xml:space="preserve">
+    <value>Les chevaliers de Lord Cuarry et les démons approchent !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DESTROY_KOVOLT_ALLIANCE" xml:space="preserve">
+    <value>Détruis l'alliance des Kovolts !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIGHT_KOVOLTS" xml:space="preserve">
+    <value>Combats les Kovolts !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FLEE_AFTER_FOUR_MINUTES" xml:space="preserve">
+    <value>Prends la fuite après 4 minutes de combat.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_GO_HUNTING_FIVE_MINUTES" xml:space="preserve">
+    <value>Pars à la chasse pendant 5 minutes !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_GO_HUNTING_THREE_MINUTES" xml:space="preserve">
+    <value>Pars à la chasse pendant 3 minutes !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_HELP_NOSVILLE_ALLIANCE" xml:space="preserve">
+    <value>Rejoins la bataille et aide l'alliance de NosVille !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_HUNT_AS_MANY_FIVE_MINUTES" xml:space="preserve">
+    <value>Chasse autant de monstres que possible pendant 5 minutes !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_HUNT_FOR_THREE_MINUTES" xml:space="preserve">
+    <value>Chasse des monstres pendant 3 minutes.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_MONSTERS" xml:space="preserve">
+    <value>Élimine tous les monstres !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MONSTERS_ATTACK" xml:space="preserve">
+    <value>Les monstres attaquent.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MONSTERS_VANISH_IN_THREE_MINUTES" xml:space="preserve">
+    <value>Les monstres disparaîtront dans 3 minutes.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURPRISE_ATTACK" xml:space="preserve">
+    <value>Une attaque surprise !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_THREE_MINUTES_DOOR" xml:space="preserve">
+    <value>Survis pendant 3 minutes et la porte s'ouvrira.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_VIOLENT_KENKO" xml:space="preserve">
+    <value>Survis au frappeur kenko violent pendant 2 minutes.</value>
+  </data>
+  <data name="TIMESPACE_HOUR_OF_WAR" xml:space="preserve">
+    <value>L'heure de la guerre a sonné !</value>
+  </data>
+  <data name="TIMESPACE_HUNT_UNTIL_BOTTOM_EXIT_OPENS" xml:space="preserve">
+    <value>Chasse des monstres jusqu'à ce que la sortie du bas s'ouvre !</value>
+  </data>
+  <data name="TIMESPACE_MONSTERS_VANISH_EXIT_OPENS" xml:space="preserve">
+    <value>Les monstres disparaissent et la sortie s'ouvre.</value>
+  </data>
+  <data name="TIMESPACE_HUNTING_TIME_OVER" xml:space="preserve">
+    <value>Le temps de chasse est écoulé...</value>
+  </data>
 </root>
