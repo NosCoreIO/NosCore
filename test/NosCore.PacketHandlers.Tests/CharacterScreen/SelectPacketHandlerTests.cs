@@ -8,6 +8,7 @@ using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Ecs;
 using Moq;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
@@ -49,6 +50,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
             Session.ClearPlayerEntity();
+            var mates = World.Freeze<Mock<NosCore.GameObject.Services.MateService.IMateService>>();
+            mates.Setup(s => s.LoadAsync(It.IsAny<long>())).ReturnsAsync(new List<Mate>());
             SelectPacketHandler = new SelectPacketHandler(
                 World.CharacterDao,
                 Logger,
@@ -75,9 +78,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new MpService(),
                 new SpeedService(),
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
-                new Mock<ISessionGroupFactory>().Object,
-                World.Create<CharacterInitializationService>(),
-                new Mock<NosCore.GameObject.Services.MateService.IMateService>().Object,
+                World.SessionGroupFactory,
+                World.Create<ICharacterInitializationService>(),
+                mates.Object,
                 new Mock<NosCore.GameObject.Services.FamilyService.IFamilyService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IStaticBuffService>().Object);
         }
@@ -109,6 +112,17 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await World.Create<SelectPacketHandler>().ExecuteAsync(new SelectPacket { Slot = 1 }, Session);
 
             staticBuffs.Verify(s => s.Load(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task ASelectionThatFailsReachesThePacketBoundary()
+        {
+            World.Freeze<Mock<IMateService>>()
+                .Setup(s => s.LoadAsync(It.IsAny<long>()))
+                .ThrowsAsync(new InvalidOperationException());
+
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+                World.Create<SelectPacketHandler>().ExecuteAsync(new SelectPacket { Slot = 1 }, Session));
         }
 
         [TestMethod]

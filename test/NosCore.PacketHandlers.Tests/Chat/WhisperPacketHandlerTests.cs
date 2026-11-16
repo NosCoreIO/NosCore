@@ -46,7 +46,6 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private readonly Channel Channel = new() { ClientName = "TestChannel", Host = "localhost", Port = 1339 };
         private string? Delivered;
         private Mock<IChannelHub> ChannelHub;
-        private readonly ILogger<WhisperPacketHandler> Logger = new Mock<ILogger<WhisperPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -76,8 +75,6 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 .Returns("serialized");
 
             Handler = new WhisperPacketHandler(
-                Logger,
-                new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object,
                 Serializer.Object,
                 World.Create<BlacklistCacheService>(),
                 World.Create<SubscriberCacheService>(),

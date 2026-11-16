@@ -33,7 +33,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class WhisperPacketHandler(ILogger<WhisperPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISerializer packetSerializer,
+    public class WhisperPacketHandler(ISerializer packetSerializer,
             IBlacklistCacheService blacklistCache, ISubscriberCacheService subscriberCache,
             IPubSubHub pubSubHub, IChannelHub channelHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer,
@@ -47,98 +47,91 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            try
+            var messageBuilder = new StringBuilder();
+
+            //Todo: review this
+            var messageData = whisper.Split(' ');
+            var receiverName = messageData[whisper.StartsWith("GM ") ? 1 : 0];
+
+            for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
             {
-                var messageBuilder = new StringBuilder();
-
-                //Todo: review this
-                var messageData = whisper.Split(' ');
-                var receiverName = messageData[whisper.StartsWith("GM ") ? 1 : 0];
-
-                for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
-                {
-                    messageBuilder.Append(messageData[i]).Append(" ");
-                }
-
-                var message = new StringBuilder(messageBuilder.ToString().Length > 60
-                    ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
-
-                await session.SendPacketAsync(session.Character.GenerateSpk(new SpeakPacket
-                {
-                    SpeakType = SpeakType.Player,
-                    Message = message.ToString()
-                }));
-
-                var speakPacket = session.Character.GenerateSpk(new SpeakPacket
-                {
-                    SpeakType = session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
-                        : SpeakType.Player,
-                    Message = message.ToString()
-                });
-
-                var receiver = await subscriberCache.FindAsync(x => x.ConnectedCharacter?.Name == receiverName);
-
-                if (receiver == null)
-                {
-                    await session.SendPacketAsync(new Infoi2Packet
-                    {
-                        Message = Game18NConstString.IsNotPlaying,
-                        ArgumentType = 1,
-                        Game18NArguments = { receiverName }
-                    });
-                    return;
-                }
-
-                var receiverId = receiver.ConnectedCharacter?.Id;
-                if (receiverId == session.Character.VisualId)
-                {
-                    return;
-                }
-
-                var blacklisteds = await blacklistCache.GetBlacklistedAsync(session.Character.VisualId);
-                if (receiverId != null && (blacklisteds.Any(s => s.CharacterId == receiverId)
-                    || (await blacklistCache.GetBlacklistedAsync(receiverId.Value)).Any(s => s.CharacterId == session.Character.VisualId)))
-                {
-                    await session.SendPacketAsync(new InfoiPacket
-                    {
-                        Message = Game18NConstString.AlreadyBlacklisted
-                    });
-                    return;
-                }
-
-                if (receiver.ConnectedCharacter?.WhisperBlocked == true)
-                {
-                    await session.SendPacketAsync(new MsgiPacket
-                    {
-                        Type = MessageType.Default,
-                        Message = Game18NConstString.ThisPersonRefuseWhisper
-                    });
-                    return;
-                }
-
-                if (!sessionRegistry.TryGetCharacter(s => s.Name == receiverName, out _))
-                {
-                    var channels = await channelHub.GetCommunicationChannels();
-                    if (channels.FirstOrDefault(c => c.Host == channel.Host && c.Port == channel.Port) is { } here)
-                    {
-                        speakPacket.Message =
-                            $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Language]}: {channels.NumberOf(here)}>";
-                    }
-                }
-
-                await pubSubHub.SendMessageAsync(new PostedPacket
-                {
-                    Packet = packetSerializer.Serialize(new[] { speakPacket }),
-                    ReceiverCharacter = new Character { Name = receiverName },
-                    SenderCharacter = new Character { Name = session.Character.Name },
-                    OriginWorldId = channel.ChannelId,
-                    ReceiverType = ReceiverType.OnlySomeone
-                });
+                messageBuilder.Append(messageData[i]).Append(" ");
             }
-            catch (Exception e)
+
+            var message = new StringBuilder(messageBuilder.ToString().Length > 60
+                ? messageBuilder.ToString().Substring(0, 60) : messageBuilder.ToString());
+
+            await session.SendPacketAsync(session.Character.GenerateSpk(new SpeakPacket
             {
-                logger.LogError(e, logLanguage[LogLanguageKey.WHISPER_FAILED]);
+                SpeakType = SpeakType.Player,
+                Message = message.ToString()
+            }));
+
+            var speakPacket = session.Character.GenerateSpk(new SpeakPacket
+            {
+                SpeakType = session.Account.Authority >= AuthorityType.GameMaster ? SpeakType.GameMaster
+                    : SpeakType.Player,
+                Message = message.ToString()
+            });
+
+            var receiver = await subscriberCache.FindAsync(x => x.ConnectedCharacter?.Name == receiverName);
+
+            if (receiver == null)
+            {
+                await session.SendPacketAsync(new Infoi2Packet
+                {
+                    Message = Game18NConstString.IsNotPlaying,
+                    ArgumentType = 1,
+                    Game18NArguments = { receiverName }
+                });
+                return;
             }
+
+            var receiverId = receiver.ConnectedCharacter?.Id;
+            if (receiverId == session.Character.VisualId)
+            {
+                return;
+            }
+
+            var blacklisteds = await blacklistCache.GetBlacklistedAsync(session.Character.VisualId);
+            if (receiverId != null && (blacklisteds.Any(s => s.CharacterId == receiverId)
+                || (await blacklistCache.GetBlacklistedAsync(receiverId.Value)).Any(s => s.CharacterId == session.Character.VisualId)))
+            {
+                await session.SendPacketAsync(new InfoiPacket
+                {
+                    Message = Game18NConstString.AlreadyBlacklisted
+                });
+                return;
+            }
+
+            if (receiver.ConnectedCharacter?.WhisperBlocked == true)
+            {
+                await session.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.ThisPersonRefuseWhisper
+                });
+                return;
+            }
+
+            if (!sessionRegistry.TryGetCharacter(s => s.Name == receiverName, out _))
+            {
+                var channels = await channelHub.GetCommunicationChannels();
+                if (channels.FirstOrDefault(c => c.Host == channel.Host && c.Port == channel.Port) is { } here)
+                {
+                    speakPacket.Message =
+                        $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Language]}: {channels.NumberOf(here)}>";
+                }
+            }
+
+            await pubSubHub.SendMessageAsync(new PostedPacket
+            {
+                Packet = packetSerializer.Serialize(new[] { speakPacket }),
+                ReceiverCharacter = new Character { Name = receiverName },
+                SenderCharacter = new Character { Name = session.Character.Name },
+                OriginWorldId = channel.ChannelId,
+                ReceiverType = ReceiverType.OnlySomeone
+            });
         }
     }
 }

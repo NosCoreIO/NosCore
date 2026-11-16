@@ -506,9 +506,6 @@
   <data name="CHARACTER_SLOT_EMPTY" xml:space="preserve">
     <value>Character slot is empty.</value>
   </data>
-  <data name="CHARACTER_SELECTION_FAILED" xml:space="preserve">
-    <value>Character selection failed.</value>
-  </data>
   <data name="ALREADY_CONNECTED" xml:space="preserve">
     <value>Account already connected.</value>
   </data>
