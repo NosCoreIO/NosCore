@@ -241,6 +241,10 @@ branch → PR → CI → merge → tag `X.Y.Z` (bare, no `v` prefix) → wait fo
 A successful `dotnet nuget push` is not the same as the package being restorable; poll the
 flat-container index before bumping the consumer.
 
+A new major of a package means bumping it in the siblings that use it as well, not only here:
+NosCore.Networking builds on NosCore.Packets. The nightly `siblings-head` job fails when any
+reference trails the latest release by more than one major.
+
 ---
 
 ## Manual verification
