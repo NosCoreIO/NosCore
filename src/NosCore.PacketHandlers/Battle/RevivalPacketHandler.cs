@@ -96,11 +96,10 @@ namespace NosCore.PacketHandlers.Battle
                         return;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 character.IsAlive = false;
-                logger.LogWarning(ex, logLanguage[LogLanguageKey.REVIVAL_FAILED],
-                    character.CharacterId, packet.Type);
+                throw;
             }
         }
 
