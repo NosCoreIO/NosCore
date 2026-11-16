@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.Core.Observability;
 
 namespace NosCore.GameObject.Services.LandOfDeathService
 {
@@ -162,6 +163,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 catch (Exception e)
                 {
                     logger.LogError(e, logLanguage[LogLanguageKey.LAND_OF_DEATH_REVIVE_FAILED], player.CharacterId);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "event_run"));
                 }
             });
         }

@@ -4,6 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ScriptedInstanceService;
+using Moq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -195,5 +198,52 @@ namespace NosCore.GameObject.Tests.Services.RainbowBattleService
         private Task TheRedPlayerAsksToSignUp() => _service.RegisterAsync(_red);
 
         private void TheRedPlayerShouldGetNoSearchWindow() => Assert.IsFalse(_red.LastPackets.OfType<BSInfoPacket>().Any());
+
+        [TestMethod]
+        public async Task AFailingRunIsCountedAndFreesTheChannel()
+        {
+            using var failures = new FailureCounter("event_run");
+            _failures = failures;
+            await new Spec("A run that throws is counted, and the channel can start a Rainbow Battle again")
+                .Given(TheEventScriptCannotBeLoaded)
+                .WhenAsync(ARunFails)
+                .Then(TheFailureShouldBeCounted)
+                .AndAsync(AnotherRunCanStartAndEnd)
+                .ExecuteAsync();
+        }
+
+        private FailureCounter _failures;
+        private RainbowBattle _failing;
+
+        private void TheEventScriptCannotBeLoaded()
+        {
+            World.Freeze<Mock<IScriptedInstanceService>>()
+                .Setup(s => s.LoadScriptAsync(It.IsAny<string>()))
+                .ThrowsAsync(new InvalidOperationException());
+            _failing = World.Create<RainbowBattle>();
+        }
+
+        private async Task ARunFails()
+        {
+            Assert.IsTrue(_failing.TryStart(true));
+            await TheRunEndsAsync();
+        }
+
+        private async Task TheRunEndsAsync()
+        {
+            for (var i = 0; i < 200 && _failing.IsRunning; i++)
+            {
+                await Task.Delay(10);
+            }
+            Assert.IsFalse(_failing.IsRunning);
+        }
+
+        private void TheFailureShouldBeCounted() => Assert.IsTrue(_failures.Count >= 1);
+
+        private async Task AnotherRunCanStartAndEnd()
+        {
+            Assert.IsTrue(_failing.TryStart(true));
+            await TheRunEndsAsync();
+        }
     }
 }

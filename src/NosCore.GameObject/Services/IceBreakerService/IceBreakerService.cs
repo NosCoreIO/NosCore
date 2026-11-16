@@ -33,6 +33,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.Core.Observability;
 
 namespace NosCore.GameObject.Services.IceBreakerService
 {
@@ -92,6 +93,7 @@ namespace NosCore.GameObject.Services.IceBreakerService
                 catch (Exception e)
                 {
                     logger.LogError(e, logLanguage[LogLanguageKey.ICE_BREAKER_FAILED]);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "event_run"));
                 }
                 finally
                 {
