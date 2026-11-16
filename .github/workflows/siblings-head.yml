@@ -51,10 +51,15 @@ jobs:
     # build noticing, so a reference may trail the latest release by one major at most.
     - name: No reference is more than one major behind
       run: |
+        set -o pipefail
         behind=0
         for name in Analyzers Shared Dao Packets Algorithm PathFinder Networking; do
           latest=$(curl -fsS "https://api.nuget.org/v3-flatcontainer/noscore.${name,,}/index.json" \
             | jq -r '[.versions[] | select(test("-") | not)] | last')
+          if ! [[ "$latest" =~ ^[0-9]+\. ]]; then
+            echo "::error::No release of NosCore.$name found on nuget.org"
+            exit 1
+          fi
           while IFS=: read -r file reference; do
             used=$(sed -E 's/.*Version="([0-9]+).*/\1/' <<< "$reference")
             if [ $(( ${latest%%.*} - used )) -gt 1 ]; then
