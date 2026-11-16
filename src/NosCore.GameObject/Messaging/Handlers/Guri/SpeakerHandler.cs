@@ -24,6 +24,8 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using NosCore.Core.Observability;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Messaging.Handlers.Guri
 {
@@ -58,6 +60,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                     catch (Exception ex)
                     {
                         logger.LogWarning(ex, logLanguage[LogLanguageKey.SPEAKER_MESSAGE_FAILED], c.CharacterId);
+                        NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "game_event"));
                     }
                 }));
 

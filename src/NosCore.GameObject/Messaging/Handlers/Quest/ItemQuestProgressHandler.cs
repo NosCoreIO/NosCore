@@ -16,6 +16,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
+using NosCore.Core.Observability;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
@@ -78,6 +79,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                 {
                     logger.LogWarning(ex, logLanguage[LogLanguageKey.ITEM_QUEST_PROGRESS_FAILED],
                         quest.QuestId, character.CharacterId);
+                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "game_event"));
                 }
             }
         }
