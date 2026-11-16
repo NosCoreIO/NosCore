@@ -168,9 +168,34 @@ public class TimeSpace10 : InstanceScript
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room2, 6052);
         }
+        else if (room == _room5)
+        {
+            r.Message(LanguageKey.TIMESPACE_SEALED_SCULPTURE);
+        }
+        else if (room == _room7)
+        {
+            r.Message(LanguageKey.TIMESPACE_SEALED_SCULPTURE);
+        }
+        else if (room == _room10)
+        {
+            r.Message(LanguageKey.TIMESPACE_SEALED_SCULPTURE);
+        }
+        else if (room == _room12)
+        {
+            r.Message(LanguageKey.TIMESPACE_SEALED_SCULPTURE);
+        }
+        else if (room == _room14)
+        {
+            r.Message(LanguageKey.TIMESPACE_STRANGE_BUTTON);
+        }
+        else if (room == _room15)
+        {
+            r.Message(LanguageKey.TIMESPACE_SEALED_SCULPTURE_AND_EXIT);
+        }
         else if (room == _room16)
         {
             r.Dialog(_room16, 6060);
+            r.Message(LanguageKey.TIMESPACE_EXIT_OPENED_GET_OUT);
         }
     }
 

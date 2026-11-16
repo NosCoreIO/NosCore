@@ -2882,6 +2882,9 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       minute ends the west door and the south door of the room before it open
 - [ ] Walking onto a locked portal in a time-space shows "The gate is locked!" over the character and
       in the chat, and the character stays in the room
+- [ ] In `timespace-01`, clearing the third and fourth rooms shows "You have defeated all the monsters!" across
+      the top of the screen, and entering the room on map 4104 shows "The exit is near!"; with the account
+      language set to French the same lines read "Tu as éliminé tous les monstres !" and "La sortie est proche !"
 - [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client freezes on; the
       guards of `timespace-20` and the companion of `timespace-22` follow the player and take orders

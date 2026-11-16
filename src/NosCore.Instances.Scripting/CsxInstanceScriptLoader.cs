@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.I18N;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
@@ -63,8 +64,8 @@ namespace NosCore.Instances.Scripting
             }
 
             var options = ScriptOptions.Default
-                .WithReferences(typeof(IInstanceRun).Assembly, typeof(Game18NConstString).Assembly)
-                .WithImports("System", "NosCore.Instances.Abstractions", "NosCore.Packets.Enumerations");
+                .WithReferences(typeof(IInstanceRun).Assembly, typeof(Game18NConstString).Assembly, typeof(LanguageKey).Assembly)
+                .WithImports("System", "NosCore.Instances.Abstractions", "NosCore.Packets.Enumerations", "NosCore.Data.Enumerations.I18N");
 
             var script = CSharpScript.Create<IInstanceScript>(await File.ReadAllTextAsync(path), options);
 

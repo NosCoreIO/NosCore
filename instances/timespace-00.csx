@@ -72,6 +72,7 @@ public class TimeSpace0 : InstanceScript
         {
             r.Message(Game18NConstString.MissionStartWhenEnterFirstRoom);
             r.Dialog(_room1, 8004);
+            r.Message(LanguageKey.TIMESPACE_LOBBY);
         }
         else if (room == _room2)
         {
@@ -126,6 +127,7 @@ public class TimeSpace0 : InstanceScript
         {
             r.UnlockPortal(_room6, _room7);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_NOSVILLE_GUARD_SAFE);
         }
         else if (room == _room7)
         {

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Packets.Enumerations;
 using System;
 
@@ -137,6 +138,9 @@ namespace NosCore.Instances.Abstractions
 
         // For a line that takes one number, such as the stone level in TimeSpaceCompleted.
         void Message(Game18NConstString message, long value);
+
+        // A centred line the client has no text for, in each player's own language.
+        void Message(LanguageKey message, params object[] arguments);
 
         void Succeed();
 

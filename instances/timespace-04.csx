@@ -100,6 +100,7 @@ public class TimeSpace4 : InstanceScript
         else if (room == _room2)
         {
             r.Dialog(_room2, 6015);
+            r.Message(LanguageKey.TIMESPACE_GUARDS_ARRIVING);
         }
         else if (room == _room3)
         {
@@ -112,6 +113,7 @@ public class TimeSpace4 : InstanceScript
         else if (room == _room6)
         {
             r.Dialog(_room6, 6019);
+            r.Message(LanguageKey.TIMESPACE_MORE_KEEP_COMING);
         }
     }
 

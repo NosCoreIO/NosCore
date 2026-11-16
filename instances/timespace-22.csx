@@ -255,6 +255,7 @@ public class TimeSpace22 : InstanceScript
             r.UnlockPortal(_room2, _room3);
             r.UnlockPortal(_room2, _room1);
             r.Message(Game18NConstString.ADoorHasOpened);
+            r.Message(LanguageKey.TIMESPACE_ENEMY_DEFEATED);
         }
         else if (room == _room4)
         {

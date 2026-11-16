@@ -102,6 +102,10 @@ public class TimeSpace13 : InstanceScript
         {
             r.Dialog(_room2, 6070);
         }
+        else if (room == _room5)
+        {
+            r.Message(LanguageKey.TIMESPACE_ONLY_TRACES_OF_FIGHTING);
+        }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6071);
@@ -113,6 +117,7 @@ public class TimeSpace13 : InstanceScript
         else if (room == _room10)
         {
             r.Dialog(_room10, 6073);
+            r.Message(LanguageKey.TIMESPACE_FOUND_GUARD_BOB);
         }
     }
 

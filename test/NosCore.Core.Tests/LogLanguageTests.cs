@@ -14,8 +14,11 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using SpecLight;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NosCore.Core.Tests
 {
@@ -90,8 +93,9 @@ namespace NosCore.Core.Tests
 
         private void AllLanguageKeysShouldBeUsed()
         {
+            var scripted = KeysUsedByInstanceScripts();
             var result = string.Join(Environment.NewLine,
-                I18NTestHelpers.GetUselessLanguageKeys<LanguageKey>().Cast<Enum>()
+                I18NTestHelpers.GetUselessLanguageKeys<LanguageKey>().Where(key => !scripted.Contains(key.ToString())).Cast<Enum>()
                     .Union(I18NTestHelpers.GetUselessLanguageKeys<LogLanguageKey>().Cast<Enum>())
                     .Select(x => $"{x.GetType().Name} {x} is not used!"));
 
@@ -99,6 +103,21 @@ namespace NosCore.Core.Tests
             {
                 Assert.Fail(result);
             }
+        }
+
+        // Instance scripts are the .csx files in the repository's instances folder, which the .cs scan does not read.
+        private static HashSet<string> KeysUsedByInstanceScripts()
+        {
+            var directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (directory != null && !File.Exists(Path.Combine(directory.FullName, "NosCore.sln")))
+            {
+                directory = directory.Parent;
+            }
+
+            Assert.IsNotNull(directory, "The repository root was not found above the test output.");
+            return Directory.GetFiles(Path.Combine(directory.FullName, "instances"), "*.csx")
+                .SelectMany(file => Regex.Matches(File.ReadAllText(file), @"LanguageKey\.([0-9A-Za-z_]+)").Select(match => match.Groups[1].Value))
+                .ToHashSet();
         }
     }
 }

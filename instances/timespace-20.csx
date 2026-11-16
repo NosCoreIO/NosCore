@@ -207,6 +207,26 @@ public class TimeSpace20 : InstanceScript
             r.Message(Game18NConstString.NewGoal);
             r.Dialog(_room2, 6104);
         }
+        else if (room == _room3)
+        {
+            r.Message(LanguageKey.TIMESPACE_LITTLE_TIME_LEFT);
+        }
+        else if (room == _room5)
+        {
+            r.Message(LanguageKey.TIMESPACE_SECOND_PLACE_TO_VISIT);
+        }
+        else if (room == _room7)
+        {
+            r.Message(LanguageKey.TIMESPACE_TOP_DOOR_OPENED);
+        }
+        else if (room == _room9)
+        {
+            r.Message(LanguageKey.TIMESPACE_THIRD_PLACE_TO_VISIT);
+        }
+        else if (room == _room10)
+        {
+            r.Message(LanguageKey.TIMESPACE_FOURTH_PLACE_TO_VISIT);
+        }
     }
 
     public override void OnRoomCleared(IInstanceRun r, int room)

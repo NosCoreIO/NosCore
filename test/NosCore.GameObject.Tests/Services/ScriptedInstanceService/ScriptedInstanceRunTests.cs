@@ -4,10 +4,12 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -111,7 +113,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(), World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
-                NullLogger.Instance, World.LogLanguageLocalizer,
+                NullLogger.Instance, World.LogLanguageLocalizer, World.GameLanguageLocalizer,
                 timeout ?? TimeSpan.FromSeconds(30));
 
         [TestMethod]
@@ -149,6 +151,24 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var told = _first.LastPackets.OfType<MsgiPacket>().Single(packet => packet.Message == Game18NConstString.TimeSpaceCompleted);
             Assert.AreEqual(4, told.ArgumentType);
             Assert.AreEqual(30L, Convert.ToInt64(told.Game18NArguments.First()));
+        }
+
+        [TestMethod]
+        public async Task AServerTextMessageReachesEachPlayerInTheirLanguageAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            session.Account.Language = RegionType.FR;
+            Mock.Get(World.GameLanguageLocalizer)
+                .Setup(x => x[LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, RegionType.FR, It.Is<object[]>(a => a.Length == 1 && (int)a[0] == 2)])
+                .Returns(new LocalizedString("TIMESPACE_STRIKE_CENTRE_FLOOR", "Centre de grève, étage 2"));
+            var run = Run(new Script { Enter = r => r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 2) });
+
+            await run.StartAsync();
+
+#pragma warning disable CS0618
+            PacketAssert.AreEqual(new MsgPacket { Type = MessageType.Default, Message = "Centre de grève, étage 2" },
+                session.LastPackets.OfType<MsgPacket>().Single());
+#pragma warning restore CS0618
         }
 
         [TestMethod]

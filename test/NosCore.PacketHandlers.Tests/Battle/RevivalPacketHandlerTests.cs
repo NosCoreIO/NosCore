@@ -437,7 +437,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
                 Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance,
-                World.LogLanguageLocalizer, TimeSpan.FromSeconds(30));
+                World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
             _scriptedInstances.Setup(s => s.GetRun(room)).Returns(run);
         }
 
