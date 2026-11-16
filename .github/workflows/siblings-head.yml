@@ -41,6 +41,31 @@ jobs:
       with:
         dotnet-version: 11.0.x
 
+    - name: Clone every sibling at head
+      run: |
+        for name in Analyzers Shared Dao Packets Algorithm PathFinder Networking; do
+          git clone --depth 1 "https://github.com/NosCoreIO/NosCore.$name" "NosCore.$name"
+        done
+
+    # A package compiled against an older major of another runs against the newer one without a
+    # build noticing, so a reference may trail the latest release by one major at most.
+    - name: No reference is more than one major behind
+      run: |
+        behind=0
+        for name in Analyzers Shared Dao Packets Algorithm PathFinder Networking; do
+          latest=$(curl -fsS "https://api.nuget.org/v3-flatcontainer/noscore.${name,,}/index.json" \
+            | jq -r '[.versions[] | select(test("-") | not)] | last')
+          while IFS=: read -r file reference; do
+            used=$(sed -E 's/.*Version="([0-9]+).*/\1/' <<< "$reference")
+            if [ $(( ${latest%%.*} - used )) -gt 1 ]; then
+              echo "::error file=$file::$file references NosCore.$name $used.x; the latest release is $latest"
+              behind=1
+            fi
+          done < <(grep -rHoE --include='*.csproj' --include='*.props' \
+              "Include=\"NosCore\.$name\" Version=\"[0-9]+[^\"]*\"" NosCore NosCore.{Analyzers,Shared,Dao,Packets,Algorithm,PathFinder,Networking})
+        done
+        exit $behind
+
     - name: Pack every sibling at head
       run: |
         mkdir -p "$NOSCORE_LOCAL_PACKAGES"
@@ -48,7 +73,6 @@ jobs:
         # version there: they decide that repository's warnings, not what runs together.
         packed=()
         for name in Analyzers Shared Dao Packets Algorithm PathFinder Networking; do
-          git clone --depth 1 "https://github.com/NosCoreIO/NosCore.$name" "NosCore.$name"
           for dependency in "${packed[@]}"; do
             find "NosCore.$name" -name '*.csproj' -exec \
               sed -i -E "s#(Include=\"NosCore\.$dependency\" Version=)\"[^\"]*\"#\1\"$HEAD_VERSION\"#" {} +
