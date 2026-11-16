@@ -208,7 +208,7 @@ namespace NosCore.GameObject.Tests.Services.RainbowBattleService
                 .Given(TheEventScriptCannotBeLoaded)
                 .WhenAsync(ARunFails)
                 .Then(TheFailureShouldBeCounted)
-                .And(AnotherRunCanStart)
+                .AndAsync(AnotherRunCanStartAndEnd)
                 .ExecuteAsync();
         }
 
@@ -226,14 +226,24 @@ namespace NosCore.GameObject.Tests.Services.RainbowBattleService
         private async Task ARunFails()
         {
             Assert.IsTrue(_failing.TryStart(true));
+            await TheRunEndsAsync();
+        }
+
+        private async Task TheRunEndsAsync()
+        {
             for (var i = 0; i < 200 && _failing.IsRunning; i++)
             {
                 await Task.Delay(10);
             }
+            Assert.IsFalse(_failing.IsRunning);
         }
 
         private void TheFailureShouldBeCounted() => Assert.IsTrue(_failures.Count >= 1);
 
-        private void AnotherRunCanStart() => Assert.IsTrue(_failing.TryStart(true));
+        private async Task AnotherRunCanStartAndEnd()
+        {
+            Assert.IsTrue(_failing.TryStart(true));
+            await TheRunEndsAsync();
+        }
     }
 }

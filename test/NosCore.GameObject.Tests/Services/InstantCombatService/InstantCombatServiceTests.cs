@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.InstantCombatService
                 .Given(TheEventScriptCannotBeLoaded)
                 .WhenAsync(ARunFails)
                 .Then(TheFailureShouldBeCounted)
-                .And(AnotherRunCanStart)
+                .AndAsync(AnotherRunCanStartAndEnd)
                 .ExecuteAsync();
         }
 
@@ -119,14 +119,24 @@ namespace NosCore.GameObject.Tests.Services.InstantCombatService
         private async Task ARunFails()
         {
             Assert.IsTrue(_failing.TryStart(false));
+            await TheRunEndsAsync();
+        }
+
+        private async Task TheRunEndsAsync()
+        {
             for (var i = 0; i < 200 && _failing.IsRunning; i++)
             {
                 await Task.Delay(10);
             }
+            Assert.IsFalse(_failing.IsRunning);
         }
 
         private void TheFailureShouldBeCounted() => Assert.IsTrue(_failures.Count >= 1);
 
-        private void AnotherRunCanStart() => Assert.IsTrue(_failing.TryStart(false));
+        private async Task AnotherRunCanStartAndEnd()
+        {
+            Assert.IsTrue(_failing.TryStart(false));
+            await TheRunEndsAsync();
+        }
     }
 }
