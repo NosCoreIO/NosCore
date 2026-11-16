@@ -34,6 +34,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MateService;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;

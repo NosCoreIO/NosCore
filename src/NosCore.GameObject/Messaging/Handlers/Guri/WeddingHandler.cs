@@ -13,6 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.FriendService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;

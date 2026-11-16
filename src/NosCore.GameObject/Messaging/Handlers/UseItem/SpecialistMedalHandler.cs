@@ -12,6 +12,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 

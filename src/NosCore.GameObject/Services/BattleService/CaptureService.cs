@@ -17,6 +17,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking;

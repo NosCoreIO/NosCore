@@ -5,11 +5,11 @@
 //
 
 using NosCore.Data.Dto;
-using NosCore.Packets.ClientPackets.Quicklist;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quicklist;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.Ecs.Extensions;
 
@@ -95,4 +95,33 @@ public static class QuicklistExtensions
             Data = 0
         }
     };
+
+    public static IEnumerable<QSlotPacket> GenerateQuicklist(this PlayerComponentBundle characterEntity)
+    {
+        var pktQs = new QSlotPacket[2];
+        for (var i = 0; i < pktQs.Length; i++)
+        {
+            var subpacket = new List<QsetClientSubPacket?>();
+            for (var j = 0; j < 30; j++)
+            {
+                var qi = characterEntity.QuicklistEntries.FirstOrDefault(n =>
+                    (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == (characterEntity.UseSp ? characterEntity.Morph : 0)));
+
+                subpacket.Add(new QsetClientSubPacket
+                {
+                    OriginQuickList = qi?.Type ?? 7,
+                    OriginQuickListSlot = qi?.IconType ?? -1,
+                    Data = qi?.IconVNum ?? -1
+                });
+            }
+
+            pktQs[i] = new QSlotPacket
+            {
+                Slot = i,
+                Data = subpacket
+            };
+        }
+
+        return pktQs;
+    }
 }

@@ -17,45 +17,30 @@ using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.EquipmentService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
-using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
-using NosCore.Packets.ServerPackets.Bank;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.MiniMap;
-using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Player;
-using NosCore.Packets.ServerPackets.Entities;
-using NosCore.Packets.ServerPackets.Relations;
-using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Packets.ServerPackets.Shop;
-using NosCore.Packets.ServerPackets.Groups;
-using NosCore.Packets.ServerPackets.Movement;
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
-using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
@@ -66,18 +51,6 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class PlayerBundleExtensions
 {
-    public static WopenPacket GenerateBazaarWindow(this PlayerComponentBundle player, IClock clock)
-    {
-        var medal = player.BazaarMedal;
-        return new WopenPacket
-        {
-            Type = WindowType.NosBazaar,
-            Unknown = medal == null ? (byte)0
-                : medal.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver,
-            Unknown2 = medal == null ? (byte)0
-                : (byte)(int)(medal.DateEnd == null ? 720 : (medal.DateEnd.Value - clock.GetCurrentInstant()).TotalHours),
-        };
-    }
 
     // Back on their feet where they fell, either with full HP and MP or with one of each.
     public static async Task ReviveAsync(this PlayerComponentBundle player, bool fully)
@@ -159,12 +132,6 @@ public static class PlayerBundleExtensions
     public static bool IsInCombat(this PlayerComponentBundle player, Instant now) =>
         now - player.LastAttack < CombatWindow || now - player.LastDamaged < CombatWindow;
 
-    public static IEnumerable<IPacket> GenerateMateRoster(this PlayerComponentBundle player,
-        IPartnerSkillCatalog partnerSkills) =>
-        new IPacket[] { new PclearPacket() }
-            .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage, player.InventoryService,
-                partnerSkills));
-
     public static Task RestAsync(this PlayerComponentBundle player)
     {
         if (player.IsSitting)
@@ -215,47 +182,6 @@ public static class PlayerBundleExtensions
             CharacterId = player.VisualId,
             Message = message
         };
-    }
-
-    public static async Task<FinitPacket> GenerateFinitAsync(this PlayerComponentBundle player, IFriendHub friendHub, IChannelHub channelHub, IPubSubHub pubSubHub)
-    {
-        var friends = await friendHub.GetFriendsAsync(player.CharacterId);
-        var friendSubPackets = new List<FinitSubPacket?>();
-        if (friends.Count > 0)
-        {
-            var online = (await pubSubHub.GetSubscribersAsync())
-                .Select(s => s.ConnectedCharacter?.Id)
-                .OfType<long>()
-                .ToHashSet();
-
-            friendSubPackets.AddRange(friends.Select(relation => new FinitSubPacket
-            {
-                CharacterId = relation.CharacterId,
-                RelationType = relation.RelationType,
-                IsOnline = online.Contains(relation.CharacterId),
-                CharacterName = relation.CharacterName
-            }));
-        }
-
-        return new FinitPacket
-        {
-            SubPackets = friendSubPackets
-        };
-    }
-
-    public static async Task<BlinitPacket> GenerateBlinitAsync(this PlayerComponentBundle player, IBlacklistHub blacklistHub)
-    {
-        var subpackets = new List<BlinitSubPacket?>();
-        var blacklist = await blacklistHub.GetBlacklistedAsync(player.CharacterId);
-        foreach (var b in blacklist)
-        {
-            subpackets.Add(new BlinitSubPacket
-            {
-                RelatedCharacterId = b.CharacterId,
-                CharacterName = b.CharacterName
-            });
-        }
-        return new BlinitPacket { SubPackets = subpackets };
     }
 
     public static async Task SetGoldAsync(this PlayerComponentBundle player, long gold, IItemCatalog itemCatalog)
@@ -400,26 +326,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static UpgradeRareSubPacket GetWeaponUpgradeRareSubPacket(this PlayerComponentBundle player)
-    {
-        var weapon = player.InventoryService.LoadBySlotAndType(EquipmentType.MainWeapon, NoscorePocketType.Wear);
-        return new UpgradeRareSubPacket
-        {
-            Upgrade = weapon?.ItemInstance?.Upgrade ?? 0,
-            Rare = (sbyte)(weapon?.ItemInstance?.Rare ?? 0)
-        };
-    }
-
-    public static UpgradeRareSubPacket GetArmorUpgradeRareSubPacket(this PlayerComponentBundle player)
-    {
-        var armor = player.InventoryService.LoadBySlotAndType(EquipmentType.Armor, NoscorePocketType.Wear);
-        return new UpgradeRareSubPacket
-        {
-            Upgrade = armor?.ItemInstance?.Upgrade ?? 0,
-            Rare = (sbyte)(armor?.ItemInstance?.Rare ?? 0)
-        };
-    }
-
     public static StatPacket GenerateStat(this PlayerComponentBundle player)
     {
         return new StatPacket
@@ -437,26 +343,6 @@ public static class PlayerBundleExtensions
     {
         return new GoldPacket { Gold = player.Gold };
     }
-
-    public static GbPacket GenerateGb(this PlayerComponentBundle player, BankActionType type, IBankService bankService)
-    {
-        return new GbPacket
-        {
-            Type = type,
-            GoldBank = player.BankGold / 1000,
-            Gold = (int)player.Gold,
-            BankRank = player.GetBankRank(bankService),
-            BankTax = (int)player.GetBankWithdrawalFee(bankService)
-        };
-    }
-
-    public static SMemoi2Packet GenerateBankBalance(this PlayerComponentBundle player) => new()
-    {
-        Type = SMemoType.BankNormal,
-        Message = Game18NConstString.BalanceBank,
-        ArgumentType = 3,
-        Game18NArguments = { player.BankGold / 1000, player.Gold }
-    };
 
     public static bool HasBankVip(this PlayerComponentBundle player) =>
         player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.CuarryBankVip);
@@ -623,81 +509,6 @@ public static class PlayerBundleExtensions
         return hat?.ItemInstance.Item.IsColored == true ? (HairColorType)hat.ItemInstance.Design : player.HairColor;
     }
 
-    public static EqPacket GenerateEq(this PlayerComponentBundle player)
-    {
-        return new EqPacket
-        {
-            VisualId = player.VisualId,
-            Visibility = (byte)(player.Authority < AuthorityType.GameMaster ? 0 : 2),
-            Gender = player.Gender,
-            HairStyle = player.HairStyle,
-            Haircolor = player.ShownHairColor(),
-            ClassType = player.Class,
-            EqSubPacket = player.GetEquipmentSubPacket(),
-            WeaponUpgradeRarePacket = player.GetWeaponUpgradeRareSubPacket(),
-            ArmorUpgradeRarePacket = player.GetArmorUpgradeRareSubPacket(),
-            Size = player.Size
-        };
-    }
-
-    public static EquipPacket GenerateEquipment(this PlayerComponentBundle player)
-    {
-        var inventory = player.InventoryService;
-
-        EquipmentSubPacket? GenerateEquipmentSubPacket(EquipmentType eqType)
-        {
-            var eq = inventory.LoadBySlotAndType(eqType, NoscorePocketType.Wear);
-            if (eq == null)
-            {
-                return null;
-            }
-
-            return new EquipmentSubPacket
-            {
-                EquipmentType = eqType,
-                VNum = eq.ItemInstance.LookVNum(),
-                Rare = eq.ItemInstance.Rare,
-                Upgrade = (eq.ItemInstance.Item.IsColored ? eq.ItemInstance?.Design
-                    : eq.ItemInstance.Upgrade) ?? 0,
-                Unknown = 0
-            };
-        }
-
-        return new EquipPacket
-        {
-            WeaponUpgradeRareSubPacket = player.GetWeaponUpgradeRareSubPacket(),
-            ArmorUpgradeRareSubPacket = player.GetArmorUpgradeRareSubPacket(),
-            Armor = GenerateEquipmentSubPacket(EquipmentType.Armor),
-            WeaponSkin = GenerateEquipmentSubPacket(EquipmentType.WeaponSkin),
-            SecondaryWeapon = GenerateEquipmentSubPacket(EquipmentType.SecondaryWeapon),
-            Sp = GenerateEquipmentSubPacket(EquipmentType.Sp),
-            Amulet = GenerateEquipmentSubPacket(EquipmentType.Amulet),
-            Boots = GenerateEquipmentSubPacket(EquipmentType.Boots),
-            CostumeHat = GenerateEquipmentSubPacket(EquipmentType.CostumeHat),
-            CostumeSuit = GenerateEquipmentSubPacket(EquipmentType.CostumeSuit),
-            Fairy = GenerateEquipmentSubPacket(EquipmentType.Fairy),
-            Gloves = GenerateEquipmentSubPacket(EquipmentType.Gloves),
-            Hat = GenerateEquipmentSubPacket(EquipmentType.Hat),
-            MainWeapon = GenerateEquipmentSubPacket(EquipmentType.MainWeapon),
-            Mask = GenerateEquipmentSubPacket(EquipmentType.Mask),
-            Necklace = GenerateEquipmentSubPacket(EquipmentType.Necklace),
-            Ring = GenerateEquipmentSubPacket(EquipmentType.Ring),
-            Bracelet = GenerateEquipmentSubPacket(EquipmentType.Bracelet),
-            WingSkin = GenerateEquipmentSubPacket(EquipmentType.WingSkin)
-        };
-    }
-
-    public static SpPacket GenerateSpPoint(this PlayerComponentBundle player, IOptions<WorldConfiguration> worldConfiguration)
-    {
-        return new SpPacket
-        {
-            AdditionalPoint = player.SpAdditionPoint,
-            MaxAdditionalPoint = worldConfiguration.Value.MaxAdditionalSpPoints,
-            SpPoint = player.SpPoint,
-            MaxSpPoint = worldConfiguration.Value.MaxSpPoints
-        };
-    }
-
     // The character window shows what combat uses, worn gear and active effects included. Combat
     // keeps a debuffed attack or defence below zero, but the window stops each at 0.
     public static ScPacket GenerateSc(this PlayerComponentBundle player, IBattleStatsProvider battleStatsProvider)
@@ -738,32 +549,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static TitleInfoPacket GenerateTitInfo(this PlayerComponentBundle player)
-    {
-        var visibleTitle = player.Titles.FirstOrDefault(s => s.Visible)?.TitleType;
-        var effectiveTitle = player.Titles.FirstOrDefault(s => s.Active)?.TitleType;
-        return new TitleInfoPacket
-        {
-            VisualId = player.VisualId,
-            EffectiveTitle = effectiveTitle ?? 0,
-            VisualType = VisualType.Player,
-            VisibleTitle = visibleTitle ?? 0
-        };
-    }
-
-    public static TitlePacket GenerateTitle(this PlayerComponentBundle player)
-    {
-        var data = player.Titles.Select(s => new TitleSubPacket
-        {
-            TitleId = (short)(s.TitleType - 9300),
-            TitleStatus = (byte)((s.Visible ? 2 : 0) + (s.Active ? 4 : 0) + 1)
-        }).ToList() as List<TitleSubPacket?>;
-        return new TitlePacket
-        {
-            Data = data.Any() ? data : null
-        };
-    }
-
     public static IconPacket GenerateIcon(this PlayerComponentBundle player, byte iconType, short iconParameter)
     {
         return new IconPacket
@@ -772,39 +557,6 @@ public static class PlayerBundleExtensions
             VisualId = player.VisualId,
             IconParameter = iconParameter,
             IconType = iconType
-        };
-    }
-
-    public static MlobjlstPacket GenerateMlobjlst(this PlayerComponentBundle player)
-    {
-        var mlobj = new List<MlobjlstSubPacket?>();
-        foreach (var item in player.InventoryService.Where(s => s.Value.Type == NoscorePocketType.Miniland)
-            .OrderBy(s => s.Value.Slot).Select(s => s.Value))
-        {
-            var used = player.MapInstance.MapDesignObjects.ContainsKey(item.Id);
-            var mp = used ? player.MapInstance.MapDesignObjects[item.Id] : null;
-
-            mlobj.Add(new MlobjlstSubPacket
-            {
-                InUse = used,
-                Slot = item.Slot,
-                MlObjSubPacket = new MlobjSubPacket
-                {
-                    MapX = mp?.MapX ?? 0,
-                    MapY = mp?.MapY ?? 0,
-                    Width = item.ItemInstance.Item.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
-                    Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
-                    DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
-                    Unknown = 100,
-                    Unknown2 = false,
-                    IsWarehouse = item.ItemInstance.Item.IsWarehouse
-                }
-            });
-        }
-
-        return new MlobjlstPacket
-        {
-            MlobjlstSubPacket = mlobj
         };
     }
 
@@ -827,16 +579,6 @@ public static class PlayerBundleExtensions
         player.InventoryService.Expensions[NoscorePocketType.Etc] = expension;
     }
 
-    public static ExtsPacket GenerateExts(this PlayerComponentBundle player, IOptions<WorldConfiguration> conf)
-    {
-        return new ExtsPacket
-        {
-            EquipmentExtension = (byte)(player.InventoryService.Expensions[NoscorePocketType.Equipment] + conf.Value.BackpackSize),
-            MainExtension = (byte)(player.InventoryService.Expensions[NoscorePocketType.Main] + conf.Value.BackpackSize),
-            EtcExtension = (byte)(player.InventoryService.Expensions[NoscorePocketType.Etc] + conf.Value.BackpackSize)
-        };
-    }
-
     public static void AddSpPoints(this PlayerComponentBundle player, int spPointToAdd, IOptions<WorldConfiguration> worldConfiguration)
     {
         var newValue = player.SpPoint + spPointToAdd;
@@ -854,15 +596,6 @@ public static class PlayerBundleExtensions
     public static void RemoveGold(this PlayerComponentBundle player, long gold)
     {
         player.Gold -= gold;
-    }
-
-    public static TitPacket GenerateTit(this PlayerComponentBundle player)
-    {
-        return new TitPacket
-        {
-            ClassType = (Game18NConstString)Enum.Parse(typeof(Game18NConstString), player.Class.ToString()),
-            Name = player.Name
-        };
     }
 }
 

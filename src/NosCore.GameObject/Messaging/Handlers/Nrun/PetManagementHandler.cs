@@ -13,6 +13,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Npcs;

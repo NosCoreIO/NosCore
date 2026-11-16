@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;

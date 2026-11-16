@@ -11,6 +11,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BazaarService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;

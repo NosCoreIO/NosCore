@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;

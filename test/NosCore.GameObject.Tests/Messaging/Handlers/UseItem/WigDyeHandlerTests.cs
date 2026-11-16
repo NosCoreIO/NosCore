@@ -16,6 +16,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;

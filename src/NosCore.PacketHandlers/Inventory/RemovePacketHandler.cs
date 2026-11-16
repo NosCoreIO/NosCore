@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;

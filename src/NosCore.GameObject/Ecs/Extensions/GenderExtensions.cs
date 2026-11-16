@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.Enumerations;

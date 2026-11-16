@@ -5,12 +5,10 @@
 //
 
 using NodaTime;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
-using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
@@ -27,7 +25,6 @@ using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.PathFinder.Interfaces;
-using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Concurrent;
@@ -36,7 +33,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.BattleService;
-
 
 namespace NosCore.GameObject.Ecs.Extensions
 {
@@ -425,61 +421,6 @@ namespace NosCore.GameObject.Ecs.Extensions
             experiencedEntity.LevelXp = 0;
             experiencedEntity.Hp = experiencedEntity.MaxHp;
             experiencedEntity.Mp = experiencedEntity.MaxMp;
-        }
-
-        public static NInvPacket GenerateSkillNInv(this IAliveEntity aliveEntity, Services.ShopService.Shop shop, short tab,
-            CharacterClassType viewerClass)
-        {
-            return new NInvPacket
-            {
-                VisualType = aliveEntity.VisualType,
-                VisualId = aliveEntity.VisualId,
-                Unknown = 0,
-                ShopKind = (byte)tab,
-                Skills = shop.ShopSkills
-                    .Where(s => s.Type == tab && (s.Skill.IsPassive() || s.Skill.Class == (byte)viewerClass))
-                    .OrderBy(s => s.Slot).Select(s => s.SkillVNum).ToList()
-            };
-        }
-
-        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, Services.ShopService.Shop shop, double percent, short typeshop)
-        {
-            var shopItemList = new List<NInvItemSubPacket?>();
-            var list = shop.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
-            for (var i = 0; i < shop.Size; i++)
-            {
-                var item = list.Find(s => s.Slot == i);
-                if (item == null)
-                {
-                    shopItemList.Add(null);
-                }
-                else
-                {
-                    shopItemList.Add(new NInvItemSubPacket
-                    {
-                        Type = item.ItemInstance.Item.Type.ToPocketType(),
-                        Slot = item.Slot,
-                        Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
-                            ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
-                        RareAmount = item.ItemInstance.Item.Type == NoscorePocketType.Equipment
-                            ? item.ItemInstance.Rare
-                            : item.Amount,
-                        UpgradeDesign = item.ItemInstance.Item.Type == NoscorePocketType.Equipment
-                            ? item.ItemInstance.Item.IsColored
-                                ? item.ItemInstance.Item.Color : item.ItemInstance.Upgrade : (short?)null,
-                        VNum = item.ItemInstance.Item.VNum
-                    });
-                }
-            }
-
-            return new NInvPacket
-            {
-                VisualType = aliveEntity.VisualType,
-                VisualId = aliveEntity.VisualId,
-                ShopKind = (byte)(percent * 100),
-                Unknown = 0,
-                Items = shopItemList
-            };
         }
     }
 }

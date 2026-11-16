@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using Microsoft.Extensions.Options;
 using NodaTime;
@@ -20,6 +21,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MateService;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
