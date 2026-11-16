@@ -185,7 +185,12 @@ namespace NosCore.GameObject.Services.SkillService
                 };
                 if (character.Skills.TryAdd(skill.SkillVNum, entry))
                 {
-                    await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>()).OrThrowAsync();
+                    if (await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>()) == null)
+                    {
+                        character.Skills.TryRemove(skill.SkillVNum, out _);
+                        throw new DaoWriteFailedException();
+                    }
+
                     learned = true;
                 }
             }

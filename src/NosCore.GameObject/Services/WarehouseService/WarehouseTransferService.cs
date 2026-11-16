@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.Dao;
 using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -137,9 +136,13 @@ namespace NosCore.GameObject.Services.WarehouseService
             if (added == null || added.Count == 0)
             {
                 var back = whole ? stored.Item : taken;
-                await itemInstanceDao.TryInsertOrUpdateAsync(back).OrThrowAsync();
-                await warehouseHub.ReturnWarehouseItemAsync(warehouse.OwnerId, warehouse.Type, warehouseSlot,
-                    back.Adapt<ItemInstanceDto>());
+                // A partial amount merges back into the stack still stored, so it needs no row of its own.
+                if (await itemInstanceDao.TryInsertOrUpdateAsync(back) != null || !whole)
+                {
+                    await warehouseHub.ReturnWarehouseItemAsync(warehouse.OwnerId, warehouse.Type, warehouseSlot,
+                        back.Adapt<ItemInstanceDto>());
+                }
+
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace });
                 return null;
             }

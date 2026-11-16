@@ -382,7 +382,14 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return false;
             }
 
-            return await DepositUnlockedAsync(ownerId, warehouseType, split, destinationSlot);
+            if (await DepositUnlockedAsync(ownerId, warehouseType, split, destinationSlot))
+            {
+                return true;
+            }
+
+            instance.Amount += split.Amount;
+            _ = await itemInstanceDao.TryInsertOrUpdateAsync(instance);
+            return false;
         }
     }
 }

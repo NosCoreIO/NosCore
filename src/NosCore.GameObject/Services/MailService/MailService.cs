@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.Dao;
 using Json.Patch;
 using Mapster;
 using NodaTime;
@@ -67,7 +66,12 @@ namespace NosCore.GameObject.Services.MailService
                 return false;
             }
 
-            await mailDao.TryDeleteAsync(maildata.MailDto.MailId).OrThrowAsync();
+            if (await mailDao.TryDeleteAsync(maildata.MailDto.MailId) == null)
+            {
+                parcelRegistry.TryAddMail(characterId, senderCopy, maildata);
+                return false;
+            }
+
             if (maildata.ItemInstance != null)
             {
                 // With its mail gone the attachment is unreachable.
