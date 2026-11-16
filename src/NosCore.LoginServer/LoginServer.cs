@@ -33,6 +33,7 @@ namespace NosCore.LoginServer
 
             try
             {
+                await context.Database.AdoptSquashedHistoryAsync(stoppingToken);
                 await context.Database.MigrateAsync(stoppingToken);
                 await context.Database.GetDbConnection().OpenAsync(stoppingToken);
                 logger.LogInformation(logLanguage[LogLanguageKey.DATABASE_INITIALIZED]);

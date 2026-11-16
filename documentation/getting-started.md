@@ -207,6 +207,9 @@ need the PostgreSQL from above and report themselves as not run without it.
 
 - **A server stops with "The database is N migrations behind this build".** The schema is
   older than the code. Run the parser again.
+- **The parser stops with "The database predates the migration baseline".** The migrations were
+  squashed into one baseline after this database was last updated. Run the parser of a build from
+  before the baseline (commit `7aef79a02` for the first baseline) on it once, then this one.
 - **The maps have no monsters or NPCs.** `packet.txt` was missing from the folder given to
   `--folder`; the parser said so when it ran.
 - **"Already connected" at login.** The world server still holds the account's last session.
