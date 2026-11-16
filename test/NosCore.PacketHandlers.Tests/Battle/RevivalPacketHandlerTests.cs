@@ -130,6 +130,18 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task AFailedRevivalLeavesTheCharacterDeadAndReachesThePacketBoundary()
+        {
+            await new Spec("A revival that throws leaves the character dead and does not hide the failure")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(ReturningToTheEntranceFails)
+                .WhenAsync(SendingRevivalOfType_ThrowsAsync, RevivalType.AtSavePoint)
+                .Then(CharacterShouldStillBeDead)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ReviveAtSavePointInTheLandOfDeathReturnsToTheEntrance()
         {
             await new Spec("Type 1 in the Land of Death sends the player back to the entrance, not the save point")
@@ -472,6 +484,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await _handler.ExecuteAsync(new RevivalPacket { Type = type }, _session);
         }
+
+        private void ReturningToTheEntranceFails() =>
+            _landOfDeath.Setup(l => l.ReturnToEntranceAsync(_session)).ThrowsAsync(new InvalidOperationException());
+
+        private Task SendingRevivalOfType_ThrowsAsync(RevivalType type) =>
+            Assert.ThrowsExactlyAsync<InvalidOperationException>(() => SendingRevivalOfType_(type));
 
         private void HpShouldBeFullyRestored() =>
             Assert.AreEqual(_session.Character.MaxHp, _session.Character.Hp);

@@ -894,9 +894,6 @@
   <data name="CHARACTER_NOT_STORED" xml:space="preserve">
     <value>{Name} could not be stored and was not created</value>
   </data>
-  <data name="REVIVAL_FAILED" xml:space="preserve">
-    <value>Revival failed for character {CharacterId} type {Type}</value>
-  </data>
   <data name="ARENA_REVIVAL_CARD_MISSING" xml:space="preserve">
     <value>No card is set to protect a fighter revived in the arena</value>
   </data>
