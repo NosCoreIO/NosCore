@@ -34,38 +34,7 @@ public class TimeSpace29 : InstanceScript
         r.SpawnPortal(_room2, new(1, 15), _room1, new(28, 15), locked: false);
         r.SpawnPortal(_room3, new(58, 37), _room4, new(9, 36));
         r.SpawnPortal(_room3, new(9, 36), _room2, new(28, 15));
-        r.Summon(_room3,
-            new MonsterSpawn(151, new(37, 36)),
-            new MonsterSpawn(145, new(27, 19)),
-            new MonsterSpawn(151, new(29, 42)),
-            new MonsterSpawn(151, new(29, 45)),
-            new MonsterSpawn(119, new(37, 52)),
-            new MonsterSpawn(116, new(38, 31)),
-            new MonsterSpawn(145, new(27, 19)),
-            new MonsterSpawn(151, new(29, 42)),
-            new MonsterSpawn(151, new(29, 45)),
-            new MonsterSpawn(119, new(37, 52)),
-            new MonsterSpawn(116, new(38, 31)),
-            new MonsterSpawn(145, new(27, 19)),
-            new MonsterSpawn(151, new(29, 42)),
-            new MonsterSpawn(151, new(29, 45)),
-            new MonsterSpawn(119, new(37, 52)),
-            new MonsterSpawn(116, new(38, 31)),
-            new MonsterSpawn(145, new(27, 19)),
-            new MonsterSpawn(151, new(29, 42)),
-            new MonsterSpawn(151, new(29, 45)),
-            new MonsterSpawn(119, new(37, 52)),
-            new MonsterSpawn(116, new(38, 31)),
-            new MonsterSpawn(145, new(27, 19)),
-            new MonsterSpawn(151, new(29, 42)),
-            new MonsterSpawn(151, new(29, 45)),
-            new MonsterSpawn(119, new(37, 52)),
-            new MonsterSpawn(116, new(38, 31)),
-            new MonsterSpawn(145, new(27, 19)),
-            new MonsterSpawn(151, new(29, 42)),
-            new MonsterSpawn(151, new(29, 45)),
-            new MonsterSpawn(119, new(37, 52)),
-            new MonsterSpawn(116, new(38, 31)));
+        r.Summon(_room3, new MonsterSpawn(151, new(37, 36)));
         r.SummonNpcs(_room3, new NpcSpawn(310, new(45, 37)), new NpcSpawn(310, new(45, 30)), new NpcSpawn(310, new(44, 43)), new NpcSpawn(310, new(43, 23)), new NpcSpawn(311, new(40, 39)), new NpcSpawn(311, new(40, 33)), new NpcSpawn(312, new(38, 42)), new NpcSpawn(312, new(36, 28)), new NpcSpawn(312, new(35, 48)), new NpcSpawn(312, new(35, 34)), new NpcSpawn(310, new(34, 26)), new NpcSpawn(311, new(34, 19)), new NpcSpawn(311, new(33, 41)), new NpcSpawn(311, new(32, 47)), new NpcSpawn(311, new(30, 37)), new NpcSpawn(311, new(30, 23)), new NpcSpawn(311, new(29, 33)), new NpcSpawn(311, new(28, 27)), new NpcSpawn(311, new(23, 47)), new NpcSpawn(312, new(21, 35)));
         r.SpawnPortal(_room4, new(58, 37), _room5, new(9, 36));
         r.SpawnPortal(_room4, new(9, 36), _room3, new(58, 37));
@@ -149,8 +118,78 @@ public class TimeSpace29 : InstanceScript
         }
         else if (room == _room3)
         {
+            r.StartRoomClock(_room3, TimeSpan.FromSeconds(180));
             r.Dialog(_room3, 6131);
             r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_HELP_NOSVILLE_ALLIANCE);
+            r.Message(_room3, Game18NConstString.EnemiesReinforcements);
+            r.Summon(_room3,
+                new MonsterSpawn(145, new(27, 19)),
+                new MonsterSpawn(151, new(29, 42)),
+                new MonsterSpawn(151, new(29, 45)),
+                new MonsterSpawn(119, new(37, 52)),
+                new MonsterSpawn(116, new(38, 31)));
+            r.At(r.Elapsed + TimeSpan.FromSeconds(30), r =>
+            {
+                r.Message(_room3, Game18NConstString.EnemiesReinforcements);
+                r.Summon(_room3,
+                    new MonsterSpawn(145, new(27, 19)),
+                    new MonsterSpawn(151, new(29, 42)),
+                    new MonsterSpawn(151, new(29, 45)),
+                    new MonsterSpawn(119, new(37, 52)),
+                    new MonsterSpawn(116, new(38, 31)));
+            });
+            r.At(r.Elapsed + TimeSpan.FromSeconds(60), r =>
+            {
+                r.Message(_room3, Game18NConstString.EnemiesReinforcements);
+                r.Summon(_room3,
+                    new MonsterSpawn(145, new(27, 19)),
+                    new MonsterSpawn(151, new(29, 42)),
+                    new MonsterSpawn(151, new(29, 45)),
+                    new MonsterSpawn(119, new(37, 52)),
+                    new MonsterSpawn(116, new(38, 31)));
+            });
+            r.At(r.Elapsed + TimeSpan.FromSeconds(90), r =>
+            {
+                r.Message(_room3, Game18NConstString.EnemiesReinforcements);
+                r.Summon(_room3,
+                    new MonsterSpawn(145, new(27, 19)),
+                    new MonsterSpawn(151, new(29, 42)),
+                    new MonsterSpawn(151, new(29, 45)),
+                    new MonsterSpawn(119, new(37, 52)),
+                    new MonsterSpawn(116, new(38, 31)));
+            });
+            r.At(r.Elapsed + TimeSpan.FromSeconds(120), r =>
+            {
+                r.Message(_room3, Game18NConstString.EnemiesReinforcements);
+                r.Summon(_room3,
+                    new MonsterSpawn(145, new(27, 19)),
+                    new MonsterSpawn(151, new(29, 42)),
+                    new MonsterSpawn(151, new(29, 45)),
+                    new MonsterSpawn(119, new(37, 52)),
+                    new MonsterSpawn(116, new(38, 31)));
+            });
+            r.At(r.Elapsed + TimeSpan.FromSeconds(150), r =>
+            {
+                r.Message(_room3, Game18NConstString.EnemiesReinforcements);
+                r.Summon(_room3,
+                    new MonsterSpawn(145, new(27, 19)),
+                    new MonsterSpawn(151, new(29, 42)),
+                    new MonsterSpawn(151, new(29, 45)),
+                    new MonsterSpawn(119, new(37, 52)),
+                    new MonsterSpawn(116, new(38, 31)));
+            });
+            r.At(r.Elapsed + TimeSpan.FromSeconds(180), r =>
+            {
+                r.Dismiss(_room3, 116);
+                r.Dismiss(_room3, 119);
+                r.Dismiss(_room3, 145);
+                r.Dismiss(_room3, 151);
+                r.UnlockPortal(_room3, _room4);
+                r.AddClockTime(TimeSpan.FromSeconds(180));
+                r.Message(_room3, Game18NConstString.ADoorHasOpened);
+                r.Dialog(_room3, 6132);
+                r.StopRoomClock(_room3);
+            });
         }
         else if (room == _room4)
         {
@@ -166,11 +205,7 @@ public class TimeSpace29 : InstanceScript
 
     public override void OnRoomCleared(IInstanceRun r, int room)
     {
-        if (room == _room3)
-        {
-            r.UnlockPortal(_room3, _room4);
-        }
-        else if (room == _room4)
+        if (room == _room4)
         {
             r.UnlockPortal(_room4, _room5);
             r.AddClockTime(TimeSpan.FromSeconds(240));
