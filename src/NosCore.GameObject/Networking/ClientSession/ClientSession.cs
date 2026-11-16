@@ -353,13 +353,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                     }
                     catch (Exception ex)
                     {
+                        CountDisconnectFailure();
                         _logger.LogError(ex, logLanguage[LogLanguageKey.DISCONNECT_STEP_FAILED], handler.GetType().Name, SessionId);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], SessionId);
             }
             finally
             {
@@ -376,13 +373,13 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (_account is { } account)
                 {
                     try { await authHub.UnregisterSessionIpAsync(account.Name); }
-                    catch (Exception ex) { _logger.LogWarning(ex, logLanguage[LogLanguageKey.SESSION_IP_UNREGISTER_FAILED], account.Name); }
+                    catch (Exception ex) { CountDisconnectFailure(); _logger.LogWarning(ex, logLanguage[LogLanguageKey.SESSION_IP_UNREGISTER_FAILED], account.Name); }
                 }
                 if (_subscribedSessionId is { } subscribedSessionId)
                 {
                     _subscribedSessionId = null;
                     try { await pubSubHub.UnsubscribeAsync(subscribedSessionId); }
-                    catch (Exception ex) { _logger.LogWarning(ex, logLanguage[LogLanguageKey.ACCOUNT_CLAIM_RELEASE_FAILED], subscribedSessionId); }
+                    catch (Exception ex) { CountDisconnectFailure(); _logger.LogWarning(ex, logLanguage[LogLanguageKey.ACCOUNT_CLAIM_RELEASE_FAILED], subscribedSessionId); }
                 }
 
                 packetLock?.Dispose();
@@ -390,6 +387,9 @@ namespace NosCore.GameObject.Networking.ClientSession
                 _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
         }
+
+        private static void CountDisconnectFailure() =>
+            NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "disconnect"));
 
         public Task HandlePacketsAsync(IEnumerable<IPacket> packetConcatenated, bool isFromNetwork = false)
         {

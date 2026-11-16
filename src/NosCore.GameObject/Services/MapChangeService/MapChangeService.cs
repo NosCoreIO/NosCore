@@ -29,6 +29,7 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Map;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -265,32 +266,36 @@ namespace NosCore.GameObject.Services.MapChangeService
                     }
                 }
 
-                var mapSessions = sessionRegistry.GetSessions(s =>
-                    s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId);
-                await Task.WhenAll(mapSessions.Select(async s =>
+                // A player leaving destroys their entity on the map's executor, so the others are read there.
+                var others = await newMapInstance.Executor.RunAsync(() => Task.FromResult(sessionRegistry
+                    .GetSessions(s => s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId)
+                    .SelectMany(s => DescribeTo(s.Character))
+                    .ToList()));
+                await session.SendPacketsAsync(others);
+
+                IEnumerable<IPacket> DescribeTo(PlayerComponentBundle otherCharacter)
                 {
-                    var otherCharacter = s.Character;
                     var prefix = otherCharacter.Authority == AuthorityType.Moderator
                         ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, otherCharacter.AccountLanguage]}]"
                         : string.Empty;
-                    await session.SendPacketAsync(otherCharacter.GenerateIn(prefix));
-                    await session.SendPacketAsync(otherCharacter.GenerateGidx(gameLanguageLocalizer, accountLanguage));
+                    yield return otherCharacter.GenerateIn(prefix);
+                    yield return otherCharacter.GenerateGidx(gameLanguageLocalizer, accountLanguage);
 
                     if (!otherCharacter.Invisible)
                     {
-                        await session.SendPacketsAsync(otherCharacter.Mates.Values
-                            .Where(m => m.Entity.HasValue)
-                            .Select(m => m.GenerateIn(accountLanguage, m.Entity.GetValueOrDefault().PositionX,
-                                m.Entity.GetValueOrDefault().PositionY)));
+                        foreach (var mate in otherCharacter.Mates.Values.Where(m => m.Entity.HasValue))
+                        {
+                            yield return mate.GenerateIn(accountLanguage, mate.Entity.GetValueOrDefault().PositionX,
+                                mate.Entity.GetValueOrDefault().PositionY);
+                        }
                     }
 
-                    var shop = otherCharacter.Shop;
-                    if (shop != null)
+                    if (otherCharacter.Shop != null)
                     {
-                        await session.SendPacketAsync(otherCharacter.GeneratePFlag());
-                        await session.SendPacketAsync(otherCharacter.GenerateShop(session.Account.Language));
+                        yield return otherCharacter.GeneratePFlag();
+                        yield return otherCharacter.GenerateShop(session.Account.Language);
                     }
-                }));
+                }
 
                 await newMapInstance.SendPacketAsync(titInfoPacket);
                 newMapInstance.IsSleeping = false;
@@ -316,11 +321,12 @@ namespace NosCore.GameObject.Services.MapChangeService
                     await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
                     if (!invisible)
                     {
-                        var watchers = sessionRegistry.GetSessions(s =>
-                            s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId);
-                        await Task.WhenAll(watchers.Select(watcher =>
-                            watcher.SendPacketAsync(character.GenerateGidx(gameLanguageLocalizer,
-                                watcher.Character.AccountLanguage))));
+                        var watchers = await newMapInstance.Executor.RunAsync(() => Task.FromResult(sessionRegistry
+                            .GetSessions(s => s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId)
+                            .Select(watcher => (watcher, watcher.Character.AccountLanguage))
+                            .ToList()));
+                        await Task.WhenAll(watchers.Select(w =>
+                            w.watcher.SendPacketAsync(character.GenerateGidx(gameLanguageLocalizer, w.AccountLanguage))));
                     }
                 }
 
