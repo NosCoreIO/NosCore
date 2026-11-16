@@ -48,6 +48,7 @@ Catch everything only at a boundary. Each boundary logs the exception, counts it
 | `GameEventDispatcher` | one handler of one game event | `game_event` |
 | Script loading and each call into a time-space or raid script | one script load or one trigger; a failed call abandons the run | `script` |
 | `ScriptedInstanceRun` triggers and steps, `ScriptedInstanceService.TickAsync` | one trigger, one step of a trigger, one run in a tick | `scripted_instance` |
+| A map change that `MapChangeService` starts in the background because it was asked from inside a map's executor | one map change | `map_change` |
 | Hosted service loops, Wolverine handlers | one iteration, one message | not counted yet |
 | `BazaarHubOperations.RequestAsync` | one request to the master; after its retries it throws `MasterUnreachableException`, and the caller settles the operation by its id | not counted |
 

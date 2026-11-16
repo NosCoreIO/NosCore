@@ -11,6 +11,7 @@ using NosCore.Algorithm.SpExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.I18N;
+using NosCore.Core.Observability;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
@@ -33,6 +34,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -119,6 +121,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     catch (Exception ex)
                     {
                         logger.LogWarning(ex, logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
+                        NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "map_change"));
                     }
                 });
             }
@@ -348,10 +351,6 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 await gameEvents.RaiseAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance, currentMapInstance));
                 await gameEvents.RaiseAsync(new MovementConditionChangedEvent(character));
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
             }
             finally
             {
