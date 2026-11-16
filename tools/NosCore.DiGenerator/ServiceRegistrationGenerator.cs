@@ -150,6 +150,17 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             registrations.Add(new Registration(Display(type), Display(type), lifetime));
         }
 
+        // MasterHubGenerator writes these clients, and generators do not see each other's output.
+        var masterHub = compilation.GetTypeByMetadataName(MasterHubGenerator.MasterHubAttribute);
+        foreach (var hub in EnumerateTypes(compilation.Assembly.GlobalNamespace)
+                     .Where(t => t.TypeKind == TypeKind.Interface && t.GetAttributes()
+                         .Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, masterHub))))
+        {
+            var client = "global::" + hub.ContainingNamespace.ToDisplayString() + "." + MasterHubGenerator.ClientName(hub);
+            registrations.Add(new Registration(Display(hub), client, Lifetime.Singleton));
+            registrations.Add(new Registration(client, client, Lifetime.Singleton));
+        }
+
         // Metadata order is not reproducible at compile time, so order by name and let
         // DependencyInjectionParityTests compare as a set.
         registrations.Sort(static (a, b) =>

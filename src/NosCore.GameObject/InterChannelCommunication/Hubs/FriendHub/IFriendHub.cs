@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 
+[MasterHub]
+
 public interface IFriendHub
 {
     Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket);

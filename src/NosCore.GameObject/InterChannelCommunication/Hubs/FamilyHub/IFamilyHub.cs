@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 
+[MasterHub]
+
 public interface IFamilyHub
 {
     Task<FamilyExtensionPurchase> PurchaseExtensionAsync(long familyId, long characterId, short itemVNum);

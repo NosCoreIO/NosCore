@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.DependencyInjection;
 using NosCore.Data.WebApi;
 using NosCore.Shared.Enumerations;
 using System;
@@ -83,17 +82,17 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
             return true;
         }
 
-        public static async Task<Reply<bool>> Handle(PublishMessagesRequest request, IServiceProvider services) =>
-            new(await services.GetRequiredService<PubSubHub>().BroadcastAsync(request.Messages));
+        public static async Task<Reply<bool>> Handle(PublishMessagesRequest request, PubSubHub hub) =>
+            new(await hub.BroadcastAsync(request.Messages));
 
-        public static async Task<Reply<List<Subscriber>>> Handle(GetSubscribersRequest _, IServiceProvider services) =>
-            new(await services.GetRequiredService<PubSubHub>().GetSubscribersAsync());
+        public static async Task<Reply<List<Subscriber>>> Handle(GetSubscribersRequest _, PubSubHub hub) =>
+            new(await hub.GetSubscribersAsync());
 
-        public static Reply<bool> Handle(SubscribeRequest request, IServiceProvider services) =>
-            new(services.GetRequiredService<PubSubHub>().Subscribe(request.ChannelKey, request.Subscriber));
+        public static Reply<bool> Handle(SubscribeRequest request, PubSubHub hub) =>
+            new(hub.Subscribe(request.ChannelKey, request.Subscriber));
 
-        public static Reply<bool> Handle(UnsubscribeRequest request, IServiceProvider services) =>
-            new(services.GetRequiredService<PubSubHub>().Unsubscribe(request.ChannelKey, request.Id));
+        public static Reply<bool> Handle(UnsubscribeRequest request, PubSubHub hub) =>
+            new(hub.Unsubscribe(request.ChannelKey, request.Id));
 
         // The sending channel is a recipient too: a whisper, shout or GM command aimed at someone
         // on the sender's own channel is only delivered through this round trip.

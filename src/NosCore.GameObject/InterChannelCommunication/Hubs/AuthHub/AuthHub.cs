@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.DependencyInjection;
 using NosCore.GameObject.Services.AuthService;
 using System;
 using System.Linq;
@@ -100,28 +99,28 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
             return Task.FromResult(authCodeService.GetSessionIp(accountName));
         }
 
-        public static async Task<Reply<string?>> Handle(GetAwaitingConnectionRequest request, IServiceProvider services) =>
-            new(await services.GetRequiredService<AuthHub>().GetAwaitingConnectionAsync(request.Name, request.Token, request.SessionId));
+        public static async Task<Reply<string?>> Handle(GetAwaitingConnectionRequest request, AuthHub hub) =>
+            new(await hub.GetAwaitingConnectionAsync(request.Name, request.Token, request.SessionId));
 
-        public static async Task<Reply<WorldEntryGrant?>> Handle(RedeemWorldEntryRequest request, IServiceProvider services) =>
-            new(await services.GetRequiredService<AuthHub>().RedeemWorldEntryAsync(request.AccountName, request.SessionId));
+        public static async Task<Reply<WorldEntryGrant?>> Handle(RedeemWorldEntryRequest request, AuthHub hub) =>
+            new(await hub.RedeemWorldEntryAsync(request.AccountName, request.SessionId));
 
-        public static Task Handle(SetAwaitingChannelChangeRequest request, IServiceProvider services) =>
-            services.GetRequiredService<AuthHub>().SetAwaitingChannelChangeAsync(request.AccountName, request.ChannelId, request.MfaValidated);
+        public static Task Handle(SetAwaitingChannelChangeRequest request, AuthHub hub) =>
+            hub.SetAwaitingChannelChangeAsync(request.AccountName, request.ChannelId, request.MfaValidated);
 
-        public static Reply<WorldEntryGrant?> Handle(RedeemChannelChangeRequest request, IServiceProvider services) =>
-            new(services.GetRequiredService<AuthHub>().RedeemChannelChange(request.ChannelKey, request.AccountName));
+        public static Reply<WorldEntryGrant?> Handle(RedeemChannelChangeRequest request, AuthHub hub) =>
+            new(hub.RedeemChannelChange(request.ChannelKey, request.AccountName));
 
-        public static Task Handle(StoreAuthCodeRequest request, IServiceProvider services) =>
-            services.GetRequiredService<AuthHub>().StoreAuthCodeAsync(request.AuthCode, request.AccountName);
+        public static Task Handle(StoreAuthCodeRequest request, AuthHub hub) =>
+            hub.StoreAuthCodeAsync(request.AuthCode, request.AccountName);
 
-        public static Task Handle(RegisterSessionIpRequest request, IServiceProvider services) =>
-            services.GetRequiredService<AuthHub>().RegisterSessionIpAsync(request.AccountName, request.IpAddress);
+        public static Task Handle(RegisterSessionIpRequest request, AuthHub hub) =>
+            hub.RegisterSessionIpAsync(request.AccountName, request.IpAddress);
 
-        public static Task Handle(UnregisterSessionIpRequest request, IServiceProvider services) =>
-            services.GetRequiredService<AuthHub>().UnregisterSessionIpAsync(request.AccountName);
+        public static Task Handle(UnregisterSessionIpRequest request, AuthHub hub) =>
+            hub.UnregisterSessionIpAsync(request.AccountName);
 
-        public static async Task<Reply<string?>> Handle(GetSessionIpRequest request, IServiceProvider services) =>
-            new(await services.GetRequiredService<AuthHub>().GetSessionIpAsync(request.AccountName));
+        public static async Task<Reply<string?>> Handle(GetSessionIpRequest request, AuthHub hub) =>
+            new(await hub.GetSessionIpAsync(request.AccountName));
     }
 }

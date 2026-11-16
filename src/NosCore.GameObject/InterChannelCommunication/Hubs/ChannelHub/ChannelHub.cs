@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using NosCore.Core;
@@ -119,18 +118,17 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
             }
         }
 
-        public static void Handle(BindChannelRequest request, IServiceProvider services) =>
-            services.GetRequiredService<ChannelHub>().BindChannel(request.ChannelKey, request.Channel);
+        public static void Handle(BindChannelRequest request, ChannelHub hub) =>
+            hub.BindChannel(request.ChannelKey, request.Channel);
 
-        public static Reply<bool> Handle(IsInMaintenanceRequest request, IServiceProvider services) =>
-            new(services.GetRequiredService<ChannelHub>().IsChannelInMaintenance(request.ChannelKey));
+        public static Reply<bool> Handle(IsInMaintenanceRequest request, ChannelHub hub) =>
+            new(hub.IsChannelInMaintenance(request.ChannelKey));
 
-        public static async Task<Reply<List<ChannelInfo>>> Handle(GetCommunicationChannelsRequest _, IServiceProvider services) =>
-            new(await services.GetRequiredService<ChannelHub>().GetCommunicationChannels());
+        public static async Task<Reply<List<ChannelInfo>>> Handle(GetCommunicationChannelsRequest _, ChannelHub hub) =>
+            new(await hub.GetCommunicationChannels());
 
-        public static Task Handle(SetMaintenanceRequest request, IServiceProvider services)
+        public static Task Handle(SetMaintenanceRequest request, ChannelHub hub)
         {
-            var hub = services.GetRequiredService<ChannelHub>();
             if (request.IsGlobal)
             {
                 return hub.SetMaintenance(true, request.Value);
@@ -141,7 +139,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
         }
 
         [WolverineLogging(telemetryEnabled: false, successLogLevel: LogLevel.None, executionLogLevel: LogLevel.None)]
-        public static PingChannelReply Handle(PingChannelRequest request, IServiceProvider services) =>
-            new(services.GetRequiredService<ChannelHub>().PingChannel(request.ChannelKey));
+        public static PingChannelReply Handle(PingChannelRequest request, ChannelHub hub) =>
+            new(hub.PingChannel(request.ChannelKey));
     }
 }

@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 
+[MasterHub]
+
 public interface IBlacklistHub
 {
     Task<LanguageKey> AddBlacklistAsync(BlacklistRequest blacklistRequest);
