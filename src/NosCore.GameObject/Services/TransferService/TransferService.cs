@@ -19,6 +19,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -57,15 +58,23 @@ namespace NosCore.GameObject.Services.TransferService
                     i => equipmentOptionDao.Where(o => o.WearableInstanceId == i.ItemInstanceId)?.ToList() ?? []);
 
             var snapshot = new Snapshot(first, second);
-            var changes = Apply(sides, options);
-            if (changes == null || !await PersistAsync(first, second, changes))
+            try
+            {
+                var changes = Apply(sides, options);
+                if (changes != null && await PersistAsync(first, second, changes))
+                {
+                    return changes.Packets;
+                }
+            }
+            catch
             {
                 snapshot.Restore();
-                logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
-                return null;
+                throw;
             }
 
-            return changes.Packets;
+            snapshot.Restore();
+            logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+            return null;
         }
 
         private bool IsCovered(Side side)
@@ -179,7 +188,7 @@ namespace NosCore.GameObject.Services.TransferService
                 await transaction.CommitAsync();
                 return true;
             }
-            catch (Exception e)
+            catch (DbException e)
             {
                 logger.LogError(e, logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return false;

@@ -315,6 +315,18 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task AFailingSettlementStillClosesBothTradeWindows()
+        {
+            await new Spec("A settlement that throws closes the trade for both players before the error reaches the boundary")
+                .GivenAsync(ExchangeIsOpened)
+                .And(TheTransferHasABug)
+                .WhenAsync(BothConfirmAndTheBugSurfaces)
+                .Then(RequesterWasToldTheTradeFailed)
+                .And(TargetWasToldTheTradeFailed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task LeavingDuringASettlementWaitsForIt()
         {
             await new Spec("A player leaving while their trade settles waits for it and is not told it failed")
@@ -515,6 +527,25 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void RequesterReceivedNoFailure() =>
             Assert.IsFalse(Requester.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Failure));
+
+        private void TheTransferHasABug()
+        {
+            var transfer = new Mock<ITransferService>();
+            transfer.Setup(t => t.TransferAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<TransferOffer>(),
+                    It.IsAny<PlayerComponentBundle>(), It.IsAny<TransferOffer>()))
+                .ThrowsAsync(new InvalidOperationException());
+            RequestHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
+                Blacklist.Object, World.LogLanguageLocalizer, World.SessionRegistry, transfer.Object, Clock);
+        }
+
+        private async Task BothConfirmAndTheBugSurfaces()
+        {
+            await RequesterConfirms();
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(TargetConfirms);
+        }
+
+        private void TargetWasToldTheTradeFailed() =>
+            Assert.IsTrue(Target.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Failure));
 
         private void RequesterWasToldTheTradeFailed() =>
             Assert.IsTrue(Requester.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Failure));

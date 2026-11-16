@@ -218,7 +218,6 @@ namespace NosCore.PacketHandlers.Exchange
                     // partner who is leaving can have its entity cleared.
                     var partnerSender = exchangeTarget.Sender;
                     var result = ExchangeResultType.Failure;
-                    ExcClosePacket? settled;
                     try
                     {
                         var partnerSession = sessionRegistry.GetSessionByCharacterId(exchangeTarget.VisualId);
@@ -237,14 +236,14 @@ namespace NosCore.PacketHandlers.Exchange
                     }
                     finally
                     {
-                        settled = exchangeService.CloseExchange(clientSession.Character, result);
+                        var settled = exchangeService.CloseExchange(clientSession.Character, result);
+                        await clientSession.SendPacketAsync(settled);
+                        if (partnerSender != null)
+                        {
+                            await partnerSender.SendPacketAsync(settled);
+                        }
                     }
 
-                    await clientSession.SendPacketAsync(settled);
-                    if (partnerSender != null)
-                    {
-                        await partnerSender.SendPacketAsync(settled);
-                    }
                     return;
 
                 case RequestExchangeType.Cancelled:

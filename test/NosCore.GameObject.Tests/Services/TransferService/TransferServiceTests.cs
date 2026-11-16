@@ -26,6 +26,7 @@ using NosCore.Tests.Shared;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using DbEquipmentOption = NosCore.Database.Entities.EquipmentOption;
@@ -74,6 +75,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private WearableInstance _armor;
         private InventoryItemInstance _armorEntry;
         private Snapshot _before;
+        private InvalidOperationException? _thrown;
 
         private static TransferOffer Nothing => new(0, 0, new Dictionary<InventoryItemInstance, short>());
 
@@ -128,6 +130,34 @@ namespace NosCore.GameObject.Tests.Services.TransferService
                 .And(TheInventoryWriteFails)
                 .WhenAsync(Transferring)
                 .Then(TheTransferFails)
+                .And(NothingIsCommitted)
+                .And(BothCharactersAreAsBefore)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ADatabaseErrorFailsTheTransfer()
+        {
+            await new Spec("A database error during the write fails the transfer and leaves both characters as they were")
+                .GivenAsync(FirstOffersGoldAndPartOfAStack)
+                .AndAsync(SecondOffersBankGoldAndAnArmorWithOptions)
+                .And(TheDatabaseIsLost)
+                .WhenAsync(Transferring)
+                .Then(TheTransferFails)
+                .And(NothingIsCommitted)
+                .And(BothCharactersAreAsBefore)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnUnexpectedErrorRestoresBothCharactersAndReachesTheCaller()
+        {
+            await new Spec("Any other error leaves both characters as they were and is not swallowed")
+                .GivenAsync(FirstOffersGoldAndPartOfAStack)
+                .AndAsync(SecondOffersBankGoldAndAnArmorWithOptions)
+                .And(TheInventoryWriteHasABug)
+                .WhenAsync(TransferringThrows)
+                .Then(TheBugReachesTheCaller)
                 .And(NothingIsCommitted)
                 .And(BothCharactersAreAsBefore)
                 .ExecuteAsync();
@@ -225,16 +255,41 @@ namespace NosCore.GameObject.Tests.Services.TransferService
             _before = new Snapshot(_first, _second);
         }
 
-        private void TheInventoryWriteFails()
+        private void TheInventoryWriteFails() =>
+            WithInventoryWrite(d => d.ReturnsAsync(false));
+
+        private void TheDatabaseIsLost() =>
+            WithInventoryWrite(d => d.ThrowsAsync(new LostConnection()));
+
+        private void TheInventoryWriteHasABug() =>
+            WithInventoryWrite(d => d.ThrowsAsync(new InvalidOperationException()));
+
+        private void WithInventoryWrite(
+            Action<Moq.Language.Flow.ISetup<IDao<InventoryItemInstanceDto, Guid>, Task<bool>>> outcome)
         {
             _transaction = new Mock<IDaoTransaction>();
             var scope = new Mock<IDaoTransactionScope>();
             scope.Setup(s => s.Begin()).Returns(_transaction.Object);
             var inventoryDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
-            inventoryDao.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<InventoryItemInstanceDto>>()))
-                .ReturnsAsync(false);
+            outcome(inventoryDao.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<InventoryItemInstanceDto>>())));
             _service = Create(scope.Object, inventoryDao.Object);
         }
+
+        private async Task TransferringThrows()
+        {
+            try
+            {
+                await Transferring();
+            }
+            catch (InvalidOperationException e)
+            {
+                _thrown = e;
+            }
+        }
+
+        private void TheBugReachesTheCaller() => Assert.IsNotNull(_thrown);
+
+        private sealed class LostConnection : DbException;
 
         private async Task Transferring() =>
             _result = await _service.TransferAsync(_first.Character, _firstOffer, _second.Character, _secondOffer);
