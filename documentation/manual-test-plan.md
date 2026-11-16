@@ -2929,9 +2929,12 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-01`, entering the third room shows "Watch out, enemies!" in the time-space panel; the line
       goes blank once the room is cleared, and walking back into a room that still has monsters shows its
       line again. In French it reads "Attention, des ennemis !"
-- [ ] Each of `timespace-14` to `timespace-23` can be finished with Mission Clear
+- [ ] Each of `timespace-14` to `timespace-32` can be finished with Mission Clear
+- [ ] In `timespace-32`, each hunting room shows its red clock and "The enemies are getting
+      reinforcements!" every 30 seconds. Its other messages reach only the players in that room: a
+      second character waiting in the hub sees none of them
 - [ ] Not verifiable yet: the mission objectives window (`minfo`) and the room objective line (`sinfo`),
-      which this client freezes on (NosCoreIO/NosCore.ClientLab#32); the guards of `timespace-20` and the
+      which this client does not draw (NosCoreIO/NosCore.ClientLab#34); the guards of `timespace-20` and the
       companion of `timespace-22` follow the player and take orders in the log, which NosCore does not do yet
 
 ### Time-space reward chest
