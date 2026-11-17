@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class TimeSpaceEntryService(IScriptedInstanceService scriptedInstanceService,
-            IMapChangeService mapChangeService, ITimeSpaceAttemptService timeSpaceAttemptService)
+            IMapChangeService mapChangeService)
         : ITimeSpaceEntryService
     {
         public async Task ShowAsync(ClientSession session, ScriptedInstance entrance)
@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             if (await scriptedInstanceService.LoadAsync(entrance))
             {
                 var loserMode = entrance.Definition is { } definition
-                    && await timeSpaceAttemptService.OffersLoserModeAsync(session.Character.CharacterId, definition.Id);
+                    && session.Character.OffersLoserMode(definition.Id);
                 await session.SendPacketAsync(entrance.GenerateRbr(loserMode));
             }
         }

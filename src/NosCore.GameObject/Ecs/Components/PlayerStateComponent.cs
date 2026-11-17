@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -28,5 +29,7 @@ public record struct PlayerStateComponent(
     // Set while a Rainbow Battle player is frozen: the moment they thaw on their own.
     Instant? RainbowBattleThawsAt = null,
     int RainbowBattleKills = 0,
-    string? Biography = null
+    string? Biography = null,
+    // Failed attempts per time-space since login.
+    ImmutableDictionary<short, short>? TimeSpaceFailures = null
 );

@@ -34,7 +34,6 @@ namespace NosCore.Database.Entities
             Mail1 = new HashSet<Mail>();
             Mate = new HashSet<Mate>();
             CharacterQuest = new HashSet<CharacterQuest>();
-            CharacterTimeSpace = new HashSet<CharacterTimeSpace>();
             Miniland = new HashSet<Miniland>();
             Warehouses = new HashSet<Warehouse>();
             FamilyCharacter = new HashSet<FamilyCharacter>();
@@ -147,7 +146,6 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<CharacterQuest> CharacterQuest { get; set; }
 
-        public virtual ICollection<CharacterTimeSpace> CharacterTimeSpace { get; set; }
 
         public virtual ICollection<Mate> Mate { get; set; }
 
