@@ -62,6 +62,8 @@ namespace NosCore.Database
 
         public virtual DbSet<CharacterRelation>? CharacterRelation { get; set; }
 
+        public virtual DbSet<CharacterTimeSpace>? CharacterTimeSpace { get; set; }
+
         public virtual DbSet<CharacterSkill>? CharacterSkill { get; set; }
 
         public virtual DbSet<RollGeneratedItem>? RollGeneratedItem { get; set; }
@@ -235,6 +237,10 @@ namespace NosCore.Database
                 .HasIndex(e => new { e.CharacterId, e.Slot, e.Type })
                 .IsUnique();
 
+            modelBuilder.Entity<CharacterTimeSpace>()
+                .HasIndex(e => new { e.CharacterId, e.TimeSpaceId })
+                .IsUnique();
+
             modelBuilder.Entity<MapTypeMap>()
                 .HasIndex(e => new { e.MapId, e.MapTypeId })
                 .IsUnique();
@@ -334,6 +340,12 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.CharacterQuest)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasMany(e => e.CharacterTimeSpace)
                 .WithOne(e => e.Character)
                 .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);

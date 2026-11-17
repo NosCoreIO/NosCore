@@ -53,6 +53,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     await gameEvents.RaiseAsync(new ScriptedInstanceTimedOutEvent(session.Character));
                 }
 
+                await RaiseFailedAsync(run);
                 return;
             }
 
@@ -68,7 +69,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 IsNoNpcDead = true
             });
 
-            if (state != EndStateType.Success || entrance.Definition is not { } definition)
+            if (state != EndStateType.Success)
+            {
+                await RaiseFailedAsync(run);
+                return;
+            }
+
+            if (entrance.Definition is not { } definition)
             {
                 return;
             }
@@ -81,6 +88,19 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 await gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
+            }
+        }
+
+        private async Task RaiseFailedAsync(ScriptedInstanceRun run)
+        {
+            if (entrance.Definition is not { } definition)
+            {
+                return;
+            }
+
+            foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
+            {
+                await gameEvents.RaiseAsync(new TimeSpaceFailedEvent(session.Character, definition.Id));
             }
         }
 
