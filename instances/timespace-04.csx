@@ -7,6 +7,10 @@ public class TimeSpace4 : InstanceScript
     private readonly int _room5;
     private readonly int _room6;
 
+    // Each lever lands on one of these spots, picked per run.
+    private static readonly Spot[] Room5LeverSpots = [new(23, 21), new(7, 16), new(11, 21)];
+    private static readonly Spot[] Room6LeverSpots = [new(14, 5), new(23, 8)];
+
     public TimeSpace4()
     {
         Definition = InstanceDefinitionBuilder.Named(4, "The Defence of NosVille", "The Defence of NosVille")
@@ -63,7 +67,7 @@ public class TimeSpace4 : InstanceScript
             }));
         r.SpawnPortal(_room5, new(28, 14), _room6, new(1, 15));
         r.SpawnPortal(_room5, new(1, 15), _room4, new(28, 14));
-        r.PlaceButton(_room5, 1, new(23, 21), 1000, 1045);
+        r.PlaceButton(_room5, 1, Room5LeverSpots[Random.Shared.Next(Room5LeverSpots.Length)], 1000, 1045);
         r.Summon(_room5, new MonsterSpawn(129, new(13, 11), OnDeath: r =>
             {
                 r.Summon(_room5, new MonsterSpawn(129, new(13, 18), OnDeath: r =>
@@ -76,7 +80,7 @@ public class TimeSpace4 : InstanceScript
             }));
         r.SpawnExit(_room6, new(28, 15));
         r.SpawnPortal(_room6, new(1, 15), _room5, new(28, 14));
-        r.PlaceButton(_room6, 1, new(14, 5), 1000, 1045);
+        r.PlaceButton(_room6, 1, Room6LeverSpots[Random.Shared.Next(Room6LeverSpots.Length)], 1000, 1045);
         r.Summon(_room6,
             new MonsterSpawn(129, new(10, 21), OnDeath: r =>
             {
