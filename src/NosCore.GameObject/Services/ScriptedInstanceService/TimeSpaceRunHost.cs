@@ -10,6 +10,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.ClientPackets.Instance;
@@ -74,6 +75,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
             {
+                if (entrance.StoneVNum is { } stone)
+                {
+                    await session.Character.SendPacketsAsync(session.Character.InventoryService.RemoveItemAmountByVNum(stone, 1));
+                }
+
                 await gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
             }
         }

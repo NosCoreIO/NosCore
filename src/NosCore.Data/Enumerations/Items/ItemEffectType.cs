@@ -21,6 +21,8 @@ namespace NosCore.Data.Enumerations.Items
         MarriageProposal = 34,
         // EffectValue is the passive skill the book teaches.
         PassiveSkillBook = 99,
+        // EffectValue is the time-space the item opens where its user stands.
+        TimeSpaceStone = 140,
         MateCapture = 100,
         OpenProduction = 100,
         Undefined = 69,

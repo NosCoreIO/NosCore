@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.InventoryService;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
@@ -14,5 +15,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         Task ShowAsync(ClientSession session, ScriptedInstance entrance);
 
         Task EnterAsync(ClientSession session, ScriptedInstance entrance);
+
+        Task EnterWithStoneAsync(ClientSession session, InventoryItemInstance stone);
     }
 }
