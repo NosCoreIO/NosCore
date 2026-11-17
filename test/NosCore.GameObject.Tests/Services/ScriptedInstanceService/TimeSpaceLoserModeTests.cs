@@ -42,7 +42,6 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            World.Inject<ITimeSpaceAttemptService>(World.Create<TimeSpaceAttemptService>());
             _entrance = new GameObject.Services.ScriptedInstanceService.ScriptedInstance { Logic = new Script(TimeSpaceId) };
             World.Freeze<Mock<IScriptedInstanceService>>()
                 .Setup(s => s.LoadAsync(_entrance)).ReturnsAsync(true);
@@ -83,7 +82,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             await new Spec("Clearing the time-space stops offering Loser Mode")
                 .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 2)
-                .WhenAsync(ThePlayerClears_, TimeSpaceId)
+                .When(ThePlayerClears_, TimeSpaceId)
                 .ThenAsync(TheStoneShould_OfferLoserMode, false)
                 .ExecuteAsync();
         }
@@ -102,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             return World.Create<TimeSpaceFailedHandler>().Handle(new TimeSpaceFailedEvent(_session.Character, timeSpaceId));
         }
 
-        private Task ThePlayerClears_(short timeSpaceId) =>
+        private void ThePlayerClears_(short timeSpaceId) =>
             World.Create<TimeSpaceSucceededHandler>().Handle(
                 new ScriptedInstanceSucceededEvent(_session.Character, ScriptedInstanceType.TimeSpace, timeSpaceId));
 

@@ -148,7 +148,6 @@ namespace NosCore.Tests.Shared
             PenaltyLogDao = Dao<PenaltyLog, PenaltyLogDto, int>();
             CharacterSkillDao = Dao<CharacterSkill, CharacterSkillDto, Guid>();
             QuicklistEntryDao = Dao<QuicklistEntry, QuicklistEntryDto, Guid>();
-            CharacterTimeSpaceDao = Dao<CharacterTimeSpace, CharacterTimeSpaceDto, Guid>();
 
             Fixture.Inject(ItemList);
             Fixture.UseReal<IItemCatalog, ItemCatalog>();
@@ -251,7 +250,6 @@ namespace NosCore.Tests.Shared
         public IDao<ShopItemDto, int> ShopItemDao { get; }
         public IDao<PenaltyLogDto, int> PenaltyLogDao { get; }
         public IDao<CharacterSkillDto, Guid> CharacterSkillDao { get; }
-        public IDao<CharacterTimeSpaceDto, Guid> CharacterTimeSpaceDao { get; }
         public IDao<QuicklistEntryDto, Guid> QuicklistEntryDao { get; }
 
         public List<ItemDto> ItemList { get; } = new()

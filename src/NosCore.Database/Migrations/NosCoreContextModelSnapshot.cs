@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261117144321_AddPartnerSpecialistName";
+    public override string LastMigrationId => "20261117225013_DropCharacterTimeSpace";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -715,29 +715,6 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasIndex("SkillVNum");
 
                 b.ToTable("CharacterSkill");
-            });
-
-        modelBuilder.Entity("NosCore.Database.Entities.CharacterTimeSpace", b =>
-            {
-                b.Property<Guid>("CharacterTimeSpaceId")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid");
-
-                b.Property<long>("CharacterId")
-                    .HasColumnType("bigint");
-
-                b.Property<short>("FailedAttempts")
-                    .HasColumnType("smallint");
-
-                b.Property<short>("TimeSpaceId")
-                    .HasColumnType("smallint");
-
-                b.HasKey("CharacterTimeSpaceId");
-
-                b.HasIndex("CharacterId", "TimeSpaceId")
-                    .IsUnique();
-
-                b.ToTable("CharacterTimeSpace");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.ChatterLine", b =>
@@ -4015,17 +3992,6 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Skill");
             });
 
-        modelBuilder.Entity("NosCore.Database.Entities.CharacterTimeSpace", b =>
-            {
-                b.HasOne("NosCore.Database.Entities.Character", "Character")
-                    .WithMany("CharacterTimeSpace")
-                    .HasForeignKey("CharacterId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired();
-
-                b.Navigation("Character");
-            });
-
         modelBuilder.Entity("NosCore.Database.Entities.Combo", b =>
             {
                 b.HasOne("NosCore.Database.Entities.Skill", "Skill")
@@ -4781,8 +4747,6 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("CharacterRelation2");
 
                 b.Navigation("CharacterSkill");
-
-                b.Navigation("CharacterTimeSpace");
 
                 b.Navigation("FamilyCharacter");
 

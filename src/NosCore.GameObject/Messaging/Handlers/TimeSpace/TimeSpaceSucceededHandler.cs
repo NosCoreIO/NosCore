@@ -4,21 +4,23 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
-using NosCore.GameObject.Services.ScriptedInstanceService;
 
 namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
 {
     [UsedImplicitly]
-    public sealed class TimeSpaceSucceededHandler(ITimeSpaceAttemptService timeSpaceAttemptService)
+    public sealed class TimeSpaceSucceededHandler
     {
         [UsedImplicitly]
-        public Task Handle(ScriptedInstanceSucceededEvent evt) =>
-            evt.Type == ScriptedInstanceType.TimeSpace
-                ? timeSpaceAttemptService.ResetAsync(evt.Character.CharacterId, evt.InstanceId)
-                : Task.CompletedTask;
+        public void Handle(ScriptedInstanceSucceededEvent evt)
+        {
+            if (evt.Type == ScriptedInstanceType.TimeSpace)
+            {
+                evt.Character.ClearTimeSpaceFailures(evt.InstanceId);
+            }
+        }
     }
 }
