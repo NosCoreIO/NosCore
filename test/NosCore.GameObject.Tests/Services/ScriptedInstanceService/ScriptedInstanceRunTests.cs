@@ -692,6 +692,31 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ATalkOpenedInAnEmptyRoomIsShownToItsFirstEntrantAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(2, 6024) });
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            first.LastPackets.Clear();
+
+            Move(first, _second);
+            await run.EnteredAsync(first, _second.MapInstanceId);
+
+            Assert.AreEqual(1, first.LastPackets.OfType<NpcReqPacket>().Count(p => p.Data == 6024));
+        }
+
+        [TestMethod]
+        public async Task ATalkOpenedOnEntryIsShownOnceAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(1, 6024) });
+
+            await run.EnteredAsync(first, _first.MapInstanceId);
+
+            Assert.AreEqual(1, first.LastPackets.OfType<NpcReqPacket>().Count(p => p.Data == 6024));
+        }
+
+        [TestMethod]
         public async Task AClosedTalkIsNotShownAgainAsync()
         {
             var first = await PlayerInFirstRoomAsync();

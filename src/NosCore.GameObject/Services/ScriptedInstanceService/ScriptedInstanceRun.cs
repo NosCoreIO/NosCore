@@ -327,10 +327,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
 
                     // A talk nobody has closed yet is shown again, so a room waiting on it is not stuck.
-                    if (!discovered && _roomDialogs.TryGetValue(current, out var dialog))
+                    if (_roomDialogs.TryGetValue(current, out var dialog))
                     {
                         var player = session.Character;
-                        _pending.Add(() => ShowDialogAsync(player, current, dialog));
+                        _pending.Add(() => _openDialogs.GetValueOrDefault(player.CharacterId) == (current, dialog)
+                            ? Task.CompletedTask
+                            : ShowDialogAsync(player, current, dialog));
                     }
                 }
 
