@@ -70,6 +70,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, short> _lockerVNums = [];
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
+        private readonly HashSet<int> _timedRooms = [];
         private readonly HashSet<long> _showingObjective = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
@@ -217,7 +218,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private Task RoomClearedAsync(int room)
         {
-            if (_roomObjectives.Remove(room))
+            // A room on its own clock is not over when one wave dies, so its objective stays up.
+            if (!_timedRooms.Contains(room) && _roomObjectives.Remove(room))
             {
                 foreach (var session in SessionsIn(room))
                 {
@@ -867,6 +869,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StartRoomClock(int room, TimeSpan length)
         {
+            _timedRooms.Add(room);
             var mapInstance = _rooms[room];
             var deciseconds = (int)(length.TotalMilliseconds / 100);
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
@@ -879,6 +882,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StopRoomClock(int room)
         {
+            _timedRooms.Remove(room);
             var mapInstance = _rooms[room];
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
             {
@@ -979,6 +983,29 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         {
             _showingObjective.Remove(session.Character.CharacterId);
             return session.SendPacketAsync(new SinfoPacket { Message = string.Empty });
+        }
+
+        public void Message(int room, Game18NConstString message)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () => mapInstance.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = message })));
+        }
+
+        public void Message(int room, LanguageKey message, params object[] arguments)
+        {
+            _pending.Add(async () =>
+            {
+                foreach (var session in SessionsIn(room))
+                {
+#pragma warning disable CS0618
+                    await session.SendPacketAsync(new MsgPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = _gameLanguage[message, session.Account.Language, arguments]
+                    });
+#pragma warning restore CS0618
+                }
+            });
         }
 
         public void Succeed() => End(EndStateType.Success);
@@ -1261,6 +1288,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void Message(Game18NConstString message, long value) => Do(() => run.Message(message, value));
 
             public void Message(LanguageKey message, params object[] arguments) => Do(() => run.Message(message, arguments));
+
+            public void Message(int room, Game18NConstString message) => Do(() => run.Message(room, message));
+
+            public void Message(int room, LanguageKey message, params object[] arguments) => Do(() => run.Message(room, message, arguments));
 
             public void Objective(int room, LanguageKey objective) => Do(() => run.Objective(room, objective));
 

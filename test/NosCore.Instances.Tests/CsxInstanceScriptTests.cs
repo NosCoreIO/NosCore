@@ -164,6 +164,11 @@ namespace NosCore.Instances.Tests
         public void Message(LanguageKey message, params object[] arguments) =>
             Calls.Add($"message({message}{string.Concat(arguments.Select(a => $",{a}"))})");
 
+        public void Message(int room, Game18NConstString message) => Calls.Add($"message({room},{message})");
+
+        public void Message(int room, LanguageKey message, params object[] arguments) =>
+            Calls.Add($"message({room},{message}{string.Concat(arguments.Select(a => $",{a}"))})");
+
         public void Objective(int room, LanguageKey objective) => Calls.Add($"objective({room},{objective})");
 
         public void Succeed() => Calls.Add("succeed");
