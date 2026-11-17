@@ -10,11 +10,12 @@ using NosCore.GameObject.Services.MateService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
+using Mapster;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,20 @@ namespace NosCore.GameObject.Services.SaveService
             IDaoTransactionScope daoTransactionScope, IStaticBuffService staticBuffService)
         : ISaveService
     {
+        // The row's identity is fixed when the character is created; the bundle only shows it.
+        private static readonly TypeAdapterConfig CharacterSave = BuildCharacterSave();
+
+        private static TypeAdapterConfig BuildCharacterSave()
+        {
+            var config = new TypeAdapterConfig();
+            config.NewConfig<PlayerComponentBundle, CharacterDto>()
+                .Map(dest => dest.HeroXp, src => src.HeroLevelXp)
+                .Map(dest => dest.Reput, src => src.Reputation)
+                .Ignore(dest => dest.CharacterId, dest => dest.AccountId, dest => dest.ServerId,
+                    dest => dest.Name, dest => dest.Slot, dest => dest.Prefix);
+            return config;
+        }
+
         public async Task<bool> SaveAsync(ClientSession session)
         {
             var started = Stopwatch.GetTimestamp();
@@ -64,25 +79,7 @@ namespace NosCore.GameObject.Services.SaveService
                 var titles = character.Titles;
                 var quests = character.Quests;
 
-                characterDto.Hp = character.Hp;
-                characterDto.Mp = character.Mp;
-                characterDto.Level = character.Level;
-                characterDto.LevelXp = character.LevelXp;
-                characterDto.JobLevel = character.JobLevel;
-                characterDto.JobLevelXp = character.JobLevelXp;
-                characterDto.HeroLevel = character.HeroLevel;
-                characterDto.HeroXp = character.HeroLevelXp;
-                characterDto.Gold = character.Gold;
                 account.BankMoney = character.BankGold;
-                characterDto.Reput = character.Reputation;
-                characterDto.Dignity = character.Dignity;
-                characterDto.Compliment = character.Compliment;
-                characterDto.Biography = character.Biography;
-                characterDto.Faction = character.Faction;
-                characterDto.Class = character.Class;
-                characterDto.Gender = character.Gender;
-                characterDto.HairStyle = character.HairStyle;
-                characterDto.HairColor = character.HairColor;
                 // Off a base map the saved position stays the last base-map one, so leaving an
                 // instance or a miniland after a relog still lands there. A player sent to another
                 // channel already holds the destination map and spot.
@@ -92,13 +89,7 @@ namespace NosCore.GameObject.Services.SaveService
                     character.MapX = character.PositionX;
                     character.MapY = character.PositionY;
                 }
-                characterDto.MapId = character.MapId;
-                characterDto.MapX = character.MapX;
-                characterDto.MapY = character.MapY;
-                characterDto.SpPoint = character.SpPoint;
-                characterDto.SpAdditionPoint = character.SpAdditionPoint;
-                characterDto.CurrentScriptId = character.CurrentScriptId;
-                character.SaveOptions(characterDto);
+                character.Adapt(characterDto, CharacterSave);
 
                 // Every DAO call below shares this scope's transaction: the DAOs swallow
                 // their own exceptions and report failure through their return value, so
