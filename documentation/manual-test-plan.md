@@ -744,8 +744,8 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] `$ChangeClass` to another class
 - [ ] The skill bar holds the new class's skills, not the old ones
 - [ ] No leftover icons the client refuses to cast
-- [ ] **Relog** and confirm the old skills have not come back — the rows behind the list
-      have to be gone, not just the in-memory list
+- [ ] **Relog** and confirm you are still the new class with its skills, and the old skills
+      have not come back — the rows behind the list have to be gone, not just the in-memory list
 - [ ] With a second player online, `$ChangeClass <class> <name>` changes them the same way:
       their portrait and look switch, and they get the "class changed" message
 - [ ] `$Gold <amount> <name>` on another player shows them "You have received: N Gold", and

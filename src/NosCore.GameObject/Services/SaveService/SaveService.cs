@@ -79,6 +79,10 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.Compliment = character.Compliment;
                 characterDto.Biography = character.Biography;
                 characterDto.Faction = character.Faction;
+                characterDto.Class = character.Class;
+                characterDto.Gender = character.Gender;
+                characterDto.HairStyle = character.HairStyle;
+                characterDto.HairColor = character.HairColor;
                 // Off a base map the saved position stays the last base-map one, so leaving an
                 // instance or a miniland after a relog still lands there. A player sent to another
                 // channel already holds the destination map and spot.

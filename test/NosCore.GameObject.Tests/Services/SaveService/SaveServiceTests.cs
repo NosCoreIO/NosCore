@@ -24,6 +24,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
@@ -382,6 +383,34 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .WhenAsync(SavingCharacter)
                 .ThenAsync(PersistedFactionShouldBe_, FactionType.Demon)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingCharacterPersistsItsClassGenderAndHair()
+        {
+            await new Spec("Saving the character writes its class, gender and hair")
+                .Given(CharacterChangesClass_GenderAndHair_, CharacterClassType.Swordsman, GenderType.Female)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedAppearanceShouldBe_, CharacterClassType.Swordsman, GenderType.Female)
+                .ExecuteAsync();
+        }
+
+        private void CharacterChangesClass_GenderAndHair_(CharacterClassType characterClass, GenderType gender)
+        {
+            Session.Character.Class = characterClass;
+            Session.Character.Gender = gender;
+            Session.Character.HairStyle = HairStyleType.HairStyleB;
+            Session.Character.HairColor = HairColorType.DarkPurple;
+        }
+
+        private async Task PersistedAppearanceShouldBe_(CharacterClassType characterClass, GenderType gender)
+        {
+            var characterId = Session.Character.CharacterId;
+            var persisted = (await World.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == characterId)).NotNull();
+            Assert.AreEqual(characterClass, persisted.Class);
+            Assert.AreEqual(gender, persisted.Gender);
+            Assert.AreEqual(HairStyleType.HairStyleB, persisted.HairStyle);
+            Assert.AreEqual(HairColorType.DarkPurple, persisted.HairColor);
         }
 
         private void CharacterJoins_(FactionType faction)
