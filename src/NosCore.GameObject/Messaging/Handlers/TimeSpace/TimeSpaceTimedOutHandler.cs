@@ -15,10 +15,8 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
     [UsedImplicitly]
     public sealed class TimeSpaceTimedOutHandler(IDignityService dignityService)
     {
-        private const short TimeoutDignity = 50;
-
         [UsedImplicitly]
         public Task Handle(ScriptedInstanceTimedOutEvent evt) =>
-            evt.Character.LoseDignityAsync(dignityService, TimeoutDignity);
+            evt.Character.LoseDignityAsync(dignityService, dignityService.GetDignityLoss(evt.Character.Level));
     }
 }

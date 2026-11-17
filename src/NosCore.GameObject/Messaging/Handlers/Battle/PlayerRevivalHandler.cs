@@ -7,6 +7,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Algorithm.DignityService;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -47,11 +48,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     public sealed class PlayerRevivalHandler(ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IScriptedInstanceService scriptedInstanceService,
         ILandOfDeathService landOfDeathService, IFactionWarService factionWarService, IQuestService questService,
-        IRainbowBattleService rainbowBattleService)
+        IRainbowBattleService rainbowBattleService, IDignityService dignityService)
     {
-        // Canonical NosTale fork default for dignity penalty on death.
-        private const short DignityLossPerDeath = 50;
-        private const short DignityFloor = -1000;
 
         [UsedImplicitly]
         public async Task Handle(EntityDiedEvent evt)
@@ -119,7 +117,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             }
             else
             {
-                player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
+                await player.LoseDignityAsync(dignityService, dignityService.GetDignityLoss(player.Level));
             }
 
             if (evt.Killer is PlayerComponentBundle killer && killer.CharacterId != player.CharacterId

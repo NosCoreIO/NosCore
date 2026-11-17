@@ -21,9 +21,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IDignityService dignityService)
         : IInstanceExitService, ISingletonService
     {
-        // Giving up a time-space that has already started costs dignity.
-        private const short GiveUpDignity = 20;
-
         public async Task LeaveAsync(ClientSession session)
         {
             var run = scriptedInstanceService.GetRun(session.Character.MapInstance.MapInstanceId);
@@ -49,7 +46,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 });
                 if (gaveUp)
                 {
-                    await session.Character.LoseDignityAsync(dignityService, GiveUpDignity);
+                    await session.Character.LoseDignityAsync(dignityService, dignityService.GetDignityLoss(session.Character.Level));
                 }
             }
 

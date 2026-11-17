@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.FactionWarService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -66,6 +67,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         {
             await new Spec("Falling in Glacernon to anything but a player costs dignity as anywhere else")
                 .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(CharacterLevelIs_, (byte)70)
                 .And(TheCharacterIsInGlacernon)
                 .WhenAsync(PlayerDiesWithoutKiller)
                 .Then(DignityShouldBe_, (short)-50)
@@ -152,14 +154,27 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         }
 
         [TestMethod]
-        public async Task PlayerDeathZeroesHpMpAndDecrementsDignityBy50()
+        public async Task PlayerDeathZeroesHpMpAndCostsItsLevelInDignity()
         {
-            await new Spec("Player death sets HP/MP=0 and applies the -50 dignity penalty")
+            await new Spec("Player death sets HP/MP=0 and costs as much dignity as the character's level")
                 .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(CharacterLevelIs_, (byte)8)
                 .WhenAsync(PlayerDiesWithoutKiller)
                 .Then(HpShouldBe_, 0)
                 .And(MpShouldBe_, 0)
-                .And(DignityShouldBe_, (short)-50)
+                .And(DignityShouldBe_, (short)-8)
+                .And(ThePlayerShouldBeToldTheDignityChangedBy_, -8)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DeathCostsAtMostFiftyDignity()
+        {
+            await new Spec("A character above level 50 loses 50 dignity on death")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(CharacterLevelIs_, (byte)70)
+                .WhenAsync(PlayerDiesWithoutKiller)
+                .Then(DignityShouldBe_, (short)-50)
                 .ExecuteAsync();
         }
 
@@ -168,6 +183,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         {
             await new Spec("Dignity never drops below -1000 on repeated deaths")
                 .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)-980)
+                .And(CharacterLevelIs_, (byte)70)
                 .WhenAsync(PlayerDiesWithoutKiller)
                 .Then(DignityShouldBe_, (short)-1000)
                 .ExecuteAsync();
@@ -311,6 +327,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         private void MpShouldBe_(int expected) => Assert.AreEqual(expected, _session.Character.Mp);
 
         private void DignityShouldBe_(short expected) => Assert.AreEqual(expected, _session.Character.Dignity);
+
+        private void ThePlayerShouldBeToldTheDignityChangedBy_(int change)
+        {
+            var say = _session.LastPackets.OfType<SayiPacket>().Single(packet => packet.Message == Game18NConstString.DignityReduced);
+            Assert.AreEqual(change, Convert.ToInt32(say.Game18NArguments.Single()));
+        }
 
         private void DialogQuestionShouldBe_(Game18NConstString expected)
         {

@@ -104,12 +104,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public async Task LeavingAStartedRunCostsDignityAndALife()
         {
-            await new Spec("Giving up a started time-space costs 20 dignity and one of the party's lives")
+            await new Spec("Giving up a started time-space costs the player's level in dignity and one of the party's lives")
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .And(ThePlayerIsLevel_, (byte)12)
                 .AndAsync(TheRunHasStarted)
                 .WhenAsync(ThePlayerLeaves)
-                .Then(ThePlayerShouldHave_Dignity, (short)-20)
-                .And(ThePlayerShouldBeToldTheDignityLost)
+                .Then(ThePlayerShouldHave_Dignity, (short)-12)
+                .And(ThePlayerShouldBeToldTheDignityChangedBy_, -12)
                 .And(TheRunShouldStillBeGoing)
                 .And(ThePlayerShouldBeSentBack)
                 .ExecuteAsync();
@@ -156,6 +157,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await new Spec("Giving up never takes dignity below the lowest band's floor")
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
                 .And(ThePlayerHas_Dignity, (short)-995)
+                .And(ThePlayerIsLevel_, (byte)70)
                 .AndAsync(TheRunHasStarted)
                 .WhenAsync(ThePlayerLeaves)
                 .Then(ThePlayerShouldHave_Dignity, (short)-1000)
@@ -189,13 +191,25 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
-        public async Task RunningOutOfTimeCostsFiftyDignity()
+        public async Task RunningOutOfTimeCostsTheLevelInDignity()
         {
-            await new Spec("A player whose time-space ran out of time loses 50 dignity and is told so")
+            await new Spec("A player whose time-space ran out of time loses their level in dignity and is told so")
                 .Given(ThePlayerHas_Dignity, (short)100)
+                .And(ThePlayerIsLevel_, (byte)3)
+                .WhenAsync(TheTimeoutIsCharged)
+                .Then(ThePlayerShouldHave_Dignity, (short)97)
+                .And(ThePlayerShouldBeToldTheDignityChangedBy_, -3)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RunningOutOfTimeCostsAtMostFiftyDignity()
+        {
+            await new Spec("A player above level 50 whose time-space ran out of time loses 50 dignity")
+                .Given(ThePlayerHas_Dignity, (short)100)
+                .And(ThePlayerIsLevel_, (byte)70)
                 .WhenAsync(TheTimeoutIsCharged)
                 .Then(ThePlayerShouldHave_Dignity, (short)50)
-                .And(ThePlayerShouldBeToldTheDignityLost)
                 .ExecuteAsync();
         }
 
@@ -233,6 +247,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private void ThePlayerHas_Dignity(short dignity)
         {
             _session.Character.Dignity = dignity;
+        }
+
+        private void ThePlayerIsLevel_(byte level)
+        {
+            _session.Character.Level = level;
         }
 
         private async Task ThePlayerDies()
@@ -332,9 +351,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(dignity, _session.Character.Dignity);
         }
 
-        private void ThePlayerShouldBeToldTheDignityLost()
+        private void ThePlayerShouldBeToldTheDignityChangedBy_(int change)
         {
-            Assert.IsTrue(_session.LastPackets.OfType<SayiPacket>().Any(packet => packet.Message == Game18NConstString.DignityReduced));
+            var say = _session.LastPackets.OfType<SayiPacket>().Single(packet => packet.Message == Game18NConstString.DignityReduced);
+            Assert.AreEqual(change, Convert.ToInt32(say.Game18NArguments.Single()));
         }
 
         private void ThePlayerShouldBeSentBack()

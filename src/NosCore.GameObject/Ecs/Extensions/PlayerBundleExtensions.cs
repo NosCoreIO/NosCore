@@ -404,7 +404,6 @@ public static class PlayerBundleExtensions
         }
 
         player.Dignity -= lost;
-        await player.SendPacketAsync(player.GenerateFd());
         await player.SendPacketAsync(new SayiPacket
         {
             VisualType = VisualType.Player,
@@ -412,8 +411,9 @@ public static class PlayerBundleExtensions
             Type = SayColorType.Red,
             Message = Game18NConstString.DignityReduced,
             ArgumentType = 4,
-            Game18NArguments = { lost }
+            Game18NArguments = { -lost }
         });
+        await player.SendPacketAsync(player.GenerateFd());
     }
 
     // The right-click info card for a player: class, level, family, worn gear, faction and PvP stats.

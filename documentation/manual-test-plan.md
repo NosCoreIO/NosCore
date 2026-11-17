@@ -1309,13 +1309,21 @@ Two clients, A and B.
 
 The maximum comes from the parser, so re-run it on an existing database first.
 
-- [ ] Die a few times so dignity drops below 0 (each death costs 50)
+- [ ] Die a few times so dignity drops below 0 (each death costs the character's level, at most 50)
 - [ ] `$CreateItem 2156` and use it: the reputation window shows dignity 100 higher, a green
       "Dignity increased: +100" line appears in chat, and the item is gone
 - [ ] `$CreateItem 2168` and use it: dignity lands on 100, and the chat line names only the
       points actually added
 - [ ] Use another one at 100: "Dignity is at maximum." pops up and the item stays
 - [ ] Relog — the restored dignity is still there
+
+### Dignity lost on death
+
+- [ ] At level 8, die to a monster outside an arena or Glacernon: the chat says
+      "Dignity reduced: -8" and the reputation window shows dignity 8 lower
+- [ ] At level 70, die the same way: the chat says "Dignity reduced: -50"
+- [ ] At -990 dignity, die at level 70: dignity stops at -1000 and the chat says
+      "Dignity reduced: -10"
 
 ### Compliments
 
@@ -2860,7 +2868,7 @@ dropping their `MaxHp` makes the run quick.
 - [ ] About ten seconds later you are back beside the stone on the open world, and the clock
       is gone
 - [ ] Let the clock run out instead: the score says "Failed because time ran out.", the chat
-      says "Dignity reduced: 50", and you stay in the room for two minutes before being sent
+      says "Dignity reduced: -N" where N is your level up to 50, and you stay in the room for two minutes before being sent
       back to the stone
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
       from, not in a room, and the world log shows the run's rooms being removed and no
@@ -2992,8 +3000,8 @@ character so they kill you.
 - [ ] With `.WithLives(0)`, the first death ends the run the same way
 - [ ] Let the clock run out instead: the score window says "Failed because time ran out."
 - [ ] Not verifiable yet: giving up a started run. The client has no button that sends `escape`
-      inside a time-space (see above), so drive it from a headless player: they lose 20 dignity
-      (never below -1000), the client says dignity was reduced, the party loses a life, and a
+      inside a time-space (see above), so drive it from a headless player: they lose their level in
+      dignity, at most 50 (never below -1000), the client says dignity was reduced, the party loses a life, and a
       party with no life left fails the run. Leaving before the run starts or after it ends
       costs nothing
 - [ ] Not verifiable yet: the lives counter on the time-space HUD. The packet that draws it
