@@ -44,17 +44,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
         {
+            var participants = Participants(run);
             if (state == EndStateType.Timeout)
             {
                 // A run that ran out of time scores nothing.
                 await run.BroadcastAsync(new ScorePacket { EndState = state });
-                var timedOut = Participants(run);
-                foreach (var character in timedOut)
+                foreach (var character in participants)
                 {
                     await gameEvents.RaiseAsync(new ScriptedInstanceTimedOutEvent(character));
                 }
 
-                await RaiseFailedAsync(timedOut);
+                await RaiseFailedAsync(participants);
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             if (state != EndStateType.Success)
             {
-                await RaiseFailedAsync(Participants(run));
+                await RaiseFailedAsync(participants);
                 return;
             }
 
