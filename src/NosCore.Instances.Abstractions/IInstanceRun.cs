@@ -78,6 +78,9 @@ namespace NosCore.Instances.Abstractions
 
         void UnlockPortal(int fromRoom, int toRoom);
 
+        // An unlock takes effect once the current trigger returns, so it does not show here before then.
+        bool IsPortalOpen(int fromRoom, int toRoom);
+
         // The way out of the instance; walking onto it once it is open calls OnExitReached.
         void SpawnExit(int room, Spot at, bool locked = true);
 

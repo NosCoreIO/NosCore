@@ -698,6 +698,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public bool IsPortalOpen(int fromRoom, int toRoom)
+        {
+            var to = _rooms[toRoom].MapInstanceId;
+            return _rooms[fromRoom].Portals.Any(s => s.DestinationMapInstanceId == to && s.Type == PortalType.Open);
+        }
+
         public void SpawnExit(int room, Spot at, bool locked = true)
         {
             var mapInstance = _rooms[room];
@@ -1202,6 +1208,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 Do(() => run.SpawnPortal(fromRoom, at, toRoom, arrival, locked));
 
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
+
+            public bool IsPortalOpen(int fromRoom, int toRoom) => run.IsPortalOpen(fromRoom, toRoom);
 
             public void SpawnExit(int room, Spot at, bool locked = true) => Do(() => run.SpawnExit(room, at, locked));
 

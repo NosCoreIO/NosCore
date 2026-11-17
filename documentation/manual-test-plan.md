@@ -2803,6 +2803,27 @@ where its user stands, with no panel. Gate 1, Gate 2 and Gate 3 (vnums 1184-1186
 - [ ] Not verifiable yet: the other effect 140 items (partner and specialist time-space stones,
       Tombstone Gate and so on) have no script yet, so they say the time-space does not exist
 
+### Powerless Dust King time-spaces
+
+`timespace-519`, `-520` and `-521` are the three time-spaces of the level 36 Soulstone quests
+(2008, 2010 and 2012). Nothing places their stone yet, so add a test stone as described under
+time-space entrances with `Script` set to the one to test, and use a level 36+ character.
+Rooms below are named by their minimap position from the first room, x to the east and y
+negative going north.
+
+- [ ] 519: killing the Morningstar Boing in (-1,-3) opens the door from (0,-2) to (-1,-2)
+- [ ] 519: the door from (0,-6) to (0,-7) stays shut until (-1,-2) and (1,-5) are cleared and
+      the lever in (-1,-5) is pulled, in any order
+- [ ] 519: killing the Imp in (0,-7) wins the run even with other monsters alive
+- [ ] 520: the door from (0,-3) to (0,-4) opens once the sculpture in (-2,-1) is moved and the
+      120 s in (2,-1) is survived, in either order
+- [ ] 520: (-1,-5) is empty until the Strong Devil Vampie in (-1,-6) dies, then fills with
+      monsters; clearing them opens its door back to (-1,-4)
+- [ ] 520: the door from (0,-4) to (0,-5) opens after the sculpture in (1,-6) is moved; killing
+      the Large Imp in (0,-5) wins the run
+- [ ] 521: killing the Powerless Dust King in (1,-8) wins the run
+- [ ] Not verifiable yet: entering from the quest's own stone, which nothing places yet
+
 ### Escorts in a time-space
 
 A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`; Guards in
