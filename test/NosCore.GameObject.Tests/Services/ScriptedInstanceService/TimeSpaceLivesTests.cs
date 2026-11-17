@@ -67,10 +67,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public async Task ADeathWithALifeLeftRevivesThePlayer()
         {
-            await new Spec("A death while the party has a life left uses it, and the player stands up in the run")
-                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+            await new Spec("A death while the party has another life uses one, and the player stands up in the run")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .WhenAsync(ThePlayerDies)
-                .Then(ThePlayerShouldBeTold_RevivesAreLeft, 0)
+                .Then(ThePlayerShouldBeTold_RevivesAreLeft, 1)
                 .And(TheRunShouldStillBeGoing)
                 .AndAsync(TenSecondsPass)
                 .Then(ThePlayerShouldBeAlive)
@@ -80,8 +80,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public async Task ADeathWithNoLifeLeftFailsTheRun()
         {
-            await new Spec("A death once the party's lives are used up fails the run")
-                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+            await new Spec("The death that uses the party's last life fails the run")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .AndAsync(ThePlayerDies)
                 .AndAsync(TenSecondsPass)
                 .WhenAsync(ThePlayerDies)
@@ -90,10 +90,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ATimeSpaceWithOneLifeFailsOnTheFirstDeath()
+        {
+            await new Spec("A time-space with a single life has nothing to revive with, so the first death fails it")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .WhenAsync(ThePlayerDies)
+                .Then(TheRunShouldHaveRunOutOfLives)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ThePartySharesItsLives()
         {
-            await new Spec("Lives belong to the party, so a second player's death after the first used the life fails the run")
-                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+            await new Spec("Lives belong to the party, so a second player's death after the first used the spare life fails the run")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .AndAsync(ThePlayerDies)
                 .AndAsync(TenSecondsPass)
                 .WhenAsync(AnotherPlayerInTheRunDies)
@@ -105,7 +115,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task LeavingAStartedRunCostsDignityAndALife()
         {
             await new Spec("Giving up a started time-space costs the player's level in dignity and one of the party's lives")
-                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .And(ThePlayerIsLevel_, (byte)12)
                 .AndAsync(TheRunHasStarted)
                 .WhenAsync(ThePlayerLeaves)

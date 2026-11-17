@@ -2951,7 +2951,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-14`, the lever of the room east of the 4105 crossroads (map 4107) stands at
       (16,12), (19,15) or (22,23), and over a few runs it shows up in more than one of them
 - [ ] Dying in a time-space (`$Kill` works) shows "You can be revived 2 more time(s)." in `timespace-14`
-      and brings the character back 10 seconds later; the run fails only once its lives are spent
+      and brings the character back 10 seconds later; the third death fails the run
 - [ ] In `timespace-21`, walking onto the exit before beating Tom shows "You still have an incomplete
       mission."; after beating him the same exit gives Mission Clear
 - [ ] In `timespace-18`, the room with the locked exit shows a red one-minute clock and "The enemies are
@@ -3018,14 +3018,15 @@ lair's boss.
 ### Time-space lives
 
 Copy `timespace-sample.csx` to `timespace-lives.csx`, point the row's `Script` at it, and add
-`.WithLives(1)` to its definition. Leave the monsters' damage as it is and enter with a low HP
+`.WithLives(2)` to its definition. Leave the monsters' damage as it is and enter with a low HP
 character so they kill you.
 
-- [ ] The first death shows "Will be revived in 10 seconds." and you lie on the ground
+- [ ] The first death shows "You can be revived 1 more time(s)." and "Will be revived in 10 seconds."
+      and you lie on the ground
 - [ ] Ten seconds later you stand up where you fell, at full HP and MP, still inside the run
 - [ ] The second death ends the run: the score window says "Failed because all vitality was
       consumed." and you are sent back beside the stone
-- [ ] With `.WithLives(0)`, the first death ends the run the same way
+- [ ] With `.WithLives(1)`, the first death ends the run the same way
 - [ ] Let the clock run out instead: the score window says "Failed because time ran out."
 - [ ] Not verifiable yet: giving up a started run. The client has no button that sends `escape`
       inside a time-space (see above), so drive it from a headless player: they lose their level in

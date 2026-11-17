@@ -119,11 +119,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             await mapChangeService.Value.ChangeMapAsync(session, entrance.MapId, entrance.PositionX, entrance.PositionY);
         }
 
-        // Lives are shared by the whole run. False once the party is out of them, which fails the run.
+        // Lives are shared by the whole run, and the death that uses the last one fails it. False then.
         public bool LoseLife(ScriptedInstanceRun run)
         {
             _livesLost++;
-            if (_livesLost <= (entrance.Definition?.Lives ?? 0))
+            if (_livesLost < (entrance.Definition?.Lives ?? 0))
             {
                 return true;
             }
