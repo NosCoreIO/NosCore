@@ -114,6 +114,7 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             partner.SpecialistMorph = specialist.Item.Morph;
+            partner.SpecialistName = specialist.Item.PartnerSpecialistName;
             entity.Morph = partner.Morph();
             await RefreshAsync(owner, partner, entity);
             await SendAsync(owner, entity.GenerateEff(TransformEffect));
@@ -127,6 +128,7 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             partner.SpecialistMorph = null;
+            partner.SpecialistName = 0;
             partner.SpecialistCooldownEndsAt = clock.GetCurrentInstant() + Duration.FromSeconds(CooldownSeconds);
             await owner.SendPacketAsync(new DpskiPacket());
             if (partner.Entity is { } entity)

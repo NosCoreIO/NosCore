@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 {
                     Type = NoscorePocketType.Equipment, VNum = PartnerSpecialist, ItemType = ItemType.Specialist,
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, Morph = SpecialistMorph,
-                    PartnerSkillSet = SkillSet
+                    PartnerSkillSet = SkillSet, PartnerSpecialistName = Game18NConstString.Foxy
                 },
                 new Item
                 {
@@ -136,6 +136,31 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Wear)
                 .Then(ThePartnerShouldLookLike_, SpecialistMorph)
                 .And(TheTransformationEffectShouldPlay)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATransformedPartnerShowsItsCardsName()
+        {
+            await new Spec("A transformed partner carries its card's name as its title, for onlookers and in sc_n")
+                .GivenAsync(APartnerIsOut)
+                .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
+                .AndAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
+                .And(_MillisecondsPass, 5000)
+                .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Wear)
+                .Then(ThePartnerShouldBeNamed_, Game18NConstString.Foxy)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TurningBackDropsTheCardsName()
+        {
+            await new Spec("A partner turned back no longer carries its card's name")
+                .GivenAsync(APartnerIsOut)
+                .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
+                .AndAsync(ThePartnerIsTransformed)
+                .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
+                .Then(ThePartnerShouldBeNamed_, (Game18NConstString)0)
                 .ExecuteAsync();
         }
 
@@ -321,6 +346,12 @@ namespace NosCore.PacketHandlers.Tests.Mates
             Assert.AreEqual(morph, cMode.Morph);
             Assert.AreEqual(morph, Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket.NotNull().Morph);
             Assert.AreEqual(morph, _session.LastPackets.OfType<ScnPacket>().Last().MorphId);
+        }
+
+        private void ThePartnerShouldBeNamed_(Game18NConstString name)
+        {
+            Assert.AreEqual(name, Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket.NotNull().Title);
+            Assert.AreEqual(name, _session.LastPackets.OfType<ScnPacket>().Last().SpecialistName);
         }
 
         private void TheSkillBarShouldHold_(short[] skills)

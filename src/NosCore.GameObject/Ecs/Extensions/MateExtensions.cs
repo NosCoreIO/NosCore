@@ -167,7 +167,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Skill1Details = specialist?.PartnerSkillDetails(cardSkills, 0),
                 Skill2Details = specialist?.PartnerSkillDetails(cardSkills, 1),
                 Skill3Details = specialist?.PartnerSkillDetails(cardSkills, 2),
-                Unknown6 = specialist is null ? null : (byte)0
+                Unknown6 = specialist is null ? null : (byte)0,
+                SpecialistName = mate.SpecialistName
             };
         }
 
@@ -197,6 +198,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                     IsSitting = false,
                     Morph = mate.Morph(),
                     Name = mate.DisplayName(language),
+                    Title = mate.SpecialistName,
                     // The client fires a pet's skill bar only when it is marked.
                     MateType = mate.MateType == MateType.Partner ? MateVisualType.Partner : MateVisualType.Pet,
                     Skill1 = SkillAt(skills, 0),

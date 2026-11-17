@@ -7,6 +7,7 @@
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.MateService
 {
@@ -26,6 +27,9 @@ namespace NosCore.GameObject.Services.MateService
         /// on the entity, which is rebuilt on every map change.
         /// </summary>
         public short? SpecialistMorph { get; set; }
+
+        /// <summary>The worn card's name, shown above the partner while it is transformed.</summary>
+        public Game18NConstString SpecialistName { get; set; }
 
         public Instant SpecialistCooldownEndsAt { get; set; }
 

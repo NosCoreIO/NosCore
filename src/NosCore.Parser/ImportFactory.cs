@@ -25,7 +25,7 @@ namespace NosCore.Parser
         MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
         MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
         PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
-        ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, MountScrollParser mountScrollParser, NpcExchangeParser npcExchangeParser, SpeedBoostParser speedBoostParser, MountMapSpeedParser mountMapSpeedParser, ItemSummonParser itemSummonParser, ShopParser shopParser, ShopTypeServiceParser shopTypeServiceParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
+        ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, MountScrollParser mountScrollParser, NpcExchangeParser npcExchangeParser, SpeedBoostParser speedBoostParser, PartnerSpecialistNameParser partnerSpecialistNameParser, MountMapSpeedParser mountMapSpeedParser, ItemSummonParser itemSummonParser, ShopParser shopParser, ShopTypeServiceParser shopTypeServiceParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
         QuestPrizeParser questPrizeParser, QuestParser questParser, FamilyQuestParser familyQuestParser, ActParser actParser, ScriptParser scriptParser, ScriptOfferParser scriptOfferParser, ChatterLineParser chatterLineParser,
         ConstStringParser constStringParser, ScriptedInstanceParser scriptedInstanceParser, InstantCombatParser instantCombatParser,
         AccountParser accountParser, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
@@ -188,6 +188,7 @@ namespace NosCore.Parser
             await mountScrollParser.InsertMountScrollsAsync();
             await npcExchangeParser.InsertNpcExchangesAsync();
             await speedBoostParser.InsertSpeedBoostsAsync();
+            await partnerSpecialistNameParser.InsertPartnerSpecialistNamesAsync();
             await mountMapSpeedParser.InsertMountMapSpeedsAsync();
         }
 

@@ -259,6 +259,9 @@ namespace NosCore.Database.Entities
 
         public byte SpType { get; set; }
 
+        // The name shown above a partner transformed with this card; 0 for none.
+        public Game18NConstString PartnerSpecialistName { get; set; }
+
         public NoscorePocketType Type { get; set; }
 
         [Key]

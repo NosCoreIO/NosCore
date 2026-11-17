@@ -675,6 +675,9 @@
   <data name="SPEED_BOOSTERS_PARSED" xml:space="preserve">
     <value>{Mounts} mounts get their Speed Booster effect</value>
   </data>
+  <data name="PARTNER_SPECIALIST_NAMES_PARSED" xml:space="preserve">
+    <value>{Cards} partner specialist cards get the name shown while transformed</value>
+  </data>
   <data name="MOUNT_SCROLLS_PARSED" xml:space="preserve">
     <value>{Scrolls} mount scrolls draw from {Rolls} mounts</value>
   </data>
