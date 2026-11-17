@@ -74,6 +74,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly HashSet<long> _showingObjective = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
+        private readonly Dictionary<long, (int Room, int Dialog)> _openDialogs = [];
+        private readonly HashSet<(int Room, int Dialog)> _closedDialogs = [];
+        private readonly Dictionary<int, int> _roomDialogs = [];
         private readonly Dictionary<(ObjectiveKind Kind, short VNum), int> _objectiveProgress = [];
 
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
@@ -321,6 +324,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     else if (_showingObjective.Contains(session.Character.CharacterId))
                     {
                         _pending.Add(() => HideObjectiveAsync(session));
+                    }
+
+                    // A talk nobody has closed yet is shown again, so a room waiting on it is not stuck.
+                    if (_roomDialogs.TryGetValue(current, out var dialog))
+                    {
+                        var player = session.Character;
+                        _pending.Add(() => _openDialogs.GetValueOrDefault(player.CharacterId) == (current, dialog)
+                            ? Task.CompletedTask
+                            : ShowDialogAsync(player, current, dialog));
                     }
                 }
 
@@ -804,6 +816,25 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public Task DialogClosedAsync(long characterId)
+        {
+            return RunAsync(async () =>
+            {
+                if (EndState != null || _abandoned || !_openDialogs.Remove(characterId, out var closed)
+                    || !_closedDialogs.Add(closed))
+                {
+                    return;
+                }
+
+                if (_roomDialogs.TryGetValue(closed.Room, out var shown) && shown == closed.Dialog)
+                {
+                    _roomDialogs.Remove(closed.Room);
+                }
+
+                await CallScriptAsync(run => _script.OnDialogClosed(run, closed.Room, closed.Dialog));
+            });
+        }
+
         public Task UseButtonAsync(Guid mapInstanceId, int button, long userId)
         {
             return RunAsync(async () =>
@@ -896,17 +927,28 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public void Dialog(int room, int dialog)
         {
             var mapInstance = _rooms[room];
+            if (!_closedDialogs.Contains((room, dialog)))
+            {
+                _roomDialogs[room] = dialog;
+            }
+
             _pending.Add(async () =>
             {
                 foreach (var player in PlayersOf(mapInstance).ToList())
                 {
-                    await player.SendPacketAsync(new NpcReqPacket
-                    {
-                        Type = VisualType.Player,
-                        TargetId = player.CharacterId,
-                        Data = dialog
-                    });
+                    await ShowDialogAsync(player, room, dialog);
                 }
+            });
+        }
+
+        private Task ShowDialogAsync(PlayerComponentBundle player, int room, int dialog)
+        {
+            _openDialogs[player.CharacterId] = (room, dialog);
+            return player.SendPacketAsync(new NpcReqPacket
+            {
+                Type = VisualType.Player,
+                TargetId = player.CharacterId,
+                Data = dialog
             });
         }
 

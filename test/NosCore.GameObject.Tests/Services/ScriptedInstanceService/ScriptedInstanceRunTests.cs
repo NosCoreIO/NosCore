@@ -78,6 +78,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 Exit?.Invoke(run, room);
             }
 
+            public override void OnDialogClosed(IInstanceRun run, int room, int dialog) =>
+                Calls.Add($"closed({room},{dialog})");
+
             public override void OnTimeout(IInstanceRun run)
             {
                 Calls.Add("timeout");
@@ -644,6 +647,105 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             session.Character.MapInstance = room;
             World.SessionRegistry.UpdateCharacter(session.Channel?.Id ?? string.Empty, session.Character.CharacterId, room.MapInstanceId);
+        }
+
+        [TestMethod]
+        public async Task ClosingADialogOfTheRunTellsTheScriptAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var script = new Script { Enter = r => r.Dialog(1, 6024) };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.DialogClosedAsync(session.Character.CharacterId);
+
+            CollectionAssert.Contains(script.Calls, "closed(1,6024)");
+        }
+
+        [TestMethod]
+        public async Task ClosingADialogTheRunNeverOpenedTellsTheScriptNothingAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var script = new Script();
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.DialogClosedAsync(session.Character.CharacterId);
+
+            Assert.IsFalse(script.Calls.Any(c => c.StartsWith("closed", StringComparison.Ordinal)));
+        }
+
+        [TestMethod]
+        public async Task ATalkNobodyClosedIsShownToALaterEntrantAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(1, 6024) });
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            var later = await PlayerInRoomAsync(_second);
+            later.LastPackets.Clear();
+
+            Move(later, _first);
+            await run.EnteredAsync(later, _first.MapInstanceId);
+
+            PacketAssert.AreEqual(new NpcReqPacket { Type = VisualType.Player, TargetId = later.Character.CharacterId, Data = 6024 },
+                later.LastPackets.OfType<NpcReqPacket>().Single());
+        }
+
+        [TestMethod]
+        public async Task ATalkOpenedInAnEmptyRoomIsShownToItsFirstEntrantAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(2, 6024) });
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            first.LastPackets.Clear();
+
+            Move(first, _second);
+            await run.EnteredAsync(first, _second.MapInstanceId);
+
+            Assert.AreEqual(1, first.LastPackets.OfType<NpcReqPacket>().Count(p => p.Data == 6024));
+        }
+
+        [TestMethod]
+        public async Task ATalkOpenedOnEntryIsShownOnceAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(1, 6024) });
+
+            await run.EnteredAsync(first, _first.MapInstanceId);
+
+            Assert.AreEqual(1, first.LastPackets.OfType<NpcReqPacket>().Count(p => p.Data == 6024));
+        }
+
+        [TestMethod]
+        public async Task AClosedTalkIsNotShownAgainAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(1, 6024) });
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            await run.DialogClosedAsync(first.Character.CharacterId);
+            var later = await PlayerInRoomAsync(_second);
+            later.LastPackets.Clear();
+
+            Move(later, _first);
+            await run.EnteredAsync(later, _first.MapInstanceId);
+
+            Assert.IsFalse(later.LastPackets.OfType<NpcReqPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task ADialogShownToTwoPlayersIsClosedOnceAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var second = await PlayerInFirstRoomAsync();
+            var script = new Script { Enter = r => r.Dialog(1, 6024) };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.DialogClosedAsync(first.Character.CharacterId);
+            await run.DialogClosedAsync(second.Character.CharacterId);
+            await run.DialogClosedAsync(first.Character.CharacterId);
+
+            Assert.AreEqual(1, script.Calls.Count(c => c == "closed(1,6024)"));
         }
 
         [TestMethod]

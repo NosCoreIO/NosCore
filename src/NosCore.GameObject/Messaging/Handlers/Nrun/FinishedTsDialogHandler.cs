@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
@@ -44,15 +45,23 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             TsDialogAdvance.AdvanceAsync(questService, session);
     }
 
+    // Sent when the player closes a dialog a time-space opened.
     [UsedImplicitly]
-    public sealed class FinishedTsDialog2Handler(IQuestService questService) : INrunEventHandler
+    public sealed class FinishedTsDialog2Handler(IQuestService questService, IScriptedInstanceService scriptedInstanceService)
+        : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.FinishedTSDialog2;
 
         public bool RequiresNpc => false;
 
-        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
-            TsDialogAdvance.AdvanceAsync(questService, session);
+        public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
+        {
+            await TsDialogAdvance.AdvanceAsync(questService, session);
+            if (scriptedInstanceService.GetRun(session.Character.MapInstance.MapInstanceId) is { } run)
+            {
+                await run.DialogClosedAsync(session.Character.CharacterId);
+            }
+        }
     }
 
     [UsedImplicitly]

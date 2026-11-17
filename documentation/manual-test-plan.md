@@ -2937,6 +2937,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       portal for the other
 - [ ] In the last room of `timespace-03`, one key opens the exit; the other one leaves it shut and
       brings five monsters one after another, and killing the last of them opens the exit
+- [ ] In `timespace-05`, the last room shows the guards and talk 6024 with no monster in sight;
+      the monsters appear once the talk is closed with End Dialogue
 - [ ] In `timespace-11`, the third room shows a red five-minute clock and brings a wave of
       monsters every 30 seconds; when the clock runs out the monsters leave and both portals open
 - [ ] In `timespace-09` and `timespace-13`, killing the last room's monsters ends the run with
