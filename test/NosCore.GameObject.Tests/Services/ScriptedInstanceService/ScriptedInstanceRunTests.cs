@@ -676,6 +676,38 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ATalkNobodyClosedIsShownToALaterEntrantAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(1, 6024) });
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            var later = await PlayerInRoomAsync(_second);
+            later.LastPackets.Clear();
+
+            Move(later, _first);
+            await run.EnteredAsync(later, _first.MapInstanceId);
+
+            PacketAssert.AreEqual(new NpcReqPacket { Type = VisualType.Player, TargetId = later.Character.CharacterId, Data = 6024 },
+                later.LastPackets.OfType<NpcReqPacket>().Single());
+        }
+
+        [TestMethod]
+        public async Task AClosedTalkIsNotShownAgainAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script { Enter = r => r.Dialog(1, 6024) });
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            await run.DialogClosedAsync(first.Character.CharacterId);
+            var later = await PlayerInRoomAsync(_second);
+            later.LastPackets.Clear();
+
+            Move(later, _first);
+            await run.EnteredAsync(later, _first.MapInstanceId);
+
+            Assert.IsFalse(later.LastPackets.OfType<NpcReqPacket>().Any());
+        }
+
+        [TestMethod]
         public async Task ADialogShownToTwoPlayersIsClosedOnceAsync()
         {
             var first = await PlayerInFirstRoomAsync();
