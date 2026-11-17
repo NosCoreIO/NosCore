@@ -121,7 +121,8 @@ namespace NosCore.Instances.Tests
 
         public bool IsButtonOn(int room, int button) => ButtonsOn.Contains(button) || Used.Contains((room, button));
 
-        public bool IsPortalOpen(int fromRoom, int toRoom) => Unlocked.Contains((fromRoom, toRoom));
+        public bool IsPortalOpen(int fromRoom, int toRoom) =>
+            Unlocked.Contains((fromRoom, toRoom)) || Portals.Any(p => p.From == fromRoom && p.To == toRoom && !p.Locked);
 
         public List<(int Room, int Button)> Buttons { get; } = [];
 
