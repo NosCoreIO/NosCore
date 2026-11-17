@@ -11,6 +11,10 @@ public class TimeSpace8 : InstanceScript
     private readonly int _room9;
     private readonly int _room10;
 
+    // A room is won once its last Small Imp falls, and whatever else is still in it leaves.
+    private const short SmallImp = 72;
+    private static readonly short[] ImpGuards = [55, 63, 98, 129, 130];
+
     public TimeSpace8()
     {
         Definition = InstanceDefinitionBuilder.Named(8, "Nasty Imps", "Nasty Imps")
@@ -50,49 +54,54 @@ public class TimeSpace8 : InstanceScript
             }),
             new MonsterSpawn(130, new(18, 18)),
             new MonsterSpawn(72, new(19, 14), IsBonus: true));
+        r.SetMonsterLocker(_room3, 1, SmallImp);
         r.SpawnPortal(_room4, new(28, 14), _room5, new(1, 15));
         r.SpawnPortal(_room4, new(1, 14), _room3, new(28, 15), locked: false);
         r.Summon(_room4,
-            new MonsterSpawn(55, new(15, 21), OnDeath: r =>
-            {
-                r.Summon(_room4, new MonsterSpawn(55, new(15, 9)));
-            }),
+            new MonsterSpawn(55, new(15, 21)),
             new MonsterSpawn(55, new(13, 9), OnDeath: r =>
             {
                 r.Summon(_room4, new MonsterSpawn(130, new(17, 19)));
             }),
             new MonsterSpawn(55, new(12, 21)),
-            new MonsterSpawn(72, new(15, 14)));
+            new MonsterSpawn(72, new(15, 14), OnDeath: r =>
+            {
+                r.Summon(_room4, new MonsterSpawn(55, new(15, 9)));
+            }));
+        r.SetMonsterLocker(_room4, 1, SmallImp);
         r.SpawnPortal(_room5, new(28, 15), _room6, new(1, 15));
         r.SpawnPortal(_room5, new(14, 28), _room7, new(14, 1));
         r.SpawnPortal(_room5, new(1, 15), _room4, new(28, 14));
         r.Summon(_room5,
-            new MonsterSpawn(98, new(11, 18), OnDeath: r =>
+            new MonsterSpawn(98, new(11, 18)),
+            new MonsterSpawn(72, new(17, 14), IsBonus: true, OnDeath: r =>
             {
                 r.Summon(_room5, new MonsterSpawn(130, new(23, 17), OnDeath: r =>
                 {
                     r.Summon(_room5, new MonsterSpawn(130, new(21, 12)));
                 }));
-            }),
-            new MonsterSpawn(72, new(17, 14), IsBonus: true));
+            }));
+        r.SetMonsterLocker(_room5, 1, SmallImp);
         r.SpawnPortal(_room6, new(1, 15), _room5, new(28, 15), locked: false);
         r.PlaceButton(_room6, 1, new(15, 14), 1000, 1045);
         r.SpawnPortal(_room7, new(14, 1), _room5, new(14, 28));
         r.SpawnPortal(_room7, new(28, 15), _room8, new(1, 15));
         r.Summon(_room7,
-            new MonsterSpawn(63, new(7, 15), IsBonus: true, OnDeath: r =>
+            new MonsterSpawn(63, new(8, 16), IsBonus: true),
+            new MonsterSpawn(72, new(15, 14), OnDeath: r =>
             {
                 r.Summon(_room7, new MonsterSpawn(130, new(17, 18), OnDeath: r =>
                 {
                     r.Summon(_room7, new MonsterSpawn(63, new(20, 9)));
                 }));
-            }),
-            new MonsterSpawn(72, new(15, 14)));
+            }));
+        r.SetMonsterLocker(_room7, 1, SmallImp);
         r.SummonNpcs(_room7, new NpcSpawn(320, new(15, 7)));
         r.SpawnPortal(_room8, new(28, 15), _room9, new(1, 15));
         r.SpawnPortal(_room8, new(1, 15), _room7, new(28, 15));
         r.Summon(_room8,
-            new MonsterSpawn(129, new(15, 21), OnDeath: r =>
+            new MonsterSpawn(129, new(15, 21)),
+            new MonsterSpawn(72, new(19, 15), OnDeath: r =>
             {
                 r.Summon(_room8,
                 new MonsterSpawn(129, new(10, 15), OnDeath: r =>
@@ -101,16 +110,17 @@ public class TimeSpace8 : InstanceScript
                 }),
                 new MonsterSpawn(129, new(16, 8)));
             }),
-            new MonsterSpawn(72, new(19, 15)),
             new MonsterSpawn(72, new(19, 10), IsBonus: true));
+        r.SetMonsterLocker(_room8, 2, SmallImp);
         r.SpawnPortal(_room9, new(28, 14), _room10, new(1, 15), locked: false);
         r.SpawnPortal(_room9, new(1, 15), _room8, new(28, 15));
         r.SpawnExit(_room10, new(28, 15));
         r.SpawnPortal(_room10, new(1, 15), _room9, new(28, 14));
-        r.Summon(_room10, new MonsterSpawn(72, new(15, 10), OnDeath: r =>
+        r.Summon(_room10, new MonsterSpawn(72, new(17, 12), OnDeath: r =>
             {
                 r.Summon(_room10, new MonsterSpawn(72, new(17, 14)));
             }));
+        r.SetMonsterLocker(_room10, 2, SmallImp);
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -154,6 +164,11 @@ public class TimeSpace8 : InstanceScript
 
     public override void OnRoomCleared(IInstanceRun r, int room)
     {
+        foreach (var guard in ImpGuards)
+        {
+            r.Dismiss(room, guard);
+        }
+
         if (room == _room3)
         {
             r.UnlockPortal(_room3, _room4);

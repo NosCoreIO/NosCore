@@ -47,8 +47,14 @@ public class TimeSpace7 : InstanceScript
         r.SpawnPortal(_room3, new(14, 1), _room2, new(14, 28), locked: false);
         r.SpawnPortal(_room3, new(28, 15), _room4, new(1, 14), locked: false);
         r.Summon(_room3,
-            new MonsterSpawn(63, new(8, 14), IsBonus: true),
-            new MonsterSpawn(98, new(7, 16)));
+            new MonsterSpawn(63, new(8, 10), IsBonus: true, OnDeath: r =>
+            {
+                r.Summon(_room3, new MonsterSpawn(63, new(18, 11)));
+            }),
+            new MonsterSpawn(98, new(7, 16), OnDeath: r =>
+            {
+                r.Summon(_room3, new MonsterSpawn(98, new(18, 18)));
+            }));
         r.SpawnPortal(_room4, new(28, 14), _room5, new(1, 15), locked: false);
         r.SpawnPortal(_room4, new(1, 14), _room3, new(28, 15), locked: false);
         r.Summon(_room4,
