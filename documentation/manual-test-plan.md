@@ -2873,6 +2873,8 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Fail the same time-space a second time: the chat says "Mission failed 2 times and can
       be attempted in Loser Mode.", and its stone window now offers Loser Mode. Clear it once and
       the offer is gone
+- [ ] Not verifiable yet: pressing "Loser mode" and what a Loser Mode run changes. The button shows,
+      but pressing it has no effect until a packet trace shows what the client sends
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
       from, not in a room, and the world log shows the run's rooms being removed and no
       failed disconnect step
