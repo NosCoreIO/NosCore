@@ -20,7 +20,7 @@
 | 6 | Parsed | IsDroppable | Boolean | Inverted: dat=0 -> droppable |
 | 7 | Parsed | IsTradable | Boolean | Inverted: dat=0 -> tradable |
 | 8 | Parsed | IsMinilandActionable | Boolean | Miniland-actionable object |
-| 9 | Parsed | IsWarehouse | Boolean | Can be stored in the account warehouse |
+| 9 | Parsed | IsWarehouse | Boolean | Miniland object that works as a warehouse |
 | 10 | Parsed | Flag9 | Boolean | FLAG bit 9 (appears on beads, medals, raid seals) |
 | 11 | Parsed | Flag1 | Boolean | Set on Mysterious Box (1098) only |
 | 12 | Parsed | Flag2 | Boolean | FLAG bit 11 (set on mounts + raid items + partner equipment) |

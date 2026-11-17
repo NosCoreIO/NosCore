@@ -76,7 +76,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Flag2, "FLAG", 0, 12, s => s == "1", "FLAG bit 11 (set on mounts + raid items + partner equipment)")
                 .Field(x => x.Flag1, "FLAG", 0, 11, s => s == "1", "Set on Mysterious Box (1098) only")
                 .Field(x => x.Flag9, "FLAG", 0, 10, s => s == "1", "FLAG bit 9 (appears on beads, medals, raid seals)")
-                .Field(x => x.IsWarehouse, "FLAG", 0, 9, s => s == "1", "Can be stored in the account warehouse")
+                .Field(x => x.IsWarehouse, "FLAG", 0, 9, s => s == "1", "Miniland object that works as a warehouse")
                 .Field(x => x.IsMinilandActionable, "FLAG", 0, 8, s => s == "1", "Miniland-actionable object")
                 .Field(x => x.IsTradable, "FLAG", 0, 7, s => s == "0", "Inverted: dat=0 -> tradable")
                 .Field(x => x.IsDroppable, "FLAG", 0, 6, s => s == "0", "Inverted: dat=0 -> droppable")

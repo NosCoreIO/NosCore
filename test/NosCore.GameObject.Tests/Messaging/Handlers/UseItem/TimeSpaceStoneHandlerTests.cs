@@ -50,8 +50,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private sealed class Script : InstanceScript
         {
+            public readonly int Room;
+
             public Script() =>
-                Definition = InstanceDefinitionBuilder.Named(624, "Gate 1", "Gate 1").Build();
+                Definition = InstanceDefinitionBuilder.Named(624, "Gate 1", "Gate 1")
+                    .StartingAt(12, 8)
+                    .WithRoom(4201, out Room)
+                    .Build();
         }
 
         [TestInitialize]
@@ -82,6 +87,25 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual((short)12, _opened.PositionX);
             Assert.AreEqual((short)8, _opened.PositionY);
             Assert.AreEqual(GateVNum, _opened.StoneVNum);
+            Assert.AreEqual(1, GatesLeft());
+        }
+
+        [TestMethod]
+        public async Task AGateMovesThePlayerIntoTheFirstRoomAndIsKeptUntilTheEnd()
+        {
+            var script = new Script();
+            var standingOn = _session.Character.MapInstance;
+            var run = StartRunFromGate(script);
+            _session.Character.MapInstance = standingOn;
+            _instances.Setup(s => s.LoadAsync(It.IsAny<ScriptedInstance>()))
+                .Callback<ScriptedInstance>(entrance => entrance.Logic = script)
+                .ReturnsAsync(true);
+            _instances.Setup(s => s.InstantiateAsync(It.IsAny<ScriptedInstance>())).ReturnsAsync(run);
+            var mapChange = World.Freeze<Mock<IMapChangeService>>();
+
+            await UseAsync();
+
+            mapChange.Verify(m => m.ChangeMapInstanceAsync(_session, run.Rooms[script.Room], 12, 8), Times.Once);
             Assert.AreEqual(1, GatesLeft());
         }
 
@@ -118,7 +142,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task WinningTheTimeSpaceUsesUpTheGate()
         {
-            var run = StartRunFromGate();
+            var run = StartRunFromGate(new Script());
 
             run.Succeed();
             await run.TickAsync();
@@ -129,7 +153,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task FailingTheTimeSpaceKeepsTheGate()
         {
-            var run = StartRunFromGate();
+            var run = StartRunFromGate(new Script());
 
             run.Fail();
             await run.TickAsync();
@@ -137,7 +161,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(1, GatesLeft());
         }
 
-        private ScriptedInstanceRun StartRunFromGate()
+        private ScriptedInstanceRun StartRunFromGate(Script script)
         {
             var room = World.MapInstanceGeneratorService.CreateMapInstance(
                 new GameObject.Map.Map
@@ -147,13 +171,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
             room.Sessions = new Mock<ISessionGroup>().Object;
-            var script = new Script();
             var run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new ScriptedInstance { MapId = 1, Logic = script, StoneVNum = GateVNum },
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
                 script,
-                new Dictionary<int, MapInstance> { [1] = room },
+                new Dictionary<int, MapInstance> { [script.Room] = room },
                 new Dictionary<short, NpcMonsterDto>(),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<ItemThrowService>(), NullLogger.Instance,
