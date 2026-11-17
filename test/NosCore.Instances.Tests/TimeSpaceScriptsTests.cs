@@ -101,8 +101,9 @@ namespace NosCore.Instances.Tests
                 var summoned = run.Summoned.Count;
                 script.OnRoomEntered(run, room);
                 script.OnRoomCleared(run, room);
-                for (var button = 1; button <= 9; button++)
+                foreach (var (_, button) in run.Buttons.Where(b => b.Room == room).ToList())
                 {
+                    run.Used.Add((room, button));
                     script.OnButtonUsed(run, room, button);
                 }
 

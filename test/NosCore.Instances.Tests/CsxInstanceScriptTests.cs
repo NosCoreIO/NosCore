@@ -117,10 +117,19 @@ namespace NosCore.Instances.Tests
 
         public HashSet<int> ButtonsOn { get; } = [];
 
-        public bool IsButtonOn(int room, int button) => ButtonsOn.Contains(button);
+        public HashSet<(int Room, int Button)> Used { get; } = [];
 
-        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever) =>
+        public bool IsButtonOn(int room, int button) => ButtonsOn.Contains(button) || Used.Contains((room, button));
+
+        public bool IsPortalOpen(int fromRoom, int toRoom) => Unlocked.Contains((fromRoom, toRoom));
+
+        public List<(int Room, int Button)> Buttons { get; } = [];
+
+        public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever)
+        {
+            Buttons.Add((room, button));
             Calls.Add($"button({room},{button},{at.X},{at.Y},{offVNum},{onVNum},{toggles})");
+        }
 
         public void RemoveButton(int room, int button) => Calls.Add($"removebutton({room},{button})");
 
