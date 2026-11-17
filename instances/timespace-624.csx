@@ -20,7 +20,6 @@ public class TimeSpace624 : InstanceScript
 
     public override void OnFirstEnter(IInstanceRun r)
     {
-        r.StartClock(TimeSpan.FromSeconds(200));
         r.SpawnPortal(_room1, new(14, 1), _room2, new(14, 28), locked: false);
         r.SpawnPortal(_room2, new(14, 1), _room3, new(14, 28));
         r.SpawnPortal(_room2, new(14, 28), _room1, new(14, 1));
@@ -76,6 +75,10 @@ public class TimeSpace624 : InstanceScript
         if (room == _room1)
         {
             r.Message(Game18NConstString.MissionStartWhenEnterFirstRoom);
+        }
+        else if (room == _room2)
+        {
+            r.StartClock(TimeSpan.FromSeconds(200));
         }
     }
 

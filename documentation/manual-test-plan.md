@@ -2791,7 +2791,8 @@ where its user stands, with no panel. Gate 1, Gate 2 and Gate 3 (vnums 1184-1186
 `timespace-624`, `-625` and `-626`, the Jerico gates. Give a level 30+ character one with
 `$CreateItem 1184` on a normal map.
 
-- [ ] Double-clicking Gate 1 moves you straight into the first room; the clock starts at 3:20
+- [ ] Double-clicking Gate 1 moves you straight into the lobby; the clock only starts, at 3:20,
+      when you step through its portal into the first room
 - [ ] Each room has Scarecrows (Gate 1); clearing a room opens the door to the next, and the
       last room's exit ends the run with Mission Clear
 - [ ] Gate 3 ends with Jerico after the 190 s survival room; killing him wins the run
