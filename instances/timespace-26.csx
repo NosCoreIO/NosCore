@@ -100,7 +100,7 @@ public class TimeSpace26 : InstanceScript
             }));
         r.SpawnExit(_room7, new(48, 25));
         r.SpawnPortal(_room7, new(1, 27), _room6, new(23, 12));
-        r.SummonNpcs(_room7, new NpcSpawn(312, new(32, 15)), new NpcSpawn(311, new(25, 6)), new NpcSpawn(312, new(23, 44)), new NpcSpawn(312, new(23, 39)), new NpcSpawn(312, new(23, 34)), new NpcSpawn(312, new(23, 26)), new NpcSpawn(311, new(21, 26)), new NpcSpawn(311, new(20, 44)), new NpcSpawn(311, new(20, 34)), new NpcSpawn(311, new(20, 29)), new NpcSpawn(311, new(19, 38)), new NpcSpawn(312, new(17, 22)), new NpcSpawn(253, new(30, 27)), new NpcSpawn(253, new(31, 27)), new NpcSpawn(253, new(31, 46)), new NpcSpawn(253, new(32, 25)), new NpcSpawn(253, new(34, 23)), new NpcSpawn(253, new(36, 23)), new NpcSpawn(253, new(36, 31)), new NpcSpawn(253, new(37, 21)), new NpcSpawn(253, new(30, 27)), new NpcSpawn(253, new(31, 27)), new NpcSpawn(253, new(31, 46)), new NpcSpawn(253, new(32, 25)), new NpcSpawn(253, new(34, 23)), new NpcSpawn(253, new(36, 23)), new NpcSpawn(253, new(36, 31)), new NpcSpawn(253, new(37, 21)));
+        r.SummonNpcs(_room7, new NpcSpawn(312, new(32, 15)), new NpcSpawn(311, new(25, 6)), new NpcSpawn(312, new(23, 44)), new NpcSpawn(312, new(23, 39)), new NpcSpawn(312, new(23, 34)), new NpcSpawn(312, new(23, 26)), new NpcSpawn(311, new(21, 26)), new NpcSpawn(311, new(20, 44)), new NpcSpawn(311, new(20, 34)), new NpcSpawn(311, new(20, 29)), new NpcSpawn(311, new(19, 38)), new NpcSpawn(312, new(17, 22)));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -118,6 +118,7 @@ public class TimeSpace26 : InstanceScript
             r.StartRoomClock(_room7, TimeSpan.FromSeconds(180));
             r.Dialog(_room7, 6127);
             r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_MONSTERS_VANISH_IN_THREE_MINUTES);
+            r.SummonNpcs(_room7, new NpcSpawn(253, new(30, 27)), new NpcSpawn(253, new(31, 27)), new NpcSpawn(253, new(31, 46)), new NpcSpawn(253, new(32, 25)), new NpcSpawn(253, new(34, 23)), new NpcSpawn(253, new(36, 23)), new NpcSpawn(253, new(36, 31)), new NpcSpawn(253, new(37, 21)));
             r.Message(_room7, Game18NConstString.EnemiesReinforcements);
             r.Summon(_room7,
                 new MonsterSpawn(145, new(32, 33)),
@@ -127,6 +128,7 @@ public class TimeSpace26 : InstanceScript
                 new MonsterSpawn(145, new(33, 20)));
             r.At(r.Elapsed + TimeSpan.FromSeconds(30), r =>
             {
+                r.SummonNpcs(_room7, new NpcSpawn(253, new(30, 27)), new NpcSpawn(253, new(31, 27)), new NpcSpawn(253, new(31, 46)), new NpcSpawn(253, new(32, 25)), new NpcSpawn(253, new(34, 23)), new NpcSpawn(253, new(36, 23)), new NpcSpawn(253, new(36, 31)), new NpcSpawn(253, new(37, 21)));
                 r.Message(_room7, Game18NConstString.EnemiesReinforcements);
                 r.Summon(_room7,
                     new MonsterSpawn(145, new(31, 31)),
