@@ -164,7 +164,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 Unknown = -1,
                 FamilyName = _session.Character.GenerateFamilyTag(World.GameLanguageLocalizer, RegionType.EN),
                 FamilyLevel = 7,
-                FamilyIcons = [false, false, false],
+                FamilyIcons = [0, 0, 0],
             }, _session.Character.GenerateGidx(World.GameLanguageLocalizer, RegionType.EN));
         }
 

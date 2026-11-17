@@ -274,8 +274,20 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
 
             PacketAssert.AreEqual(new EInfoCostumePacket
             {
-                ItemVNum = 187, LevelMinimum = 20, Price = 2400, IsTradable = true, RemainingHours = 720,
+                ItemVNum = 187, LevelMinimum = 20, Price = 2400, TradeRestriction = TradeRestriction.None, RemainingHours = 720,
             }, Info<EInfoCostumePacket>(suit));
+        }
+
+        [TestMethod]
+        public void ACostumeThatBindsOnWearSaysItCanBeTradedUntilEquipped()
+        {
+            var suit = Wearable(new Item
+            {
+                VNum = 187, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.CostumeSuit, IsTradable = true,
+                RequireBinding = true
+            });
+
+            Assert.AreEqual(TradeRestriction.TradableUntilEquipped, Info<EInfoCostumePacket>(suit).TradeRestriction);
         }
 
         [TestMethod]
@@ -291,7 +303,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             var info = Info<EInfoCostumeHatPacket>(hat);
 
             Assert.AreEqual(5, info.RemainingHours);
-            Assert.IsFalse(info.IsTradable);
+            Assert.AreEqual(TradeRestriction.NotTradable, info.TradeRestriction);
         }
 
         [TestMethod]
