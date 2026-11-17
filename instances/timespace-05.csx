@@ -13,7 +13,7 @@ public class TimeSpace5 : InstanceScript
             .ForLevels(14, 99)
             .StartingAt(8, 15)
             .Requiring(1012, 1)
-            .WithLives(2)
+            .WithLives(3)
             .WithDraw(11, 1)
             .WithDraw(503, 1)
             .WithSpecialReward(2046, 4)
