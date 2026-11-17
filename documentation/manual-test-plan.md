@@ -2784,6 +2784,25 @@ same trust as the server's own code, so only the operator should be able to writ
 - [ ] The required items leave the inventory, across stacks if split, and no more than asked
 - [ ] A `Script` naming a missing or broken file opens no panel, and the world log says why
 
+### Time-space stone items
+
+An item with effect 140 opens the time-space named by its effect value (`timespace-<value>`)
+where its user stands, with no panel. Gate 1, Gate 2 and Gate 3 (vnums 1184-1186) open
+`timespace-624`, `-625` and `-626`, the Jerico gates. Give a level 30+ character one with
+`$CreateItem 1184` on a normal map.
+
+- [ ] Double-clicking Gate 1 moves you straight into the lobby; the clock only starts, at 3:20,
+      when you step through its portal into the first room
+- [ ] Each room has Scarecrows (Gate 1); clearing a room opens the door to the next, and the
+      last room's exit ends the run with Mission Clear
+- [ ] Gate 3 ends with Jerico after the 190 s survival room; killing him wins the run
+- [ ] After a win the gate is gone from the inventory; after a time-out it is still there
+- [ ] Leaving the run puts you back where you used the gate
+- [ ] Using a gate inside a time-space, raid or miniland says it cannot be used here
+- [ ] A character under level 30 is refused with the level message and keeps the gate
+- [ ] Not verifiable yet: the other effect 140 items (partner and specialist time-space stones,
+      Tombstone Gate and so on) have no script yet, so they say the time-space does not exist
+
 ### Escorts in a time-space
 
 A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`; Guards in

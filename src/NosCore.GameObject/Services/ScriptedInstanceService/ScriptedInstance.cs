@@ -17,6 +17,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
     {
         public IInstanceScript? Logic { get; set; }
 
+        // The time-space stone that opened this run; one is used up when the run succeeds.
+        public short? StoneVNum { get; set; }
+
         public ScriptedInstanceDefinition? Definition => Logic?.Definition;
 
         public byte EffectiveLevelMinimum =>
