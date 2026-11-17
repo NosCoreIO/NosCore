@@ -318,11 +318,12 @@ public static class PlayerBundleExtensions
                 MorphUpgrade2 = player.UseSp ? (byte)player.MorphDesign : (byte)0,
                 Level = player.Level,
                 FamilyLevel = player.Family?.FamilyLevel ?? 0,
-                FamilyIcons = new List<bool> { false, false, false },
+                FamilyIcons = new List<byte> { 0, 0, 0 },
                 ArenaWinner = false,
                 Compliment = (short)(player.Authority >= AuthorityType.Moderator ? 500 : player.Compliment),
                 Size = player.Size,
-                HeroLevel = player.HeroLevel
+                HeroLevel = player.HeroLevel,
+                Title = player.VisibleTitle()
             }
         };
     }

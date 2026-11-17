@@ -4,9 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -44,6 +46,20 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             Assert.AreEqual((short)3, sub.Morph);
             Assert.AreEqual((byte)7, sub.MorphUpgrade);
             Assert.AreEqual((byte)2, sub.MorphUpgrade2);
+        }
+
+        [TestMethod]
+        public void ThePlayersShownTitleIsInTheMapEntry()
+        {
+            _session.Character.Titles = new List<TitleDto>
+            {
+                new() { TitleType = 9301, Visible = false, Active = true },
+                new() { TitleType = 9300, Visible = true, Active = false },
+            };
+
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
+
+            Assert.AreEqual((short)9300, sub.Title);
         }
 
         [TestMethod]

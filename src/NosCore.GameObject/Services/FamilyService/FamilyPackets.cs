@@ -49,7 +49,7 @@ public static class FamilyPackets
             FamilyName = player.GenerateFamilyTag(localizer, viewerLanguage),
             FamilyLevel = family.FamilyLevel,
             // Without the three icon flags the client draws a stray string after the tag.
-            FamilyIcons = [false, false, false]
+            FamilyIcons = [0, 0, 0]
         };
     }
 

@@ -178,7 +178,7 @@ public sealed class ItemInfoService(
             MagicDefence = (short)(item.MagicDefence + (costume.MagicDefence ?? 0)),
             DefenceDodge = (short)(item.DefenceDodge + (costume.DefenceDodge ?? 0)),
             Price = item.Price,
-            IsTradable = IsTradable(costume),
+            TradeRestriction = TradeRestriction(costume),
             RemainingHours = RemainingHours(costume),
         };
     }
@@ -199,12 +199,15 @@ public sealed class ItemInfoService(
             LightResistance = (short)(item.LightResistance + (costume.LightResistance ?? 0)),
             DarkResistance = (short)(item.DarkResistance + (costume.DarkResistance ?? 0)),
             Price = item.Price,
-            IsTradable = IsTradable(costume),
+            TradeRestriction = TradeRestriction(costume),
             RemainingHours = RemainingHours(costume),
         };
     }
 
-    private static bool IsTradable(IItemInstance item) => item.Item.IsTradable && item.BoundCharacterId == null;
+    private static TradeRestriction TradeRestriction(IItemInstance item) =>
+        !item.Item.IsTradable || item.BoundCharacterId != null ? Packets.Enumerations.TradeRestriction.NotTradable
+        : item.Item.RequireBinding ? Packets.Enumerations.TradeRestriction.TradableUntilEquipped
+        : Packets.Enumerations.TradeRestriction.None;
 
     // A worn time-limited item counts down from its delete time; one never worn still has its whole validity.
     private long RemainingSeconds(IItemInstance item) => item.ItemDeleteTime is { } deleteTime

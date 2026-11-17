@@ -49,7 +49,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             PacketAssert.AreEqual(new EInfoCostumeHatPacket
             {
                 ItemVNum = WorldData.CostumeHat,
-                IsTradable = false,
+                TradeRestriction = TradeRestriction.NotTradable,
                 RemainingHours = -1,
             }, await alice.ExpectSinceAsync<EInfoCostumeHatPacket>(asked, null, "the costume hat's window"));
         }
@@ -65,7 +65,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             PacketAssert.AreEqual(new EInfoCostumeHatPacket
             {
                 ItemVNum = WorldData.CostumeHat,
-                IsTradable = false,
+                TradeRestriction = TradeRestriction.NotTradable,
                 RemainingHours = -1,
             }, await alice.ExpectSinceAsync<EInfoCostumeHatPacket>(asked, null, "the costume hat's window"));
         }

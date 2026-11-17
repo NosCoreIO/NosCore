@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261117141611_AddMapType";
+    public override string LastMigrationId => "20261117144321_AddPartnerSpecialistName";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1670,6 +1670,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(255)");
 
                 b.Property<byte>("PartnerSkillSet")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("PartnerSpecialistName")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("PerfectionMaterial")
