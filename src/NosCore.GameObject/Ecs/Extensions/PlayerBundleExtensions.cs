@@ -322,7 +322,8 @@ public static class PlayerBundleExtensions
                 ArenaWinner = false,
                 Compliment = (short)(player.Authority >= AuthorityType.Moderator ? 500 : player.Compliment),
                 Size = player.Size,
-                HeroLevel = player.HeroLevel
+                HeroLevel = player.HeroLevel,
+                Title = player.VisibleTitle()
             }
         };
     }
