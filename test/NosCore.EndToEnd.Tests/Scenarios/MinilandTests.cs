@@ -17,6 +17,7 @@ using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
+using MapType = NosCore.Packets.Enumerations.MapType;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.MiniMap;
@@ -41,10 +42,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static Func<MsgiPacket, bool> Announced(Game18NConstString message) => packet => packet.Message == message;
 
         private static Func<AtPacket, bool> InTheMiniland(TestClient who) =>
-            packet => packet is { MapId: WorldData.MinilandMap, PositionX: 5, PositionY: 8 } && packet.CharacterId == who.CharacterId;
+            packet => packet is { MapId: WorldData.MinilandMap, PositionX: 5, PositionY: 8, MapType: MapType.Miniland } && packet.CharacterId == who.CharacterId;
 
         private static Func<AtPacket, bool> BackInTown(TestClient who) =>
-            packet => packet is { MapId: WorldData.Town, PositionX: 72, PositionY: 116 } && packet.CharacterId == who.CharacterId;
+            packet => packet is { MapId: WorldData.Town, PositionX: 72, PositionY: 116, MapType: MapType.Normal } && packet.CharacterId == who.CharacterId;
 
         private static bool IsAMove(IPacket packet) => packet is AtPacket or CMapPacket;
 

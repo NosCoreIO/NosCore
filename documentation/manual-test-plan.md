@@ -1290,6 +1290,16 @@ Two clients, A and B.
 - [ ] Visit a miniland whose introduction has spaces in it: the line across the screen on
       entering reads with its spaces, as the introduction in the corner does
 
+### Map type
+
+Needs a database the parser has filled since the map type was added.
+
+- [ ] Stand in your miniland while a GM runs `$Event InstantCombat`: no invitation icon or
+      question appears; on an ordinary map the same command shows the invitation
+- [ ] Open the Instant Combat invitation on an ordinary map, then walk into your miniland: the
+      invitation window closes
+- [ ] The same two checks in the individual arena (2006) and in the Land of Death
+
 ### Respawn point
 
 - [ ] Talk to a village NPC whose dialog has "Set Respawn Point" and press it: a question asks

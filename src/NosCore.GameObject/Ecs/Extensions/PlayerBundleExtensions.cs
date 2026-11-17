@@ -469,7 +469,7 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static AtPacket GenerateAt(this PlayerComponentBundle player, short mapId, int music = 0)
+    public static AtPacket GenerateAt(this PlayerComponentBundle player, short mapId, int music, MapType mapType)
     {
         return new AtPacket
         {
@@ -480,7 +480,7 @@ public static class PlayerBundleExtensions
             Direction = player.Direction,
             Unknown1 = 0,
             Music = music,
-            Unknown2 = 0,
+            MapType = mapType,
             Unknown3 = -1
         };
     }

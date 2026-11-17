@@ -139,6 +139,12 @@ namespace NosCore.DtoGenerator
                             }
 
                             var dtoName = prop.Type.ToString();
+                            if (typeSymbol is INamedTypeSymbol { TypeKind: TypeKind.Enum } aliasedEnum && dtoName != aliasedEnum.Name)
+                            {
+                                namespaceType = "";
+                                dtoName = aliasedEnum.ToDisplayString();
+                            }
+
                             if (typeSymbol is INamedTypeSymbol { Name: "Nullable", TypeArguments.Length: > 0 } nullable && nullable.TypeArguments[0].ToString().StartsWith("NosCore"))
                             {
                                 namespaceType = "";

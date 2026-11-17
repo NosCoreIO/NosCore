@@ -9,6 +9,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Shared.I18N;
@@ -57,13 +58,15 @@ namespace NosCore.Parser.Parsers
         {
             var dictionaryId = await ParseDatAsync(folder);
             var folderMap = folder + _folderMap;
-            var dictionaryMusic = packets.OfType<AtPacket>()
+            var atByMap = packets.OfType<AtPacket>()
                 .GroupBy(x => x.MapId)
-                .ToDictionary(x => x.Key, x => x.First().Music);
+                .ToDictionary(x => x.Key, x => x.OrderBy(a => a.MapType == MapType.TimeSpace).First());
             var maps = new DirectoryInfo(folderMap).GetFiles().Select(file => new MapDto
             {
                 NameI18NKey = dictionaryId.FirstOrDefault(s => s.MapId == int.Parse(file.Name))?.NameI18NKey ?? string.Empty,
-                Music = dictionaryMusic.TryGetValue(short.Parse(file.Name), out var value) ? value : 0,
+                Music = atByMap.TryGetValue(short.Parse(file.Name), out var at) ? at.Music : 0,
+                // A time-space room is a kind of instance, which MapInstance reports itself, not a kind of map.
+                MapType = at is { MapType: not MapType.TimeSpace } ? at.MapType : MapType.Normal,
                 MapId = short.Parse(file.Name),
                 Data = File.ReadAllBytes(file.FullName),
                 ShopAllowed = short.Parse(file.Name) == 147,

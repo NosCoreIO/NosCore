@@ -227,7 +227,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateEquipment());
                 await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
                 await session.SendPacketAsync(character.GenerateStat());
-                await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music));
+                await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music, newMapInstance.MapType));
                 await session.SendPacketAsync(character.GenerateCond());
                 await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
                 await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
