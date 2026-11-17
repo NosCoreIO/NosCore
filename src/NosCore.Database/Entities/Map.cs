@@ -11,6 +11,7 @@ using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ClientMapType = NosCore.Packets.Enumerations.MapType;
 
 namespace NosCore.Database.Entities
 {
@@ -44,6 +45,8 @@ namespace NosCore.Database.Entities
         public virtual ICollection<MapMonster> MapMonster { get; set; }
 
         public virtual ICollection<MapNpc> MapNpc { get; set; }
+
+        public ClientMapType MapType { get; set; }
 
         public virtual ICollection<MapTypeMap> MapTypeMap { get; set; }
 

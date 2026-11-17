@@ -29,6 +29,7 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Packets.ServerPackets.Battle;
@@ -226,6 +227,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public Guid MapInstanceId { get; set; }
 
         public MapInstanceType MapInstanceType { get; set; }
+
+        // Any map run as a time-space room is one, including ordinary maps a time-space borrows.
+        public MapType MapType => MapInstanceType == MapInstanceType.TimeSpaceInstance
+            ? MapType.TimeSpace
+            : Map.MapType;
 
         // Every player on the map may attack any player outside their group.
         public bool IsPvp { get; set; }

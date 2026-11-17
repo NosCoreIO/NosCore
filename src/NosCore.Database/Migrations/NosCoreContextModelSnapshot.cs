@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261117120751_AddCharacterTimeSpace";
+    public override string LastMigrationId => "20261117141611_AddMapType";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -51,6 +51,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_style_type", new[] { "hair_style_a", "hair_style_b", "hair_style_c", "hair_style_d", "no_hair" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_effect_type", new[] { "no_effect", "teleport", "apply_hair_die", "apply_hair_style", "restore_dignity", "speaker", "speech_bubble", "wig_dye", "marriage_proposal", "holder", "medal_of_honour", "undefined", "gold", "sp_charger", "passive_skill_book", "mate_capture", "open_production", "time_space_stone", "dropped_sp_recharger", "premium_sp_recharger", "crafted_sp_recharger", "friendship_wings", "medal_of_erenia", "adventurers_medal", "self_introduction", "specialist_medal", "medal_of_friendship", "mimis_medal", "inventory_upgrade", "ancelloans_blessing", "fairy_booster", "pet_basket_upgrade", "team_stone", "raid_seal", "simple_raid_box", "apply_skin_partner", "change_faction", "permanent_inventory_upgrade", "permanent_partner_backpack", "permanent_pet_basket", "permanent_inventory_ticket_upgrade", "inventory_ticket_upgrade", "change_specialist_wings", "change_gender", "point_initialisation", "renaming_card", "sealed_tarot_card", "tarot_card", "red_amulet", "blue_amulet", "reinforcement_amulet", "heroic", "random_heroic", "rarity_increase_amulet", "heroic_rarity_increase_amulet", "family_experience_booster", "class_box", "attack_amulet", "defense_amulet", "item_pack", "heat_resistance", "play_effect", "speed_booster", "box_effect", "vehicle", "sealed_vessel", "gold_nos_merchant_upgrade", "silver_nos_merchant_upgrade", "pet_space_upgrade", "pet_backpack_upgrade", "cuarry_bank_vip_medal", "cuarry_bank_savings_book", "shell_identification", "shell_option_removal", "soul_revival", "event_sp_upgrade_scroll", "costume_fusion", "event_specialist", "minigame_durability_coupon", "production_coupon", "tarot_card_game", "perfume", "minigame_chest", "release_scroll", "arena_of_masters_ticket", "raid_collect_quest_item", "buff_potions", "marriage_separation" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_type", new[] { "weapon", "armor", "fashion", "jewelery", "specialist", "box", "shell", "main", "upgrade", "production", "map", "special", "potion", "event", "title", "quest1", "sell", "food", "snack", "magical", "part", "teacher", "ammo", "quest2", "house", "garden", "minigame", "terrace", "miniland_theme" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "map_type", new[] { "normal", "time_space", "miniland", "raid", "arena", "land_of_death", "act4", "radikun_beach", "act4raid", "act4ship" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "map_type_type", new[] { "act1", "act2", "act3", "act4", "act42", "act51", "act52", "act61", "act62", "act61a", "act61d", "comet_plain", "mine1", "mine2", "meadow_of_mine", "sunny_plain", "fernon", "fernon_f", "cliff", "land_of_the_dead", "act32", "cleft_of_darkness", "citadel_angel", "citadel_demon", "oasis" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "mate_type", new[] { "partner", "pet" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "material_type", new[] { "none", "cella_powder", "soul_gem", "complete_soul_gem", "dimensional_force", "dimensiolith_shard", "equipment_protection_scroll", "golden_equipment_protection_scroll", "angels_feather", "full_moon_crystal", "green_soul", "red_soul", "blue_soul", "dragon_skin", "dragon_blood", "dragon_heart", "dragon_gem", "lower_sp_protection_scroll", "higher_sp_protection_scroll", "river_sand", "small_ruby_of_completion", "small_sapphire_of_completion", "small_obsidian_of_completion", "small_topaz_of_completion", "ruby_of_completion", "sapphire_of_completion", "obsidian_of_completion", "topaz_of_completion", "seed_of_power", "saver" });
@@ -1954,6 +1955,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<byte[]>("Data")
                     .IsRequired()
                     .HasColumnType("bytea");
+
+                b.Property<byte>("MapType")
+                    .HasColumnType("smallint");
 
                 b.Property<int>("Music")
                     .HasColumnType("integer");

@@ -165,7 +165,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         {
             context.Add(OpenMap(Town, 200, 200));
             context.Add(OpenMap(Meadow, 100, 100));
-            context.Add(OpenMap(MinilandMap, 40, 40));
+            context.Add(OpenMap(MinilandMap, 40, 40, NosCore.Packets.Enumerations.MapType.Miniland));
             context.Add(new Portal
             {
                 SourceMapId = Town, SourceX = 90, SourceY = 116,
@@ -595,12 +595,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         }
 
         // Width and height, then one byte a cell; 0 is a cell that can be walked on.
-        private static Map OpenMap(short mapId, short width, short height)
+        private static Map OpenMap(short mapId, short width, short height,
+            NosCore.Packets.Enumerations.MapType mapType = NosCore.Packets.Enumerations.MapType.Normal)
         {
             var data = new byte[4 + width * height];
             BitConverter.TryWriteBytes(data.AsSpan(0, 2), width);
             BitConverter.TryWriteBytes(data.AsSpan(2, 2), height);
-            return new Map { MapId = mapId, Data = data, Name = "map" + mapId };
+            return new Map { MapId = mapId, Data = data, Name = "map" + mapId, MapType = mapType };
         }
     }
 

@@ -10,7 +10,9 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
@@ -71,6 +73,40 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(ArenaType.None, saved.Single(m => m.MapId == 1).Arena);
             Assert.AreEqual(ArenaType.Individual, saved.Single(m => m.MapId == 2006).Arena);
             Assert.AreEqual(ArenaType.Glory, saved.Single(m => m.MapId == 2106).Arena);
+        }
+
+        [TestMethod]
+        public async Task MapParser_TakesTheMapTypeFromTheTrace()
+        {
+            WriteMapIdDat("");
+            var maps = Path.Combine(_tempFolder, "map");
+            Directory.CreateDirectory(maps);
+            foreach (var mapId in new[] { "1", "4101", "20001", "2550", "2551" })
+            {
+                File.WriteAllBytes(Path.Combine(maps, mapId), new byte[] { 1, 0, 1, 0, 0 });
+            }
+
+            List<MapDto> saved = [];
+            _daoMock.Setup(x => x.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<MapDto>>()))
+                .Callback<IEnumerable<MapDto>>(m => saved.AddRange(m))
+                .ReturnsAsync(true);
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertOrUpdateMapsAsync(_tempFolder, new List<IPacket>
+            {
+                new AtPacket { MapId = 1, Music = 3, MapType = MapType.Normal },
+                new AtPacket { MapId = 4101, Music = 50, MapType = MapType.TimeSpace },
+                new AtPacket { MapId = 20001, Music = 80, MapType = MapType.Miniland },
+                new AtPacket { MapId = 2551, Music = 12, MapType = MapType.TimeSpace },
+                new AtPacket { MapId = 2551, Music = 12, MapType = MapType.Normal },
+            });
+
+            Assert.AreEqual(MapType.Normal, saved.Single(m => m.MapId == 1).MapType);
+            Assert.AreEqual(MapType.Normal, saved.Single(m => m.MapId == 4101).MapType);
+            Assert.AreEqual(50, saved.Single(m => m.MapId == 4101).Music);
+            Assert.AreEqual(MapType.Normal, saved.Single(m => m.MapId == 2551).MapType);
+            Assert.AreEqual(MapType.Miniland, saved.Single(m => m.MapId == 20001).MapType);
+            Assert.AreEqual(80, saved.Single(m => m.MapId == 20001).Music);
+            Assert.AreEqual(MapType.Normal, saved.Single(m => m.MapId == 2550).MapType);
         }
 
         [TestMethod]
