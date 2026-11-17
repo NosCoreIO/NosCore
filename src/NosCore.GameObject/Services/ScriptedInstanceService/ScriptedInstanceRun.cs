@@ -74,6 +74,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly HashSet<long> _showingObjective = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
+        private readonly Dictionary<long, (int Room, int Dialog)> _openDialogs = [];
+        private readonly HashSet<(int Room, int Dialog)> _closedDialogs = [];
         private readonly Dictionary<(ObjectiveKind Kind, short VNum), int> _objectiveProgress = [];
 
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
@@ -804,6 +806,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public Task DialogClosedAsync(long characterId)
+        {
+            return RunAsync(async () =>
+            {
+                if (EndState != null || _abandoned || !_openDialogs.Remove(characterId, out var closed)
+                    || !_closedDialogs.Add(closed))
+                {
+                    return;
+                }
+
+                await CallScriptAsync(run => _script.OnDialogClosed(run, closed.Room, closed.Dialog));
+            });
+        }
+
         public Task UseButtonAsync(Guid mapInstanceId, int button, long userId)
         {
             return RunAsync(async () =>
@@ -900,6 +916,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 foreach (var player in PlayersOf(mapInstance).ToList())
                 {
+                    _openDialogs[player.CharacterId] = (room, dialog);
                     await player.SendPacketAsync(new NpcReqPacket
                     {
                         Type = VisualType.Player,

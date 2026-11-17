@@ -78,6 +78,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 Exit?.Invoke(run, room);
             }
 
+            public override void OnDialogClosed(IInstanceRun run, int room, int dialog) =>
+                Calls.Add($"closed({room},{dialog})");
+
             public override void OnTimeout(IInstanceRun run)
             {
                 Calls.Add("timeout");
@@ -644,6 +647,48 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             session.Character.MapInstance = room;
             World.SessionRegistry.UpdateCharacter(session.Channel?.Id ?? string.Empty, session.Character.CharacterId, room.MapInstanceId);
+        }
+
+        [TestMethod]
+        public async Task ClosingADialogOfTheRunTellsTheScriptAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var script = new Script { Enter = r => r.Dialog(1, 6024) };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.DialogClosedAsync(session.Character.CharacterId);
+
+            CollectionAssert.Contains(script.Calls, "closed(1,6024)");
+        }
+
+        [TestMethod]
+        public async Task ClosingADialogTheRunNeverOpenedTellsTheScriptNothingAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var script = new Script();
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.DialogClosedAsync(session.Character.CharacterId);
+
+            Assert.IsFalse(script.Calls.Any(c => c.StartsWith("closed", StringComparison.Ordinal)));
+        }
+
+        [TestMethod]
+        public async Task ADialogShownToTwoPlayersIsClosedOnceAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var second = await PlayerInFirstRoomAsync();
+            var script = new Script { Enter = r => r.Dialog(1, 6024) };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.DialogClosedAsync(first.Character.CharacterId);
+            await run.DialogClosedAsync(second.Character.CharacterId);
+            await run.DialogClosedAsync(first.Character.CharacterId);
+
+            Assert.AreEqual(1, script.Calls.Count(c => c == "closed(1,6024)"));
         }
 
         [TestMethod]

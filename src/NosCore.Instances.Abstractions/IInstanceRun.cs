@@ -177,6 +177,9 @@ namespace NosCore.Instances.Abstractions
 
         void OnButtonUsed(IInstanceRun run, int room, int button);
 
+        // The first time someone closes a dialog the run opened in the room.
+        void OnDialogClosed(IInstanceRun run, int room, int dialog);
+
         void OnTimeout(IInstanceRun run);
     }
 
@@ -196,6 +199,8 @@ namespace NosCore.Instances.Abstractions
         public virtual void OnExitReached(IInstanceRun run, int room) { }
 
         public virtual void OnButtonUsed(IInstanceRun run, int room, int button) { }
+
+        public virtual void OnDialogClosed(IInstanceRun run, int room, int dialog) { }
 
         public virtual void OnTimeout(IInstanceRun run) { }
     }

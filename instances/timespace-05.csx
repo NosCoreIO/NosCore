@@ -13,7 +13,7 @@ public class TimeSpace5 : InstanceScript
             .ForLevels(14, 99)
             .StartingAt(8, 15)
             .Requiring(1012, 1)
-            .WithLives(3)
+            .WithLives(2)
             .WithDraw(11, 1)
             .WithDraw(503, 1)
             .WithSpecialReward(2046, 4)
@@ -62,13 +62,6 @@ public class TimeSpace5 : InstanceScript
             new MonsterSpawn(270, new(17, 16), IsBonus: true));
         r.SpawnExit(_room6, new(28, 15));
         r.SpawnPortal(_room6, new(1, 14), _room5, new(28, 15));
-        r.Summon(_room6,
-            new MonsterSpawn(55, new(22, 22)),
-            new MonsterSpawn(55, new(20, 14), OnDeath: r =>
-            {
-                r.Summon(_room6, new MonsterSpawn(55, new(19, 19)));
-            }),
-            new MonsterSpawn(270, new(17, 14), IsBonus: true));
         r.SummonNpcs(_room6, new NpcSpawn(320, new(10, 9)), new NpcSpawn(320, new(9, 17)), new NpcSpawn(320, new(7, 12)));
     }
 
@@ -98,6 +91,20 @@ public class TimeSpace5 : InstanceScript
         {
             r.Dialog(_room6, 6024);
             r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_BOSS_APPEARED);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room6 && dialog == 6024)
+        {
+            r.Summon(_room6,
+                new MonsterSpawn(55, new(22, 22)),
+                new MonsterSpawn(55, new(20, 14), OnDeath: r =>
+                {
+                    r.Summon(_room6, new MonsterSpawn(55, new(19, 19)));
+                }),
+                new MonsterSpawn(270, new(17, 14), IsBonus: true));
         }
     }
 
