@@ -1763,6 +1763,17 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Double-click the filled holder: the card is back in the bag with its level and upgrade, the holder is gone
       and "The Specialist Card has been removed from the Card Holder." shows
 
+### What others see on a character and a partner
+
+- [ ] Character A wears a visible title and stands on a map; character B enters that map: B sees A's title
+      under A's name, not only characters who arrive after B
+- [ ] Transform a partner wearing a partner specialist card (Foxy, card 4807): the name under the partner
+      becomes the card's name ("Foxy"); a second player entering the map sees the same; turning the partner
+      back shows its own name again
+- [ ] With the partner transformed, open its page (P): nothing else changes on the page
+- [ ] Right-click a costume that binds when worn and one that cannot be traded: the first says it can be
+      traded until equipped, the second says it cannot be traded
+
 ### Ordering NosMates
 
 Have a pet and a partner out, and a second client on the same map watching.
