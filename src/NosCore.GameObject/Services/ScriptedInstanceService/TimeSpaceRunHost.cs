@@ -44,15 +44,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
         {
+            var participants = Participants(run);
             if (state == EndStateType.Timeout)
             {
                 // A run that ran out of time scores nothing.
                 await run.BroadcastAsync(new ScorePacket { EndState = state });
-                foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
+                foreach (var character in participants)
                 {
-                    await gameEvents.RaiseAsync(new ScriptedInstanceTimedOutEvent(session.Character));
+                    await gameEvents.RaiseAsync(new ScriptedInstanceTimedOutEvent(character));
                 }
 
+                await RaiseFailedAsync(participants);
                 return;
             }
 
@@ -68,7 +70,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 IsNoNpcDead = true
             });
 
-            if (state != EndStateType.Success || entrance.Definition is not { } definition)
+            if (state != EndStateType.Success)
+            {
+                await RaiseFailedAsync(participants);
+                return;
+            }
+
+            if (entrance.Definition is not { } definition)
             {
                 return;
             }
@@ -81,6 +89,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 await gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
+            }
+        }
+
+        // Taken before any await, so a player leaving mid-loop does not cut the others' events short.
+        private static List<PlayerComponentBundle> Participants(ScriptedInstanceRun run) =>
+            [.. run.Players().Where(s => s.HasPlayerEntity).Select(s => s.Character)];
+
+        private async Task RaiseFailedAsync(List<PlayerComponentBundle> participants)
+        {
+            if (entrance.Definition is not { } definition)
+            {
+                return;
+            }
+
+            foreach (var character in participants)
+            {
+                await gameEvents.RaiseAsync(new TimeSpaceFailedEvent(character, definition.Id));
             }
         }
 

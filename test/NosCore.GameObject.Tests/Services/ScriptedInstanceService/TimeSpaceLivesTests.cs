@@ -177,6 +177,40 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task RunningOutOfTimeCountsAFailedAttempt()
+        {
+            await new Spec("A run that ran out of time counts as a failed attempt for each player inside")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .AndAsync(TheRunHasStarted)
+                .WhenAsync(TheClockRunsOut)
+                .Then(EachPlayerShouldHave_FailedAttempt, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RunningOutOfLivesCountsAFailedAttempt()
+        {
+            await new Spec("A run that ran out of lives counts as a failed attempt for each player inside")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)0)
+                .WhenAsync(ThePlayerDies)
+                .Then(TheRunShouldHaveRunOutOfLives)
+                .And(EachPlayerShouldHave_FailedAttempt, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AWonRunIsNotAFailedAttempt()
+        {
+            await new Spec("A run that was won counts no failed attempt")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .AndAsync(TheRunHasStarted)
+                .When(TheRunIsWon)
+                .AndAsync(TenSecondsPass)
+                .Then(EachPlayerShouldHave_FailedAttempt, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task PlayersStayTwoMinutesAfterRunningOutOfTime()
         {
             await new Spec("A run that ran out of time keeps its players for two minutes before sending them back")
@@ -307,6 +341,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var characterId = _session.Character.CharacterId;
             _bus.Verify(b => b.RaiseAsync(It.Is<ScriptedInstanceTimedOutEvent>(e => IsFor(e, characterId))), Times.Once);
+        }
+
+        private void EachPlayerShouldHave_FailedAttempt(int count)
+        {
+            var characterId = _session.Character.CharacterId;
+            _bus.Verify(b => b.RaiseAsync(It.Is<TimeSpaceFailedEvent>(e => e.Character.CharacterId == characterId && e.TimeSpaceId == 1)),
+                Times.Exactly(count));
         }
 
         private static bool IsFor(ScriptedInstanceTimedOutEvent timedOut, long characterId) =>
