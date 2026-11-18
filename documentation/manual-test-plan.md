@@ -3587,6 +3587,10 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       shows the room's objective and starts its clock when it has them (for example room 2 of
       `timespace-19`, the first after the start). How the room ends does not change: a door, a lever,
       a Small Imp, a clock running out or the end of the run, as described for that time-space
+- [ ] In `timespace-10`, moving the sculpture in the room east of the first hub (map 4107) opens
+      talk 6055 and brings its monsters in together. Kill them all before closing the talk: the
+      objective stays and the door stays shut. Closing the talk with End Dialogue then opens the door
+      with "A door has opened." and adds 100 seconds to the clock
 - [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
       the same kind further east, and killing the second walker brings in one more hamster; the
       last two bring in nothing

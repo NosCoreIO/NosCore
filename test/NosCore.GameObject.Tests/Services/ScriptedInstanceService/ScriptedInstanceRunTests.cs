@@ -744,6 +744,48 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ARoomDoesNotClearWhileItsTalkIsOpenAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var script = new Script
+            {
+                Enter = r =>
+                {
+                    r.SetMonsterLocker(1, 1);
+                    r.Dialog(1, 6055);
+                }
+            };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            CollectionAssert.DoesNotContain(script.Calls, "cleared(1)");
+        }
+
+        [TestMethod]
+        public async Task ARoomHeldByItsTalkClearsWhenTheTalkIsEndedAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var script = new Script
+            {
+                Enter = r =>
+                {
+                    r.SetMonsterLocker(1, 1);
+                    r.Dialog(1, 6055);
+                }
+            };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            await run.DialogClosedAsync(session.Character.CharacterId);
+
+            CollectionAssert.AreEqual(new[] { "enter", "killed(1,58)", "closed(1,6055)", "cleared(1)" },
+                script.Calls.Where(c => !c.StartsWith("entered")).ToList());
+        }
+
+        [TestMethod]
         public async Task ATalkLeftOpenHoldsTheClockForThirtySecondsAtMostAsync()
         {
             await PlayerInFirstRoomAsync();
