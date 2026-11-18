@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -65,6 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon, IsTradable = true }
             }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             JoinFamily(FamilyAuthority.Head, 21);
+            _session.Character.OpenWarehouse(WarehouseType.FamilyWareHouse);
         }
 
         private void JoinFamily(FamilyAuthority authority, byte warehouseSize,
@@ -268,6 +270,20 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new FDepositPacket { Inventory = PocketType.Main, Slot = 0, Amount = 10, NewSlot = 21 }, _session);
 
             Assert.AreEqual(0, _stored.Count);
+        }
+
+        [TestMethod]
+        public async Task ADepositWithTheFamilyWarehouseClosedIsIgnored()
+        {
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(_items.Create(1012, 10), _session.Character.CharacterId));
+
+            await new FStashEndPackettHandler().ExecuteAsync(new FStashEndPacket(), _session);
+            await new FDepositPacketHandler(Service()).ExecuteAsync(
+                new FDepositPacket { Inventory = PocketType.Main, Slot = 0, Amount = 10, NewSlot = 0 }, _session);
+
+            Assert.AreEqual(0, _stored.Count);
+            Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1012));
         }
 
         [TestMethod]

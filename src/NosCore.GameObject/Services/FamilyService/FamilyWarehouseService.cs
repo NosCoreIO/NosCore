@@ -44,6 +44,7 @@ namespace NosCore.GameObject.Services.FamilyService
             }
 
             var items = await transfer.GetItemsAsync(family.FamilyId, WarehouseType.FamilyWareHouse);
+            session.Character.OpenWarehouse(WarehouseType.FamilyWareHouse);
             await session.SendPacketAsync(new FStashAllPacket
             {
                 WarehouseSize = family.WarehouseSize,
@@ -72,6 +73,11 @@ namespace NosCore.GameObject.Services.FamilyService
 
         public async Task DepositAsync(ClientSession session, PocketType pocket, short slot, short amount, short warehouseSlot)
         {
+            if (!session.Character.IsWarehouseOpen(WarehouseType.FamilyWareHouse))
+            {
+                return;
+            }
+
             var family = session.Character.Family;
             if (family == null || !CanPut(session, family))
             {
@@ -89,6 +95,11 @@ namespace NosCore.GameObject.Services.FamilyService
 
         public async Task WithdrawAsync(ClientSession session, short warehouseSlot, short amount)
         {
+            if (!session.Character.IsWarehouseOpen(WarehouseType.FamilyWareHouse))
+            {
+                return;
+            }
+
             var family = session.Character.Family;
             if (family == null || !CanTake(session, family))
             {
@@ -105,6 +116,11 @@ namespace NosCore.GameObject.Services.FamilyService
 
         public async Task MoveAsync(ClientSession session, short sourceSlot, short amount, short destinationSlot)
         {
+            if (!session.Character.IsWarehouseOpen(WarehouseType.FamilyWareHouse))
+            {
+                return;
+            }
+
             var family = session.Character.Family;
             if (family == null || !CanTake(session, family))
             {

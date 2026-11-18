@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Miniland;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Warehouse;
@@ -15,6 +17,12 @@ namespace NosCore.PacketHandlers.Warehouse
     {
         public override Task ExecuteAsync(StashEndPacket packet, ClientSession clientSession)
         {
+            if (clientSession.TryGetCharacter(out var character))
+            {
+                character.CloseWarehouse(WarehouseType.Warehouse);
+                character.CloseWarehouse(WarehouseType.PetWarehouse);
+            }
+
             return Task.CompletedTask;
         }
     }
