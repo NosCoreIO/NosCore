@@ -2939,6 +2939,11 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       brings five monsters one after another, and killing the last of them opens the exit
 - [ ] In `timespace-05`, the last room shows the guards and talk 6024 with no monster in sight;
       the monsters appear once the talk is closed with End Dialogue
+- [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
+      the same kind further east
+- [ ] In `timespace-08`, killing a room's Small Imp opens its door at once and the other monsters
+      leave, even when the guard soldier lands the kill; in the two rooms with two Imps (the second
+      one appears when the first falls in the last room) only the last Imp does it
 - [ ] In `timespace-11`, the third room shows a red five-minute clock and brings a wave of
       monsters every 30 seconds; when the clock runs out the monsters leave and both portals open
 - [ ] In `timespace-09` and `timespace-13`, killing the last room's monsters ends the run with
