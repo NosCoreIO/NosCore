@@ -2949,9 +2949,12 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       twice the usual time on the clock, and the lever above takes 120 seconds instead of 60
 - [ ] Fail a time-space twice, clear a different one, then open the first stone again: Loser Mode
       is no longer offered
-- [ ] In `timespace-06`, the exit room holds only its lever on entry; pulling the lever shows
-      "The lever has been pulled." and "Watch out, enemies!" and brings the monster in, and the exit
-      stays shut until it is dead
+- [ ] In `timespace-06`, the exit room holds only its lever on entry and shows no talk; pulling the
+      lever shows talk 6028, "The lever has been pulled." and "Watch out, enemies!" and brings the
+      monster in, and the exit stays shut until it is dead
+- [ ] In `timespace-09` and `timespace-18`, a room that opens with a talk shows no monster and no
+      objective while the talk is up; closing it with End Dialogue brings the monsters in and shows
+      the objective, and the room's door opens once they are dead
 - [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
       the same kind further east, and killing the second walker brings in one more hamster; the
       last two bring in nothing
@@ -2974,7 +2977,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-21`, walking onto the exit before beating Tom shows "You still have an incomplete
       mission."; after beating him the same exit gives Mission Clear
 - [ ] In `timespace-18`, the room with the locked exit shows a red one-minute clock and "The enemies are
-      getting reinforcements!" with a wave of knights on entry and again 30 seconds later; when the
+      getting reinforcements!" with a wave of knights once its talk is closed and again 30 seconds later; when the
       minute ends the west door and the south door of the room before it open
 - [ ] Walking onto a locked portal in a time-space shows "The gate is locked!" over the character and
       in the chat, and the character stays in the room

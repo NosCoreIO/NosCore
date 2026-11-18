@@ -69,9 +69,6 @@ public class TimeSpace9 : InstanceScript
         r.SpawnPortal(_room1, new(17, 9), _room2, new(0, 9), locked: false);
         r.SpawnPortal(_room2, new(17, 9), _room3, new(0, 9));
         r.SpawnPortal(_room2, new(0, 9), _room1, new(17, 9));
-        r.Summon(_room2,
-            new MonsterSpawn(105, new(6, 8)),
-            new MonsterSpawn(105, new(3, 10)));
         r.SpawnPortal(_room3, new(17, 9), _room4, new(0, 9), locked: false);
         r.SpawnPortal(_room3, new(0, 9), _room2, new(17, 9), locked: false);
         r.Summon(_room3,
@@ -81,9 +78,6 @@ public class TimeSpace9 : InstanceScript
         r.SpawnPortal(_room4, new(17, 9), _room5, new(0, 9));
         r.SpawnPortal(_room4, new(8, 17), _room7, new(8, 0));
         r.SpawnPortal(_room4, new(0, 9), _room3, new(17, 9));
-        r.Summon(_room4,
-            new MonsterSpawn(105, new(5, 10)),
-            new MonsterSpawn(105, new(2, 9)));
         r.SpawnPortal(_room5, new(17, 9), _room6, new(0, 9), locked: false);
         r.SpawnPortal(_room5, new(0, 9), _room4, new(17, 9), locked: false);
         r.Summon(_room5,
@@ -99,9 +93,6 @@ public class TimeSpace9 : InstanceScript
             }));
         r.SpawnPortal(_room6, new(0, 9), _room5, new(17, 9));
         r.PlaceButton(_room6, 1, new(9, 9), 1000, 1045);
-        r.Summon(_room6,
-            new MonsterSpawn(105, new(5, 10)),
-            new MonsterSpawn(105, new(4, 8)));
         r.SpawnPortal(_room7, new(8, 0), _room4, new(8, 17), locked: false);
         r.SpawnPortal(_room7, new(8, 17), _room8, new(8, 0), locked: false);
         r.Summon(_room7,
@@ -116,31 +107,10 @@ public class TimeSpace9 : InstanceScript
         r.SpawnPortal(_room9, new(17, 9), _room12, new(0, 9));
         r.SpawnPortal(_room9, new(8, 17), _room10, new(8, 0));
         r.SpawnPortal(_room9, new(0, 9), _room15, new(17, 9));
-        r.Summon(_room9,
-            new MonsterSpawn(105, new(4, 11), OnDeath: r =>
-            {
-                r.Summon(_room9, new MonsterSpawn(108, new(8, 10)));
-            }),
-            new MonsterSpawn(105, new(4, 9)));
         r.SpawnPortal(_room10, new(8, 0), _room9, new(8, 17));
         r.SpawnPortal(_room10, new(8, 17), _room11, new(8, 0));
-        r.Summon(_room10,
-            new MonsterSpawn(105, new(10, 5)),
-            new MonsterSpawn(105, new(7, 5), OnDeath: r =>
-            {
-                r.Summon(_room10, new MonsterSpawn(105, new(8, 10), OnDeath: r =>
-                {
-                    r.Summon(_room10, new MonsterSpawn(105, new(10, 16)));
-                }));
-            }));
         r.SpawnPortal(_room11, new(8, 0), _room10, new(8, 17));
         r.PlaceButton(_room11, 1, new(9, 9), 1000, 1045);
-        r.Summon(_room11,
-            new MonsterSpawn(105, new(10, 5), IsBonus: true),
-            new MonsterSpawn(105, new(8, 5), OnDeath: r =>
-            {
-                r.Summon(_room11, new MonsterSpawn(108, new(10, 8)));
-            }));
         r.SpawnPortal(_room12, new(17, 9), _room13, new(0, 9), locked: false);
         r.SpawnPortal(_room12, new(0, 9), _room9, new(17, 9), locked: false);
         r.Summon(_room12, new MonsterSpawn(108, new(1, 9), IsBonus: true));
@@ -156,9 +126,6 @@ public class TimeSpace9 : InstanceScript
             new MonsterSpawn(105, new(3, 10)));
         r.SpawnPortal(_room14, new(0, 9), _room13, new(17, 9));
         r.PlaceButton(_room14, 1, new(9, 9), 1000, 1045);
-        r.Summon(_room14,
-            new MonsterSpawn(108, new(5, 8)),
-            new MonsterSpawn(105, new(4, 10)));
         r.SpawnPortal(_room15, new(17, 9), _room9, new(0, 9), locked: false);
         r.SpawnPortal(_room15, new(0, 9), _room16, new(17, 9), locked: false);
         r.Summon(_room15, new MonsterSpawn(106, new(4, 7), OnDeath: r =>
@@ -168,17 +135,8 @@ public class TimeSpace9 : InstanceScript
         r.SpawnPortal(_room16, new(8, 0), _room17, new(8, 17));
         r.SpawnPortal(_room16, new(17, 9), _room15, new(0, 9));
         r.SpawnPortal(_room16, new(0, 9), _room18, new(17, 9));
-        r.Summon(_room16,
-            new MonsterSpawn(105, new(13, 9)),
-            new MonsterSpawn(108, new(8, 7), OnDeath: r =>
-            {
-                r.Summon(_room16, new MonsterSpawn(105, new(10, 5)));
-            }));
         r.SpawnPortal(_room17, new(8, 17), _room16, new(8, 0));
         r.PlaceButton(_room17, 1, new(8, 7), 1000, 1045);
-        r.Summon(_room17,
-            new MonsterSpawn(105, new(7, 12)),
-            new MonsterSpawn(105, new(7, 10)));
         r.SpawnPortal(_room18, new(17, 9), _room16, new(0, 9), locked: false);
         r.SpawnPortal(_room18, new(8, 17), _room20, new(8, 0));
         r.SpawnPortal(_room18, new(0, 9), _room19, new(17, 9), locked: false);
@@ -190,12 +148,6 @@ public class TimeSpace9 : InstanceScript
             }));
         r.SpawnPortal(_room19, new(17, 9), _room18, new(0, 9));
         r.PlaceButton(_room19, 1, new(7, 7), 1000, 1045);
-        r.Summon(_room19,
-            new MonsterSpawn(105, new(10, 9), OnDeath: r =>
-            {
-                r.Summon(_room19, new MonsterSpawn(105, new(13, 9)));
-            }),
-            new MonsterSpawn(105, new(8, 8)));
         r.SpawnPortal(_room20, new(8, 0), _room18, new(8, 17), locked: false);
         r.SpawnPortal(_room20, new(8, 17), _room21, new(8, 0), locked: false);
         r.Summon(_room20, new MonsterSpawn(106, new(11, 5), OnDeath: r =>
@@ -215,15 +167,6 @@ public class TimeSpace9 : InstanceScript
             new MonsterSpawn(106, new(13, 8), IsBonus: true),
             new MonsterSpawn(108, new(10, 8)));
         r.SpawnPortal(_room23, new(7, 19), _room22, new(17, 9));
-        r.Summon(_room23,
-            new MonsterSpawn(105, new(29, 19), IsBonus: true),
-            new MonsterSpawn(105, new(26, 15), OnDeath: r =>
-            {
-                r.Summon(_room23, new MonsterSpawn(109, new(19, 19)));
-            }),
-            new MonsterSpawn(105, new(25, 13)),
-            new MonsterSpawn(105, new(10, 19)),
-            new MonsterSpawn(105, new(10, 8)));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -236,33 +179,27 @@ public class TimeSpace9 : InstanceScript
         {
             r.Dialog(_room2, 6175);
             r.Message(LanguageKey.TIMESPACE_MINERS_PROTESTING);
-            r.Objective(_room2, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6176);
-            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room6)
         {
             r.Dialog(_room6, 6177);
-            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room9)
         {
             r.Dialog(_room9, 6178);
             r.Message(LanguageKey.TIMESPACE_MINERS_PROTESTING);
-            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room10)
         {
             r.Dialog(_room10, 6179);
-            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room11)
         {
             r.Dialog(_room11, 6180);
-            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room14)
         {
@@ -271,21 +208,121 @@ public class TimeSpace9 : InstanceScript
         else if (room == _room16)
         {
             r.Dialog(_room16, 6183);
-            r.Objective(_room16, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room17)
         {
             r.Dialog(_room17, 6184);
-            r.Objective(_room17, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room19)
         {
             r.Dialog(_room19, 6185);
-            r.Objective(_room19, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room23)
         {
             r.Dialog(_room23, 6187);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room2 && dialog == 6175)
+        {
+            r.Summon(_room2,
+                new MonsterSpawn(105, new(6, 8)),
+                new MonsterSpawn(105, new(3, 10)));
+            r.Objective(_room2, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room4 && dialog == 6176)
+        {
+            r.Summon(_room4,
+                new MonsterSpawn(105, new(5, 10)),
+                new MonsterSpawn(105, new(2, 9)));
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room6 && dialog == 6177)
+        {
+            r.Summon(_room6,
+                new MonsterSpawn(105, new(5, 10)),
+                new MonsterSpawn(105, new(4, 8)));
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room9 && dialog == 6178)
+        {
+            r.Summon(_room9,
+                new MonsterSpawn(105, new(4, 11), OnDeath: r =>
+                {
+                    r.Summon(_room9, new MonsterSpawn(108, new(8, 10)));
+                }),
+                new MonsterSpawn(105, new(4, 9)));
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room10 && dialog == 6179)
+        {
+            r.Summon(_room10,
+                new MonsterSpawn(105, new(10, 5)),
+                new MonsterSpawn(105, new(7, 5), OnDeath: r =>
+                {
+                    r.Summon(_room10, new MonsterSpawn(105, new(8, 10), OnDeath: r =>
+                    {
+                        r.Summon(_room10, new MonsterSpawn(105, new(10, 16)));
+                    }));
+                }));
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room11 && dialog == 6180)
+        {
+            r.Summon(_room11,
+                new MonsterSpawn(105, new(10, 5), IsBonus: true),
+                new MonsterSpawn(105, new(8, 5), OnDeath: r =>
+                {
+                    r.Summon(_room11, new MonsterSpawn(108, new(10, 8)));
+                }));
+            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room14 && dialog == 6181)
+        {
+            r.Summon(_room14,
+                new MonsterSpawn(108, new(5, 8)),
+                new MonsterSpawn(105, new(4, 10)));
+        }
+        else if (room == _room16 && dialog == 6183)
+        {
+            r.Summon(_room16,
+                new MonsterSpawn(105, new(13, 9)),
+                new MonsterSpawn(108, new(8, 7), OnDeath: r =>
+                {
+                    r.Summon(_room16, new MonsterSpawn(105, new(10, 5)));
+                }));
+            r.Objective(_room16, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room17 && dialog == 6184)
+        {
+            r.Summon(_room17,
+                new MonsterSpawn(105, new(7, 12)),
+                new MonsterSpawn(105, new(7, 10)));
+            r.Objective(_room17, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room19 && dialog == 6185)
+        {
+            r.Summon(_room19,
+                new MonsterSpawn(105, new(10, 9), OnDeath: r =>
+                {
+                    r.Summon(_room19, new MonsterSpawn(105, new(13, 9)));
+                }),
+                new MonsterSpawn(105, new(8, 8)));
+            r.Objective(_room19, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room23 && dialog == 6187)
+        {
+            r.Summon(_room23,
+                new MonsterSpawn(105, new(29, 19), IsBonus: true),
+                new MonsterSpawn(105, new(26, 15), OnDeath: r =>
+                {
+                    r.Summon(_room23, new MonsterSpawn(109, new(19, 19)));
+                }),
+                new MonsterSpawn(105, new(25, 13)),
+                new MonsterSpawn(105, new(10, 19)),
+                new MonsterSpawn(105, new(10, 8)));
             r.Objective(_room23, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
     }
