@@ -254,6 +254,16 @@ namespace NosCore.Data.Enumerations.I18N
         NRUN_WITHOUT_DIALOG,
         ASK_YES_NO,
         TALENT_ARENA_FAILED,
+        INVENTORY_SLOT_HOLDS_SEVERAL_ITEMS,
+        ITEM_ALREADY_IN_INVENTORY,
+        SPECIALIST_POCKET_REFUSED_ITEM,
+        EQUIPMENT_POCKET_REFUSED_ITEM,
+        INVENTORY_ITEM_NOT_FOUND,
+        INVENTORY_SLOT_EMPTY,
+        ITEM_MOVED_ONTO_ITSELF,
+        ITEM_CANNOT_CHANGE_POCKET,
+        ITEM_REFUSED_BY_POCKET,
+        ITEM_SLOT_TAKEN,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

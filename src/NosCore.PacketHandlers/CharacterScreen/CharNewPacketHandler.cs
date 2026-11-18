@@ -180,7 +180,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     // Everything is built before anything is written, and written in one transaction:
                     // a creation that fails must not leave a character without its equipment and skills.
                     var origin = ResolveStarterOrigin(@class, _worldConfiguration.AllClassAvailableOnCreate);
-                    var inventory = new InventoryService(itemCatalog, worldConfiguration, loggerFactory.CreateLogger<InventoryService>());
+                    var inventory = new InventoryService(itemCatalog, worldConfiguration, loggerFactory.CreateLogger<InventoryService>(), logLanguage);
                     try
                     {
                         foreach (var itemToAdd in ResolvePack(_worldConfiguration.BasicEquipments, @class, origin, new List<BasicEquipment>()))

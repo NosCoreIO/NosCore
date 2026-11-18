@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             };
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(new ItemCatalog(items), NullLoggerFactory.Instance, TestLocalizers.Log, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
             Inventory = new GameObject.Services.InventoryService.InventoryService(new ItemCatalog(items), Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 3, MaxItemAmount = 999 }),
-                NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
+                NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance, TestLocalizers.Log);
         }
 
         [TestMethod]
