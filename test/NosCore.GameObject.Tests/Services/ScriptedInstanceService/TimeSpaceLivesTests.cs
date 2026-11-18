@@ -287,6 +287,21 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ARandomCellIsAWalkableCellOfTheRoom()
+        {
+            await new Spec("A room too small to keep clear of its doors still gives a walkable cell")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .Then(ARandomCellShouldBeWalkable)
+                .ExecuteAsync();
+        }
+
+        private void ARandomCellShouldBeWalkable()
+        {
+            var cell = _run.RandomCell(1);
+            Assert.IsTrue(_session.Character.MapInstance.Map.IsWalkable(cell.X, cell.Y));
+        }
+
         private Task ATimeSpaceWith_Lives(byte lives)
         {
             var room = World.MapInstanceGeneratorService.CreateMapInstance(

@@ -2933,12 +2933,14 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In the last room the exit stays shut until the lever is pulled; pulling it shows "The lever
       has been pulled." and opens the exit, and walking onto it shows Mission Clear
 - [ ] Letting the clock run out shows Mission Fail with "Failed because time ran out."
-- [ ] In `timespace-03`, the two keys of the second room stand somewhere else on each run. Taking
+- [ ] In `timespace-03`, the two keys of the second room stand on different cells on each run,
+      anywhere in the room away from its doors, never on a short set of spots. Taking
       one shows "A door has opened somewhere." and "Find a key!" without "The lever has been
       pulled.", makes the other key vanish, and opens the east portal for one key and the west
       portal for the other
-- [ ] In the last room of `timespace-03`, one key opens the exit; the other one leaves it shut and
-      brings five monsters one after another, and killing the last of them opens the exit
+- [ ] In the last room of `timespace-03`, the keys also stand on different cells each run. One key
+      opens the exit; the other one leaves it shut and brings two monsters, a third when the second
+      of them dies, and killing the last of them opens the exit
 - [ ] In `timespace-05`, the last room shows the guards and talk 6024 with no monster in sight;
       the monsters appear once the talk is closed with End Dialogue
 - [ ] In `timespace-06`, pulling the lever in the room west of the exit room takes 60 seconds off

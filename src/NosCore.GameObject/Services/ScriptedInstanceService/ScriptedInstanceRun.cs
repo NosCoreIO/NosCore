@@ -765,6 +765,25 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public int LockerLeft(int room) => _lockers.GetValueOrDefault(room);
 
+        private const short DoorMargin = 3;
+
+        public Spot RandomCell(int room)
+        {
+            var map = _rooms[room].Map;
+            for (var i = 0; map.Width > 2 * DoorMargin && map.Height > 2 * DoorMargin && i < 100; i++)
+            {
+                var x = (short)_random.Next(DoorMargin, map.Width - DoorMargin);
+                var y = (short)_random.Next(DoorMargin, map.Height - DoorMargin);
+                if (map.IsWalkable(x, y))
+                {
+                    return new Spot(x, y);
+                }
+            }
+
+            var (anyX, anyY) = map.RandomWalkableCell(_random, 100) ?? ((short)0, (short)0);
+            return new Spot(anyX, anyY);
+        }
+
         public bool IsButtonOn(int room, int button) =>
             _rooms[room].Buttons.TryGetValue(button, out var placed) && placed.IsOn;
 
@@ -1294,6 +1313,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 Do(() => run.SetMonsterLocker(room, count, countedVNum));
 
             public int LockerLeft(int room) => run.LockerLeft(room);
+
+            public Spot RandomCell(int room) => run.RandomCell(room);
 
             public bool IsButtonOn(int room, int button) => run.IsButtonOn(room, button);
 

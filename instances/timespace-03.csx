@@ -14,8 +14,6 @@ public class TimeSpace3 : InstanceScript
 
     // Both keys of a room land on one of these pairs of spots, picked per run. The first key of
     // a pair is the one that opens the way on.
-    private static readonly (Spot, Spot)[] FirstKeySpots = [(new(20, 11), new(24, 14)), (new(19, 6), new(13, 19)), (new(22, 8), new(23, 14))];
-    private static readonly (Spot, Spot)[] LastKeySpots = [(new(26, 16), new(3, 19)), (new(18, 27), new(13, 11)), (new(4, 21), new(12, 4))];
 
     public TimeSpace3()
     {
@@ -52,7 +50,7 @@ public class TimeSpace3 : InstanceScript
         r.SpawnPortal(_room2, new(14, 1), _room1, new(14, 28), locked: false);
         r.SpawnPortal(_room2, new(28, 15), _room3, new(1, 15));
         r.SpawnPortal(_room2, new(1, 15), _room10, new(28, 15));
-        var (eastKey, westKey) = FirstKeySpots[Random.Shared.Next(FirstKeySpots.Length)];
+        var (eastKey, westKey) = TwoCells(r, _room2);
         r.PlaceButton(_room2, 1, eastKey, 1057, 1057, kind: ButtonKind.Key);
         r.PlaceButton(_room2, 2, westKey, 1057, 1057, kind: ButtonKind.Key);
         r.SpawnPortal(_room3, new(14, 28), _room4, new(14, 1), locked: false);
@@ -112,7 +110,7 @@ public class TimeSpace3 : InstanceScript
         r.SpawnPortal(_room9, new(14, 1), _room11, new(14, 28));
         r.SpawnPortal(_room9, new(14, 28), _room8, new(14, 1));
         r.SpawnExit(_room9, new(1, 15));
-        var (exitKey, trapKey) = LastKeySpots[Random.Shared.Next(LastKeySpots.Length)];
+        var (exitKey, trapKey) = TwoCells(r, _room9);
         r.PlaceButton(_room9, 1, exitKey, 1057, 1057, kind: ButtonKind.Key);
         r.PlaceButton(_room9, 2, trapKey, 1057, 1057, kind: ButtonKind.Key);
         r.SpawnPortal(_room10, new(28, 15), _room2, new(1, 15));
@@ -141,6 +139,18 @@ public class TimeSpace3 : InstanceScript
                 }));
             }),
             new MonsterSpawn(129, new(6, 18)));
+    }
+
+    private static (Spot, Spot) TwoCells(IInstanceRun r, int room)
+    {
+        var first = r.RandomCell(room);
+        var second = r.RandomCell(room);
+        while (second == first)
+        {
+            second = r.RandomCell(room);
+        }
+
+        return (first, second);
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
