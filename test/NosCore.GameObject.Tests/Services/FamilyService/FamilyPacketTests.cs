@@ -12,12 +12,14 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.ServerPackets.Families;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Family = NosCore.GameObject.Services.FamilyService.Family;
+using Game18NConstString = NosCore.Packets.Enumerations.Game18NConstString;
 using GenderType = NosCore.Packets.Enumerations.GenderType;
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
@@ -67,16 +69,79 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         [TestMethod]
-        public void TheTagCarriesTheFamilyIdAndTheRank()
+        public void TheTagCarriesTheFamilyIdTheRankAndTheBareName()
         {
+            // gidx 1 14819755 7752.917 Testers 11 0|0|0
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
 
-            var packet = _session.Character.GenerateGidx(World.GameLanguageLocalizer,
-                _session.Character.AccountLanguage);
+            var packet = _session.Character.GenerateGidx();
 
             Assert.AreEqual(5052, packet.FamilyId);
+            Assert.AreEqual(Game18NConstString.Member, packet.FamilyRank);
+            Assert.AreEqual("-Nemesis-", packet.FamilyName);
             Assert.AreEqual(7, packet.FamilyLevel);
-            StringAssert.StartsWith(packet.FamilyName, "-Nemesis-(");
+        }
+
+        [TestMethod]
+        [DataRow(FamilyAuthority.Head, Game18NConstString.Familyhead)]
+        [DataRow(FamilyAuthority.Assistant, Game18NConstString.Familydeputy)]
+        [DataRow(FamilyAuthority.Manager, Game18NConstString.Familykeeper)]
+        [DataRow(FamilyAuthority.Member, Game18NConstString.Member)]
+        public void EachAuthorityIsShownWithTheClientsOwnRankText(FamilyAuthority authority, Game18NConstString rank)
+        {
+            _session.Character.Family = Nemesis(_session.Character.CharacterId, authority);
+
+            Assert.AreEqual(rank, _session.Character.GenerateGidx().FamilyRank);
+            Assert.AreEqual(rank, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().FamilySubPacket.NotNull().FamilyRank);
+            Assert.AreEqual(rank, _session.Character.GenerateCInfo(World.GameLanguageLocalizer).FamilyRank);
+        }
+
+        [TestMethod]
+        public void OtherPlayersSeeTheFamilyInTheMapEntry()
+        {
+            // in 1 Alice - 6805743 ... 1618.917 Testers 27 ...
+            _session.Character.Family = Nemesis(_session.Character.CharacterId);
+
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
+
+            PacketAssert.AreEqual(new FamilySubPacket { FamilyId = 5052, FamilyRank = Game18NConstString.Member },
+                sub.FamilySubPacket.NotNull());
+            Assert.AreEqual("-Nemesis-", sub.FamilyName);
+        }
+
+        [TestMethod]
+        public void AMapEntryWithoutAFamilyHasNoFamilyField()
+        {
+            // in 1 Bob - 12738248 ... -1 - 23 ...
+            _session.Character.Family = null;
+
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
+
+            Assert.IsNull(sub.FamilySubPacket, "the serializer writes an absent family as -1");
+            Assert.IsNull(sub.FamilyName, "the serializer writes a null string as -");
+        }
+
+        [TestMethod]
+        public void TheOwnCharacterInfoCarriesTheFamily()
+        {
+            _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Head);
+
+            var packet = _session.Character.GenerateCInfo(World.GameLanguageLocalizer);
+
+            Assert.AreEqual((5052, Game18NConstString.Familyhead, "-Nemesis-"),
+                (packet.FamilyId, packet.FamilyRank, packet.FamilyName));
+        }
+
+        [TestMethod]
+        public void TheOwnCharacterInfoWithoutAFamilyHasNoRank()
+        {
+            // c_info Tester - -1 -1 - 14293841 ...
+            _session.Character.Family = null;
+
+            var packet = _session.Character.GenerateCInfo(World.GameLanguageLocalizer);
+
+            Assert.AreEqual((-1, (Game18NConstString?)null, (string?)null),
+                (packet.FamilyId, packet.FamilyRank, packet.FamilyName));
         }
 
         [TestMethod]
@@ -85,8 +150,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             // Silence would leave the last tag on screen.
             _session.Character.Family = null;
 
-            var packet = _session.Character.GenerateGidx(World.GameLanguageLocalizer,
-                _session.Character.AccountLanguage);
+            var packet = _session.Character.GenerateGidx();
 
             Assert.IsNull(packet.FamilyId);
             Assert.IsNull(packet.FamilyName, "the serializer writes a null string as -");
@@ -129,10 +193,11 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 VisualType = VisualType.Player,
                 VisualId = _session.Character.VisualId,
                 FamilyId = null,
+                FamilyRank = null,
                 FamilyName = null,
                 FamilyLevel = 0,
-                FamilyIcons = [],
-            }, _session.Character.GenerateGidx(World.GameLanguageLocalizer, RegionType.EN));
+                FamilyIcons = [0, 0, 0],
+            }, _session.Character.GenerateGidx());
         }
 
         [TestMethod]
@@ -160,22 +225,23 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 VisualType = VisualType.Player,
                 VisualId = _session.Character.VisualId,
                 FamilyId = 5052,
-                FamilyName = _session.Character.GenerateFamilyTag(World.GameLanguageLocalizer, RegionType.EN),
+                FamilyRank = Game18NConstString.Member,
+                FamilyName = "-Nemesis-",
                 FamilyLevel = 7,
                 FamilyIcons = [0, 0, 0],
-            }, _session.Character.GenerateGidx(World.GameLanguageLocalizer, RegionType.EN));
+            }, _session.Character.GenerateGidx());
         }
 
         [TestMethod]
-        public void TheRankIsReadInTheLanguageOfWhoeverIsLooking()
+        public void TheProfileCardReadsTheRankInTheLanguageOfWhoeverIsLooking()
         {
             _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Manager);
 
             var english = _session.Character
-                .GenerateGidx(World.GameLanguageLocalizer, Shared.Enumerations.RegionType.EN)
+                .GenerateReqInfo(World.GameLanguageLocalizer, Shared.Enumerations.RegionType.EN)
                 .FamilyName;
             var french = _session.Character
-                .GenerateGidx(World.GameLanguageLocalizer, Shared.Enumerations.RegionType.FR)
+                .GenerateReqInfo(World.GameLanguageLocalizer, Shared.Enumerations.RegionType.FR)
                 .FamilyName;
 
             Assert.AreNotEqual(english, french);

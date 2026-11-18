@@ -304,8 +304,10 @@ public static class PlayerBundleExtensions
                 Morph = player.ShownMorph(),
                 WeaponUpgradeRareSubPacket = player.GetWeaponUpgradeRareSubPacket(),
                 ArmorUpgradeRareSubPacket = player.GetArmorUpgradeRareSubPacket(),
-                FamilySubPacket = new FamilySubPacket(),
-                FamilyName = null,
+                FamilySubPacket = player.Family is { } family
+                    ? new FamilySubPacket { FamilyId = family.FamilyId, FamilyRank = player.FamilyRank() }
+                    : null,
+                FamilyName = player.Family?.Name,
                 ReputIco = GetIcon(player),
                 Invisible = player.Invisible,
                 MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
@@ -495,7 +497,8 @@ public static class PlayerBundleExtensions
             Unknown1 = null,
             GroupId = -1,
             FamilyId = (int)(player.Family?.FamilyId ?? -1),
-            FamilyName = player.GenerateFamilyTag(localizer, player.AccountLanguage),
+            FamilyRank = player.FamilyRank(),
+            FamilyName = player.Family?.Name,
             CharacterId = player.VisualId,
             Authority = player.Authority,
             Gender = player.Gender,

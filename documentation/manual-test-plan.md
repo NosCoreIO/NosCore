@@ -2760,10 +2760,14 @@ Found a family as above, or seed one: a `Family` row, then a `FamilyCharacter` r
 member (`Authority` 0 head, 1 assistant, 2 manager, 3 member). Log two members in on the
 same map.
 
-- [ ] Each member sees the other's tag under their name as `Name(Rank)`, with the rank
-      in the viewer's own language, and nothing printed after it
-- [ ] Your own tag shows under your own name after character select, with nothing after it
-- [ ] A character with no family has no tag
+- [ ] Each member sees the other's tag under their name as `Name(Rank)`, the rank once and
+      in the client's own wording (`Testers(Member)` for a plain member), and nothing
+      printed after it
+- [ ] A third character arriving on the map after them sees both tags at once, without
+      any family change happening first
+- [ ] Your own tag shows under your own name after character select, with the rank once
+      and nothing after it
+- [ ] A character with no family has no tag, and nothing in its place
 - [ ] Opening the family window shows the name, the head, the level bar and the notice,
       with the notice's spaces intact
 
