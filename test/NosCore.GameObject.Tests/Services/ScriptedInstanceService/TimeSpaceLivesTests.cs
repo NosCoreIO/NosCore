@@ -67,11 +67,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public async Task ADeathWithALifeLeftRevivesThePlayer()
         {
-            await new Spec("A death while the party has another life uses one, and the player stands up in the run")
+            await new Spec("A death while the party has another life uses one, costs no dignity, and the player stands up in the run")
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .WhenAsync(ThePlayerDies)
                 .Then(ThePlayerShouldBeTold_RevivesAreLeft, 1)
                 .And(TheRunShouldStillBeGoing)
+                .And(ThePlayerShouldHave_Dignity, (short)0)
                 .AndAsync(TenSecondsPass)
                 .Then(ThePlayerShouldBeAlive)
                 .ExecuteAsync();
@@ -129,11 +130,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public async Task LeavingWithNoLifeLeftFailsTheRun()
         {
-            await new Spec("Giving up a started time-space with no life left fails it for the others")
+            await new Spec("Giving up a started time-space with no life left fails it, and the failure alone charges the dignity")
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)0)
                 .AndAsync(TheRunHasStarted)
                 .WhenAsync(ThePlayerLeaves)
                 .Then(TheRunShouldHaveRunOutOfLives)
+                .And(EachPlayerShouldHave_FailedAttempt, 1)
+                .And(ThePlayerShouldHave_Dignity, (short)0)
                 .ExecuteAsync();
         }
 
@@ -165,7 +168,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task DignityStopsAtTheFloor()
         {
             await new Spec("Giving up never takes dignity below the lowest band's floor")
-                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .And(ThePlayerHas_Dignity, (short)-995)
                 .And(ThePlayerIsLevel_, (byte)70)
                 .AndAsync(TheRunHasStarted)
@@ -175,14 +178,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
-        public async Task ARunOutOfTimeScoresNothingAndCostsDignity()
+        public async Task ARunOutOfTimeScoresNothingAndFails()
         {
-            await new Spec("When the clock runs out the score is all zeros and each player inside loses dignity")
+            await new Spec("When the clock runs out the score is all zeros and the run fails for each player inside")
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
                 .AndAsync(TheRunHasStarted)
                 .WhenAsync(TheClockRunsOut)
                 .Then(TheScoreShouldBeEmpty)
-                .And(EachPlayerShouldBeChargedForTheTimeout)
+                .And(EachPlayerShouldHave_FailedAttempt, 1)
                 .ExecuteAsync();
         }
 
@@ -235,24 +238,24 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
-        public async Task RunningOutOfTimeCostsTheLevelInDignity()
+        public async Task AFailedRunCostsTheLevelInDignity()
         {
-            await new Spec("A player whose time-space ran out of time loses their level in dignity and is told so")
+            await new Spec("A player whose time-space failed, by time or by lives, loses their level in dignity and is told so")
                 .Given(ThePlayerHas_Dignity, (short)100)
                 .And(ThePlayerIsLevel_, (byte)3)
-                .WhenAsync(TheTimeoutIsCharged)
+                .WhenAsync(TheFailureIsCharged)
                 .Then(ThePlayerShouldHave_Dignity, (short)97)
                 .And(ThePlayerShouldBeToldTheDignityChangedBy_, -3)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task RunningOutOfTimeCostsAtMostFiftyDignity()
+        public async Task AFailedRunCostsAtMostFiftyDignity()
         {
-            await new Spec("A player above level 50 whose time-space ran out of time loses 50 dignity")
+            await new Spec("A player above level 50 whose time-space failed loses 50 dignity")
                 .Given(ThePlayerHas_Dignity, (short)100)
                 .And(ThePlayerIsLevel_, (byte)70)
-                .WhenAsync(TheTimeoutIsCharged)
+                .WhenAsync(TheFailureIsCharged)
                 .Then(ThePlayerShouldHave_Dignity, (short)50)
                 .ExecuteAsync();
         }
@@ -335,10 +338,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await _run.TickAsync();
         }
 
-        private Task TheTimeoutIsCharged()
+        private Task TheFailureIsCharged()
         {
             _session.LastPackets.Clear();
-            return World.Create<TimeSpaceTimedOutHandler>().Handle(new ScriptedInstanceTimedOutEvent(_session.Character));
+            return World.Create<TimeSpaceFailedHandler>().Handle(new TimeSpaceFailedEvent(_session.Character, 1));
         }
 
         private void TheScoreShouldBeEmpty()
@@ -347,21 +350,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             PacketAssert.AreEqual(new ScorePacket { EndState = EndStateType.Timeout }, broadcast.OfType<ScorePacket>().Single());
         }
 
-        private void EachPlayerShouldBeChargedForTheTimeout()
-        {
-            var characterId = _session.Character.CharacterId;
-            _bus.Verify(b => b.RaiseAsync(It.Is<ScriptedInstanceTimedOutEvent>(e => IsFor(e, characterId))), Times.Once);
-        }
-
         private void EachPlayerShouldHave_FailedAttempt(int count)
         {
             var characterId = _session.Character.CharacterId;
             _bus.Verify(b => b.RaiseAsync(It.Is<TimeSpaceFailedEvent>(e => e.Character.CharacterId == characterId && e.TimeSpaceId == 1)),
                 Times.Exactly(count));
         }
-
-        private static bool IsFor(ScriptedInstanceTimedOutEvent timedOut, long characterId) =>
-            timedOut.Character.CharacterId == characterId;
 
         private void ThePlayerShouldNotBeSentBack()
         {

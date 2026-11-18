@@ -44,7 +44,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     host.LoseLife(run);
                     return Task.CompletedTask;
                 });
-                if (gaveUp)
+                // A give-up that used the last life fails the run, which charges the dignity itself.
+                if (gaveUp && run.EndState == null)
                 {
                     await session.Character.LoseDignityAsync(dignityService, dignityService.GetDignityLoss(session.Character.Level));
                 }

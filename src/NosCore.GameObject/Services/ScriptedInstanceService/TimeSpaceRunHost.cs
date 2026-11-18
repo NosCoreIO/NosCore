@@ -49,11 +49,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 // A run that ran out of time scores nothing.
                 await run.BroadcastAsync(new ScorePacket { EndState = state });
-                foreach (var character in participants)
-                {
-                    await gameEvents.RaiseAsync(new ScriptedInstanceTimedOutEvent(character));
-                }
-
                 await RaiseFailedAsync(participants);
                 return;
             }
