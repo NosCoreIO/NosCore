@@ -393,6 +393,22 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] A card that "removes buffs below level N" (card 159) takes the lower-level buffs off whoever
       receives it; static buffs such as a fairy booster stay
 
+### Stopping bleedings and poisons — BCard type 25 subtypes 51 and 52
+
+Both need the debuffs on you first. On a test database, make buff potion 1246 hand them out, then
+restart the world server:
+`INSERT INTO "BCard" ("Type","SubType","FirstData","SecondData","ThirdData","CastType","ItemVNum","IsLevelScaled","IsLevelDivided","Slot") SELECT 25, 11, 100, c, 0, 0, 1246, false, false, 0 FROM unnest(ARRAY[1, 21, 42, 82, 25, 573, 84, 757]) c;`
+
+- [ ] As a level 10 swordsman with Stop Bleeding (skill 238), drink potion 1246 and cast Stop Bleeding
+      on yourself: the Minor Bleeding (1), Bleeding (21) and Heavy Bleeding (42) icons go at once,
+      Fatal Bleeding (82, level 4) stays until it runs out, and no poison icon goes
+- [ ] As a level 5 archer with Detoxification Ritual (skill 255), drink potion 1246 and cast it on yourself:
+      Deadly Poison (25) and Mandra Poison (573) go; Mental Poison (84, level 3), Weak Poison (757, not a
+      toxic card) and every bleeding stay
+- [ ] Not verifiable yet: Herb Mastery (skill 360) raising Detoxification Ritual to level 3 poisons, since
+      an upgrade skill's own effects never reach the skill it upgrades; and Bandage (2087) and Good
+      Bandage (2128) used from the inventory, which nothing lets you use
+
 ### Chance-based damage taken
 
 - [ ] Wear an armour with "there is a 100% chance that damage from ranged attacks is reduced by 20%"

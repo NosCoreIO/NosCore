@@ -146,6 +146,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short SteedEndCard = 52;
         public const int SteedCardTime = 30;
 
+        // Two adventurer skills nobody starts with, cast on oneself: one leaves a light and a heavy
+        // bleeding, the other stops bleedings up to the light one's level. Bleedings are in card
+        // group 0, as in the client data.
+        public const short WoundSkill = 206;
+        public const short WoundSkillCastId = 6;
+        public const short StopBleedingSkill = 207;
+        public const short StopBleedingSkillCastId = 7;
+        public const short LightBleeding = 56;
+        public const short HeavyBleeding = 57;
+
         // The Mother Cuby raid as its script lays it out: its gate on the entrance map, the seal
         // that opens a team, and its boss, which falls to any hit.
         public const short JellyEntrance = 2510;
@@ -294,6 +304,21 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new Card { CardId = SteedEndCard, Name = "steedend", Duration = SteedCardTime });
             // The card an item gives is the one its buff effect names.
             context.Add(new BCard { ItemVNum = Booster, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = BoostCard });
+            context.Add(new Skill
+            {
+                SkillVNum = WoundSkill, Name = "skill206", CastId = WoundSkillCastId, SkillType = 1, TargetType = 1, Cooldown = 6,
+                Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
+            });
+            context.Add(new Skill
+            {
+                SkillVNum = StopBleedingSkill, Name = "skill207", CastId = StopBleedingSkillCastId, SkillType = 1, TargetType = 1, Cooldown = 6,
+                Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
+            });
+            context.Add(new Card { CardId = LightBleeding, Name = "lightbleeding", Level = 1, Duration = 600, BuffType = BuffType.Bad });
+            context.Add(new Card { CardId = HeavyBleeding, Name = "heavybleeding", Level = 3, Duration = 600, BuffType = BuffType.Bad });
+            context.Add(new BCard { SkillVNum = WoundSkill, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = LightBleeding });
+            context.Add(new BCard { SkillVNum = WoundSkill, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = HeavyBleeding });
+            context.Add(new BCard { SkillVNum = StopBleedingSkill, Type = BCardType.CardType.Buff, SubType = 51, FirstData = 0, SecondData = 2 });
             context.Add(new RollGeneratedItem
             {
                 OriginalItemVNum = Box, ItemGeneratedVNum = Seed, ItemGeneratedAmount = BoxSeeds, Probability = 1, MaximumOriginalItemRare = 8

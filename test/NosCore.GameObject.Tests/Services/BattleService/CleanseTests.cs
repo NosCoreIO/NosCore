@@ -43,9 +43,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await ApplyAsync(Card(4, BuffType.Good, 4));
         }
 
-        private CardDto Card(short id, BuffType type, byte level)
+        private CardDto Card(short id, BuffType type, byte level, short groupId = 0, CardKind kind = CardKind.General)
         {
-            var card = new CardDto { CardId = id, BuffType = type, Level = level, Duration = 600 };
+            var card = new CardDto { CardId = id, BuffType = type, Level = level, Duration = 600, GroupId = groupId, Kind = kind };
             _cards[id] = card;
             return card;
         }
@@ -89,6 +89,41 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await ApplyAsync(Card(10, BuffType.Bad, 1), Effect(BCardEffect.SpecialisationBuffResistanceRemoveBuffBelowLevel, 100, 4));
 
             CollectionAssert.AreEqual(new short[] { 1, 2, 4, 10 }, Active());
+        }
+
+        [TestMethod]
+        public async Task ASkillCancelsTheCardsOfOneGroupUpToItsLevel()
+        {
+            await ApplyAsync(Card(10, BuffType.Bad, 2, groupId: 7));
+            await ApplyAsync(Card(11, BuffType.Bad, 4, groupId: 8));
+            await ApplyAsync(Card(12, BuffType.Bad, 1, groupId: 9));
+
+            await _buffs.InflictCardsAsync(_session.Character, null, [Effect(BCardEffect.BuffCancelGroupOfEffects, 7, 3)]);
+
+            CollectionAssert.AreEqual(new short[] { 1, 2, 3, 4, 11, 12 }, Active());
+        }
+
+        [TestMethod]
+        public async Task CancellingAGroupLeavesItsHigherLevelCards()
+        {
+            await ApplyAsync(Card(10, BuffType.Bad, 4, groupId: 7));
+
+            await _buffs.InflictCardsAsync(_session.Character, null, [Effect(BCardEffect.BuffCancelGroupOfEffects, 7, 3)]);
+
+            CollectionAssert.AreEqual(new short[] { 1, 2, 3, 4, 10 }, Active());
+        }
+
+        [TestMethod]
+        public async Task ASkillCounteractsPoisonsUpToItsLevel()
+        {
+            await ApplyAsync(Card(10, BuffType.Bad, 2, groupId: 7, kind: CardKind.Toxic));
+            await ApplyAsync(Card(11, BuffType.Bad, 3, groupId: 8, kind: CardKind.Toxic));
+            await ApplyAsync(Card(12, BuffType.Bad, 4, groupId: 9, kind: CardKind.Toxic));
+            await ApplyAsync(Card(13, BuffType.Bad, 1, groupId: 10, kind: CardKind.Disease));
+
+            await _buffs.InflictCardsAsync(_session.Character, null, [Effect(BCardEffect.BuffCounteractPoison, 3, 3)]);
+
+            CollectionAssert.AreEqual(new short[] { 1, 2, 3, 4, 12, 13 }, Active());
         }
     }
 }

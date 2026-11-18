@@ -229,7 +229,11 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     public Task RemoveBadAsync(IAliveEntity target, byte maxLevel) => RemoveUpToLevelAsync(target, BuffType.Bad, maxLevel);
 
-    private async Task RemoveUpToLevelAsync(IAliveEntity target, BuffType buffType, int maxLevel)
+    private Task RemoveUpToLevelAsync(IAliveEntity target, BuffType buffType, int maxLevel) =>
+        RemoveWhereAsync(target, (buff, card) =>
+            buff.BuffType == buffType && !(buff.Static && buffType == BuffType.Good) && card.Level <= maxLevel);
+
+    private async Task RemoveWhereAsync(IAliveEntity target, Func<BuffInstance, CardDto, bool> removes)
     {
         var buffs = target.BuffState();
         if (buffs == null)
@@ -239,7 +243,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         foreach (var (cardId, buff) in buffs)
         {
-            if (buff.BuffType == buffType && !(buff.Static && buffType == BuffType.Good) && cardCatalog.GetCard(cardId)?.Level <= maxLevel
+            if (!buff.FromSkill && cardCatalog.GetCard(cardId) is { } card && removes(buff, card)
                 && buffs.TryRemove(cardId, out var removed))
             {
                 await SendIconRemovalAsync(target, removed);
@@ -262,6 +266,15 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                     break;
                 case BCardEffect.SpecialisationBuffResistanceRemoveBuffBelowLevel when Rolls(bCard.FirstData):
                     await RemoveUpToLevelAsync(target, BuffType.Good, bCard.SecondData - 1);
+                    break;
+                case BCardEffect.BuffCancelGroupOfEffects:
+                    await RemoveWhereAsync(target, (buff, card) =>
+                        !buff.Static && card.GroupId == bCard.FirstData && card.Level <= bCard.SecondData);
+                    break;
+                // Every skill carrying it has 3 as its first value, which nothing explains yet.
+                case BCardEffect.BuffCounteractPoison:
+                    await RemoveWhereAsync(target, (buff, card) =>
+                        buff.BuffType == BuffType.Bad && card.Kind == CardKind.Toxic && card.Level <= bCard.SecondData);
                     break;
             }
         }
