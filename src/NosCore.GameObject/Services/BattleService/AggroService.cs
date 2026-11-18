@@ -74,6 +74,17 @@ public sealed class AggroService(IClock clock) : IAggroService
         world.SetComponent(handle, new AggroComponent(newTargetType, newTargetId, newThreat, now.Plus(LeashDuration)));
     }
 
+    // The mob turns on the taunter at once, and the taunter inherits the threat the previous
+    // target had built, so winning the mob back takes as much as taking it did.
+    public void Taunt(IAliveEntity mob, IAliveEntity taunter)
+    {
+        if (!TryReadAggro(mob, out var aggro, out var world, out var handle)) return;
+
+        var now = clock.GetCurrentInstant();
+        var threat = aggro.TargetVisualId != 0 && aggro.UntilLeash > now ? System.Math.Max(1, aggro.ThreatScore) : 1;
+        world.SetComponent(handle, new AggroComponent(taunter.VisualType, taunter.VisualId, threat, now.Plus(LeashDuration)));
+    }
+
     public void Clear(IAliveEntity mob)
     {
         if (!TryReadAggro(mob, out _, out var world, out var handle)) return;

@@ -350,6 +350,33 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 && packet.IvnSubPackets?.Any(item => item.VNum == WorldData.Bandage && item.RareAmount == amount) == true;
 
         [TestMethod]
+        public async Task ATauntTurnsAMonsterFromWhoeverItWasFightingOntoTheCaster()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 80, 79, c =>
+            {
+                c.Class = CharacterClassType.Swordsman;
+                c.JobLevel = WorldData.TauntSkillJobLevel;
+            });
+            await Harness.TeachAsync(player, WorldData.TauntSkill);
+            await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 80, 81);
+            await using var alice = Harness.Client(player);
+            await alice.EnterWorldAsync(player.Slot);
+            var provoked = bob.Mark();
+            await Steps.HitUntilAsync(bob, bob, WorldData.Brute, hit => hit.Damage != 0);
+            await bob.ExpectSinceAsync<SuPacket>(provoked, HitOn(bob, WorldData.Brute), "the brute fighting Bob", TimeSpan.FromSeconds(20));
+            var taunted = alice.Mark();
+
+            await alice.SendAsync(Cast(WorldData.TauntSkillCastId, WorldData.Brute));
+
+            var taunt = await alice.ExpectSinceAsync<SuPacket>(taunted, HitBy(alice, WorldData.Brute), "the taunt");
+            Assert.AreEqual(WorldData.TauntSkill, taunt.SkillVnum);
+            await alice.ExpectSinceAsync<SuPacket>(taunted, HitOn(alice, WorldData.Brute), "the brute turning on Alice",
+                TimeSpan.FromSeconds(20));
+            var turned = bob.Mark();
+            Assert.IsTrue(await bob.NoneSinceAsync(turned, HitOn(bob, WorldData.Brute), TimeSpan.FromSeconds(3)), "and leaving Bob alone");
+        }
+
+        [TestMethod]
         public async Task AnotherPlayerCannotBeHitOnAnOrdinaryMap()
         {
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 84, 40);

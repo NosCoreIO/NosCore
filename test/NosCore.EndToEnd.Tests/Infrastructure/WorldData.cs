@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Database;
@@ -87,6 +88,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         // HP and a second one is not. It cannot be killed in a scenario.
         public const int Biter = 104;
         private const short BiterVNum = 7;
+
+        // Hits back whoever has its attention, for a single HP a blow, so a fight with it can last.
+        public const int Brute = 105;
+        private const short BruteVNum = 12;
+
+        // Taunting Shot as the client data has it: a Swordsman's debuff from job level 9 that deals
+        // no damage and draws the target's attention to the caster.
+        public const short TauntSkill = 230;
+        public const short TauntSkillCastId = 10;
+        public const byte TauntSkillJobLevel = 9;
 
         // A skill no adventurer starts with: costly, and a long time before it can be used again.
         public const short SlowSkill = 210;
@@ -460,6 +471,15 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 SecondData = SacrificeSpiritCard
             });
 
+            context.Add(new Skill
+            {
+                SkillVNum = TauntSkill, Name = "skill230", CastId = TauntSkillCastId, SkillType = 1, Type = 1, Class = 1,
+                LevelMinimum = TauntSkillJobLevel, Range = 10, CastTime = 6, Cooldown = 100, MpCost = 30, Kind = SkillKind.Debuff,
+                UsesSecondaryWeapon = true, Effect = 528, AttackAnimation = 23, CastAnimation = 26, CastEffect = 527
+            });
+            await context.SaveChangesAsync();
+            context.Add(new BCard { SkillVNum = TauntSkill, Type = BCardType.CardType.SpecialEffects2, SubType = 11, FirstData = 1 });
+
             // As the client data has them: skill type 5 is a skill for a NosMate's skill bar.
             context.Add(new Skill
             {
@@ -488,6 +508,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             await context.SaveChangesAsync();
             context.Add(new MapMonster { MapMonsterId = Biter, MapId = Meadow, MapX = 80, MapY = 20, VNum = BiterVNum });
+
+            context.Add(new NpcMonster
+            {
+                NpcMonsterVNum = BruteVNum, Name = "brute", Level = 1, MaxHp = 100000, DamageMinimum = 1, DamageMaximum = 1,
+                Concentrate = 2000, BasicRange = 1, BasicCooldown = 20
+            });
+            await context.SaveChangesAsync();
+            context.Add(new MapMonster { MapMonsterId = Brute, MapId = Meadow, MapX = 80, MapY = 80, VNum = BruteVNum });
 
             context.Add(new NpcMonster
             {

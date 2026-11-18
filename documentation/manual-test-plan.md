@@ -34,7 +34,7 @@ even when its packets are covered here.
 | The bag: moving, splitting and merging stacks, sorting, wearing and taking off, costumes, potions, dropping, destroying | `InventoryTests` |
 | The bank: depositing, withdrawing and its fee, every limit, a window that is not open | `BankTests` |
 | Groups: inviting, declining, leaving, disbanding, a full group, a member leaving the world, shared experience | `GroupTests` |
-| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP | `FightTests` |
+| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP, a taunt drawing a monster off another player | `FightTests` |
 | Sacrifice cast on a friendly player: the card for its target and the one for its caster | `SacrificeTests` |
 | Loot: whose a drop is, loot in turn and shared loot, how far a drop can be picked up from | `LootTests` |
 | Minilands: entering, friends and strangers, locking, placing and taking away objects, what visitors see, invitations | `MinilandTests` |
@@ -224,6 +224,22 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] A "move back" skill slides you away from the target instead
 - [ ] The PvP-only push leaves monsters where they are and moves a player
 - [ ] A target resisting forced movement stays put, while your own jump back still happens
+
+### Taunt — BCard type 30 subtype 11
+
+Taunting Shot (skill 230) is the only skill carrying it: a Swordsman skill at job level 9,
+bought from the skill teacher, shot with the crossbow (`$ChangeClass`, `$SetJobLevel 9`, and
+a crossbow in the secondary weapon slot). It deals no damage. Use two clients on one map.
+
+- [ ] The second character hits a monster until it fights back and keeps hitting it; the
+      Swordsman, within 10 cells, casts Taunting Shot on it: the monster leaves the other
+      character, walks to the Swordsman and attacks only the Swordsman from then on
+- [ ] The other character keeps hitting it with ordinary blows: the monster stays on the
+      Swordsman
+- [ ] Taunting Shot on a monster that was standing idle: it comes for the Swordsman, although
+      the shot showed no damage
+- [ ] Stop attacking and walk away: about 20 seconds later the monster gives up and walks
+      home, as after any other fight
 
 ### Surrounding damage — BCard type 29 subtype 31
 
