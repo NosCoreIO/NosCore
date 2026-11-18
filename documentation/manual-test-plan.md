@@ -2882,6 +2882,11 @@ dropping their `MaxHp` makes the run quick.
       "0/1" against its boss and no exit
 - [ ] Die with a life to spare: the window shows one heart fewer for the whole party
 - [ ] Kill time-space 9's boss: its counter reads "1/1"
+- [ ] The minimap turns into the "Mission Map": every room of the time-space is drawn, the one
+      you stand in as found, with your marker on it. Walking into a new room fills it in and moves
+      the marker; walking back only moves the marker
+- [ ] A party member who enters after you sees the rooms you already found
+- [ ] Back on the open world, the minimap shows the ordinary map again
 - [ ] Three hostile monsters appear in the first room and are drawn as soon as the room is, and a padlocked portal stands at its
       east edge; walking onto the padlock does nothing
 - [ ] No time-space stone is drawn inside the rooms

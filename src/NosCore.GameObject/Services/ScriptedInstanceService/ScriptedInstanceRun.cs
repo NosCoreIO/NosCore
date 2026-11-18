@@ -25,6 +25,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Npcs;
@@ -72,6 +73,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
         private readonly HashSet<int> _timedRooms = [];
         private readonly HashSet<long> _showingObjective = [];
+        private readonly HashSet<long> _shownRoomMap = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
         private readonly HashSet<long> _down = [];
         private readonly Dictionary<long, (int Room, int Dialog)> _openDialogs = [];
@@ -320,6 +322,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 // A room's objective set while discovering it reaches this player through Objective.
                 if (room is { } current && session.HasPlayerEntity && EndState == null)
                 {
+                    DrawRoomMap(session, current, discovered);
                     if (GenerateMissionInfo() is { } missionInfo)
                     {
                         _pending.Add(() => session.SendPacketAsync(missionInfo));
@@ -1184,6 +1187,44 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return _host.EndedAsync(this, state);
             });
         }
+
+        // A player's first room shows them every room and opens the map; a room found later is
+        // filled in for the whole run.
+        private void DrawRoomMap(ClientSession session, int room, bool discovered)
+        {
+            var rooms = _script.Definition.Rooms;
+            if (!_host.DrawsRoomMap || rooms.FirstOrDefault(r => r.Key == room) is not { } current)
+            {
+                return;
+            }
+
+            var firstSight = _shownRoomMap.Add(session.Character.CharacterId);
+            var packets = new List<IPacket>();
+            if (firstSight)
+            {
+                packets.AddRange(rooms.Select(GenerateRoom));
+            }
+            else if (discovered)
+            {
+                var found = GenerateRoom(current);
+                _pending.Add(() => BroadcastAsync(found));
+            }
+
+            packets.Add(new RsfpPacket { MapX = current.IndexX, MapY = current.IndexY });
+            if (firstSight)
+            {
+                packets.Add(new RsfmPacket { Type = RsfmPacketType.Open });
+            }
+
+            _pending.Add(() => session.SendPacketsAsync(packets));
+        }
+
+        private RsfnPacket GenerateRoom(InstanceRoom room) => new()
+        {
+            MapIndexX = room.IndexX,
+            MapIndexY = room.IndexY,
+            Status = _visited.Contains(room.Key) ? 0 : 1
+        };
 
         // The window with the run's lives and objective counters. Kills of everything, talks, items
         // to collect and NPCs to protect are not objectives a script can set yet, so they stay empty.
