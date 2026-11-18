@@ -64,6 +64,9 @@ public interface IBuffService
     // not swept the expired ones away yet.
     bool HasEffect(IAliveEntity target, BCardEffect effect);
 
+    // The HP the caster's buffs take each time it casts a skill.
+    Task ApplyCastingEffectsAsync(IAliveEntity caster);
+
     // Drops buffs whose ExpiresAt is past `now` and takes their icons down itself.
     Task<IReadOnlyList<BuffInstance>> TickAsync(IAliveEntity target);
 }

@@ -19,7 +19,8 @@ public interface ISkillCastService
 
     SkillCastRefusal Check(PlayerComponentBundle character, CharacterSkill skill, out int mpCost);
 
-    // Starts the cooldown and takes the mana and the reagent, showing the caster what they leave.
+    // Starts the cooldown and takes the mana, the reagent and the HP the caster's buffs cost per
+    // cast, showing the caster the bars it leaves.
     Task SpendAsync(PlayerComponentBundle character, CharacterSkill skill, int mpCost);
 
     // A skill's cooldown once the caster's buffs and gear have lengthened or shortened it.

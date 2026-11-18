@@ -81,6 +81,9 @@ public sealed class DamageLeechService(IBuffService buffService, IEquipmentStats
                     target.Hp -= Math.Max(0, converted);
                     attacker.Mp = Math.Min(attacker.MaxMp, attacker.Mp + Math.Max(0, converted));
                     break;
+                case BCardEffect.ReflectionRemainingMpLostChance when Rolls(card.FirstData):
+                    target.Mp -= target.Mp * Math.Clamp(card.SecondData, 0, 100) / 100;
+                    break;
             }
         }
 
@@ -103,8 +106,9 @@ public sealed class DamageLeechService(IBuffService buffService, IEquipmentStats
         var passives = attacker is INonPlayableEntity { NpcMonster: { } monster } and not MateComponentBundle
             ? npcCombatCatalog.GetNpcBCards(monster.NpcMonsterVNum).Where(c => c.Slot == 0)
             : [];
+        // A buff's card with an interval drains on the pulse instead (BuffService).
         return skillCards
-            .Concat(buffService.GetActiveBuffs(attacker).SelectMany(b => b.BCards))
+            .Concat(buffService.GetActiveBuffs(attacker).SelectMany(b => b.BCards).Where(c => c.ThirdData <= 0))
             .Concat(equipmentStatsService.Resolve(attacker).BCards ?? [])
             .Concat(passives);
     }
