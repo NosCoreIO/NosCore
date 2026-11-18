@@ -2940,7 +2940,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-05`, the last room shows the guards and talk 6024 with no monster in sight;
       the monsters appear once the talk is closed with End Dialogue
 - [ ] In `timespace-06`, the exit room holds only its lever on entry; pulling the lever shows
-      "The lever has been pulled." and "Look out, enemies!" and brings the monster in, and the exit
+      "The lever has been pulled." and "Watch out, enemies!" and brings the monster in, and the exit
       stays shut until it is dead
 - [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
       the same kind further east
