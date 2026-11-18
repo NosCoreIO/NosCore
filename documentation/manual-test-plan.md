@@ -25,7 +25,7 @@ even when its packets are covered here.
 | Chat: whispers, a whisper to nobody, a muted account | `ChatTests` |
 | Friends and groups: a request accepted, friend and group messages | `SocialTests` |
 | Two channels: the channel list, players apart, a whisper across, one account on one channel | `ChannelTests` |
-| Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival | `CombatTests` |
+| Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival, a main-weapon card marking what it hits | `CombatTests` |
 | Families: founding and its conditions, chat on one channel and across two, inviting, leaving, disbanding, dismissing, the notice, the shout, deputies | `FamilyTests`, `FamilyManagementTests` |
 | Family experience: a member reaching level 30, the history lines, the level-up at the bar, what members on both channels are sent, a purchase the new level allows | `FamilyExperienceTests` |
 | NosBazaar: listing and its tax, finding, buying, taking back, packages, a changed price, its limits | `BazaarTests` |
@@ -481,6 +481,14 @@ restart the world server:
 - [ ] In `timespace-519`, let a Thornwalker hit you: about one hit in sixteen puts Blackout (card
       7) on you, you cannot attack or move for 5 s, then it goes and you fight on
 - [ ] A Lucky Rat, Bull Bushtail or Snowman hitting you never puts its own Sprint on you
+- [ ] As an archer holding a bow and a dagger, learn Poisoned Arrowhead (256) and Poisonous Dagger
+      (250) from the skill teacher. Cast Poisoned Arrowhead: Toxic Arrowhead (card 38) shows on your
+      buff bar. Shoot a monster with Archery (240) for a minute: about one landed shot in five puts
+      Defence Neutralising Toxin (card 23, 30 s) under its bars. Dagger Stab (241) never puts it on
+- [ ] Cast Poisonous Dagger: Toxic Dagger (card 39) shows on your buff bar. About seven Dagger Stabs
+      (241) or Short Stabs (249) in ten that land put Paralysing Toxin (card 22, 60 s) on the
+      monster; Archery shots never do
+- [ ] A shot or stab that kills the monster puts no toxin on it
 
 ### Double-drop and no-drop chances
 

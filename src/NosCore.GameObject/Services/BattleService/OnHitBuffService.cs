@@ -16,20 +16,24 @@ using NosCore.GameObject.Services.EquipmentService;
 namespace NosCore.GameObject.Services.BattleService;
 
 // Gear, buffs and a monster's own cards that give a chance, on a landed hit, to put a card on the
-// opponent or on oneself: FirstData is the chance, SecondData the card.
+// opponent or on oneself: FirstData is the chance, SecondData the card. A weapon card only rolls
+// on a hit with that weapon.
 public sealed class OnHitBuffService(IBuffService buffService, IEquipmentStatsService equipmentStatsService,
         INpcCombatCatalog npcCombatCatalog)
     : IOnHitBuffService
 {
     public async Task TriggerAsync(IAliveEntity attacker, IAliveEntity defender, bool defenderKilled,
-        IReadOnlyList<BCardDto> skillBCards)
+        IReadOnlyList<BCardDto> skillBCards, bool usesSecondaryWeapon)
     {
         var attackerCards = Cards(attacker);
         var defenderCards = Cards(defender);
         if (!defenderKilled)
         {
             await InflictMonsterCardsAsync(attacker, defender, skillBCards);
-            await InflictAsync(defender, attacker, attackerCards, BCardEffect.ChanceCausingXBuffOnEnemyOnAttack);
+            await InflictAsync(defender, attacker, attackerCards, BCardEffect.ChanceCausingXBuffOnEnemyOnAttack,
+                usesSecondaryWeapon
+                    ? BCardEffect.SpecialEffects2SecondaryWeaponCausingChance
+                    : BCardEffect.SpecialEffects2MainWeaponCausingChance);
             await InflictAsync(defender, defender, defenderCards, BCardEffect.ChanceReceivingXBuffOnDefence);
         }
 

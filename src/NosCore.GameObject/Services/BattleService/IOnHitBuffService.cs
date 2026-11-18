@@ -13,5 +13,6 @@ namespace NosCore.GameObject.Services.BattleService;
 
 public interface IOnHitBuffService
 {
-    Task TriggerAsync(IAliveEntity attacker, IAliveEntity defender, bool defenderKilled, IReadOnlyList<BCardDto> skillBCards);
+    Task TriggerAsync(IAliveEntity attacker, IAliveEntity defender, bool defenderKilled, IReadOnlyList<BCardDto> skillBCards,
+        bool usesSecondaryWeapon);
 }

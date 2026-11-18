@@ -179,6 +179,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short MasterchefSkin = 9227;
         public const short MasterchefLook = 37;
 
+        // A buff whose main weapon always puts one mark on what it hits, and whose secondary weapon
+        // always puts another. The marks do nothing else, so a monster wearing one fights as before.
+        public const short WeaponCard = 53;
+        public const short MainWeaponMark = 54;
+        public const short SecondaryWeaponMark = 55;
+
         // The Mother Cuby raid as its script lays it out: its gate on the entrance map, the seal
         // that opens a team, and its boss, which falls to any hit.
         public const short JellyEntrance = 2510;
@@ -346,6 +352,17 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new Card { CardId = BoostCard, Name = "boost" });
             context.Add(new Card { CardId = SteedStartCard, Name = "steedstart", Duration = SteedCardTime });
             context.Add(new Card { CardId = SteedEndCard, Name = "steedend", Duration = SteedCardTime });
+            context.Add(new Card { CardId = WeaponCard, Name = "weapon", Duration = 6000 });
+            context.Add(new Card { CardId = MainWeaponMark, Name = "mainmark", Duration = 10, BuffType = BuffType.Bad });
+            context.Add(new Card { CardId = SecondaryWeaponMark, Name = "secondarymark", Duration = 10, BuffType = BuffType.Bad });
+            context.Add(new BCard
+            {
+                CardId = WeaponCard, Type = BCardType.CardType.SpecialEffects2, SubType = 31, FirstData = 100, SecondData = MainWeaponMark
+            });
+            context.Add(new BCard
+            {
+                CardId = WeaponCard, Type = BCardType.CardType.SpecialEffects2, SubType = 41, FirstData = 100, SecondData = SecondaryWeaponMark
+            });
             // The card an item gives is the one its buff effect names.
             context.Add(new BCard { ItemVNum = Booster, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = BoostCard });
             context.Add(new Skill
@@ -682,6 +699,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public static async Task TeachAsync(NosCoreContext context, long characterId, short skillVNum)
         {
             context.Add(new CharacterSkill { Id = Guid.NewGuid(), CharacterId = characterId, SkillVNum = skillVNum });
+            await context.SaveChangesAsync();
+        }
+
+        // A buff that outlasts a logout is put back when the character is selected.
+        public static async Task GiveBuffAsync(NosCoreContext context, long characterId, short cardId, int seconds)
+        {
+            context.Add(new StaticBuff { CharacterId = characterId, CardId = cardId, RemainingTime = seconds });
             await context.SaveChangesAsync();
         }
 

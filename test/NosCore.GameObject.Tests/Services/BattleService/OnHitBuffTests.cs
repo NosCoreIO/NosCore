@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -34,6 +35,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private OnHitBuffService _service;
         private const short ThornwalkerVNum = 67;
         private const short Blackout = 7;
+        private const short ParalysingToxin = 22;
+        private const short DefenceNeutralisingToxin = 23;
+        private const short DizzyingVenom = 24;
+        private bool _secondaryWeapon;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -55,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             Wear(_attacker, BCardEffect.ChanceCausingXBuffOnEnemyOnAttack, 3, 4424);
 
-            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, []);
+            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, [], false);
 
             VerifyInflicted(_defender, _attacker, 3, 4424);
         }
@@ -65,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             Wear(_attacker, BCardEffect.ChanceReceivingXBuffOnAttack, 8, 4426);
 
-            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, []);
+            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, [], false);
 
             VerifyInflicted(_attacker, _attacker, 8, 4426);
         }
@@ -75,7 +80,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             Wear(_defender, BCardEffect.ChanceCausingXBuffOnEnemyOnDefence, 5, 100);
 
-            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, []);
+            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, [], false);
 
             VerifyInflicted(_attacker, _defender, 5, 100);
         }
@@ -85,7 +90,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             Wear(_defender, BCardEffect.ChanceReceivingXBuffOnDefence, 5, 101);
 
-            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, []);
+            await _service.TriggerAsync(_attacker.Character, _defender.Character, false, [], false);
 
             VerifyInflicted(_defender, _defender, 5, 101);
         }
@@ -102,7 +107,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     [new BCardDto { Type = effect.Type(), SubType = effect.SubType(), FirstData = 100, SecondData = 372 }]),
             });
 
-            await _service.TriggerAsync(_attacker.Character, _defender.Character, true, []);
+            await _service.TriggerAsync(_attacker.Character, _defender.Character, true, [], false);
 
             VerifyInflicted(_attacker, _defender, 100, 372);
         }
@@ -112,7 +117,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             Wear(_attacker, BCardEffect.ChanceCausingXBuffOnEnemyOnAttack, 3, 4424);
 
-            await _service.TriggerAsync(_attacker.Character, _defender.Character, true, []);
+            await _service.TriggerAsync(_attacker.Character, _defender.Character, true, [], false);
 
             _buffs.Verify(b => b.InflictCardsAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
                 It.IsAny<IReadOnlyList<BCardDto>>()), Times.Never);
@@ -123,7 +128,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Enemy));
 
-            await _service.TriggerAsync(monster, _defender.Character, false, []);
+            await _service.TriggerAsync(monster, _defender.Character, false, [], false);
 
             VerifyMonsterInflicted(monster, Times.Once());
         }
@@ -133,7 +138,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Caster));
 
-            await _service.TriggerAsync(monster, _defender.Character, false, []);
+            await _service.TriggerAsync(monster, _defender.Character, false, [], false);
 
             VerifyMonsterInflicted(monster, Times.Never());
         }
@@ -143,7 +148,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Enemy, slot: 2));
 
-            await _service.TriggerAsync(monster, _defender.Character, false, []);
+            await _service.TriggerAsync(monster, _defender.Character, false, [], false);
 
             VerifyMonsterInflicted(monster, Times.Never());
         }
@@ -154,7 +159,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Enemy));
 
             await _service.TriggerAsync(monster, _defender.Character, false,
-                [new BCardDto { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType(), FirstData = 50, SecondData = Blackout }]);
+                [new BCardDto { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType(), FirstData = 50, SecondData = Blackout }], false);
 
             VerifyMonsterInflicted(monster, Times.Never());
         }
@@ -164,10 +169,108 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Enemy));
 
-            await _service.TriggerAsync(monster, _defender.Character, true, []);
+            await _service.TriggerAsync(monster, _defender.Character, true, [], false);
 
             VerifyMonsterInflicted(monster, Times.Never());
         }
+
+        [TestMethod]
+        public async Task AMainWeaponCardRollsOnAMainWeaponHit()
+        {
+            await new Spec("Toxic Arrowhead gives a hit with the main weapon its chance of Defence Neutralising Toxin")
+                .Given(TheAttackerIsUnderToxicArrowhead)
+                .And(TheHitUsesTheSecondaryWeapon_, false)
+                .WhenAsync(TheHitLands)
+                .Then(TheOpponentIsRolledFor_, new[] { (20, DefenceNeutralisingToxin) })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMainWeaponCardDoesNotRollOnASecondaryWeaponHit()
+        {
+            await new Spec("Toxic Arrowhead does nothing on a hit with the secondary weapon")
+                .Given(TheAttackerIsUnderToxicArrowhead)
+                .And(TheHitUsesTheSecondaryWeapon_, true)
+                .WhenAsync(TheHitLands)
+                .Then(NothingIsRolled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EverySecondaryWeaponCardRollsOnASecondaryWeaponHit()
+        {
+            await new Spec("Toxic Dagger gives a hit with the secondary weapon the chance of each of its toxins")
+                .Given(TheAttackerIsUnderToxicDagger)
+                .And(TheHitUsesTheSecondaryWeapon_, true)
+                .WhenAsync(TheHitLands)
+                .Then(TheOpponentIsRolledFor_, new[] { (70, ParalysingToxin), (40, DizzyingVenom) })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASecondaryWeaponCardDoesNotRollOnAMainWeaponHit()
+        {
+            await new Spec("Toxic Dagger does nothing on a hit with the main weapon")
+                .Given(TheAttackerIsUnderToxicDagger)
+                .And(TheHitUsesTheSecondaryWeapon_, false)
+                .WhenAsync(TheHitLands)
+                .Then(NothingIsRolled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AWeaponCardPutsNothingOnAKilledOpponent()
+        {
+            await new Spec("A weapon card puts nothing on the opponent the hit killed")
+                .Given(TheAttackerIsUnderToxicArrowhead)
+                .And(TheHitUsesTheSecondaryWeapon_, false)
+                .WhenAsync(TheHitKills)
+                .Then(NothingIsRolled)
+                .ExecuteAsync();
+        }
+
+        private void TheAttackerIsUnderToxicArrowhead() =>
+            AttackerUnder(38, (BCardEffect.SpecialEffects2MainWeaponCausingChance, 20, DefenceNeutralisingToxin));
+
+        private void TheAttackerIsUnderToxicDagger() =>
+            AttackerUnder(40, (BCardEffect.SpecialEffects2SecondaryWeaponCausingChance, 70, ParalysingToxin),
+                (BCardEffect.SpecialEffects2SecondaryWeaponCausingChance, 40, DizzyingVenom));
+
+        private void AttackerUnder(short cardId, params (BCardEffect Effect, int Chance, short Card)[] cards)
+        {
+            var id = _attacker.Character.VisualId;
+            _buffs.Setup(b => b.GetActiveBuffs(It.Is<IAliveEntity>(e => e.VisualId == id))).Returns(new List<BuffInstance>
+            {
+                new(cardId, BuffType.Good, null, Instant.MinValue, Instant.MaxValue,
+                    cards.Select(c => new BCardDto { Type = c.Effect.Type(), SubType = c.Effect.SubType(), FirstData = c.Chance, SecondData = c.Card }).ToList()),
+            });
+        }
+
+        private void TheHitUsesTheSecondaryWeapon_(bool secondary) => _secondaryWeapon = secondary;
+
+        private Task TheHitLands() =>
+            _service.TriggerAsync(_attacker.Character, _defender.Character, false, [], _secondaryWeapon);
+
+        private Task TheHitKills() =>
+            _service.TriggerAsync(_attacker.Character, _defender.Character, true, [], _secondaryWeapon);
+
+        private void TheOpponentIsRolledFor_((int Chance, short Card)[] expected)
+        {
+            var targetId = _defender.Character.VisualId;
+            var casterId = _attacker.Character.VisualId;
+            _buffs.Verify(b => b.InflictCardsAsync(
+                It.Is<IAliveEntity>(e => e.VisualId == targetId),
+                It.Is<IAliveEntity>(e => e.VisualId == casterId),
+                It.Is<IReadOnlyList<BCardDto>>(cards => AreChancesOf(cards, expected))), Times.Once);
+        }
+
+        private static bool AreChancesOf(IReadOnlyList<BCardDto> cards, (int Chance, short Card)[] expected) =>
+            cards.All(c => c.Effect() == BCardEffect.BuffChanceCausing)
+            && cards.Select(c => (c.FirstData, (short)c.SecondData)).SequenceEqual(expected);
+
+        private void NothingIsRolled() =>
+            _buffs.Verify(b => b.InflictCardsAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+                It.IsAny<IReadOnlyList<BCardDto>>()), Times.Never);
 
         private static BCardDto MonsterCard(BCardRecipient recipient, byte slot = 0) => new()
         {

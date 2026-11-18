@@ -229,7 +229,8 @@ public sealed class HitQueue(
                 target.Mp = Math.Max(0, target.Mp - attackerStats.PvpShell.MpDrain);
             }
 
-            await onHitBuffService.TriggerAsync(request.Origin, target, killed, request.Skill.BCards);
+            await onHitBuffService.TriggerAsync(request.Origin, target, killed, request.Skill.BCards,
+                request.Skill.UsesSecondaryWeapon);
             await damageLeechService.ApplyAsync(request.Origin, hpBefore - newHp);
             if (!killed)
             {
