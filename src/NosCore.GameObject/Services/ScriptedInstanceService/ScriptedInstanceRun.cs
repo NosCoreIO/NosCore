@@ -770,18 +770,31 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public Spot RandomCell(int room)
         {
             var map = _rooms[room].Map;
-            for (var i = 0; map.Width > 2 * DoorMargin && map.Height > 2 * DoorMargin && i < 100; i++)
+            var cells = WalkableCells(map, DoorMargin);
+            if (cells.Count == 0)
             {
-                var x = (short)_random.Next(DoorMargin, map.Width - DoorMargin);
-                var y = (short)_random.Next(DoorMargin, map.Height - DoorMargin);
-                if (map.IsWalkable(x, y))
+                cells = WalkableCells(map, 0);
+            }
+
+            var (x, y) = cells.Count == 0 ? ((short)0, (short)0) : cells[_random.Next(0, cells.Count)];
+            return new Spot(x, y);
+        }
+
+        private static List<(short X, short Y)> WalkableCells(GameObject.Map.Map map, short margin)
+        {
+            var cells = new List<(short X, short Y)>();
+            for (var y = margin; y < map.Height - margin; y++)
+            {
+                for (var x = margin; x < map.Width - margin; x++)
                 {
-                    return new Spot(x, y);
+                    if (map.IsWalkable(x, y))
+                    {
+                        cells.Add((x, y));
+                    }
                 }
             }
 
-            var (anyX, anyY) = map.RandomWalkableCell(_random, 100) ?? ((short)0, (short)0);
-            return new Spot(anyX, anyY);
+            return cells;
         }
 
         public bool IsButtonOn(int room, int button) =>

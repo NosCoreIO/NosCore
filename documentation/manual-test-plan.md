@@ -2939,8 +2939,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       pulled.", makes the other key vanish, and opens the east portal for one key and the west
       portal for the other
 - [ ] In the last room of `timespace-03`, the keys also stand on different cells each run. One key
-      opens the exit; the other one leaves it shut and brings two monsters, a third when the second
-      of them dies, and killing the last of them opens the exit
+      opens the exit; the other one leaves it shut and brings two monsters; once the second dies,
+      three more come one after another, and killing the last of them opens the exit
 - [ ] In `timespace-05`, the last room shows the guards and talk 6024 with no monster in sight;
       the monsters appear once the talk is closed with End Dialogue
 - [ ] In `timespace-06`, pulling the lever in the room west of the exit room takes 60 seconds off
