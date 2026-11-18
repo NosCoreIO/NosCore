@@ -3412,6 +3412,8 @@ countdown starts at :55). Use two characters on a base map.
       and 10 seconds, in the chat and as a notice, in the client's language
 - [ ] "An Instant Combat has started" shows and the join question appears as an icon; a second
       `$Event InstantCombat` answers that the event is already running
+- [ ] Clicking the icon opens the question without a "Corrupted packet received: guri" line in
+      the world log; closing it with No leaves the character out of the fight
 - [ ] After 30 seconds whoever said yes is moved to the Instant Combat map; whoever did not has
       the question removed
 - [ ] Characters of level 45 and 85 land in different rooms, each fighting its own bracket's
