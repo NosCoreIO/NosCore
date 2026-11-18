@@ -2943,7 +2943,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       "The lever has been pulled." and "Watch out, enemies!" and brings the monster in, and the exit
       stays shut until it is dead
 - [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
-      the same kind further east
+      the same kind further east, and killing the second walker brings in one more hamster; the
+      last two bring in nothing
 - [ ] In `timespace-08`, killing a room's Small Imp opens its door at once and the other monsters
       leave, even when the guard soldier lands the kill; in the two rooms with two Imps (the second
       one appears when the first falls in the last room) only the last Imp does it

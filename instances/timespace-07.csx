@@ -49,7 +49,10 @@ public class TimeSpace7 : InstanceScript
         r.Summon(_room3,
             new MonsterSpawn(63, new(8, 10), IsBonus: true, OnDeath: r =>
             {
-                r.Summon(_room3, new MonsterSpawn(63, new(18, 11)));
+                r.Summon(_room3, new MonsterSpawn(63, new(18, 11), OnDeath: r =>
+                {
+                    r.Summon(_room3, new MonsterSpawn(98, new(22, 15)));
+                }));
             }),
             new MonsterSpawn(98, new(7, 16), OnDeath: r =>
             {
