@@ -572,6 +572,26 @@ player plays, costs its mana and goes on cooldown. Its hit type decides the rest
       a member far away does not
 - [ ] Use a skill meant for an ally on a monster: the cast is cancelled and nothing is spent
 
+### Skills that use up an item
+
+Four skills name an item in the client data and take one from the bag on every cast: Stop
+Bleeding (238, Bandage 2087), Detoxification Ritual (255, Medicinal Plant 2085), Poisonous
+Dagger (250) and Poisoned Arrowhead (256), both Poisonous Plant 2086.
+
+- [ ] `$ChangeClass` to Swordsman, `$SetLevel 10`, `$SetJobLevel 20`, `$Gold 20000`, and learn
+      Stop Bleeding (238) at a skill teacher. With no Bandage in the bag, cast it on yourself: the
+      chat shows "You are missing an item for the skill: Bandage", the cast does not play, and
+      neither mana nor the cooldown is spent. Before the fix the skill went off without one.
+- [ ] `$CreateItem 2087 3` and cast it again: it plays, mana drops by 15, and the Etc pocket shows
+      2 Bandages straight away
+- [ ] Cast it twice more once the cooldown is over: the last cast empties the slot, and the next
+      one is refused with the missing-item line
+- [ ] As an Archer (`$ChangeClass`, level 5), learn Detoxification Ritual (255) and cast it on a
+      party member with and without `$CreateItem 2085`: the same refusal naming the Medicinal
+      Plant, and one plant used per accepted cast
+- [ ] If the client greys the skill out or never sends the cast while the bag holds none, note it:
+      the refusal then only shows in the unit tests and the end-to-end scenario
+
 ### Combo attacks
 
 A skill with combo rows (most basic attacks) changes its animation as the same skill keeps

@@ -93,6 +93,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short SlowSkillCastId = 2;
         public const short SlowSkillMp = 20;
 
+        // A swordsman skill that uses up a bandage every time it is cast.
+        public const short BandageSkill = 211;
+        public const short BandageSkillCastId = 4;
+        public const short Bandage = 2087;
+
         // A creature to own as a pet: it has mana, and one skill of its own for its skill bar that takes
         // a moment to cast and three seconds to come back.
         public const short PetVNum = 10;
@@ -332,6 +337,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 SkillVNum = SlowSkill, Name = "skill210", CastId = SlowSkillCastId, SkillType = 1, Type = 0, Range = 1, CastTime = 2,
                 Cooldown = 300, MpCost = SlowSkillMp, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
+            });
+
+            context.Add(new Item { VNum = Bandage, Name = "bandage", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
+            context.Add(new Skill
+            {
+                SkillVNum = BandageSkill, Name = "skill211", CastId = BandageSkillCastId, SkillType = 1, Class = 1, Type = 0, Range = 1,
+                CastTime = 2, Cooldown = 6, ItemVNum = Bandage, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
             });
 
             // As the client data has them: skill type 5 is a skill for a NosMate's skill bar.

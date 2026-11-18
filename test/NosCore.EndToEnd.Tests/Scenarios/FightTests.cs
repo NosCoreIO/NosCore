@@ -20,6 +20,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.MiniMap;
@@ -305,6 +306,48 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await alice.ExpectSinceAsync(refused, Refused, "the refusal");
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit");
         }
+
+        [TestMethod]
+        public async Task ASkillThatNeedsAnItemUsesOneUpEachCast()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 60, 61, c => c.Class = CharacterClassType.Swordsman);
+            await Harness.GiveAsync(player, WorldData.Bandage, 2);
+            await Harness.TeachAsync(player, WorldData.BandageSkill);
+            await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 62, 62);
+            await using var alice = Harness.Client(player);
+            await alice.EnterWorldAsync(player.Slot);
+            var cast = alice.Mark();
+
+            await alice.SendAsync(Cast(WorldData.BandageSkillCastId, WorldData.SturdyMonster));
+
+            var hit = await bob.ExpectAsync(HitBy(alice, WorldData.SturdyMonster), "the hit");
+            Assert.AreEqual(WorldData.BandageSkill, hit.SkillVnum);
+            await alice.ExpectSinceAsync(cast, Bandages(1), "one bandage left in the bag");
+        }
+
+        [TestMethod]
+        public async Task ASkillThatNeedsAnItemIsRefusedWithoutIt()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 60, 61, c => c.Class = CharacterClassType.Swordsman);
+            await Harness.TeachAsync(player, WorldData.BandageSkill);
+            await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 62, 62);
+            await using var alice = Harness.Client(player);
+            await alice.EnterWorldAsync(player.Slot);
+            var refused = alice.Mark();
+            var watched = bob.Mark();
+
+            await alice.SendAsync(Cast(WorldData.BandageSkillCastId, WorldData.SturdyMonster));
+
+            var message = await alice.ExpectSinceAsync<SayiPacket>(refused, p => p.Message == Game18NConstString.MissingItemForSkill, "the missing item");
+            Assert.AreEqual((byte)2, message.ArgumentType);
+            Assert.AreEqual<object>((long)WorldData.Bandage, message.Game18NArguments[0], "naming the bandage");
+            await alice.ExpectSinceAsync(refused, Refused, "the refusal");
+            Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit");
+        }
+
+        private static Func<IvnPacket, bool> Bandages(short amount) =>
+            packet => packet.Type == PocketType.Etc
+                && packet.IvnSubPackets?.Any(item => item.VNum == WorldData.Bandage && item.RareAmount == amount) == true;
 
         [TestMethod]
         public async Task AnotherPlayerCannotBeHitOnAnOrdinaryMap()
