@@ -1334,6 +1334,8 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] At level 70, die the same way: the chat says "Dignity reduced: -50"
 - [ ] At -990 dignity, die at level 70: dignity stops at -1000 and the chat says
       "Dignity reduced: -10"
+- [ ] In a time-space with 2 lives, die once: you revive in the room and dignity does not move;
+      die again: the run fails and the chat says "Dignity reduced" by your level, once
 
 ### Compliments
 
