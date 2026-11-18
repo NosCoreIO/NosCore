@@ -74,9 +74,13 @@ namespace NosCore.PacketHandlers.Battle
             var (previousX, previousY) = (character.PositionX, character.PositionY);
             var moved = AcceptReportedPosition(character, packet);
 
-            if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed))
+            if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed, out var missingItem))
             {
                 (character.PositionX, character.PositionY) = (previousX, previousY);
+                if (missingItem is { } itemVNum)
+                {
+                    await UseAoeSkillPacketHandler.MissingItemAsync(character, itemVNum);
+                }
                 await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
                 return;
             }
@@ -123,14 +127,16 @@ namespace NosCore.PacketHandlers.Battle
             return true;
         }
 
-        // Verifies reach, MP and cooldown WHEN the character owns the skill. For casts the
+        // Verifies reach, MP, reagent and cooldown WHEN the character owns the skill. For casts the
         // character doesn't have in their learned dict (e.g. transformation-only skills,
         // test fixtures without skill population) we defer rejection to BattleService
         // so the packet path stays permissive and SkillResolver produces a single
         // consistent "unknown skill" response.
-        private bool TryConsumeSkill(ClientSession session, long castId, IAliveEntity target, out Func<Task>? commit)
+        private bool TryConsumeSkill(ClientSession session, long castId, IAliveEntity target, out Func<Task>? commit,
+            out short? missingItem)
         {
             commit = null;
+            missingItem = null;
             var character = session.Character;
             var skill = skillCastService.FindLearned(character, castId);
             if (skill?.Skill == null)
@@ -143,8 +149,10 @@ namespace NosCore.PacketHandlers.Battle
             {
                 return false;
             }
-            if (skillCastService.Check(character, skill, out var mpCost) != SkillCastRefusal.None)
+            var refusal = skillCastService.Check(character, skill, out var mpCost);
+            if (refusal != SkillCastRefusal.None)
             {
+                missingItem = refusal == SkillCastRefusal.MissingItem ? skill.Skill.ItemVNum : null;
                 return false;
             }
 

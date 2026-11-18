@@ -28,6 +28,9 @@ namespace NosCore.PacketHandlers.Battle
         IHeuristic distanceCalculator)
         : PacketHandler<UseAoeSkillPacket>, IWorldPacketHandler
     {
+        // Has the client put the name of the item whose vnum follows into the line.
+        private const byte ItemNameArgument = 2;
+
         public override async Task ExecuteAsync(UseAoeSkillPacket packet, ClientSession clientSession)
         {
             var character = clientSession.Character;
@@ -56,6 +59,10 @@ namespace NosCore.PacketHandlers.Battle
                     await NotEnoughMpAsync(character);
                     await CancelAsync(clientSession);
                     return;
+                case SkillCastRefusal.MissingItem:
+                    await MissingItemAsync(character, skill.Skill.ItemVNum);
+                    await CancelAsync(clientSession);
+                    return;
                 case SkillCastRefusal.OnCooldown:
                     await CancelAsync(clientSession);
                     return;
@@ -70,6 +77,12 @@ namespace NosCore.PacketHandlers.Battle
         internal static Task NotEnoughMpAsync(PlayerComponentBundle character)
         {
             return character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughMpForSpell));
+        }
+
+        internal static Task MissingItemAsync(PlayerComponentBundle character, short itemVNum)
+        {
+            return character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.MissingItemForSkill,
+                ItemNameArgument, itemVNum.ToString()));
         }
 
         private static Task CancelAsync(ClientSession session)

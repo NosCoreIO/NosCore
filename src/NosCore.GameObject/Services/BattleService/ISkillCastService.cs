@@ -10,8 +10,8 @@ using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// The cooldown and mana a character's cast costs. Checked before the battle service runs and
-// spent only once it accepts the cast, so a refused cast can be retried straight away.
+// The cooldown, mana and reagent item a character's cast costs. Checked before the battle service
+// runs and spent only once it accepts the cast, so a refused cast can be retried straight away.
 public interface ISkillCastService
 {
     // The base skill of this cast id, or null when the character has not learned it.
@@ -19,7 +19,7 @@ public interface ISkillCastService
 
     SkillCastRefusal Check(PlayerComponentBundle character, CharacterSkill skill, out int mpCost);
 
-    // Starts the cooldown and takes the mana, showing the caster the bar it leaves.
+    // Starts the cooldown and takes the mana and the reagent, showing the caster what they leave.
     Task SpendAsync(PlayerComponentBundle character, CharacterSkill skill, int mpCost);
 
     // A skill's cooldown once the caster's buffs and gear have lengthened or shortened it.

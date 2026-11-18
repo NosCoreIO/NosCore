@@ -11,4 +11,5 @@ public enum SkillCastRefusal
     None,
     OnCooldown,
     NotEnoughMp,
+    MissingItem,
 }

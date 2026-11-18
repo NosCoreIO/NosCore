@@ -14,12 +14,15 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.EquipmentService;
+using NosCore.GameObject.Services.InventoryService;
 
 namespace NosCore.GameObject.Services.BattleService;
 
 public sealed class SkillCastService(IClock clock, IEquipmentStatsService equipmentStatsService, IBuffService buffService)
     : ISkillCastService
 {
+    private const int ReagentsPerCast = 1;
+
     public CharacterSkill? FindLearned(PlayerComponentBundle character, long castId) =>
         SkillResolver.FindLearned(character, castId);
 
@@ -36,19 +39,31 @@ public sealed class SkillCastService(IClock clock, IEquipmentStatsService equipm
         var decrease = Math.Clamp(equipment.MpConsumptionDecrease, 0, 100);
         var percent = Percent(character, equipment.BCards, BCardEffect.CastingManaForSkillsIncreased, BCardEffect.CastingManaForSkillsDecreased);
         mpCost = skill.Skill.MpCost * (100 - decrease) / 100 * Math.Max(0, 100 + percent) / 100;
-        return character.Mp < mpCost ? SkillCastRefusal.NotEnoughMp : SkillCastRefusal.None;
+        if (character.Mp < mpCost)
+        {
+            return SkillCastRefusal.NotEnoughMp;
+        }
+
+        return skill.Skill.ItemVNum > 0 && character.InventoryService.CountItem(skill.Skill.ItemVNum) < ReagentsPerCast
+            ? SkillCastRefusal.MissingItem
+            : SkillCastRefusal.None;
     }
 
-    public Task SpendAsync(PlayerComponentBundle character, CharacterSkill skill, int mpCost)
+    public async Task SpendAsync(PlayerComponentBundle character, CharacterSkill skill, int mpCost)
     {
         skill.LastUse = clock.GetCurrentInstant();
+        if (skill.Skill is { ItemVNum: > 0 } withReagent)
+        {
+            await character.SendPacketsAsync(character.InventoryService.RemoveItemAmountByVNum(withReagent.ItemVNum, ReagentsPerCast));
+        }
+
         if (mpCost <= 0)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         character.Mp = Math.Max(0, character.Mp - mpCost);
-        return character.SendPacketAsync(character.GenerateStat());
+        await character.SendPacketAsync(character.GenerateStat());
     }
 
     public Duration Cooldown(PlayerComponentBundle character, short cooldown)
