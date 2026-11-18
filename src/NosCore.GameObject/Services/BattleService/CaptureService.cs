@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Services.BattleService
 
             var maxHp = monster.NpcMonster.MaxHp;
             var hpPercent = maxHp > 0 ? monster.Hp * 100 / maxHp : 100;
-            if (hpPercent >= CaptureHpThresholdPercent)
+            if (maxHp <= 0 || monster.Hp * 100L > maxHp * (long)CaptureHpThresholdPercent)
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureTooMuchLife));
                 await owner.SendPacketAsync(Cancel(skill));

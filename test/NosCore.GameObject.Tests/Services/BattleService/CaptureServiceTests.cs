@@ -324,5 +324,31 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsNull(Caught);
             Assert.AreEqual(Game18NConstString.CaptureTooMuchLife, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
         }
+
+        [TestMethod]
+        public async Task AMonsterAtExactlyHalfHealthIsCaught()
+        {
+            _monster.Hp = 50;
+
+            await Catching();
+
+            Assert.IsNotNull(Caught);
+            Assert.AreEqual(Game18NConstString.CaptureSuccessful, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
+        }
+
+        [TestMethod]
+        public async Task AMonsterJustAboveHalfHealthIsRefused()
+        {
+            var map = _session.Character.MapInstance;
+            var creature = new NpcMonsterDto { NpcMonsterVNum = 335, Level = 1, MaxHp = 1001, Name = _monster.NpcMonster.Name };
+            var monster = new MonsterComponentBundle(
+                map.EcsWorld.CreateMonster(9004, creature, map, 13, 14, 2, 13, 14, false, true, false), map.EcsWorld);
+            monster.Hp = 501;
+
+            await _service.TryCaptureAsync(_session.Character, monster, Capture);
+
+            Assert.IsTrue(monster.IsAlive);
+            Assert.AreEqual(Game18NConstString.CaptureTooMuchLife, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
+        }
     }
 }
