@@ -2248,6 +2248,8 @@ warehouse (3005) placed in the miniland; `mates.sh` adds a pet and a partner out
       partner's backpack?" and Confirm opens the Partner's Backpack with 50 slots; deposit and
       withdraw work there too, and its content is separate from the warehouse
 - [ ] Log out and back in: stored items are still in their slots
+- [ ] Close the warehouse, open it again from the pet basket and deposit: the deposit works
+      as before
 - [ ] Deposit part of a stack, or withdraw a stack, then stop the world server without logging
       out: after a restart the items are where the transfer left them, once and only once
 
@@ -3871,6 +3873,12 @@ Recorded so nobody spends time hunting for them:
   unmodified client may grey the tab out first, in which case the refusal cannot be reached.
 - **Family experience from content** — time-spaces, raids and Instant Combat grant none yet;
   only member level-ups and achievement rewards move the bar.
+- **Warehouse packets sent with no warehouse open** — the server ignores a deposit, withdrawal
+  or move until the player has opened that warehouse, and forgets it on a map change or when the
+  character leaves the family whose warehouse was open. The client only sends them with the
+  window open, so only a modified client could reach the refusal. The automated tests cover a
+  deposit with nothing open, a deposit after closing the window, the family warehouse closed,
+  and the windows closing on a map change; withdrawals and moves share the same check.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Options with nothing behind them yet** — family invites, pet and partner auto-revive,

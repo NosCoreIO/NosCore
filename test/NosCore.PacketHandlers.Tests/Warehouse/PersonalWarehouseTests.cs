@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -56,6 +57,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon },
                 new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 21, IsWarehouse = true }
             }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
+            _session.Character.OpenWarehouse(WarehouseType.Warehouse);
+            _session.Character.OpenWarehouse(WarehouseType.PetWarehouse);
         }
 
         private IPersonalWarehouseService Service()
@@ -160,6 +163,44 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             var stash = _session.LastPackets.OfType<StashAllPacket>().Single();
             Assert.AreEqual(21, stash.WarehouseSize);
             Assert.AreEqual(3, stash.Items.NotNull().Single().Slot);
+        }
+
+        [TestMethod]
+        public async Task ADepositWithNoWarehouseOpenIsIgnored()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _session.Character.CloseWarehouses();
+
+            await DepositAsync(4, 2);
+
+            Assert.AreEqual(0, _stored.Count);
+            Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1012));
+        }
+
+        [TestMethod]
+        public async Task ClosingTheWarehouseWindowStopsDeposits()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+
+            await new StashEndPacketHandler().ExecuteAsync(new StashEndPacket(), _session);
+            await DepositAsync(4, 2);
+
+            Assert.AreEqual(0, _stored.Count);
+        }
+
+        [TestMethod]
+        public async Task OpeningTheWarehouseAllowsDeposits()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _session.Character.CloseWarehouses();
+
+            await Service().OpenAsync(_session, WarehouseType.Warehouse);
+            await DepositAsync(4, 2);
+
+            Assert.AreEqual(4, At(WarehouseType.Warehouse, 2).Amount);
         }
 
         [TestMethod]

@@ -46,6 +46,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             IPacket packet = warehouseType == WarehouseType.PetWarehouse
                 ? new PStashAllPacket { WarehouseSize = (byte)slots.Size, Items = items }
                 : new StashAllPacket { WarehouseSize = (byte)slots.Size, Items = items };
+            session.Character.OpenWarehouse(warehouseType);
             await session.SendPacketAsync(packet);
         }
 
@@ -54,20 +55,23 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public Task DepositAsync(ClientSession session, WarehouseType warehouseType, PocketType pocket, short slot,
             short amount, short warehouseSlot) =>
-            session.Character.InExchangeOrShop || pocket is PocketType.Miniland
+            !CanUse(session, warehouseType) || pocket is PocketType.Miniland
                 ? Task.CompletedTask
                 : transfer.DepositAsync(session, Slots(session, warehouseType), pocket, slot, amount, warehouseSlot, _ => true);
 
         public Task WithdrawAsync(ClientSession session, WarehouseType warehouseType, short warehouseSlot, short amount) =>
-            session.Character.InExchangeOrShop
+            !CanUse(session, warehouseType)
                 ? Task.CompletedTask
                 : transfer.WithdrawAsync(session, Slots(session, warehouseType), warehouseSlot, amount);
 
         public Task MoveAsync(ClientSession session, WarehouseType warehouseType, short sourceSlot, short amount,
             short destinationSlot) =>
-            session.Character.InExchangeOrShop
+            !CanUse(session, warehouseType)
                 ? Task.CompletedTask
                 : transfer.MoveAsync(session, Slots(session, warehouseType), sourceSlot, amount, destinationSlot);
+
+        private static bool CanUse(ClientSession session, WarehouseType warehouseType) =>
+            session.Character.IsWarehouseOpen(warehouseType) && !session.Character.InExchangeOrShop;
 
         private static WarehouseSlots Slots(ClientSession session, WarehouseType warehouseType)
         {

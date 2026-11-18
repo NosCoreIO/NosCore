@@ -77,7 +77,42 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 await Harness.GiveAsync(player, WorldData.Chest, 1, pocket: NoscorePocketType.Miniland);
             }
 
+            await using (var context = Harness.Database.CreateContext())
+            {
+                context.Add(new StaticBonus { CharacterId = player.CharacterId, StaticBonusType = StaticBonusType.PetBasket });
+                await context.SaveChangesAsync();
+            }
+
             return player;
+        }
+
+        // The pet basket opens the warehouse from anywhere, which spares the scenarios a trip to the miniland.
+        private static async Task<TestClient> EnterWithWarehouseOpenAsync(Player player)
+        {
+            var client = await EnterAsync(player);
+            try
+            {
+                await OpenWarehouseAsync(client);
+            }
+            catch
+            {
+                await client.DisposeAsync();
+                throw;
+            }
+
+            return client;
+        }
+
+        private static async Task OpenWarehouseAsync(TestClient client)
+        {
+            await client.SendAsync(new GuriPacket { Type = GuriPacketType.PetBasket, Argument = 0 });
+            await client.ExpectAsync<StashAllPacket>(description: "the opened warehouse");
+        }
+
+        private static async Task OpenFamilyWarehouseAsync(TestClient client)
+        {
+            await client.SendAsync(new NrunPacket { Runner = NrunRunnerType.OpenFamilyWarehouse });
+            await client.ExpectAsync<FStashAllPacket>(description: "the opened family warehouse");
         }
 
         private static async Task<TestClient> EnterAsync(Player player)
@@ -129,7 +164,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task ADepositMovesItemsFromTheBagToTheWarehouse()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             var deposited = alice.Mark();
 
             await alice.SendAsync(Deposit(0, 3, 1));
@@ -143,7 +178,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AWholeStackDepositedEmptiesItsBagSlot()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             var deposited = alice.Mark();
 
             await alice.SendAsync(Deposit(0, 5, 0));
@@ -158,7 +193,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AWithdrawalBringsItemsBackToTheBag()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             await alice.SendAsync(Deposit(0, 5, 0));
             await alice.ExpectAsync(Stored(0, 5), "the five in the warehouse");
             var withdrawn = alice.Mark();
@@ -181,7 +216,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task APartlyDepositedStackIsStoredAsSplit()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
 
             await alice.SendAsync(Deposit(0, 3, 0));
             await alice.ExpectAsync(Stored(0, 3), "the three in the warehouse");
@@ -194,7 +229,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AWithdrawnItemIsStoredInTheBag()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             await alice.SendAsync(Deposit(0, 5, 0));
             await alice.ExpectAsync(Stored(0, 5), "the five in the warehouse");
 
@@ -209,7 +244,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task WhatIsInTheWarehouseIsThereAfterComingBack()
         {
             var player = await OwnerAsync(5);
-            await using (var alice = await EnterAsync(player))
+            await using (var alice = await EnterWithWarehouseOpenAsync(player))
             {
                 await alice.SendAsync(Deposit(0, 5, 2));
                 await alice.ExpectAsync(Stored(2, 5), "the five in the warehouse");
@@ -218,6 +253,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var back = await Harness.ComeBackAsync(player);
             Assert.IsFalse(back.Received.OfType<InvPacket>().Any(p => p.Type == PocketType.Etc && p.IvnSubPackets?.Any(item => item.VNum == WorldData.Seed) == true),
                 "the bag no longer holds them");
+            await OpenWarehouseAsync(back);
             var withdrawn = back.Mark();
             await back.SendAsync(Withdraw(2, 5));
 
@@ -228,13 +264,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task ThePetBasketOpensTheWarehouseWithItsContents()
         {
             var player = await OwnerAsync(5);
-            await using (var context = Harness.Database.CreateContext())
-            {
-                context.Add(new StaticBonus { CharacterId = player.CharacterId, StaticBonusType = StaticBonusType.PetBasket });
-                await context.SaveChangesAsync();
-            }
-
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             await alice.SendAsync(Deposit(0, 5, 3));
             await alice.ExpectAsync(Stored(3, 5), "the five in the warehouse");
 
@@ -250,7 +280,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var player = await OwnerAsync(1);
             await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1, Rare = 5, Upgrade = 7 },
                 NoscorePocketType.Equipment);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
 
             await alice.SendAsync(Deposit(0, 1, 0, PocketType.Equipment));
             await alice.ExpectAsync(Shows(new WarehouseSubPacket
@@ -277,6 +307,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }, head, member);
             await using var alice = await EnterAsync(head);
             await using var bob = await EnterAsync(member);
+            await OpenFamilyWarehouseAsync(alice);
             var deposited = alice.Mark();
 
             await alice.SendAsync(FamilyDeposit(0, 5, 1));
@@ -307,8 +338,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }, head, member);
             await using var alice = await EnterAsync(head);
             await using var bob = await EnterAsync(member);
+            await OpenFamilyWarehouseAsync(alice);
             await alice.SendAsync(FamilyDeposit(0, 5, 0));
             await alice.ExpectAsync(FamilyStored(0, 5), "the five in the family warehouse");
+            await OpenFamilyWarehouseAsync(bob);
             var asked = bob.Mark();
 
             await bob.SendAsync(FamilyWithdraw(0, 5));
@@ -325,22 +358,38 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var family = await Harness.AddFamilyAsync(f => f.WarehouseSize = 4, head);
             await using var alice = await EnterAsync(head);
             await using var carol = await Harness.EnterAsync("Carol", x: 82, y: 116);
+            await OpenFamilyWarehouseAsync(alice);
             await alice.SendAsync(FamilyDeposit(0, 5, 0));
             await alice.ExpectAsync(FamilyStored(0, 5), "the five in the family warehouse");
             var asked = carol.Mark();
 
-            await carol.SendAsync(FamilyWithdraw(0, 5));
-
+            await carol.SendAsync(new NrunPacket { Runner = NrunRunnerType.OpenFamilyWarehouse });
             await carol.ExpectSinceAsync<InfoiPacket>(asked, p => p.Message == Game18NConstString.NotQualifiedForWarehouse, "the not-qualified notice");
+            Assert.IsTrue(await carol.NoneSinceAsync<FStashAllPacket>(asked, _ => true, TimeSpan.FromSeconds(1)), "no warehouse opens for her");
+            await carol.SendAsync(FamilyWithdraw(0, 5));
             Assert.IsTrue(await carol.NoneSinceAsync<IPacket>(asked, MovesAnythingOfTheFamily, TimeSpan.FromSeconds(1)));
             CollectionAssert.AreEqual(new[] { ((short)0, (short)5) }, await StoredInFamilyWarehouseAsync(family.FamilyId));
+        }
+
+        [TestMethod]
+        public async Task NothingIsDepositedWhileNoWarehouseIsOpen()
+        {
+            var player = await OwnerAsync(5);
+            await using var alice = await EnterAsync(player);
+            var asked = alice.Mark();
+
+            await alice.SendAsync(Deposit(0, 5, 0));
+
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(asked, MovesAnything, TimeSpan.FromSeconds(1)));
+            Assert.AreEqual(0, (await StoredInWarehouseAsync(player.CharacterId)).Length);
+            Assert.AreEqual(5, await StoredInBagAsync(player.CharacterId));
         }
 
         [TestMethod]
         public async Task NothingIsDepositedWithoutAChest()
         {
             var player = await OwnerAsync(5, chest: false);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             var asked = alice.Mark();
 
             await alice.SendAsync(Deposit(0, 5, 0));
@@ -353,7 +402,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task ASlotBeyondTheChestTakesNothing()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             var asked = alice.Mark();
 
             await alice.SendAsync(Deposit(0, 5, WorldData.ChestSlots));
@@ -366,7 +415,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AnOccupiedSlotTakesNothingMore()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             await alice.SendAsync(Deposit(0, 2, 0));
             await alice.ExpectAsync(Stored(0, 2), "the two in the warehouse");
             var asked = alice.Mark();
@@ -381,7 +430,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task MoreThanIsStoredCannotBeWithdrawn()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             await alice.SendAsync(Deposit(0, 3, 0));
             await alice.ExpectAsync(Stored(0, 3), "the three in the warehouse");
             var asked = alice.Mark();
@@ -396,7 +445,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AStoredStackMovesToAnotherSlot()
         {
             var player = await OwnerAsync(5);
-            await using var alice = await EnterAsync(player);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
             await alice.SendAsync(Deposit(0, 5, 0));
             await alice.ExpectAsync(Stored(0, 5), "the five in the warehouse");
             var moved = alice.Mark();

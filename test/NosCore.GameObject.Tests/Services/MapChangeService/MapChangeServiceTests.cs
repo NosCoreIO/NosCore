@@ -20,6 +20,7 @@ using NosCore.Tests.Shared;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Shared.Enumerations;
@@ -211,6 +212,31 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 .WhenAsync(ChangingToBaseMap1)
                 .Then(TheSameDigestionStateShouldStillBeAttached)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ChangingMapClosesEveryWarehouseWindow()
+        {
+            await new Spec("Changing map closes every warehouse window")
+                .Given(CharacterIsOnMap)
+                .And(EveryWarehouseWindowIsOpen)
+                .WhenAsync(ChangingToBaseMap1)
+                .Then(NoWarehouseWindowIsOpen)
+                .ExecuteAsync();
+        }
+
+        private void EveryWarehouseWindowIsOpen()
+        {
+            Session.Character.OpenWarehouse(WarehouseType.Warehouse);
+            Session.Character.OpenWarehouse(WarehouseType.PetWarehouse);
+            Session.Character.OpenWarehouse(WarehouseType.FamilyWareHouse);
+        }
+
+        private void NoWarehouseWindowIsOpen()
+        {
+            Assert.IsFalse(Session.Character.IsWarehouseOpen(WarehouseType.Warehouse));
+            Assert.IsFalse(Session.Character.IsWarehouseOpen(WarehouseType.PetWarehouse));
+            Assert.IsFalse(Session.Character.IsWarehouseOpen(WarehouseType.FamilyWareHouse));
         }
 
         private DigestionState _digestion;

@@ -157,6 +157,9 @@ namespace NosCore.GameObject.Services.MapChangeService
                     return;
                 }
 
+                // A warehouse only stays usable on the map where it was opened.
+                character.CloseWarehouses();
+
                 var characterId = character.CharacterId;
 
                 if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)

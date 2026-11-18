@@ -83,6 +83,14 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         }
 
         [TestMethod]
+        public async Task WithoutAPartnerBackpackItsStorageStaysClosed()
+        {
+            await UsingAsync(GuriPacketType.PartnerBackpack);
+
+            Assert.AreEqual(0, _session.LastPackets.Count);
+        }
+
+        [TestMethod]
         public async Task TheNosMatePanelShowsOnlyTheStoragesBought()
         {
             Has(StaticBonusType.PetBackPack);
