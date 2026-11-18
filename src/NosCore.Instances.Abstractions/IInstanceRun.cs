@@ -95,6 +95,9 @@ namespace NosCore.Instances.Abstractions
         // Kills the room's locker still waits for; 0 once it has let go, or when it never had one.
         int LockerLeft(int room);
 
+        // A walkable cell of the room picked at random, kept clear of the doors along its edges.
+        Spot RandomCell(int room);
+
         // A lever or switch drawn with offVNum until it is used, then with onVNum. Button ids run
         // from 1 to 99999 and are unique within their room. A toggling button can be used again
         // to switch it back; any other button is used once.

@@ -287,6 +287,44 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ARandomCellIsAWalkableCellOfTheRoom()
+        {
+            await new Spec("A room too small to keep clear of its doors still gives a walkable cell")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .Then(ARandomCellShouldBeWalkable)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARandomCellFindsTheOnlyWalkableCell()
+        {
+            await new Spec("A room whose only walkable cell is off the corner still gives that cell")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .And(OnlyCell_2_3IsWalkable)
+                .Then(ARandomCellShouldBe_, 2, 3)
+                .ExecuteAsync();
+        }
+
+        private void OnlyCell_2_3IsWalkable()
+        {
+            var data = _session.Character.MapInstance.Map.Data;
+            for (var i = 4; i < data.Length; i++)
+            {
+                data[i] = 1;
+            }
+
+            data[4 + 3 * 4 + 2] = 0;
+        }
+
+        private void ARandomCellShouldBe_(int x, int y) => Assert.AreEqual(new Spot((short)x, (short)y), _run.RandomCell(1));
+
+        private void ARandomCellShouldBeWalkable()
+        {
+            var cell = _run.RandomCell(1);
+            Assert.IsTrue(_session.Character.MapInstance.Map.IsWalkable(cell.X, cell.Y));
+        }
+
         private Task ATimeSpaceWith_Lives(byte lives)
         {
             var room = World.MapInstanceGeneratorService.CreateMapInstance(

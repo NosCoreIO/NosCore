@@ -117,6 +117,10 @@ namespace NosCore.Instances.Tests
 
         public int ClockScale { get; set; } = 1;
 
+        private short _randomCells;
+
+        public Spot RandomCell(int room) => new(10, (short)(5 + _randomCells++));
+
         public HashSet<int> ButtonsOn { get; } = [];
 
         public HashSet<(int Room, int Button)> Used { get; } = [];
