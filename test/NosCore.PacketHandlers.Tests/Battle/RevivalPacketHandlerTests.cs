@@ -60,6 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private Mock<ILandOfDeathService> _landOfDeath = new();
         private readonly Mock<IScriptedInstanceService> _scriptedInstances = new();
         private BuffService _buffs;
+        private readonly Mock<ILowLevelBuffService> _lowLevelBuffs = new();
         private readonly List<IPacket> _broadcast = new();
 
         [TestInitialize]
@@ -87,7 +88,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 catalog.Object,
                 UpgradeMaterials.Catalog(),
                 _landOfDeath.Object,
-                _scriptedInstances.Object);
+                _scriptedInstances.Object,
+                _lowLevelBuffs.Object);
         }
 
         [TestMethod]
@@ -152,6 +154,16 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Then(ReturnToEntranceShouldBeCalled_, 1)
                 .And(SaverStackShouldBe_, (short)2)
                 .And(MapChangeShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARevivedCharacterIsOfferedTheLowLevelBuffAgain()
+        {
+            await new Spec("Coming back to life gives back the low-level buff that death took off")
+                .Given(CharacterIsDeadAtLevel_, (byte)20)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(TheLowLevelBuffShouldBeRefreshed)
                 .ExecuteAsync();
         }
 
@@ -387,8 +399,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 catalog.Object,
                 UpgradeMaterials.Catalog(),
                 _landOfDeath.Object,
-                _scriptedInstances.Object);
+                _scriptedInstances.Object,
+                _lowLevelBuffs.Object);
         }
+
+        private void TheLowLevelBuffShouldBeRefreshed() =>
+            _lowLevelBuffs.Verify(s => s.RefreshAsync(It.IsAny<PlayerComponentBundle>()), Times.Once);
 
         private void CharacterShouldBeAlive() =>
             Assert.IsTrue(_session.Character.IsAlive);

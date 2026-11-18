@@ -55,7 +55,8 @@ namespace NosCore.PacketHandlers.Battle
         ICardCatalog cardCatalog,
         IItemCatalog itemCatalog,
         ILandOfDeathService landOfDeathService,
-        IScriptedInstanceService scriptedInstanceService)
+        IScriptedInstanceService scriptedInstanceService,
+        ILowLevelBuffService lowLevelBuffService)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedsRequired = 10;
@@ -202,7 +203,7 @@ namespace NosCore.PacketHandlers.Battle
             c.IsAlive = true;
         }
 
-        private static async Task BroadcastReviveAsync(ClientSession session, short x, short y)
+        private async Task BroadcastReviveAsync(ClientSession session, short x, short y)
         {
             var character = session.Character;
             var mapInstance = character.MapInstance;
@@ -219,6 +220,7 @@ namespace NosCore.PacketHandlers.Battle
 
             await session.SendPacketAsync(character.GeneratePinit());
             await session.SendPacketAsync(character.GenerateStat());
+            await lowLevelBuffService.RefreshAsync(character);
         }
     }
 }

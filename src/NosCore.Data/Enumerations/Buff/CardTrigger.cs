@@ -11,6 +11,7 @@ namespace NosCore.Data.Enumerations.Buff
     {
         None = 0,
         SpouseInGroup = 1,
-        ArenaRevival = 2
+        ArenaRevival = 2,
+        LowLevelCharacter = 3
     }
 }
