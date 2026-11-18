@@ -512,12 +512,14 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         {
             var bCard = skillBCards[i];
             var effect = bCard.Effect();
-            if (effect is not (BCardEffect.BuffChanceCausing or BCardEffect.BuffChanceRemoving))
+            if (effect is not (BCardEffect.BuffChanceCausing or BCardEffect.BuffChanceRemoving or BCardEffect.MeditationSkillSacrifice))
             {
                 continue;
             }
 
-            if (!Rolls(bCard.FirstData))
+            // Sacrifice's own card goes to whoever casts it: they take the blows meant for its target.
+            var recipient = effect == BCardEffect.MeditationSkillSacrifice ? caster : target;
+            if (recipient == null || !Rolls(bCard.FirstData))
             {
                 continue;
             }
@@ -525,17 +527,17 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             var cardId = (short)bCard.SecondData;
             if (effect == BCardEffect.BuffChanceRemoving)
             {
-                await RemoveAsync(target, cardId);
+                await RemoveAsync(recipient, cardId);
                 continue;
             }
 
             var card = cardCatalog.GetCard(cardId);
-            if (card == null || Resists(target, card))
+            if (card == null || Resists(recipient, card))
             {
                 continue;
             }
 
-            await ApplyAsync(target, card, cardCatalog.GetCardBCards(cardId), caster);
+            await ApplyAsync(recipient, card, cardCatalog.GetCardBCards(cardId), caster);
         }
     }
 

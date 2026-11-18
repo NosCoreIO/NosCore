@@ -35,6 +35,7 @@ even when its packets are covered here.
 | The bank: depositing, withdrawing and its fee, every limit, a window that is not open | `BankTests` |
 | Groups: inviting, declining, leaving, disbanding, a full group, a member leaving the world, shared experience | `GroupTests` |
 | Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP | `FightTests` |
+| Sacrifice cast on a friendly player: the card for its target and the one for its caster | `SacrificeTests` |
 | Loot: whose a drop is, loot in turn and shared loot, how far a drop can be picked up from | `LootTests` |
 | Minilands: entering, friends and strangers, locking, placing and taking away objects, what visitors see, invitations | `MinilandTests` |
 | Private shops: opening one and its refusals, browsing, buying, selling out, closing, what both sides keep | `PrivateShopTests` |
@@ -615,6 +616,24 @@ Dagger (250) and Poisoned Arrowhead (256), both Poisonous Plant 2086.
       Plant, and one plant used per accepted cast
 - [ ] If the client greys the skill out or never sends the cast while the bag holds none, note it:
       the refusal then only shows in the unit tests and the end-to-end scenario
+
+### Sacrifice — BCard type 68 subtype 5
+
+Sacrifice (1095) is the Battle Monk's skill at specialist level 4. Its target takes the magic
+circle (card 531) and card 4427, and its caster takes Spirit of Sacrifice (card 546, 30 s).
+
+Setup: a Swordsman at job level 70 with reputation above 0 (`$ChangeClass`, `$SetJobLevel 70`,
+`$SetReputation 1000`), the Battle Monk card `$CreateItem 4494`, raised to specialist level 4 or
+more while logged out (`UPDATE "ItemInstance" SET "SpLevel" = 4 WHERE "ItemVNum" = 4494;`), SP
+points, and a second character standing next to them.
+
+- [ ] Transform and cast Sacrifice on the second character: the Spirit of Sacrifice icon appears
+      on your buff bar, and clicking the other character shows card 531 under their bars but not
+      Spirit of Sacrifice
+- [ ] The other character's client shows Spirit of Sacrifice on your portrait when it clicks you
+- [ ] After 30 seconds Spirit of Sacrifice leaves your buff bar
+- [ ] Not verifiable yet: the blows being taken for the target, and the circle ending when the
+      target leaves its area; nothing reads the circle's damage transfer yet
 
 ### Combo attacks
 
