@@ -35,6 +35,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -239,7 +240,8 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
-                    await session.SendPacketsAsync(scriptedInstanceService.GenerateWp(newMapInstance.Map.MapId));
+                    await session.SendPacketsAsync(scriptedInstanceService.GenerateWp(newMapInstance.Map.MapId,
+                        character.CompletedTimeSpaces ?? ImmutableHashSet<short>.Empty));
                     await session.SendPacketsAsync(scriptedInstanceService.GenerateRaidGates(newMapInstance.Map.MapId));
                 }
 

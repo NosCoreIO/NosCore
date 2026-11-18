@@ -74,6 +74,16 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task AnEntranceKeepsTheTimeSpaceNumberItsWaypointAnnouncesAsync()
+        {
+            await _parser.InsertScriptedInstancesAsync(Capture(
+                Captured.Arrival(2, 9, 80),
+                Captured.Waypoint(9, 81, (WpPortalType)8, 18, 99, timeSpaceId: 9)));
+
+            Assert.AreEqual((short?)9, _saved.Single().TimeSpaceId);
+        }
+
+        [TestMethod]
         public async Task ThePortalTypeSaysHeroOrNormalAndNothingAboutTheCaptureSPlayerAsync()
         {
             await _parser.InsertScriptedInstancesAsync(Capture(

@@ -24,6 +24,7 @@ namespace NosCore.Database.Entities
             CharacterRelation2 = new HashSet<CharacterRelation>();
             StaticBonus = new HashSet<StaticBonus>();
             Title = new HashSet<Title>();
+            CompletedTimeSpace = new HashSet<CompletedTimeSpace>();
             StaticBuff = new HashSet<StaticBuff>();
             BazaarItem = new HashSet<BazaarItem>();
             Inventory = new HashSet<InventoryItemInstance>();
@@ -145,6 +146,8 @@ namespace NosCore.Database.Entities
         public int MasterTicket { get; set; }
 
         public virtual ICollection<CharacterQuest> CharacterQuest { get; set; }
+
+        public virtual ICollection<CompletedTimeSpace> CompletedTimeSpace { get; set; }
 
 
         public virtual ICollection<Mate> Mate { get; set; }

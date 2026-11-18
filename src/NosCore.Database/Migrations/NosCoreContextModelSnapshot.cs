@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261118232741_AddRelictExamination";
+    public override string LastMigrationId => "20261119011938_RecordCompletedTimeSpaces";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -766,6 +766,25 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasIndex("SkillVNum");
 
                 b.ToTable("Combo");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.CompletedTimeSpace", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uuid");
+
+                b.Property<long>("CharacterId")
+                    .HasColumnType("bigint");
+
+                b.Property<short>("TimeSpaceId")
+                    .HasColumnType("smallint");
+
+                b.HasKey("Id");
+
+                b.HasIndex("CharacterId", "TimeSpaceId")
+                    .IsUnique();
+
+                b.ToTable("CompletedTimeSpace");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.DignityLevel", b =>
@@ -3230,6 +3249,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(2147483647)
                     .HasColumnType("text");
 
+                b.Property<short?>("TimeSpaceId")
+                    .HasColumnType("smallint");
+
                 b.Property<byte>("Type")
                     .HasColumnType("smallint");
 
@@ -4007,6 +4029,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Skill");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.CompletedTimeSpace", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Character", "Character")
+                    .WithMany("CompletedTimeSpace")
+                    .HasForeignKey("CharacterId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Character");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.Drop", b =>
             {
                 b.HasOne("NosCore.Database.Entities.MapType", "MapType")
@@ -4751,6 +4784,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("CharacterRelation2");
 
                 b.Navigation("CharacterSkill");
+
+                b.Navigation("CompletedTimeSpace");
 
                 b.Navigation("FamilyCharacter");
 

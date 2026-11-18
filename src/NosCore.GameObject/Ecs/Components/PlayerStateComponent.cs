@@ -31,5 +31,6 @@ public record struct PlayerStateComponent(
     int RainbowBattleKills = 0,
     string? Biography = null,
     // Failed attempts per time-space since login.
-    ImmutableDictionary<short, short>? TimeSpaceFailures = null
+    ImmutableDictionary<short, short>? TimeSpaceFailures = null,
+    ImmutableHashSet<short>? CompletedTimeSpaces = null
 );

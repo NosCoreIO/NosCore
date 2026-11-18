@@ -56,12 +56,15 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             return World.Create<ServiceUnderTest>();
         }
 
+        private static readonly IReadOnlySet<short> NoneCleared = new HashSet<short>();
+
         private static ScriptedInstanceDto TimeSpace(short id, short mapId, short x, short y,
-            bool heroic = false, byte levelMinimum = 1)
+            bool heroic = false, byte levelMinimum = 1, short? timeSpaceId = null)
         {
             return new ScriptedInstanceDto
             {
                 ScriptedInstanceId = id,
+                TimeSpaceId = timeSpaceId,
                 MapId = mapId,
                 PositionX = x,
                 PositionY = y,
@@ -88,7 +91,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var service = Build(TimeSpace(1, 1, 10, 10));
 
             Assert.AreEqual(0, service.GetByMap(2).Count);
-            Assert.AreEqual(0, service.GenerateWp(2).Count());
+            Assert.AreEqual(0, service.GenerateWp(2, NoneCleared).Count());
             Assert.IsNull(service.GetAt(2, 10, 10));
         }
 
@@ -104,7 +107,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public void TheMarkerCarriesTheRowKeyTheClientWillSendBack()
         {
-            var packet = Build(TimeSpace(42, 1, 10, 20, levelMinimum: 55)).GenerateWp(1).Single();
+            var packet = Build(TimeSpace(42, 1, 10, 20, levelMinimum: 55)).GenerateWp(1, NoneCleared).Single();
 
             Assert.AreEqual(42, packet.ScriptedInstanceId);
             Assert.AreEqual(10, packet.PositionX);
@@ -117,20 +120,34 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public void AHeroTimeSpaceIsMarkedAsOne()
         {
             Assert.AreEqual(WpPortalType.HeroTs,
-                Build(TimeSpace(1, 1, 10, 20, heroic: true)).GenerateWp(1).Single().PortalType);
+                Build(TimeSpace(1, 1, 10, 20, heroic: true)).GenerateWp(1, NoneCleared).Single().PortalType);
             Assert.AreEqual(WpPortalType.NormalTs,
-                Build(TimeSpace(1, 1, 10, 20)).GenerateWp(1).Single().PortalType);
+                Build(TimeSpace(1, 1, 10, 20)).GenerateWp(1, NoneCleared).Single().PortalType);
         }
 
         [TestMethod]
-        public void NoMarkerEverClaimsThePlayerHasClearedIt()
+        public void AStoneThePlayerHasClearedIsMarkedDone()
         {
             var service = Build(
-                TimeSpace(1, 1, 10, 20),
-                TimeSpace(2, 1, 30, 40, heroic: true));
+                TimeSpace(1, 1, 10, 20, timeSpaceId: 4),
+                TimeSpace(2, 1, 30, 40, heroic: true, timeSpaceId: 9),
+                TimeSpace(3, 1, 50, 60, timeSpaceId: 5),
+                TimeSpace(4, 1, 70, 80, heroic: true, timeSpaceId: 6));
 
-            Assert.IsFalse(service.GenerateWp(1)
-                .Any(s => s.PortalType is WpPortalType.NormalTsDone or WpPortalType.HeroTsDone));
+            var markers = service.GenerateWp(1, new HashSet<short> { 4, 9 }).ToDictionary(s => s.ScriptedInstanceId, s => s.PortalType);
+
+            Assert.AreEqual(WpPortalType.NormalTsDone, markers[1]);
+            Assert.AreEqual(WpPortalType.HeroTsDone, markers[2]);
+            Assert.AreEqual(WpPortalType.NormalTs, markers[3]);
+            Assert.AreEqual(WpPortalType.HeroTs, markers[4]);
+        }
+
+        [TestMethod]
+        public void AStoneWithoutItsTimeSpaceNumberIsNeverMarkedDone()
+        {
+            var service = Build(TimeSpace(4, 1, 10, 20));
+
+            Assert.AreEqual(WpPortalType.NormalTs, service.GenerateWp(1, new HashSet<short> { 4 }).Single().PortalType);
         }
 
         [TestMethod]
@@ -148,7 +165,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 });
 
             Assert.AreEqual(2, service.GetByMap(2500).Count);
-            Assert.AreEqual(1, service.GenerateWp(2500).Single().ScriptedInstanceId);
+            Assert.AreEqual(1, service.GenerateWp(2500, NoneCleared).Single().ScriptedInstanceId);
         }
 
         private ScriptedInstanceDto Scripted(short id, short mapId, short x, short y, string? script,

@@ -44,6 +44,7 @@ using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
@@ -60,6 +61,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
             IDao<RespawnDto, long> respawnDao,
+            IDao<CompletedTimeSpaceDto, Guid> completedTimeSpaceDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
@@ -281,6 +283,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<TitleDto>();
             character.Respawns = respawnDao
                 .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<RespawnDto>();
+            character.CompletedTimeSpaces = completedTimeSpaceDao
+                .Where(s => s.CharacterId == characterId)?.Select(s => s.TimeSpaceId).ToImmutableHashSet();
             staticBuffService.Load(character);
 
             foreach (var mate in await mateService.LoadAsync(characterId))
