@@ -1006,6 +1006,14 @@ It gives Teoman's copy on Chicken Farm Path the gambling shop (shop type 4).
       in the scene): the gamble goes through, a failure keeps the item, and rare 8 can come up
 - [ ] Gamble an ordinary sword with the Champion Blessing Amulet worn: "You are wearing an
       incorrect amulet." and no gold is taken
+- [ ] Do the same with the random Champion Blessing Amulet (`SWORD=4958 AMULET=4262`): the bands,
+      the protection, rare 8 and the three uses match 4264. Its shell options are kept, not re-rolled
+- [ ] Wear an event amulet (`AMULET=8541`, then 8542, 8543 and 8544 with `SWORD=4958` for the last
+      two) and gamble a sword that is not bound: "Can only be used on items that are bound to your
+      character." appears, the Bet window closes, and no gold, Cella or amulet use is taken
+- [ ] Bind the sword to the character (stack stopped: `UPDATE "ItemInstance" SET "BoundCharacterId" =
+      <character id> WHERE "ItemVNum" = <sword vnum>;`) and gamble again: the amulet works like its
+      ordinary version
 
 ### Services an NPC offers
 

@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261119102308_AddBCardAppliesToCaster";
+    public override string LastMigrationId => "20261119113529_AddOnlyForBoundItems";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1671,6 +1671,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .IsRequired()
                     .HasMaxLength(255)
                     .HasColumnType("character varying(255)");
+
+                b.Property<bool>("OnlyForBoundItems")
+                    .HasColumnType("boolean");
 
                 b.Property<byte>("PartnerSkillSet")
                     .HasColumnType("smallint");

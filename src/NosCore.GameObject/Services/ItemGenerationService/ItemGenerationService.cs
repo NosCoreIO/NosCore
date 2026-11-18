@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                                 wear.SetRarityPoint(rarityPoints, random);
                             }
                             if (itemToCreate.Effect is ItemEffectType.RedAmulet or ItemEffectType.BlueAmulet
-                                or ItemEffectType.ReinforcementAmulet or ItemEffectType.Heroic)
+                                or ItemEffectType.ReinforcementAmulet or ItemEffectType.Heroic or ItemEffectType.RandomHeroic)
                             {
                                 wear.DurabilityPoint = itemToCreate.EffectValue;
                             }

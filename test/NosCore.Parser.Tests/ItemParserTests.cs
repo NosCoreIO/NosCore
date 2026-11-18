@@ -813,6 +813,21 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_OnlyTheEventAmuletsAreLimitedToBoundItems()
+        {
+            var content = string.Join("\n#========================================================\n",
+                CreateItemData(vnum: 8541), CreateItemData(vnum: 8542), CreateItemData(vnum: 8543),
+                CreateItemData(vnum: 8544), CreateItemData(vnum: 282), CreateItemData(vnum: 4264));
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            CollectionAssert.AreEquivalent(new short[] { 8541, 8542, 8543, 8544 },
+                _savedItems.Where(i => i.OnlyForBoundItems).Select(i => i.VNum).ToList());
+        }
+
+        [TestMethod]
         public async Task ItemParser_VNumRange4101to4105OverridesEquipmentSlotToMainWeapon()
         {
             var content = CreateItemData(vnum: 4101, indexType: 4, equipmentSlot: 10) + "\n#========================================================\n" +

@@ -44,8 +44,10 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // A worn Blessing or Protection Amulet saves the item from destruction like the scroll does,
 // but leaves the downgrade bands in play; the Blessing Amulet also widens every band by 10%.
 // Each gamble spends one of the amulet's uses, and the amulet disappears with its last one.
-// Those amulets only take ordinary gear; the Champion Blessing Amulet is their champion gear
-// counterpart, which also opens the rare 8 band.
+// Those amulets only take ordinary gear; the Champion Blessing Amulets are their champion gear
+// counterpart, which also open the rare 8 band. The random one does not re-roll the shell options
+// yet: nothing says which options champion gear rolls. An event amulet only takes an item bound to
+// the gambler.
 //
 // An Amulet for Increasing Rarity carried in the bag replaces the roll: the item gains one rarity
 // level, cannot fail, and the amulet is used up. The champion one only works on champion gear,
@@ -113,12 +115,16 @@ public abstract class RarifyOperationBase(IRandomProvider random, IGameLanguageL
             return null;
         }
 
+        var wearable = LoadSource(session, packet)?.ItemInstance as WearableInstance;
         Game18NConstString? refusal = IsProtected
             ? Game18NConstString.UnequipTheAmuletFirstThenYou
-            : LoadSource(session, packet)?.ItemInstance is WearableInstance wearable
-              && wearable.Item.IsHeroic != (amulet.ItemInstance.Item.Effect == ItemEffectType.Heroic)
-                ? Game18NConstString.YouAreWearingAnIncorrectAmulet
-                : null;
+            : wearable is null
+                ? null
+                : wearable.Item.IsHeroic != IsChampionBlessing(amulet)
+                    ? Game18NConstString.YouAreWearingAnIncorrectAmulet
+                    : amulet.ItemInstance.Item.OnlyForBoundItems && wearable.BoundCharacterId != session.Character.CharacterId
+                        ? Game18NConstString.CanOnlyBeUsedOnBoundItems
+                        : null;
         return refusal is { } message
             ? new IPacket[]
             {
@@ -172,12 +178,12 @@ public abstract class RarifyOperationBase(IRandomProvider random, IGameLanguageL
         }
 
         var rnd = roll * 80.0;
-        var amuletEffect = state.Amulet?.ItemInstance.Item.Effect;
-        var chanceFactor = amuletEffect is ItemEffectType.RedAmulet or ItemEffectType.Heroic
+        var champion = state.Amulet is { } worn && IsChampionBlessing(worn);
+        var chanceFactor = champion || state.Amulet?.ItemInstance.Item.Effect == ItemEffectType.RedAmulet
             ? BlessingAmuletChanceFactor
             : 1;
 
-        foreach (var (rare, threshold) in amuletEffect == ItemEffectType.Heroic ? ChampionBands : NormalBands)
+        foreach (var (rare, threshold) in champion ? ChampionBands : NormalBands)
         {
             if (rnd >= threshold * chanceFactor)
             {
@@ -222,7 +228,11 @@ public abstract class RarifyOperationBase(IRandomProvider random, IGameLanguageL
         outcome == UpgradeOutcome.ProtectedSave && !IsProtected && ctx.Data<RarifyRollState>().Amulet is not null;
 
     private static InventoryItemInstance? WornBettingAmulet(ClientSession session) =>
-        WornAmulet(session, ItemEffectType.RedAmulet, ItemEffectType.BlueAmulet, ItemEffectType.Heroic);
+        WornAmulet(session, ItemEffectType.RedAmulet, ItemEffectType.BlueAmulet, ItemEffectType.Heroic,
+            ItemEffectType.RandomHeroic);
+
+    private static bool IsChampionBlessing(InventoryItemInstance amulet) =>
+        amulet.ItemInstance.Item.Effect is ItemEffectType.Heroic or ItemEffectType.RandomHeroic;
 
     private static InventoryItemInstance? CarriedRisingAmulet(ClientSession session, WearableInstance wearable)
     {
