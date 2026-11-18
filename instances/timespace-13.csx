@@ -74,21 +74,6 @@ public class TimeSpace13 : InstanceScript
         r.SpawnPortal(_room9, new(14, 28), _room8, new(14, 1), locked: false);
         r.PlaceButton(_room9, 1, new(14, 15), 1000, 1045);
         r.SpawnPortal(_room10, new(14, 28), _room9, new(14, 5), locked: false);
-        r.Summon(_room10,
-            new MonsterSpawn(57, new(22, 14)),
-            new MonsterSpawn(57, new(10, 9), OnDeath: r =>
-            {
-                r.Summon(_room10,
-                new MonsterSpawn(57, new(10, 19), OnDeath: r =>
-                {
-                    r.Summon(_room10, new MonsterSpawn(58, new(20, 15)));
-                }),
-                new MonsterSpawn(57, new(14, 8), OnDeath: r =>
-                {
-                    r.Summon(_room10, new MonsterSpawn(58, new(9, 16)));
-                }));
-            }),
-            new MonsterSpawn(57, new(8, 13)));
         r.SummonNpcs(_room10, new NpcSpawn(317, new(14, 14)));
     }
 
@@ -130,6 +115,28 @@ public class TimeSpace13 : InstanceScript
         {
             r.Dialog(_room10, 6073);
             r.Message(LanguageKey.TIMESPACE_FOUND_GUARD_BOB);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room10 && dialog == 6073)
+        {
+            r.Summon(_room10,
+                new MonsterSpawn(57, new(22, 14)),
+                new MonsterSpawn(57, new(10, 9), OnDeath: r =>
+                {
+                    r.Summon(_room10,
+                    new MonsterSpawn(57, new(10, 19), OnDeath: r =>
+                    {
+                        r.Summon(_room10, new MonsterSpawn(58, new(20, 15)));
+                    }),
+                    new MonsterSpawn(57, new(14, 8), OnDeath: r =>
+                    {
+                        r.Summon(_room10, new MonsterSpawn(58, new(9, 16)));
+                    }));
+                }),
+                new MonsterSpawn(57, new(8, 13)));
             r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_SAVE_BOB);
         }
     }

@@ -44,10 +44,6 @@ public class TimeSpace11 : InstanceScript
         r.SummonNpcs(_room3, new NpcSpawn(320, new(31, 37)), new NpcSpawn(320, new(28, 37)), new NpcSpawn(320, new(27, 47)), new NpcSpawn(320, new(26, 47)), new NpcSpawn(320, new(26, 37)), new NpcSpawn(320, new(25, 47)), new NpcSpawn(320, new(22, 46)), new NpcSpawn(320, new(23, 40)), new NpcSpawn(320, new(23, 37)), new NpcSpawn(320, new(22, 47)), new NpcSpawn(320, new(21, 47)), new NpcSpawn(320, new(20, 37)), new NpcSpawn(320, new(19, 47)), new NpcSpawn(320, new(18, 37)));
         r.SpawnExit(_room4, new(23, 12));
         r.SpawnPortal(_room4, new(1, 12), _room3, new(48, 25));
-        r.Summon(_room4,
-            new MonsterSpawn(109, new(20, 14)),
-            new MonsterSpawn(109, new(20, 12)),
-            new MonsterSpawn(109, new(20, 9)));
         r.SummonNpcs(_room4, new NpcSpawn(320, new(8, 13)), new NpcSpawn(320, new(8, 10)));
     }
 
@@ -189,6 +185,17 @@ public class TimeSpace11 : InstanceScript
         else if (room == _room4)
         {
             r.Dialog(_room4, 6065);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room4 && dialog == 6065)
+        {
+            r.Summon(_room4,
+                new MonsterSpawn(109, new(20, 14)),
+                new MonsterSpawn(109, new(20, 12)),
+                new MonsterSpawn(109, new(20, 9)));
         }
     }
 

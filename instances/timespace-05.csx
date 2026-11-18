@@ -90,7 +90,6 @@ public class TimeSpace5 : InstanceScript
         else if (room == _room6)
         {
             r.Dialog(_room6, 6024);
-            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_BOSS_APPEARED);
         }
     }
 
@@ -105,6 +104,7 @@ public class TimeSpace5 : InstanceScript
                     r.Summon(_room6, new MonsterSpawn(55, new(19, 19)));
                 }),
                 new MonsterSpawn(270, new(17, 14), IsBonus: true));
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_BOSS_APPEARED);
         }
     }
 

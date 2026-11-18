@@ -52,134 +52,30 @@ public class TimeSpace15 : InstanceScript
         r.SummonNpcs(_room2, new NpcSpawn(317, new(3, 8)));
         r.SpawnPortal(_room3, new(8, 0), _room4, new(8, 17));
         r.SpawnPortal(_room3, new(0, 9), _room2, new(17, 9));
-        r.Summon(_room3,
-            new MonsterSpawn(109, new(11, 6), IsBonus: true),
-            new MonsterSpawn(111, new(9, 14)),
-            new MonsterSpawn(109, new(9, 12)),
-            new MonsterSpawn(108, new(8, 7)),
-            new MonsterSpawn(105, new(10, 13)),
-            new MonsterSpawn(105, new(8, 14)),
-            new MonsterSpawn(108, new(10, 13)));
         r.SummonNpcs(_room3, new NpcSpawn(320, new(8, 13)), new NpcSpawn(320, new(8, 3)), new NpcSpawn(320, new(8, 9)), new NpcSpawn(320, new(7, 5)), new NpcSpawn(320, new(6, 6)), new NpcSpawn(320, new(5, 10)), new NpcSpawn(320, new(5, 8)), new NpcSpawn(337, new(3, 9)));
         r.SpawnPortal(_room4, new(8, 0), _room5, new(8, 17));
         r.SpawnPortal(_room4, new(8, 17), _room3, new(8, 0));
-        r.Summon(_room4,
-            new MonsterSpawn(109, new(11, 9)),
-            new MonsterSpawn(109, new(11, 6), IsBonus: true),
-            new MonsterSpawn(111, new(9, 3)),
-            new MonsterSpawn(108, new(8, 9)),
-            new MonsterSpawn(108, new(8, 7)));
         r.SummonNpcs(_room4, new NpcSpawn(320, new(8, 13)), new NpcSpawn(320, new(8, 3)), new NpcSpawn(320, new(7, 11)), new NpcSpawn(320, new(7, 5)), new NpcSpawn(320, new(6, 6)), new NpcSpawn(320, new(5, 10)), new NpcSpawn(320, new(5, 8)));
         r.SpawnPortal(_room5, new(8, 0), _room6, new(8, 17));
         r.SpawnPortal(_room5, new(8, 17), _room4, new(8, 0));
-        r.Summon(_room5,
-            new MonsterSpawn(109, new(9, 5)),
-            new MonsterSpawn(111, new(9, 3)),
-            new MonsterSpawn(108, new(8, 9)),
-            new MonsterSpawn(108, new(8, 7)));
         r.SummonNpcs(_room5, new NpcSpawn(320, new(8, 13)), new NpcSpawn(320, new(8, 3)), new NpcSpawn(320, new(7, 11)), new NpcSpawn(320, new(7, 5)), new NpcSpawn(320, new(6, 6)), new NpcSpawn(320, new(5, 10)), new NpcSpawn(320, new(5, 8)));
         r.SpawnPortal(_room6, new(8, 0), _room7, new(8, 17));
         r.SpawnPortal(_room6, new(8, 17), _room5, new(8, 0));
-        r.Summon(_room6,
-            new MonsterSpawn(108, new(16, 9)),
-            new MonsterSpawn(105, new(13, 7), IsBonus: true),
-            new MonsterSpawn(111, new(11, 11)),
-            new MonsterSpawn(105, new(11, 7)),
-            new MonsterSpawn(111, new(11, 6)),
-            new MonsterSpawn(111, new(3, 8), IsBonus: true),
-            new MonsterSpawn(108, new(2, 9)),
-            new MonsterSpawn(105, new(11, 10)),
-            new MonsterSpawn(105, new(10, 12)),
-            new MonsterSpawn(108, new(11, 10)),
-            new MonsterSpawn(105, new(3, 7)),
-            new MonsterSpawn(105, new(2, 8)),
-            new MonsterSpawn(108, new(4, 9)),
-            new MonsterSpawn(105, new(12, 7)),
-            new MonsterSpawn(105, new(11, 5)),
-            new MonsterSpawn(108, new(11, 6)));
         r.SummonNpcs(_room6, new NpcSpawn(320, new(14, 9)), new NpcSpawn(320, new(12, 10)), new NpcSpawn(320, new(9, 12)), new NpcSpawn(320, new(9, 10)), new NpcSpawn(320, new(9, 7)), new NpcSpawn(320, new(7, 7)), new NpcSpawn(320, new(6, 10)), new NpcSpawn(320, new(4, 9)), new NpcSpawn(320, new(6, 7)));
         r.SpawnPortal(_room7, new(8, 0), _room8, new(8, 17));
         r.SpawnPortal(_room7, new(8, 17), _room6, new(8, 0));
-        r.Summon(_room7,
-            new MonsterSpawn(111, new(11, 11)),
-            new MonsterSpawn(105, new(11, 7)),
-            new MonsterSpawn(111, new(11, 6)),
-            new MonsterSpawn(111, new(10, 9)),
-            new MonsterSpawn(111, new(6, 5)),
-            new MonsterSpawn(108, new(2, 9)),
-            new MonsterSpawn(105, new(10, 10)),
-            new MonsterSpawn(105, new(11, 11)),
-            new MonsterSpawn(108, new(10, 9)),
-            new MonsterSpawn(105, new(8, 9)),
-            new MonsterSpawn(105, new(7, 7)),
-            new MonsterSpawn(108, new(9, 7)));
         r.SummonNpcs(_room7, new NpcSpawn(320, new(14, 9)), new NpcSpawn(320, new(12, 10)), new NpcSpawn(320, new(9, 12)), new NpcSpawn(320, new(9, 10)), new NpcSpawn(320, new(9, 7)), new NpcSpawn(320, new(7, 7)), new NpcSpawn(320, new(6, 10)), new NpcSpawn(320, new(4, 9)), new NpcSpawn(320, new(3, 7)));
         r.SpawnPortal(_room8, new(8, 0), _room9, new(8, 17));
         r.SpawnPortal(_room8, new(8, 17), _room7, new(8, 0));
-        r.Summon(_room8,
-            new MonsterSpawn(109, new(9, 5)),
-            new MonsterSpawn(111, new(9, 3)),
-            new MonsterSpawn(108, new(8, 9)),
-            new MonsterSpawn(108, new(8, 7)),
-            new MonsterSpawn(105, new(8, 2)),
-            new MonsterSpawn(105, new(9, 2)),
-            new MonsterSpawn(108, new(9, 3)));
         r.SummonNpcs(_room8, new NpcSpawn(320, new(8, 13)), new NpcSpawn(320, new(8, 3)), new NpcSpawn(320, new(7, 11)), new NpcSpawn(320, new(7, 5)), new NpcSpawn(320, new(6, 6)), new NpcSpawn(320, new(5, 10)), new NpcSpawn(320, new(5, 8)));
         r.SpawnPortal(_room9, new(8, 0), _room10, new(8, 17));
         r.SpawnPortal(_room9, new(8, 17), _room8, new(8, 0));
-        r.Summon(_room9,
-            new MonsterSpawn(108, new(16, 9), IsBonus: true),
-            new MonsterSpawn(105, new(13, 7)),
-            new MonsterSpawn(111, new(11, 11)),
-            new MonsterSpawn(105, new(11, 7)),
-            new MonsterSpawn(111, new(6, 12)),
-            new MonsterSpawn(111, new(6, 5)),
-            new MonsterSpawn(108, new(2, 9)),
-            new MonsterSpawn(105, new(11, 12)),
-            new MonsterSpawn(105, new(11, 10)),
-            new MonsterSpawn(108, new(12, 11)));
         r.SummonNpcs(_room9, new NpcSpawn(320, new(14, 9)), new NpcSpawn(320, new(12, 10)), new NpcSpawn(320, new(9, 12)), new NpcSpawn(320, new(9, 10)), new NpcSpawn(320, new(9, 7)), new NpcSpawn(320, new(7, 7)), new NpcSpawn(320, new(6, 10)), new NpcSpawn(320, new(4, 9)), new NpcSpawn(320, new(3, 7)));
         r.SpawnPortal(_room10, new(8, 0), _room11, new(8, 17));
         r.SpawnPortal(_room10, new(8, 17), _room9, new(8, 0));
-        r.Summon(_room10,
-            new MonsterSpawn(108, new(16, 9)),
-            new MonsterSpawn(105, new(13, 7)),
-            new MonsterSpawn(111, new(11, 11), IsBonus: true),
-            new MonsterSpawn(111, new(6, 12)),
-            new MonsterSpawn(111, new(6, 5)),
-            new MonsterSpawn(108, new(2, 9)),
-            new MonsterSpawn(105, new(14, 9)),
-            new MonsterSpawn(105, new(13, 9)),
-            new MonsterSpawn(108, new(14, 9)),
-            new MonsterSpawn(105, new(11, 7)),
-            new MonsterSpawn(105, new(11, 5)),
-            new MonsterSpawn(108, new(10, 6)));
         r.SummonNpcs(_room10, new NpcSpawn(320, new(14, 9)), new NpcSpawn(320, new(12, 10)), new NpcSpawn(320, new(9, 12)), new NpcSpawn(320, new(9, 10)), new NpcSpawn(320, new(9, 7)), new NpcSpawn(320, new(7, 7)), new NpcSpawn(320, new(6, 10)), new NpcSpawn(320, new(4, 9)), new NpcSpawn(320, new(3, 7)));
         r.SpawnPortal(_room11, new(8, 0), _room12, new(8, 17));
         r.SpawnPortal(_room11, new(8, 17), _room10, new(8, 0));
-        r.Summon(_room11,
-            new MonsterSpawn(108, new(16, 9)),
-            new MonsterSpawn(111, new(10, 9), OnDeath: r =>
-            {
-                r.Summon(_room11,
-                new MonsterSpawn(105, new(5, 9)),
-                new MonsterSpawn(105, new(5, 8)),
-                new MonsterSpawn(108, new(4, 9), OnDeath: r =>
-                {
-                    r.Summon(_room11, new MonsterSpawn(112, new(8, 9)));
-                }));
-            }),
-            new MonsterSpawn(105, new(10, 8), IsBonus: true),
-            new MonsterSpawn(111, new(9, 4)),
-            new MonsterSpawn(111, new(6, 12)),
-            new MonsterSpawn(111, new(6, 5)),
-            new MonsterSpawn(108, new(2, 9)),
-            new MonsterSpawn(105, new(9, 8)),
-            new MonsterSpawn(105, new(9, 10)),
-            new MonsterSpawn(108, new(11, 10)),
-            new MonsterSpawn(105, new(9, 7)),
-            new MonsterSpawn(105, new(9, 5)),
-            new MonsterSpawn(108, new(10, 6)));
         r.SummonNpcs(_room11, new NpcSpawn(320, new(14, 9)), new NpcSpawn(320, new(12, 10)), new NpcSpawn(320, new(9, 12)), new NpcSpawn(320, new(9, 10)), new NpcSpawn(320, new(9, 7)), new NpcSpawn(320, new(7, 7)), new NpcSpawn(320, new(6, 10)), new NpcSpawn(320, new(4, 9)), new NpcSpawn(320, new(3, 7)));
         r.SpawnPortal(_room12, new(17, 9), _room13, new(0, 9), locked: false);
         r.SpawnPortal(_room12, new(8, 17), _room11, new(8, 0), locked: false);
@@ -201,54 +97,45 @@ public class TimeSpace15 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 6190);
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 2);
-            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room5)
         {
             r.Dialog(_room5, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 3);
-            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room6)
         {
             r.Dialog(_room6, 6190);
-            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room7)
         {
             r.Dialog(_room7, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 5);
-            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 6);
-            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room9)
         {
             r.Dialog(_room9, 6190);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 7);
-            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room10)
         {
             r.Dialog(_room10, 6191);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 8);
-            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room11)
         {
             r.Dialog(_room11, 6192);
             r.Message(LanguageKey.TIMESPACE_STRIKE_CENTRE_FLOOR, 9);
-            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room12)
         {
@@ -258,6 +145,150 @@ public class TimeSpace15 : InstanceScript
         else if (room == _room13)
         {
             r.Dialog(_room13, 6194);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room3 && dialog == 6190)
+        {
+            r.Summon(_room3,
+                new MonsterSpawn(109, new(11, 6), IsBonus: true),
+                new MonsterSpawn(111, new(9, 14)),
+                new MonsterSpawn(109, new(9, 12)),
+                new MonsterSpawn(108, new(8, 7)),
+                new MonsterSpawn(105, new(10, 13)),
+                new MonsterSpawn(105, new(8, 14)),
+                new MonsterSpawn(108, new(10, 13)));
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room4 && dialog == 6190)
+        {
+            r.Summon(_room4,
+                new MonsterSpawn(109, new(11, 9)),
+                new MonsterSpawn(109, new(11, 6), IsBonus: true),
+                new MonsterSpawn(111, new(9, 3)),
+                new MonsterSpawn(108, new(8, 9)),
+                new MonsterSpawn(108, new(8, 7)));
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room5 && dialog == 6190)
+        {
+            r.Summon(_room5,
+                new MonsterSpawn(109, new(9, 5)),
+                new MonsterSpawn(111, new(9, 3)),
+                new MonsterSpawn(108, new(8, 9)),
+                new MonsterSpawn(108, new(8, 7)));
+            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room6 && dialog == 6190)
+        {
+            r.Summon(_room6,
+                new MonsterSpawn(108, new(16, 9)),
+                new MonsterSpawn(105, new(13, 7), IsBonus: true),
+                new MonsterSpawn(111, new(11, 11)),
+                new MonsterSpawn(105, new(11, 7)),
+                new MonsterSpawn(111, new(11, 6)),
+                new MonsterSpawn(111, new(3, 8), IsBonus: true),
+                new MonsterSpawn(108, new(2, 9)),
+                new MonsterSpawn(105, new(11, 10)),
+                new MonsterSpawn(105, new(10, 12)),
+                new MonsterSpawn(108, new(11, 10)),
+                new MonsterSpawn(105, new(3, 7)),
+                new MonsterSpawn(105, new(2, 8)),
+                new MonsterSpawn(108, new(4, 9)),
+                new MonsterSpawn(105, new(12, 7)),
+                new MonsterSpawn(105, new(11, 5)),
+                new MonsterSpawn(108, new(11, 6)));
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room7 && dialog == 6190)
+        {
+            r.Summon(_room7,
+                new MonsterSpawn(111, new(11, 11)),
+                new MonsterSpawn(105, new(11, 7)),
+                new MonsterSpawn(111, new(11, 6)),
+                new MonsterSpawn(111, new(10, 9)),
+                new MonsterSpawn(111, new(6, 5)),
+                new MonsterSpawn(108, new(2, 9)),
+                new MonsterSpawn(105, new(10, 10)),
+                new MonsterSpawn(105, new(11, 11)),
+                new MonsterSpawn(108, new(10, 9)),
+                new MonsterSpawn(105, new(8, 9)),
+                new MonsterSpawn(105, new(7, 7)),
+                new MonsterSpawn(108, new(9, 7)));
+            r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room8 && dialog == 6190)
+        {
+            r.Summon(_room8,
+                new MonsterSpawn(109, new(9, 5)),
+                new MonsterSpawn(111, new(9, 3)),
+                new MonsterSpawn(108, new(8, 9)),
+                new MonsterSpawn(108, new(8, 7)),
+                new MonsterSpawn(105, new(8, 2)),
+                new MonsterSpawn(105, new(9, 2)),
+                new MonsterSpawn(108, new(9, 3)));
+            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room9 && dialog == 6190)
+        {
+            r.Summon(_room9,
+                new MonsterSpawn(108, new(16, 9), IsBonus: true),
+                new MonsterSpawn(105, new(13, 7)),
+                new MonsterSpawn(111, new(11, 11)),
+                new MonsterSpawn(105, new(11, 7)),
+                new MonsterSpawn(111, new(6, 12)),
+                new MonsterSpawn(111, new(6, 5)),
+                new MonsterSpawn(108, new(2, 9)),
+                new MonsterSpawn(105, new(11, 12)),
+                new MonsterSpawn(105, new(11, 10)),
+                new MonsterSpawn(108, new(12, 11)));
+            r.Objective(_room9, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room10 && dialog == 6191)
+        {
+            r.Summon(_room10,
+                new MonsterSpawn(108, new(16, 9)),
+                new MonsterSpawn(105, new(13, 7)),
+                new MonsterSpawn(111, new(11, 11), IsBonus: true),
+                new MonsterSpawn(111, new(6, 12)),
+                new MonsterSpawn(111, new(6, 5)),
+                new MonsterSpawn(108, new(2, 9)),
+                new MonsterSpawn(105, new(14, 9)),
+                new MonsterSpawn(105, new(13, 9)),
+                new MonsterSpawn(108, new(14, 9)),
+                new MonsterSpawn(105, new(11, 7)),
+                new MonsterSpawn(105, new(11, 5)),
+                new MonsterSpawn(108, new(10, 6)));
+            r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room11 && dialog == 6192)
+        {
+            r.Summon(_room11,
+                new MonsterSpawn(108, new(16, 9)),
+                new MonsterSpawn(111, new(10, 9), OnDeath: r =>
+                {
+                    r.Summon(_room11,
+                    new MonsterSpawn(105, new(5, 9)),
+                    new MonsterSpawn(105, new(5, 8)),
+                    new MonsterSpawn(108, new(4, 9), OnDeath: r =>
+                    {
+                        r.Summon(_room11, new MonsterSpawn(112, new(8, 9)));
+                    }));
+                }),
+                new MonsterSpawn(105, new(10, 8), IsBonus: true),
+                new MonsterSpawn(111, new(9, 4)),
+                new MonsterSpawn(111, new(6, 12)),
+                new MonsterSpawn(111, new(6, 5)),
+                new MonsterSpawn(108, new(2, 9)),
+                new MonsterSpawn(105, new(9, 8)),
+                new MonsterSpawn(105, new(9, 10)),
+                new MonsterSpawn(108, new(11, 10)),
+                new MonsterSpawn(105, new(9, 7)),
+                new MonsterSpawn(105, new(9, 5)),
+                new MonsterSpawn(108, new(10, 6)));
+            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
     }
 
