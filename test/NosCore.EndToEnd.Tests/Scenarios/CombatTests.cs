@@ -59,6 +59,32 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             });
 
         [TestMethod]
+        public async Task ALearnedUpgradeAddsItsCardToTheSkillItUpgrades()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 60, 61);
+            await Harness.TeachAsync(player, WorldData.WeakeningUpgrade);
+            await using var alice = Harness.Client(player);
+            await alice.EnterWorldAsync(player.Slot);
+
+            var (_, cast) = await Steps.HitUntilAsync(alice, alice, WorldData.SturdyMonster, hit => hit.SkillVnum == 200 && hit.Damage != 0);
+
+            await alice.ExpectSinceAsync<BfPacket>(cast,
+                p => p.VisualType == VisualType.Monster && p.VisualId == WorldData.SturdyMonster && p.Buff is { } buff
+                    && buff.BuffId == WorldData.WeakeningCard && buff.Duration > 0, "the upgrade's card on the monster");
+        }
+
+        [TestMethod]
+        public async Task ASkillWithoutItsUpgradeCausesNoCardOfIt()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 60, 61);
+
+            var (_, cast) = await Steps.HitUntilAsync(alice, alice, WorldData.SturdyMonster, hit => hit.SkillVnum == 200 && hit.Damage != 0);
+
+            Assert.IsTrue(await alice.NoneSinceAsync<BfPacket>(cast, p => p.Buff?.BuffId == WorldData.WeakeningCard, TimeSpan.FromSeconds(1)),
+                "no card from an upgrade she has not learned");
+        }
+
+        [TestMethod]
         public async Task KillingAMonsterGivesExperience()
         {
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 30, 31);

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using NosCore.GameObject.Ecs;
 using System.Linq;
 using NosCore.Data.Enumerations.Battle;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -23,18 +24,20 @@ public sealed class SkillResolver : ISkillResolver
 {
     private readonly IReadOnlyDictionary<short, SkillDto> _skillsByVnum;
     private readonly INpcCombatCatalog _catalog;
+    private readonly ICardCatalog _cards;
 
     // Bootstrap registration path: gets the pre-loaded List<SkillDto> from the DI
     // container and indexes it here. Tests use the dictionary overload.
-    public SkillResolver(List<SkillDto> skills, INpcCombatCatalog catalog)
-        : this(skills.ToDictionary(s => s.SkillVNum, s => s), catalog)
+    public SkillResolver(List<SkillDto> skills, INpcCombatCatalog catalog, ICardCatalog cards)
+        : this(skills.ToDictionary(s => s.SkillVNum, s => s), catalog, cards)
     {
     }
 
-    public SkillResolver(IReadOnlyDictionary<short, SkillDto> skillsByVnum, INpcCombatCatalog catalog)
+    public SkillResolver(IReadOnlyDictionary<short, SkillDto> skillsByVnum, INpcCombatCatalog catalog, ICardCatalog cards)
     {
         _skillsByVnum = skillsByVnum;
         _catalog = catalog;
+        _cards = cards;
     }
 
     public SkillInfo? Resolve(IAliveEntity caster, long castId)
@@ -47,7 +50,7 @@ public sealed class SkillResolver : ISkillResolver
         };
     }
 
-    public SkillInfo Describe(SkillDto skill) => BuildInfo(skill, null, skill.CastId);
+    public SkillInfo Describe(SkillDto skill) => BuildInfo(skill, null, skill.CastId, _catalog.GetSkillBCards(skill.SkillVNum));
 
     private SkillInfo? ResolveCharacter(PlayerComponentBundle character, long castId)
     {
@@ -56,13 +59,50 @@ public sealed class SkillResolver : ISkillResolver
         var match = FindLearned(character, castId);
         if (match?.Skill == null) return null;
 
-        var upgrade = character.Skills.Values
+        var upgrades = character.Skills.Values
             .Select(s => s.Skill)
-            .Where(s => s != null && s.UpgradeSkill == match.Skill.SkillVNum && s.Effect > 0 && s.SkillType == 2)
+            .OfType<SkillDto>()
+            .Where(s => s.UpgradeSkill == match.Skill.SkillVNum && s.IsUpgrade())
             .OrderBy(s => s.SkillVNum)
-            .FirstOrDefault();
+            .ToList();
 
-        return BuildInfo(match.Skill, upgrade, castId);
+        return BuildInfo(match.Skill, upgrades.FirstOrDefault(s => s.Effect > 0), castId,
+            WithUpgrades(match.Skill, upgrades));
+    }
+
+    // Every learned upgrade adds its effects to the skill's own, except that a card it causes takes the
+    // place of the same card, or one of the same card group, that the skill already causes.
+    private IReadOnlyList<BCardDto> WithUpgrades(SkillDto skill, IReadOnlyList<SkillDto> upgrades)
+    {
+        var bCards = _catalog.GetSkillBCards(skill.SkillVNum);
+        if (upgrades.Count == 0)
+        {
+            return bCards;
+        }
+
+        var merged = new List<BCardDto>(bCards);
+        foreach (var upgrade in upgrades)
+        {
+            foreach (var bCard in _catalog.GetSkillBCards(upgrade.SkillVNum))
+            {
+                merged.RemoveAll(earlier => Replaces(bCard, earlier));
+                merged.Add(bCard);
+            }
+        }
+
+        return merged;
+    }
+
+    private bool Replaces(BCardDto bCard, BCardDto earlier)
+    {
+        if (bCard.Effect() != BCardEffect.BuffChanceCausing || earlier.Effect() != BCardEffect.BuffChanceCausing)
+        {
+            return false;
+        }
+
+        return bCard.SecondData == earlier.SecondData
+            || _cards.GetCard((short)bCard.SecondData) is { GroupId: not 0 } card
+            && _cards.GetCard((short)earlier.SecondData)?.GroupId == card.GroupId;
     }
 
     // The packet guard spends cooldown and mana on this same skill, so both must pick it the same way.
@@ -84,7 +124,9 @@ public sealed class SkillResolver : ISkillResolver
         if (mob == null) return null;
 
         var resolvedSkill = ResolveNpcSkill(mob, castId);
-        return resolvedSkill != null ? BuildInfo(resolvedSkill, null, castId) : BasicAttack(mob);
+        return resolvedSkill != null
+            ? BuildInfo(resolvedSkill, null, castId, _catalog.GetSkillBCards(resolvedSkill.SkillVNum))
+            : BasicAttack(mob);
     }
 
     public SkillInfo? ResolveBasic(IAliveEntity caster)
@@ -95,7 +137,7 @@ public sealed class SkillResolver : ISkillResolver
         }
 
         return mob.BasicSkill > 0 && _skillsByVnum.TryGetValue(mob.BasicSkill, out var basic)
-            ? BuildInfo(basic, null, 0)
+            ? BuildInfo(basic, null, 0, _catalog.GetSkillBCards(basic.SkillVNum))
             : BasicAttack(mob);
     }
 
@@ -145,7 +187,7 @@ public sealed class SkillResolver : ISkillResolver
         return null;
     }
 
-    private SkillInfo BuildInfo(SkillDto main, SkillDto? upgrade, long castId)
+    private static SkillInfo BuildInfo(SkillDto main, SkillDto? upgrade, long castId, IReadOnlyList<BCardDto> bCards)
     {
         return new SkillInfo(
             SkillVnum: main.SkillVNum,
@@ -162,7 +204,7 @@ public sealed class SkillResolver : ISkillResolver
             Element: main.Element,
             Duration: main.Duration,
             MpCost: main.MpCost,
-            BCards: _catalog.GetSkillBCards(main.SkillVNum),
+            BCards: bCards,
             CellPattern: main.CellPattern,
             CastAnimation: main.CastAnimation,
             CastTime: main.CastTime,

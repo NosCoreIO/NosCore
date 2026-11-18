@@ -98,6 +98,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short BandageSkillCastId = 4;
         public const short Bandage = 2087;
 
+        // An upgrade of the adventurer's first skill that has it weaken what it strikes.
+        public const short WeakeningUpgrade = 202;
+        public const short WeakeningCard = 58;
+
         // A creature to own as a pet: it has mana, and one skill of its own for its skill bar that takes
         // a moment to cast and three seconds to come back.
         public const short PetVNum = 10;
@@ -358,6 +362,15 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 SkillVNum = 209, Name = "skill209", CastId = 16, SkillType = 1, CastTime = 6, Cooldown = 150, MpCost = 10,
                 UpgradeSkill = 3, LevelMinimum = 1, Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
             });
+            // As the client data has them: skill type 2 is an upgrade of the skill its UpgradeSkill names.
+            context.Add(new Skill
+            {
+                SkillVNum = WeakeningUpgrade, Name = "skill202", CastId = 0, SkillType = 2, UpgradeSkill = 200, Effect = -1,
+                AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
+            });
+            context.Add(new Card { CardId = WeakeningCard, Name = "weakening", Duration = 300, BuffType = BuffType.Bad });
+            await context.SaveChangesAsync();
+            context.Add(new BCard { SkillVNum = WeakeningUpgrade, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = WeakeningCard });
             context.Add(new Skill
             {
                 SkillVNum = SlowSkill, Name = "skill210", CastId = SlowSkillCastId, SkillType = 1, Type = 0, Range = 1, CastTime = 2,

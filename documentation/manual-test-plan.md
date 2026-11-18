@@ -587,6 +587,13 @@ player plays, costs its mana and goes on cooldown. Its hit type decides the rest
 - [ ] In a party, use a skill that buffs everyone around: a member standing close gets the buff,
       a member far away does not
 - [ ] Use a skill meant for an ally on a monster: the cast is cancelled and nothing is spent
+- [ ] As an Archer with Haste (253) but not its upgrade, use Haste: Haste (card 28) shows beside
+      the portrait for 2 minutes. Learn Increases movement speed (358) as well and use Haste again:
+      only the stronger Haste (card 29) shows, the walk is faster than with the first, and the first
+      icon does not come back
+- [ ] As a Swordsman with Blood Oath (232) and Powerful Blood Oath (331), use Blood Oath: only the
+      upgraded Blood Oath card (18) shows for 4 minutes, and hits do more damage than with Blood
+      Oath alone (card 17)
 
 ### Skills that use up an item
 
