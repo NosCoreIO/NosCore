@@ -663,6 +663,56 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task TheClockStandsStillWhileATalkIsOpenAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+            await run.StartAsync();
+
+            World.Clock.AdvanceSeconds(20);
+            await run.TickAsync();
+            await run.DialogClosedAsync(session.Character.CharacterId);
+            World.Clock.AdvanceSeconds(59);
+            await run.TickAsync();
+
+            Assert.IsNull(run.EndState);
+            var clock = _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.TSTimer);
+            Assert.AreEqual(600, clock.Parameter);
+        }
+
+        [TestMethod]
+        public async Task ATalkLeftOpenHoldsTheClockForThirtySecondsAtMostAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+            await run.StartAsync();
+
+            World.Clock.AdvanceSeconds(30);
+            await run.TickAsync();
+            World.Clock.AdvanceSeconds(59);
+            await run.TickAsync();
+            Assert.IsNull(run.EndState);
+
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+            Assert.AreEqual(EndStateType.Timeout, run.EndState);
+        }
+
+        [TestMethod]
         public async Task ClosingADialogTheRunNeverOpenedTellsTheScriptNothingAsync()
         {
             var session = await PlayerInFirstRoomAsync();

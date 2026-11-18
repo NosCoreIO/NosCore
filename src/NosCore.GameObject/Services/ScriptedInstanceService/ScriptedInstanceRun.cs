@@ -88,6 +88,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private int _combo;
         private bool _started;
         private Instant? _clockEndsAt;
+        private Instant? _clockPausedAt;
         private Duration _clockLimit;
         private Instant? _returnAt;
         private readonly TimeSpan _stepTimeout;
@@ -330,15 +331,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     if (_roomDialogs.TryGetValue(current, out var dialog))
                     {
                         var player = session.Character;
+                        PauseClock();
                         _pending.Add(() => _openDialogs.GetValueOrDefault(player.CharacterId) == (current, dialog)
                             ? Task.CompletedTask
                             : ShowDialogAsync(player, current, dialog));
                     }
                 }
 
-                if (_clockEndsAt is { } endsAt && EndState == null)
+                if (_clockEndsAt != null && EndState == null)
                 {
-                    _pending.Add(() => session.SendPacketAsync(GenerateClock(endsAt)));
+                    var clockPacket = GenerateClock();
+                    _pending.Add(() => session.SendPacketAsync(clockPacket));
                 }
             });
         }
@@ -375,7 +378,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
-                if (EndState == null && _clockEndsAt is { } endsAt && now >= endsAt)
+                if (_clockPausedAt is { } pausedAt && now - pausedAt >= TalkPauseLimit)
+                {
+                    ResumeClock();
+                }
+
+                if (EndState == null && _clockEndsAt is { } endsAt && _clockPausedAt == null && now >= endsAt)
                 {
                     _clockEndsAt = null;
                     await CallScriptAsync(run => _script.OnTimeout(run));
@@ -863,6 +871,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     _roomDialogs.Remove(closed.Room);
                 }
 
+                if (_openDialogs.Count == 0)
+                {
+                    ResumeClock();
+                }
+
                 await CallScriptAsync(run => _script.OnDialogClosed(run, closed.Room, closed.Dialog));
             });
         }
@@ -873,7 +886,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 var room = RoomOf(mapInstanceId);
                 if (room == null || EndState != null || _abandoned
-                    || (_clockEndsAt is { } endsAt && _clock.GetCurrentInstant() >= endsAt)
+                    || (_clockEndsAt is { } endsAt && _clockPausedAt == null && _clock.GetCurrentInstant() >= endsAt)
                     || !_rooms[room.Value].Buttons.TryGetValue(button, out var used)
                     || (used.IsOn && !used.Toggles))
                 {
@@ -915,9 +928,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public void StartClock(TimeSpan limit)
         {
             _clockLimit = Duration.FromTimeSpan(limit * ClockScale);
-            var endsAt = _clock.GetCurrentInstant().Plus(_clockLimit);
-            _clockEndsAt = endsAt;
-            _pending.Add(() => BroadcastAsync(GenerateClock(endsAt)));
+            _clockEndsAt = (_clockPausedAt ?? _clock.GetCurrentInstant()).Plus(_clockLimit);
+            BroadcastClock();
         }
 
         public void AddClockTime(TimeSpan extra)
@@ -930,8 +942,41 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var added = Duration.FromTimeSpan(extra * ClockScale);
             _clockLimit += added;
             _clockEndsAt = endsAt.Plus(added);
-            var newEnd = _clockEndsAt.Value;
-            _pending.Add(() => BroadcastAsync(GenerateClock(newEnd)));
+            BroadcastClock();
+        }
+
+        // Official runs hold the clock while a talk is open, but one left open past about 30 s let it run on.
+        private static readonly Duration TalkPauseLimit = Duration.FromSeconds(30);
+
+        private void PauseClock()
+        {
+            if (_clockEndsAt == null || _clockPausedAt != null || EndState != null)
+            {
+                return;
+            }
+
+            _clockPausedAt = _clock.GetCurrentInstant();
+            BroadcastClock();
+        }
+
+        private void ResumeClock()
+        {
+            if (_clockPausedAt is not { } pausedAt || _clockEndsAt is not { } endsAt)
+            {
+                _clockPausedAt = null;
+                return;
+            }
+
+            var paused = _clock.GetCurrentInstant() - pausedAt;
+            _clockEndsAt = endsAt.Plus(paused < TalkPauseLimit ? paused : TalkPauseLimit);
+            _clockPausedAt = null;
+            BroadcastClock();
+        }
+
+        private void BroadcastClock()
+        {
+            var packet = GenerateClock();
+            _pending.Add(() => BroadcastAsync(packet));
         }
 
         public void StartRoomClock(int room, TimeSpan length)
@@ -966,6 +1011,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             if (!_closedDialogs.Contains((room, dialog)))
             {
                 _roomDialogs[room] = dialog;
+            }
+
+            if (PlayersOf(mapInstance).Any())
+            {
+                PauseClock();
             }
 
             _pending.Add(async () =>
@@ -1105,6 +1155,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             EndState = state;
             _clockEndsAt = null;
+            _clockPausedAt = null;
             _scheduled.Clear();
             _returnAt = _clock.GetCurrentInstant().Plus(state == EndStateType.Timeout ? TimeoutReturnDelay : ReturnDelay);
             foreach (var room in _rooms.Values)
@@ -1119,9 +1170,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
-        private EventPacket GenerateClock(Instant endsAt)
+        private EventPacket GenerateClock()
         {
-            var remaining = Math.Max(0, (endsAt - _clock.GetCurrentInstant()).TotalMilliseconds);
+            var endsAt = _clockEndsAt ?? _clock.GetCurrentInstant();
+            var remaining = Math.Max(0, (endsAt - (_clockPausedAt ?? _clock.GetCurrentInstant())).TotalMilliseconds);
             return new EventPacket
             {
                 Type = EventPacketType.TSTimer,
