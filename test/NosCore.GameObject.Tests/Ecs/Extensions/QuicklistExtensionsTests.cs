@@ -5,7 +5,11 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quicklist;
@@ -99,6 +103,31 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
                 .When(RemovingSlotOne_Two_)
                 .Then(TheQuicklistShouldHave_Entries, 1)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASkinKeepsTheCardsQuicklist()
+        {
+            await new Spec("A card shown in a skin's look keeps the quicklist set before the skin")
+                .Given(TheCharacterWearsSpecialistMorph_, (short)38)
+                .And(SlotOne_Two_Holds_, (short)3, (short)4)
+                .And(TheWornCardHasMorph_AndShowsTheSkin_, (short)38, (short)37)
+                .When(RemovingSlotOne_Two_)
+                .Then(TheQuicklistShouldHave_Entries, 0)
+                .ExecuteAsync();
+        }
+
+        private void TheWornCardHasMorph_AndShowsTheSkin_(short morph, short skin)
+        {
+            var card = new SpecialistInstance(new Item
+            {
+                VNum = 4575, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, Morph = morph
+            }) { Skin = skin };
+            var worn = InventoryItemInstance.Create(card, Session.Character.CharacterId);
+            worn.Type = NoscorePocketType.Wear;
+            worn.Slot = (short)EquipmentType.Sp;
+            Session.Character.InventoryService[worn.ItemInstanceId] = worn;
+            Session.Character.Morph = card.ShownMorph;
         }
 
         private void SlotOne_Two_Holds_(short iconType, short iconVNum) =>

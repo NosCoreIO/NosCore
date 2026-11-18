@@ -25,6 +25,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
         // The card window sends it back when points are spent, naming the card it showed.
         public int TransportId => Id.GetHashCode() & int.MaxValue;
 
+        public short ShownMorph => Skin != 0 ? Skin : Item.Morph;
+
         public SpPartnerRank PartnerSkillRank(int slot) => slot switch
         {
             0 => FirstPartnerSkillRank,

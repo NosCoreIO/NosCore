@@ -40,6 +40,7 @@ even when its packets are covered here.
 | Private shops: opening one and its refusals, browsing, buying, selling out, closing, what both sides keep | `PrivateShopTests` |
 | NPC shops: buying and its refusals, a full bag, selling, what cannot be sold, reputation prices | `NpcShopTests` |
 | Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
+| Specialist skins: the skin used up, the look another player sees on transforming, the skin kept after relogging | `SpecialistSkinTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
@@ -1099,6 +1100,29 @@ its window: Sellaim (274) is accepted, Solaris (273) is refused with "Please pla
 - [ ] Transformed with Titan Wings (`$CreateItem 5372`): the Titan Wings buff icon appears
       and max MP rises by 200; change to Archangel Wings (`5431`) and the icon swaps to
       Archangel Wings; untransform and the icon goes away
+
+### Specialist skins
+
+The skins are Professional Angler (9194, 9195) for the Angler card (4562, 8429), Masterchef (9227, 9228)
+for the Chef card (4575, 8438) and Pet Trainer Premium (9473, 9886) for the Pet Trainer card (8569, 8580).
+They need a parser run on this build: before it, the skins have no effect value and none of this happens.
+
+- [ ] Wear the Chef card (`$CreateItem 4575`) untransformed and double-click the Masterchef Skin
+      (`$CreateItem 9227`): the skin is gone from the bag and no question or message appears
+- [ ] Transform: the character turns into the masterchef, not the chef. A second player next to you,
+      and one who walks into the map afterwards, sees the masterchef too
+- [ ] Put skills on the quick bar before using the skin while transformed: the bar keeps them, and the
+      character's look changes at once without untransforming
+- [ ] Untransform, relog and transform again: still the masterchef. Ride a mount while transformed and
+      get off: the masterchef comes back
+- [ ] Use a second Masterchef Skin on the same card: "You're already wearing the same skin." and the skin
+      stays in the bag
+- [ ] With the Angler card worn, use the Masterchef Skin: "This skin is not compatible with the equipped
+      specialist card." and the skin stays. With no card worn: "No Specialist Card equipped."
+- [ ] Do the same with the Professional Angler Skin on the Angler card and the Pet Trainer Premium Skin on
+      the Pet Trainer card
+- [ ] Put the skinned card in a card holder (287) and take it out again: it transforms into the chef, not
+      the masterchef
 
 ### Costume fusion
 
@@ -3894,6 +3918,9 @@ Recorded so nobody spends time hunting for them:
 - **Upgrading during a trade** — the client closes the upgrade window when a trade opens and does
   not let the player talk to an NPC while trading, so the server's refusal of an `up_gr` sent
   during a trade only shows in the unit tests.
+- **A specialist skin in the card's info window** — no packet trace shows a card wearing a skin, so
+  the card window (`slinfo`) and the item tooltip say nothing about it; whether the client expects
+  them to is unknown.
 
 - **Being muted or banned while playing** — nothing writes a `PenaltyLog` row from inside the
   game yet. A mute given by hand applies from the next line; a ban given by hand only applies at

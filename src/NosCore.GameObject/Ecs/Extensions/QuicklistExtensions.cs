@@ -5,6 +5,8 @@
 //
 
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quicklist;
 using System;
@@ -74,7 +76,11 @@ public static class QuicklistExtensions
         return GenerateReset(quickListIndex, slot);
     }
 
-    private static short QuicklistMorph(this PlayerComponentBundle player) => player.UseSp ? player.Morph : (short)0;
+    // A skin changes the look, not the specialist, so the worn card's own morph keys its quicklist.
+    private static short QuicklistMorph(this PlayerComponentBundle player) =>
+        !player.UseSp ? (short)0
+        : player.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance.Item.Morph
+          ?? player.Morph;
 
     private static QsetClientPacket GenerateQset(QuicklistEntryDto entry) =>
         GenerateQset(entry.QuickListIndex, entry.Slot, (QSetType)entry.Type, entry.IconType, entry.IconVNum);
@@ -98,6 +104,7 @@ public static class QuicklistExtensions
 
     public static IEnumerable<QSlotPacket> GenerateQuicklist(this PlayerComponentBundle characterEntity)
     {
+        var morph = characterEntity.QuicklistMorph();
         var pktQs = new QSlotPacket[2];
         for (var i = 0; i < pktQs.Length; i++)
         {
@@ -105,7 +112,7 @@ public static class QuicklistExtensions
             for (var j = 0; j < 30; j++)
             {
                 var qi = characterEntity.QuicklistEntries.FirstOrDefault(n =>
-                    (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == (characterEntity.UseSp ? characterEntity.Morph : 0)));
+                    (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == morph));
 
                 subpacket.Add(new QsetClientSubPacket
                 {

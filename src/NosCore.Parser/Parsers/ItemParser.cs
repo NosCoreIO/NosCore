@@ -58,9 +58,9 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.ItemSubType, "INDEX", 0, 4, s => Convert.ToByte(s), "Subtype within item category")
                 .Field(x => x.EquipmentSlot, chunk => ImportEquipmentType(chunk),
                     source: "INDEX[3]", description: "Equipment slot")
-                .Field(x => x.Morph, chunk => ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ? Convert.ToInt16(chunk["DATA"][0][4]) :
+                .Field(x => x.Morph, chunk => ImportEffect(chunk) is ItemEffectType.ApplySkinPartner or ItemEffectType.SpecialistSkin ? Convert.ToInt16(chunk["DATA"][0][4]) :
                     ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default,
-                    source: "DATA[4] (partner skin) or INDEX[7]", description: "Morph id: the partner skin's look, else the item's own")
+                    source: "DATA[4] (partner or specialist skin) or INDEX[7]", description: "Morph id: a skin's look, else the item's own")
                 .Field(x => x.Class, chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3]),
                     source: "TYPE[1] (fairy override: 15)", description: "Class restriction bitmask")
                 .Field(x => x.Flag8, "FLAG", 0, 24, s => s == "1", "Variant of another item (INDEX[6] holds the original's icon); the client appends a fixed word to its name")
@@ -296,6 +296,12 @@ namespace NosCore.Parser.Parsers
 
         private int ImportEffectValue(Dictionary<string, string[][]> chunk)
         {
+            // A specialist skin names the card it fits by that card's DATA[14], which on every card is its morph less one.
+            if (ImportItemType(chunk) == ItemType.Special && ImportEffect(chunk) == ItemEffectType.SpecialistSkin)
+            {
+                return Convert.ToInt32(chunk["DATA"][0][5]) + 1;
+            }
+
             return Convert.ToInt32(ImportItemType(chunk) switch
             {
                 ItemType.Fashion when ImportEquipmentType(chunk) == EquipmentType.Amulet => chunk["INDEX"][0][7],

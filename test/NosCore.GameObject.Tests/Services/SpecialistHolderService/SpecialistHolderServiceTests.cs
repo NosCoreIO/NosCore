@@ -87,6 +87,19 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
         }
 
         [TestMethod]
+        public async Task TheCardComesBackWithoutItsSkin()
+        {
+            await new Spec("A skin worn by a card does not survive the card holder")
+                .Given(ACardInTheBag)
+                .And(TheCardWearsASkin)
+                .And(AnEmptyHolder)
+                .And(TheCardIsDroppedOnTheHolder)
+                .WhenAsync(TheHolderIsUsed)
+                .Then(TheCardCameBackWithoutASkin)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AWornCardIsRefused()
         {
             await new Spec("A card the character is wearing cannot be put in a holder")
@@ -161,6 +174,12 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
         }
 
         private void ACardInTheBag() => PlaceCard(NoscorePocketType.Equipment, CardSlot);
+
+        private void TheCardWearsASkin() =>
+            ((SpecialistInstance)CardIn(NoscorePocketType.Equipment).NotNull().ItemInstance).Skin = 37;
+
+        private void TheCardCameBackWithoutASkin() =>
+            Assert.AreEqual((short)0, ((SpecialistInstance)CardIn(NoscorePocketType.Equipment).NotNull().ItemInstance).Skin);
 
         private void ADestroyedCardInTheBag() =>
             PlaceCard(NoscorePocketType.Equipment, CardSlot).Rare = SpUpgradeOperationBase.DestroyedSoulRare;
