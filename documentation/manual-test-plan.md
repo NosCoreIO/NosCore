@@ -2954,9 +2954,9 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       monster in, and the exit stays shut until it is dead
 - [ ] In every time-space, a room whose opening talk leads to a fight shows no monster, no objective
       and no red room clock while the talk is up; closing it with End Dialogue brings the monsters in,
-      shows the objective and starts the room's clock if it has one (for example the first room of
-      `timespace-19`). The room then ends as before: its door opens once the monsters are dead, or
-      when its clock runs out in a room you survive
+      shows the room's objective and starts its clock when it has them (for example room 2 of
+      `timespace-19`, the first after the start). How the room ends does not change: a door, a lever,
+      a Small Imp, a clock running out or the end of the run, as described for that time-space
 - [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
       the same kind further east, and killing the second walker brings in one more hamster; the
       last two bring in nothing
@@ -2999,8 +2999,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-32`, each hunting room shows its red clock and "The enemies are getting
       reinforcements!" every 30 seconds. Its other messages reach only the players in that room: a
       second character waiting in the hub sees none of them
-- [ ] Not verifiable yet: the mission objectives window (`minfo`) and the room objective line (`sinfo`),
-      which this client does not draw (NosCoreIO/NosCore.ClientLab#34); the guards of `timespace-20` and the
+- [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client does not draw
+      (NosCoreIO/NosCore.ClientLab#34); the guards of `timespace-20` and the
       companion of `timespace-22` follow the player and take orders in the log, which NosCore does not do yet
 
 ### Time-space reward chest
