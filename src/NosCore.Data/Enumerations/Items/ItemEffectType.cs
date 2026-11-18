@@ -132,6 +132,9 @@ namespace NosCore.Data.Enumerations.Items
         // Starts one of the flower quests, picked at random.
         SoundFlower = 1025,
 
+        // Opened by an archaeologist rather than from the bag; EffectValue is the gold the examination costs.
+        Relict = 1026,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

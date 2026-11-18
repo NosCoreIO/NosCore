@@ -2402,6 +2402,19 @@ a Flamberge (`$CreateItem 299 5`), Rainbow Pearls (`$CreateItem 1429 20`) and a 
       Blackout, Deadly Blackout or Freeze: now and then the debuff icon appears over the monster
       and, for bleeding, its HP keeps dropping between hits
 
+### Relict examination
+
+Roram the archaeologist stands in Act 5 (map 189, around 47, 139). Give a level 60+ character
+`$CreateItem 1878 3`, `$CreateItem 1879 1` and at least 40 000 gold.
+
+- [ ] Using a relict from the bag does nothing
+- [ ] Talk to Roram and pick "Examine Relics": the examination window opens
+- [ ] Drop an Unknown Relict in: the window shows 10 000 gold; a Mysterious Relict shows 30 000
+- [ ] Confirm: the relict and the fee are gone, and one talisman, Broken Relic Piece or gemstone
+      (Unknown) or one of the 28 listed pieces (Mysterious) arrives with its "received" line
+- [ ] With less gold than the fee, "not enough gold" shows and the relict stays
+- [ ] A level 59 character is told its level is too low and keeps the relict
+
 ---
 
 ## Arena

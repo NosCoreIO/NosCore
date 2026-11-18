@@ -15,6 +15,7 @@ namespace NosCore.GameObject.Services.NpcDialogService
         Upgrade,
         RevivalQuestion,
         UpgradeScroll,
-        LandOfDeathQuestion
+        LandOfDeathQuestion,
+        RelictExamination
     }
 }

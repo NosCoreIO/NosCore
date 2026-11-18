@@ -22,6 +22,9 @@ using NosCore.Tests.Shared.BDD.Steps;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.ShopService;
 using System.Linq;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
@@ -168,6 +171,31 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Assert.IsNotNull(packet);
             Assert.AreEqual((byte)1, packet.ShopKind);
             CollectionAssert.AreEqual(new short[] { 220, 221 }, packet.Skills);
+        }
+
+        [TestMethod]
+        public async Task AnArchaeologistOpensTheRelictExaminationWindow()
+        {
+            await new Spec("An NPC offering relict examination opens its window")
+                .Given(AnArchaeologistStandsNextToTheCharacter)
+                .And(TheNpcsDialogIsOpen)
+                .WhenAsync(ShoppingFromTheShopNpc)
+                .Then(TheRelictExaminationWindowShouldOpen)
+                .ExecuteAsync();
+        }
+
+        private void AnArchaeologistStandsNextToTheCharacter()
+        {
+            Session.WithNpcAt(100, 1, 1);
+            var services = World.Freeze<Mock<INpcServiceCatalog>>();
+            services.Setup(s => s.Offers(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), NpcService.RelictExamination)).Returns(true);
+            Handler = World.Create<ShoppingPacketHandler>();
+        }
+
+        private void TheRelictExaminationWindowShouldOpen()
+        {
+            Assert.AreEqual(WindowType.ExamineRelics, Session.LastPackets.OfType<WopenPacket>().Single().Type);
+            Assert.AreEqual(NpcDialogWindow.RelictExamination, Session.Character.NpcDialog?.Window);
         }
 
         private void AShopNpcStandsNextToTheCharacter()
