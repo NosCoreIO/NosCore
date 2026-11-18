@@ -145,7 +145,7 @@ public class TimeSpace3 : InstanceScript
     {
         var first = r.RandomCell(room);
         var second = r.RandomCell(room);
-        while (second == first)
+        for (var tries = 0; second == first && tries < 20; tries++)
         {
             second = r.RandomCell(room);
         }
