@@ -298,6 +298,9 @@ parser) after a change to how these are read.
 A targeted skill reaches its range plus one cell, measured on the truncated diagonal
 distance the walk check uses.
 
+- [ ] Give a character a specialist card stored without a level (`SpLevel` 0, for example card
+      901) and right-click it in the card inventory: its window opens at level 1 instead of
+      the server dropping the connection
 - [ ] Cast a targeted skill at a monster from inside its range: it lands
 - [ ] Back away until the monster is more than range + 1 cells off and cast again: the
       cast is refused, the auto-attack stops, no mana is spent and the skill does not go on
