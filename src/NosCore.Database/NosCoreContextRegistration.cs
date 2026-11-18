@@ -5,6 +5,7 @@
 //
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace NosCore.Database
@@ -12,7 +13,8 @@ namespace NosCore.Database
     public static class NosCoreContextRegistration
     {
         public static DbContextOptionsBuilder UseNosCoreDatabase(this DbContextOptionsBuilder builder, string connectionString) =>
-            builder.UseNpgsql(connectionString, options => options.UseNodaTime());
+            builder.UseNpgsql(connectionString, options => options.UseNodaTime())
+                .ReplaceService<IMigrationsSqlGenerator, EnumLabelMigrationsSqlGenerator>();
 
         public static IServiceCollection AddNosCoreContext(this IServiceCollection services, string connectionString) =>
             services.AddDbContext<NosCoreContext>(builder => builder.UseNosCoreDatabase(connectionString));
