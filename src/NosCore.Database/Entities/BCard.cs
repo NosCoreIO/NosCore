@@ -48,5 +48,7 @@ namespace NosCore.Database.Entities
         public bool IsLevelDivided { get; set; }
 
         public byte Slot { get; set; }
+
+        public BCardRecipient Recipient { get; set; }
     }
 }

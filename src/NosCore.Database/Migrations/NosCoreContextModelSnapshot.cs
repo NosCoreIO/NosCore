@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261117225013_DropCharacterTimeSpace";
+    public override string LastMigrationId => "20261118142933_AddMonsterCardRecipient";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -29,6 +29,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "arena_type", new[] { "none", "individual", "glory" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_log_type", new[] { "account_creation", "character_creation", "email_update" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "authority_type", new[] { "user", "moderator", "game_master", "administrator", "root", "closed", "banned", "unconfirmed" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "b_card_recipient", new[] { "none", "enemy", "caster" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "bazaar_operation_state", new[] { "pending", "settled", "compensated" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "bazaar_operation_type", new[] { "register", "buy", "modify", "claim" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "buff_type", new[] { "good", "neutral", "bad" });
@@ -237,6 +238,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.Property<short?>("NpcMonsterVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Recipient")
                     .HasColumnType("smallint");
 
                 b.Property<int>("SecondData")

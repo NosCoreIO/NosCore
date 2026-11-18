@@ -457,6 +457,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       BCard type 48 subtypes 41 and 51) stuns the monster that hits you
       (`/mnt/project-files/bcard-effects/reset-onhit.sh` puts it on Tester next to a hostile Large
       Dander): the monster hits about once every four seconds instead of every second
+- [ ] A monster's own cards land on what it hits: let the Weak Toxi Danders on map 3 (around
+      104, 178) hit you for a minute; about one hit in ten puts Toxic Thorn (card 2, 8 s) on your
+      buff bar
+- [ ] In `timespace-519`, let a Thornwalker hit you: about one hit in sixteen puts Blackout (card
+      7) on you, you cannot attack or move for 5 s, then it goes and you fight on
+- [ ] A Lucky Rat, Bull Bushtail or Snowman hitting you never puts its own Sprint on you
 
 ### Double-drop and no-drop chances
 
