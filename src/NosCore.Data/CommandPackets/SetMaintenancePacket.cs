@@ -18,9 +18,12 @@ namespace NosCore.Data.CommandPackets
         [PacketIndex(1)]
         public bool MaintenanceMode { get; set; }
 
+        [PacketIndex(2)]
+        public int? DelayInSeconds { get; set; }
+
         public override string Help()
         {
-            return "$SetMaintenance IsGlobal MaintenanceMode";
+            return "$SetMaintenance IsGlobal MaintenanceMode [DelayInSeconds]";
         }
     }
 }

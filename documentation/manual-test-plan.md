@@ -3670,6 +3670,25 @@ A ban is a row in `PenaltyLog` for the account (`Penalty` 1, `DateEnd` in the fu
 - [ ] `$SetMaintenance 0 1` on a GM account (this channel only), then log a User account in
       and pick that channel: it is disconnected; a GM account still gets in
 
+### Scheduled maintenance
+
+Two clients on the same channel: a GM account and a User account.
+
+- [ ] On the GM, `$SetMaintenance 0 1 360`: nothing shows for the first minute
+- [ ] One minute later (five minutes left) both clients show "The servers will be shut down in
+      5 minute(s) for maintenance." as a shout across the screen, in the account's language
+- [ ] Thirty seconds before the end, both clients show "The server will be disconnected in 30
+      seconds.", then 25, 20, 15 and 10 seconds, five seconds apart
+- [ ] Five seconds before the end, both show "Thank you for participating."
+- [ ] At the end the User client is disconnected and cannot enter that channel again; the GM
+      stays in the game
+- [ ] `$SetMaintenance 0 0` on the GM: the User account can enter the channel again
+- [ ] `$SetMaintenance 0 1 120`: the warning comes at once and says 2 minute(s)
+- [ ] `$SetMaintenance 0 1 360`, then `$SetMaintenance 0 0` before the end: no countdown follows
+      and nobody is disconnected
+- [ ] With two channels, `$SetMaintenance 1 1 60` on one of them: players on both channels see
+      the warning and the countdown and are disconnected at the same time
+
 ---
 
 ## Regression sweep

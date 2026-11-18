@@ -999,4 +999,7 @@
   <data name="TIMESPACE_HUNTING_TIME_OVER" xml:space="preserve">
     <value>Le temps de chasse est écoulé...</value>
   </data>
+  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
+    <value>Les serveurs seront arrêtés dans {0} minute(s) pour maintenance.</value>
+  </data>
 </root>

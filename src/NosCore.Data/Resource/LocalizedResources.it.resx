@@ -609,5 +609,8 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Vuoi rendere questo villaggio il tuo luogo di resurrezione?</value>
   </data>
+  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
+    <value>I server verranno spenti tra {0} minuto/i per manutenzione.</value>
+  </data>
 </root>
 

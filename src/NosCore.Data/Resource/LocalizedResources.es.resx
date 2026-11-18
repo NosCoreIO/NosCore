@@ -513,4 +513,7 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>¿Quieres que esta aldea sea tu lugar de resurrección?</value>
   </data>
+  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
+    <value>Los servidores se apagarán en {0} minuto(s) por mantenimiento.</value>
+  </data>
 </root>

@@ -1371,4 +1371,7 @@
   <data name="ITEM_SLOT_TAKEN" xml:space="preserve">
     <value>Slot {Slot} of pocket {Pocket} is taken and no swap was asked</value>
   </data>
+  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
+    <value>The servers will be shut down in {0} minute(s) for maintenance.</value>
+  </data>
 </root>

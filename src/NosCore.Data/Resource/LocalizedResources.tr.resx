@@ -582,4 +582,7 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Bu köyü canlanma yerin yapmak istiyor musun?</value>
   </data>
+  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
+    <value>Sunucular bakım için {0} dakika içinde kapatılacak.</value>
+  </data>
 </root>

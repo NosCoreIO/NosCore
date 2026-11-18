@@ -4,21 +4,23 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MaintenanceService;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
     public class SetMaintenancePacketHandler
-        (IChannelHub channelHttpClient) : PacketHandler<SetMaintenancePacket>,
+        (IMaintenanceService maintenanceService) : PacketHandler<SetMaintenancePacket>,
             IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetMaintenancePacket setMaintenancePacket, ClientSession session)
         {
-            await channelHttpClient.SetMaintenance(setMaintenancePacket.IsGlobal, setMaintenancePacket.MaintenanceMode);
+            await maintenanceService.SetMaintenanceAsync(setMaintenancePacket.IsGlobal, setMaintenancePacket.MaintenanceMode,
+                setMaintenancePacket.DelayInSeconds is { } seconds ? Duration.FromSeconds(seconds) : null);
         }
     }
 }
