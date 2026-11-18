@@ -98,6 +98,9 @@ namespace NosCore.Parser.Parsers
                 case 169:
                     card.Trigger = CardTrigger.ArenaRevival;
                     break;
+                case 684:
+                    card.Trigger = CardTrigger.LowLevelCharacter;
+                    break;
             }
         }
 

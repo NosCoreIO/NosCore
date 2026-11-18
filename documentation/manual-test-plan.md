@@ -1106,6 +1106,19 @@ Re-run the parser first: the medals' durations and bonuses come from it.
       and reputation than without it
 - [ ] When a medal ends, its expiry message shows and the extra slots go away
 
+### Tart Hapendam's Martial Arts
+
+Re-run the parser first: it marks card 684 as the one the server gives on its own.
+
+- [ ] Enter the world with a character at level 80 or below: about as the map loads, the
+      Tart Hapendam's Martial Arts icon appears top left with 50 minutes on it
+- [ ] Kill a monster with it: the experience and the job experience in `lev` are twice what the
+      same kill gives without the buff
+- [ ] Die: the icon goes away. Revive in place or at the save point: it comes back
+- [ ] Wait the 50 minutes out: the icon goes and comes straight back
+- [ ] Level from 80 to 81: the icon goes away and does not come back on the next login
+- [ ] A character at level 81 or above never gets it
+
 ### Buff potions
 
 - [ ] `$CreateItem 1246 3` and double-click the Attack Potion in the Main tab: the stack drops

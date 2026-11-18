@@ -236,10 +236,12 @@ public sealed class RewardService(
             {
                 case BCardEffect.ItemExpIncreased:
                 case BCardEffect.IncreaseXpGain:
+                case BCardEffect.NormalAndJobExpIncreased:
                     bonus.Experience += value;
                     break;
                 case BCardEffect.ItemExpIncreasedNegated:
                 case BCardEffect.DecreaseXpGain:
+                case BCardEffect.NormalAndJobExpIncreasedNegated:
                     bonus.Experience -= value;
                     break;
                 case BCardEffect.IncreaseJXpGain:

@@ -111,13 +111,14 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task CardParser_MarksTheCardsTheServerAppliesOnItsOwn()
         {
-            CreateTestFile(CreateCardData(cardId: 319) + "\r\n" + CreateCardData(cardId: 169));
+            CreateTestFile(CreateCardData(cardId: 319) + "\r\n" + CreateCardData(cardId: 169) + "\r\n" + CreateCardData(cardId: 684));
 
             var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertCardsAsync(_tempFolder);
 
             Assert.AreEqual(CardTrigger.SpouseInGroup, _savedCards.Single(c => c.CardId == 319).Trigger);
             Assert.AreEqual(CardTrigger.ArenaRevival, _savedCards.Single(c => c.CardId == 169).Trigger);
+            Assert.AreEqual(CardTrigger.LowLevelCharacter, _savedCards.Single(c => c.CardId == 684).Trigger);
         }
 
         [TestMethod]

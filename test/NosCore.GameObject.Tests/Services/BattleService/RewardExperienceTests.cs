@@ -102,6 +102,20 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task TartHapendamsMartialArtsDoublesTheExperienceAndTheJobExperience()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 30;
+            await _buffs.ApplyAsync(_session.Character, new CardDto { CardId = 684, Duration = 30000 },
+                [new BCardDto { Type = BCardType.CardType.StanceAndExperience, SubType = 41, FirstData = 100, CardId = 684 }],
+                _session.Character);
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual((2000L, 200L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
         public async Task WornGearWithAnExperienceBonusRaisesTheExperience()
         {
             _session.Character.Level = 30;
