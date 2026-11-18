@@ -41,6 +41,12 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                 _ => new ItemInstance(item)
             };
             k.Adapt(instance, k.GetType(), instance.GetType());
+            // A card's first level is 1; one stored at 0 would have no experience to reach its next.
+            if (instance is SpecialistInstance { SpLevel: 0 } specialist)
+            {
+                specialist.SpLevel = 1;
+            }
+
             return instance;
         }
 
