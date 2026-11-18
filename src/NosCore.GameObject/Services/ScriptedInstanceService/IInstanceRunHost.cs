@@ -45,6 +45,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
 
+        // The lives a run's players still share, shown in the mission window. Null for a host with no window.
+        int? LivesLeft => null;
+
+        // Whether the client draws the run's rooms as a map that fills in as they are discovered.
+        bool DrawsRoomMap => false;
+
         Task NpcPlacedAsync(ScriptedInstanceRun run, MapInstance room, NpcComponentBundle npc) => Task.CompletedTask;
 
         Task CountdownAsync(ScriptedInstanceRun run, MapInstance room, TimeSpan length) =>

@@ -38,6 +38,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public string Name => $"scripted instance {entrance.ScriptedInstanceId}";
 
+        public int? LivesLeft => Math.Max(0, (entrance.Definition?.Lives ?? 0) - _livesLost);
+
+        public bool DrawsRoomMap => true;
+
         public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
 
         public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
