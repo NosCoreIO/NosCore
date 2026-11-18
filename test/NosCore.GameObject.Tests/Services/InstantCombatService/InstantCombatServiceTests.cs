@@ -6,6 +6,8 @@
 
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using Moq;
+using NosCore.Data.StaticEntities;
+using NosCore.Instances.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,9 +60,38 @@ namespace NosCore.GameObject.Tests.Services.InstantCombatService
         public async Task ARunningCombatIsNotStartedAgain()
         {
             await new Spec("A combat already running on the channel is not started a second time")
+                .Given(TheEventHasAScriptAndABracket)
                 .When(StartingACombat)
                 .Then(StartingAnotherShouldBeRefused)
+                .AndAsync(TheRunShouldWaitForTheClock)
+                .AndAsync(TheRunShouldEndOnceSignUpCloses)
                 .ExecuteAsync();
+        }
+
+        // Without both, the run returns at once and can end before the second start.
+        private void TheEventHasAScriptAndABracket()
+        {
+            World.Freeze<Mock<IScriptedInstanceService>>()
+                .Setup(s => s.LoadScriptAsync(InstantCombat.Script))
+                .ReturnsAsync(new Mock<IInstanceScript>().Object);
+            World.Inject(new List<InstantCombatMonsterDto> { new() { LevelMinimum = 1, Wave = 1, NpcMonsterVNum = 1, Amount = 1 } });
+        }
+
+        private async Task TheRunShouldWaitForTheClock()
+        {
+            await Task.Delay(100);
+            Assert.IsTrue(_service.IsRunning);
+        }
+
+        private async Task TheRunShouldEndOnceSignUpCloses()
+        {
+            // The sign-up wait may not have started yet, so keep moving the clock until it has.
+            for (var i = 0; i < 200 && _service.IsRunning; i++)
+            {
+                World.Clock.AdvanceSeconds(30);
+                await Task.Delay(10);
+            }
+            Assert.IsFalse(_service.IsRunning);
         }
 
         private async Task PlayersOfLevels_(byte[] levels)
