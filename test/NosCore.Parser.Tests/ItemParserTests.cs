@@ -959,5 +959,22 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(byte.MaxValue, large.RemovesDebuffsUpToLevel);
             Assert.AreEqual(0, _savedItems.Single(i => i.VNum == 1118).RemovesDebuffsUpToLevel);
         }
+
+        [TestMethod]
+        public async Task ItemParser_LuiniaOfRestorationHealsTheNpcsWithinSixCells()
+        {
+            var content = string.Join("\n#========================================================\n",
+                CreateItemData(vnum: 2127, indexType: 2, indexSubType: 4, data: "12\t0\t800\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"),
+                CreateItemData(vnum: 2126, indexType: 2, indexSubType: 4));
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var restoration = _savedItems.Single(i => i.VNum == 2127);
+            Assert.AreEqual(800, restoration.EffectValue);
+            Assert.AreEqual(6, restoration.HealsNpcsWithin);
+            Assert.AreEqual(0, _savedItems.Single(i => i.VNum == 2126).HealsNpcsWithin);
+        }
     }
 }

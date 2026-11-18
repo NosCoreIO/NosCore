@@ -109,6 +109,8 @@ namespace NosCore.Parser.Parsers
                     source: "SpecialPotions", description: "HP and MP restored on use, in percent of the maximum")
                 .Field(x => x.RemovesDebuffsUpToLevel, chunk => SpecialPotions.All.TryGetValue(Convert.ToInt16(chunk["VNUM"][0][2]), out var potion) ? potion.RemovesDebuffsUpToLevel : (byte)0,
                     source: "SpecialPotions", description: "Negative effects up to this card level end on use")
+                .Field(x => x.HealsNpcsWithin, chunk => NpcHealingItems.Reach.GetValueOrDefault(Convert.ToInt16(chunk["VNUM"][0][2])),
+                    source: "NpcHealingItems", description: "Cells around the user within which every NPC gets EffectValue HP back")
                 .Field(x => x.MinilandObjectPoint, chunk => ImportMinilandObjectPoint(chunk),
                     source: "DATA[2] (miniland only)", description: "Miniland point value")
                 .Field(x => x.Width, chunk => ImportWidth(chunk),
