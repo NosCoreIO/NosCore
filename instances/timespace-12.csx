@@ -34,13 +34,6 @@ public class TimeSpace12 : InstanceScript
         r.SpawnPortal(_room2, new(28, 14), _room3, new(5, 20), locked: false);
         r.SpawnPortal(_room3, new(35, 20), _room4, new(1, 15));
         r.SpawnPortal(_room3, new(5, 20), _room2, new(28, 14));
-        r.Summon(_room3,
-            new MonsterSpawn(19, new(33, 19)),
-            new MonsterSpawn(19, new(33, 18)),
-            new MonsterSpawn(19, new(33, 17)),
-            new MonsterSpawn(19, new(33, 15)),
-            new MonsterSpawn(19, new(33, 13)),
-            new MonsterSpawn(19, new(33, 11)));
         r.SummonNpcs(_room3, new NpcSpawn(320, new(10, 25)), new NpcSpawn(322, new(10, 22)), new NpcSpawn(322, new(9, 20)), new NpcSpawn(320, new(9, 20)), new NpcSpawn(322, new(12, 17)), new NpcSpawn(322, new(10, 15)), new NpcSpawn(337, new(10, 14)), new NpcSpawn(320, new(10, 11)), new NpcSpawn(322, new(8, 23)), new NpcSpawn(322, new(8, 19)));
         r.SpawnExit(_room4, new(28, 14), locked: false);
         r.SpawnPortal(_room4, new(1, 15), _room3, new(35, 20), locked: false);
@@ -60,7 +53,6 @@ public class TimeSpace12 : InstanceScript
         {
             r.StartRoomClock(_room3, TimeSpan.FromSeconds(180));
             r.Message(Game18NConstString.EnemiesReinforcements);
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_PROTECT_CAPTAIN);
             r.Summon(_room3,
                 new MonsterSpawn(131, new(30, 22)),
                 new MonsterSpawn(56, new(30, 25)),
@@ -130,6 +122,21 @@ public class TimeSpace12 : InstanceScript
         else if (room == _room4)
         {
             r.Dialog(_room4, 6069);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room3 && dialog == 6068)
+        {
+            r.Summon(_room3,
+                new MonsterSpawn(19, new(33, 19)),
+                new MonsterSpawn(19, new(33, 18)),
+                new MonsterSpawn(19, new(33, 17)),
+                new MonsterSpawn(19, new(33, 15)),
+                new MonsterSpawn(19, new(33, 13)),
+                new MonsterSpawn(19, new(33, 11)));
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_PROTECT_CAPTAIN);
         }
     }
 

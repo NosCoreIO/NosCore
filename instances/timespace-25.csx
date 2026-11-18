@@ -108,11 +108,6 @@ public class TimeSpace25 : InstanceScript
             new MonsterSpawn(118, new(10, 11)));
         r.SpawnExit(_room6, new(12, 1));
         r.SpawnPortal(_room6, new(12, 23), _room5, new(12, 1));
-        r.Summon(_room6,
-            new MonsterSpawn(118, new(16, 10)),
-            new MonsterSpawn(316, new(15, 18)),
-            new MonsterSpawn(118, new(9, 9)),
-            new MonsterSpawn(115, new(8, 11)));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -139,9 +134,21 @@ public class TimeSpace25 : InstanceScript
         }
         else if (room == _room6)
         {
-            r.StartRoomClock(_room6, TimeSpan.FromSeconds(120));
             r.Dialog(_room6, 6123);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room6 && dialog == 6123)
+        {
+            r.Summon(_room6,
+                new MonsterSpawn(118, new(16, 10)),
+                new MonsterSpawn(316, new(15, 18)),
+                new MonsterSpawn(118, new(9, 9)),
+                new MonsterSpawn(115, new(8, 11)));
             r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_SURVIVE_VIOLENT_KENKO);
+            r.StartRoomClock(_room6, TimeSpan.FromSeconds(120));
             r.At(r.Elapsed + TimeSpan.FromSeconds(120), r =>
             {
                 r.Dismiss(_room6, 115);

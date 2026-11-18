@@ -37,33 +37,18 @@ public class TimeSpace0 : InstanceScript
         r.SpawnPortal(_room1, new(14, 1), _room2, new(14, 28), locked: false);
         r.SpawnPortal(_room2, new(14, 1), _room3, new(14, 28), locked: false);
         r.SpawnPortal(_room2, new(14, 28), _room1, new(14, 1), locked: false);
-        r.Summon(_room2, new MonsterSpawn(24, new(13, 14), OnDeath: r =>
-            {
-                r.Summon(_room2, new MonsterSpawn(24, new(17, 12)));
-            }));
         r.SpawnPortal(_room3, new(14, 1), _room4, new(14, 28));
         r.SpawnPortal(_room3, new(14, 28), _room2, new(14, 1));
-        r.Summon(_room3, new MonsterSpawn(333, new(12, 13)));
         r.SpawnPortal(_room4, new(14, 1), _room5, new(14, 28));
         r.SpawnPortal(_room4, new(14, 28), _room3, new(14, 1));
         r.PlaceButton(_room4, 1, new(14, 18), 1000, 1045);
         r.SpawnPortal(_room5, new(14, 1), _room6, new(14, 28));
         r.SpawnPortal(_room5, new(14, 28), _room4, new(14, 1));
-        r.Summon(_room5, new MonsterSpawn(333, new(11, 14), OnDeath: r =>
-            {
-                r.Summon(_room5, new MonsterSpawn(24, new(16, 17)));
-            }));
         r.SpawnPortal(_room6, new(14, 1), _room7, new(14, 28));
         r.SpawnPortal(_room6, new(14, 28), _room5, new(14, 1));
-        r.Summon(_room6,
-            new MonsterSpawn(25, new(15, 12)),
-            new MonsterSpawn(24, new(11, 14)));
         r.SummonNpcs(_room6, new NpcSpawn(320, new(14, 14)));
         r.SpawnExit(_room7, new(14, 1));
         r.SpawnPortal(_room7, new(14, 28), _room6, new(14, 1));
-        r.Summon(_room7,
-            new MonsterSpawn(24, new(19, 12)),
-            new MonsterSpawn(333, new(15, 17)));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -81,7 +66,6 @@ public class TimeSpace0 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 8006);
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_UNDER_ATTACK);
         }
         else if (room == _room4)
         {
@@ -91,16 +75,51 @@ public class TimeSpace0 : InstanceScript
         {
             r.StartRoomClock(_room5, TimeSpan.FromSeconds(120));
             r.Dialog(_room5, 8010);
-            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_IN_TIME);
         }
         else if (room == _room6)
         {
             r.Dialog(_room6, 8013);
-            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_PROTECT_GUARD_KILL_ALL);
         }
         else if (room == _room7)
         {
             r.Dialog(_room7, 8011);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room2 && dialog == 8005)
+        {
+            r.Summon(_room2, new MonsterSpawn(24, new(13, 14), OnDeath: r =>
+                {
+                    r.Summon(_room2, new MonsterSpawn(24, new(17, 12)));
+                }));
+        }
+        else if (room == _room3 && dialog == 8006)
+        {
+            r.Summon(_room3, new MonsterSpawn(333, new(12, 13)));
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_UNDER_ATTACK);
+        }
+        else if (room == _room5 && dialog == 8010)
+        {
+            r.Summon(_room5, new MonsterSpawn(333, new(11, 14), OnDeath: r =>
+                {
+                    r.Summon(_room5, new MonsterSpawn(24, new(16, 17)));
+                }));
+            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_IN_TIME);
+        }
+        else if (room == _room6 && dialog == 8013)
+        {
+            r.Summon(_room6,
+                new MonsterSpawn(25, new(15, 12)),
+                new MonsterSpawn(24, new(11, 14)));
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_PROTECT_GUARD_KILL_ALL);
+        }
+        else if (room == _room7 && dialog == 8011)
+        {
+            r.Summon(_room7,
+                new MonsterSpawn(24, new(19, 12)),
+                new MonsterSpawn(333, new(15, 17)));
         }
     }
 

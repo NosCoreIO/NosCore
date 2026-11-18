@@ -61,7 +61,6 @@ public class TimeSpace17 : InstanceScript
                 r.Summon(_room5, new MonsterSpawn(58, new(6, 14), IsBonus: true));
             }));
         r.SpawnPortal(_room6, new(14, 28), _room5, new(14, 1));
-        r.Summon(_room6, new MonsterSpawn(318, new(14, 12)));
         r.SpawnPortal(_room7, new(14, 28), _room8, new(14, 1), locked: false);
         r.SpawnPortal(_room7, new(1, 15), _room5, new(29, 15), locked: false);
         r.Summon(_room7,
@@ -84,7 +83,6 @@ public class TimeSpace17 : InstanceScript
             }));
         r.SpawnPortal(_room8, new(14, 1), _room7, new(14, 28), locked: false);
         r.SpawnExit(_room8, new(14, 28));
-        r.Summon(_room8, new MonsterSpawn(318, new(12, 16)));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -104,11 +102,23 @@ public class TimeSpace17 : InstanceScript
         else if (room == _room6)
         {
             r.Dialog(_room6, 6085);
-            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_FIGHT_KNIGHT_TOM);
         }
         else if (room == _room8)
         {
             r.Dialog(_room8, 6087);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room6 && dialog == 6085)
+        {
+            r.Summon(_room6, new MonsterSpawn(318, new(14, 12)));
+            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_FIGHT_KNIGHT_TOM);
+        }
+        else if (room == _room8 && dialog == 6087)
+        {
+            r.Summon(_room8, new MonsterSpawn(318, new(12, 16)));
             r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_FIGHT_TOM_AGAIN);
         }
     }

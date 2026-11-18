@@ -77,11 +77,6 @@ public class TimeSpace21 : InstanceScript
             new MonsterSpawn(20, new(5, 17)));
         r.SpawnExit(_room6, new(14, 1), locked: false);
         r.SpawnPortal(_room6, new(14, 28), _room5, new(14, 1));
-        r.Summon(_room6,
-            new MonsterSpawn(4, new(18, 13)),
-            new MonsterSpawn(4, new(14, 10)),
-            new MonsterSpawn(4, new(10, 13)),
-            new MonsterSpawn(318, new(14, 8), IsBonus: true));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -98,6 +93,18 @@ public class TimeSpace21 : InstanceScript
         else if (room == _room6)
         {
             r.Dialog(_room6, 6112);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room6 && dialog == 6112)
+        {
+            r.Summon(_room6,
+                new MonsterSpawn(4, new(18, 13)),
+                new MonsterSpawn(4, new(14, 10)),
+                new MonsterSpawn(4, new(10, 13)),
+                new MonsterSpawn(318, new(14, 8), IsBonus: true));
         }
     }
 

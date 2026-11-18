@@ -148,13 +148,6 @@ public class TimeSpace10 : InstanceScript
         r.PlaceButton(_room15, 1, new(15, 15), 1055, 1056, kind: ButtonKind.Sculpture);
         r.SpawnPortal(_room16, new(28, 15), _room15, new(1, 15));
         r.SpawnExit(_room16, new(1, 15));
-        r.Summon(_room16,
-            new MonsterSpawn(130, new(14, 11)),
-            new MonsterSpawn(130, new(13, 21)),
-            new MonsterSpawn(130, new(13, 15), IsBonus: true),
-            new MonsterSpawn(130, new(11, 19)),
-            new MonsterSpawn(130, new(11, 17)),
-            new MonsterSpawn(130, new(10, 11)));
     }
 
     public override void OnRoomEntered(IInstanceRun r, int room)
@@ -196,6 +189,20 @@ public class TimeSpace10 : InstanceScript
         {
             r.Dialog(_room16, 6060);
             r.Message(LanguageKey.TIMESPACE_EXIT_OPENED_GET_OUT);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room16 && dialog == 6060)
+        {
+            r.Summon(_room16,
+                new MonsterSpawn(130, new(14, 11)),
+                new MonsterSpawn(130, new(13, 21)),
+                new MonsterSpawn(130, new(13, 15), IsBonus: true),
+                new MonsterSpawn(130, new(11, 19)),
+                new MonsterSpawn(130, new(11, 17)),
+                new MonsterSpawn(130, new(10, 11)));
         }
     }
 

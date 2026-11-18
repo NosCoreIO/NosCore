@@ -39,10 +39,8 @@ public class TimeSpace31 : InstanceScript
         r.Summon(_room2, new MonsterSpawn(329, new(17, 13), IsBonus: true));
         r.SpawnPortal(_room3, new(14, 28), _room4, new(14, 1));
         r.SpawnPortal(_room3, new(1, 15), _room2, new(28, 15));
-        r.Summon(_room3, new MonsterSpawn(315, new(16, 13), IsBonus: true));
         r.SpawnPortal(_room4, new(14, 1), _room3, new(14, 28));
         r.SpawnPortal(_room4, new(28, 15), _room5, new(1, 15));
-        r.Summon(_room4, new MonsterSpawn(315, new(13, 15)));
         r.SpawnPortal(_room5, new(28, 15), _room6, new(1, 15));
         r.SpawnPortal(_room5, new(1, 15), _room4, new(28, 15));
         r.Summon(_room5,
@@ -90,38 +88,6 @@ public class TimeSpace31 : InstanceScript
             }));
         r.SpawnExit(_room7, new(28, 15));
         r.SpawnPortal(_room7, new(1, 15), _room6, new(28, 15));
-        r.Summon(_room7,
-            new MonsterSpawn(137, new(19, 16)),
-            new MonsterSpawn(137, new(17, 20), OnDeath: r =>
-            {
-                r.Summon(_room7, new MonsterSpawn(144, new(19, 8)));
-            }),
-            new MonsterSpawn(137, new(17, 11)),
-            new MonsterSpawn(137, new(14, 21), OnDeath: r =>
-            {
-                r.Summon(_room7,
-                new MonsterSpawn(144, new(21, 12)),
-                new MonsterSpawn(144, new(19, 22), OnDeath: r =>
-                {
-                    r.Summon(_room7,
-                    new MonsterSpawn(61, new(16, 18), OnDeath: r =>
-                    {
-                        r.Summon(_room7, new MonsterSpawn(61, new(12, 17), OnDeath: r =>
-                        {
-                            r.Summon(_room7, new MonsterSpawn(61, new(11, 13)));
-                        }));
-                    }),
-                    new MonsterSpawn(61, new(17, 14), OnDeath: r =>
-                    {
-                        r.Summon(_room7, new MonsterSpawn(61, new(14, 12)));
-                    }));
-                }),
-                new MonsterSpawn(144, new(20, 18)));
-            }),
-            new MonsterSpawn(137, new(13, 10)),
-            new MonsterSpawn(137, new(9, 20)),
-            new MonsterSpawn(137, new(9, 11)),
-            new MonsterSpawn(137, new(8, 15), IsBonus: true));
         r.SummonNpcs(_room7, new NpcSpawn(307, new(14, 15)), new NpcSpawn(315, new(7, 11)));
     }
 
@@ -138,12 +104,10 @@ public class TimeSpace31 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 6140);
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6141);
-            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
         }
         else if (room == _room5)
         {
@@ -156,6 +120,55 @@ public class TimeSpace31 : InstanceScript
         else if (room == _room7)
         {
             r.Dialog(_room7, 6143);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room3 && dialog == 6140)
+        {
+            r.Summon(_room3, new MonsterSpawn(315, new(16, 13), IsBonus: true));
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room4 && dialog == 6141)
+        {
+            r.Summon(_room4, new MonsterSpawn(315, new(13, 15)));
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
+        }
+        else if (room == _room7 && dialog == 6143)
+        {
+            r.Summon(_room7,
+                new MonsterSpawn(137, new(19, 16)),
+                new MonsterSpawn(137, new(17, 20), OnDeath: r =>
+                {
+                    r.Summon(_room7, new MonsterSpawn(144, new(19, 8)));
+                }),
+                new MonsterSpawn(137, new(17, 11)),
+                new MonsterSpawn(137, new(14, 21), OnDeath: r =>
+                {
+                    r.Summon(_room7,
+                    new MonsterSpawn(144, new(21, 12)),
+                    new MonsterSpawn(144, new(19, 22), OnDeath: r =>
+                    {
+                        r.Summon(_room7,
+                        new MonsterSpawn(61, new(16, 18), OnDeath: r =>
+                        {
+                            r.Summon(_room7, new MonsterSpawn(61, new(12, 17), OnDeath: r =>
+                            {
+                                r.Summon(_room7, new MonsterSpawn(61, new(11, 13)));
+                            }));
+                        }),
+                        new MonsterSpawn(61, new(17, 14), OnDeath: r =>
+                        {
+                            r.Summon(_room7, new MonsterSpawn(61, new(14, 12)));
+                        }));
+                    }),
+                    new MonsterSpawn(144, new(20, 18)));
+                }),
+                new MonsterSpawn(137, new(13, 10)),
+                new MonsterSpawn(137, new(9, 20)),
+                new MonsterSpawn(137, new(9, 11)),
+                new MonsterSpawn(137, new(8, 15), IsBonus: true));
         }
     }
 

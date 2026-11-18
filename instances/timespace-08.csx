@@ -47,40 +47,13 @@ public class TimeSpace8 : InstanceScript
         r.SpawnPortal(_room2, new(14, 28), _room3, new(14, 1), locked: false);
         r.SpawnPortal(_room3, new(14, 1), _room2, new(14, 28));
         r.SpawnPortal(_room3, new(28, 15), _room4, new(1, 14));
-        r.Summon(_room3,
-            new MonsterSpawn(130, new(21, 9), OnDeath: r =>
-            {
-                r.Summon(_room3, new MonsterSpawn(130, new(24, 15)));
-            }),
-            new MonsterSpawn(130, new(18, 18)),
-            new MonsterSpawn(72, new(19, 14), IsBonus: true));
         r.SetMonsterLocker(_room3, 1, SmallImp);
         r.SpawnPortal(_room4, new(28, 14), _room5, new(1, 15));
         r.SpawnPortal(_room4, new(1, 14), _room3, new(28, 15), locked: false);
-        r.Summon(_room4,
-            new MonsterSpawn(55, new(15, 21)),
-            new MonsterSpawn(55, new(13, 9), OnDeath: r =>
-            {
-                r.Summon(_room4, new MonsterSpawn(130, new(17, 19)));
-            }),
-            new MonsterSpawn(55, new(12, 21)),
-            new MonsterSpawn(72, new(15, 14), OnDeath: r =>
-            {
-                r.Summon(_room4, new MonsterSpawn(55, new(15, 9)));
-            }));
         r.SetMonsterLocker(_room4, 1, SmallImp);
         r.SpawnPortal(_room5, new(28, 15), _room6, new(1, 15));
         r.SpawnPortal(_room5, new(14, 28), _room7, new(14, 1));
         r.SpawnPortal(_room5, new(1, 15), _room4, new(28, 14));
-        r.Summon(_room5,
-            new MonsterSpawn(98, new(11, 18)),
-            new MonsterSpawn(72, new(17, 14), IsBonus: true, OnDeath: r =>
-            {
-                r.Summon(_room5, new MonsterSpawn(130, new(23, 17), OnDeath: r =>
-                {
-                    r.Summon(_room5, new MonsterSpawn(130, new(21, 12)));
-                }));
-            }));
         r.SetMonsterLocker(_room5, 1, SmallImp);
         r.SpawnPortal(_room6, new(1, 15), _room5, new(28, 15), locked: false);
         r.PlaceButton(_room6, 1, new(15, 14), 1000, 1045);
@@ -99,18 +72,6 @@ public class TimeSpace8 : InstanceScript
         r.SummonNpcs(_room7, new NpcSpawn(320, new(15, 7)));
         r.SpawnPortal(_room8, new(28, 15), _room9, new(1, 15));
         r.SpawnPortal(_room8, new(1, 15), _room7, new(28, 15));
-        r.Summon(_room8,
-            new MonsterSpawn(129, new(15, 21)),
-            new MonsterSpawn(72, new(19, 15), OnDeath: r =>
-            {
-                r.Summon(_room8,
-                new MonsterSpawn(129, new(10, 15), OnDeath: r =>
-                {
-                    r.Summon(_room8, new MonsterSpawn(130, new(19, 7)));
-                }),
-                new MonsterSpawn(129, new(16, 8)));
-            }),
-            new MonsterSpawn(72, new(19, 10), IsBonus: true));
         r.SetMonsterLocker(_room8, 2, SmallImp);
         r.SpawnPortal(_room9, new(28, 14), _room10, new(1, 15), locked: false);
         r.SpawnPortal(_room9, new(1, 15), _room8, new(28, 15));
@@ -132,17 +93,14 @@ public class TimeSpace8 : InstanceScript
         else if (room == _room3)
         {
             r.Dialog(_room3, 6038);
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
         }
         else if (room == _room4)
         {
             r.Dialog(_room4, 6040);
-            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
         }
         else if (room == _room5)
         {
             r.Dialog(_room5, 6042);
-            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
         }
         else if (room == _room6)
         {
@@ -159,6 +117,64 @@ public class TimeSpace8 : InstanceScript
         else if (room == _room10)
         {
             r.Objective(_room10, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room3 && dialog == 6038)
+        {
+            r.Summon(_room3,
+                new MonsterSpawn(130, new(21, 9), OnDeath: r =>
+                {
+                    r.Summon(_room3, new MonsterSpawn(130, new(24, 15)));
+                }),
+                new MonsterSpawn(130, new(18, 18)),
+                new MonsterSpawn(72, new(19, 14), IsBonus: true));
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
+        }
+        else if (room == _room4 && dialog == 6040)
+        {
+            r.Summon(_room4,
+                new MonsterSpawn(55, new(15, 21)),
+                new MonsterSpawn(55, new(13, 9), OnDeath: r =>
+                {
+                    r.Summon(_room4, new MonsterSpawn(130, new(17, 19)));
+                }),
+                new MonsterSpawn(55, new(12, 21)),
+                new MonsterSpawn(72, new(15, 14), OnDeath: r =>
+                {
+                    r.Summon(_room4, new MonsterSpawn(55, new(15, 9)));
+                }));
+            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
+        }
+        else if (room == _room5 && dialog == 6042)
+        {
+            r.Summon(_room5,
+                new MonsterSpawn(98, new(11, 18)),
+                new MonsterSpawn(72, new(17, 14), IsBonus: true, OnDeath: r =>
+                {
+                    r.Summon(_room5, new MonsterSpawn(130, new(23, 17), OnDeath: r =>
+                    {
+                        r.Summon(_room5, new MonsterSpawn(130, new(21, 12)));
+                    }));
+                }));
+            r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_IMPS_ATTACK);
+        }
+        else if (room == _room8 && dialog == 6048)
+        {
+            r.Summon(_room8,
+                new MonsterSpawn(129, new(15, 21)),
+                new MonsterSpawn(72, new(19, 15), OnDeath: r =>
+                {
+                    r.Summon(_room8,
+                    new MonsterSpawn(129, new(10, 15), OnDeath: r =>
+                    {
+                        r.Summon(_room8, new MonsterSpawn(130, new(19, 7)));
+                    }),
+                    new MonsterSpawn(129, new(16, 8)));
+                }),
+                new MonsterSpawn(72, new(19, 10), IsBonus: true));
         }
     }
 

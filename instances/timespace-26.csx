@@ -37,29 +37,6 @@ public class TimeSpace26 : InstanceScript
         r.SpawnPortal(_room1, new(23, 12), _room2, new(1, 27), locked: false);
         r.SpawnPortal(_room2, new(25, 48), _room3, new(12, 1));
         r.SpawnPortal(_room2, new(1, 27), _room1, new(23, 12));
-        r.Summon(_room2,
-            new MonsterSpawn(151, new(31, 42), IsBonus: true),
-            new MonsterSpawn(145, new(31, 26)),
-            new MonsterSpawn(151, new(24, 46)),
-            new MonsterSpawn(145, new(24, 19), OnDeath: r =>
-            {
-                r.Summon(_room2, new MonsterSpawn(148, new(30, 36), OnDeath: r =>
-                {
-                    r.Summon(_room2,
-                    new MonsterSpawn(145, new(28, 22)),
-                    new MonsterSpawn(151, new(28, 46), OnDeath: r =>
-                    {
-                        r.Summon(_room2,
-                        new MonsterSpawn(145, new(30, 37)),
-                        new MonsterSpawn(145, new(30, 43)),
-                        new MonsterSpawn(145, new(31, 47)));
-                    }),
-                    new MonsterSpawn(148, new(30, 31)));
-                }));
-            }),
-            new MonsterSpawn(145, new(30, 16), IsBonus: true),
-            new MonsterSpawn(145, new(30, 25)),
-            new MonsterSpawn(145, new(30, 32)));
         r.SummonNpcs(_room2, new NpcSpawn(311, new(25, 34)), new NpcSpawn(311, new(22, 45)), new NpcSpawn(311, new(22, 42)), new NpcSpawn(311, new(22, 39)), new NpcSpawn(311, new(22, 36)), new NpcSpawn(311, new(22, 33)), new NpcSpawn(311, new(22, 29)), new NpcSpawn(311, new(22, 26)), new NpcSpawn(311, new(20, 45)), new NpcSpawn(311, new(20, 42)), new NpcSpawn(311, new(20, 39)), new NpcSpawn(311, new(20, 36)), new NpcSpawn(311, new(20, 33)), new NpcSpawn(311, new(20, 29)), new NpcSpawn(311, new(20, 26)));
         r.SpawnPortal(_room3, new(12, 1), _room2, new(25, 48), locked: false);
         r.SpawnPortal(_room3, new(23, 12), _room4, new(1, 12), locked: false);
@@ -115,11 +92,44 @@ public class TimeSpace26 : InstanceScript
         }
         else if (room == _room7)
         {
-            r.StartRoomClock(_room7, TimeSpan.FromSeconds(180));
             r.Dialog(_room7, 6127);
+            r.Message(_room7, Game18NConstString.EnemiesReinforcements);
+        }
+    }
+
+    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
+    {
+        if (room == _room2 && dialog == 6125)
+        {
+            r.Summon(_room2,
+                new MonsterSpawn(151, new(31, 42), IsBonus: true),
+                new MonsterSpawn(145, new(31, 26)),
+                new MonsterSpawn(151, new(24, 46)),
+                new MonsterSpawn(145, new(24, 19), OnDeath: r =>
+                {
+                    r.Summon(_room2, new MonsterSpawn(148, new(30, 36), OnDeath: r =>
+                    {
+                        r.Summon(_room2,
+                        new MonsterSpawn(145, new(28, 22)),
+                        new MonsterSpawn(151, new(28, 46), OnDeath: r =>
+                        {
+                            r.Summon(_room2,
+                            new MonsterSpawn(145, new(30, 37)),
+                            new MonsterSpawn(145, new(30, 43)),
+                            new MonsterSpawn(145, new(31, 47)));
+                        }),
+                        new MonsterSpawn(148, new(30, 31)));
+                    }));
+                }),
+                new MonsterSpawn(145, new(30, 16), IsBonus: true),
+                new MonsterSpawn(145, new(30, 25)),
+                new MonsterSpawn(145, new(30, 32)));
+        }
+        else if (room == _room7 && dialog == 6127)
+        {
+            r.StartRoomClock(_room7, TimeSpan.FromSeconds(180));
             r.Objective(_room7, LanguageKey.TIMESPACE_GOAL_MONSTERS_VANISH_IN_THREE_MINUTES);
             r.SummonNpcs(_room7, new NpcSpawn(253, new(30, 27)), new NpcSpawn(253, new(31, 27)), new NpcSpawn(253, new(31, 46)), new NpcSpawn(253, new(32, 25)), new NpcSpawn(253, new(34, 23)), new NpcSpawn(253, new(36, 23)), new NpcSpawn(253, new(36, 31)), new NpcSpawn(253, new(37, 21)));
-            r.Message(_room7, Game18NConstString.EnemiesReinforcements);
             r.Summon(_room7,
                 new MonsterSpawn(145, new(32, 33)),
                 new MonsterSpawn(145, new(31, 31)),
