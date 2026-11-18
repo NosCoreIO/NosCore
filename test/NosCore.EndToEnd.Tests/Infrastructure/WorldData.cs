@@ -133,6 +133,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short PetSkillMp = 40;
         public const short PetSkillCooldown = 30;
 
+        // A partner, and a partner card whose one skill is cast on the partner itself and buffs it.
+        public const short PartnerVNum = 13;
+        public const short PartnerCard = 4005;
+        private const short PartnerMorph = 2333;
+        private const byte PartnerSkillSet = 9;
+        public const short PartnerSkill = 231;
+        public const short PartnerSkillMp = 30;
+        public const short PartnerSkillCooldown = 300;
+        public const short PartnerBuff = 61;
+
         // Has something to say, so talking to it is answered, and stands away from the shopkeeper.
         public const int Broker = 2;
         public const short BrokerDialog = 1;
@@ -525,6 +535,27 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await context.SaveChangesAsync();
             context.Add(new NpcMonsterSkill { NpcMonsterVNum = PetVNum, SkillVNum = PetSkill });
 
+            context.Add(new NpcMonster
+            {
+                NpcMonsterVNum = PartnerVNum, Name = "partner", Level = 1, MaxHp = 100, MaxMp = 100, HpBonus = 100, MpBonus = 100,
+                BasicRange = 1, BasicCooldown = 20
+            });
+            context.Add(new Item
+            {
+                VNum = PartnerCard, Name = "partnercard", Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
+                EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, Morph = PartnerMorph, PartnerSkillSet = PartnerSkillSet
+            });
+            // As the client data has them: target type 1 centres the skill on its caster.
+            context.Add(new Skill
+            {
+                SkillVNum = PartnerSkill, Name = "skill231", CastId = 0, SkillType = 5, UpgradeType = PartnerSkillSet, TargetType = 1,
+                Cooldown = PartnerSkillCooldown, MpCost = PartnerSkillMp, Effect = 230, AttackAnimation = 12, CastAnimation = -1,
+                CastEffect = -1
+            });
+            context.Add(new Card { CardId = PartnerBuff, Name = "partnerbuff", Duration = 600, BuffType = BuffType.Good });
+            await context.SaveChangesAsync();
+            context.Add(new BCard { SkillVNum = PartnerSkill, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = PartnerBuff });
+
             context.Add(new NpcMonster { NpcMonsterVNum = ShopkeeperVNum, Name = "shopkeeper", Level = 1, MaxHp = 100 });
             await context.SaveChangesAsync();
 
@@ -747,6 +778,19 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 Mp = short.MaxValue, IsTeamMember = true, IsSummonable = true
             });
             await context.SaveChangesAsync();
+        }
+
+        // A partner in the team wearing the partner card. It has to be owned before the character is selected.
+        public static async Task GivePartnerAsync(NosCoreContext context, long characterId)
+        {
+            context.Add(new Mate
+            {
+                CharacterId = characterId, VNum = PartnerVNum, MateType = MateType.Partner, Level = 1, Loyalty = 1000, Hp = short.MaxValue,
+                Mp = short.MaxValue, IsTeamMember = true, IsSummonable = true
+            });
+            await context.SaveChangesAsync();
+            await GiveAsync(context, characterId, new SpecialistInstance { ItemVNum = PartnerCard, Amount = 1 }, (short)EquipmentType.Sp,
+                NoscorePocketType.FirstPartnerInventory);
         }
 
         // An account of its own for every character, so that scenarios never meet on one.

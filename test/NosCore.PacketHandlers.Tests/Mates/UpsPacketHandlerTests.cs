@@ -41,6 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private const byte SkillSet = 9;
         private const short AttackSkill = 1315;
         private const short CostlySkill = 1316;
+        private const short SkillOnItself = 1317;
         private const int NearMonsterId = 200;
         private const int FarMonsterId = 201;
 
@@ -73,7 +74,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
             World.Inject(new List<SkillDto>
             {
                 new() { SkillVNum = AttackSkill, CastId = 0, SkillType = 5, UpgradeType = SkillSet, Range = 12, TargetRange = 3, Cooldown = 60, MpCost = 4 },
-                new() { SkillVNum = CostlySkill, CastId = 1, SkillType = 5, UpgradeType = SkillSet, Range = 12, Cooldown = 300, MpCost = 50 }
+                new() { SkillVNum = CostlySkill, CastId = 1, SkillType = 5, UpgradeType = SkillSet, Range = 12, Cooldown = 300, MpCost = 50 },
+                new() { SkillVNum = SkillOnItself, CastId = 2, SkillType = 5, UpgradeType = SkillSet, TargetType = 1, Cooldown = 300, MpCost = 3 }
             });
             _items = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
@@ -156,6 +158,75 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .Then(ThePartnerShouldHaveHit_Times, 2)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ASkillCentredOnThePartnerIsCastOnThePartnerItself()
+        {
+            await new Spec("A skill centred on the partner names the partner as its target, is cast on it and spends its mana")
+                .GivenAsync(APartnerWearingItsCardIsOut)
+                .AndAsync(ThePartnerIsTransformed)
+                .WhenAsync(TheOwnerCastsSlot_OnNpc_, 2, PartnerItself)
+                .Then(ThePartnerShouldCast_OnItself_Times, SkillOnItself, 1)
+                .And(ThePartnerShouldHave_Mp, 7)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASkillCastOnThePartnerItselfWaitsForItsCooldown()
+        {
+            await new Spec("A skill cast on the partner itself cannot be cast again before its cooldown is over")
+                .GivenAsync(APartnerWearingItsCardIsOut)
+                .AndAsync(ThePartnerIsTransformed)
+                .AndAsync(TheOwnerCastsSlot_OnNpc_, 2, PartnerItself)
+                .And(_SecondsPass, 29)
+                .WhenAsync(TheOwnerCastsSlot_OnNpc_, 2, PartnerItself)
+                .Then(ThePartnerShouldCast_OnItself_Times, SkillOnItself, 1)
+                .And(ThePartnerShouldHave_Mp, 7)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASkillCastOnThePartnerItselfIsBackAfterItsCooldown()
+        {
+            await new Spec("A skill cast on the partner itself can be cast again once its cooldown is over")
+                .GivenAsync(APartnerWearingItsCardIsOut)
+                .AndAsync(ThePartnerIsTransformed)
+                .AndAsync(TheOwnerCastsSlot_OnNpc_, 2, PartnerItself)
+                .And(_SecondsPass, 30)
+                .WhenAsync(TheOwnerCastsSlot_OnNpc_, 2, PartnerItself)
+                .Then(ThePartnerShouldCast_OnItself_Times, SkillOnItself, 2)
+                .And(ThePartnerShouldHave_Mp, 4)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnotherNpcIsNotATarget()
+        {
+            await new Spec("A partner skill aimed at an npc that is not the partner is not cast")
+                .GivenAsync(APartnerWearingItsCardIsOut)
+                .AndAsync(ThePartnerIsTransformed)
+                .WhenAsync(TheOwnerCastsSlot_OnNpc_, 2, 999999L)
+                .Then(NothingShouldBeHit)
+                .And(ThePartnerShouldHave_Mp, 10)
+                .ExecuteAsync();
+        }
+
+        private const long PartnerItself = -1;
+
+        private Task TheOwnerCastsSlot_OnNpc_(int slot, long npcId) =>
+            _handler.ExecuteAsync(new UpsPacket
+            {
+                MateTransportId = _partner.MateTransportId,
+                TargetType = VisualType.Npc,
+                TargetId = npcId == PartnerItself ? _partner.MateTransportId : npcId,
+                SkillSlot = slot
+            }, _session);
+
+        private void ThePartnerShouldCast_OnItself_Times(short skill, int times) =>
+            _battleService.Verify(s => s.Hit(
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _partner.MateTransportId),
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _partner.MateTransportId),
+                It.Is<HitArguments>(a => a.Skill != null && a.Skill.SkillVNum == skill)), Times.Exactly(times));
 
         private async Task APartnerWearingItsCardIsOut()
         {

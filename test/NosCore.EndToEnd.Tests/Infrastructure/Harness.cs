@@ -146,6 +146,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await WorldData.CompleteTimeSpaceAsync(context, player.CharacterId, timeSpaceId);
         }
 
+        // Gives a character a partner in its team wearing a partner card. Call it before the character enters the world.
+        public static async Task GivePartnerAsync(Player player)
+        {
+            await using var context = Database.CreateContext();
+            await WorldData.GivePartnerAsync(context, player.CharacterId);
+        }
+
         // A family name no other scenario of the run uses.
         public static string FamilyName() =>
             $"Clan{Interlocked.Increment(ref _families)}x{Random.Shared.Next(100, 999)}";
