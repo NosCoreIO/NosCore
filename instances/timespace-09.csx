@@ -318,7 +318,7 @@ public class TimeSpace9 : InstanceScript
                 new MonsterSpawn(105, new(29, 19), IsBonus: true),
                 new MonsterSpawn(105, new(26, 15), OnDeath: r =>
                 {
-                    r.Summon(_room23, new MonsterSpawn(109, new(19, 19)));
+                    r.Summon(_room23, new MonsterSpawn(109, new(21, 18)));
                 }),
                 new MonsterSpawn(105, new(25, 13)),
                 new MonsterSpawn(105, new(10, 19)),
