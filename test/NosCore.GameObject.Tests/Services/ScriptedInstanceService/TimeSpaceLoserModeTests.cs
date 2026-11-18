@@ -59,6 +59,26 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task LoserModeEntryNeedsTheFailuresAsync()
+        {
+            await new Spec("Asking to enter in Loser Mode without enough failed attempts opens no run")
+                .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 1)
+                .WhenAsync(ThePlayerEntersInLoserMode)
+                .Then(ARunShouldHaveBeenOpened_Times, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoserModeEntryOpensARunAfterTwoFailuresAsync()
+        {
+            await new Spec("Asking to enter in Loser Mode after two failed attempts opens a run")
+                .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 2)
+                .WhenAsync(ThePlayerEntersInLoserMode)
+                .Then(ARunShouldHaveBeenOpened_Times, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task OneFailureIsNotEnoughAsync()
         {
             await new Spec("A single failed attempt does not offer Loser Mode")
@@ -83,6 +103,16 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await new Spec("Clearing the time-space stops offering Loser Mode")
                 .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 2)
                 .When(ThePlayerClears_, TimeSpaceId)
+                .ThenAsync(TheStoneShould_OfferLoserMode, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClearingAnotherTimeSpaceAlsoClearsTheFailuresAsync()
+        {
+            await new Spec("Clearing any other time-space starts the failed attempts over")
+                .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 2)
+                .When(ThePlayerClears_, OtherTimeSpaceId)
                 .ThenAsync(TheStoneShould_OfferLoserMode, false)
                 .ExecuteAsync();
         }
@@ -112,6 +142,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(SayColorType.Red, told.Type);
             Assert.AreEqual(failures, System.Convert.ToInt32(told.Game18NArguments.Single()));
         }
+
+        private Task ThePlayerEntersInLoserMode() =>
+            World.Create<TimeSpaceEntryService>().EnterAsync(_session, _entrance, loserMode: true);
+
+        private void ARunShouldHaveBeenOpened_Times(int times) =>
+            World.Freeze<Mock<IScriptedInstanceService>>().Verify(s => s.InstantiateAsync(_entrance), Times.Exactly(times));
 
         private void ThePlayerShouldNotBeToldAboutLoserMode()
         {

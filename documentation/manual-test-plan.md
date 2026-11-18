@@ -2941,6 +2941,12 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       brings five monsters one after another, and killing the last of them opens the exit
 - [ ] In `timespace-05`, the last room shows the guards and talk 6024 with no monster in sight;
       the monsters appear once the talk is closed with End Dialogue
+- [ ] In `timespace-06`, pulling the lever in the room west of the exit room takes 60 seconds off
+      the clock as it opens the east door
+- [ ] Fail a time-space twice, open its stone again and press Loser Mode: the run starts with
+      twice the usual time on the clock, and the lever above takes 120 seconds instead of 60
+- [ ] Fail a time-space twice, clear a different one, then open the first stone again: Loser Mode
+      is no longer offered
 - [ ] In `timespace-06`, the exit room holds only its lever on entry; pulling the lever shows
       "The lever has been pulled." and "Watch out, enemies!" and brings the monster in, and the exit
       stays shut until it is dead

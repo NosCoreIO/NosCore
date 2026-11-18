@@ -270,7 +270,7 @@ public class TimeSpace6 : InstanceScript
             r.AddClockTime(TimeSpan.FromSeconds(150));
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(LanguageKey.TIMESPACE_BONUS_TIME_ROOM);
-            r.Message(LanguageKey.TIMESPACE_BONUS_TIME_EARNED, 150);
+            r.Message(LanguageKey.TIMESPACE_BONUS_TIME_EARNED, 150 * r.ClockScale);
         }
         else if (room == _room14)
         {
@@ -290,6 +290,7 @@ public class TimeSpace6 : InstanceScript
         }
         else if (room == _room13 && button == 1)
         {
+            r.AddClockTime(TimeSpan.FromSeconds(-60));
             r.UnlockPortal(_room13, _room14);
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(LanguageKey.TIMESPACE_LEVER_TOO_DANGEROUS);

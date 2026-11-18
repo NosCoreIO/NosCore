@@ -190,6 +190,33 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ADoubledClockLastsTwiceAsLong()
+        {
+            await new Spec("A run on a doubled clock is still going when the normal time is up, and fails once the doubled time is")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .And(TheRunIsOnADoubledClock)
+                .AndAsync(TheRunHasStarted)
+                .WhenAsync(TheClockRunsOut)
+                .Then(TheRunShouldStillBeGoing)
+                .AndAsync(TheClockRunsOut)
+                .Then(EachPlayerShouldHave_FailedAttempt, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ADoubledClockDoublesTimeTaken()
+        {
+            await new Spec("Thirty seconds taken from a doubled clock costs a minute, so the run fails when the normal time is up")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .And(TheRunIsOnADoubledClock)
+                .AndAsync(TheRunHasStarted)
+                .And(TheRunLoses_Seconds, 30)
+                .WhenAsync(TheClockRunsOut)
+                .Then(EachPlayerShouldHave_FailedAttempt, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task RunningOutOfTimeCountsAFailedAttempt()
         {
             await new Spec("A run that ran out of time counts as a failed attempt for each player inside")
@@ -288,6 +315,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         private Task TheRunHasStarted() => _run.StartAsync();
+
+        private void TheRunIsOnADoubledClock() => _run.ClockScale = 2;
+
+        private void TheRunLoses_Seconds(int seconds) => _run.AddClockTime(TimeSpan.FromSeconds(-seconds));
 
         private void TheRunIsWon() => _run.Succeed();
 

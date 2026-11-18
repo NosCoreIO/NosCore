@@ -21,6 +21,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IMapChangeService mapChangeService)
         : ITimeSpaceEntryService
     {
+        private const int LoserModeClockScale = 2;
+
         public async Task ShowAsync(ClientSession session, ScriptedInstance entrance)
         {
             if (await scriptedInstanceService.LoadAsync(entrance))
@@ -31,12 +33,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        public async Task EnterAsync(ClientSession session, ScriptedInstance entrance)
+        public async Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false)
         {
             var character = session.Character;
             if (!await scriptedInstanceService.LoadAsync(entrance))
             {
                 await RefuseAsync(session, Game18NConstString.TimespaceDoesNotExist);
+                return;
+            }
+
+            if (loserMode && !(entrance.Definition is { } offered && character.OffersLoserMode(offered.Id)))
+            {
                 return;
             }
 
@@ -60,6 +67,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 await RefuseAsync(session, Game18NConstString.TimespaceDoesNotExist);
                 return;
+            }
+
+            if (loserMode)
+            {
+                run.ClockScale = LoserModeClockScale;
             }
 
             await character.TakeRequiredItemsAsync(entrance);
