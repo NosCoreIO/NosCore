@@ -2877,6 +2877,11 @@ Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58,
 dropping their `MaxHp` makes the run quick.
 
 - [ ] On entry a clock appears and counts down from ten minutes
+- [ ] On entry the mission window shows the time-space's lives as hearts: two for time-space 1,
+      four for time-space 9. Time-space 1 also shows the exit as its goal; time-space 9 shows
+      "0/1" against its boss and no exit
+- [ ] Die with a life to spare: the window shows one heart fewer for the whole party
+- [ ] Kill time-space 9's boss: its counter reads "1/1"
 - [ ] Three hostile monsters appear in the first room and are drawn as soon as the room is, and a padlocked portal stands at its
       east edge; walking onto the padlock does nothing
 - [ ] No time-space stone is drawn inside the rooms

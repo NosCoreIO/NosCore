@@ -87,6 +87,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private int _nextPortalId;
         private int _combo;
         private bool _started;
+        private bool _hasExit;
         private Instant? _clockEndsAt;
         private Instant? _clockPausedAt;
         private Duration _clockLimit;
@@ -237,6 +238,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private void Advance(ObjectiveKind kind, short vNum)
         {
             _objectiveProgress[(kind, vNum)] = _objectiveProgress.GetValueOrDefault((kind, vNum)) + 1;
+            if (_script.Definition.Objectives.Any(o => o.Kind == kind && o.VNum == vNum))
+            {
+                _pending.Add(BroadcastMissionInfoAsync);
+            }
         }
 
         private static int ComboPoints(int combo)
@@ -315,6 +320,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 // A room's objective set while discovering it reaches this player through Objective.
                 if (room is { } current && session.HasPlayerEntity && EndState == null)
                 {
+                    if (GenerateMissionInfo() is { } missionInfo)
+                    {
+                        _pending.Add(() => session.SendPacketAsync(missionInfo));
+                    }
+
                     if (_roomObjectives.TryGetValue(current, out var objective))
                     {
                         if (!discovered)
@@ -352,7 +362,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 if (player.MapInstance is { } map && RoomOf(map.MapInstanceId) != null && EndState == null && _down.Add(player.CharacterId))
                 {
-                    _pending.Add(() => _host.PlayerDownAsync(this, player));
+                    _pending.Add(async () =>
+                    {
+                        await _host.PlayerDownAsync(this, player);
+                        await BroadcastMissionInfoAsync();
+                    });
                 }
 
                 return Task.CompletedTask;
@@ -728,6 +742,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void SpawnExit(int room, Spot at, bool locked = true)
         {
+            _hasExit = true;
             var mapInstance = _rooms[room];
             var portal = new Portal
             {
@@ -1169,6 +1184,37 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return _host.EndedAsync(this, state);
             });
         }
+
+        // The window with the run's lives and objective counters. Kills of everything, talks, items
+        // to collect and NPCs to protect are not objectives a script can set yet, so they stay empty.
+        private MinfoPacket? GenerateMissionInfo()
+        {
+            if (_host.LivesLeft is not { } lives)
+            {
+                return null;
+            }
+
+            var objectives = _script.Definition.Objectives;
+            return new MinfoPacket
+            {
+                GoToExit = _hasExit,
+                KillMonster = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.KillMonster)),
+                InteractObjects = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.UseObject)),
+                MaxLives = lives
+            };
+
+            MinfoObjectiveSubPacket Counter(InstanceObjective? objective) => objective == null
+                ? MinfoObjectiveSubPacket.None
+                : new MinfoObjectiveSubPacket
+                {
+                    Vnum = objective.VNum,
+                    Current = Math.Min(objective.Count, _objectiveProgress.GetValueOrDefault((objective.Kind, objective.VNum))),
+                    Total = objective.Count
+                };
+        }
+
+        private Task BroadcastMissionInfoAsync() =>
+            EndState == null && GenerateMissionInfo() is { } missionInfo ? BroadcastAsync(missionInfo) : Task.CompletedTask;
 
         private EventPacket GenerateClock()
         {
