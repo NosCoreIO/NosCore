@@ -174,19 +174,6 @@ public class TimeSpace6 : InstanceScript
         r.SpawnExit(_room14, new(14, 28));
         r.SpawnPortal(_room14, new(1, 14), _room13, new(28, 15), locked: false);
         r.PlaceButton(_room14, 1, new(15, 15), 1000, 1045);
-        r.Summon(_room14, new MonsterSpawn(33, new(16, 10), OnDeath: r =>
-            {
-                r.Summon(_room14, new MonsterSpawn(27, new(11, 17), OnDeath: r =>
-                {
-                    r.Summon(_room14, new MonsterSpawn(55, new(21, 18), OnDeath: r =>
-                    {
-                        r.Summon(_room14, new MonsterSpawn(55, new(12, 9), OnDeath: r =>
-                        {
-                            r.Summon(_room14, new MonsterSpawn(27, new(16, 19)));
-                        }));
-                    }));
-                }));
-            }));
         r.SpawnPortal(_room15, new(14, 1), _room6, new(14, 28), locked: false);
         r.SpawnPortal(_room15, new(1, 14), _room14, new(28, 15), locked: false);
         r.Summon(_room15, new MonsterSpawn(101, new(12, 17), OnDeath: r =>
@@ -309,10 +296,20 @@ public class TimeSpace6 : InstanceScript
         }
         else if (room == _room14 && button == 1)
         {
-            if (r.MonstersAlive(_room14) > 0)
-            {
-                r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
-            }
+            r.Summon(_room14, new MonsterSpawn(33, new(16, 10), OnDeath: r =>
+                {
+                    r.Summon(_room14, new MonsterSpawn(27, new(11, 17), OnDeath: r =>
+                    {
+                        r.Summon(_room14, new MonsterSpawn(55, new(21, 18), OnDeath: r =>
+                        {
+                            r.Summon(_room14, new MonsterSpawn(55, new(12, 9), OnDeath: r =>
+                            {
+                                r.Summon(_room14, new MonsterSpawn(27, new(16, 19)));
+                            }));
+                        }));
+                    }));
+                }));
+            r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_WATCH_OUT_ENEMIES);
         }
     }
 
