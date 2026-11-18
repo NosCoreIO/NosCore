@@ -11,6 +11,7 @@ using NosCore.Algorithm.MateMpService;
 using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Parser.Parsers;
@@ -167,6 +168,26 @@ namespace NosCore.Parser.Tests
 
             CollectionAssert.AreEquivalent(new[] { "0 11/22 95 75", "1 26/21 1 3135", "3 26/11 2 36" },
                 saved.Select(b => $"{b.Slot} {b.Type:D}/{b.SubType} {b.FirstData} {b.SecondData}").ToArray());
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_AThornwalkersBlackoutLandsOnWhatItHits()
+        {
+            var basic = string.Join("\t", new[] { "25", "24", "28", "0", "1", "25", "400", "372", "0", "2" }
+                .Concat(Enumerable.Repeat("0", 40)));
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(67, "zts68e", 39, basic: basic));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            var saved = new List<BCardDto>();
+            _bCardDaoMock.Setup(x => x.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<BCardDto>>()))
+                .Callback<IEnumerable<BCardDto>>(cards => saved.AddRange(cards))
+                .ReturnsAsync(true);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            var blackout = saved.Single(b => b.SecondData == 7);
+            Assert.AreEqual(6, blackout.FirstData);
+            Assert.AreEqual(BCardRecipient.Enemy, blackout.Recipient);
+            Assert.AreEqual(BCardRecipient.Caster, saved.Single(b => b.SecondData == 93).Recipient);
         }
 
         [TestMethod]

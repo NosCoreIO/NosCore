@@ -380,7 +380,7 @@ namespace NosCore.Parser.Parsers
                     IsLevelDivided = value.IsLevelDivided,
                     FirstData = (short)value.Value,
                     SecondData = (short)(int.Parse(row[column + 2]) / 4),
-                    ThirdData = (short)(int.Parse(row[column + 4]) / 4),
+                    Recipient = (BCardRecipient)byte.Parse(row[column + 4]),
                     Slot = slotted ? (byte)(i + 1) : (byte)0,
                 };
             }
