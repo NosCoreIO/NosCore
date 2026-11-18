@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Game
             {
                 WreqPacketType.DailyTeamTimeSpaceEntry => timeSpaceEntryService.ShowAsync(session, entrance),
                 WreqPacketType.InstanceEntry => timeSpaceEntryService.EnterAsync(session, entrance),
+                WreqPacketType.InstanceEntryLoserMode => timeSpaceEntryService.EnterAsync(session, entrance, loserMode: true),
                 _ => Task.CompletedTask
             };
         }

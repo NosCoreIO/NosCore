@@ -21,12 +21,10 @@ public static class TimeSpaceAttemptExtensions
         return count;
     }
 
-    public static void ClearTimeSpaceFailures(this PlayerComponentBundle character, short timeSpaceId)
+    // Clearing any time-space starts every count over, not only the one for the time-space cleared.
+    public static void ClearTimeSpaceFailures(this PlayerComponentBundle character)
     {
-        if (character.TimeSpaceFailures is { } failures && failures.ContainsKey(timeSpaceId))
-        {
-            character.TimeSpaceFailures = failures.Remove(timeSpaceId);
-        }
+        character.TimeSpaceFailures = null;
     }
 
     public static bool OffersLoserMode(this PlayerComponentBundle character, short timeSpaceId) =>

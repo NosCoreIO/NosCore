@@ -19,7 +19,7 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
         {
             if (evt.Type == ScriptedInstanceType.TimeSpace)
             {
-                evt.Character.ClearTimeSpaceFailures(evt.InstanceId);
+                evt.Character.ClearTimeSpaceFailures();
             }
         }
     }

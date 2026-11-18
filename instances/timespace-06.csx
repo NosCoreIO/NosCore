@@ -290,6 +290,7 @@ public class TimeSpace6 : InstanceScript
         }
         else if (room == _room13 && button == 1)
         {
+            r.AddClockTime(TimeSpan.FromSeconds(-60));
             r.UnlockPortal(_room13, _room14);
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(LanguageKey.TIMESPACE_LEVER_TOO_DANGEROUS);

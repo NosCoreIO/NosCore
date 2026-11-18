@@ -14,7 +14,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
     {
         Task ShowAsync(ClientSession session, ScriptedInstance entrance);
 
-        Task EnterAsync(ClientSession session, ScriptedInstance entrance);
+        Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false);
 
         Task EnterWithStoneAsync(ClientSession session, InventoryItemInstance stone);
     }

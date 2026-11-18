@@ -876,9 +876,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        // Loser Mode runs on a longer clock, and the time a script adds or takes scales with it.
+        public int ClockScale { get; set; } = 1;
+
         public void StartClock(TimeSpan limit)
         {
-            _clockLimit = Duration.FromTimeSpan(limit);
+            _clockLimit = Duration.FromTimeSpan(limit * ClockScale);
             var endsAt = _clock.GetCurrentInstant().Plus(_clockLimit);
             _clockEndsAt = endsAt;
             _pending.Add(() => BroadcastAsync(GenerateClock(endsAt)));
@@ -891,7 +894,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
-            var added = Duration.FromTimeSpan(extra);
+            var added = Duration.FromTimeSpan(extra * ClockScale);
             _clockLimit += added;
             _clockEndsAt = endsAt.Plus(added);
             var newEnd = _clockEndsAt.Value;
