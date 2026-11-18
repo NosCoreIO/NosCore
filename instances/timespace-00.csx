@@ -73,7 +73,6 @@ public class TimeSpace0 : InstanceScript
         }
         else if (room == _room5)
         {
-            r.StartRoomClock(_room5, TimeSpan.FromSeconds(120));
             r.Dialog(_room5, 8010);
         }
         else if (room == _room6)
@@ -107,6 +106,7 @@ public class TimeSpace0 : InstanceScript
                     r.Summon(_room5, new MonsterSpawn(24, new(16, 17)));
                 }));
             r.Objective(_room5, LanguageKey.TIMESPACE_GOAL_KILL_ALL_IN_TIME);
+            r.StartRoomClock(_room5, TimeSpan.FromSeconds(120));
         }
         else if (room == _room6 && dialog == 8013)
         {

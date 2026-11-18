@@ -34,6 +34,13 @@ public class TimeSpace11 : InstanceScript
         r.SummonNpcs(_room2, new NpcSpawn(322, new(16, 9)), new NpcSpawn(320, new(10, 4)), new NpcSpawn(322, new(14, 18)), new NpcSpawn(320, new(14, 16)), new NpcSpawn(337, new(14, 12)), new NpcSpawn(320, new(10, 16)), new NpcSpawn(322, new(9, 18)));
         r.SpawnPortal(_room3, new(25, 1), _room2, new(12, 23));
         r.SpawnPortal(_room3, new(48, 25), _room4, new(1, 12));
+        r.Summon(_room3,
+            new MonsterSpawn(18, new(28, 28)),
+            new MonsterSpawn(18, new(26, 28)),
+            new MonsterSpawn(18, new(24, 28)),
+            new MonsterSpawn(18, new(22, 28)),
+            new MonsterSpawn(18, new(19, 18)),
+            new MonsterSpawn(18, new(17, 18)));
         r.SummonNpcs(_room3, new NpcSpawn(320, new(31, 37)), new NpcSpawn(320, new(28, 37)), new NpcSpawn(320, new(27, 47)), new NpcSpawn(320, new(26, 47)), new NpcSpawn(320, new(26, 37)), new NpcSpawn(320, new(25, 47)), new NpcSpawn(320, new(22, 46)), new NpcSpawn(320, new(23, 40)), new NpcSpawn(320, new(23, 37)), new NpcSpawn(320, new(22, 47)), new NpcSpawn(320, new(21, 47)), new NpcSpawn(320, new(20, 37)), new NpcSpawn(320, new(19, 47)), new NpcSpawn(320, new(18, 37)));
         r.SpawnExit(_room4, new(23, 12));
         r.SpawnPortal(_room4, new(1, 12), _room3, new(48, 25));
@@ -54,6 +61,7 @@ public class TimeSpace11 : InstanceScript
         {
             r.StartRoomClock(_room3, TimeSpan.FromSeconds(300));
             r.Message(Game18NConstString.EnemiesReinforcements);
+            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_HOLD_OFF_MINERS);
             r.Summon(_room3,
                 new MonsterSpawn(108, new(18, 21)),
                 new MonsterSpawn(105, new(18, 24)),
@@ -182,18 +190,7 @@ public class TimeSpace11 : InstanceScript
 
     public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
     {
-        if (room == _room3 && dialog == 6064)
-        {
-            r.Summon(_room3,
-                new MonsterSpawn(18, new(28, 28)),
-                new MonsterSpawn(18, new(26, 28)),
-                new MonsterSpawn(18, new(24, 28)),
-                new MonsterSpawn(18, new(22, 28)),
-                new MonsterSpawn(18, new(19, 18)),
-                new MonsterSpawn(18, new(17, 18)));
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_HOLD_OFF_MINERS);
-        }
-        else if (room == _room4 && dialog == 6065)
+        if (room == _room4 && dialog == 6065)
         {
             r.Summon(_room4,
                 new MonsterSpawn(109, new(20, 14)),

@@ -2952,10 +2952,11 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-06`, the exit room holds only its lever on entry and shows no talk; pulling the
       lever shows talk 6028, "The lever has been pulled." and "Watch out, enemies!" and brings the
       monster in, and the exit stays shut until it is dead
-- [ ] In every time-space, a room that opens with a talk shows no monster, no objective and no red
-      room clock while the talk is up; closing it with End Dialogue brings the monsters in, shows the
-      objective and starts the clock (for example the first room of `timespace-19`), and the room's
-      door opens once they are dead
+- [ ] In every time-space, a room whose opening talk leads to a fight shows no monster, no objective
+      and no red room clock while the talk is up; closing it with End Dialogue brings the monsters in,
+      shows the objective and starts the room's clock if it has one (for example the first room of
+      `timespace-19`). The room then ends as before: its door opens once the monsters are dead, or
+      when its clock runs out in a room you survive
 - [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
       the same kind further east, and killing the second walker brings in one more hamster; the
       last two bring in nothing
