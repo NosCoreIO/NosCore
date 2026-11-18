@@ -10,6 +10,7 @@ using NosCore.Data.CommandPackets;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MaintenanceService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -31,6 +32,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
             ChannelHub = World.Freeze<Mock<IChannelHub>>();
+            World.UseReal<IMaintenanceService, MaintenanceService>();
             Handler = World.Create<SetMaintenancePacketHandler>();
         }
 
@@ -52,6 +54,15 @@ namespace NosCore.PacketHandlers.Tests.Command
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ADelayedMaintenanceDoesNotStartAtOnce()
+        {
+            await new Spec("A maintenance given a delay is counted down instead of starting at once")
+                .WhenAsync(SettingMaintenance_In_Seconds, false, 300)
+                .Then(ChannelHubSetMaintenanceShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
         private async Task SettingMaintenance_(bool isGlobal, bool mode)
         {
             await Handler.ExecuteAsync(new SetMaintenancePacket
@@ -59,6 +70,21 @@ namespace NosCore.PacketHandlers.Tests.Command
                 IsGlobal = isGlobal,
                 MaintenanceMode = mode,
             }, Session);
+        }
+
+        private async Task SettingMaintenance_In_Seconds(bool isGlobal, int seconds)
+        {
+            await Handler.ExecuteAsync(new SetMaintenancePacket
+            {
+                IsGlobal = isGlobal,
+                MaintenanceMode = true,
+                DelayInSeconds = seconds,
+            }, Session);
+        }
+
+        private void ChannelHubSetMaintenanceShouldNotBeCalled()
+        {
+            ChannelHub.Verify(x => x.SetMaintenance(It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
         }
 
         private void ChannelHubSetMaintenanceShouldBeCalledWith_(bool expectedGlobal, bool expectedMode)

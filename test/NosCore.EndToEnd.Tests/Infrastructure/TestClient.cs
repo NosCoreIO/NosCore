@@ -209,6 +209,18 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public async Task<T?> WaitAsync<T>(Func<T, bool>? matches, TimeSpan timeout) where T : class, IPacket =>
             (await WaitAsync(Is(matches), timeout))?.Packet as T;
 
+        // Whether the server has closed the connection by the end of the given time.
+        public async Task<bool> ClosedWithinAsync(TimeSpan timeout)
+        {
+            var waited = Stopwatch.StartNew();
+            while (!Volatile.Read(ref _disconnected) && waited.Elapsed < timeout)
+            {
+                await Task.Delay(50);
+            }
+
+            return Volatile.Read(ref _disconnected);
+        }
+
         private static Func<Arrival, bool> Is<T>(Func<T, bool>? matches) where T : class, IPacket =>
             arrival => arrival.Packet is T packet && (matches == null || matches(packet));
 

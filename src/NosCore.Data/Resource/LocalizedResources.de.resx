@@ -588,4 +588,7 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Möchtest du dieses Dorf zu deinem Ort der Wiederbelebung machen?</value>
   </data>
+  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
+    <value>Die Server werden in {0} Minute(n) für Wartungsarbeiten heruntergefahren.</value>
+  </data>
 </root>

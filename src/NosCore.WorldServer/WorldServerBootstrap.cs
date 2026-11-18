@@ -294,6 +294,12 @@ namespace NosCore.WorldServer
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
                         sp.GetRequiredService<TimeProvider>(),
                         TimeSpan.FromSeconds(1)));
+                    services.AddHostedService(sp => new RecurringMessagePublisher<TickMaintenanceMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<TickMaintenanceMessage>>>(),
+                        sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        sp.GetRequiredService<TimeProvider>(),
+                        TimeSpan.FromSeconds(1)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<TickTimeSpacesMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<TickTimeSpacesMessage>>>(),
