@@ -306,12 +306,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestMethod]
         public async Task AFailedProtectionDoesNotUndoTheArenaRevive()
         {
-            await new Spec("If the protection card cannot be applied, the fighter stays revived and the fee stays paid")
+            await new Spec("If the protection card cannot be applied, the fighter stays revived, the fee stays paid and the failure reaches the packet boundary")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 5000L)
                 .And(CharacterIsInAnArena)
                 .And(ApplyingTheProtectionFails)
-                .WhenAsync(SendingRevivalOfType_, RevivalType.InArena)
+                .WhenAsync(SendingRevivalOfType_ThrowsAsync, RevivalType.InArena)
                 .Then(CharacterShouldBeAlive)
                 .And(HpShouldBeFullyRestored)
                 .And(GoldShouldBe_, 4900L)
