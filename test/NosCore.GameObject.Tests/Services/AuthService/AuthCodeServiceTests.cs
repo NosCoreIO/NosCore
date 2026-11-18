@@ -119,6 +119,17 @@ namespace NosCore.GameObject.Tests.Services.AuthService
         }
 
         [TestMethod]
+        public async Task ReadyForAuthOutlastsAPlayerLingeringOnTheChannelList()
+        {
+            await new Spec("Ready for auth outlasts a player lingering on the channel list")
+                .Given(AccountIsMarkedReady)
+                .And(ThePlayerLingersOnTheChannelList)
+                .When(ConsumingReadyForAuth)
+                .Then(EntryShouldBeGrantedWithMfa)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ExpiredReadyForAuthIsRefused()
         {
             await new Spec("Expired ready for auth is refused")
@@ -194,6 +205,8 @@ namespace NosCore.GameObject.Tests.Services.AuthService
         private void ReadyForAuthWasConsumed() => Service.ConsumeReadyForAuth(TestAccountName, TestSessionId);
 
         private void ReadyForAuthWasTriedWithAnotherSession() => Service.ConsumeReadyForAuth(TestAccountName, TestSessionId + 2);
+
+        private void ThePlayerLingersOnTheChannelList() => Clock.Advance(Duration.FromMinutes(5));
 
         private void ReadyForAuthLifetimeElapses() => Clock.Advance(AuthCodeService.ReadyForAuthLifetime);
 
