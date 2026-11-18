@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.BroadcastService;
@@ -20,7 +19,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class FamilyChangedDataMessageChannelCommunicationMessageHandler(ISessionRegistry sessionRegistry,
-            IFamilyService familyService, IGameLanguageLocalizer gameLanguageLocalizer,
+            IFamilyService familyService,
             IFamilyManagementService familyManagementService)
         : ChannelCommunicationMessageHandler<FamilyChangedData>
     {
@@ -73,9 +72,9 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     await session.SendPacketAsync(new FhisStcPacket());
                 }
 
+                var gidx = character.GenerateGidx();
                 var watchers = sessionRegistry.GetSessions(s => s.HasPlayerEntity && s.Character.MapInstanceId == character.MapInstanceId);
-                await Task.WhenAll(watchers.Select(watcher =>
-                    watcher.SendPacketAsync(character.GenerateGidx(gameLanguageLocalizer, watcher.Character.AccountLanguage))));
+                await Task.WhenAll(watchers.Select(watcher => watcher.SendPacketAsync(gidx)));
             }
         }
 

@@ -22,7 +22,9 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using CreateFamilyPacket = NosCore.Packets.ClientPackets.Families.CreateFamilyPacket;
@@ -49,9 +51,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
         private static Func<InfoiPacket, bool> Told(Game18NConstString message) => packet => packet.Message == message;
 
-        private static Func<GidxPacket, bool> InTheFamily(TestClient who, long familyId, string family) =>
+        private static Func<GidxPacket, bool> InTheFamily(TestClient who, long familyId, string family, Game18NConstString rank) =>
             packet => packet.VisualType == VisualType.Player && packet.VisualId == who.CharacterId && packet.FamilyId == familyId
-                && packet.FamilyName?.StartsWith($"{family}(", StringComparison.Ordinal) == true;
+                && packet.FamilyRank == rank && packet.FamilyName == family;
+
+        private static Func<InPacket, bool> ArrivesInTheFamily(TestClient who, long familyId, string family, Game18NConstString rank) =>
+            packet => packet.VisualType == VisualType.Player && packet.VisualId == who.CharacterId
+                && packet.InCharacterSubPacket?.FamilySubPacket is { } tag && tag.FamilyId == familyId && tag.FamilyRank == rank
+                && packet.InCharacterSubPacket.FamilyName == family;
 
         private static Func<GidxPacket, bool> WithoutAFamily(TestClient who) =>
             packet => packet.VisualType == VisualType.Player && packet.VisualId == who.CharacterId && packet.FamilyId == null;
@@ -130,7 +137,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 stored.Select(m => m.CharacterId).ToArray());
             Assert.AreEqual(StoredAuthority.Head, stored.Single(m => m.CharacterId == alice.CharacterId).Authority);
             var familyId = stored[0].FamilyId;
-            await dave.ExpectSinceAsync(watched, InTheFamily(alice, familyId, name), "the family under Alice's name, for a bystander");
+            await dave.ExpectSinceAsync(watched, InTheFamily(alice, familyId, name, Game18NConstString.Familyhead), "the family under Alice's name, for a bystander");
         }
 
         [TestMethod]
@@ -282,7 +289,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.EnterWorldAsync(member.Slot);
 
             Assert.IsTrue(bob.Received.OfType<GInfoPacket>().Any(FamilyInfo(family.Name, 2, FamilyAuthority.Member)), "the family is sent to its member");
-            await carol.ExpectAsync(InTheFamily(bob, family.FamilyId, family.Name), "the family under Bob's name");
+            Assert.IsTrue(bob.Received.OfType<CInfoPacket>().Any(p => p.FamilyId == family.FamilyId && p.FamilyRank == Game18NConstString.Member
+                && p.FamilyName == family.Name), "the family under the member's own name");
+            await carol.ExpectAsync(ArrivesInTheFamily(bob, family.FamilyId, family.Name, Game18NConstString.Member), "Bob arriving with his family");
+            await carol.ExpectAsync(InTheFamily(bob, family.FamilyId, family.Name, Game18NConstString.Member), "the family under Bob's name");
+
+            await using var dave = await Harness.EnterAsync("Dave", x: 83, y: 116);
+
+            await dave.ExpectSinceAsync(0, ArrivesInTheFamily(bob, family.FamilyId, family.Name, Game18NConstString.Member), "Bob with his family, for a newcomer");
+            await dave.ExpectSinceAsync(0, InTheFamily(bob, family.FamilyId, family.Name, Game18NConstString.Member), "the family under Bob's name, for a newcomer");
+            await dave.ExpectSinceAsync<InPacket>(0, p => p.VisualType == VisualType.Player && p.VisualId == carol.CharacterId
+                && p.InCharacterSubPacket is { FamilySubPacket: null }, "Carol without a family");
         }
 
         [TestMethod]
@@ -368,7 +385,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await alice.ExpectSinceAsync(joined, FamilyInfo(family.Name, 2, FamilyAuthority.Head), "the family with two members, for its head");
             await alice.ExpectSinceAsync<Msgi2Packet>(joined, p => p is { Type: MessageType.Default, Message: Game18NConstString.JoinedFamily, ArgumentType: 1 }
                 && Equals(p.Game18NArguments[0], invited.Name), "the welcome");
-            await carol.ExpectSinceAsync(watched, InTheFamily(bob, family.FamilyId, family.Name), "the family under Bob's name, for a bystander");
+            await carol.ExpectSinceAsync(watched, InTheFamily(bob, family.FamilyId, family.Name, Game18NConstString.Member), "the family under Bob's name, for a bystander");
             var stored = await StoredMembershipAsync(bob.CharacterId);
             Assert.AreEqual(family.FamilyId, stored?.FamilyId);
             Assert.AreEqual(StoredAuthority.Member, stored?.Authority);

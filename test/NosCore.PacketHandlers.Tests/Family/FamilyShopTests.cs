@@ -154,7 +154,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 registry.Object,
                 new Mock<IFamilyLogService>().Object, new Mock<IFamilyContributionService>().Object);
             _familyChanged = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService,
-                World.GameLanguageLocalizer, management);
+                management);
 
             _head.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto>

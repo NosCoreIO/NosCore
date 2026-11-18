@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 registry.Object,
                 new Mock<IFamilyLogService>().Object, new Mock<IFamilyContributionService>().Object);
             _handler = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService.Object,
-                World.GameLanguageLocalizer, management);
+                management);
             foreach (var session in sessions)
             {
                 session.LastPackets.Clear();
