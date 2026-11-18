@@ -99,7 +99,13 @@ namespace NosCore.Instances.Tests
                 triggered.Add(room);
                 var before = run.Calls.Count;
                 var summoned = run.Summoned.Count;
+                var dialogs = run.Dialogs.Count;
                 script.OnRoomEntered(run, room);
+                foreach (var (_, dialog) in run.Dialogs.Skip(dialogs).Where(d => d.Room == room).ToList())
+                {
+                    script.OnDialogClosed(run, room, dialog);
+                }
+
                 script.OnRoomCleared(run, room);
                 foreach (var (_, button) in run.Buttons.Where(b => b.Room == room).ToList())
                 {

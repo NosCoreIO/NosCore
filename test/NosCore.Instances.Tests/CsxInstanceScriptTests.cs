@@ -104,7 +104,13 @@ namespace NosCore.Instances.Tests
 
         public void StopRoomClock(int room) => Calls.Add($"stopRoomClock({room})");
 
-        public void Dialog(int room, int dialog) => Calls.Add($"dialog({room},{dialog})");
+        public List<(int Room, int Dialog)> Dialogs { get; } = [];
+
+        public void Dialog(int room, int dialog)
+        {
+            Dialogs.Add((room, dialog));
+            Calls.Add($"dialog({room},{dialog})");
+        }
 
         public void SetMonsterLocker(int room, short count) => Calls.Add($"monsterLocker({room},{count})");
 

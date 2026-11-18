@@ -252,7 +252,6 @@ public class TimeSpace6 : InstanceScript
         }
         else if (room == _room14)
         {
-            r.Dialog(_room14, 6028);
             r.Message(LanguageKey.TIMESPACE_ROOM_WITH_A_WAY_OUT);
         }
         else if (room == _room15)
@@ -297,6 +296,7 @@ public class TimeSpace6 : InstanceScript
         }
         else if (room == _room14 && button == 1)
         {
+            r.Dialog(_room14, 6028);
             r.Summon(_room14, new MonsterSpawn(33, new(16, 10), OnDeath: r =>
                 {
                     r.Summon(_room14, new MonsterSpawn(27, new(11, 17), OnDeath: r =>
