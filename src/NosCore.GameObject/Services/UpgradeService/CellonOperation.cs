@@ -96,21 +96,31 @@ public sealed class CellonOperation(
         return data.Taken.Contains((byte)data.Option.Type) ? UpgradeOutcome.Failure : UpgradeOutcome.Success;
     }
 
-    protected override void ApplySuccess(UpgradeContext ctx)
+    protected override async Task StoreOutcomeAsync(UpgradeContext ctx, UpgradeOutcome outcome)
     {
-        var data = ctx.Data<CellonRollData>();
-        var jewel = (WearableInstance)ctx.Source.ItemInstance;
-        var option = data.Option ?? throw new InvalidOperationException("No cellon option was rolled.");
+        if (outcome != UpgradeOutcome.Success)
+        {
+            return;
+        }
 
-        data.Rolled = new EquipmentOptionDto
+        var data = ctx.Data<CellonRollData>();
+        var option = data.Option ?? throw new InvalidOperationException("No cellon option was rolled.");
+        await equipmentOptionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
         {
             Id = Guid.NewGuid(),
             WearableInstanceId = ctx.Source.ItemInstanceId,
             Level = data.Level,
             Type = (byte)option.Type,
             Value = option.Minimum + Roll(option.Maximum - option.Minimum + 1),
-        };
-        jewel.Cellon = (byte)(data.Taken.Count + 1);
+        }).OrThrowAsync();
+    }
+
+    protected override void ApplySuccess(UpgradeContext ctx)
+    {
+        var jewel = (WearableInstance)ctx.Source.ItemInstance;
+        jewel.Cellon = (byte)(ctx.Data<CellonRollData>().Taken.Count + 1);
+        // Dropped rather than appended to: combat may be reading the list being replaced.
+        jewel.EquipmentOptions = null;
     }
 
     // The cellon is destroyed either way, so a failed roll leaves the jewel untouched.
@@ -119,18 +129,6 @@ public sealed class CellonOperation(
     protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
     {
         session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.RequiredTarget.ItemInstanceId);
-    }
-
-    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
-        UpgradeOutcome outcome, List<IPacket> playerPackets)
-    {
-        var rolled = ctx.Data<CellonRollData>().Rolled;
-        if (rolled is not null)
-        {
-            await equipmentOptionDao.TryInsertOrUpdateAsync(rolled).OrThrowAsync();
-            // Dropped rather than appended to: combat may be reading the list being replaced.
-            ((WearableInstance)ctx.Source.ItemInstance).EquipmentOptions = null;
-        }
     }
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
@@ -190,7 +188,5 @@ public sealed class CellonOperation(
         public HashSet<byte> Taken { get; } = taken;
 
         public CellonOption? Option { get; set; }
-
-        public EquipmentOptionDto? Rolled { get; set; }
     }
 }

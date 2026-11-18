@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -121,6 +122,22 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
                 .And(TheEquipmentShouldBeBoundWithShellRarity_, (byte)5)
                 .And(TheShellShouldBeGone)
                 .And(Message_ShouldBeSent, Game18NConstString.OptionHasBeenAdded)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AShellWhoseOptionsCannotBeStoredIsKept()
+        {
+            await new Spec("When the shell's options cannot be stored the shell stays in the bag and both keep their options")
+                .Given(AWeaponShellOfRarity_, (short)5)
+                .And(TheShellIsIdentified)
+                .And(A_OfRarity_AndLevel_, ItemType.Weapon, (short)5, (byte)70)
+                .And(TheEquipmentHasTwoOptions)
+                .And(OptionWritesFail)
+                .WhenAsync(ConfirmingTheShellFailsToStore)
+                .Then(TheShellShouldHave_Options, 1)
+                .And(TheEquipmentShouldHave_Options, 2)
+                .And(TheShellShouldStillBeInTheBag)
                 .ExecuteAsync();
         }
 
@@ -300,6 +317,14 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
             Assert.AreEqual(_session.Character.CharacterId, equipment.BoundCharacterId);
             Assert.AreEqual(rarity, equipment.ShellRarity);
         }
+
+        private void OptionWritesFail() => _bench.WritesFail = true;
+
+        private Task ConfirmingTheShellFailsToStore() =>
+            Assert.ThrowsExactlyAsync<DaoWriteFailedException>(() => DroppingTheShellWithMode_(1));
+
+        private void TheShellShouldStillBeInTheBag() =>
+            Assert.IsTrue(_session.Character.InventoryService.ContainsKey(_shell.ItemInstanceId));
 
         private void TheShellShouldBeGone() =>
             Assert.IsFalse(_session.Character.InventoryService.ContainsKey(_shell.ItemInstanceId));

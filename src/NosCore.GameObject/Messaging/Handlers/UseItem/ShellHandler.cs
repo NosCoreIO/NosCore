@@ -83,17 +83,16 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            await character.UseUpOneAsync(evt.InventoryItem);
             if (replacing && random.NextDouble() >= ReplaceChance)
             {
+                await character.UseUpOneAsync(evt.InventoryItem);
                 await shellOptionService.ClearAsync(shell.Id);
                 await SendAsync(evt, Game18NConstString.ShellBroken);
                 return;
             }
 
-            await shellOptionService.ClearAsync(equipment.Id);
-            await shellOptionService.SaveAsync(equipment.Id, shellOptions);
-            await shellOptionService.ClearAsync(shell.Id);
+            await shellOptionService.MoveAsync(shell.Id, equipment.Id);
+            await character.UseUpOneAsync(evt.InventoryItem);
             equipment.EquipmentOptions = null;
             equipment.BoundCharacterId = character.CharacterId;
             equipment.ShellRarity = (byte)shell.Rare;

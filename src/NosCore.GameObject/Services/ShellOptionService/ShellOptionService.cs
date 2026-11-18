@@ -87,6 +87,20 @@ public sealed class ShellOptionService(
         }
     }
 
+    public async Task MoveAsync(Guid shellInstanceId, Guid wearableInstanceId)
+    {
+        var moved = Load(shellInstanceId);
+        var copies = moved.Select(o => o.CopyFor(wearableInstanceId)).ToList();
+        var replaced = Load(wearableInstanceId).Concat(moved).Select(o => o.Id).ToList();
+        await equipmentOptionDao.TryInsertOrUpdateAsync(copies).OrThrowAsync();
+        if (await equipmentOptionDao.TryDeleteAsync(replaced) == null)
+        {
+            // Best effort: the write that would undo the copies is the kind that just failed.
+            _ = await equipmentOptionDao.TryDeleteAsync(copies.Select(o => o.Id).ToList());
+            throw new DaoWriteFailedException();
+        }
+    }
+
     private IEnumerable<(byte Type, int Minimum, int Maximum)> Pool(bool weapon, byte level) => weapon
         ? shellService.GetWeaponOptions(level).Select(o => ((byte)o.Type, o.Minimum, o.Maximum))
         : shellService.GetArmorOptions(level).Select(o => ((byte)o.Type, o.Minimum, o.Maximum));
