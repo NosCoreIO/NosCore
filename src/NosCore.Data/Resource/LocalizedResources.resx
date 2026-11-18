@@ -1341,4 +1341,34 @@
   <data name="TIMESPACE_HUNTING_TIME_OVER" xml:space="preserve">
     <value>The hunting time is over...</value>
   </data>
+  <data name="INVENTORY_SLOT_HOLDS_SEVERAL_ITEMS" xml:space="preserve">
+    <value>Several items share slot {Slot} of pocket {Pocket}</value>
+  </data>
+  <data name="ITEM_ALREADY_IN_INVENTORY" xml:space="preserve">
+    <value>Item instance {ItemInstanceId} is already in the inventory</value>
+  </data>
+  <data name="SPECIALIST_POCKET_REFUSED_ITEM" xml:space="preserve">
+    <value>Item {ItemVNum} is not a specialist card and cannot go in the specialist pocket</value>
+  </data>
+  <data name="EQUIPMENT_POCKET_REFUSED_ITEM" xml:space="preserve">
+    <value>Item {ItemVNum} is not equipment and cannot go in pocket {Pocket}</value>
+  </data>
+  <data name="INVENTORY_ITEM_NOT_FOUND" xml:space="preserve">
+    <value>Item {ItemInstanceId} is not in the inventory</value>
+  </data>
+  <data name="INVENTORY_SLOT_EMPTY" xml:space="preserve">
+    <value>Slot {Slot} of pocket {Pocket} holds no item to remove</value>
+  </data>
+  <data name="ITEM_MOVED_ONTO_ITSELF" xml:space="preserve">
+    <value>Item in slot {Slot} of pocket {Pocket} cannot be moved onto itself</value>
+  </data>
+  <data name="ITEM_CANNOT_CHANGE_POCKET" xml:space="preserve">
+    <value>Item in slot {Slot} of pocket {Pocket} cannot be moved to another pocket</value>
+  </data>
+  <data name="ITEM_REFUSED_BY_POCKET" xml:space="preserve">
+    <value>Item {ItemVNum} cannot be moved to pocket {Pocket}</value>
+  </data>
+  <data name="ITEM_SLOT_TAKEN" xml:space="preserve">
+    <value>Slot {Slot} of pocket {Pocket} is taken and no swap was asked</value>
+  </data>
 </root>

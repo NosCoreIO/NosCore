@@ -13,6 +13,8 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemStorage;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.I18N;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -21,7 +23,8 @@ using NosCore.GameObject.Services.ItemGenerationService;
 
 namespace NosCore.GameObject.Services.InventoryService
 {
-    public class InventoryService(IItemCatalog itemCatalog, IOptions<WorldConfiguration> configuration, ILogger<InventoryService> logger)
+    public class InventoryService(IItemCatalog itemCatalog, IOptions<WorldConfiguration> configuration, ILogger<InventoryService> logger,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : ConcurrentDictionary<Guid, InventoryItemInstance>, IInventoryService
     {
         public int GetMaxSlots(NoscorePocketType pocket)
@@ -64,9 +67,9 @@ namespace NosCore.GameObject.Services.InventoryService
                 retItem = this.Select(s => s.Value)
                     .SingleOrDefault(i => (i.Slot == slot) && (i.Type == type));
             }
-            catch (InvalidOperationException ioEx)
+            catch (InvalidOperationException ex)
             {
-                logger.LogError(ioEx.Message, ioEx);
+                logger.LogError(ex, logLanguage[LogLanguageKey.INVENTORY_SLOT_HOLDS_SEVERAL_ITEMS], slot, type);
             }
 
             return retItem;
@@ -158,8 +161,7 @@ namespace NosCore.GameObject.Services.InventoryService
 
             if (ContainsKey(newItem.ItemInstanceId))
             {
-                var e = new InvalidOperationException("Cannot add the same ItemInstance twice to pocket.");
-                logger.LogError(e.Message, e);
+                logger.LogError(logLanguage[LogLanguageKey.ITEM_ALREADY_IN_INVENTORY], newItem.ItemInstanceId);
                 return null;
             }
 
@@ -171,18 +173,14 @@ namespace NosCore.GameObject.Services.InventoryService
 
             if ((newItem.Type == NoscorePocketType.Specialist) && !(newItem.ItemInstance is SpecialistInstance))
             {
-                var e = new InvalidOperationException(
-                    "Cannot add an item of type Specialist without beeing a SpecialistInstance.");
-                logger.LogError(e.Message, e);
+                logger.LogError(logLanguage[LogLanguageKey.SPECIALIST_POCKET_REFUSED_ITEM], newItem.ItemInstance.ItemVNum);
                 return null;
             }
 
             if (((newItem.Type == NoscorePocketType.Equipment) || (newItem.Type == NoscorePocketType.Wear))
                 && newItem.ItemInstance is not (WearableInstance or SpecialistInstance or BoxInstance))
             {
-                var e = new InvalidOperationException(
-                    "Cannot add an item of type Equipment or Wear without beeing a WearableInstance, a SpecialistInstance or a BoxInstance.");
-                logger.LogError(e.Message, e);
+                logger.LogError(logLanguage[LogLanguageKey.EQUIPMENT_POCKET_REFUSED_ITEM], newItem.ItemInstance.ItemVNum, newItem.Type);
                 return null;
             }
 
@@ -199,21 +197,21 @@ namespace NosCore.GameObject.Services.InventoryService
             return this[id];
         }
 
-        public InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot) =>
-            Delete(this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type)));
-
-        // Returns what is left in the slot: null once the item is gone.
-        private InventoryItemInstance? Delete(InventoryItemInstance? inv)
+        public InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot)
         {
+            var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type));
             if (inv != null)
             {
-                return TryRemove(inv.ItemInstanceId, out var value) ? null : value;
+                return Delete(inv);
             }
 
-            var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
-            logger.LogError(e.Message, e);
+            logger.LogError(logLanguage[LogLanguageKey.INVENTORY_SLOT_EMPTY], slot, type);
             return null;
         }
+
+        // Returns what is left in the slot: null once the item is gone.
+        private InventoryItemInstance? Delete(InventoryItemInstance inv) =>
+            TryRemove(inv.ItemInstanceId, out var value) ? null : value;
 
         public InventoryItemInstance? MoveInPocket(short sourceSlot, NoscorePocketType sourceType,
             NoscorePocketType targetType)
@@ -227,32 +225,28 @@ namespace NosCore.GameObject.Services.InventoryService
         {
             if ((sourceSlot == targetSlot) && (sourceType == targetType))
             {
-                var e = new InvalidOperationException("SourceInstance can't be moved on the same spot");
-                logger.LogError(e.Message, e);
+                logger.LogError(logLanguage[LogLanguageKey.ITEM_MOVED_ONTO_ITSELF], sourceSlot, sourceType);
                 return null;
             }
 
             var sourceInstance = LoadBySlotAndType(sourceSlot, sourceType);
             if (sourceInstance?.ItemInstance is not (WearableInstance or SpecialistInstance))
             {
-                var e = new InvalidOperationException("SourceInstance can't be moved between pockets");
-                logger.LogError(e.Message, e);
+                logger.LogError(logLanguage[LogLanguageKey.ITEM_CANNOT_CHANGE_POCKET], sourceSlot, sourceType);
                 return null;
             }
 
             if (sourceInstance.ItemInstance is WearableInstance && (targetType != NoscorePocketType.Equipment) &&
                 (targetType != NoscorePocketType.Costume) && !IsWorn(targetType))
             {
-                var e = new InvalidOperationException("WearableInstance can't be move to this inventory");
-                logger.LogError(e.Message, e);
+                logger.LogError(logLanguage[LogLanguageKey.ITEM_REFUSED_BY_POCKET], sourceInstance.ItemInstance.ItemVNum, targetType);
                 return null;
             }
 
             if (sourceInstance.ItemInstance is SpecialistInstance && (targetType != NoscorePocketType.Equipment) &&
                 (targetType != NoscorePocketType.Specialist) && !IsWorn(targetType))
             {
-                var e = new InvalidOperationException("SpecialistInstance can't be move to this inventory");
-                logger.LogError(e.Message, e);
+                logger.LogError(logLanguage[LogLanguageKey.ITEM_REFUSED_BY_POCKET], sourceInstance.ItemInstance.ItemVNum, targetType);
                 return null;
             }
 
@@ -277,8 +271,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 }
                 else
                 {
-                    var e = new InvalidOperationException("Source can not be swapped");
-                    logger.LogError(e.Message, e);
+                    logger.LogError(logLanguage[LogLanguageKey.ITEM_SLOT_TAKEN], targetSlot.Value, targetType);
                     return null;
                 }
 
@@ -461,8 +454,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 return inv;
             }
 
-            var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
-            logger.LogError(e.Message, e);
+            logger.LogError(logLanguage[LogLanguageKey.INVENTORY_ITEM_NOT_FOUND], id);
             return null;
         }
 
