@@ -2939,8 +2939,12 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       brings five monsters one after another, and killing the last of them opens the exit
 - [ ] In `timespace-05`, the last room shows the guards and talk 6024 with no monster in sight;
       the monsters appear once the talk is closed with End Dialogue
+- [ ] In `timespace-06`, the exit room holds only its lever on entry; pulling the lever shows
+      "The lever has been pulled." and "Watch out, enemies!" and brings the monster in, and the exit
+      stays shut until it is dead
 - [ ] In `timespace-07`, killing either of the two monsters in room 3 brings in another of
-      the same kind further east
+      the same kind further east, and killing the second walker brings in one more hamster; the
+      last two bring in nothing
 - [ ] In `timespace-08`, killing a room's Small Imp opens its door at once and the other monsters
       leave, even when the guard soldier lands the kill; in the two rooms with two Imps (the second
       one appears when the first falls in the last room) only the last Imp does it
