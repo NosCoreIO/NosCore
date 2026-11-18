@@ -841,6 +841,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 var room = RoomOf(mapInstanceId);
                 if (room == null || EndState != null || _abandoned
+                    || (_clockEndsAt is { } endsAt && _clock.GetCurrentInstant() >= endsAt)
                     || !_rooms[room.Value].Buttons.TryGetValue(button, out var used)
                     || (used.IsOn && !used.Toggles))
                 {
