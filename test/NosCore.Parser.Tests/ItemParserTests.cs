@@ -130,6 +130,18 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_BothSoundFlowersStartAFlowerQuest()
+        {
+            CreateTestFile(CreateItemData(vnum: 1086) + "\n#========================================================\n" + CreateItemData(vnum: 1087));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.IsTrue(_savedItems.All(i => i.Effect == ItemEffectType.SoundFlower));
+            Assert.AreEqual(2, _savedItems.Count);
+        }
+
+        [TestMethod]
         public async Task ItemParser_IceFlowerOilGrantsHeatResistance()
         {
             CreateTestFile(CreateItemData(vnum: 5929));

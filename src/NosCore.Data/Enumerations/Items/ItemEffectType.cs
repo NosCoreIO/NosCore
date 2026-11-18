@@ -129,6 +129,9 @@ namespace NosCore.Data.Enumerations.Items
         // Gives one more entry to the Arena of Masters.
         ArenaOfMastersTicket = 1024,
 
+        // Starts one of the flower quests, picked at random.
+        SoundFlower = 1025,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

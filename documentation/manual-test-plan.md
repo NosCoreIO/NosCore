@@ -3528,6 +3528,16 @@ done. Use the "Quests offered in NPC dialogs" scene with daily quest 7516 alread
 - [ ] A story quest done before (for example the rookie training quests 100 to 113) is never handed
       out a second time
 
+### Sound Flowers
+
+Re-run the parser first: it gives both flowers their effect.
+
+- [ ] At level 20 or above, `$CreateItem 1087` and use the Sound Flower: the quest "Sound Flower
+      Energy" appears in the quest window and the flower is gone
+- [ ] The Wild Sound Flower (1086) does the same
+- [ ] Below level 20: "level too low" shows and the flower stays in the bag
+- [ ] Use a second flower while the quest is held: nothing is added and the flower stays
+
 ### Story chapters from "Get Quest"
 
 After the tutorial, each story chapter is handed out by an NPC's "Get Quest" list rather than
@@ -3877,6 +3887,8 @@ Recorded so nobody spends time hunting for them:
   collection flow (`guri 400`) that is not wired yet.
 - **Reputation target quests** (TargetReput) — no quest in the current client data uses this
   type, so there is nothing to implement or to check.
+- **Finishing a Sound Flower quest** — the flower starts quest 5981, but nothing counts its
+  objective or hands out the Sound Flower's Blessing yet, so the quest stays open until given up.
 
 ## Mount activation
 

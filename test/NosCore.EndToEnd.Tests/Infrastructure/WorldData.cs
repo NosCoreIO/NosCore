@@ -161,6 +161,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const long FamilyWarehousePrice = 500;
         public const byte FamilyWarehouseLevel = 2;
 
+        // Starts the one flower quest, which a character below its level cannot take.
+        public const short SoundFlower = 1087;
+        public const short FlowerQuest = 5981;
+        public const byte FlowerQuestLevel = 20;
+
         public static async Task SeedAsync(NosCoreContext context)
         {
             context.Add(OpenMap(Town, 200, 200));
@@ -383,6 +388,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedMarketAsync(context);
             await SeedFamilyManagerAsync(context);
             await SeedRaidAsync(context);
+            SeedSoundFlower(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
         }
@@ -458,6 +464,19 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 Target = 10, Experience = 100, ResetsDaily = true, OncePerMemberPerDay = true
             });
             await context.SaveChangesAsync();
+        }
+
+        private static void SeedSoundFlower(NosCoreContext context)
+        {
+            context.Add(new Item
+            {
+                VNum = SoundFlower, Name = "soundflower", Type = NoscorePocketType.Main, ItemType = ItemType.Main, Effect = ItemEffectType.SoundFlower
+            });
+            context.Add(new Quest
+            {
+                QuestId = FlowerQuest, QuestType = QuestType.FlowerQuest, LevelMin = FlowerQuestLevel, LevelMax = 99,
+                QuestLineId = FlowerQuest, Title = "flowerquest", Desc = "flowerquest"
+            });
         }
 
         // The bands of dignity as the client names them, each by the highest value still in it.
