@@ -1307,6 +1307,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void AddClockTime(TimeSpan extra) => Do(() => run.AddClockTime(extra));
 
+            public int ClockScale => run.ClockScale;
+
             public void StartRoomClock(int room, TimeSpan length) => Do(() => run.StartRoomClock(room, length));
 
             public void StopRoomClock(int room) => Do(() => run.StopRoomClock(room));

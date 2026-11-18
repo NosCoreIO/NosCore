@@ -270,7 +270,7 @@ public class TimeSpace6 : InstanceScript
             r.AddClockTime(TimeSpan.FromSeconds(150));
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Message(LanguageKey.TIMESPACE_BONUS_TIME_ROOM);
-            r.Message(LanguageKey.TIMESPACE_BONUS_TIME_EARNED, 150);
+            r.Message(LanguageKey.TIMESPACE_BONUS_TIME_EARNED, 150 * r.ClockScale);
         }
         else if (room == _room14)
         {

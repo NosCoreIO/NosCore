@@ -115,6 +115,8 @@ namespace NosCore.Instances.Tests
 
         int IInstanceRun.LockerLeft(int room) => LockerLeft;
 
+        public int ClockScale { get; set; } = 1;
+
         public HashSet<int> ButtonsOn { get; } = [];
 
         public HashSet<(int Room, int Button)> Used { get; } = [];

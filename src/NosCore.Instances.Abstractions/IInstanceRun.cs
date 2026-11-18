@@ -110,8 +110,11 @@ namespace NosCore.Instances.Abstractions
 
         void StartClock(TimeSpan limit);
 
-        // Gives the run's clock more time, raising its limit by as much.
+        // Gives the run's clock more time, raising its limit by as much times ClockScale.
         void AddClockTime(TimeSpan extra);
+
+        // How many times longer this run's clock and its added time are, 2 in Loser Mode.
+        int ClockScale { get; }
 
         // The room's own red clock, which ends nothing when it runs out.
         void StartRoomClock(int room, TimeSpan length);
