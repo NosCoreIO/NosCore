@@ -27,7 +27,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             {
                 GuriPacketType.PetBasket when session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket)
                     => warehouseService.OpenAsync(session, WarehouseType.Warehouse),
-                GuriPacketType.PartnerBackpack => warehouseService.OpenAsync(session, WarehouseType.PetWarehouse),
+                GuriPacketType.PartnerBackpack when session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBackPack)
+                    => warehouseService.OpenAsync(session, WarehouseType.PetWarehouse),
                 _ => Task.CompletedTask
             };
         }

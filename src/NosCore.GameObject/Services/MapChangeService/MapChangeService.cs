@@ -149,9 +149,6 @@ namespace NosCore.GameObject.Services.MapChangeService
                     await character.CloseShopAsync();
                 }
 
-                // A warehouse only stays usable on the map where it was opened.
-                character.CloseWarehouses();
-
                 var currentMapInstance = character.MapInstance;
                 var newMapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId);
                 if (newMapInstance == null || newMapInstance.Executor.IsClosed)
@@ -159,6 +156,9 @@ namespace NosCore.GameObject.Services.MapChangeService
                     logger.LogError(logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
                     return;
                 }
+
+                // A warehouse only stays usable on the map where it was opened.
+                character.CloseWarehouses();
 
                 var characterId = character.CharacterId;
 

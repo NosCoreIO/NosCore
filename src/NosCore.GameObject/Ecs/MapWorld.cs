@@ -450,7 +450,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new FactionComponent(faction));
         _world.Add(entity, new WalkTrailComponent(0, 0));
         _world.Add(entity, new SkillComboComponent(0, 0));
-        _world.Add(entity, new WarehouseWindowComponent(false, false, false));
+        _world.Add(entity, new WarehouseWindowComponent(false, false, null));
         return entity;
     }
 
@@ -503,7 +503,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, skillResets);
         _world.Add(entity, faction);
         _world.Add(entity, new SkillComboComponent(0, 0));
-        _world.Add(entity, new WarehouseWindowComponent(false, false, false));
+        _world.Add(entity, new WarehouseWindowComponent(false, false, null));
         return entity;
     }
 

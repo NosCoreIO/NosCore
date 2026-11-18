@@ -7,4 +7,4 @@
 namespace NosCore.GameObject.Ecs.Components;
 
 // The storage windows the server opened for the player; a map change starts them all closed.
-public record struct WarehouseWindowComponent(bool WarehouseOpen, bool PartnerBackpackOpen, bool FamilyWarehouseOpen);
+public record struct WarehouseWindowComponent(bool WarehouseOpen, bool PartnerBackpackOpen, long? OpenFamilyWarehouseId);

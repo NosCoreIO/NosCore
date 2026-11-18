@@ -14,7 +14,8 @@ public static class WarehouseWindowExtensions
     {
         WarehouseType.Warehouse => player.WarehouseOpen,
         WarehouseType.PetWarehouse => player.PartnerBackpackOpen,
-        WarehouseType.FamilyWareHouse => player.FamilyWarehouseOpen,
+        // Opened for one family: leaving it or joining another closes it.
+        WarehouseType.FamilyWareHouse => player.OpenFamilyWarehouseId is { } familyId && familyId == player.Family?.FamilyId,
         _ => false
     };
 
@@ -28,7 +29,7 @@ public static class WarehouseWindowExtensions
     {
         player.WarehouseOpen = false;
         player.PartnerBackpackOpen = false;
-        player.FamilyWarehouseOpen = false;
+        player.OpenFamilyWarehouseId = null;
     }
 
     private static void SetWarehouseOpen(PlayerComponentBundle player, WarehouseType warehouseType, bool open)
@@ -42,7 +43,7 @@ public static class WarehouseWindowExtensions
                 player.PartnerBackpackOpen = open;
                 break;
             case WarehouseType.FamilyWareHouse:
-                player.FamilyWarehouseOpen = open;
+                player.OpenFamilyWarehouseId = open ? player.Family?.FamilyId : null;
                 break;
         }
     }

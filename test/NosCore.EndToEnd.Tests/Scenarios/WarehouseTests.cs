@@ -90,7 +90,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static async Task<TestClient> EnterWithWarehouseOpenAsync(Player player)
         {
             var client = await EnterAsync(player);
-            await OpenWarehouseAsync(client);
+            try
+            {
+                await OpenWarehouseAsync(client);
+            }
+            catch
+            {
+                await client.DisposeAsync();
+                throw;
+            }
+
             return client;
         }
 
@@ -355,9 +364,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var asked = carol.Mark();
 
             await carol.SendAsync(new NrunPacket { Runner = NrunRunnerType.OpenFamilyWarehouse });
-            await carol.SendAsync(FamilyWithdraw(0, 5));
-
             await carol.ExpectSinceAsync<InfoiPacket>(asked, p => p.Message == Game18NConstString.NotQualifiedForWarehouse, "the not-qualified notice");
+            Assert.IsTrue(await carol.NoneSinceAsync<FStashAllPacket>(asked, _ => true, TimeSpan.FromSeconds(1)), "no warehouse opens for her");
+            await carol.SendAsync(FamilyWithdraw(0, 5));
             Assert.IsTrue(await carol.NoneSinceAsync<IPacket>(asked, MovesAnythingOfTheFamily, TimeSpan.FromSeconds(1)));
             CollectionAssert.AreEqual(new[] { ((short)0, (short)5) }, await StoredInFamilyWarehouseAsync(family.FamilyId));
         }

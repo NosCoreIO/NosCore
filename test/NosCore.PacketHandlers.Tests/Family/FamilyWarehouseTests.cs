@@ -287,6 +287,20 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
+        public async Task JoiningAnotherFamilyClosesTheWarehouseOpenedForTheFirst()
+        {
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(_items.Create(1012, 10), _session.Character.CharacterId));
+            JoinFamily(FamilyAuthority.Head, 21);
+            _session.Character.Family.NotNull().FamilyId = FamilyId + 1;
+
+            await new FDepositPacketHandler(Service()).ExecuteAsync(
+                new FDepositPacket { Inventory = PocketType.Main, Slot = 0, Amount = 10, NewSlot = 0 }, _session);
+
+            Assert.AreEqual(0, _stored.Count);
+        }
+
+        [TestMethod]
         public async Task AMemberWithoutRightsCannotDeposit()
         {
             JoinFamily(FamilyAuthority.Member, 21);
