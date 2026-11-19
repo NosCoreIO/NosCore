@@ -27,6 +27,7 @@ using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
@@ -303,7 +304,14 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.SendAsync(Cast(WorldData.SlowSkillCastId, WorldData.SturdyMonster));
 
-            await alice.ExpectSinceAsync(refused, Refused, "the refusal");
+            var cancel = await alice.ExpectSinceAsync(refused, Refused, "the refusal");
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = alice.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.NotEnoughMpForSpell,
+            }, alice.Since(refused).TakeWhile(p => !ReferenceEquals(p, cancel)).OfType<SayiPacket>().Single());
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit");
         }
 

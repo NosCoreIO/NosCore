@@ -324,6 +324,9 @@ distance the walk check uses.
       cast is refused, the auto-attack stops, no mana is spent and the skill does not go on
       cooldown
 - [ ] Step back in and cast immediately: it lands, so the refused cast started nothing
+- [ ] Drop below a targeted skill's mana cost and cast it at a monster: "You don't have enough MP
+      to cast the spell." appears in the client's language, the auto-attack stops and nothing is
+      spent
 - [ ] A skill centred on yourself (a buff, an area around you) still casts with nothing
       in reach
 - [ ] Select a monster far away and cast an area skill centred on yourself: the cast is
