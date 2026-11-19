@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             };
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },
-                new List<NpcMonsterDto> { template });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { template }));
             _monster = _map.EnumerateMonsters().Single();
         }
 

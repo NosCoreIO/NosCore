@@ -118,7 +118,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             var template = new NpcMonsterDto { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 5 };
             _map.LoadMonsters(
                 xs.Select((x, i) => new MapMonsterDto { MapMonsterId = 200 + i, MapId = 1, MapX = x, MapY = 0, VNum = 1 }).ToList(),
-                new List<NpcMonsterDto> { template });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { template }));
         }
 
         private void TheCharacterKnowsASkillOfRange_(byte range)

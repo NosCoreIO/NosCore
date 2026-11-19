@@ -242,14 +242,14 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             Session.Character.MapInstance.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 1, MapY = 1, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 5 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 5 } }));
         }
 
         private void NpcIsOnMap()
         {
             Session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { new() { MapNpcId = 300, MapId = 0, MapX = 2, MapY = 2, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 3 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 3 } }));
         }
 
         private void CharacterMaxHpAndMaxMpAreZero()

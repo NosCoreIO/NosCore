@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                     new() { MapNpcId = TeleporterNpcId, MapId = _session.Character.MapInstance.Map.MapId, VNum = 1 },
                     new() { MapNpcId = OtherNpcId, MapId = _session.Character.MapInstance.Map.MapId, VNum = 1 },
                 },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
             _handler = new TeleporterHandler(_mapChangeService.Object, _teleporters);
         }
 

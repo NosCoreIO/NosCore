@@ -222,7 +222,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
                         VNum = 1
                     }
                 },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
             var npc = mapInstance.GetNpcById(NpcId).NotNull();
             npc.Recipes = new List<Recipe>
             {

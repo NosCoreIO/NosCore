@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
             buffs.Setup(b => b.TickAsync(It.IsAny<IAliveEntity>())).ThrowsAsync(new InvalidOperationException());
             var map = NewMap(buffs.Object);
             map.LoadMonsters(new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1 }, new() { MapMonsterId = 2, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } }));
             var buffed = map.GetMonsterById(1).NotNull();
             var now = World.Clock.GetCurrentInstant();
             buffed.ActiveBuffs[1] = new BuffInstance(1, BuffType.Bad, null, now.Minus(Duration.FromSeconds(2)),
@@ -87,7 +87,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
         {
             var map = NewMap();
             map.LoadMonsters(new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1, MapX = 1, MapY = 0 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10, MaxMp = 5 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10, MaxMp = 5 } }));
             var monster = map.GetMonsterById(1).NotNull();
             monster.Hp = 0;
             monster.Mp = 0;

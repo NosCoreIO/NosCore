@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Host = new Mock<IInstanceRunHost>();
             Run = new ScriptedInstanceRun(Host.Object, new EmptyScript(),
                 new Dictionary<int, MapInstance> { [1] = Session.Character.MapInstance },
-                new Dictionary<short, NpcMonsterDto>(), new RandomProvider(), World.Clock, World.SessionRegistry,
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]), new RandomProvider(), World.Clock, World.SessionRegistry,
                 World.Create<AggroService>(), World.Create<ItemThrowService>(), NullLogger.Instance, World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
             Service = World.Create<InstanceExitService>();
         }

@@ -176,7 +176,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                     new Mock<IGameEventDispatcher>().Object, World.Clock),
                 new EmptyScript(),
                 new System.Collections.Generic.Dictionary<int, MapInstance>(),
-                new System.Collections.Generic.Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
+                new GameObject.Services.BattleService.NpcMonsterCatalog([]),
                 new GameObject.Services.BattleService.RandomProvider(), World.Clock, World.SessionRegistry,
                 World.Create<GameObject.Services.BattleService.AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance, World.LogLanguageLocalizer, World.GameLanguageLocalizer, System.TimeSpan.FromSeconds(30));

@@ -55,7 +55,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IDao<MapMonsterDto, int> _mapMonsters;
         private readonly IDao<MapNpcDto, int> _mapNpcs;
         private readonly IItemGenerationService _itemProvider;
-        private readonly List<NpcMonsterDto> _npcMonsterList;
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
         private readonly IRandomProvider _random;
@@ -63,7 +62,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
-        private readonly Dictionary<short, NpcMonsterDto> _npcMonsters;
+        private readonly INpcMonsterCatalog _npcMonsters;
         private readonly ILogger<ScriptedInstanceService> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IGameLanguageLocalizer _gameLanguage;
@@ -71,7 +70,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public ScriptedInstanceService(List<ScriptedInstanceDto> scriptedInstances,
             List<MapDto> maps,
-            List<NpcMonsterDto> npcMonsters,
+            INpcMonsterCatalog npcMonsters,
             Lazy<IMapInstanceGeneratorService> mapInstanceGeneratorService,
             IMapInstanceRegistry mapInstanceRegistry,
             IInstanceScriptLoader scriptLoader,
@@ -102,14 +101,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _mapMonsters = mapMonsters;
             _mapNpcs = mapNpcs;
             _itemProvider = itemProvider;
-            _npcMonsterList = npcMonsters;
             _mapChangeService = mapChangeService;
             _clock = clock;
             _random = random;
             _logger = logger;
             _logLanguage = logLanguage;
             _mapsByVNum = maps.GroupBy(s => s.MapId).ToDictionary(s => s.Key, s => s.First());
-            _npcMonsters = npcMonsters.GroupBy(s => s.NpcMonsterVNum).ToDictionary(s => s.Key, s => s.First());
+            _npcMonsters = npcMonsters;
 
             _byMap = scriptedInstances
                 .Select(row => row.Adapt<ScriptedInstance>())
@@ -221,7 +219,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 mapInstance.MapIndexY = room.IndexY;
                 if (room.KeepsMapMonsters)
                 {
-                    mapInstance.LoadMonsters(_mapMonsters.Where(m => m.MapId == room.VNum)?.ToList() ?? [], _npcMonsterList);
+                    mapInstance.LoadMonsters(_mapMonsters.Where(m => m.MapId == room.VNum)?.ToList() ?? [], _npcMonsters);
                 }
 
                 if (room.MapNpcs.Count > 0)
@@ -254,7 +252,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 .GroupBy(n => (n.VNum, n.MapX, n.MapY))
                 .Select(g => g.OrderBy(n => n.MapNpcId).First())
                 .ToList();
-            mapInstance.LoadNpcs(npcs, _npcMonsterList);
+            mapInstance.LoadNpcs(npcs, _npcMonsters);
             foreach (var npc in mapInstance.EnumerateNpcs())
             {
                 npc.InitializeShopAndDialog([], null, [], _itemProvider);

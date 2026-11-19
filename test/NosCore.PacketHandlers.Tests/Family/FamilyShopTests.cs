@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 {
                     new() { MapNpcId = ManagerId, Dialog = 462, MapId = _head.Character.MapInstance.Map.MapId, MapX = 1, MapY = 1, VNum = 1 }
                 },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
             var manager = _head.Character.MapInstance.GetNpcById(ManagerId).NotNull();
             World.ShopTypeServices.Add(new ShopTypeServiceDto { ShopTypeServiceId = 1, ShopType = FamilyManagerShopType, Service = NpcService.FamilyManager });
             manager.Shop = new NosCore.GameObject.Services.ShopService.Shop { ShopType = FamilyManagerShopType };

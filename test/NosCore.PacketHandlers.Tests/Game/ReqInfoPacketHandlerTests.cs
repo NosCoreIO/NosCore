@@ -62,12 +62,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 },
             };
 
-            Handler = new ReqInfoPacketHandler(
-                new Mock<ILogger<ReqInfoPacketHandler>>().Object,
-                World.LogLanguageLocalizer,
-                World.SessionRegistry,
-                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(NpcMonsters),
-                World.GameLanguageLocalizer);
+            World.Inject(NpcMonsters);
+            Handler = World.Create<ReqInfoPacketHandler>();
         }
 
         [TestMethod]
@@ -182,7 +178,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                         VNum = 909,
                     }
                 },
-                new List<NpcMonsterDto>
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto>
                 {
                     new()
                     {
@@ -192,7 +188,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                         MaxMp = 1863,
                         Name = new I18NString(),
                     }
-                });
+                }));
         }
 
         private void MonsterIsOnMap()
@@ -209,7 +205,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                         VNum = 25,
                     }
                 },
-                new List<NpcMonsterDto>
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto>
                 {
                     new()
                     {
@@ -219,7 +215,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                         MaxMp = 15,
                         Name = new I18NString(),
                     }
-                });
+                }));
         }
 
         // --- Whens ---

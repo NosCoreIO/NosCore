@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             _map = World.GetBaseMap(0);
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 4, MapY = 2, VNum = PodVnum } },
-                _npcMonsters);
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(_npcMonsters));
         }
 
         [TestMethod]

@@ -266,7 +266,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var template = new NpcMonsterDto { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 5 };
             _map.LoadMonsters(
                 cells.Select((cell, i) => new MapMonsterDto { MapMonsterId = 200 + i, MapId = 0, MapX = (short)cell.X, MapY = (short)cell.Y, VNum = 1 }).ToList(),
-                new List<NpcMonsterDto> { template });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { template }));
             _monsters = _map.EnumerateMonsters().OrderBy(m => m.VisualId).ToList();
         }
 

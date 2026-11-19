@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var map = Session.Character.MapInstance;
             map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 300, MapId = map.Map.MapId, MapX = 1, MapY = 1, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, ChatterGroup = chatterGroup } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, ChatterGroup = chatterGroup } }));
             return map.EnumerateMonsters().Single();
         }
     }

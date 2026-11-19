@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Tests.Ecs.Systems
         {
             var map = World.GetBaseMap(0);
             map.LoadMonsters(new List<MapMonsterDto> { new() { MapMonsterId = 7, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } }));
             var first = map.EcsWorld.CreateMapItem(7, 1012, 1, map.MapInstanceId, 0, 0, null, Instant.MinValue, Guid.NewGuid(), null);
             map.EcsWorld.CreateMapItem(8, 1012, 1, map.MapInstanceId, 0, 0, null, Instant.MinValue, Guid.NewGuid(), null);
             var system = new MapItemSystem();

@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
-                script, _rooms, new Dictionary<short, NpcMonsterDto>(),
+                script, _rooms, new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance,
                 World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
