@@ -120,6 +120,37 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task ReviveInPlaceInTheLandOfDeathSpendsASaverEvenThoughTheLandIsAScriptedRun()
+        {
+            await new Spec("The Land of Death runs as a scripted instance, yet its Saver revival still applies")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(CharacterIsInsideAScriptedRun)
+                .And(CharacterHasSaversInInventory_, (short)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(CharacterShouldBeAlive)
+                .And(HpShouldBeFullyRestored)
+                .And(SaverStackShouldBe_, (short)1)
+                .And(ReturnToEntranceShouldBeCalled_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ALivingPlayerCannotSpendASaverToHeal()
+        {
+            await new Spec("A revival request from a living player in the Land of Death spends nothing and changes nothing")
+                .Given(CharacterIsWoundedAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(CharacterIsInsideAScriptedRun)
+                .And(CharacterHasSaversInInventory_, (short)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(SaverStackShouldBe_, (short)2)
+                .And(HpShouldStillBe_, 1)
+                .And(ReturnToEntranceShouldBeCalled_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ReviveInPlaceInTheLandOfDeathWithoutASaverReturnsToTheEntrance()
         {
             await new Spec("Type 0 in the Land of Death without a Saver sends the player back to the entrance")
@@ -430,6 +461,15 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _session.Character.Mp = 0;
             _session.Character.IsAlive = false;
         }
+
+        private void CharacterIsWoundedAtLevel_(byte level)
+        {
+            _session.Character.Level = level;
+            _session.Character.Hp = 1;
+            _session.Character.IsAlive = true;
+        }
+
+        private void HpShouldStillBe_(int hp) => Assert.AreEqual(hp, _session.Character.Hp);
 
         private void CharacterHasSeedsInInventory_(short amount)
         {
