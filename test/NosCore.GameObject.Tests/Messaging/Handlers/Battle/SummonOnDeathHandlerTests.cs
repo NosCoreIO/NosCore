@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestMethod]
         public async Task ASkillSummonCardSpawnsItsMonstersOnTheCaster()
         {
-            await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(),
+            await new SummonService(new NpcMonsterCatalog(_npcMonsters), _random.Object).SummonAsync(Pod(),
                 new[] { new BCardDto { Type = BCardType.CardType.Summons, SubType = 21, FirstData = 3, SecondData = PiiVnum } });
 
             var summoned = _map.EnumerateMonsters().Where(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum).ToList();
@@ -89,7 +89,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         {
             _random.SetupSequence(r => r.Next(0, 100)).Returns(69).Returns(70);
 
-            await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(), new[]
+            await new SummonService(new NpcMonsterCatalog(_npcMonsters), _random.Object).SummonAsync(Pod(), new[]
             {
                 new BCardDto { Type = BCardType.CardType.SummonSkill, SubType = 11, FirstData = 70, SecondData = PiiVnum },
                 new BCardDto { Type = BCardType.CardType.SummonSkill, SubType = 21, FirstData = 70, SecondData = PodVnum },
@@ -104,7 +104,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         {
             _random.Setup(r => r.Next(0, 100)).Returns(0);
 
-            await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(),
+            await new SummonService(new NpcMonsterCatalog(_npcMonsters), _random.Object).SummonAsync(Pod(),
                 new[] { new BCardDto { Type = BCardType.CardType.SummonSkill, SubType = 21, FirstData = 100, SecondData = PiiVnum } });
 
             Assert.AreEqual(1, _map.EnumerateMonsters().Count(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum));
@@ -125,7 +125,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         {
             _random.SetupSequence(r => r.Next(-3, 4)).Returns(2).Returns(2).Returns(-3).Returns(0);
 
-            await new SummonService(_npcMonsters, _random.Object).SummonAsync(Pod(),
+            await new SummonService(new NpcMonsterCatalog(_npcMonsters), _random.Object).SummonAsync(Pod(),
                 new[] { new BCardDto { Type = BCardType.CardType.Summons, SubType = 21, FirstData = 2, SecondData = PiiVnum } });
 
             var cells = _map.EnumerateMonsters().Where(m => m.NpcMonster?.NpcMonsterVNum == PiiVnum)
@@ -143,7 +143,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             Assert.AreEqual(1, _map.EnumerateMonsters().Count());
         }
 
-        private SummonOnDeathHandler Handler() => new(_catalog.Object, new SummonService(_npcMonsters, _random.Object));
+        private SummonOnDeathHandler Handler() => new(_catalog.Object, new SummonService(new NpcMonsterCatalog(_npcMonsters), _random.Object));
 
         private MonsterComponentBundle Pod() => _map.EnumerateMonsters().Single(m => m.NpcMonster?.NpcMonsterVNum == PodVnum);
 

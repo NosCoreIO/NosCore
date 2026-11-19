@@ -22,7 +22,7 @@ public interface ISummonService
     Task SummonAsync(IAliveEntity source, IEnumerable<BCardDto> cards);
 }
 
-public sealed class SummonService(List<NpcMonsterDto> npcMonsters, IRandomProvider random) : ISummonService, ISingletonService
+public sealed class SummonService(INpcMonsterCatalog npcMonsters, IRandomProvider random) : ISummonService, ISingletonService
 {
     public Task SummonAsync(IAliveEntity source, IEnumerable<BCardDto> cards)
     {
@@ -37,7 +37,7 @@ public sealed class SummonService(List<NpcMonsterDto> npcMonsters, IRandomProvid
                     => random.Next(0, 100) < card.FirstData ? 1 : 0,
                 _ => 0,
             };
-            if (count <= 0 || npcMonsters.Find(m => m.NpcMonsterVNum == card.SecondData) is not { } summoned)
+            if (count <= 0 || npcMonsters.GetNpcMonster(card.SecondData) is not { } summoned)
             {
                 continue;
             }

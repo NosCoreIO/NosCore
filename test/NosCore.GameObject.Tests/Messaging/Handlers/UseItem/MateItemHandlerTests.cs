@@ -17,6 +17,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Guri;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session = await World.CreateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(1);
             _session.Character.Level = 30;
-            var mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto>(),
+            var mateService = new MateServiceImpl(World.MateDao, new NpcMonsterCatalog(new List<NpcMonsterDto>()),
                 new IdService<Mate>(1), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             _handler = new MateItemHandler(mateService, World.Create<MateStatsService>(),
                 new NosCore.GameObject.Services.MateService.MateProgressionService(World.Create<MateStatsService>(),

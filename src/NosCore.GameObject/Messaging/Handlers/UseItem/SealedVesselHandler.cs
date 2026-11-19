@@ -21,7 +21,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class SealedVesselHandler(List<ItemSummonDto> itemSummons, List<NpcMonsterDto> npcMonsters,
+    public sealed class SealedVesselHandler(List<ItemSummonDto> itemSummons, INpcMonsterCatalog npcMonsters,
         IRandomProvider random)
     {
         [UsedImplicitly]
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var monsters = itemSummons
                 .Where(s => s.ItemVNum == inventoryItem.ItemInstance.ItemVNum)
-                .Select(s => npcMonsters.Find(m => m.NpcMonsterVNum == s.NpcMonsterVNum))
+                .Select(s => npcMonsters.GetNpcMonster(s.NpcMonsterVNum))
                 .OfType<NpcMonsterDto>()
                 .ToList();
             if (monsters.Count == 0 || !character.InventoryService.TryConsume(inventoryItem, 1))

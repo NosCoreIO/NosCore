@@ -19,6 +19,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _minilands = World.Freeze<Mock<IMinilandService>>();
             var monsters = new List<NpcMonsterDto> { new() { NpcMonsterVNum = MonsterVNum, MaxHp = 500, MaxMp = 200 } };
             World.Inject(monsters);
-            World.Inject<IMateService>(new MateService(World.MateDao, monsters, new IdService<Mate>(1),
+            World.Inject<IMateService>(new MateService(World.MateDao, new NpcMonsterCatalog(monsters), new IdService<Mate>(1),
                 World.Create<MateStatsService>(), NullLogger<MateService>.Instance,
                 new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object));
             _handler = World.Create<NosMateBeadHandler>();

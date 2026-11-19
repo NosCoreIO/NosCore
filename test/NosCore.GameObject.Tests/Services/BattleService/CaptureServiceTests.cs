@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _random = new Mock<IRandomProvider>();
             _random.Setup(r => r.Next(0, 100)).Returns(0);
-            _mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto> { creature },
+            _mateService = new MateServiceImpl(World.MateDao, new NpcMonsterCatalog(new List<NpcMonsterDto> { creature }),
                 new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             _service = new CaptureService(World.MateDao, _mateService,
                 new Mock<IGameEventDispatcher>().Object, World.Clock, _random.Object,

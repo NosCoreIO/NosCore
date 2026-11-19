@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Services.FactionWarService;
 // percent closer to its raid. At 100% Lord Mukraju appears in that side's camp, and killing him
 // within five minutes opens one of the four Glacernon raids to that side for an hour.
 public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegistry,
-    IMapInstanceAccessorService mapInstanceAccessorService, List<NpcMonsterDto> npcMonsters,
+    IMapInstanceAccessorService mapInstanceAccessorService, INpcMonsterCatalog npcMonsters,
     IAggroService aggroService, IRandomProvider random) : IFactionWarService, ISingletonService
 {
     public const int FullProgress = 10000;
@@ -226,7 +226,7 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
     private async Task SummonGuardianAsync(Side side)
     {
         if (mapInstanceAccessorService.GetBaseMapById(side.CampMapId) is not { } camp
-            || npcMonsters.Find(m => m.NpcMonsterVNum == Mukraju) is not { } mukraju)
+            || npcMonsters.GetNpcMonster(Mukraju) is not { } mukraju)
         {
             return;
         }
