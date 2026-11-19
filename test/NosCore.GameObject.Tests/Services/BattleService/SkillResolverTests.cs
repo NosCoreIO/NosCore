@@ -92,6 +92,37 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(TargetHitType.AoeTargetHit, resolved.HitType);
         }
 
+        // Ice Bolt (class) and Volcano's Magma Plating (specialist, class >= 32) share cast id 3.
+        private static readonly SkillDto IceBolt = new() { SkillVNum = 263, CastId = 3, Class = 3, SkillType = 1 };
+        private static readonly SkillDto MagmaPlating = new() { SkillVNum = 1081, CastId = 3, Class = 50, SkillType = 1 };
+
+        private static async Task<PlayerComponentBundle> MageKnowingIceBoltAndMagmaPlatingAsync(bool transformed)
+        {
+            var character = await NewCharacterAsync();
+            var skills = character.Skills;
+            skills.Clear();
+            skills.TryAdd(263, new CharacterSkill { SkillVNum = 263, Skill = IceBolt });
+            skills.TryAdd(1081, new CharacterSkill { SkillVNum = 1081, Skill = MagmaPlating });
+            character.UseSp = transformed;
+            return character;
+        }
+
+        [TestMethod]
+        public async Task ATransformedCharacterCastsTheSpecialistSkillOfACastIdItsClassAlsoUses()
+        {
+            var character = await MageKnowingIceBoltAndMagmaPlatingAsync(transformed: true);
+
+            Assert.AreEqual((short)1081, SkillResolver.FindLearned(character, 3)?.SkillVNum);
+        }
+
+        [TestMethod]
+        public async Task AnUntransformedCharacterCastsTheClassSkillOfACastIdASpecialistAlsoUses()
+        {
+            var character = await MageKnowingIceBoltAndMagmaPlatingAsync(transformed: false);
+
+            Assert.AreEqual((short)263, SkillResolver.FindLearned(character, 3)?.SkillVNum);
+        }
+
         [TestMethod]
         public async Task CaptureResolvesThoughItsDataNamesAnUpgradeField()
         {

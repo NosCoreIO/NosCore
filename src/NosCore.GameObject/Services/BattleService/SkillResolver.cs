@@ -110,8 +110,13 @@ public sealed class SkillResolver : ISkillResolver
     // non-zero UpgradeSkill without being one, so they are only taken when no base skill is.
     public static CharacterSkill? FindLearned(PlayerComponentBundle character, long castId)
     {
+        // Class and specialist skills reuse the same cast ids (Ice Bolt and Volcano's Magma Plating are both 3),
+        // so only the set the character can cast right now is searched: the specialist's while transformed,
+        // the class's otherwise.
+        var transformed = character.UseSp;
         var owned = character.Skills?.Values
-            .Where(s => s.Skill != null && !s.Skill.IsPassive() && s.Skill.CastId == castId)
+            .Where(s => s.Skill != null && !s.Skill.IsPassive() && s.Skill.CastId == castId
+                && s.Skill.IsSpecialist() == transformed)
             .ToList();
         if (owned == null) return null;
         return owned.FirstOrDefault(s => s.Skill.UpgradeSkill == 0)
