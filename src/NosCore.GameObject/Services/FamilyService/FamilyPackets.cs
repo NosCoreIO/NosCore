@@ -45,7 +45,6 @@ public static class FamilyPackets
             VisualType = VisualType.Player,
             VisualId = player.VisualId,
             FamilyId = family.FamilyId,
-            Unknown = -1,
             FamilyName = player.GenerateFamilyTag(localizer, viewerLanguage),
             FamilyLevel = family.FamilyLevel,
             // Without the three icon flags the client draws a stray string after the tag.
