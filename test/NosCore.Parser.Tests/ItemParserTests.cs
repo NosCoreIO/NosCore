@@ -273,6 +273,32 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(expected, _savedItems.Single().Material);
         }
 
+        // Holy Mage's resistances (4 fire, 4 water, 4 light, 16 shadow) would make it a shadow card by the
+        // resistance rule; the client shows it as a light card, which the hardcoded element must keep.
+        private const string HolyMageData = "1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t3\t6\t4\t4\t4\t16\t0\t35\t7";
+
+        [TestMethod]
+        public async Task ItemParser_TheHardcodedSpecialistElementWinsOverItsResistances()
+        {
+            CreateTestFile(CreateItemData(vnum: 906, indexSubType: 4, equipmentSlot: 12, data: HolyMageData));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ElementType.Light, _savedItems.Single().Element);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_ASpecialistTakesTheElementOfItsHighestResistance()
+        {
+            CreateTestFile(CreateItemData(vnum: 914, indexSubType: 4, equipmentSlot: 12, data: HolyMageData));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ElementType.Dark, _savedItems.Single().Element);
+        }
+
         [TestMethod]
         [DataRow(2, MaterialType.SmallRubyOfCompletion)]
         [DataRow(14, MaterialType.SmallSapphireOfCompletion)]

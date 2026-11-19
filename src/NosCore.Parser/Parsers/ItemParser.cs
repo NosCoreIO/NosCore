@@ -181,9 +181,9 @@ namespace NosCore.Parser.Parsers
             var items = (await parser.GetDtosAsync()).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {
-                HardcodeItem(item);
                 if (item.ItemType != ItemType.Specialist)
                 {
+                    HardcodeItem(item);
                     continue;
                 }
 
@@ -200,6 +200,9 @@ namespace NosCore.Parser.Parsers
                 {
                     item.SecondaryElement = elementdic.ElementAt(1).Key;
                 }
+
+                // Applied after the resistance guess so its fixed elements (e.g. Holy Mage = Light) are not overwritten.
+                HardcodeItem(item);
             }
             foreach (var item in items)
             {
