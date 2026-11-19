@@ -43,6 +43,19 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
         }
 
         [UsedImplicitly]
+        public Task Handle(EntityDamagedEvent evt)
+        {
+            if (evt.Killed || evt.Target is not MonsterComponentBundle { MapInstance: { } mapInstance } monster
+                || (monster.HitStep == null && monster.HpThresholds.Count == 0))
+            {
+                return Task.CompletedTask;
+            }
+
+            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.MonsterHitAsync(mapInstance.MapInstanceId, monster)
+                ?? Task.CompletedTask;
+        }
+
+        [UsedImplicitly]
         public Task Handle(MapInstanceEnteredEvent evt)
         {
             var run = scriptedInstanceService.GetRun(evt.MapInstance.MapInstanceId);

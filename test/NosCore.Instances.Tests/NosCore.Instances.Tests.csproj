@@ -10,6 +10,7 @@
     <PackageReference Include="GitHubActionsTestLogger" />
     <PackageReference Include="MSTest.TestAdapter" />
     <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="SpecLight" />
     <ProjectReference Include="..\..\src\NosCore.Instances.Scripting\NosCore.Instances.Scripting.csproj" />
   </ItemGroup>
   <ItemGroup>
