@@ -4,13 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
@@ -30,35 +28,28 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class SoundFlowerHandlerTests
     {
         private const short SoundFlowerVNum = 1087;
-        private const short FlowerQuestId = 5981;
 
         private TestWorld World;
         private ClientSession Session;
-        private Mock<IQuestService> Quests;
+        private Mock<ISoundFlowerService> SoundFlowers;
         private InventoryItemInstance Flower;
-        private readonly List<QuestDto> QuestList = new()
-        {
-            new QuestDto { QuestId = 1, QuestType = QuestType.Hunt },
-            new QuestDto { QuestId = FlowerQuestId, QuestType = QuestType.FlowerQuest },
-        };
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
-            Quests = World.Freeze<Mock<IQuestService>>();
-            World.Inject(QuestList);
+            SoundFlowers = World.Freeze<Mock<ISoundFlowerService>>();
         }
 
         [TestMethod]
-        public async Task ASoundFlowerStartsAFlowerQuestAndIsUsedUp()
+        public async Task AFlowerInTheBagStartsAFlowerQuestAndIsUsedUp()
         {
-            await new Spec("A Sound Flower starts a flower quest and is used up")
+            await new Spec("A Sound Flower already in a bag starts a flower quest and is used up")
                 .Given(TheCharacterCarriesAnItemWith_, ItemEffectType.SoundFlower)
                 .And(TheQuestCanBeTaken_, true)
                 .WhenAsync(TheItemIsUsed)
-                .Then(TheFlowerQuestIsStarted)
+                .Then(AFlowerQuestIsAskedFor_Times, 1)
                 .And(TheCharacterHas_FlowersLeft, 0)
                 .ExecuteAsync();
         }
@@ -66,7 +57,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task AFlowerWhoseQuestIsRefusedIsKept()
         {
-            await new Spec("A flower whose quest cannot be taken, for want of a slot or of level, stays in the bag")
+            await new Spec("A flower whose quest cannot be taken stays in the bag")
                 .Given(TheCharacterCarriesAnItemWith_, ItemEffectType.SoundFlower)
                 .And(TheQuestCanBeTaken_, false)
                 .WhenAsync(TheItemIsUsed)
@@ -81,7 +72,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .Given(TheCharacterCarriesAnItemWith_, ItemEffectType.NoEffect)
                 .And(TheQuestCanBeTaken_, true)
                 .WhenAsync(TheItemIsUsed)
-                .Then(NoQuestIsStarted)
+                .Then(AFlowerQuestIsAskedFor_Times, 0)
                 .And(TheCharacterHas_FlowersLeft, 1)
                 .ExecuteAsync();
         }
@@ -90,7 +81,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             var flower = new ItemInstance(new Item
             {
-                VNum = SoundFlowerVNum, Type = NoscorePocketType.Main, ItemType = ItemType.Main, Effect = effect,
+                VNum = SoundFlowerVNum, Type = NoscorePocketType.Main, ItemType = ItemType.Map, Effect = effect,
             })
             {
                 Amount = 1,
@@ -102,8 +93,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         private void TheQuestCanBeTaken_(bool taken) =>
-            Quests.Setup(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), QuestActionType.Achieve, FlowerQuestId))
-                .ReturnsAsync(taken);
+            SoundFlowers.Setup(s => s.StartFlowerQuestAsync(It.IsAny<PlayerComponentBundle>())).ReturnsAsync(taken);
 
         private Task TheItemIsUsed() =>
             World.Create<SoundFlowerHandler>().Handle(new ItemUsedEvent(Session, Flower, new UseItemPacket
@@ -114,11 +104,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 Slot = 0,
             }));
 
-        private void TheFlowerQuestIsStarted() =>
-            Quests.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), QuestActionType.Achieve, FlowerQuestId), Times.Once);
-
-        private void NoQuestIsStarted() =>
-            Quests.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        private void AFlowerQuestIsAskedFor_Times(int times) =>
+            SoundFlowers.Verify(s => s.StartFlowerQuestAsync(It.IsAny<PlayerComponentBundle>()), Times.Exactly(times));
 
         private void TheCharacterHas_FlowersLeft(int left) =>
             Assert.AreEqual(left, Session.Character.InventoryService.CountItem(SoundFlowerVNum));

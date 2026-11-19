@@ -3575,13 +3575,20 @@ done. Use the "Quests offered in NPC dialogs" scene with daily quest 7516 alread
 
 ### Sound Flowers
 
-Re-run the parser first: it gives both flowers their effect.
+Re-run the parser first: it gives both flowers their effect. A Wild Sound Flower (1086) is a rare
+monster drop; to get one on the ground at will, `$CreateItem 1086` (or 1087) and drag it
+out of the bag onto the ground.
 
-- [ ] At level 20 or above, `$CreateItem 1087` and use the Sound Flower: the quest "Sound Flower
-      Energy" appears in the quest window and the flower is gone
-- [ ] The Wild Sound Flower (1086) does the same
-- [ ] Below level 20: "level too low" shows and the flower stays in the bag
-- [ ] Use a second flower while the quest is held: nothing is added and the flower stays
+- [ ] At level 20 or above, pick the flower up: the quest "Sound Flower Energy" appears in the
+      quest window, the flower is gone from the ground (for another player nearby too) and
+      nothing is added to the bag
+- [ ] The Sound Flower (1087) does the same
+- [ ] Below level 20: "level too low" shows and the flower stays on the ground. This is assumed;
+      nothing shows what the game does here
+- [ ] Pick up a second flower while the quest is held: no quest is added and the flower stays on
+      the ground, without a message
+- [ ] A flower still in a bag (from `$CreateItem`, never dropped) starts the quest when used and
+      is used up; below level 20 it stays in the bag
 
 ### Story chapters from "Get Quest"
 
