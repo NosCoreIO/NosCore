@@ -797,6 +797,7 @@ namespace NosCore.Parser.Parsers
                 1269 => ItemEffectType.MinigameDurabilityCoupon,
                 1271 => ItemEffectType.ProductionCoupon,
                 var x when x == 5916 || x == 5927 || x == 5928 || x == 5929 => ItemEffectType.HeatResistance,
+                2087 or 2128 => ItemEffectType.Bandage,
                 _ when item.ItemType == ItemType.Event && item.EffectValue > 1 => ItemEffectType.PlayEffect,
                 _ => item.Effect,
             };

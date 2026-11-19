@@ -426,9 +426,15 @@ restart the world server:
 - [ ] As a level 5 archer with Detoxification Ritual (skill 255), drink potion 1246 and cast it on yourself:
       Deadly Poison (25) and Mandra Poison (573) go; Mental Poison (84, level 3), Weak Poison (757, not a
       toxic card) and every bleeding stay
+- [ ] Drink potion 1246, then `$CreateItem 2087 2` and double-click the Bandage in the Etc tab: the
+      Minor Bleeding (1) and Bleeding (21) icons go at once, Heavy Bleeding (42), Fatal Bleeding (82) and
+      every poison stay, and the stack drops to 1
+- [ ] Do the same with a Good Bandage (`$CreateItem 2128`): Heavy Bleeding (42) goes as well, Fatal
+      Bleeding (82) stays
+- [ ] Use a Bandage with no bleeding on you: it is used up all the same
+- [ ] Dead, the Bandage stays in the inventory
 - [ ] Not verifiable yet: Herb Mastery (skill 360) raising Detoxification Ritual to level 3 poisons, since
-      an upgrade skill's own effects never reach the skill it upgrades; and Bandage (2087) and Good
-      Bandage (2128) used from the inventory, which nothing lets you use
+      an upgrade skill's own effects never reach the skill it upgrades
 
 ### Chance-based damage taken
 

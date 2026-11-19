@@ -483,7 +483,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 Cooldown = 300, MpCost = SlowSkillMp, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
             });
 
-            context.Add(new Item { VNum = Bandage, Name = "bandage", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
+            context.Add(new Item { VNum = Bandage, Name = "bandage", Type = NoscorePocketType.Etc, ItemType = ItemType.Magical, Effect = ItemEffectType.Bandage });
             context.Add(new Skill
             {
                 SkillVNum = BandageSkill, Name = "skill211", CastId = BandageSkillCastId, SkillType = 1, Class = 1, Type = 0, Range = 1,
@@ -499,6 +499,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new Card { CardId = SacrificeCircleCard, Name = "sacrificecircle", Duration = SacrificeCardTime });
             context.Add(new Card { CardId = SacrificeSpiritCard, Name = "sacrificespirit", Duration = SacrificeCardTime });
             await context.SaveChangesAsync();
+            context.Add(new BCard { ItemVNum = Bandage, Type = BCardType.CardType.Buff, SubType = 51, FirstData = 0, SecondData = 2 });
             context.Add(new BCard
             {
                 SkillVNum = SacrificeSkill, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = SacrificeCircleCard
