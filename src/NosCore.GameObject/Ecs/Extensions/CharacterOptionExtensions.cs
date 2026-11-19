@@ -86,25 +86,4 @@ public static class CharacterOptionExtensions
         player.HatInvisible = characterDto.HatInvisible;
         player.LockInterface = characterDto.LockInterface;
     }
-
-    public static void SaveOptions(this PlayerComponentBundle player, CharacterDto characterDto)
-    {
-        characterDto.ExchangeBlocked = player.ExchangeBlocked;
-        characterDto.FriendRequestBlocked = player.FriendRequestBlocked;
-        characterDto.FamilyRequestBlocked = player.FamilyRequestBlocked;
-        characterDto.WhisperBlocked = player.WhisperBlocked;
-        characterDto.GroupRequestBlocked = player.GroupRequestBlocked;
-        characterDto.PetAutoRelive = player.PetAutoRelive;
-        characterDto.PartnerAutoRelive = player.PartnerAutoRelive;
-        characterDto.GroupSharing = player.GroupSharing;
-        characterDto.MouseAimLock = player.MouseAimLock;
-        characterDto.HeroChatBlocked = player.HeroChatBlocked;
-        characterDto.QuickGetUp = player.QuickGetUp;
-        characterDto.EmoticonsBlocked = player.EmoticonsBlocked;
-        characterDto.HpBlocked = player.HpBlocked;
-        characterDto.BuffBlocked = player.BuffBlocked;
-        characterDto.MinilandInviteBlocked = player.MinilandInviteBlocked;
-        characterDto.HatInvisible = player.HatInvisible;
-        characterDto.LockInterface = player.LockInterface;
-    }
 }

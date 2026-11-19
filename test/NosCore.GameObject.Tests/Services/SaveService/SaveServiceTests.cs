@@ -395,6 +395,81 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task SavingCharacterPersistsItsProgress()
+        {
+            await new Spec("Saving the character writes its levels, experience, reputation and points")
+                .Given(CharacterHasProgressed)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedProgressShouldMatch)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingCharacterLeavesItsIdentityAlone()
+        {
+            await new Spec("Saving the character keeps the stored name, slot and prefix")
+                .Given(TheStoredRowHasAPrefix)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedIdentityShouldBeUnchanged)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasProgressed()
+        {
+            var character = Session.Character;
+            character.Level = 72;
+            character.LevelXp = 1_234_567;
+            character.JobLevel = 55;
+            character.JobLevelXp = 89_000;
+            character.HeroLevel = 12;
+            character.HeroLevelXp = 456_789;
+            character.Reputation = 250_000;
+            character.Dignity = -150;
+            character.Compliment = 33;
+            character.SpPoint = 7_000;
+            character.SpAdditionPoint = 420_000;
+            character.Biography = "Saved by the save service";
+        }
+
+        private async Task PersistedProgressShouldMatch()
+        {
+            var characterId = Session.Character.CharacterId;
+            var persisted = (await World.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == characterId)).NotNull();
+            Assert.AreEqual((byte)72, persisted.Level);
+            Assert.AreEqual(1_234_567, persisted.LevelXp);
+            Assert.AreEqual((byte)55, persisted.JobLevel);
+            Assert.AreEqual(89_000, persisted.JobLevelXp);
+            Assert.AreEqual((byte)12, persisted.HeroLevel);
+            Assert.AreEqual(456_789, persisted.HeroXp);
+            Assert.AreEqual(250_000, persisted.Reput);
+            Assert.AreEqual((short)-150, persisted.Dignity);
+            Assert.AreEqual((short)33, persisted.Compliment);
+            Assert.AreEqual(7_000, persisted.SpPoint);
+            Assert.AreEqual(420_000, persisted.SpAdditionPoint);
+            Assert.AreEqual("Saved by the save service", persisted.Biography);
+        }
+
+        private string _storedName = string.Empty;
+        private byte _storedSlot;
+
+        private void TheStoredRowHasAPrefix()
+        {
+            var row = Session.Character.CharacterDto;
+            row.Prefix = "Hero";
+            _storedName = row.Name;
+            _storedSlot = row.Slot;
+        }
+
+        private async Task PersistedIdentityShouldBeUnchanged()
+        {
+            var characterId = Session.Character.CharacterId;
+            var persisted = (await World.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == characterId)).NotNull();
+            Assert.AreEqual("Hero", persisted.Prefix);
+            Assert.AreEqual(_storedName, persisted.Name);
+            Assert.AreEqual(_storedSlot, persisted.Slot);
+        }
+
         private void CharacterChangesClass_GenderAndHair_(CharacterClassType characterClass, GenderType gender)
         {
             Session.Character.Class = characterClass;
