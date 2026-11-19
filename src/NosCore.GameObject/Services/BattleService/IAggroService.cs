@@ -18,6 +18,8 @@ public interface IAggroService
 
     void AddThreat(IAliveEntity mob, IAliveEntity attacker, int damage);
 
+    void Taunt(IAliveEntity mob, IAliveEntity taunter);
+
     void Clear(IAliveEntity mob);
 }
 

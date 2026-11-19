@@ -40,6 +40,7 @@ public sealed class HitQueue(
     IOnHitBuffService onHitBuffService,
     IDamageLeechService damageLeechService,
     IManaShieldService manaShieldService,
+    IAggroService aggroService,
     IRandomProvider random,
     ILogger<HitQueue> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IHitQueue, ISingletonService
 {
@@ -187,6 +188,11 @@ public sealed class HitQueue(
                 await ApplySpecialActionsAsync(request.Skill.BCards, request.Origin, target,
                         defenderStats.ForcedMovementResistance, isPvp)
                     ;
+
+                if (DrawsAttention(request.Skill.BCards))
+                {
+                    aggroService.Taunt(target, request.Origin);
+                }
             }
 
             // Track contribution per attacker so reward distribution can weight by
@@ -351,6 +357,20 @@ public sealed class HitQueue(
                     break;
             }
         }
+    }
+
+    // Type 30 subtype 1, "Draws enemy's attention to you". Nothing declares the negated subtype.
+    private static bool DrawsAttention(IReadOnlyList<BCardDto> bCards)
+    {
+        for (var i = 0; i < bCards.Count; i++)
+        {
+            if (bCards[i].Effect() == BCardEffect.SpecialEffects2FocusEnemy)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private bool Rolls(int percent) => percent > 0 && random.Next(0, 100) < percent;
