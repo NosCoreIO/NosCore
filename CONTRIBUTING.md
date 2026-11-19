@@ -20,8 +20,8 @@ rather than adding a lock next to it.
    A packet the server dispatches itself (`HandlePacketsAsync` without `isFromNetwork`) does not take
    the lock, so dispatch it only from code that already holds it, such as another handler.
    Such a handler gives the map back while it waits on the master, and one that moves its own player
-   carries on on the new map, so re-read state read before either; moving another player runs once the
-   handler is over. Work that is not a packet handler (hosted services, scheduled jobs) goes through
+   carries on on the new map, so re-read state read before either; moving another player runs in the
+   background without waiting for that player's packet lock. Work that is not a packet handler (hosted services, scheduled jobs) goes through
    `OnMapAsync`. Work running on an executor never waits on another executor or on a session's packet
    lock: to reach an entity on another map, a handler first gives its own map back with
    `MapExecutor.StepAwayAsync`. That only lets go when `MapExecutor.CanStepAway` is true, which it is

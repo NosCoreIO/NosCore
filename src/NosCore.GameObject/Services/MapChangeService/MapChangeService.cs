@@ -87,7 +87,8 @@ namespace NosCore.GameObject.Services.MapChangeService
         {
             // A packet handler moving its own player gives its map back for the move and carries
             // on on the new map. Other work running on a map, including a handler moving someone
-            // else, must not wait for a session; the change runs once that work is over.
+            // else, must not wait for a session; the change runs in the background and takes that
+            // player's packet lock there.
             if (MapExecutor.IsInsideAny)
             {
                 if (MapExecutor.CanStepAway && session.HoldsPacketLock)
