@@ -11,6 +11,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
@@ -33,7 +34,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
-    public class MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters,
+    public class MapInstanceGeneratorService(List<MapDto> maps, INpcMonsterCatalog npcMonsters,
             List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos, List<ShopSkillDto> shopSkillDtos, List<SkillDto> skills, List<RecipeDto> recipeDtos, List<RecipeItemDto> recipeItemDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,

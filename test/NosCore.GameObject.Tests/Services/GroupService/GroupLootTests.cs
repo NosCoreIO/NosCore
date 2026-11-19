@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
 
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, Level = 10, MaxHp = 100, MaxMp = 50 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, Level = 10, MaxHp = 100, MaxMp = 50 } }));
             _monster = _map.EnumerateMonsters().Single();
             foreach (var session in new[] { _first, _second })
             {

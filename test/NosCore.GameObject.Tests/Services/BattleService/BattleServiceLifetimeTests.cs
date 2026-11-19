@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             session.Character.MapInstance = map;
             map.LoadMonsters(
                 new System.Collections.Generic.List<NosCore.Data.Dto.MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },
-                new System.Collections.Generic.List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 5 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new System.Collections.Generic.List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 5 } }));
             var monster = map.EnumerateMonsters().Single();
 
             var skill = new SkillInfo(

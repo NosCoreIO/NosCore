@@ -503,7 +503,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             tune?.Invoke(template);
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = x, MapY = y, VNum = 1 } },
-                new List<NpcMonsterDto> { template });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { template }));
             return _map.EnumerateMonsters().Single();
         }
 
@@ -537,7 +537,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     new() { MapMonsterId = 200, MapId = 0, MapX = 4, MapY = 1, VNum = 1 },
                     new() { MapMonsterId = 201, MapId = 0, MapX = 4, MapY = 5, VNum = 2 },
                 },
-                new List<NpcMonsterDto> { Template(1, tuneFirst), Template(2, tuneSecond) });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { Template(1, tuneFirst), Template(2, tuneSecond) }));
             var monsters = _map.EnumerateMonsters().ToList();
             return (monsters.Single(m => m.VisualId == 200), monsters.Single(m => m.VisualId == 201));
         }

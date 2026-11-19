@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _handler = World.Create<GoToArenaHandler>();
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { new() { MapNpcId = 100, MapId = _session.Character.MapInstance.Map.MapId, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
             _session.Character.LastPortal = World.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(10);
         }
 

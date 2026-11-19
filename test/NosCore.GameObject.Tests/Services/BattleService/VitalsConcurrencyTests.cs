@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             const int kills = 50;
             _map.LoadMonsters(
                 Enumerable.Range(0, kills + 1).Select(i => new MapMonsterDto { MapMonsterId = i, MapId = 0, MapX = 1, MapY = 1, VNum = 1 }).ToList(),
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, Level = 30, MaxHp = 10, Xp = 1000 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, Level = 30, MaxHp = 10, Xp = 1000 } }));
             _session.Character.Level = 30;
             _session.Character.LevelXp = 0;
             var player = _session.Character.Handle;

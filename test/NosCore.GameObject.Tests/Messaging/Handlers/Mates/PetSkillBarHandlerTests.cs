@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Mates
             var map = _session.Character.MapInstance;
             map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 9100, MapId = 0, MapX = 6, MapY = 5, VNum = 2 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2, MaxHp = 100, Level = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2, MaxHp = 100, Level = 1 } }));
 
             await _handler.Handle(new EntityCapturedEvent(map.EnumerateMonsters().Single(m => m.VisualId == 9100), _session.Character));
 

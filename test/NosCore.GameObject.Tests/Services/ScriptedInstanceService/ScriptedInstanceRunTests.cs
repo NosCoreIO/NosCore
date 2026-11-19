@@ -116,7 +116,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _gameEvents.Object, World.Clock),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
-                new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
+                new NpcMonsterCatalog([new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10 }]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(), World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
                 NullLogger.Instance, World.LogLanguageLocalizer, World.GameLanguageLocalizer,
                 timeout ?? TimeSpan.FromSeconds(30));

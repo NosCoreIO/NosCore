@@ -138,7 +138,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                         VNum = 1
                     }
                 },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
         }
 
         private void TheMapHasNoPlaceOfRevival() =>

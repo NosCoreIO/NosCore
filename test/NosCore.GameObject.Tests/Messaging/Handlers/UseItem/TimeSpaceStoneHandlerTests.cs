@@ -177,7 +177,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
                 script,
                 new Dictionary<int, MapInstance> { [script.Room] = room },
-                new Dictionary<short, NpcMonsterDto>(),
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<ItemThrowService>(), NullLogger.Instance,
                 World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));

@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
 
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 9100, MapId = 0, MapX = 6, MapY = 5, VNum = 2 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2, MaxHp = 100, Level = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2, MaxHp = 100, Level = 1 } }));
             _monster = _map.EnumerateMonsters().Single(m => m.VisualId == 9100);
         }
 

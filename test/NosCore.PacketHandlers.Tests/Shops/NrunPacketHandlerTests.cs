@@ -224,7 +224,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             };
             _session.Character.MapInstance.LoadNpcs(
                 new List<NosCore.Data.Dto.MapNpcDto> { npc },
-                new List<NosCore.Data.StaticEntities.NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NosCore.Data.StaticEntities.NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
         }
 
         private void PlayerIsRegistered()

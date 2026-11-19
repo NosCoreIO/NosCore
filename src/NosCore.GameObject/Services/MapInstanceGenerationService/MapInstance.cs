@@ -340,13 +340,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return droppedItem;
         }
 
-        public void LoadMonsters(List<MapMonsterDto> monsters, List<NpcMonsterDto> npcMonsters)
+        public void LoadMonsters(List<MapMonsterDto> monsters, INpcMonsterCatalog npcMonsters)
         {
             var entries = new Dictionary<int, MonsterComponentBundle>();
             foreach (var x in monsters)
             {
-                var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == x.VNum);
-                if (npcMonster == null)
+                if (npcMonsters.GetNpcMonster(x.VNum) is not { } npcMonster)
                 {
                     continue;
                 }
@@ -383,13 +382,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
         }
 
-        public void LoadNpcs(List<MapNpcDto> npcs, List<NpcMonsterDto> npcMonsters)
+        public void LoadNpcs(List<MapNpcDto> npcs, INpcMonsterCatalog npcMonsters)
         {
             var entries = new Dictionary<int, NpcComponentBundle>();
             foreach (var x in npcs)
             {
-                var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == x.VNum);
-                if (npcMonster == null)
+                if (npcMonsters.GetNpcMonster(x.VNum) is not { } npcMonster)
                 {
                     continue;
                 }

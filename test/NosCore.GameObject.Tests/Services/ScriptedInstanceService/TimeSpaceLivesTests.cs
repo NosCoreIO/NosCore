@@ -342,7 +342,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     new Lazy<IMapChangeService>(_mapChange.Object), _bus.Object, World.Clock),
                 script,
                 new Dictionary<int, MapInstance> { [1] = room },
-                new Dictionary<short, NpcMonsterDto>(),
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance,
                 World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));

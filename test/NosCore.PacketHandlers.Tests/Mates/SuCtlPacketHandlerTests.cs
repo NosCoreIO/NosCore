@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             {
                 new() { MapMonsterId = NearMonsterId, MapId = 0, MapX = 6, MapY = 5, VNum = 1 },
                 new() { MapMonsterId = FarMonsterId, MapId = 0, MapX = 0, MapY = 0, VNum = 1 },
-            }, new List<NpcMonsterDto> { monster });
+            }, new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { monster }));
 
             _battleService = World.Freeze<Mock<IBattleService>>();
             _battleService.Setup(s => s.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))

@@ -31,7 +31,7 @@ namespace NosCore.Tests.Shared.BDD.Steps
                     s.VNum = s.VNum == 0 ? NpcVNum : s.VNum;
                     return s;
                 }).ToList(),
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = NpcVNum } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = NpcVNum } }));
         }
 
         public static NpcComponentBundle WithNpcAt(this ClientSession session, int mapNpcId, short x, short y)

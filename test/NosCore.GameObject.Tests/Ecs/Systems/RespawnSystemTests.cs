@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Tests.Ecs.Systems
             var map = World.GetBaseMap(0);
             map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1 }, new() { MapMonsterId = 2, VNum = 1 }, new() { MapMonsterId = 3, VNum = 1 } },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } }));
             var due = map.GetMonsterById(1).NotNull();
             var later = map.GetMonsterById(2).NotNull();
             var up = map.GetMonsterById(3).NotNull();

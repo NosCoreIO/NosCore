@@ -533,7 +533,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                     new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
                 script,
                 new Dictionary<int, GameObject.Services.MapInstanceGenerationService.MapInstance> { [1] = _session.Character.MapInstance },
-                new Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
                 Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance,

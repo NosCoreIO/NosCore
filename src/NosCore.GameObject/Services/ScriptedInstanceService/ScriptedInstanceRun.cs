@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IInstanceRunHost _host;
         private readonly IInstanceScript _script;
         private readonly IReadOnlyDictionary<int, MapInstance> _rooms;
-        private readonly IReadOnlyDictionary<short, NpcMonsterDto> _npcMonsters;
+        private readonly INpcMonsterCatalog _npcMonsters;
         private readonly IRandomProvider _random;
         private readonly IClock _clock;
         private readonly ISessionRegistry _sessionRegistry;
@@ -99,7 +99,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private bool _endingApplied;
 
         public ScriptedInstanceRun(IInstanceRunHost host, IInstanceScript script,
-            IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
+            IReadOnlyDictionary<int, MapInstance> rooms, INpcMonsterCatalog npcMonsters,
             IRandomProvider random, IClock clock, ISessionRegistry sessionRegistry, IAggroService aggroService,
             IItemThrowService itemThrowService, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguage, TimeSpan stepTimeout)
         {
@@ -453,7 +453,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var mapInstance = _rooms[room];
             foreach (var line in _host.WaveMonsters(wave))
             {
-                if (!_npcMonsters.TryGetValue(line.VNum, out var npcMonster))
+                if (_npcMonsters.GetNpcMonster(line.VNum) is not { } npcMonster)
                 {
                     _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, line.VNum);
                     continue;
@@ -521,7 +521,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var mapInstance = _rooms[room];
             foreach (var spawn in monsters)
             {
-                if (!_npcMonsters.TryGetValue(spawn.VNum, out var npcMonster))
+                if (_npcMonsters.GetNpcMonster(spawn.VNum) is not { } npcMonster)
                 {
                     _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, spawn.VNum);
                     continue;
@@ -549,7 +549,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var mapInstance = _rooms[room];
             foreach (var spawn in npcs)
             {
-                if (!_npcMonsters.TryGetValue(spawn.VNum, out var npcMonster))
+                if (_npcMonsters.GetNpcMonster(spawn.VNum) is not { } npcMonster)
                 {
                     _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, spawn.VNum);
                     continue;
@@ -650,7 +650,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void Hunt(int room, short vNum)
         {
-            if (!_npcMonsters.TryGetValue(vNum, out var npcMonster))
+            if (_npcMonsters.GetNpcMonster(vNum) is not { } npcMonster)
             {
                 _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, vNum);
                 return;
@@ -859,7 +859,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void PlaceNpc(int room, short vNum, Spot at)
         {
-            if (!_npcMonsters.TryGetValue(vNum, out var npcMonster))
+            if (_npcMonsters.GetNpcMonster(vNum) is not { } npcMonster)
             {
                 _logger.LogError(_logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MONSTER_MISSING], Name, vNum);
                 return;

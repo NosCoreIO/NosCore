@@ -173,7 +173,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
                 {
                     new() { MapNpcId = MapNpcId, MapId = _session.Character.MapInstance.Map.MapId, MapX = 1, MapY = 1, VNum = ObjectVNum }
                 },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = ObjectVNum, CanCollect = canCollect, RespawnTime = 300 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = ObjectVNum, CanCollect = canCollect, RespawnTime = 300 } }));
 
         private async Task OpeningTheObject()
         {

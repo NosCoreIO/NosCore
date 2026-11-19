@@ -129,7 +129,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                         MapX = _session.Character.PositionX, MapY = _session.Character.PositionY
                     }
                 },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2 } }));
 
         private async Task TheCharacterTalksToTheMonster() =>
             await _requestNpcPacketHandler.ExecuteAsync(new RequestNpcPacket { Type = VisualType.Monster, TargetId = 200 }, _session);
@@ -199,7 +199,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             };
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { npc },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, CanCollect = true } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, CanCollect = true } }));
         }
 
         private void CharacterWalksTo_(short x, short y) => _session.WalkTo(x, y);
@@ -227,7 +227,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             };
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { npc },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
         }
 
         private void ShopOnlyNpcExistsOnMap()
@@ -243,7 +243,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             };
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { npc },
-                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
             var bundle = _session.Character.MapInstance.GetNpcById(100).NotNull();
             bundle.InitializeShopAndDialog(
                 new List<ShopDto> { new() { ShopId = 1, MapNpcId = 100, MenuType = 0, ShopType = 0 } },
