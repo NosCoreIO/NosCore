@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var catalog = new NpcCombatCatalog(new() { new NpcMonsterSkillDto { NpcMonsterVNum = 111, SkillVNum = 300, Rate = 100 } }, new(), new());
             var monster = new Mock<INonPlayableEntity>();
             monster.Setup(m => m.NpcMonster).Returns(new NpcMonsterDto { NpcMonsterVNum = 111, BasicCooldown = 20 });
-            var resolver = new SkillResolver(skills, catalog, _cards.Object);
+            var resolver = new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(skills.Values.ToList()), catalog, _cards.Object);
 
             Assert.AreEqual((short?)300, resolver.Resolve(monster.Object, 0)?.SkillVnum);
             Assert.AreEqual((short?)0, resolver.ResolveBasic(monster.Object)?.SkillVnum);
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void UnknownCasterReturnsNull()
         {
-            var resolver = new SkillResolver(_skills, _catalog, _cards.Object);
+            var resolver = new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(_skills.Values.ToList()), _catalog, _cards.Object);
             Assert.IsNull(resolver.Resolve(new Mock<IAliveEntity>().Object, 1));
         }
 
@@ -84,7 +84,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = _skills[100] });
             skills.TryAdd(200, new CharacterSkill { SkillVNum = 200, Skill = _skills[200] });
 
-            var resolver = new SkillResolver(_skills, _catalog, _cards.Object);
+            var resolver = new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(_skills.Values.ToList()), _catalog, _cards.Object);
             var resolved = resolver.Resolve(character, 2);
 
             Assert.IsNotNull(resolved);
@@ -103,7 +103,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = _skills[100] });
             skills.TryAdd(209, new CharacterSkill { SkillVNum = 209, Skill = capture });
 
-            var resolved = new SkillResolver(_skills, _catalog, _cards.Object).Resolve(character, 16);
+            var resolved = new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(_skills.Values.ToList()), _catalog, _cards.Object).Resolve(character, 16);
 
             Assert.AreEqual((short)209, resolved?.SkillVnum);
         }
@@ -117,7 +117,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             skills.Clear();
             skills.TryAdd(101, new CharacterSkill { SkillVNum = 101, Skill = upgrade });
 
-            Assert.IsNull(new SkillResolver(_skills, _catalog, _cards.Object).Resolve(character, 1));
+            Assert.IsNull(new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(_skills.Values.ToList()), _catalog, _cards.Object).Resolve(character, 1));
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = baseSkill });
             skills.TryAdd(101, new CharacterSkill { SkillVNum = 101, Skill = upgrade });
 
-            Assert.AreEqual((short)539, new SkillResolver(_skills, _catalog, _cards.Object).Resolve(character, 1)?.Effect);
+            Assert.AreEqual((short)539, new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(_skills.Values.ToList()), _catalog, _cards.Object).Resolve(character, 1)?.Effect);
         }
 
         private const short BaseSkill = 100;
@@ -163,7 +163,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 });
             }
 
-            var resolved = new SkillResolver(_skills, new NpcCombatCatalog(new(), new(), bCards), _cards.Object).Resolve(character, 1);
+            var resolved = new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(_skills.Values.ToList()), new NpcCombatCatalog(new(), new(), bCards), _cards.Object).Resolve(character, 1);
             return resolved?.BCards.ToList() ?? throw new InvalidOperationException();
         }
 
@@ -235,7 +235,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             skills.Clear();
             skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = _skills[100] });
 
-            var resolver = new SkillResolver(_skills, _catalog, _cards.Object);
+            var resolver = new SkillResolver(new NosCore.GameObject.Services.SkillService.SkillCatalog(_skills.Values.ToList()), _catalog, _cards.Object);
             Assert.IsNull(resolver.Resolve(character, 999));
         }
     }

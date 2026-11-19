@@ -14,6 +14,7 @@ using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;
@@ -57,7 +58,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     private readonly IClock clock;
     private readonly ILogger<MonsterAi> logger;
     private readonly ILogLanguageLocalizer<LogLanguageKey> logLanguage;
-    private readonly IReadOnlyDictionary<short, SkillDto> skillsByVnum;
+    private readonly ISkillCatalog skillCatalog;
 
     public MonsterAi(
         IBattleService battleService,
@@ -69,25 +70,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IRandomProvider random,
         IMonsterChatterService chatter,
         IClock clock,
-        List<SkillDto> skills,
-        ILogger<MonsterAi> logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        : this(battleService, aggroService, pathfindingService, sessionRegistry, distanceCalculator,
-            catalog, random, chatter, clock, skills.ToDictionary(s => s.SkillVNum, s => s), logger, logLanguage)
-    {
-    }
-
-    public MonsterAi(
-        IBattleService battleService,
-        IAggroService aggroService,
-        IPathfindingService pathfindingService,
-        ISessionRegistry sessionRegistry,
-        IHeuristic distanceCalculator,
-        INpcCombatCatalog catalog,
-        IRandomProvider random,
-        IMonsterChatterService chatter,
-        IClock clock,
-        IReadOnlyDictionary<short, SkillDto> skillsByVnum,
+        ISkillCatalog skillCatalog,
         ILogger<MonsterAi> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
@@ -100,7 +83,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         this.random = random;
         this.chatter = chatter;
         this.clock = clock;
-        this.skillsByVnum = skillsByVnum;
+        this.skillCatalog = skillCatalog;
         this.logger = logger;
         this.logLanguage = logLanguage;
     }
@@ -378,7 +361,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             {
                 continue;
             }
-            if (!skillsByVnum.TryGetValue(sk.SkillVNum, out var dto))
+            if (skillCatalog.GetSkill(sk.SkillVNum) is not { } dto)
             {
                 continue;
             }

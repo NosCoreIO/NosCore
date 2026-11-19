@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             Service = new GameObject.Services.SkillService.SkillService(
                 CharacterSkillDao.Object,
-                Skills,
+                Skills, new NosCore.GameObject.Services.SkillService.SkillCatalog(Skills),
                 new Mock<IVitalityService>().Object,
                 new Mock<IBattleStatsProvider>().Object,
                 new NosCore.Algorithm.ExperienceService.ExperienceService(), new NosCore.Algorithm.JobExperienceService.JobExperienceService(),

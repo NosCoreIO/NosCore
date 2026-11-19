@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.SkillService
 {
-    public class SkillService(IDao<CharacterSkillDto, Guid> characterSkillDao, List<SkillDto> skills,
+    public class SkillService(IDao<CharacterSkillDto, Guid> characterSkillDao, List<SkillDto> skills, ISkillCatalog skillCatalog,
         IVitalityService vitalityService, IBattleStatsProvider battleStatsProvider,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
         IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService, ISkillPointService skillPointService) : ISkillService
@@ -37,11 +37,11 @@ namespace NosCore.GameObject.Services.SkillService
             await ForgetUnlearnableSkillsAsync(character);
 
             var characterSkills = characterSkillDao.Where(x => x.CharacterId == character.VisualId).Adapt<List<CharacterSkill>>() ?? new List<CharacterSkill>();
-            var skillToUse = skills.Where(x => characterSkills.Select(s => s.SkillVNum).Contains(x.SkillVNum));
             character.Skills.Clear();
             foreach (var characterSkill in characterSkills)
             {
-                characterSkill.Skill = skillToUse.First(x => x.SkillVNum == characterSkill.SkillVNum);
+                characterSkill.Skill = skillCatalog.GetSkill(characterSkill.SkillVNum)
+                    ?? throw new InvalidOperationException();
                 character.Skills.AddOrUpdate(characterSkill.SkillVNum, characterSkill,
                     (key, oldValue) => characterSkill);
             }
@@ -208,7 +208,7 @@ namespace NosCore.GameObject.Services.SkillService
 
         public async Task<bool> LearnFromBookAsync(PlayerComponentBundle character, short skillVNum)
         {
-            var skill = skills.FirstOrDefault(s => s.SkillVNum == skillVNum);
+            var skill = skillCatalog.GetSkill(skillVNum);
             if (skill == null || !skill.IsPassive())
             {
                 return false;

@@ -11,6 +11,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Ecs.Extensions;
@@ -35,7 +36,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
     public class MapInstanceGeneratorService(List<MapDto> maps, INpcMonsterCatalog npcMonsters,
-            List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos, List<ShopSkillDto> shopSkillDtos, List<SkillDto> skills, List<RecipeDto> recipeDtos, List<RecipeItemDto> recipeItemDtos,
+            List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos, List<ShopSkillDto> shopSkillDtos, ISkillCatalog skills, List<RecipeDto> recipeDtos, List<RecipeItemDto> recipeItemDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,
             ILoggerFactory loggerFactory, IMapInstanceRegistry mapInstanceRegistry,
@@ -96,13 +97,18 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return recipe;
             }).ToList());
 
-            var skillsByVNum = skills.ToDictionary(s => s.SkillVNum);
-            var shopSkills = shopSkillDtos.Where(s => skillsByVNum.ContainsKey(s.SkillVNum)).Select(s =>
+            var shopSkills = new List<ShopSkill>();
+            foreach (var row in shopSkillDtos)
             {
-                var shopSkill = s.Adapt<ShopSkill>();
-                shopSkill.Skill = skillsByVNum[s.SkillVNum];
-                return shopSkill;
-            }).ToList();
+                if (skills.GetSkill(row.SkillVNum) is not { } skill)
+                {
+                    continue;
+                }
+
+                var shopSkill = row.Adapt<ShopSkill>();
+                shopSkill.Skill = skill;
+                shopSkills.Add(shopSkill);
+            }
 
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
