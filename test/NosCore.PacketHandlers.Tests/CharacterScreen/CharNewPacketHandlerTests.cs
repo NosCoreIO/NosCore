@@ -83,6 +83,16 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task ACreatedCharacterBelongsToTheWorldsServer()
+        {
+            await new Spec("A character created on a world with ServerId 1 is stored on server 1, where the character list looks")
+                .Given(TheWorldIsServer_, (byte)1)
+                .WhenAsync(CreatingCharacter)
+                .ThenAsync(CharacterShouldBeOnServer_, (byte)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task CreatingCharacterWithInvalidNameShouldFail()
         {
             await new Spec("Creating character with invalid name should fail")
@@ -251,6 +261,14 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterShouldNotExist()
         {
             Assert.IsNull(await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
+        }
+
+        private void TheWorldIsServer_(byte serverId) => World.WorldConfiguration.Value.ServerId = serverId;
+
+        private async Task CharacterShouldBeOnServer_(byte serverId)
+        {
+            var character = (await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName)).NotNull();
+            Assert.AreEqual(serverId, character.ServerId);
         }
 
         private async Task CharacterShouldExist()
