@@ -19,20 +19,19 @@ using NosCore.Packets.ServerPackets.Mates;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public sealed class PetSkillBarService(List<SkillDto> skills, INpcCombatCatalog catalog)
+    public sealed class PetSkillBarService(ISkillCatalog skills, INpcCombatCatalog catalog)
         : IPetSkillBarService, ISingletonService
     {
         private const int Slots = 3;
         private const short EverySlot = -1;
 
-        private readonly Dictionary<short, SkillDto> _skillsByVnum = skills.ToDictionary(s => s.SkillVNum);
 
         public IReadOnlyList<SkillDto> Skills(Mate pet) =>
             pet.MateType != MateType.Pet
                 ? []
                 : catalog.GetSkills(pet.VNum)
                     .OrderBy(s => s.NpcMonsterSkillId)
-                    .Select(s => _skillsByVnum.GetValueOrDefault(s.SkillVNum))
+                    .Select(s => skills.GetSkill(s.SkillVNum))
                     .OfType<SkillDto>()
                     .Where(s => s.IsMateSkill())
                     .Take(Slots)

@@ -54,8 +54,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             _session.Character.Gold = 100_000;
             _dao = new RememberingSkillDao();
             Vitality = new Mock<IVitalityService>();
-            _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao,
-                new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, PvpDamageBoost, Slash, StrongSlash },
+            var skills = new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, PvpDamageBoost, Slash, StrongSlash };
+            _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao, skills, new NosCore.GameObject.Services.SkillService.SkillCatalog(skills),
                 Vitality.Object, new Mock<IBattleStatsProvider>().Object,
                 new NosCore.Algorithm.ExperienceService.ExperienceService(), new NosCore.Algorithm.JobExperienceService.JobExperienceService(),
                 new NosCore.Algorithm.HeroExperienceService.HeroExperienceService(), new NosCore.Algorithm.SpExperienceService.SpExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService());

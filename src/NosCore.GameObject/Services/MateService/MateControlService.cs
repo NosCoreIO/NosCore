@@ -6,6 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -26,9 +27,8 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.MateService
 {
     public class MateControlService(IHeuristic distanceCalculator, IBattleService battleService,
-            INpcCombatCatalog catalog, List<SkillDto> skills, IClock clock) : IMateControlService
+            INpcCombatCatalog catalog, ISkillCatalog skills, IClock clock) : IMateControlService
     {
-        private readonly Dictionary<short, SkillDto> _skillsByVnum = skills.ToDictionary(s => s.SkillVNum);
 
         public async Task<bool> MoveAsync(PlayerComponentBundle owner, long mateTransportId, short x, short y)
         {
@@ -131,7 +131,7 @@ namespace NosCore.GameObject.Services.MateService
             // Only a skill in the creature's own roster, picked as the resolver picks it (cast 0 means its first
             // skill), so reach and cooldown are checked on the skill that is actually cast.
             var skill = catalog.GetSkills(vNum)
-                .Select(s => _skillsByVnum.GetValueOrDefault(s.SkillVNum))
+                .Select(s => skills.GetSkill(s.SkillVNum))
                 .FirstOrDefault(s => s != null && (s.CastId == castId || castId == 0));
             if (skill == null)
             {

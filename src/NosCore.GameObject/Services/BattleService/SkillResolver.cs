@@ -22,20 +22,13 @@ namespace NosCore.GameObject.Services.BattleService;
 // ends up calling with castId == 0.
 public sealed class SkillResolver : ISkillResolver
 {
-    private readonly IReadOnlyDictionary<short, SkillDto> _skillsByVnum;
+    private readonly ISkillCatalog _skills;
     private readonly INpcCombatCatalog _catalog;
     private readonly ICardCatalog _cards;
 
-    // Bootstrap registration path: gets the pre-loaded List<SkillDto> from the DI
-    // container and indexes it here. Tests use the dictionary overload.
-    public SkillResolver(List<SkillDto> skills, INpcCombatCatalog catalog, ICardCatalog cards)
-        : this(skills.ToDictionary(s => s.SkillVNum, s => s), catalog, cards)
+    public SkillResolver(ISkillCatalog skills, INpcCombatCatalog catalog, ICardCatalog cards)
     {
-    }
-
-    public SkillResolver(IReadOnlyDictionary<short, SkillDto> skillsByVnum, INpcCombatCatalog catalog, ICardCatalog cards)
-    {
-        _skillsByVnum = skillsByVnum;
+        _skills = skills;
         _catalog = catalog;
         _cards = cards;
     }
@@ -136,7 +129,7 @@ public sealed class SkillResolver : ISkillResolver
             return null;
         }
 
-        return mob.BasicSkill > 0 && _skillsByVnum.TryGetValue(mob.BasicSkill, out var basic)
+        return mob.BasicSkill > 0 && _skills.GetSkill(mob.BasicSkill) is { } basic
             ? BuildInfo(basic, null, 0, _catalog.GetSkillBCards(basic.SkillVNum))
             : BasicAttack(mob);
     }
@@ -175,12 +168,12 @@ public sealed class SkillResolver : ISkillResolver
         // case where the AI just calls Resolve(mob, 0) to mean "basic attack".
         foreach (var sk in _catalog.GetSkills(mob.NpcMonsterVNum))
         {
-            if (_skillsByVnum.TryGetValue(sk.SkillVNum, out var s) && (s.CastId == castId || castId == 0))
+            if (_skills.GetSkill(sk.SkillVNum) is { } s && (s.CastId == castId || castId == 0))
             {
                 return s;
             }
         }
-        if (mob.BasicSkill > 0 && _skillsByVnum.TryGetValue(mob.BasicSkill, out var basic))
+        if (mob.BasicSkill > 0 && _skills.GetSkill(mob.BasicSkill) is { } basic)
         {
             return basic;
         }
