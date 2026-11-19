@@ -50,6 +50,25 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Assert.IsTrue(bob.Received.OfType<InPacket>().Any(Shows(WorldData.SturdyMonster)), "the living ones are");
         }
 
+        [TestMethod]
+        public async Task AMainWeaponCardMarksWhatAMainWeaponHitLandsOn()
+        {
+            var alice = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 61, 60);
+            await Harness.GiveBuffAsync(alice, WorldData.WeaponCard, 600);
+            await using var client = Harness.Client(alice);
+            await client.EnterWorldAsync(0);
+            var before = client.Mark();
+
+            await HitAsync(client, client, WorldData.SturdyMonster);
+
+            await client.ExpectSinceAsync<BfPacket>(before, Marks(WorldData.MainWeaponMark), "the main weapon's mark on the monster");
+            Assert.IsTrue(await client.NoneSinceAsync<BfPacket>(before, Marks(WorldData.SecondaryWeaponMark), TimeSpan.FromSeconds(1)),
+                "a hit with the main weapon does not roll the secondary weapon's card");
+        }
+
+        private static Func<BfPacket, bool> Marks(short card) => packet =>
+            packet.VisualType == VisualType.Monster && packet.VisualId == WorldData.SturdyMonster && packet.Buff is { } buff && buff.BuffId == card;
+
         private static Func<InPacket, bool> Shows(int monster) => packet =>
             packet.VisualType == VisualType.Monster && packet.VisualId == monster && packet.VNum == (monster switch
             {

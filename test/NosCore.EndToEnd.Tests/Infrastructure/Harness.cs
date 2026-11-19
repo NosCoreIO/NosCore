@@ -125,6 +125,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await WorldData.TeachAsync(context, player.CharacterId, skillVNum);
         }
 
+        // Puts a buff on a character for that many seconds. Call it before the character enters the world.
+        public static async Task GiveBuffAsync(Player player, short cardId, int seconds)
+        {
+            await using var context = Database.CreateContext();
+            await WorldData.GiveBuffAsync(context, player.CharacterId, cardId, seconds);
+        }
+
         // Gives a character a pet that is in its team. Call it before the character enters the world.
         public static async Task GivePetAsync(Player player, short vnum = WorldData.PetVNum)
         {
