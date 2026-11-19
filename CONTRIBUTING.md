@@ -18,8 +18,8 @@ rather than adding a lock next to it.
 1. **Work on a map goes through its executor.** The packet handlers of a player in the world already
    run on that player's map: the session's packet lock is taken first and the map's executor second.
    A handler gives the map back while it waits on the master, and one that moves its own player
-   carries on on the new map, so re-read state read before either. Moving another player runs in the
-   background without waiting for that player's packet lock. A packet the server dispatches itself
+   carries on on the new map, so re-read state read before either. A handler moving another player does
+   not wait: the move runs in the background, which takes that player's packet lock. A packet the server dispatches itself
    (`HandlePacketsAsync` without `isFromNetwork`) does not take the lock, so dispatch it only from
    code that already holds it, such as another handler. Work that is not a packet handler (hosted
    services, scheduled jobs) goes through `OnMapAsync`.
