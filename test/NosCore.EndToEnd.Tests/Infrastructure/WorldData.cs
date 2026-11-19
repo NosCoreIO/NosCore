@@ -165,6 +165,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short LightBleeding = 56;
         public const short HeavyBleeding = 57;
 
+        // The Chef card and the skin that dresses it as a masterchef.
+        public const short ChefCard = 4575;
+        public const short ChefLook = 38;
+        public const short MasterchefSkin = 9227;
+        public const short MasterchefLook = 37;
+
         // The Mother Cuby raid as its script lays it out: its gate on the entrance map, the seal
         // that opens a team, and its boss, which falls to any hit.
         public const short JellyEntrance = 2510;
@@ -318,6 +324,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 VNum = Booster, Name = "booster", Type = NoscorePocketType.Main, ItemType = ItemType.Special,
                 Effect = ItemEffectType.SpeedBooster
+            });
+            context.Add(new Item
+            {
+                VNum = ChefCard, Name = "chefcard", Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
+                EquipmentSlot = EquipmentType.Sp, Morph = ChefLook
+            });
+            context.Add(new Item
+            {
+                VNum = MasterchefSkin, Name = "masterchefskin", Type = NoscorePocketType.Main, ItemType = ItemType.Special,
+                Effect = ItemEffectType.SpecialistSkin, EffectValue = ChefLook, Morph = MasterchefLook
             });
             context.Add(new Card { CardId = BoostCard, Name = "boost" });
             context.Add(new Card { CardId = SteedStartCard, Name = "steedstart", Duration = SteedCardTime });

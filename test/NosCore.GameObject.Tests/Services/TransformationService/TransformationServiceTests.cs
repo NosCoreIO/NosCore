@@ -12,6 +12,15 @@ using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Networking.SessionGroup;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Player;
+using System.Linq;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
@@ -30,6 +39,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private NosCore.GameObject.Services.BattleService.BuffService Buffs;
         private Mock<ISpecialistWingsService> Wings = new();
         private ClientSession Session;
+        private Mock<ISessionGroup> Onlookers = new();
         private const short BoostCardId = 336;
         private const short MountWithABuff = 13752;
         private const short RidingCardId = 4328;
@@ -79,6 +89,29 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .Then(MorphShouldBeReset)
                 .And(SpCooldownShouldBeSet)
                 .And(TheWingsShouldBeRefreshed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACardWearingASkinTransformsIntoTheSkin()
+        {
+            await new Spec("Transforming with a card that wears a skin shows the skin's look, not the card's")
+                .Given(TheChefCardWearingTheMasterchefSkinIsWorn)
+                .WhenAsync(Transforming)
+                .Then(TheMapIsSentTheMorph_, MasterchefLook)
+                .And(CharacterMorphShouldBe_, MasterchefLook)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GettingOffAMountShowsTheSkinAgain()
+        {
+            await new Spec("A transformed player who gets off a mount takes the skin's look back")
+                .Given(TheChefCardWearingTheMasterchefSkinIsWorn)
+                .AndAsync(Transforming)
+                .AndAsync(CharacterIsVehicled)
+                .WhenAsync(RemovingVehicle)
+                .Then(CharacterMorphShouldBe_, MasterchefLook)
                 .ExecuteAsync();
         }
 
@@ -161,6 +194,30 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             Assert.AreEqual(new SpeedService().GetSpeed(Session.Character.Class),
                 Session.Character.Speed);
         }
+
+        private const short MasterchefLook = 37;
+
+        private void TheChefCardWearingTheMasterchefSkinIsWorn()
+        {
+            var card = new SpecialistInstance(new GameObject.Services.ItemGenerationService.Item.Item
+            {
+                VNum = 4575, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, Morph = 38
+            }) { Skin = MasterchefLook, SpLevel = 1 };
+            var worn = InventoryItemInstance.Create(card, Session.Character.CharacterId);
+            worn.Type = NoscorePocketType.Wear;
+            worn.Slot = (short)EquipmentType.Sp;
+            Session.Character.InventoryService[worn.ItemInstanceId] = worn;
+            Session.Character.MapInstance.Sessions = Onlookers.Object;
+        }
+
+        private Task Transforming() => Service.ChangeSpAsync(Session);
+
+        private void CharacterMorphShouldBe_(short morph) => Assert.AreEqual(morph, Session.Character.Morph);
+
+        private void TheMapIsSentTheMorph_(short morph) =>
+            Assert.AreEqual(morph, Onlookers.Invocations.SelectMany(i => i.Arguments)
+                .SelectMany(a => a is IEnumerable<IPacket> many ? many : a is IPacket one ? new[] { one } : [])
+                .OfType<CModePacket>().Last().Morph);
 
         private void CharacterHasSpEquipped()
         {

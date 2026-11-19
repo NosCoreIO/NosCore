@@ -45,5 +45,8 @@ namespace NosCore.Database.Entities
         public SpPartnerRank SecondPartnerSkillRank { get; set; }
 
         public SpPartnerRank ThirdPartnerSkillRank { get; set; }
+
+        // The morph a specialist skin gives the card while transformed; 0 when it wears none.
+        public short Skin { get; set; }
     }
 }

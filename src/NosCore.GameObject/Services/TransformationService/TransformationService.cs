@@ -129,7 +129,7 @@ namespace NosCore.GameObject.Services.TransformationService
             character = session.Character;
             character.LastSp = clock.GetCurrentInstant();
             character.UseSp = true;
-            character.Morph = sp.Item.Morph;
+            character.Morph = sp.ShownMorph;
             character.MorphUpgrade = (byte)sp.Upgrade;
             character.MorphDesign = (byte)sp.Design;
 
@@ -205,12 +205,11 @@ namespace NosCore.GameObject.Services.TransformationService
             var character = session.Character;
             if (character.UseSp)
             {
-                var sp = character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear);
-                if (sp != null)
+                if (character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is SpecialistInstance sp)
                 {
-                    character.Morph = sp.ItemInstance.Item.Morph;
-                    character.MorphDesign = (byte)sp.ItemInstance.Design;
-                    character.MorphUpgrade = (byte)sp.ItemInstance.Upgrade;
+                    character.Morph = sp.ShownMorph;
+                    character.MorphDesign = (byte)sp.Design;
+                    character.MorphUpgrade = (byte)sp.Upgrade;
                 }
                 else
                 {
