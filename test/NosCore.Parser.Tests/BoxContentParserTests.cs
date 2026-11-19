@@ -167,6 +167,20 @@ namespace NosCore.Parser.Tests
                 _rolls.Where(r => r.RollGroup == 0).Select(r => r.ItemGeneratedVNum).ToArray());
         }
 
+        [TestMethod]
+        public async Task AnUnknownRelictIsLeftForTheArchaeologistAtItsFee()
+        {
+            Items(1878, 4056, 4057, 4058, 4059, 4060, 2347, 2348, 2349);
+
+            await _parser.InsertBoxContentsAsync();
+
+            var relict = _savedItems.Single();
+            Assert.AreEqual(ItemEffectType.Relict, relict.Effect);
+            Assert.AreEqual(10000, relict.EffectValue);
+            Assert.AreEqual(60, relict.LevelMinimum);
+            Assert.AreEqual(8, _rolls.Count);
+        }
+
         private void Items(params short[] vnums) => _items.AddRange(vnums.Select(v => new ItemDto { VNum = v }));
     }
 }

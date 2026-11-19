@@ -172,8 +172,8 @@ namespace NosCore.Parser.Parsers
                 [1775] = Box((943, 1), (447, 1), (1685, 1), (1686, 1), (1296, 1), (1218, 1), (1219, 1), (1120, 1), (2187, 1)),
                 // Some bags may also hold the Master Thief title (9366).
                 [1877] = Box((1872, 1), (2349, 1), (1876, 1)),
-                [1878] = Box((4056, 1), (4057, 1), (4058, 1), (4059, 1), (4060, 1), (2347, 1), (2348, 1), (2349, 1)),
-                [1879] = Box((4727, 1), (4728, 1), (4745, 1), (4746, 1), (4763, 1), (4001, 1), (4003, 1), (4005, 1), (4007, 1), (4009, 1), (4011, 1), (4013, 1), (4016, 1), (4019, 1), (4056, 1), (4057, 1), (4058, 1), (4059, 1), (4060, 1), (4022, 1), (4023, 1), (2347, 1), (4038, 1), (4043, 1), (4039, 1), (4044, 1), (2348, 1), (2349, 1)),
+                [1878] = Relict(fee: 10000, levelMinimum: 60, (4056, 1), (4057, 1), (4058, 1), (4059, 1), (4060, 1), (2347, 1), (2348, 1), (2349, 1)),
+                [1879] = Relict(fee: 30000, levelMinimum: 60, (4727, 1), (4728, 1), (4745, 1), (4746, 1), (4763, 1), (4001, 1), (4003, 1), (4005, 1), (4007, 1), (4009, 1), (4011, 1), (4013, 1), (4016, 1), (4019, 1), (4056, 1), (4057, 1), (4058, 1), (4059, 1), (4060, 1), (4022, 1), (4023, 1), (2347, 1), (4038, 1), (4043, 1), (4039, 1), (4044, 1), (2348, 1), (2349, 1)),
                 [1910] = Box((361, 1), (362, 1), (363, 1), (397, 1), (398, 1), (399, 1), (2187, 1), (1218, 1), (1122, 1), (1219, 1), (1120, 1)),
                 [1912] = Box((371, 1), (372, 1), (437, 1), (929, 1), (930, 1), (447, 1), (2187, 1), (1218, 1), (1122, 1), (1219, 1), (1120, 1)),
                 [1919] = Box((4124, 1), (950, 1), (2323, 1), (4123, 1), (4122, 1), (1923, 1), (1858, 1), (1886, 1), (5195, 1), (1452, 1), (1499, 1), (5062, 1), (5194, 1), (5066, 10), (1498, 30)),
@@ -552,8 +552,17 @@ namespace NosCore.Parser.Parsers
 
         private static BoxContent RaidBox(short design, params (short, short)[] items) => new(ItemEffectType.BoxEffect, design, true, Singles(items));
 
+        // The fee is the one the client's examination window shows for the relict.
+        private static BoxContent Relict(int fee, byte levelMinimum, params (short, short)[] items) =>
+            new(ItemEffectType.Relict, 0, false, Singles(items)) { EffectValue = fee, LevelMinimum = levelMinimum };
+
         private static (short, short)[][] Singles((short, short)[] items) => items.Select(i => new[] { i }).ToArray();
     }
 
-    public sealed record BoxContent(ItemEffectType Effect, short Design, bool IsRaidBox, (short VNum, short Amount)[][] Sets);
+    public sealed record BoxContent(ItemEffectType Effect, short Design, bool IsRaidBox, (short VNum, short Amount)[][] Sets)
+    {
+        public int? EffectValue { get; init; }
+
+        public byte? LevelMinimum { get; init; }
+    }
 }

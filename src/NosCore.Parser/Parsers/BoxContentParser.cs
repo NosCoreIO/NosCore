@@ -38,6 +38,8 @@ namespace NosCore.Parser.Parsers
                 }
 
                 item.Effect = box.Effect;
+                item.EffectValue = box.EffectValue ?? item.EffectValue;
+                item.LevelMinimum = box.LevelMinimum ?? item.LevelMinimum;
                 boxes.Add(item);
                 rolls.AddRange(box.Sets.SelectMany((set, group) => set.Select(c => new RollGeneratedItemDto
                 {

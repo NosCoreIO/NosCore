@@ -290,12 +290,15 @@ namespace NosCore.Tests.Shared
 
         public const byte AlchemistShopType = 7;
 
+        public const byte ArchaeologistShopType = 31;
+
         public List<ShopTypeServiceDto> ShopTypeServices { get; } =
         [
             new() { ShopTypeServiceId = 1, ShopType = UpgraderShopType, Service = NpcService.EquipmentUpgrade },
             new() { ShopTypeServiceId = 2, ShopType = AlchemistShopType, Service = NpcService.ResistanceSum },
             new() { ShopTypeServiceId = 3, ShopType = AlchemistShopType, Service = NpcService.SpecialistCardUpgrade },
             new() { ShopTypeServiceId = 4, ShopType = AlchemistShopType, Service = NpcService.SpecialistCardPerfection },
+            new() { ShopTypeServiceId = 5, ShopType = ArchaeologistShopType, Service = NpcService.RelictExamination },
         ];
 
         public NpcServiceCatalog NpcServiceCatalog => new(ShopTypeServices);

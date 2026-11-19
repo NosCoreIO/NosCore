@@ -14,6 +14,7 @@ namespace NosCore.Data.Enumerations.Interaction
         AccessoryOption = 10,
         ResistanceSum = 12,
         SpecialistCardUpgrade = 20,
+        RelictExamination = 35,
         FamilyManager = 41,
         SpecialistCardPerfection = 45
     }

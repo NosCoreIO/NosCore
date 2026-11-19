@@ -76,6 +76,23 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
+        public async Task AnArchaeologistOpensTheRelictExaminationWindow()
+        {
+            await RunAsync((short)WindowType.ExamineRelics, TestWorld.ArchaeologistShopType);
+
+            Assert.AreEqual(WindowType.ExamineRelics, _session.LastPackets.OfType<WopenPacket>().Single().Type);
+            Assert.AreEqual(NpcDialogWindow.RelictExamination, _session.Character.NpcDialog?.Window);
+        }
+
+        [TestMethod]
+        public async Task AnNpcThatDoesNotExamineRelictsKeepsTheirWindowClosed()
+        {
+            await RunAsync((short)WindowType.ExamineRelics);
+
+            Assert.IsFalse(_session.LastPackets.OfType<WopenPacket>().Any());
+        }
+
+        [TestMethod]
         public async Task WithoutAnNpcNothingOpens()
         {
             await _handler.HandleAsync(_session, null, new NrunPacket { Runner = NrunRunnerType.ProbabilityUIs, Type = 9 });
