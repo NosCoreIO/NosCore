@@ -326,13 +326,13 @@ public sealed class HitQueue(
                 // The target slides backwards along the line joining it to whoever struck.
                 case BCardEffect.SpecialActionsPushBack when !Resists(resistance):
                     await SlideAsync(target, origin.PositionX, origin.PositionY, Math.Max(1, fields),
-                        away: true, stopAt: 0);
+                        away: true, stopAt: 0, ForcedMoveKind.Push);
                     break;
 
                 // The target is drawn in until it is `fields` away from the caster.
                 case BCardEffect.SpecialActionsDrawEnemies when !Resists(resistance):
                     await SlideAsync(target, origin.PositionX, origin.PositionY, int.MaxValue,
-                        away: false, stopAt: fields);
+                        away: false, stopAt: fields, ForcedMoveKind.Pull);
                     break;
 
                 // Type 75: a chance (first) of moving `second` fields, the caster back from the
@@ -340,20 +340,20 @@ public sealed class HitQueue(
                 case BCardEffect.JumpBackPushJumpBackChance or BCardEffect.JumpBackPushMoveBackChanceNegated
                     when Rolls(bCard.FirstData):
                     await SlideAsync(origin, target.PositionX, target.PositionY, Math.Max(1, (int)bCard.SecondData),
-                        away: true, stopAt: 0);
+                        away: true, stopAt: 0, ForcedMoveKind.Push);
                     break;
 
                 case BCardEffect.JumpBackPushPushBackChance or BCardEffect.JumpBackPushPushBackChanceNegated
                     when (isPvp || bCard.Effect() == BCardEffect.JumpBackPushPushBackChance)
                         && Rolls(bCard.FirstData) && !Resists(resistance):
                     await SlideAsync(target, origin.PositionX, origin.PositionY, Math.Max(1, (int)bCard.SecondData),
-                        away: true, stopAt: 0);
+                        away: true, stopAt: 0, ForcedMoveKind.Push);
                     break;
 
                 // The caster closes on the target and stops beside it.
                 case BCardEffect.SpecialActionsCharge:
                     await SlideAsync(origin, target.PositionX, target.PositionY, Math.Max(1, fields),
-                        away: false, stopAt: 1);
+                        away: false, stopAt: 1, ForcedMoveKind.Charge);
                     break;
             }
         }
@@ -384,7 +384,7 @@ public sealed class HitQueue(
     /// closing nearer than <paramref name="stopAt" /> cells.
     /// </summary>
     private static async Task SlideAsync(IAliveEntity entity, short towardsX, short towardsY,
-        int steps, bool away, int stopAt)
+        int steps, bool away, int stopAt, ForcedMoveKind kind)
     {
         var map = entity.MapInstance?.Map;
         if (map == null)
@@ -417,6 +417,6 @@ public sealed class HitQueue(
 
         // The client has to be told, or it goes on drawing the entity where it was and the two
         // sides stop agreeing about who is within reach of what.
-        await entity.TeleportAsync(x, y);
+        await entity.ForceMoveAsync(x, y, kind);
     }
 }

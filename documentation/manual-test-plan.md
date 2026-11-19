@@ -34,7 +34,7 @@ even when its packets are covered here.
 | The bag: moving, splitting and merging stacks, sorting, wearing and taking off, costumes, potions, dropping, destroying | `InventoryTests` |
 | The bank: depositing, withdrawing and its fee, every limit, a window that is not open | `BankTests` |
 | Groups: inviting, declining, leaving, disbanding, a full group, a member leaving the world, shared experience | `GroupTests` |
-| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP, a taunt drawing a monster off another player | `FightTests` |
+| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP, a taunt drawing a monster off another player, a charge sliding its caster | `FightTests` |
 | Sacrifice cast on a friendly player: the card for its target and the one for its caster | `SacrificeTests` |
 | Loot: whose a drop is, loot in turn and shared loot, how far a drop can be picked up from | `LootTests` |
 | Minilands: entering, friends and strangers, locking, placing and taking away objects, what visitors see, invitations | `MinilandTests` |
@@ -181,6 +181,11 @@ same damage means only one of the two is being read.
 - [ ] In all three, a wall stops the movement in front of it — nobody ends up inside
       geometry or on the far side
 - [ ] A value of 0 on a pull means "up against you", not "no movement"
+- [ ] In all three the moved character or monster glides to its new cell instead of vanishing and
+      reappearing there, and a second player watching sees the same glide. A packet logger shows
+      `guri 3 <type> <id> <x> <y> 3 ...` for the move and no `tp`: `3 2 2 -1` after the cell for
+      a push, `3 4 2 -1` for a pull, `3 2 2 11` for a charge, then `1` when a player moved and `0`
+      for a monster
 
 ### Damage as a percentage of HP — BCard type 37 subtype 31
 
@@ -224,6 +229,8 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] A "move back" skill slides you away from the target instead
 - [ ] The PvP-only push leaves monsters where they are and moves a player
 - [ ] A target resisting forced movement stays put, while your own jump back still happens
+- [ ] Every push and jump back glides the entity over the cells rather than snapping it there,
+      on your screen and on a second player's
 
 ### Taunt — BCard type 30 subtype 11
 
