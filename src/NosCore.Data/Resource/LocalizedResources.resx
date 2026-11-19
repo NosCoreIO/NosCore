@@ -705,6 +705,9 @@
   <data name="GAME_EVENT_HANDLER_FAILED" xml:space="preserve">
     <value>{Handler} failed to handle {Event}</value>
   </data>
+  <data name="CLOCK_ADVANCED" xml:space="preserve">
+    <value>The clock moved forward to {Now}</value>
+  </data>
   <data name="KILL_QUEST_PROGRESS_FAILED" xml:space="preserve">
     <value>Failed to progress kill quest for character {CharacterId}</value>
   </data>

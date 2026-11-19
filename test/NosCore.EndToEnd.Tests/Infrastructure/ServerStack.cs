@@ -25,6 +25,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private static readonly TimeSpan StartTimeout = TimeSpan.FromSeconds(90);
 
         private readonly List<ServerProcess> _servers = new();
+        private readonly List<ServerProcess> _channels = new();
         private readonly List<string> _configurations = new();
 
         private ServerStack(int loginPort)
@@ -36,10 +37,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         public int LoginPort { get; }
 
+        // The world started as the Act 4 channel; it is not in the channel list.
+        public int Act4Port { get; private set; }
+
         // One world server per channel, on one master and one login server.
         private const string WorldServer = "NosCore.WorldServer";
         private const string MasterServer = "NosCore.MasterServer";
         private const int RecentLines = 200;
+        private const string ClockAdvanced = "The clock moved forward to ";
 
         public static async Task<ServerStack> StartAsync(string databaseName, int channels = 2)
         {
@@ -61,9 +66,18 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 {
                     var port = FreePort();
                     var world = new Dictionary<string, string>(environment) { ["WORLD_PORT"] = port.ToString() };
-                    await stack.StartAsync(binaries, WorldServer, "Successfully Loaded",
-                        stack.WriteConfiguration(root, databaseName, port), world);
+                    stack._channels.Add(await stack.StartAsync(binaries, WorldServer, "Successfully Loaded",
+                        stack.WriteConfiguration(root, databaseName, port, testClock: true), world));
                 }
+
+                stack.Act4Port = FreePort();
+                var act4 = new Dictionary<string, string>(environment)
+                {
+                    ["WORLD_PORT"] = stack.Act4Port.ToString(),
+                    ["ACT4_CHANNEL"] = "true",
+                };
+                await stack.StartAsync(binaries, WorldServer, "Successfully Loaded",
+                    stack.WriteConfiguration(root, databaseName, stack.Act4Port, testClock: true), act4);
             }
             catch
             {
@@ -89,6 +103,30 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await stack.StartAsync(Path.Combine(root, "build", "net11.0"), name, expectedLine,
                 stack.WriteConfiguration(root, databaseName, 0), environment);
             return stack._servers.SelectMany(s => s.Output).ToList();
+        }
+
+        // Moves a channel's clock forward, with every timer and countdown on it, and returns the
+        // time the channel reads afterwards.
+        public async Task<DateTimeOffset> AdvanceClockAsync(int channel, TimeSpan by)
+        {
+            var world = _channels[channel];
+            var before = world.Output.Count(line => line.Contains(ClockAdvanced, StringComparison.Ordinal));
+            await world.WriteLineAsync($"advance {by:c}");
+            var waited = Stopwatch.StartNew();
+            while (waited.Elapsed < TimeSpan.FromSeconds(10))
+            {
+                var moved = world.Output.Where(line => line.Contains(ClockAdvanced, StringComparison.Ordinal)).ToList();
+                if (moved.Count > before)
+                {
+                    var line = moved[^1];
+                    return DateTimeOffset.Parse(line[(line.IndexOf(ClockAdvanced, StringComparison.Ordinal) + ClockAdvanced.Length)..].Trim(),
+                        System.Globalization.CultureInfo.InvariantCulture);
+                }
+
+                await Task.Delay(50);
+            }
+
+            throw new TimeoutException($"Channel {channel} did not move its clock forward.");
         }
 
         // A connection the server closed is rarely explained by an error line, so that case also
@@ -134,7 +172,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             }
         }
 
-        private async Task StartAsync(string binaries, string name, string readyLine, string configuration,
+        private async Task<ServerProcess> StartAsync(string binaries, string name, string readyLine, string configuration,
             Dictionary<string, string> environment)
         {
             var assembly = Path.Combine(binaries, name + ".dll");
@@ -162,10 +200,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             var server = new ServerProcess(name, Process.Start(start) ?? throw new InvalidOperationException($"{name} did not start"));
             _servers.Add(server);
             await server.WaitForAsync(readyLine, StartTimeout);
+            return server;
         }
 
         // The address a world server announces is in its file, so each channel has its own copy.
-        private string WriteConfiguration(string root, string databaseName, int worldPort)
+        private string WriteConfiguration(string root, string databaseName, int worldPort, bool testClock = false)
         {
             var target = Path.Combine(Path.GetTempPath(), "noscore-e2e-" + Guid.NewGuid().ToString("N")[..8]);
             Directory.CreateDirectory(target);
@@ -175,6 +214,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 var text = File.ReadAllText(file);
                 text = Regex.Replace(text, @"(?m)^(\s*)Database: noscore\s*$", "$1Database: " + databaseName);
                 text = Regex.Replace(text, @"(?m)^DisplayPort: \d+\s*$", "DisplayPort: " + worldPort);
+                if (testClock && Path.GetFileName(file) == "world.yml")
+                {
+                    text += Environment.NewLine + "TestClock: true" + Environment.NewLine;
+                }
+
                 File.WriteAllText(Path.Combine(target, Path.GetFileName(file)), text);
             }
 
@@ -268,6 +312,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 throw new InvalidOperationException(
                     $"{Name} did not report '{text}' within {timeout.TotalSeconds:0} s." +
                     $"{Environment.NewLine}{string.Join(Environment.NewLine, Output.TakeLast(30))}");
+            }
+
+            public async Task WriteLineAsync(string line)
+            {
+                await _process.StandardInput.WriteLineAsync(line);
+                await _process.StandardInput.FlushAsync();
             }
 
             public async Task StopAsync()

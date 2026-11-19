@@ -38,6 +38,9 @@ namespace NosCore.Core.Configuration
         // This world is the Act 4 channel: it hosts Glacernon and stays out of the channel list.
         public bool Act4Channel { get; set; }
 
+        // End-to-end tests only: the clock can be moved forward from standard input.
+        public bool TestClock { get; set; }
+
         [Required]
         public string? ServerName { get; set; }
 
