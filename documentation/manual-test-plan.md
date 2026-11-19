@@ -1750,6 +1750,11 @@ in the Equipment bag; a second player on the map watches the partner.
       monster near the partner and press Shift+Q: the partner plays the skill, the monster's bar
       drops, the partner's MP drops and the slot shows its cooldown
 - [ ] Press Shift+Q again during the cooldown: nothing happens; once it is over the skill works again
+- [ ] Put Hongbi's Specialist Partner Card (`$CreateItem 4810`) on the partner instead, transform it
+      and press Shift+W (Imp Clone) with at least 150 MP: the partner plays the skill on
+      itself, Imp Clone (F) shows under its portrait in the party panel for 2 seconds, its MP drops
+      by 150 and the slot shows its cooldown. No monster is hurt
+- [ ] Press Shift+W again during its 30 seconds of cooldown: nothing happens and no MP is spent
 - [ ] Turn the partner back: the partner skill bar goes away
 
 #### Partner skill learning
