@@ -108,8 +108,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
             finally
             {
-                scope.Ended = true;
-                scope.Executor?._gate.Release();
+                scope.End()?._gate.Release();
             }
         }
 
@@ -130,9 +129,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return await work();
             }
 
-            var held = scope.Executor;
-            scope.Executor = null;
-            held?._gate.Release();
+            if (scope.Detach() is not { } held)
+            {
+                return await work();
+            }
+
+            held._gate.Release();
             try
             {
                 return await work();
@@ -146,13 +148,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 }
 
                 // A handler that did not wait for this has finished; nobody is left to let go.
-                if (scope.Ended)
+                if (!scope.TryAttach(target))
                 {
                     target?._gate.Release();
-                }
-                else
-                {
-                    scope.Executor = target;
                 }
             }
         }
@@ -235,6 +233,48 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             public bool Handler { get; } = handler;
 
             public bool Holds => !Ended && Executor != null;
+
+            private readonly Lock _ending = new();
+
+            // Ends the scope and hands back the map it still holds, which the caller releases.
+            public MapExecutor? End()
+            {
+                lock (_ending)
+                {
+                    Ended = true;
+                    return Executor;
+                }
+            }
+
+            // Takes the map away from a live scope, for the caller to release; null once it ended.
+            public MapExecutor? Detach()
+            {
+                lock (_ending)
+                {
+                    if (Ended)
+                    {
+                        return null;
+                    }
+
+                    var held = Executor;
+                    Executor = null;
+                    return held;
+                }
+            }
+
+            public bool TryAttach(MapExecutor? executor)
+            {
+                lock (_ending)
+                {
+                    if (Ended)
+                    {
+                        return false;
+                    }
+
+                    Executor = executor;
+                    return true;
+                }
+            }
 
             // Work started from inside the executor inherits the scope. Once the work that
             // took the executor has finished, such leftovers must queue like everyone else.
