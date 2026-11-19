@@ -2408,7 +2408,7 @@ Roram the archaeologist stands in Act 5 (map 189, around 47, 139). Give a level 
 `$CreateItem 1878 3`, `$CreateItem 1879 1` and at least 40 000 gold.
 
 - [ ] Using a relict from the bag does nothing
-- [ ] Talk to Roram and pick "Examine Relics": the examination window opens
+- [ ] Talk to Roram and pick "Examine Relics": the "Examine relics" window opens next to the bag
 - [ ] Drop an Unknown Relict in: the window shows 10 000 gold; a Mysterious Relict shows 30 000
 - [ ] Confirm: the relict and the fee are gone, and one talisman, Broken Relic Piece or gemstone
       (Unknown) or one of the 28 listed pieces (Mysterious) arrives with its "received" line

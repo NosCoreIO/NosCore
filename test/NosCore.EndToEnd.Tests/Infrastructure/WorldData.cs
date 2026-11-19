@@ -182,6 +182,17 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // Starts the one flower quest when picked up, which a character below its level cannot take.
         public const short WildSoundFlower = 1086;
+
+        // Examines a relict for the gold it costs, giving the one piece the relict holds.
+        public const int Archaeologist = 5;
+        private const short ArchaeologistVNum = 11;
+        private const short ArchaeologistDialog = 2;
+        private const byte ArchaeologistShop = 31;
+        public const short ArchaeologistX = 100;
+        public const short ArchaeologistY = 130;
+        public const short Relict = 2031;
+        public const int RelictFee = 10000;
+        public const short RelictPiece = 2032;
         public const short FlowerQuest = 5981;
         public const byte FlowerQuestLevel = 20;
 
@@ -437,6 +448,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await context.SaveChangesAsync();
             await SeedMarketAsync(context);
             await SeedFamilyManagerAsync(context);
+            await SeedArchaeologistAsync(context);
             await SeedRaidAsync(context);
             SeedSoundFlower(context);
             SeedDignity(context);
@@ -556,6 +568,31 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new MapNpc { MapNpcId = FamilyManager, MapId = Town, MapX = 76, MapY = 108, VNum = FamilyManagerVNum });
             context.Add(new Shop { MapNpcId = FamilyManager, MenuType = 0, ShopType = FamilyShop });
             context.Add(new ShopTypeService { ShopTypeServiceId = 1, ShopType = FamilyShop, Service = NpcService.FamilyManager });
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedArchaeologistAsync(NosCoreContext context)
+        {
+            context.Add(new Item
+            {
+                VNum = Relict, Name = "relict", Type = NoscorePocketType.Main, ItemType = ItemType.Main,
+                Effect = ItemEffectType.Relict, EffectValue = RelictFee
+            });
+            context.Add(new Item { VNum = RelictPiece, Name = "relictpiece", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
+            context.Add(new NpcTalk { DialogId = ArchaeologistDialog, Name = "archaeologist" });
+            context.Add(new NpcMonster { NpcMonsterVNum = ArchaeologistVNum, Name = "archaeologist", Level = 1, MaxHp = 100 });
+            await context.SaveChangesAsync();
+            context.Add(new RollGeneratedItem
+            {
+                OriginalItemVNum = Relict, ItemGeneratedVNum = RelictPiece, ItemGeneratedAmount = 1, Probability = 1
+            });
+            context.Add(new MapNpc
+            {
+                MapNpcId = Archaeologist, MapId = Town, MapX = ArchaeologistX, MapY = ArchaeologistY, VNum = ArchaeologistVNum,
+                Dialog = ArchaeologistDialog
+            });
+            context.Add(new Shop { MapNpcId = Archaeologist, MenuType = 0, ShopType = ArchaeologistShop });
+            context.Add(new ShopTypeService { ShopTypeServiceId = 2, ShopType = ArchaeologistShop, Service = NpcService.RelictExamination });
             await context.SaveChangesAsync();
         }
 

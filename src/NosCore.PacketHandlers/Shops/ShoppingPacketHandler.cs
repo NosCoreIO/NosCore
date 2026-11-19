@@ -16,8 +16,6 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.ClientPackets.Shops;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -71,13 +69,6 @@ namespace NosCore.PacketHandlers.Shops
             {
                 npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.Shop);
                 await familyShopService.OpenAsync(clientSession, aliveEntity);
-                return;
-            }
-
-            if (shoppingPacket.VisualType == VisualType.Npc && npcServices.Offers(aliveEntity, NpcService.RelictExamination))
-            {
-                npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.RelictExamination);
-                await clientSession.SendPacketAsync(new WopenPacket { Type = WindowType.ExamineRelics });
                 return;
             }
 
