@@ -102,6 +102,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short WeakeningUpgrade = 202;
         public const short WeakeningCard = 58;
 
+        // A time-space stone on the meadow, far from everything else there.
+        public const short StoneX = 5;
+        public const short StoneY = 95;
+        public const short StoneTimeSpace = 4;
+
         // A creature to own as a pet: it has mana, and one skill of its own for its skill bar that takes
         // a moment to cast and three seconds to come back.
         public const short PetVNum = 10;
@@ -517,6 +522,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await context.SaveChangesAsync();
             context.Add(new ScriptedInstance
             {
+                MapId = Meadow, PositionX = StoneX, PositionY = StoneY, Type = ScriptedInstanceType.TimeSpace,
+                TimeSpaceId = StoneTimeSpace, LevelMinimum = 1, LevelMaximum = 99
+            });
+            context.Add(new ScriptedInstance
+            {
                 MapId = JellyEntrance, PositionX = RaidGateX, PositionY = RaidGateY, Type = ScriptedInstanceType.Raid,
                 Script = "raid-mother-cuby", LevelMinimum = 30, LevelMaximum = 49
             });
@@ -615,6 +625,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 Id = Guid.NewGuid(), CharacterId = characterId, ItemInstanceId = item.Id, Slot = slot, Type = pocket
             });
+            await context.SaveChangesAsync();
+        }
+
+        // A time-space cleared on an earlier session. It has to be recorded before the character is selected.
+        public static async Task CompleteTimeSpaceAsync(NosCoreContext context, long characterId, short timeSpaceId)
+        {
+            context.Add(new CompletedTimeSpace { Id = Guid.NewGuid(), CharacterId = characterId, TimeSpaceId = timeSpaceId });
             await context.SaveChangesAsync();
         }
 

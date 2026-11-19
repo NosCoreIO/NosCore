@@ -24,6 +24,7 @@ using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using SpecLight;
@@ -160,10 +161,10 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         public async Task TimeSpaceStonesAreOnlyPlacedOnTheOpenWorld()
         {
             await ChangingToBaseMap1();
-            ScriptedInstances.Verify(s => s.GenerateWp(1), Times.Once);
+            ScriptedInstances.Verify(s => s.GenerateWp(1, It.IsAny<IReadOnlySet<short>>()), Times.Once);
 
             await ChangingToMinilandInstance();
-            ScriptedInstances.Verify(s => s.GenerateWp(It.IsAny<short>()), Times.Once);
+            ScriptedInstances.Verify(s => s.GenerateWp(It.IsAny<short>(), It.IsAny<IReadOnlySet<short>>()), Times.Once);
         }
 
         private sealed class EmptyScript : NosCore.Instances.Abstractions.InstanceScript;

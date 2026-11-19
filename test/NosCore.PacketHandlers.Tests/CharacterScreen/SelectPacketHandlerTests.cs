@@ -32,6 +32,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.CharacterScreen
@@ -66,6 +67,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                 new Mock<IDao<CharacterQuestObjectiveDto, Guid>>().Object,
                 new Mock<IDao<RespawnDto, long>>().Object,
+                World.CompletedTimeSpaceDao,
                 new Mock<IDao<ScriptDto, Guid>>().Object,
                 new List<QuestDto>(),
                 new List<QuestObjectiveDto>(),
@@ -142,6 +144,32 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .Then(CharacterShouldNotBeSelected)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task SelectingACharacterLoadsTheTimeSpacesItCompleted()
+        {
+            await new Spec("Selecting a character loads the time-spaces it completed on an earlier session")
+                .GivenAsync(TheCharacterInSlot_CompletedTimeSpaces_, 1, new short[] { 4, 6 })
+                .WhenAsync(SelectingCharacterInSlot_, 1)
+                .Then(TheCharacterShouldHaveCompleted_, new short[] { 4, 6 })
+                .ExecuteAsync();
+        }
+
+        private async Task TheCharacterInSlot_CompletedTimeSpaces_(int slot, short[] timeSpaces)
+        {
+            var accountId = Session.Account.AccountId;
+            var row = (await World.CharacterDao.FirstOrDefaultAsync(s => s.AccountId == accountId && s.Slot == slot)).NotNull();
+            foreach (var timeSpace in timeSpaces)
+            {
+                await World.CompletedTimeSpaceDao.TryInsertOrUpdateAsync(new CompletedTimeSpaceDto
+                {
+                    Id = Guid.NewGuid(), CharacterId = row.CharacterId, TimeSpaceId = timeSpace
+                }).OrThrowAsync();
+            }
+        }
+
+        private void TheCharacterShouldHaveCompleted_(short[] timeSpaces) =>
+            CollectionAssert.AreEquivalent(timeSpaces, Session.Character.CompletedTimeSpaces?.ToArray() ?? []);
 
         [TestMethod]
         public async Task SelectingCharacterRestoresSavedOptions()

@@ -31,6 +31,9 @@ namespace NosCore.Database.Entities
         [Key]
         public short ScriptedInstanceId { get; set; }
 
+        // The time-space's own number, which the client and the scripts know it by.
+        public short? TimeSpaceId { get; set; }
+
         public ScriptedInstanceType Type { get; set; }
 
         public byte LevelMinimum { get; set; }

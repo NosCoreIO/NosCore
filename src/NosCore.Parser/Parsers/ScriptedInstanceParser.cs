@@ -52,6 +52,7 @@ namespace NosCore.Parser.Parsers
                             PositionX = wp.PositionX,
                             PositionY = wp.PositionY,
                             Type = ScriptedInstanceType.TimeSpace,
+                            TimeSpaceId = wp.ScriptedInstanceId,
                             IsHeroic = ((byte)wp.PortalType & 8) != 0,
                             LevelMinimum = wp.LevelMinimum,
                             LevelMaximum = wp.LevelMaximum,

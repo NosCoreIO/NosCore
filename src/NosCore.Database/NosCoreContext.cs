@@ -62,6 +62,8 @@ namespace NosCore.Database
 
         public virtual DbSet<CharacterRelation>? CharacterRelation { get; set; }
 
+        public virtual DbSet<CompletedTimeSpace>? CompletedTimeSpace { get; set; }
+
 
         public virtual DbSet<CharacterSkill>? CharacterSkill { get; set; }
 
@@ -292,6 +294,10 @@ namespace NosCore.Database
                 .HasIndex(e => new { e.CharacterId, e.TitleType })
                 .IsUnique();
 
+            modelBuilder.Entity<CompletedTimeSpace>()
+                .HasIndex(e => new { e.CharacterId, e.TimeSpaceId })
+                .IsUnique();
+
             modelBuilder.Entity<Map>()
                 .HasMany(e => e.MapTypeMap)
                 .WithOne(e => e.Map)
@@ -360,6 +366,12 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Title)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasMany(e => e.CompletedTimeSpace)
                 .WithOne(e => e.Character)
                 .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);

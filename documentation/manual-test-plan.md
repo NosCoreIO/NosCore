@@ -2895,6 +2895,21 @@ same trust as the server's own code, so only the operator should be able to writ
 - [ ] The required items leave the inventory, across stacks if split, and no more than asked
 - [ ] A `Script` naming a missing or broken file opens no panel, and the world log says why
 
+#### Cleared stones
+
+Run the parser again first, so every stone row carries its time-space number (`TimeSpaceId`).
+A level 15 character on NosVille Meadows (map 2) sees time-spaces 1 to 4.
+
+- [ ] Clear time-space 4 (The Defence of NosVille): back on the meadow its stone shows as done on
+      the minimap, the stones you have not cleared still show as open
+- [ ] Log out and back in: the stone still shows as done; another character of the account sees it
+      open
+- [ ] Fail time-space 1 or walk out of it: its stone stays open
+- [ ] Not verifiable yet: a stone the character may not enter yet. The game keeps time-space 9
+      (map 6, level 18) shut until time-space 6 is cleared, even for a character above level 18,
+      but no client data names a stone's prerequisites, the refusal a player gets has not been
+      captured, and the minimap state for "may enter" is not in the packet library yet
+
 ### Time-space stone items
 
 An item with effect 140 opens the time-space named by its effect value (`timespace-<value>`)

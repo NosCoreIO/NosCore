@@ -132,6 +132,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await WorldData.GivePetAsync(context, player.CharacterId, vnum);
         }
 
+        // Records a time-space as cleared by a character. Call it before the character enters the world.
+        public static async Task CompleteTimeSpaceAsync(Player player, short timeSpaceId)
+        {
+            await using var context = Database.CreateContext();
+            await WorldData.CompleteTimeSpaceAsync(context, player.CharacterId, timeSpaceId);
+        }
+
         // A family name no other scenario of the run uses.
         public static string FamilyName() =>
             $"Clan{Interlocked.Increment(ref _families)}x{Random.Shared.Next(100, 999)}";
