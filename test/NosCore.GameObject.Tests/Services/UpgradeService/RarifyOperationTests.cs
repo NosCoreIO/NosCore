@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -380,6 +381,119 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ARandomChampionBlessingAmuletCanReachRareEight()
+        {
+            await new Spec("A champion item gambled with the random Champion Blessing Amulet worn can land on rare 8")
+                .Given(ChampionWearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.RandomHeroic, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.0130)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)8)
+                .And(TheAmuletShouldHave_UsesLeft, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARandomChampionBlessingAmuletKeepsChampionGearOnAFailedGamble()
+        {
+            await new Spec("A failed champion gamble with the random Champion Blessing Amulet worn keeps the item")
+                .Given(ChampionWearableAtRarity_, (sbyte)5)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.RandomHeroic, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)5)
+                .And(TheResultShouldSay_, Game18NConstString.ItemSurvivedWithProtection)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARandomChampionBlessingAmuletRefusesOrdinaryGear()
+        {
+            await new Spec("An ordinary item cannot be gambled while wearing the random Champion Blessing Amulet")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.RandomHeroic, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(TheRefusalShouldBe_, Game18NConstString.YouAreWearingAnIncorrectAmulet)
+                .And(GoldShouldBe_, 100_000L)
+                .And(TheAmuletShouldHave_UsesLeft, 3)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEventAmuletRefusesAnItemThatIsNotBound()
+        {
+            await new Spec("An item that is not bound cannot be gambled while wearing an event Blessing Amulet")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(EventAmuletWith_UsesIsWorn_, ItemEffectType.RedAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(TheRefusalPacketsShouldBe_, Game18NConstString.CanOnlyBeUsedOnBoundItems)
+                .And(WearableRarityShouldBe_, (sbyte)0)
+                .And(GoldShouldBe_, 100_000L)
+                .And(CellonRemainingShouldBe_, (short)100)
+                .And(TheAmuletShouldHave_UsesLeft, 3)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEventAmuletRefusesAnItemBoundToAnotherCharacter()
+        {
+            await new Spec("An item bound to someone else cannot be gambled while wearing an event Protection Amulet")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(TheItemIsBoundToCharacter_, 999L)
+                .And(EventAmuletWith_UsesIsWorn_, ItemEffectType.BlueAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(TheRefusalPacketsShouldBe_, Game18NConstString.CanOnlyBeUsedOnBoundItems)
+                .And(GoldShouldBe_, 100_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEventAmuletGuardsAnItemBoundToTheGambler()
+        {
+            await new Spec("A failed gamble of an item bound to the gambler keeps it with an event Blessing Amulet worn")
+                .Given(WearableAtRarity_, (sbyte)5)
+                .And(TheItemIsBoundToTheGambler)
+                .And(EventAmuletWith_UsesIsWorn_, ItemEffectType.RedAmulet, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)5)
+                .And(TheResultShouldSay_, Game18NConstString.ItemSurvivedWithProtection)
+                .And(TheAmuletShouldHave_UsesLeft, 2)
+                .And(GoldShouldBe_, 99_500L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEventChampionAmuletChecksTheChampionLevelFirst()
+        {
+            await new Spec("An ordinary item that is not bound is refused as the wrong amulet by an event Champion Blessing Amulet")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(EventAmuletWith_UsesIsWorn_, ItemEffectType.Heroic, 3)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(TheRefusalShouldBe_, Game18NConstString.YouAreWearingAnIncorrectAmulet)
+                .And(GoldShouldBe_, 100_000L)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
         private void WearableAtRarity_(sbyte rare) => PlaceWearable(rare, EquipmentType.Armor);
@@ -390,7 +504,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _wearable.ItemInstance.Item.IsHeroic = true;
         }
 
-        private void AmuletWith_UsesIsWorn_(ItemEffectType effect, int uses)
+        private void AmuletWith_UsesIsWorn_(ItemEffectType effect, int uses) => WearAmulet(effect, uses, false);
+
+        private void EventAmuletWith_UsesIsWorn_(ItemEffectType effect, int uses) => WearAmulet(effect, uses, true);
+
+        private void TheItemIsBoundToCharacter_(long characterId) => _wearable.ItemInstance.BoundCharacterId = characterId;
+
+        private void TheItemIsBoundToTheGambler() => _wearable.ItemInstance.BoundCharacterId = _session.Character.CharacterId;
+
+        private void WearAmulet(ItemEffectType effect, int uses, bool onlyForBoundItems)
         {
             var item = new Item
             {
@@ -400,6 +522,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 EquipmentSlot = EquipmentType.Amulet,
                 Effect = effect,
                 EffectValue = 3,
+                OnlyForBoundItems = onlyForBoundItems,
             };
             var amulet = InventoryItemInstance.Create(
                 new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object, World.LogLanguageLocalizer)
@@ -547,6 +670,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void TheRefusalShouldBe_(Game18NConstString message) =>
             Assert.AreEqual(message, _result.OfType<MsgiPacket>().Single().Message);
+
+        private void TheRefusalPacketsShouldBe_(Game18NConstString message)
+        {
+            Assert.AreEqual(2, _result.Count);
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = message }, _result[0] as MsgiPacket);
+            PacketAssert.AreEqual(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow }, _result[1] as ShopEndPacket);
+        }
 
         private void CellonRemainingShouldBe_(short expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(CellonVNum));

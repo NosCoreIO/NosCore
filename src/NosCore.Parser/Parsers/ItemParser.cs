@@ -66,6 +66,8 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Flag8, "FLAG", 0, 24, s => s == "1", "Variant of another item (INDEX[6] holds the original's icon); the client appends a fixed word to its name")
                 .Field(x => x.Flag7, "FLAG", 0, 23, s => s == "1", "Headgear that also hides the mask; only changes what the client draws")
                 .Field(x => x.IsHeroic, "FLAG", 0, 22, s => s == "1", "Heroic item")
+                .Field(x => x.OnlyForBoundItems, chunk => BoundItemsOnly.VNums.Contains(Convert.ToInt16(chunk["VNUM"][0][2])),
+                    source: "BoundItemsOnly", description: "Only works on equipment bound to its user's character")
                 .Field(x => x.Flag6, "FLAG", 0, 20, s => s == "1", "Set on 17 upgrade materials (soul gems, dragon parts, completion stones, guardian angels); the client never reads it")
                 .Field(x => x.Sex, chunk => chunk["FLAG"][0][18] == "1" ? (byte)1 : chunk["FLAG"][0][17] == "1" ? (byte)2 : (byte)0,
                     source: "FLAG[16] + FLAG[17]", description: "Genders allowed, one bit per GenderType: 1=male only, 2=female only, 0=any")

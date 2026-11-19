@@ -29,7 +29,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
     // The smallest world a server will run: no client files, only what the scenarios stand on.
     // Two open maps joined by a portal, a miniland, a shopkeeper with one item to sell, a broker
     // to talk to, a chest and a weapon to hand out, what a new adventurer is given, a mount with its
-    // booster, creatures to hit, and a market where players may keep a shop, with a grocer.
+    // booster, creatures to hit, a market where players may keep a shop, with a grocer, and a
+    // gambler who rolls an item's rarity.
 
     // to talk to, a family manager, a chest and a weapon to hand out, what a new adventurer is
     // given, creatures to hit, and a market where players may keep a shop, with a grocer.
@@ -265,6 +266,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short CellaPowder = 1014;
         public const short BlessingAmulet = 282;
         public const short ChampionBlade = 4007;
+        // Guards a gamble only on an item bound to the gambler.
+        public const short EventAmulet = 4006;
+        public const int EventAmuletUses = 3;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -597,10 +601,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedMarketAsync(context);
             await SeedFamilyManagerAsync(context);
             await SeedArchaeologistAsync(context);
+            await SeedGamblerAsync(context);
             await SeedRaidAsync(context);
             SeedSoundFlower(context);
             await SeedAct4Async(context);
-            await SeedGamblerAsync(context);
             SeedDignity(context);
             await context.SaveChangesAsync();
         }
@@ -736,6 +740,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 VNum = ChampionBlade, Name = "championblade", Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon,
                 EquipmentSlot = EquipmentType.MainWeapon, IsHeroic = true
+            });
+            context.Add(new Item
+            {
+                VNum = EventAmulet, Name = "eventamulet", Type = NoscorePocketType.Equipment, ItemType = ItemType.Jewelery,
+                EquipmentSlot = EquipmentType.Amulet, Effect = ItemEffectType.RedAmulet, EffectValue = EventAmuletUses,
+                OnlyForBoundItems = true
             });
             context.Add(new NpcTalk { DialogId = GamblerDialog, Name = "gambler" });
             context.Add(new NpcMonster { NpcMonsterVNum = GamblerVNum, Name = "gambler", Level = 1, MaxHp = 100 });

@@ -124,6 +124,9 @@ namespace NosCore.Database.Entities
 
         public bool IsHeroic { get; set; }
 
+        // Only works on equipment bound to its user's character.
+        public bool OnlyForBoundItems { get; set; }
+
         public bool Flag9 { get; set; }
 
         public bool IsWarehouse { get; set; }

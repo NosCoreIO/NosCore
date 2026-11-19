@@ -97,6 +97,7 @@
 | MinilandObjectPoint | Int32 | DATA[2] (miniland only) | Miniland point value |
 | Morph | Int16 | DATA[4] (partner or specialist skin) or INDEX[7] | Morph id: a skin's look, else the item's own |
 | Mp | Int16 | DATA[varies] | Mp bonus on equip |
+| OnlyForBoundItems | Boolean | BoundItemsOnly | Only works on equipment bound to its user's character |
 | PartnerSkillSet | Byte | DATA[14] (partner SP only) | Partner SP skill set: the UpgradeType shared by its three partner skills, one more than the raw value |
 | RemovesDebuffsUpToLevel | Byte | SpecialPotions | Negative effects up to this card level end on use |
 | ReputationMinimum | Byte | DATA[varies] | Minimum reputation tier |
