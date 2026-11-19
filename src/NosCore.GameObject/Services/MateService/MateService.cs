@@ -12,6 +12,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Ecs;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public class MateService(IDao<MateDto, long> mateDao, List<NpcMonsterDto> npcMonsters,
+    public class MateService(IDao<MateDto, long> mateDao, INpcMonsterCatalog npcMonsters,
         IIdService<Mate> mateIdService, IMateStatsService mateStatsService,
         ILogger<MateService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IMateService
     {
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Services.MateService
 
             foreach (var row in rows.OrderBy(s => s.MateId))
             {
-                var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == row.VNum);
+                var npcMonster = npcMonsters.GetNpcMonster(row.VNum);
                 if (npcMonster == null)
                 {
                     logger.LogWarning(logLanguage[LogLanguageKey.MATE_UNKNOWN_MONSTER],

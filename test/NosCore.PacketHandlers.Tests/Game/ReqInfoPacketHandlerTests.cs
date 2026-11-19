@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 new Mock<ILogger<ReqInfoPacketHandler>>().Object,
                 World.LogLanguageLocalizer,
                 World.SessionRegistry,
-                NpcMonsters,
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(NpcMonsters),
                 World.GameLanguageLocalizer);
         }
 

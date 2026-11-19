@@ -22,6 +22,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
@@ -66,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 .Returns((System.Linq.Expressions.Expression<System.Func<MateDto, bool>> predicate) =>
                     rows.Where(predicate.Compile()));
 
-            return new MateServiceImpl(dao.Object, creatures.ToList(),
+            return new MateServiceImpl(dao.Object, new NpcMonsterCatalog(creatures.ToList()),
                 new IdService<Mate>(2000000), new MateStatsService(new MateExperienceService(), new MateHpService(), new MateMpService(), new MateStatService()), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 

@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class NosMateBeadHandler(IDao<MateDto, long> mateDao, IMateService mateService,
-        IMinilandService minilandService, List<NpcMonsterDto> npcMonsters,
+        IMinilandService minilandService, INpcMonsterCatalog npcMonsters,
         IPartnerSkillCatalog partnerSkillCatalog, IRandomProvider random)
     {
         private const byte PartnerSubType = 1;
@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            if (npcMonsters.Find(s => s.NpcMonsterVNum == monsterVNum) is not { } monster
+            if (npcMonsters.GetNpcMonster(monsterVNum) is not { } monster
                 || !owner.InventoryService.TryConsume(source, 1))
             {
                 return;

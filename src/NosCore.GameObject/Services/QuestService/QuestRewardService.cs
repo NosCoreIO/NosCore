@@ -37,7 +37,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         IItemCatalog itemCatalog, IItemGenerationService itemGenerationService,
         IExperienceProgressionService experienceProgression, IExperienceService experienceService,
         IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService,
-        ISkillPointService skillPointService, IMonsterGoldService monsterGoldService, List<NpcMonsterDto> npcMonsters,
+        ISkillPointService skillPointService, IMonsterGoldService monsterGoldService, INpcMonsterCatalog npcMonsters,
         ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer,
         IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random)
     : IQuestRewardService
@@ -233,7 +233,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         var hunted = new List<(NpcMonsterDto Monster, int Kills)>();
         foreach (var objective in quest.Quest.QuestObjectives)
         {
-            if (npcMonsters.FirstOrDefault(m => m.NpcMonsterVNum == objective.FirstData) is { } monster)
+            if (npcMonsters.GetNpcMonster(objective.FirstData) is { } monster)
             {
                 hunted.Add((monster, quest.ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var kills) ? kills : 0));
             }

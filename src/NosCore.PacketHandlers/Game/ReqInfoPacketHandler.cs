@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Game
     public sealed class ReqInfoPacketHandler(ILogger<ReqInfoPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry,
-            List<NpcMonsterDto> npcMonsters,
+            INpcMonsterCatalog npcMonsters,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<ReqInfoPacket>, IWorldPacketHandler
     {
@@ -58,7 +59,7 @@ namespace NosCore.PacketHandlers.Game
                     // Static catalog lookup by NpcMonsterVNum — the client passes a VNum, not
                     // a map-scoped VisualId, because this request is used for tooltip/info
                     // on any NPC the client knows about (shop menus, inventory hover, etc).
-                    var template = npcMonsters.FirstOrDefault(n => n.NpcMonsterVNum == (short)packet.TargetVNum);
+                    var template = npcMonsters.GetNpcMonster((short)packet.TargetVNum);
                     if (template is null)
                     {
                         return;

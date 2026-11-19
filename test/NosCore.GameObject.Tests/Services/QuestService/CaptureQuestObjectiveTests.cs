@@ -89,7 +89,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             var random = new Mock<IRandomProvider>();
             random.Setup(r => r.Next(0, 100)).Returns(0);
-            var mateService = new MateServiceImpl(World.MateDao, Creatures.Values.ToList(),
+            var mateService = new MateServiceImpl(World.MateDao, new NpcMonsterCatalog(Creatures.Values.ToList()),
                 new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             Captures = new CaptureService(World.MateDao, mateService, GameEvents.Object,
                 World.Clock, random.Object, World.DistanceCalculator,

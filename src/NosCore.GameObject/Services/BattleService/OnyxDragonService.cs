@@ -27,7 +27,7 @@ public interface IOnyxDragonService
     Task StrikeAsync(IAliveEntity attacker, IAliveEntity target, SkillInfo skill, int damage);
 }
 
-public sealed class OnyxDragonService(List<NpcMonsterDto> npcMonsters) : IOnyxDragonService, ISingletonService
+public sealed class OnyxDragonService(INpcMonsterCatalog npcMonsters) : IOnyxDragonService, ISingletonService
 {
     private const short OnyxDragonVNum = 2371;
     private const short Offset = 2;
@@ -36,7 +36,7 @@ public sealed class OnyxDragonService(List<NpcMonsterDto> npcMonsters) : IOnyxDr
     public Task StrikeAsync(IAliveEntity attacker, IAliveEntity target, SkillInfo skill, int damage)
     {
         if (attacker.MapInstance is not { } map
-            || npcMonsters.Find(m => m.NpcMonsterVNum == OnyxDragonVNum) is not { } onyx)
+            || npcMonsters.GetNpcMonster(OnyxDragonVNum) is not { } onyx)
         {
             return Task.CompletedTask;
         }

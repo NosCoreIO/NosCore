@@ -102,7 +102,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 NullLogger<NosCore.GameObject.Services.SaveService.SaveService>.Instance,
                 World.LogLanguageLocalizer,
                 new NosCore.GameObject.Services.MateService.MateService(World.MateDao,
-                    new List<NpcMonsterDto>(),
+                    new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto>()),
                     new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
                     World.Create<NosCore.GameObject.Services.MateService.MateStatsService>(),
                     NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
