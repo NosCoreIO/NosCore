@@ -107,6 +107,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short StoneY = 95;
         public const short StoneTimeSpace = 4;
 
+        // A swordsman's skill cast on a friendly player, laid out like Sacrifice: a card for whoever
+        // it is cast on, and one for whoever casts it.
+        public const short SacrificeSkill = 213;
+        public const short SacrificeSkillCastId = 8;
+        public const short SacrificeCircleCard = 59;
+        public const short SacrificeSpiritCard = 60;
+        public const int SacrificeCardTime = 300;
+
         // A creature to own as a pet: it has mana, and one skill of its own for its skill bar that takes
         // a moment to cast and three seconds to come back.
         public const short PetVNum = 10;
@@ -414,6 +422,25 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 SkillVNum = BandageSkill, Name = "skill211", CastId = BandageSkillCastId, SkillType = 1, Class = 1, Type = 0, Range = 1,
                 CastTime = 2, Cooldown = 6, ItemVNum = Bandage, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
+            });
+
+            context.Add(new Skill
+            {
+                SkillVNum = SacrificeSkill, Name = "skill213", CastId = SacrificeSkillCastId, SkillType = 1,
+                Class = (byte)CharacterClassType.Swordsman, Type = 0, TargetType = 2, Range = 10, CastTime = 0, Cooldown = 40,
+                Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
+            });
+            context.Add(new Card { CardId = SacrificeCircleCard, Name = "sacrificecircle", Duration = SacrificeCardTime });
+            context.Add(new Card { CardId = SacrificeSpiritCard, Name = "sacrificespirit", Duration = SacrificeCardTime });
+            await context.SaveChangesAsync();
+            context.Add(new BCard
+            {
+                SkillVNum = SacrificeSkill, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = SacrificeCircleCard
+            });
+            context.Add(new BCard
+            {
+                SkillVNum = SacrificeSkill, Type = BCardType.CardType.MeditationSkill, SubType = 51, FirstData = 100,
+                SecondData = SacrificeSpiritCard
             });
 
             // As the client data has them: skill type 5 is a skill for a NosMate's skill bar.
