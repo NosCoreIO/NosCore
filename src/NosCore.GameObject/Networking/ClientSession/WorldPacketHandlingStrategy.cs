@@ -299,7 +299,8 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         return await ExecuteOnMapAsync(handler, packet, session, attr);
     }
 
-    // The packet lock is taken first and the player's map second, always in that order.
+    // The packet lock is taken first and the player's map second. A packet the server dispatches
+    // itself comes from code that already holds the lock.
     private async Task<bool> ExecuteOnMapAsync(IPacketHandler handler, IPacket packet, ClientSession session, PacketHeaderAttribute? attr)
     {
         var map = session.HasPlayerEntity ? session.Character.MapInstance : null;

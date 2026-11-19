@@ -17,12 +17,15 @@ rather than adding a lock next to it.
 
 1. **Work on a map goes through its executor.** The packet handlers of a player in the world already
    run on that player's map: the session's packet lock is taken first and the map's executor second.
+   A packet the server dispatches itself (`HandlePacketsAsync` without `isFromNetwork`) does not take
+   the lock, so dispatch it only from code that already holds it, such as another handler.
    Such a handler gives the map back while it waits on the master, and one that moves its own player
    carries on on the new map, so re-read state read before either; moving another player runs once the
    handler is over. Work that is not a packet handler (hosted services, scheduled jobs) goes through
    `OnMapAsync`. Work running on an executor never waits on another executor or on a session's packet
    lock: to reach an entity on another map, a handler first gives its own map back with
-   `MapExecutor.StepAwayAsync`, and other map work hands the job off instead of waiting. A map change
+   `MapExecutor.StepAwayAsync`. That only lets go when `MapExecutor.CanStepAway` is true, which it is
+   not inside `RunExclusiveAsync` or other map work; there, hand the job off instead of waiting. A map change
    takes two executors through `RunExclusiveAsync`, in a fixed order. Start a map change outside
    `OnMapAsync`: from inside the later-created of the two maps it throws instead of waiting.
 2. **State shared between channels is written by the master.** A channel asks through a hub
