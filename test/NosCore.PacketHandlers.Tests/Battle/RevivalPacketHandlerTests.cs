@@ -136,6 +136,33 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task AnsweringTheLandOfDeathWithASaverClaimsItsPendingRevive()
+        {
+            await new Spec("A Saver revival answers the Land of Death's ask, so its timeout does not also send the player back")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(CharacterWasAskedToRevive)
+                .And(CharacterHasSaversInInventory_, (short)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(TheAskShouldNoLongerBePending)
+                .And(SaverStackShouldBe_, (short)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnsweringTheLandOfDeathWithTheEntranceClaimsItsPendingRevive()
+        {
+            await new Spec("Going back to the entrance answers the Land of Death's ask as well")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(CharacterWasAskedToRevive)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.AtSavePoint)
+                .Then(TheAskShouldNoLongerBePending)
+                .And(ReturnToEntranceShouldBeCalled_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ALivingPlayerCannotSpendASaverToHeal()
         {
             await new Spec("A revival request from a living player in the Land of Death spends nothing and changes nothing")
@@ -468,6 +495,10 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _session.Character.Hp = 1;
             _session.Character.IsAlive = true;
         }
+
+        private void CharacterWasAskedToRevive() => _session.Character.ReviveAskedAt = World.Clock.GetCurrentInstant();
+
+        private void TheAskShouldNoLongerBePending() => Assert.AreEqual(default, _session.Character.ReviveAskedAt);
 
         private void HpShouldStillBe_(int hp) => Assert.AreEqual(hp, _session.Character.Hp);
 

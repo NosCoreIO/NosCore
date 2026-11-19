@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -84,9 +85,11 @@ namespace NosCore.PacketHandlers.Battle
                 switch (packet.Type)
                 {
                     case RevivalType.InPlace when inLandOfDeath:
+                        ClaimPendingRevive(character);
                         await ReviveWithSaverAsync(session);
                         break;
                     case RevivalType.AtSavePoint when inLandOfDeath:
+                        ClaimPendingRevive(character);
                         await landOfDeathService.ReturnToEntranceAsync(session);
                         break;
                     case RevivalType.InPlace when character.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance:
@@ -107,6 +110,10 @@ namespace NosCore.PacketHandlers.Battle
                 throw;
             }
         }
+
+        // The Land of Death's revive timeout acts only while the ask it made is still pending; answering it
+        // before the first await keeps that timeout from also sending the player to the entrance.
+        private static void ClaimPendingRevive(PlayerComponentBundle character) => character.ReviveAskedAt = default;
 
         private async Task ReviveInPlaceAsync(ClientSession session)
         {
