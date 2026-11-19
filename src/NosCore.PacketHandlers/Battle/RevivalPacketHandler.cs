@@ -66,6 +66,8 @@ namespace NosCore.PacketHandlers.Battle
         {
             if (!session.HasPlayerEntity) return;
             var character = session.Character;
+            // Only the dead can be revived: a living player must not spend a Saver to heal or ask to be sent back.
+            if (character.IsAlive) return;
             // A scripted run revives its own players when it decides to. The Land of Death is a scripted run too,
             // but its revival (a Saver on the spot or back to the entrance) is handled below.
             if (character.MapInstance is { } map && map.MapInstanceType != MapInstanceType.LodInstance
