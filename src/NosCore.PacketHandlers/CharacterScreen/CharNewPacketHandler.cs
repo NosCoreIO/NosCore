@@ -175,7 +175,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         Name = characterName,
                         Slot = slot,
                         AccountId = accountId,
-                        State = CharacterState.Active
+                        State = CharacterState.Active,
+                        ServerId = _worldConfiguration.ServerId
                     };
                     // Everything is built before anything is written, and written in one transaction:
                     // a creation that fails must not leave a character without its equipment and skills.
