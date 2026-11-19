@@ -221,6 +221,33 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ACardTheSkillGivesItsCasterSkipsTheTarget()
+        {
+            RollGives(0);
+            var forTheCaster = Declares(BCardEffect.BuffChanceCausing, 100, BlessingCardId);
+            forTheCaster.AppliesToCaster = true;
+
+            await Inflict(forTheCaster, Declares(BCardEffect.BuffChanceCausing, 100, StunCardId));
+
+            Assert.IsFalse(_service.HasBuff(_target, BlessingCardId));
+            Assert.IsTrue(_service.HasBuff(_target, StunCardId));
+        }
+
+        [TestMethod]
+        public async Task OnlyTheCardsTheSkillGivesItsCasterLandOnTheCaster()
+        {
+            RollGives(0);
+            var forTheCaster = Declares(BCardEffect.BuffChanceCausing, 100, BlessingCardId);
+            forTheCaster.AppliesToCaster = true;
+
+            await _service.InflictCasterCardsAsync(_caster,
+                new[] { forTheCaster, Declares(BCardEffect.BuffChanceCausing, 100, StunCardId) });
+
+            Assert.IsTrue(_service.HasBuff(_caster, BlessingCardId));
+            Assert.IsFalse(_service.HasBuff(_caster, StunCardId));
+        }
+
+        [TestMethod]
         public async Task AMonsterImmuneToDebuffsResistsABadCard()
         {
             RollGives(0);

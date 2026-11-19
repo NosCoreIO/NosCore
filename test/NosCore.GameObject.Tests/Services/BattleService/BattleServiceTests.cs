@@ -197,6 +197,24 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ACastGivesItsCasterItsOwnCardsOnceItsHitsLanded()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            var skill = MakeSkill(TargetHitType.SingleTargetHit);
+            SetupLanding(origin, target, skill);
+            var order = new List<string>();
+            _hitQueue.Setup(q => q.EnqueueAsync(It.IsAny<HitRequest>())).Callback(() => order.Add("hit"))
+                .ReturnsAsync(new HitOutcome(HitStatus.Landed, 50, SuPacketHitMode.SuccessAttack, false));
+            _buffs.Setup(b => b.InflictCasterCardsAsync(origin, skill.BCards)).Callback(() => order.Add("caster"))
+                .Returns(Task.CompletedTask);
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+
+            CollectionAssert.AreEqual(new[] { "hit", "caster" }, order);
+        }
+
+        [TestMethod]
         public async Task ACastWhoseTargetDiesMeanwhileLandsNothing()
         {
             var origin = new FakeEntity { Hp = 100 };

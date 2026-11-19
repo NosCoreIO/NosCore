@@ -13,6 +13,7 @@ using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -68,6 +69,24 @@ namespace NosCore.GameObject.Tests.Ecs.Systems
 
             await _buffs.TickAsync(character);
             Assert.AreEqual(0, FindDue().Count);
+        }
+
+        [TestMethod]
+        public async Task AMateWhoseBuffRanOutIsDue()
+        {
+            var pet = TestMates.Pet(_session.Character.CharacterId);
+            await pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 5, 5);
+            if (pet.Entity is not { } mate)
+            {
+                Assert.Fail("The pet did not spawn.");
+                return;
+            }
+
+            await _buffs.ApplyAsync(mate, ShortBuff, [], null);
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+
+            CollectionAssert.AreEqual(new[] { (mate.Entity, VisualType.Npc) }, FindDue());
         }
 
         [TestMethod]

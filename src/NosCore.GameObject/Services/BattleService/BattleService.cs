@@ -124,9 +124,7 @@ namespace NosCore.GameObject.Services.BattleService
                 }
             }
 
-            // After the hits, so a cast never lands on the adds it calls.
-            await summonService.SummonAsync(origin, skill.BCards);
-            ScheduleCooldownReset(origin, skill);
+            await FinishCastAsync(origin, skill);
             return true;
         }
 
@@ -189,9 +187,7 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
-            // After the hits, so a cast never lands on the adds it calls.
-            await summonService.SummonAsync(origin, skill.BCards);
-            ScheduleCooldownReset(origin, skill);
+            await FinishCastAsync(origin, skill);
             return true;
         }
 
@@ -280,9 +276,7 @@ namespace NosCore.GameObject.Services.BattleService
                 }
             }
 
-            // After the hits, so a cast never lands on the adds it calls.
-            await summonService.SummonAsync(origin, skill.BCards);
-            ScheduleCooldownReset(origin, skill);
+            await FinishCastAsync(origin, skill);
             return true;
         }
 
@@ -506,6 +500,14 @@ namespace NosCore.GameObject.Services.BattleService
             await castDelayService.WaitAsync(Duration.FromMilliseconds(skill.CastTime * 100));
             return ReferenceEquals(origin.MapInstance, map) && !IsStunned(origin)
                 && (target == null ? CanCast(origin) : CanAttack(origin, target) && ReferenceEquals(target.MapInstance, map));
+        }
+
+        // After the hits, so a cast never lands on the adds it calls.
+        private async Task FinishCastAsync(IAliveEntity origin, SkillInfo skill)
+        {
+            await buffService.InflictCasterCardsAsync(origin, skill.BCards);
+            await summonService.SummonAsync(origin, skill.BCards);
+            ScheduleCooldownReset(origin, skill);
         }
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)

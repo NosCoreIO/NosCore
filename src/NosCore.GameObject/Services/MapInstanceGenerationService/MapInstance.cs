@@ -672,6 +672,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         case VisualType.Monster:
                             await buffs.TickAsync(new MonsterComponentBundle(entity, EcsWorld));
                             break;
+                        case VisualType.Npc when EcsWorld.TryGetComponent<MateStateComponent>(entity) != null:
+                            await buffs.TickAsync(new MateComponentBundle(entity, EcsWorld));
+                            break;
                         case VisualType.Npc:
                             await buffs.TickAsync(new NpcComponentBundle(entity, EcsWorld));
                             break;

@@ -40,8 +40,11 @@ public interface IBuffService
     // Fills the static buff bar with every timed static buff and the time each has left.
     Task ShowStaticAsync(PlayerComponentBundle target);
 
+    // Skips the cards a skill gives its own caster; InflictCasterCardsAsync applies those.
     Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
         IReadOnlyList<BCardDto> skillBCards);
+
+    Task InflictCasterCardsAsync(IAliveEntity caster, IReadOnlyList<BCardDto> skillBCards);
 
     Task RemoveAsync(IAliveEntity target, short cardId);
 
