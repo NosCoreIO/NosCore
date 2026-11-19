@@ -66,8 +66,10 @@ namespace NosCore.PacketHandlers.Battle
         {
             if (!session.HasPlayerEntity) return;
             var character = session.Character;
-            // A scripted run revives its own players when it decides to.
-            if (character.MapInstance is { } map && scriptedInstanceService.GetRun(map.MapInstanceId) != null)
+            // A scripted run revives its own players when it decides to. The Land of Death is a scripted run too,
+            // but its revival (a Saver on the spot or back to the entrance) is handled below.
+            if (character.MapInstance is { } map && map.MapInstanceType != MapInstanceType.LodInstance
+                && scriptedInstanceService.GetRun(map.MapInstanceId) != null)
             {
                 return;
             }

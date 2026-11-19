@@ -120,6 +120,22 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task ReviveInPlaceInTheLandOfDeathSpendsASaverEvenThoughTheLandIsAScriptedRun()
+        {
+            await new Spec("The Land of Death runs as a scripted instance, yet its Saver revival still applies")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(CharacterIsInsideAScriptedRun)
+                .And(CharacterHasSaversInInventory_, (short)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(CharacterShouldBeAlive)
+                .And(HpShouldBeFullyRestored)
+                .And(SaverStackShouldBe_, (short)1)
+                .And(ReturnToEntranceShouldBeCalled_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ReviveInPlaceInTheLandOfDeathWithoutASaverReturnsToTheEntrance()
         {
             await new Spec("Type 0 in the Land of Death without a Saver sends the player back to the entrance")
