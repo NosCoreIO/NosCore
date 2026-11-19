@@ -211,7 +211,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             Owner.Character.Gold = 0;
             ItemProvider = World.Create<ItemGenerationService>();
             MapItemVisualId = World.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
-                ItemProvider.Create(GoldVNum, GoldAmount), Session.Character.PositionX, Session.Character.PositionY,
+                World.GenerateItemProvider().Create(GoldVNum, GoldAmount), Session.Character.PositionX, Session.Character.PositionY,
                 Owner.Character.CharacterId).VisualId;
         }
 

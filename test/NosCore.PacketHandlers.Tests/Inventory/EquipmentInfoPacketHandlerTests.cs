@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             var itemInfoService = new Mock<IItemInfoService>();
             itemInfoService.Setup(s => s.GenerateInfo(It.Is<IItemInstance>(i => i.ItemVNum == 1 || i.ItemVNum == 912))).Returns(_info);
             var itemCatalog = new Mock<IItemCatalog>();
-            itemCatalog.Setup(c => c.GetItem(1)).Returns(new ItemDto { VNum = 1 });
+            itemCatalog.Setup(c => c.GetItem(1)).Returns(new Item { VNum = 1 });
             var personalWarehouse = new Mock<IPersonalWarehouseService>();
             personalWarehouse.Setup(w => w.GetItemAsync(Session, WarehouseType.Warehouse, 4)).ReturnsAsync(ItemProvider.Create(1, 1));
             personalWarehouse.Setup(w => w.GetItemAsync(Session, WarehouseType.PetWarehouse, 5)).ReturnsAsync(ItemProvider.Create(1, 1));

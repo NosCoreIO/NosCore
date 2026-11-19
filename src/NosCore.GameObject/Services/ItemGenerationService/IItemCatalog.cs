@@ -12,7 +12,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService
 {
     public interface IItemCatalog
     {
-        ItemDto? GetItem(short vnum);
+        // One shared definition per vnum; every instance of the item points at it.
+        Item.Item? GetItem(short vnum);
 
         // For an effect only one item carries, such as gold or the savings book.
         ItemDto? GetItemWithEffect(ItemEffectType effect);

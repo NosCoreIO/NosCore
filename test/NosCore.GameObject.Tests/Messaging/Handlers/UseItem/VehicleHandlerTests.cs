@@ -274,7 +274,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         private void TheCharacterShouldRide_Looking_(short vehicleVNum, Item look) =>
-            _transformationService.Verify(t => t.ChangeVehicleAsync(_session, It.Is<ItemDto>(v => v.VNum == vehicleVNum), look), Times.Once);
+            _transformationService.Verify(t => t.ChangeVehicleAsync(_session, It.Is<ItemDto>(v => v.VNum == vehicleVNum), It.Is<ItemDto>(l => l.VNum == look.VNum)), Times.Once);
 
         private void TheCharacterShouldHave_Scrolls(int amount) =>
             Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(ScrollVNum));
