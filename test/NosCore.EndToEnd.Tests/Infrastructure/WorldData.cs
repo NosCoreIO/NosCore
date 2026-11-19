@@ -256,15 +256,15 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private const short ShipmasterDialog = 3;
 
         // Gambles an item's rarity, and does nothing else: its shop type offers that one service.
-        public const int Gambler = 6;
-        private const short GamblerVNum = 12;
+        public const int Gambler = 8;
+        private const short GamblerVNum = 16;
         public const short GamblerX = 94;
         public const short GamblerY = 112;
-        private const short GamblerDialog = 3;
+        private const short GamblerDialog = 4;
         private const byte GamblingShop = 4;
         public const short CellaPowder = 1014;
         public const short BlessingAmulet = 282;
-        public const short ChampionBlade = 4005;
+        public const short ChampionBlade = 4007;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -745,7 +745,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 MapNpcId = Gambler, MapId = Town, MapX = GamblerX, MapY = GamblerY, VNum = GamblerVNum, Dialog = GamblerDialog
             });
             context.Add(new Shop { MapNpcId = Gambler, MenuType = 0, ShopType = GamblingShop });
-            context.Add(new ShopTypeService { ShopTypeServiceId = 2, ShopType = GamblingShop, Service = NpcService.EquipmentRarify });
+            context.Add(new ShopTypeService { ShopTypeServiceId = 3, ShopType = GamblingShop, Service = NpcService.EquipmentRarify });
             await context.SaveChangesAsync();
         }
 
