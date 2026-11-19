@@ -229,6 +229,36 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        // Only a monster summoned with hit or HP steps is reported, so a script that asked for none is never called.
+        public Task MonsterHitAsync(Guid mapInstanceId, MonsterComponentBundle monster)
+        {
+            return RunAsync(async () =>
+            {
+                if (RoomOf(mapInstanceId) == null || EndState != null || _abandoned || !monster.IsAlive)
+                {
+                    return;
+                }
+
+                if (monster.HitStep is { } hit)
+                {
+                    await CallScriptAsync(hit);
+                }
+
+                var thresholds = monster.HpThresholds;
+                var crossed = thresholds.Where(t => (long)monster.Hp * 100 < (long)t.Percent * monster.MaxHp).ToList();
+                if (crossed.Count == 0)
+                {
+                    return;
+                }
+
+                monster.HpThresholds = thresholds.Except(crossed).ToList();
+                foreach (var threshold in crossed)
+                {
+                    await CallScriptAsync(threshold.Step);
+                }
+            });
+        }
+
         private Task RoomClearedAsync(int room)
         {
             // A room on its own clock is not over when one wave dies, so its objective stays up.
@@ -561,6 +591,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         monster.Dialog = spawn.Dialog;
                     }
 
+                    if (spawn.OnHit != null || spawn.OnHpBelow is { Count: > 0 })
+                    {
+                        monster.HitStep = spawn.OnHit;
+                        monster.HpThresholds = spawn.OnHpBelow ?? [];
+                    }
+
                     if (spawn.IsBonus)
                     {
                         monster.Effect = BonusEffect;
@@ -832,6 +868,24 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             var (x, y) = cells.Count == 0 ? ((short)0, (short)0) : cells[_random.Next(0, cells.Count)];
             return new Spot(x, y);
+        }
+
+        public Spot RandomCell(int room, Spot around, short radius)
+        {
+            var map = _rooms[room].Map;
+            var cells = new List<Spot>();
+            for (var y = around.Y - radius; y <= around.Y + radius; y++)
+            {
+                for (var x = around.X - radius; x <= around.X + radius; x++)
+                {
+                    if (map.IsWalkable((short)x, (short)y))
+                    {
+                        cells.Add(new Spot((short)x, (short)y));
+                    }
+                }
+            }
+
+            return cells.Count == 0 ? around : cells[_random.Next(0, cells.Count)];
         }
 
         private static List<(short X, short Y)> WalkableCells(GameObject.Map.Map map, short margin)
@@ -1621,6 +1675,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public int LockerLeft(int room) => run.LockerLeft(room);
 
             public Spot RandomCell(int room) => run.RandomCell(room);
+
+            public Spot RandomCell(int room, Spot around, short radius) => run.RandomCell(room, around, radius);
 
             public bool IsButtonOn(int room, int button) => run.IsButtonOn(room, button);
 

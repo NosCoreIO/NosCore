@@ -7,17 +7,22 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Packets.Enumerations;
 using System;
+using System.Collections.Generic;
 
 namespace NosCore.Instances.Abstractions
 {
     public readonly record struct Spot(short X, short Y);
 
+    // Runs once, the first time the monster's HP falls below Percent of its maximum.
+    public readonly record struct HpThreshold(byte Percent, Action<IInstanceRun> Step);
+
     // A bonus monster flashes while alive, and each one killed in a row adds to the run's combo.
-    // OnDeath runs when this particular monster falls. IsHostile: false keeps a monster that aggroes on
-    // sight from noticing anyone until it is attacked; it cannot make a peaceful monster aggressive.
-    // A monster with a Dialog carries that talk of its room until someone closes it.
+    // OnDeath runs when this particular monster falls, OnHit on each hit it survives. IsHostile: false keeps a
+    // monster that aggroes on sight from noticing anyone until it is attacked; it cannot make a peaceful monster
+    // aggressive. A monster with a Dialog carries that talk of its room until someone closes it.
     public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true, bool IsBonus = false,
-        Action<IInstanceRun>? OnDeath = null, short Dialog = 0);
+        Action<IInstanceRun>? OnDeath = null, short Dialog = 0, Action<IInstanceRun>? OnHit = null,
+        IReadOnlyList<HpThreshold>? OnHpBelow = null);
 
     // An escort joins the first player who comes near it, walks where that player's client sends it and goes
     // with them from room to room. The run fails if it falls.
@@ -99,6 +104,9 @@ namespace NosCore.Instances.Abstractions
 
         // A walkable cell of the room picked at random, kept clear of the doors along its edges.
         Spot RandomCell(int room);
+
+        // A walkable cell picked at random within radius of the spot, or the spot itself when there is none.
+        Spot RandomCell(int room, Spot around, short radius);
 
         // A lever or switch drawn with offVNum until it is used, then with onVNum. Button ids run
         // from 1 to 99999 and are unique within their room. A toggling button can be used again

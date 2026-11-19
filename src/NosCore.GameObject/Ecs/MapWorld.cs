@@ -272,7 +272,7 @@ public class MapWorld : IDisposable
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
             new HitListComponent(new ConcurrentDictionary<Entity, int>()),
             new RespawnComponent(null, respawns),
-            new ScriptedMonsterComponent(false, null),
+            new ScriptedMonsterComponent(false, null, null, []),
             new FactionComponent(default)
         );
         return entity;

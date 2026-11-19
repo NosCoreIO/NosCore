@@ -17,6 +17,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Messaging.Handlers.TimeSpace;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -1282,6 +1283,138 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.IsTrue(_first.EnumerateMonsters().Any(s => s.PositionX == 3));
             Assert.AreEqual(1, run.MonstersAlive(1));
+        }
+
+        [TestMethod]
+        public async Task AMonstersHitStepRunsOnEachHitItSurvivesAsync()
+        {
+            var hits = 0;
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHit: _ => hits++)) });
+            await run.StartAsync();
+            var monster = _first.EnumerateMonsters().Single();
+
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+
+            Assert.AreEqual(2, hits);
+        }
+
+        [TestMethod]
+        public async Task AnHpThresholdRunsOnceAsTheMonsterFallsBelowItAsync()
+        {
+            var crossed = new List<byte>();
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHpBelow:
+                [
+                    new HpThreshold(75, _ => crossed.Add(75)),
+                    new HpThreshold(50, _ => crossed.Add(50))
+                ]))
+            });
+            await run.StartAsync();
+            var monster = _first.EnumerateMonsters().Single();
+
+            monster.Hp = 8;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            monster.Hp = 7;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            monster.Hp = 9;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            monster.Hp = 3;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+
+            CollectionAssert.AreEqual(new byte[] { 75, 50 }, crossed);
+        }
+
+        [TestMethod]
+        public async Task AHitThatCrossesTwoThresholdsRunsBothAsync()
+        {
+            var crossed = new List<byte>();
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHpBelow:
+                [
+                    new HpThreshold(75, _ => crossed.Add(75)),
+                    new HpThreshold(50, _ => crossed.Add(50))
+                ]))
+            });
+            await run.StartAsync();
+            var monster = _first.EnumerateMonsters().Single();
+
+            monster.Hp = 2;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+
+            CollectionAssert.AreEqual(new byte[] { 75, 50 }, crossed);
+        }
+
+        [TestMethod]
+        public async Task AHitStepCanActOnTheRunAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1),
+                    OnHit: h => h.Summon(1, new MonsterSpawn(Grunt, new Spot(3, 1)))))
+            });
+            await run.StartAsync();
+
+            await run.MonsterHitAsync(_first.MapInstanceId, _first.EnumerateMonsters().Single());
+
+            Assert.AreEqual(2, _first.EnumerateMonsters().Count());
+        }
+
+        [TestMethod]
+        public async Task AHitOnAMonsterWithHitStepsReachesItsRunAsync()
+        {
+            var hits = 0;
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHit: _ => hits++)) });
+            await run.StartAsync();
+            var service = World.Freeze<Mock<IScriptedInstanceService>>();
+            service.Setup(s => s.GetRun(_first.MapInstanceId)).Returns(run);
+            var attacker = (await World.CreateSessionAsync()).Character;
+
+            await World.Create<TimeSpaceProgressHandler>()
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 1, false));
+
+            Assert.AreEqual(1, hits);
+        }
+
+        [TestMethod]
+        public async Task AHitOnAMonsterWithoutHitStepsLeavesTheRunAloneAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1))) });
+            await run.StartAsync();
+            var service = World.Freeze<Mock<IScriptedInstanceService>>();
+            var attacker = (await World.CreateSessionAsync()).Character;
+
+            await World.Create<TimeSpaceProgressHandler>()
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 1, false));
+
+            service.Verify(s => s.GetRun(It.IsAny<Guid>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AKillingHitRunsNoHitStepAsync()
+        {
+            var service = World.Freeze<Mock<IScriptedInstanceService>>();
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHit: _ => { })) });
+            await run.StartAsync();
+            var attacker = (await World.CreateSessionAsync()).Character;
+
+            await World.Create<TimeSpaceProgressHandler>()
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 10, true));
+
+            service.Verify(s => s.GetRun(It.IsAny<Guid>()), Times.Never);
+        }
+
+        [TestMethod]
+        public void ACellAroundASpotIsWalkableAndWithinReach()
+        {
+            var run = Run(new Script());
+
+            var cells = Enumerable.Range(0, 50).Select(_ => run.RandomCell(1, new Spot(1, 1), 1)).ToList();
+
+            Assert.IsTrue(cells.All(c => c.X is >= 0 and <= 2 && c.Y is >= 0 and <= 2));
+            Assert.AreEqual(new Spot(30, 30), run.RandomCell(1, new Spot(30, 30), 2));
         }
 
         [TestMethod]

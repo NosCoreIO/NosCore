@@ -127,6 +127,9 @@ namespace NosCore.Instances.Tests
 
         public Spot RandomCell(int room) => new(10, (short)(5 + _randomCells++));
 
+        public Spot RandomCell(int room, Spot around, short radius) =>
+            new((short)(around.X + radius), (short)(around.Y - radius + _randomCells++));
+
         public HashSet<int> ButtonsOn { get; } = [];
 
         public HashSet<(int Room, int Button)> Used { get; } = [];
