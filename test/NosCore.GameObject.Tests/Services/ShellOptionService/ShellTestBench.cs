@@ -37,6 +37,9 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
 
         public Mock<IRandomProvider> Random { get; } = new();
 
+        // Every option write fails, as when the database is unreachable.
+        public bool WritesFail { get; set; }
+
         public GameObject.Services.ShellOptionService.ShellOptionService Service { get; }
 
         public ShellTestBench()
@@ -47,12 +50,22 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
             dao.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<EquipmentOptionDto>>()))
                 .Returns((IEnumerable<EquipmentOptionDto> dtos) =>
                 {
+                    if (WritesFail)
+                    {
+                        return Task.FromResult(false);
+                    }
+
                     Options.AddRange(dtos);
                     return Task.FromResult(true);
                 });
             dao.Setup(d => d.TryDeleteAsync(It.IsAny<IEnumerable<Guid>>()))
                 .Returns((IEnumerable<Guid> ids) =>
                 {
+                    if (WritesFail)
+                    {
+                        return Task.FromResult<IEnumerable<EquipmentOptionDto>?>(null);
+                    }
+
                     var keys = ids.ToHashSet();
                     var removed = Options.Where(o => keys.Contains(o.Id)).ToList();
                     Options.RemoveAll(o => keys.Contains(o.Id));

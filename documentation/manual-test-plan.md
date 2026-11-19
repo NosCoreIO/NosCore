@@ -4042,6 +4042,8 @@ Recorded so nobody spends time hunting for them:
   window open, so only a modified client could reach the refusal. The automated tests cover a
   deposit with nothing open, a deposit after closing the window, the family warehouse closed,
   and the windows closing on a map change; withdrawals and moves share the same check.
+- **A shell or cellon result that cannot be stored** — the shell, the cellon and the gold are kept
+  when the database refuses the new options. Only a failing database can show it.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Options with nothing behind them yet** — family invites, pet and partner auto-revive,

@@ -23,6 +23,9 @@ public interface IShellOptionService
 
     Task ClearAsync(Guid wearableInstanceId);
 
+    // Puts a shell's options on a piece in place of the piece's own; both keep theirs when it throws.
+    Task MoveAsync(Guid shellInstanceId, Guid wearableInstanceId);
+
     // Options belong to one instance id: an item handed over under a new id needs its own copy.
     // False when the copy could not be written.
     Task<bool> CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId);

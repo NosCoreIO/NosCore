@@ -84,6 +84,7 @@ public abstract class UpgradeOperation(IRandomProvider random, IGameLanguageLoca
         var packets = new List<IPacket>();
         var roll = random.NextDouble();
         var outcome = DetermineOutcome(roll, ctx);
+        await StoreOutcomeAsync(ctx, outcome);
 
         switch (outcome)
         {
@@ -133,6 +134,10 @@ public abstract class UpgradeOperation(IRandomProvider random, IGameLanguageLoca
     protected virtual IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet) => null;
 
     protected abstract UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet);
+
+    // Writes the part of the outcome that is stored outside the inventory. It runs before anything
+    // is spent, so a write that throws leaves the materials and the gold where they were.
+    protected virtual Task StoreOutcomeAsync(UpgradeContext ctx, UpgradeOutcome outcome) => Task.CompletedTask;
 
     protected abstract void ApplySuccess(UpgradeContext ctx);
 

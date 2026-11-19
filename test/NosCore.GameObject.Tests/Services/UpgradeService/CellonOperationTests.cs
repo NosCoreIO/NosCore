@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.CellonService;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -90,6 +91,22 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .And(GoldShouldBe_, 99_300L)
                 .And(CellonSlotShouldBeEmpty)
                 .And(MessageShouldBe_, Game18NConstString.OptionAdded)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOptionThatCannotBeStoredSpendsNothing()
+        {
+            await new Spec("When the rolled option cannot be stored the jewel, the cellon and the gold stay as they were")
+                .Given(JewelWithOptions_, Array.Empty<CellonType>())
+                .And(CellonOfLevel_, 1)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.10)
+                .And(TheOptionCannotBeStored)
+                .WhenAsync(ApplyingTheCellonFailsToStore)
+                .Then(JewelCellonCountShouldBe_, (byte)0)
+                .And(GoldShouldBe_, 100_000L)
+                .And(CellonsLeftShouldBe_, (short)1)
                 .ExecuteAsync();
         }
 
@@ -235,6 +252,17 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void PersistedOptionValueShouldBe_(int expected) =>
             Assert.AreEqual(expected, _persisted[0].Value);
+
+        // A failed write answers null although the DAO's signature does not say so.
+        private void TheOptionCannotBeStored()
+        {
+#nullable disable
+            _optionDao.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<EquipmentOptionDto>()))
+                .Returns(Task.FromResult<EquipmentOptionDto>(null));
+#nullable restore
+        }
+
+        private Task ApplyingTheCellonFailsToStore() => Assert.ThrowsExactlyAsync<DaoWriteFailedException>(CellonIsApplied);
 
         private void JewelCellonCountShouldBe_(byte expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_jewel.ItemInstance).Cellon ?? 0);
