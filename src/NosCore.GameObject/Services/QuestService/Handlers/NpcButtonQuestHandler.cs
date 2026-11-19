@@ -18,14 +18,14 @@ namespace NosCore.GameObject.Services.QuestService.Handlers;
 // paired with the quest it links to (that quest links back): it only hands that quest out, so it
 // ends as soon as it is taken.
 [UsedImplicitly]
-public sealed class NpcButtonQuestHandler(List<QuestDto> quests) : IQuestTypeHandler
+public sealed class NpcButtonQuestHandler(IQuestCatalog quests) : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.UnKnow;
 
     public bool CompletesWhenTaken(Quest quest) =>
         quest.QuestObjectives.Count == 0
         && quest.NextQuestId is { } next
-        && quests.Any(q => q.QuestId == next && q.NextQuestId == quest.QuestId);
+        && quests.GetQuest(next)?.NextQuestId == quest.QuestId;
 
     public Task<bool> OnQuestDialogAnsweredAsync(PlayerComponentBundle character, NpcMonsterDto npc, CharacterQuest quest) =>
         Task.FromResult(true);

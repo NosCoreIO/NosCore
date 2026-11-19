@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
             IDao<RespawnDto, long> respawnDao,
             IDao<CompletedTimeSpaceDto, Guid> completedTimeSpaceDao,
-            IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
+            IDao<ScriptDto, Guid> scriptDao, IQuestCatalog questCatalog,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
             IItemCatalog itemCatalog, IHpService hpService, IMpService mpService, ISpeedService speedService,
@@ -259,8 +259,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 ?? new List<CharacterQuestObjectiveDto>();
             character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
                 {
-                    var quest = quests.First(s => s.QuestId == x.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
-                    quest.QuestObjectives = questObjectives.Where(s => s.QuestId == x.QuestId).ToList();
+                    var quest = (questCatalog.GetQuest(x.QuestId)
+                        ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]))
+                        .Adapt<GameObject.Services.QuestService.Quest>();
+                    quest.QuestObjectives = questCatalog.GetObjectives(x.QuestId).ToList();
                     var charquest = new CharacterQuest { Quest = quest };
                     x.Adapt(charquest);
                     foreach (var progress in daoObjectives.Where(o => o.CharacterQuestId == charquest.Id))

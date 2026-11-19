@@ -153,6 +153,7 @@ namespace NosCore.Tests.Shared
             Fixture.Inject(ItemList);
             Fixture.UseReal<IItemCatalog, ItemCatalog>();
             Fixture.UseReal<GameObject.Services.BattleService.INpcMonsterCatalog, GameObject.Services.BattleService.NpcMonsterCatalog>();
+            Fixture.UseReal<GameObject.Services.QuestService.IQuestCatalog, GameObject.Services.QuestService.QuestCatalog>();
             Fixture.Inject(new List<MountMapSpeedDto>());
             Fixture.Inject(new List<ItemSummonDto>());
             Fixture.Inject(ShopTypeServices);
