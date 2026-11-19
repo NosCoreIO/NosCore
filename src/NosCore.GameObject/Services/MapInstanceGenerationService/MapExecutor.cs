@@ -145,7 +145,15 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     await target.AcquireAsync();
                 }
 
-                scope.Executor = target;
+                // A handler that did not wait for this has finished; nobody is left to let go.
+                if (scope.Ended)
+                {
+                    target?._gate.Release();
+                }
+                else
+                {
+                    scope.Executor = target;
+                }
             }
         }
 

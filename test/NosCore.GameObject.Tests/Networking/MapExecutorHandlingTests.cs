@@ -36,6 +36,8 @@ namespace NosCore.GameObject.Tests.Networking
         private bool MapWorkRanMeanwhile;
         private bool HeldItsMapAgain;
         private MapInstance? MapAfterwards;
+        private Task LeftBehind = Task.CompletedTask;
+        private readonly TaskCompletionSource Unblock = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -81,6 +83,17 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         [TestMethod]
+        public async Task AStepAwayTheHandlerDidNotWaitForLeavesTheMapFree()
+        {
+            await new Spec("A step away the handler did not wait for leaves the map free")
+                .Given(TheHandlerStepsAwayWithoutWaiting)
+                .WhenAsync(APacketArrives)
+                .AndAsync(TheWorkItLeftBehindFinishes)
+                .ThenAsync(MapWorkShouldStillRun)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AHandlerThatMovesItsPlayerCarriesOnOnTheNewMap()
         {
             await new Spec("A handler that moves its player carries on on the new map")
@@ -116,6 +129,22 @@ namespace NosCore.GameObject.Tests.Networking
                 HeldItsMapAgain = executor.IsCurrent;
             };
         }
+
+        private void TheHandlerStepsAwayWithoutWaiting() =>
+            OnGbox = _ =>
+            {
+                LeftBehind = MapExecutor.StepAwayAsync(() => Unblock.Task);
+                return Task.CompletedTask;
+            };
+
+        private async Task TheWorkItLeftBehindFinishes()
+        {
+            Unblock.SetResult();
+            await LeftBehind;
+        }
+
+        private async Task MapWorkShouldStillRun() =>
+            Assert.IsTrue(await RunsOnAnotherFlowAsync(Session.Character.MapInstance.Executor));
 
         private void TheHandlerMovesThePlayerToTheirMiniland()
         {

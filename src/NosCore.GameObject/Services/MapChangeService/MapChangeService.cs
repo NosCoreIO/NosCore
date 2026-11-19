@@ -85,17 +85,15 @@ namespace NosCore.GameObject.Services.MapChangeService
 
         public async Task ChangeMapInstanceAsync(ClientSession session, Guid mapInstanceId, int? mapX = null, int? mapY = null)
         {
-            // A packet handler gives its map back for the move; one moving its own player carries
-            // on on the new map. Other work running on a map must not wait for a session; the
-            // change runs once that work is over.
+            // A packet handler moving its own player gives its map back for the move and carries
+            // on on the new map. Other work running on a map, including a handler moving someone
+            // else, must not wait for a session; the change runs once that work is over.
             if (MapExecutor.IsInsideAny)
             {
-                if (MapExecutor.CanStepAway)
+                if (MapExecutor.CanStepAway && session.HoldsPacketLock)
                 {
-                    Func<MapExecutor?>? next = session.HoldsPacketLock
-                        ? () => session.HasPlayerEntity ? session.Character.MapInstance?.Executor : null
-                        : null;
-                    await MapExecutor.StepAwayAsync(() => ChangeMapInstanceAsync(session, mapInstanceId, mapX, mapY), next);
+                    await MapExecutor.StepAwayAsync(() => ChangeMapInstanceAsync(session, mapInstanceId, mapX, mapY),
+                        () => session.HasPlayerEntity ? session.Character.MapInstance?.Executor : null);
                     return;
                 }
 
