@@ -19,7 +19,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     // n_run 3006 {questId}: the NPC dialog button that hands the player a quest.
     [UsedImplicitly]
-    public sealed class TakeQuestFromDialogHandler(IQuestService questService, List<QuestDto> quests) : INrunEventHandler
+    public sealed class TakeQuestFromDialogHandler(IQuestService questService, IQuestCatalog quests) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.GetXQuest;
 
@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (packet.Type is not { } questId || quests.FirstOrDefault(q => q.QuestId == questId) is not { } quest)
+            if (packet.Type is not { } questId || quests.GetQuest(questId) is not { } quest)
             {
                 return;
             }

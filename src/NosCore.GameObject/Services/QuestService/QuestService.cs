@@ -33,8 +33,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.QuestService
 {
     public class QuestService(List<ScriptDto> scripts, List<ScriptOfferDto> scriptOffers,
-            IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests,
-            List<QuestObjectiveDto> questObjectives, ILogger<QuestService> logger, IClock clock,
+            IOptions<WorldConfiguration> worldConfiguration, IQuestCatalog questCatalog, ILogger<QuestService> logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IEnumerable<IQuestTypeHandler> questTypeHandlers,
             IGameEventDispatcher gameEvents,
@@ -240,8 +239,7 @@ namespace NosCore.GameObject.Services.QuestService
 
         private async Task<bool> TargetOffPacketAsync(short questId, PlayerComponentBundle character)
         {
-            var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
-            if (questDto != null)
+            if (questCatalog.GetQuest(questId) != null)
             {
                 return await ValidateQuestAsync(character, questId);
             }
@@ -283,14 +281,14 @@ namespace NosCore.GameObject.Services.QuestService
                 await character.SendPacketAsync(character.GenerateQuestPacket());
             }
 
-            var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
+            var questDto = questCatalog.GetQuest(questId);
             if (questDto == null)
             {
                 logger.LogError(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
                 return true;
             }
             var quest = questDto.Adapt<Quest>();
-            quest.QuestObjectives = questObjectives.Where(s => s.QuestId == questId).ToList();
+            quest.QuestObjectives = questCatalog.GetObjectives(questId).ToList();
 
             if (quest.QuestType != QuestType.WinRaid && !CharacterQuest.HasFreeSlot(character.Quests.Values, quest.IsSecondary))
             {
