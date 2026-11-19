@@ -22,7 +22,7 @@ even when its packets are covered here.
 | The map: seeing someone arrive, walk and talk, portals and their delay, the position saved on leaving | `MapTests` |
 | Items: what a character carries on entering, dropping and picking up, an NPC shop selling and buying back | `ItemTests` |
 | Trade: gold changing hands and stored at once, a declined trade | `TradeTests` |
-| Chat: whispers, a whisper to nobody, a muted account | `ChatTests` |
+| Chat: whispers, a whisper to nobody, a muted account, a game master's shout | `ChatTests` |
 | Friends and groups: a request accepted, friend and group messages | `SocialTests` |
 | Two channels: the channel list, players apart, a whisper across, one account on one channel | `ChannelTests` |
 | Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival, a main-weapon card marking what it hits | `CombatTests` |
@@ -2591,6 +2591,16 @@ is needed.
 - [ ] A second player on the map sees the bubble and never the words
 - [ ] Use a speaker item: the red line shows, nobody hears it and the speaker stays in the bag
 - [ ] Set `DateEnd` to the past: the next line is said normally
+
+### Game master shout
+
+A GM account and a second character, on two channels if you have them.
+
+- [ ] With the GM: `$Shout The arena opens in five minutes`. Every connected player gets the
+      line in yellow in the chat window as "(Administrator) The arena opens in five minutes" and
+      the same text across the screen as a notice. The `sayi2` line in a packet logger reads
+      `sayi2 1 -1  10 90 999 (Administrator) The arena opens in five minutes`
+- [ ] The chat line shows the text once, with no stray number in front of it
 
 ### Hero chat
 

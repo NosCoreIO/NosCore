@@ -7,15 +7,20 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Command;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Command
@@ -28,6 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         private ClientSession Session;
         private Mock<IPubSubHub> PubSubHub;
         private Mock<ISerializer> Serializer;
+        private readonly List<IPacket> Serialized = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -38,6 +44,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             Serializer = World.Freeze<Mock<ISerializer>>();
 
             Serializer.Setup(x => x.Serialize(It.IsAny<IPacket[]>()))
+                .Callback<IEnumerable<IPacket>>(packets => Serialized.AddRange(packets))
                 .Returns("serialized_packet");
 
             Handler = World.Create<ShoutPacketHandler>();
@@ -63,6 +70,16 @@ namespace NosCore.PacketHandlers.Tests.Command
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheShoutGoesOutAsAServerLineCarryingItsText()
+        {
+            await new Spec("The shout goes out as a server line carrying its text")
+                .Given(CharacterIsOnMap)
+                .WhenAsync(ShoutingMessage)
+                .Then(TheSayi2LineShouldCarryTheTextAsItsOnlyArgument)
+                .ExecuteAsync();
+        }
+
         private void CharacterIsOnMap()
         {
             Session.Character.MapInstance = World.GetBaseMap(1);
@@ -79,6 +96,19 @@ namespace NosCore.PacketHandlers.Tests.Command
         private void MessagesShouldBeBroadcast()
         {
             PubSubHub.Verify(x => x.SendMessagesAsync(It.IsAny<List<IMessage>>()), Times.Once);
+        }
+
+        private void TheSayi2LineShouldCarryTheTextAsItsOnlyArgument()
+        {
+            PacketAssert.AreEqual(new Sayi2Packet
+            {
+                VisualType = VisualType.Player,
+                VisualId = -1,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.Administrator,
+                ArgumentType = 999,
+                Game18NArguments = { $"({World.GameLanguageLocalizer[LanguageKey.ADMINISTRATOR, Session.Account.Language]}) Test announcement message" },
+            }, Serialized.OfType<Sayi2Packet>().Single());
         }
 
         private void SerializerShouldBeCalledTwice()

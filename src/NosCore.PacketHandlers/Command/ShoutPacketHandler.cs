@@ -40,7 +40,8 @@ namespace NosCore.PacketHandlers.Command
                 VisualId = -1,
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.Administrator,
-                Game18NArguments = { 999, message }
+                ArgumentType = 999,
+                Game18NArguments = { message }
             };
 
             var msgiPacket = new MsgPacket
