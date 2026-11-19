@@ -5,6 +5,7 @@
 //
 
 using NosCore.Core.Observability;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,7 +31,11 @@ public static class MessageBusExtensions
             return true;
         });
 
-    private static async Task<T> MeasureAsync<T>(IMasterRequest request, Func<Task<T>> invoke)
+    // A packet handler gives its map back while it waits on the master.
+    private static Task<T> MeasureAsync<T>(IMasterRequest request, Func<Task<T>> invoke) =>
+        MapExecutor.StepAwayAsync(() => MeasuredAsync(request, invoke));
+
+    private static async Task<T> MeasuredAsync<T>(IMasterRequest request, Func<Task<T>> invoke)
     {
         var type = new KeyValuePair<string, object?>("message.type", request.GetType().Name);
         var started = Stopwatch.GetTimestamp();

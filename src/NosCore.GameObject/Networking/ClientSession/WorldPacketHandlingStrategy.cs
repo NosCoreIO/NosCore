@@ -8,6 +8,7 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.ClientPackets.Infrastructure;
@@ -17,6 +18,7 @@ using NosCore.Packets.Interfaces;
 using MsgiPacket = NosCore.Packets.ServerPackets.UI.MsgiPacket;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -290,16 +292,42 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
                     return false;
                 }
 
-                if (!await ValidateSenderStateAsync(packet, session, attr))
-                {
-                    return false;
-                }
-
-                await handler.ExecuteAsync(packet, session);
-                return true;
+                return await ExecuteOnMapAsync(handler, packet, session, attr);
             }
         }
 
+        return await ExecuteOnMapAsync(handler, packet, session, attr);
+    }
+
+    // The packet lock is taken first and the player's map second, always in that order.
+    private async Task<bool> ExecuteOnMapAsync(IPacketHandler handler, IPacket packet, ClientSession session, PacketHeaderAttribute? attr)
+    {
+        var map = session.HasPlayerEntity ? session.Character.MapInstance : null;
+        if (map == null || MapExecutor.IsInsideAny)
+        {
+            return await ExecuteAsync(handler, packet, session, attr);
+        }
+
+        var started = false;
+        var executed = false;
+        try
+        {
+            await map.Executor.RunHandlerAsync(async () =>
+            {
+                started = true;
+                executed = await ExecuteAsync(handler, packet, session, attr);
+            });
+        }
+        catch (ObjectDisposedException) when (!started)
+        {
+            return await ExecuteAsync(handler, packet, session, attr);
+        }
+
+        return executed;
+    }
+
+    private async Task<bool> ExecuteAsync(IPacketHandler handler, IPacket packet, ClientSession session, PacketHeaderAttribute? attr)
+    {
         if (!await ValidateSenderStateAsync(packet, session, attr))
         {
             return false;

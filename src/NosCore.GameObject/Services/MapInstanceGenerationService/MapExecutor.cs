@@ -18,7 +18,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
     //
     // Work must not wait on another executor's work or on a session's packet lock while it
     // runs here; a map change takes two executors at once through RunExclusiveAsync, in a
-    // fixed order.
+    // fixed order. A packet handler is the exception: it holds the map through StepAwayAsync
+    // and gives it back while it waits on the master or moves the player to another map.
     public sealed class MapExecutor
     {
         private static readonly AsyncLocal<Scope?> Current = new();
@@ -36,7 +37,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 for (var scope = Current.Value; scope != null; scope = scope.Parent)
                 {
-                    if (!scope.Ended && ReferenceEquals(scope.Executor, this))
+                    if (scope.Holds && ReferenceEquals(scope.Executor, this))
                     {
                         return true;
                     }
@@ -53,7 +54,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 for (var scope = Current.Value; scope != null; scope = scope.Parent)
                 {
-                    if (!scope.Ended)
+                    if (scope.Holds)
                     {
                         return true;
                     }
@@ -72,17 +73,33 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             });
         }
 
-        public async Task<T> RunAsync<T>(Func<Task<T>> work)
+        public Task<T> RunAsync<T>(Func<Task<T>> work) => RunAsync(work, false);
+
+        // Runs a packet handler: it holds this map like any other work, but may give it back
+        // through StepAwayAsync while it waits on something outside the map.
+        public async Task RunHandlerAsync(Func<Task> work)
+        {
+            if (IsInsideAny)
+            {
+                throw new InvalidOperationException("A packet handler cannot start inside a map's work");
+            }
+
+            await RunAsync(async () =>
+            {
+                await work();
+                return true;
+            }, true);
+        }
+
+        private async Task<T> RunAsync<T>(Func<Task<T>> work, bool handler)
         {
             if (IsCurrent)
             {
                 return await work();
             }
 
-            var waitStarted = Stopwatch.GetTimestamp();
-            await _gate.WaitAsync();
-            NosCoreMetrics.MapExecutorWait.Record(Stopwatch.GetElapsedTime(waitStarted).TotalMilliseconds);
-            var scope = new Scope(this, Current.Value);
+            await AcquireAsync();
+            var scope = new Scope(this, Current.Value, handler);
             try
             {
                 ObjectDisposedException.ThrowIf(_closed, this);
@@ -92,8 +109,78 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             finally
             {
                 scope.Ended = true;
-                _gate.Release();
+                scope.Executor?._gate.Release();
             }
+        }
+
+        private async Task AcquireAsync()
+        {
+            var waitStarted = Stopwatch.GetTimestamp();
+            await _gate.WaitAsync();
+            NosCoreMetrics.MapExecutorWait.Record(Stopwatch.GetElapsedTime(waitStarted).TotalMilliseconds);
+        }
+
+        // Inside a packet handler, gives the map back while the work runs and then takes the
+        // map that next names, which is where the player stands by then; no map when it
+        // returns null. Anywhere else the work runs without letting go.
+        public static async Task<T> StepAwayAsync<T>(Func<Task<T>> work, Func<MapExecutor?>? next = null)
+        {
+            if (HeldHandlerScope() is not { } scope)
+            {
+                return await work();
+            }
+
+            var held = scope.Executor;
+            scope.Executor = null;
+            held?._gate.Release();
+            try
+            {
+                return await work();
+            }
+            finally
+            {
+                var target = next == null ? held : next();
+                if (target != null)
+                {
+                    await target.AcquireAsync();
+                }
+
+                scope.Executor = target;
+            }
+        }
+
+        public static async Task StepAwayAsync(Func<Task> work, Func<MapExecutor?>? next = null) =>
+            await StepAwayAsync(async () =>
+            {
+                await work();
+                return true;
+            }, next);
+
+        // Whether StepAwayAsync would give a map back here.
+        public static bool CanStepAway => HeldHandlerScope() != null;
+
+        private static Scope? HeldHandlerScope()
+        {
+            var scope = Current.Value;
+            while (scope is { Ended: true })
+            {
+                scope = scope.Parent;
+            }
+
+            if (scope is not { Handler: true, Executor: not null })
+            {
+                return null;
+            }
+
+            for (var parent = scope.Parent; parent != null; parent = parent.Parent)
+            {
+                if (parent.Holds)
+                {
+                    return null;
+                }
+            }
+
+            return scope;
         }
 
         // Holds two executors at once. They are always taken in the same order, so two flows
@@ -129,11 +216,17 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _gate.Release();
         }
 
-        private sealed class Scope(MapExecutor executor, Scope? parent)
+        private sealed class Scope(MapExecutor executor, Scope? parent, bool handler)
         {
-            public MapExecutor Executor { get; } = executor;
+            // Null while a packet handler has stepped away from its map; another map once it
+            // comes back after moving the player.
+            public volatile MapExecutor? Executor = executor;
 
             public Scope? Parent { get; } = parent;
+
+            public bool Handler { get; } = handler;
+
+            public bool Holds => !Ended && Executor != null;
 
             // Work started from inside the executor inherits the scope. Once the work that
             // took the executor has finished, such leftovers must queue like everyone else.
