@@ -79,6 +79,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<long, (int Room, int Dialog)> _openDialogs = [];
         private readonly HashSet<(int Room, int Dialog)> _closedDialogs = [];
         private readonly Dictionary<int, int> _roomDialogs = [];
+        private readonly HashSet<int> _heldClears = [];
         private readonly Dictionary<(ObjectiveKind Kind, short VNum), int> _objectiveProgress = [];
 
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
@@ -225,6 +226,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private Task RoomClearedAsync(int room)
         {
+            // Official runs leave a room uncleared while its talk is open, even with every monster down.
+            if (_roomDialogs.ContainsKey(room))
+            {
+                _heldClears.Add(room);
+                return Task.CompletedTask;
+            }
+
             // A room on its own clock is not over when one wave dies, so its objective stays up.
             if (!_timedRooms.Contains(room) && _roomObjectives.Remove(room))
             {
@@ -895,6 +903,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 await CallScriptAsync(run => _script.OnDialogClosed(run, closed.Room, closed.Dialog));
+                if (EndState == null && !_abandoned && !_roomDialogs.ContainsKey(closed.Room)
+                    && _heldClears.Remove(closed.Room)
+                    && (_lockers.ContainsKey(closed.Room) || _aliveByRoom.GetValueOrDefault(closed.Room) == 0))
+                {
+                    await RoomClearedAsync(closed.Room);
+                }
             });
         }
 
