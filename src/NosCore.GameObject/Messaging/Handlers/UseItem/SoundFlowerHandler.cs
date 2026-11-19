@@ -4,22 +4,18 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Items;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
-using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.QuestService;
-using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
+    // A flower is picked up rather than carried; this covers one that reached a bag anyway.
     [UsedImplicitly]
-    public sealed class SoundFlowerHandler(IQuestService questService, List<QuestDto> quests, IRandomProvider random)
+    public sealed class SoundFlowerHandler(ISoundFlowerService soundFlowerService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -29,15 +25,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var pool = quests.Where(q => q.QuestType == QuestType.FlowerQuest).ToList();
-            if (pool.Count == 0)
-            {
-                return;
-            }
-
             var character = evt.ClientSession.Character;
-            var quest = pool[random.Next(0, pool.Count)];
-            if (await questService.AddQuestAsync(character, QuestActionType.Achieve, quest.QuestId))
+            if (await soundFlowerService.StartFlowerQuestAsync(character))
             {
                 await character.UseUpOneAsync(evt.InventoryItem);
             }

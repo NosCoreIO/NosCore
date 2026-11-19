@@ -180,8 +180,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const long FamilyWarehousePrice = 500;
         public const byte FamilyWarehouseLevel = 2;
 
-        // Starts the one flower quest, which a character below its level cannot take.
-        public const short SoundFlower = 1087;
+        // Starts the one flower quest when picked up, which a character below its level cannot take.
+        public const short WildSoundFlower = 1086;
         public const short FlowerQuest = 5981;
         public const byte FlowerQuestLevel = 20;
 
@@ -520,7 +520,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         {
             context.Add(new Item
             {
-                VNum = SoundFlower, Name = "soundflower", Type = NoscorePocketType.Main, ItemType = ItemType.Main, Effect = ItemEffectType.SoundFlower
+                VNum = WildSoundFlower, Name = "soundflower", Type = NoscorePocketType.Main, ItemType = ItemType.Map, Effect = ItemEffectType.SoundFlower,
+                IsDroppable = true
             });
             context.Add(new Quest
             {
