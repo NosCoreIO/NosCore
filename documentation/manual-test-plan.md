@@ -1662,7 +1662,7 @@ Needs two characters on the same channel. The commending one must be level 31 or
 
 ### Teleportation stones
 
-Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 44, 51, 85,
+Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 51, 85,
 120 and 121 have more. They need a parser run over a capture that holds their bars.
 
 - [ ] Click the stone at (21, 56) on map 49: no talk opens; a five-second bar runs over the
