@@ -179,6 +179,24 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ALevelTenCharacterKillingALevelOneMonsterLosesPartToTheGapAndKeepsTheBoosts()
+        {
+            var map = _session.Character.MapInstance;
+            var creature = new NpcMonsterDto
+            {
+                NpcMonsterVNum = 24, Level = 1, MaxHp = 100, Xp = 60, JobXp = 105, Name = new I18NString(),
+            };
+            _monster = new MonsterComponentBundle(
+                map.EcsWorld.CreateMonster(9002, creature, map, 12, 14, 2, 12, 14, false, true, false), map.EcsWorld);
+            _session.Character.Level = 10;
+            _session.Character.JobLevel = 1;
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual((36L, 315L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
         public async Task TheJobExperienceBoostFollowsTheCharacterLevelNotTheJobLevel()
         {
             _session.Character.Level = 30;
