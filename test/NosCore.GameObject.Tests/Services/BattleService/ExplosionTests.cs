@@ -111,13 +111,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 SkillCooldown = 12,
                 AttackAnimation = 11,
                 SkillEffect = 0,
-                PositionX = wiggler.PositionX,
-                PositionY = wiggler.PositionY,
                 TargetIsAlive = true,
                 HpPercentage = (byte)(nearby.Hp * 100 / nearby.MaxHp),
                 Damage = ExplosionDamage,
                 HitMode = SuPacketHitMode.AttackedInAoe,
-                SkillTypeMinusOne = -1,
                 TargetCurrentHp = nearby.Hp,
                 TargetMaxHp = nearby.MaxHp,
             }, blasts.Single(su => su.TargetId == nearby.VisualId));

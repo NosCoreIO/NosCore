@@ -148,14 +148,13 @@ namespace NosCore.GameObject.Services.BattleService
                 BCards = [],
                 ChargeBCards = null,
             };
-            var presentation = new HitPresentation(origin.PositionX, origin.PositionY, true);
             var victims = targetResolver.ResolveArea(origin, map, origin.PositionX, origin.PositionY, blast)
                 .Where(victim => !(victim.VisualType == origin.VisualType && victim.VisualId == origin.VisualId))
                 .Where(victim => !(origin is MonsterComponentBundle && victim is MonsterComponentBundle))
                 .ToList();
             foreach (var victim in victims)
             {
-                await TryProcessHitAsync(origin, victim, blast, false, presentation);
+                await TryProcessHitAsync(origin, victim, blast, false, HitPresentation.Area);
             }
         }
 
