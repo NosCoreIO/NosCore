@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261120181952_UniqueQuestObjectivesAndPrizes";
+    public override string LastMigrationId => "20261120202641_AddMapTeleporterAfterBar";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -71,7 +71,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "skill_kind", new[] { "attack", "debuff", "support", "emote" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "sp_partner_rank", new[] { "not_identified_yet", "f", "e", "d", "c", "b", "a", "s" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "static_bonus_type", new[] { "bazaar_medal_gold", "bazaar_medal_silver", "back_pack", "pet_basket", "pet_back_pack", "inventory_ticket_upgrade", "cuarry_bank_vip", "medal_of_erenia", "adventurers_medal", "medal_of_friendship", "mimis_medal", "family_experience_booster" });
-        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "teleporter_type", new[] { "teleporter", "teleporter_on_map" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "teleporter_type", new[] { "teleporter", "teleporter_on_map", "teleporter_on_map_after_bar" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "warehouse_type", new[] { "warehouse", "family_ware_house", "pet_warehouse" });
         NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
