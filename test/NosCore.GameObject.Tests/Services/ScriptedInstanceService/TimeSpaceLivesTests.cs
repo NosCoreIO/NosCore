@@ -232,8 +232,19 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
                 .AndAsync(TheRunHasStarted)
                 .WhenAsync(TheClockRunsOut)
-                .Then(TheScoreShouldBeEmpty)
+                .Then(TheFailedScoreShouldShow_, EndStateType.Timeout)
                 .And(EachPlayerShouldHave_FailedAttempt, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARunOutOfLivesScoresNothingAndShowsTheLivesAreSpent()
+        {
+            await new Spec("When the last life is used the score is all zeros and names the lives as spent")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .AndAsync(TheRunHasStarted)
+                .WhenAsync(ThePlayerDies)
+                .Then(TheFailedScoreShouldShow_, EndStateType.LivesExhausted)
                 .ExecuteAsync();
         }
 
@@ -490,10 +501,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             return World.Create<TimeSpaceFailedHandler>().Handle(new TimeSpaceFailedEvent(_session.Character, 1));
         }
 
-        private void TheScoreShouldBeEmpty()
+        private void TheFailedScoreShouldShow_(EndStateType state)
         {
             var broadcast = _roomSessions.Invocations.SelectMany(call => call.Arguments.OfType<IPacket[]>()).SelectMany(packets => packets);
-            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Timeout }, broadcast.OfType<ScoreFailedPacket>().Single());
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = state }, broadcast.OfType<ScoreFailedPacket>().Single());
         }
 
         private void EachPlayerShouldHave_FailedAttempt(int count)

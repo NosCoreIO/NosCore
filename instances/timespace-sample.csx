@@ -39,8 +39,6 @@ public class TimeSpaceSample : InstanceScript
         run.Message(Game18NConstString.TimeSpaceCompleted, Definition.LevelMinimum);
         run.Succeed();
     }
-
-    public override void OnTimeout(IInstanceRun run) => run.Fail();
 }
 
 return new TimeSpaceSample();

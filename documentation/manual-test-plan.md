@@ -3597,11 +3597,13 @@ and 4) with a level 5 character that has never cleared it.
       and the run is marked as a Loser Mode clear
 - [ ] In a party where only one member has cleared it before, each member's window reflects their
       own clear and their own level penalty
-- [ ] Let the clock run out: the failure window opens ("Failed because time ran out."). Lose the
-      last life instead: the failure window opens for that end too
+- [ ] Let the clock run out: the failure window opens ("Failed because time ran out.") and the
+      server sent `score 1`. Lose the last life instead: the failure window opens for that end too,
+      from `score 3`
+- [ ] Do the same in `timespace-sample`: running out of time sends `score 1`, not `score 2`
 - [ ] Not verifiable yet: the last field of the score line. Every traced run of a level 76 or 98
-      character carries 15 and every one of a level 6 to 20 character carries 1; NosCore sends 15
-      until its meaning is known
+      character carries 15 and every one of a level 6 to 20 character carries 1; NosCore sends 1 up
+      to level 20 and 15 above. Where it changes between 21 and 75 is not known
 
 ### Raids
 

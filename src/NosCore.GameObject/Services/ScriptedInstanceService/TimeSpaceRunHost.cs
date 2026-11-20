@@ -108,9 +108,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 : entrance.Definition is { } definition && character.CompletedTimeSpaces?.Contains(definition.Id) == true
                     ? TimeSpaceClearType.ClearedBefore
                     : TimeSpaceClearType.FirstClear,
-            // Every captured run of a level 76 or 98 character carries 15 and every one of a level 6 to 20
-            // character carries 1, whatever the time-space or clear type; what it counts is not known.
-            Unknown = 15
+            // Captured runs carry 1 up to level 20 and 15 at levels 76 and 98, whatever the time-space or
+            // clear type. No capture lies between, so where it changes from 1 to 15 is not known.
+            Unknown = character.Level <= 20 ? (byte)1 : (byte)15
         };
 
         // Taken before any await, so a player leaving mid-loop does not cut the others' events short.

@@ -107,7 +107,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     NpcsLeft = 2,
                     Perfect = [true, true, true],
                     ClearType = TimeSpaceClearType.FirstClear,
-                    Unknown = 15
+                    Unknown = 1
                 })
                 .And(TheClearShouldBeRecorded)
                 .ExecuteAsync();
@@ -131,7 +131,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     NpcsLeft = 2,
                     Perfect = [true, true, true],
                     ClearType = TimeSpaceClearType.ClearedBefore,
-                    Unknown = 15
+                    Unknown = 1
                 })
                 .ExecuteAsync();
         }
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     NpcsLeft = 2,
                     Perfect = [true, true, true],
                     ClearType = TimeSpaceClearType.LoserMode,
-                    Unknown = 15
+                    Unknown = 1
                 })
                 .ExecuteAsync();
         }
@@ -177,7 +177,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     NpcsLeft = 1,
                     Perfect = [false, true, false],
                     ClearType = TimeSpaceClearType.FirstClear,
-                    Unknown = 15
+                    Unknown = 1
                 })
                 .ExecuteAsync();
         }
@@ -193,6 +193,33 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .And(NoClearedScoreShouldBeSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ALevelTwentyCharacterScoresOneInTheLastField()
+        {
+            await new Spec("A character of level 20 or below gets 1 in the score's last field")
+                .Given(TheCharacterIsLevel_, (byte)20)
+                .AndAsync(ATimeSpaceThatSucceeds)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheScoresLastFieldShouldBe_, (byte)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AHighLevelCharacterScoresFifteenInTheLastField()
+        {
+            await new Spec("A character of level 76 gets 15 in the score's last field")
+                .Given(TheCharacterIsLevel_, (byte)76)
+                .AndAsync(ATimeSpaceThatSucceeds)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheScoresLastFieldShouldBe_, (byte)15)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterIsLevel_(byte level) => _session.Character.Level = level;
+
+        private void TheScoresLastFieldShouldBe_(byte unknown) =>
+            Assert.AreEqual(unknown, _session.LastPackets.OfType<ScorePacket>().Single().Unknown);
 
         private void TheCharacterHasClearedItBefore() =>
             _session.Character.CompletedTimeSpaces = ImmutableHashSet.Create(TimeSpaceId);
