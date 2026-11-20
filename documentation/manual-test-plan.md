@@ -3676,6 +3676,47 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] Not verifiable yet: a monster's hit and HP-threshold steps (`OnHit`, `OnHpBelow` in
       [instance-scripts.md](instance-scripts.md)), which no shipped script uses yet
 
+### Time-spaces 33, 35, 38, 46 and 628
+
+These five come from the 2026-11-20 log of full runs: "La rencontre" (33, level 43, Fernon Temple 1),
+"L'enquête" (35, level 45), "Secret des Kenkos" (38, level 48), "Le peuple des Catsys" (46, level 56)
+and "L'espion koaren" (628, level 44, the stone on map 63). Point a test stone at each and use a
+character of its level; the texts below are the French ones the log shows.
+
+- [ ] Each of the five can be finished with Mission Clear, and its panel shows the draw, special and
+      bonus items of the log (33: 138, 145, 152 / 220 / 1027 x2, 1087; 35: 102, 115, 128 / 803 /
+      2099 x2, 1087; 38: 1085 x2, 1010 x3 / 2040 x15 / 2127, 1087; 46: 715, 533 / 1033 x8 / 2099 x4,
+      1087; 628: none) and takes 4, 4, 4, 5 and 1 time-space stones
+- [ ] In `timespace-33`, the first crossing (map 4400) holds a lever; pulling it opens the north and
+      south rooms. Its east door stays shut after clearing either one of them and opens, with "A door
+      has opened." and the Quick Mission line, once both are cleared. The second crossing works the same
+- [ ] In `timespace-33`, the hall after the second crossing (map 4411) is empty until its lever is
+      pulled; the lever brings Kenkos and "Une attaque surprise !", and clearing them adds 30 seconds
+- [ ] In `timespace-33`, the room on map 4411 with Korrkoaren shows "Rencontre entre Korrkoaren et
+      Kenko" and talk 6211; closing it brings a Kenko Flailman and an Ugly Spearman, "Tu dois combattre
+      le démon pendant 3 minutes." and a red three-minute clock. Three Ugly Spearmen come with "The
+      enemies are getting reinforcements!" a minute in and every 30 seconds after, and none at the
+      start; when the clock ends both doors open and talk 6212 shows
+- [ ] In `timespace-35`, the crossroads (map 5301) opens its north door only once both side camps
+      (map 5307) are cleared; clearing the west camp shows "Tu as éliminé tous les monstres !" and the
+      east camp "Dégagé !"
+- [ ] In `timespace-35`, the trap room (map 5303) shows "C'est un piège ! Tiens bon !" and a red
+      30 second clock; killing everything early opens nothing, and when the clock ends both doors open
+      and talk 6149 shows
+- [ ] In `timespace-38`, every hall after the gate opens talk 6163 and brings its Kenkos when it is
+      closed; clearing it opens the next hall only, the way back stays shut, and the first four add
+      80 seconds each
+- [ ] In `timespace-46`, the square (map 4812) holds a Kenel; closing talk 6234 brings the monsters
+      with "Une attaque inattendue !", and clearing it opens both doors and shows talk 6235
+- [ ] In `timespace-628`, the lever room (map 4416) brings Kenko Swordsmen when pulled; clearing them
+      opens the west door of the room on map 4403, which leads to a room that holds out for a red
+      200 second clock with Kenkos coming every 30 seconds; when it ends the east door of the room on
+      map 4402 opens too
+- [ ] Not verifiable yet: the regular and old boxes lying in some rooms of these logs (items 1042 and
+      1001), the objective counters the mission window shows (an NPC to protect in 33, 46 and 628,
+      six talks in 38), and the Kenko allies that fight beside the player in 33, none of which the
+      scripts hold
+
 ### Time-space reward chest
 
 Copy `timespace-sample.csx` to `timespace-chest.csx`, point the row's `Script` at it, and add to its
