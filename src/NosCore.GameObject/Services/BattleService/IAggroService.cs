@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -23,4 +24,4 @@ public interface IAggroService
     void Clear(IAliveEntity mob);
 }
 
-public readonly record struct AggroSnapshot(long TargetVisualId, int ThreatScore, bool HasTarget);
+public readonly record struct AggroSnapshot(VisualType TargetVisualType, long TargetVisualId, int ThreatScore, bool HasTarget);

@@ -152,7 +152,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         if (!aggro.HasTarget) return null;
 
         // A target that hides is lost.
-        var target = ResolveTarget(entity, aggro.TargetVisualId);
+        var target = ResolveTarget(entity, aggro.TargetVisualType, aggro.TargetVisualId);
         if (target is { IsAlive: true } && !IsHiddenFrom(entity, target)) return target;
 
         aggroService.Clear(entity);
@@ -280,7 +280,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         var aggro = aggroService.Current(member);
         if (!aggro.HasTarget) return null;
 
-        var target = ResolveTarget(entity, aggro.TargetVisualId);
+        var target = ResolveTarget(entity, aggro.TargetVisualType, aggro.TargetVisualId);
         if (target is not { IsAlive: true } || target.VisualType == entity.VisualType) return null;
 
         var d = distanceCalculator.GetDistance(
@@ -301,42 +301,50 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         };
     }
 
-    // Resolves the cached aggro target by visual id. Walks every pool (players and
-    // their mates, monsters, NPCs) because any of them can be an aggro target.
-    private IAliveEntity? ResolveTarget(INonPlayableEntity entity, long visualId)
+    // Monsters, NPCs and players each number their ids on their own, so the id alone can
+    // name several entities on one map.
+    private IAliveEntity? ResolveTarget(INonPlayableEntity entity, VisualType visualType, long visualId)
     {
         var map = entity.MapInstance;
         if (map == null) return null;
 
-        foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstanceId))
+        switch (visualType)
         {
-            if (!session.HasPlayerEntity)
-            {
-                continue;
-            }
-
-            if (session.Character.VisualId == visualId)
-            {
-                return session.Character;
-            }
-
-            foreach (var mate in session.Character.Mates.Values)
-            {
-                if (mate.Entity is { } mateEntity && mateEntity.VisualId == visualId)
+            case VisualType.Player:
+                foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstanceId))
                 {
-                    return mateEntity;
+                    if (session.HasPlayerEntity && session.Character.VisualId == visualId)
+                    {
+                        return session.Character;
+                    }
                 }
-            }
+                return null;
+            case VisualType.Monster:
+                foreach (var monster in map.EnumerateMonsters())
+                {
+                    if (monster.VisualId == visualId) return monster;
+                }
+                return null;
+            case VisualType.Npc:
+                foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstanceId))
+                {
+                    if (!session.HasPlayerEntity) continue;
+                    foreach (var mate in session.Character.Mates.Values)
+                    {
+                        if (mate.Entity is { } mateEntity && mateEntity.VisualId == visualId)
+                        {
+                            return mateEntity;
+                        }
+                    }
+                }
+                foreach (var npc in map.EnumerateNpcs())
+                {
+                    if (npc.VisualId == visualId) return npc;
+                }
+                return null;
+            default:
+                return null;
         }
-        foreach (var monster in map.EnumerateMonsters())
-        {
-            if (monster.VisualId == visualId) return monster;
-        }
-        foreach (var npc in map.EnumerateNpcs())
-        {
-            if (npc.VisualId == visualId) return npc;
-        }
-        return null;
     }
 
     // 20% chance per tick to roll one of the entity's cooldown-ready skills. When a

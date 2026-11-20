@@ -18,6 +18,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -227,6 +228,24 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(await _ai.TickAsync(monster));
             var petId = pet.MateTransportId;
             _battle.Verify(b => b.Hit(It.IsAny<IAliveEntity>(), It.Is<IAliveEntity>(t => t.VisualId == petId),
+                It.IsAny<HitArguments>()), Times.Once());
+        }
+
+        [TestMethod]
+        public async Task AMonsterFightsBackAnNpcSharingItsId()
+        {
+            var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
+            _map.LoadNpcs(
+                new List<MapNpcDto> { new() { MapNpcId = 200, MapId = 0, MapX = 4, MapY = 2, VNum = 2 } },
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(
+                    new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2, MaxHp = 100, Level = 5 } }));
+            var guard = _map.EnumerateNpcs().Single();
+
+            _aggro.AddThreat(monster, guard, 5);
+
+            Assert.IsTrue(await _ai.TickAsync(monster));
+            _battle.Verify(b => b.Hit(It.IsAny<IAliveEntity>(),
+                It.Is<IAliveEntity>(t => t.VisualType == VisualType.Npc && t.VisualId == 200),
                 It.IsAny<HitArguments>()), Times.Once());
         }
 
