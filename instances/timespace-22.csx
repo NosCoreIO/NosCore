@@ -1,366 +1,249 @@
-public class TimeSpace22 : InstanceScript
+public class TimeSpace22 : TimeSpaceScript
 {
-    private readonly int _room1;
-    private readonly int _room2;
-    private readonly int _room3;
-    private readonly int _room4;
-    private readonly int _room5;
-    private readonly int _room6;
-    private readonly int _room7;
-    private readonly int _room8;
-    private readonly int _room9;
-    private readonly int _room10;
-    private readonly int _room11;
-    private readonly int _room12;
-    private readonly int _room13;
-    private readonly int _room14;
-    private readonly int _room15;
-    private readonly int _room16;
-
-    public TimeSpace22()
+    public TimeSpace22() : base(22, "A New Companion")
     {
-        Definition = InstanceDefinitionBuilder.Named(22, "A New Companion", "A New Companion")
-            .ForLevels(32, 99)
-            .StartingAt(8, 10)
-            .Requiring(1012, 3)
-            .WithLives(3)
-            .WithDraw(180, 1)
-            .WithDraw(181, 1)
-            .WithSpecialReward(1028, 10)
-            .WithReward(2131, 1)
-            .WithReward(1087, 1)
-            .WithRoom(5203, out _room1, 6, 9)
-            .WithRoom(5203, out _room2, 5, 9)
-            .WithRoom(5203, out _room3, 4, 9)
-            .WithRoom(5203, out _room4, 4, 8)
-            .WithRoom(5203, out _room5, 3, 8)
-            .WithRoom(5203, out _room6, 2, 8)
-            .WithRoom(5203, out _room7, 2, 7)
-            .WithRoom(5203, out _room8, 3, 7)
-            .WithRoom(5203, out _room9, 4, 7)
-            .WithRoom(5203, out _room10, 5, 7)
-            .WithRoom(5203, out _room11, 5, 6)
-            .WithRoom(5203, out _room12, 6, 6)
-            .WithRoom(5203, out _room13, 7, 6)
-            .WithRoom(5203, out _room14, 7, 7)
-            .WithRoom(5203, out _room15, 7, 8)
-            .WithRoom(5203, out _room16, 7, 9)
-            .Build();
-    }
+        Levels(32, 99);
+        Start(8, 10);
+        Requires(1012, 3);
+        Lives(3);
+        Clock(TimeSpan.FromSeconds(300));
+        Draw(180, 1);
+        Draw(181, 1);
+        Special(1028, 10);
+        Reward(2131, 1);
+        Reward(1087, 1);
 
-    public override void OnFirstEnter(IInstanceRun r)
-    {
-        r.StartClock(TimeSpan.FromSeconds(300));
-        r.SpawnPortal(_room1, new(1, 12), _room2, new(23, 12), locked: false);
-        r.SpawnPortal(_room2, new(23, 12), _room1, new(1, 12));
-        r.SpawnPortal(_room2, new(1, 12), _room3, new(23, 12));
-        r.SummonNpcs(_room2, new NpcSpawn(311, new(15, 22)), new NpcSpawn(311, new(15, 19)), new NpcSpawn(311, new(15, 14)), new NpcSpawn(311, new(15, 11)), new NpcSpawn(311, new(15, 8)), new NpcSpawn(311, new(15, 7)));
-        r.SpawnPortal(_room3, new(12, 1), _room4, new(12, 23), locked: false);
-        r.SpawnPortal(_room3, new(23, 12), _room2, new(1, 12));
-        r.SpawnPortal(_room4, new(12, 23), _room3, new(12, 1));
-        r.SpawnPortal(_room4, new(1, 12), _room5, new(23, 12));
-        r.SummonNpcs(_room4, new NpcSpawn(311, new(14, 23)), new NpcSpawn(311, new(14, 20)), new NpcSpawn(311, new(14, 16)), new NpcSpawn(311, new(14, 13)), new NpcSpawn(311, new(14, 9)), new NpcSpawn(311, new(14, 6)));
-        r.SpawnPortal(_room5, new(23, 12), _room4, new(1, 12), locked: false);
-        r.SpawnPortal(_room5, new(1, 12), _room6, new(23, 12), locked: false);
-        r.SpawnPortal(_room6, new(12, 1), _room7, new(12, 23));
-        r.SpawnPortal(_room6, new(23, 12), _room5, new(1, 12));
-        r.SummonNpcs(_room6, new NpcSpawn(311, new(15, 23)), new NpcSpawn(311, new(15, 22)), new NpcSpawn(311, new(15, 21)), new NpcSpawn(311, new(15, 18)), new NpcSpawn(311, new(15, 14)), new NpcSpawn(311, new(15, 9)), new NpcSpawn(311, new(15, 7)), new NpcSpawn(311, new(15, 6)));
-        r.SpawnPortal(_room7, new(23, 12), _room8, new(1, 12), locked: false);
-        r.SpawnPortal(_room7, new(12, 23), _room6, new(12, 1), locked: false);
-        r.SpawnPortal(_room8, new(23, 12), _room9, new(1, 12));
-        r.SpawnPortal(_room8, new(1, 12), _room7, new(23, 12));
-        r.SummonNpcs(_room8, new NpcSpawn(311, new(12, 16)), new NpcSpawn(311, new(11, 13)), new NpcSpawn(311, new(10, 23)), new NpcSpawn(311, new(10, 6)), new NpcSpawn(311, new(9, 21)), new NpcSpawn(311, new(9, 18)), new NpcSpawn(311, new(9, 15)), new NpcSpawn(311, new(9, 11)), new NpcSpawn(311, new(9, 8)));
-        r.SpawnPortal(_room9, new(23, 12), _room10, new(1, 12), locked: false);
-        r.SpawnPortal(_room9, new(1, 12), _room8, new(23, 12), locked: false);
-        r.SpawnPortal(_room10, new(12, 1), _room11, new(12, 23));
-        r.SpawnPortal(_room10, new(1, 12), _room9, new(23, 12));
-        r.Summon(_room10,
-            new MonsterSpawn(120, new(22, 13), IsBonus: true),
-            new MonsterSpawn(120, new(20, 14)),
-            new MonsterSpawn(120, new(13, 10)),
-            new MonsterSpawn(120, new(12, 21)),
-            new MonsterSpawn(120, new(9, 14)));
-        r.SummonNpcs(_room10, new NpcSpawn(311, new(23, 14)), new NpcSpawn(311, new(20, 13)), new NpcSpawn(311, new(15, 18)), new NpcSpawn(311, new(14, 23)), new NpcSpawn(311, new(15, 19)), new NpcSpawn(311, new(11, 8)), new NpcSpawn(311, new(10, 18)), new NpcSpawn(311, new(7, 15)), new NpcSpawn(311, new(9, 11)), new NpcSpawn(311, new(9, 7)), new NpcSpawn(311, new(9, 6)));
-        r.SpawnPortal(_room11, new(23, 12), _room12, new(1, 12));
-        r.SpawnPortal(_room11, new(12, 23), _room10, new(12, 1));
-        r.SummonNpcs(_room11, new NpcSpawn(318, new(10, 15), IsEscort: true));
-        r.SpawnPortal(_room12, new(23, 12), _room13, new(1, 12));
-        r.SpawnPortal(_room12, new(1, 12), _room11, new(23, 12));
-        r.Summon(_room12,
-            new MonsterSpawn(338, new(12, 22)),
-            new MonsterSpawn(338, new(10, 19), IsBonus: true),
-            new MonsterSpawn(338, new(13, 16)),
-            new MonsterSpawn(338, new(10, 11)),
-            new MonsterSpawn(338, new(12, 9)));
-        r.SpawnPortal(_room13, new(12, 23), _room14, new(12, 1));
-        r.SpawnPortal(_room13, new(1, 12), _room12, new(23, 12));
-        r.Summon(_room13,
-            new MonsterSpawn(338, new(13, 15)),
-            new MonsterSpawn(338, new(13, 9), OnDeath: r =>
-            {
-                r.Summon(_room13,
-                new MonsterSpawn(338, new(12, 13)),
-                new MonsterSpawn(338, new(12, 21)));
-            }),
-            new MonsterSpawn(338, new(12, 19), OnDeath: r =>
-            {
-                r.Summon(_room13, new MonsterSpawn(338, new(13, 17)));
-            }),
-            new MonsterSpawn(338, new(12, 12)));
-        r.SpawnPortal(_room14, new(12, 1), _room13, new(12, 23));
-        r.SpawnPortal(_room14, new(12, 23), _room15, new(12, 1));
-        r.Summon(_room14,
-            new MonsterSpawn(338, new(14, 21), OnDeath: r =>
-            {
-                r.Summon(_room14, new MonsterSpawn(338, new(19, 11)));
-            }),
-            new MonsterSpawn(338, new(11, 18), OnDeath: r =>
-            {
-                r.Summon(_room14, new MonsterSpawn(338, new(15, 18), OnDeath: r =>
-                {
-                    r.Summon(_room14, new MonsterSpawn(338, new(20, 13), IsBonus: true));
-                }));
-            }),
-            new MonsterSpawn(338, new(10, 21), OnDeath: r =>
-            {
-                r.Summon(_room14,
-                new MonsterSpawn(338, new(23, 12)),
-                new MonsterSpawn(338, new(23, 13)));
-            }),
-            new MonsterSpawn(338, new(7, 16)));
-        r.SpawnPortal(_room15, new(12, 1), _room14, new(12, 23));
-        r.SpawnPortal(_room15, new(12, 23), _room16, new(12, 1));
-        r.Summon(_room15,
-            new MonsterSpawn(338, new(13, 17), OnDeath: r =>
-            {
-                r.Summon(_room15, new MonsterSpawn(338, new(13, 20), OnDeath: r =>
-                {
-                    r.Summon(_room15,
-                    new MonsterSpawn(338, new(17, 12)),
-                    new MonsterSpawn(338, new(18, 13), OnDeath: r =>
-                    {
-                        r.Summon(_room15, new MonsterSpawn(338, new(23, 12)));
-                    }),
-                    new MonsterSpawn(338, new(21, 12)));
-                }));
-            }),
-            new MonsterSpawn(338, new(9, 20), IsBonus: true),
-            new MonsterSpawn(338, new(9, 17)));
-        r.SpawnPortal(_room16, new(12, 1), _room15, new(12, 23));
-        r.SpawnExit(_room16, new(12, 23));
-    }
+        var entrance = Room(5203, 6, 9);
+        var firstFight = Room(5203, 5, 9);
+        var passage = Room(5203, 4, 9);
+        var secondFight = Room(5203, 4, 8);
+        var turn = Room(5203, 3, 8);
+        var thirdFight = Room(5203, 2, 8);
+        var bend = Room(5203, 2, 7);
+        var fourthFight = Room(5203, 3, 7);
+        var hallway = Room(5203, 4, 7);
+        var guardPost = Room(5203, 5, 7);
+        var companion = Room(5203, 5, 6);
+        var firstAmbush = Room(5203, 6, 6);
+        var secondAmbush = Room(5203, 7, 6);
+        var thirdAmbush = Room(5203, 7, 7);
+        var fourthAmbush = Room(5203, 7, 8);
+        var way = Room(5203, 7, 9);
 
-    public override void OnRoomEntered(IInstanceRun r, int room)
-    {
-        if (room == _room1)
-        {
-            r.Message(Game18NConstString.MissionStartWhenEnterFirstRoom);
-        }
-        else if (room == _room2)
-        {
-            r.Dialog(_room2, 6114);
-        }
-        else if (room == _room4)
-        {
-            r.Dialog(_room4, 6114);
-        }
-        else if (room == _room6)
-        {
-            r.Dialog(_room6, 6114);
-        }
-        else if (room == _room8)
-        {
-            r.Dialog(_room8, 6115);
-        }
-        else if (room == _room11)
-        {
-            r.Dialog(_room11, 6117);
-        }
-        else if (room == _room12)
-        {
-            r.Objective(_room12, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-        else if (room == _room13)
-        {
-            r.Objective(_room13, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-        else if (room == _room14)
-        {
-            r.Objective(_room14, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-        else if (room == _room15)
-        {
-            r.Objective(_room15, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-        else if (room == _room16)
-        {
-            r.UnlockExit(_room16);
-        }
-    }
+        entrance.Portal(new(1, 12), firstFight, new(23, 12), locked: false);
+        entrance.OnEnter(r => r.Say(Game18NConstString.MissionStartWhenEnterFirstRoom));
 
-    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
-    {
-        if (room == _room2 && dialog == 6114)
-        {
-            r.Summon(_room2,
-                new MonsterSpawn(114, new(15, 21)),
-                new MonsterSpawn(114, new(15, 12), OnDeath: r =>
-                {
-                    r.Summon(_room2,
-                    new MonsterSpawn(114, new(6, 12)),
-                    new MonsterSpawn(114, new(9, 13)),
-                    new MonsterSpawn(114, new(9, 17)));
-                }),
-                new MonsterSpawn(120, new(15, 9)),
-                new MonsterSpawn(120, new(13, 17), OnDeath: r =>
-                {
-                    r.Summon(_room2,
-                    new MonsterSpawn(120, new(6, 14)),
-                    new MonsterSpawn(120, new(9, 15)));
-                }),
-                new MonsterSpawn(114, new(10, 12)));
-        }
-        else if (room == _room4 && dialog == 6114)
-        {
-            r.Summon(_room4,
-                new MonsterSpawn(120, new(15, 20)),
-                new MonsterSpawn(120, new(15, 13)),
-                new MonsterSpawn(120, new(15, 9)),
-                new MonsterSpawn(117, new(11, 17)),
-                new MonsterSpawn(114, new(11, 8)),
-                new MonsterSpawn(114, new(10, 20)),
-                new MonsterSpawn(117, new(9, 23)),
-                new MonsterSpawn(114, new(9, 10)),
-                new MonsterSpawn(117, new(9, 6), IsBonus: true),
-                new MonsterSpawn(114, new(8, 17)),
-                new MonsterSpawn(117, new(8, 12)));
-            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-        else if (room == _room6 && dialog == 6114)
-        {
-            r.Summon(_room6,
-                new MonsterSpawn(120, new(14, 19)),
-                new MonsterSpawn(120, new(14, 11)),
-                new MonsterSpawn(114, new(11, 22)),
-                new MonsterSpawn(114, new(11, 21)),
-                new MonsterSpawn(114, new(11, 17)),
-                new MonsterSpawn(114, new(11, 14)),
-                new MonsterSpawn(114, new(11, 10)),
-                new MonsterSpawn(114, new(11, 7)),
-                new MonsterSpawn(120, new(8, 17)),
-                new MonsterSpawn(120, new(8, 15), IsBonus: true),
-                new MonsterSpawn(120, new(8, 11)),
-                new MonsterSpawn(117, new(6, 8)),
-                new MonsterSpawn(117, new(5, 13)),
-                new MonsterSpawn(117, new(5, 11)),
-                new MonsterSpawn(117, new(4, 13)));
-            r.Objective(_room6, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-        else if (room == _room8 && dialog == 6115)
-        {
-            r.Summon(_room8,
-                new MonsterSpawn(114, new(22, 13)),
-                new MonsterSpawn(114, new(22, 12)),
-                new MonsterSpawn(114, new(22, 10)),
-                new MonsterSpawn(114, new(20, 13)),
-                new MonsterSpawn(117, new(19, 12)),
-                new MonsterSpawn(117, new(14, 23)),
-                new MonsterSpawn(120, new(14, 21)),
-                new MonsterSpawn(120, new(14, 19)),
-                new MonsterSpawn(120, new(14, 15)),
-                new MonsterSpawn(120, new(14, 12), IsBonus: true),
-                new MonsterSpawn(120, new(14, 8)),
-                new MonsterSpawn(117, new(14, 8)),
-                new MonsterSpawn(117, new(14, 6)));
-            r.Objective(_room8, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-        else if (room == _room11 && dialog == 6117)
-        {
-            r.Summon(_room11,
-                new MonsterSpawn(338, new(14, 19)),
-                new MonsterSpawn(338, new(14, 18)),
-                new MonsterSpawn(338, new(14, 10)),
-                new MonsterSpawn(338, new(13, 16)),
-                new MonsterSpawn(338, new(13, 14)),
-                new MonsterSpawn(338, new(13, 12)));
-            r.Objective(_room11, LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES);
-        }
-    }
+        var firstFightToEntrance = firstFight.Portal(new(23, 12), entrance, new(1, 12));
+        var firstFightToPassage = firstFight.Portal(new(1, 12), passage, new(23, 12));
+        firstFight.Spawn(Npc(311).At(15, 22), Npc(311).At(15, 19), Npc(311).At(15, 14), Npc(311).At(15, 11), Npc(311).At(15, 8), Npc(311).At(15, 7));
+        firstFight.OnEnter(r => r.Dialog(6114))
+            .OnDialogClosed(6114, r => r
+                .Spawn(
+                    Monster(114).At(15, 21),
+                    Monster(114).At(15, 12).OnDeath(r => r.Spawn(Monster(114).At(6, 12), Monster(114).At(9, 13), Monster(114).At(9, 17))),
+                    Monster(120).At(15, 9),
+                    Monster(120).At(13, 17).OnDeath(r => r.Spawn(Monster(120).At(6, 14), Monster(120).At(9, 15))),
+                    Monster(114).At(10, 12))
+                .Say(Game18NConstString.NewGoal))
+            .OnCleared(r => r
+                .Unlock(firstFightToPassage, firstFightToEntrance)
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(LanguageKey.TIMESPACE_ENEMY_DEFEATED));
 
-    public override void OnRoomCleared(IInstanceRun r, int room)
-    {
-        if (room == _room2)
-        {
-            r.UnlockPortal(_room2, _room3);
-            r.UnlockPortal(_room2, _room1);
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(LanguageKey.TIMESPACE_ENEMY_DEFEATED);
-        }
-        else if (room == _room4)
-        {
-            r.UnlockPortal(_room4, _room3);
-            r.UnlockPortal(_room4, _room5);
-            r.AddClockTime(TimeSpan.FromSeconds(150));
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-        else if (room == _room6)
-        {
-            r.UnlockPortal(_room6, _room5);
-            r.UnlockPortal(_room6, _room7);
-            r.AddClockTime(TimeSpan.FromSeconds(100));
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-        else if (room == _room8)
-        {
-            r.UnlockPortal(_room8, _room7);
-            r.UnlockPortal(_room8, _room9);
-            r.AddClockTime(TimeSpan.FromSeconds(150));
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-        else if (room == _room10)
-        {
-            r.UnlockPortal(_room10, _room11);
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Dialog(_room10, 6116);
-        }
-        else if (room == _room11)
-        {
-            r.UnlockPortal(_room11, _room12);
-            r.AddClockTime(TimeSpan.FromSeconds(150));
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-        else if (room == _room12)
-        {
-            r.UnlockPortal(_room12, _room13);
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-        else if (room == _room13)
-        {
-            r.UnlockPortal(_room13, _room14);
-            r.AddClockTime(TimeSpan.FromSeconds(100));
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-        else if (room == _room14)
-        {
-            r.UnlockPortal(_room14, _room15);
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-        else if (room == _room15)
-        {
-            r.UnlockPortal(_room15, _room16);
-            r.Message(Game18NConstString.ADoorHasOpened);
-            r.Message(Game18NConstString.QuickMissionComplete);
-        }
-    }
+        passage.Portal(new(12, 1), secondFight, new(12, 23), locked: false);
+        passage.Portal(new(23, 12), firstFight, new(1, 12));
 
-    public override void OnExitReached(IInstanceRun r, int room) => r.Succeed();
+        var secondFightToPassage = secondFight.Portal(new(12, 23), passage, new(12, 1));
+        var secondFightToTurn = secondFight.Portal(new(1, 12), turn, new(23, 12));
+        secondFight.Spawn(Npc(311).At(14, 23), Npc(311).At(14, 20), Npc(311).At(14, 16), Npc(311).At(14, 13), Npc(311).At(14, 9), Npc(311).At(14, 6));
+        secondFight.OnEnter(r => r.Dialog(6114))
+            .OnDialogClosed(6114, r => r
+                .Spawn(
+                    Monster(120).At(15, 20),
+                    Monster(120).At(15, 13),
+                    Monster(120).At(15, 9),
+                    Monster(117).At(11, 17),
+                    Monster(114).At(11, 8),
+                    Monster(114).At(10, 20),
+                    Monster(117).At(9, 23),
+                    Monster(114).At(9, 10),
+                    Monster(117).At(9, 6).Bonus(),
+                    Monster(114).At(8, 17),
+                    Monster(117).At(8, 12))
+                .Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES)
+                .Say(Game18NConstString.NewGoal))
+            .OnCleared(r => r
+                .Unlock(secondFightToPassage, secondFightToTurn)
+                .AddTime(TimeSpan.FromSeconds(150))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        turn.Portal(new(23, 12), secondFight, new(1, 12), locked: false);
+        turn.Portal(new(1, 12), thirdFight, new(23, 12), locked: false);
+
+        var thirdFightToBend = thirdFight.Portal(new(12, 1), bend, new(12, 23));
+        var thirdFightToTurn = thirdFight.Portal(new(23, 12), turn, new(1, 12));
+        thirdFight.Spawn(Npc(311).At(15, 23), Npc(311).At(15, 22), Npc(311).At(15, 21), Npc(311).At(15, 18), Npc(311).At(15, 14), Npc(311).At(15, 9), Npc(311).At(15, 7), Npc(311).At(15, 6));
+        thirdFight.OnEnter(r => r.Dialog(6114))
+            .OnDialogClosed(6114, r => r
+                .Spawn(
+                    Monster(120).At(14, 19),
+                    Monster(120).At(14, 11),
+                    Monster(114).At(11, 22),
+                    Monster(114).At(11, 21),
+                    Monster(114).At(11, 17),
+                    Monster(114).At(11, 14),
+                    Monster(114).At(11, 10),
+                    Monster(114).At(11, 7),
+                    Monster(120).At(8, 17),
+                    Monster(120).At(8, 15).Bonus(),
+                    Monster(120).At(8, 11),
+                    Monster(117).At(6, 8),
+                    Monster(117).At(5, 13),
+                    Monster(117).At(5, 11),
+                    Monster(117).At(4, 13))
+                .Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES)
+                .Say(Game18NConstString.NewGoal))
+            .OnCleared(r => r
+                .Unlock(thirdFightToTurn, thirdFightToBend)
+                .AddTime(TimeSpan.FromSeconds(100))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        bend.Portal(new(23, 12), fourthFight, new(1, 12), locked: false);
+        bend.Portal(new(12, 23), thirdFight, new(12, 1), locked: false);
+
+        var fourthFightToHallway = fourthFight.Portal(new(23, 12), hallway, new(1, 12));
+        var fourthFightToBend = fourthFight.Portal(new(1, 12), bend, new(23, 12));
+        fourthFight.Spawn(Npc(311).At(12, 16), Npc(311).At(11, 13), Npc(311).At(10, 23), Npc(311).At(10, 6), Npc(311).At(9, 21), Npc(311).At(9, 18), Npc(311).At(9, 15), Npc(311).At(9, 11), Npc(311).At(9, 8));
+        fourthFight.OnEnter(r => r.Dialog(6115))
+            .OnDialogClosed(6115, r => r
+                .Spawn(
+                    Monster(114).At(22, 13),
+                    Monster(114).At(22, 12),
+                    Monster(114).At(22, 10),
+                    Monster(114).At(20, 13),
+                    Monster(117).At(19, 12),
+                    Monster(117).At(14, 23),
+                    Monster(120).At(14, 21),
+                    Monster(120).At(14, 19),
+                    Monster(120).At(14, 15),
+                    Monster(120).At(14, 12).Bonus(),
+                    Monster(120).At(14, 8),
+                    Monster(117).At(14, 8),
+                    Monster(117).At(14, 6))
+                .Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES)
+                .Say(Game18NConstString.NewGoal))
+            .OnCleared(r => r
+                .Unlock(fourthFightToBend, fourthFightToHallway)
+                .AddTime(TimeSpan.FromSeconds(150))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        hallway.Portal(new(23, 12), guardPost, new(1, 12), locked: false);
+        hallway.Portal(new(1, 12), fourthFight, new(23, 12), locked: false);
+
+        var guardPostToCompanion = guardPost.Portal(new(12, 1), companion, new(12, 23));
+        guardPost.Portal(new(1, 12), hallway, new(23, 12));
+        guardPost.Spawn(
+            Monster(120).At(22, 13).Bonus(),
+            Monster(120).At(20, 14),
+            Monster(120).At(13, 10),
+            Monster(120).At(12, 21),
+            Monster(120).At(9, 14));
+        guardPost.Spawn(Npc(311).At(23, 14), Npc(311).At(20, 13), Npc(311).At(15, 18), Npc(311).At(14, 23), Npc(311).At(15, 19), Npc(311).At(11, 8), Npc(311).At(10, 18), Npc(311).At(7, 15), Npc(311).At(9, 11), Npc(311).At(9, 7), Npc(311).At(9, 6));
+        guardPost.OnCleared(r => r
+                .Unlock(guardPostToCompanion)
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Dialog(6116))
+            .OnDialogClosed(6116, r => r.Say(Game18NConstString.NewGoal));
+
+        var companionToFirstAmbush = companion.Portal(new(23, 12), firstAmbush, new(1, 12));
+        companion.Portal(new(12, 23), guardPost, new(12, 1));
+        companion.Spawn(Npc(318).At(10, 15).Escort());
+        companion.OnEnter(r => r.Dialog(6117))
+            .OnDialogClosed(6117, r => r
+                .Spawn(
+                    Monster(338).At(14, 19),
+                    Monster(338).At(14, 18),
+                    Monster(338).At(14, 10),
+                    Monster(338).At(13, 16),
+                    Monster(338).At(13, 14),
+                    Monster(338).At(13, 12))
+                .Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES)
+                .Say(Game18NConstString.NewGoal))
+            .OnCleared(r => r
+                .Unlock(companionToFirstAmbush)
+                .AddTime(TimeSpan.FromSeconds(150))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        var firstAmbushToSecond = firstAmbush.Portal(new(23, 12), secondAmbush, new(1, 12));
+        firstAmbush.Portal(new(1, 12), companion, new(23, 12));
+        firstAmbush.Spawn(
+            Monster(338).At(12, 22),
+            Monster(338).At(10, 19).Bonus(),
+            Monster(338).At(13, 16),
+            Monster(338).At(10, 11),
+            Monster(338).At(12, 9));
+        firstAmbush.OnEnter(r => r.Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES))
+            .OnCleared(r => r
+                .Unlock(firstAmbushToSecond)
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        var secondAmbushToThird = secondAmbush.Portal(new(12, 23), thirdAmbush, new(12, 1));
+        secondAmbush.Portal(new(1, 12), firstAmbush, new(23, 12));
+        secondAmbush.Spawn(
+            Monster(338).At(13, 15),
+            Monster(338).At(13, 9).OnDeath(r => r.Spawn(Monster(338).At(12, 13), Monster(338).At(12, 21))),
+            Monster(338).At(12, 19).OnDeath(r => r.Spawn(Monster(338).At(13, 17))),
+            Monster(338).At(12, 12));
+        secondAmbush.OnEnter(r => r.Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES))
+            .OnCleared(r => r
+                .Unlock(secondAmbushToThird)
+                .AddTime(TimeSpan.FromSeconds(100))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        thirdAmbush.Portal(new(12, 1), secondAmbush, new(12, 23));
+        var thirdAmbushToFourth = thirdAmbush.Portal(new(12, 23), fourthAmbush, new(12, 1));
+        thirdAmbush.Spawn(
+            Monster(338).At(14, 21).OnDeath(r => r.Spawn(Monster(338).At(19, 11))),
+            Monster(338).At(11, 18).OnDeath(r => r.Spawn(
+                Monster(338).At(15, 18).OnDeath(r => r.Spawn(Monster(338).At(20, 13).Bonus())))),
+            Monster(338).At(10, 21).OnDeath(r => r.Spawn(Monster(338).At(23, 12), Monster(338).At(23, 13))),
+            Monster(338).At(7, 16));
+        thirdAmbush.OnEnter(r => r.Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES))
+            .OnCleared(r => r
+                .Unlock(thirdAmbushToFourth)
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        fourthAmbush.Portal(new(12, 1), thirdAmbush, new(12, 23));
+        var fourthAmbushToWay = fourthAmbush.Portal(new(12, 23), way, new(12, 1));
+        fourthAmbush.Spawn(
+            Monster(338).At(13, 17).OnDeath(r => r.Spawn(
+                Monster(338).At(13, 20).OnDeath(r => r.Spawn(
+                    Monster(338).At(17, 12),
+                    Monster(338).At(18, 13).OnDeath(r => r.Spawn(Monster(338).At(23, 12))),
+                    Monster(338).At(21, 12))))),
+            Monster(338).At(9, 20).Bonus(),
+            Monster(338).At(9, 17));
+        fourthAmbush.OnEnter(r => r.Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES))
+            .OnCleared(r => r
+                .Unlock(fourthAmbushToWay)
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.QuickMissionComplete));
+
+        way.Portal(new(12, 1), fourthAmbush, new(12, 23));
+        var exit = way.Exit(new(12, 23));
+        way.OnEnter(r => r
+            .Unlock(exit)
+            .Say(Game18NConstString.ADoorHasOpened)
+            .Dialog(6118)
+            .Say(Game18NConstString.NewGoal));
+    }
 }
 
 return new TimeSpace22();
