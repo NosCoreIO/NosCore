@@ -388,7 +388,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AChargeSlidesItsCasterUpToWhatItStrikes()
         {
             var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 60, 66, c => c.Class = CharacterClassType.Swordsman);
-            await Harness.TeachAsync(player, WorldData.ChargeSkill);
+            await Harness.TeachAsync(player, WorldData.RushSkill);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 62, 66);
             await using var alice = Harness.Client(player);
             await alice.EnterWorldAsync(player.Slot);
@@ -398,7 +398,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 var watched = bob.Mark();
                 var cast = alice.Mark();
-                await alice.SendAsync(Cast(WorldData.ChargeSkillCastId, WorldData.SturdyMonster));
+                await alice.SendAsync(Cast(WorldData.RushSkillCastId, WorldData.SturdyMonster));
                 var hit = await bob.ExpectSinceAsync<SuPacket>(watched, HitBy(alice, WorldData.SturdyMonster), "the charge");
                 if (hit.Damage != 0)
                 {
@@ -419,7 +419,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 }
 
                 Assert.IsTrue(tried.Elapsed < TimeSpan.FromSeconds(30), "no charge landed in thirty seconds");
-                await alice.ExpectSinceAsync<SkillResetPacket>(cast, p => p.CastId == WorldData.ChargeSkillCastId, "the skill ready again");
+                await alice.ExpectSinceAsync<SkillResetPacket>(cast, p => p.CastId == WorldData.RushSkillCastId, "the skill ready again");
             }
         }
 

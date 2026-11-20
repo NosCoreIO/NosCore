@@ -120,8 +120,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short Bandage = 2087;
 
         // A swordsman skill that carries its caster up to what it strikes.
-        public const short ChargeSkill = 214;
-        public const short ChargeSkillCastId = 11;
+        public const short RushSkill = 214;
+        public const short RushSkillCastId = 11;
 
         // An upgrade of the adventurer's first skill that has it weaken what it strikes.
         public const short WeakeningUpgrade = 202;
@@ -547,11 +547,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
             context.Add(new Skill
             {
-                SkillVNum = ChargeSkill, Name = "skill214", CastId = ChargeSkillCastId, SkillType = 1, Type = 0, Class = 1, Range = 8,
+                SkillVNum = RushSkill, Name = "skill214", CastId = RushSkillCastId, SkillType = 1, Type = 0, Class = 1, Range = 8,
                 CastTime = 2, Cooldown = 6, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
             });
             await context.SaveChangesAsync();
-            context.Add(new BCard { SkillVNum = ChargeSkill, Type = BCardType.CardType.SpecialActions, SubType = 31, FirstData = 8 });
+            context.Add(new BCard { SkillVNum = RushSkill, Type = BCardType.CardType.SpecialActions, SubType = 31, FirstData = 8 });
 
             // As the client data has them: skill type 5 is a skill for a NosMate's skill bar.
             context.Add(new Skill
