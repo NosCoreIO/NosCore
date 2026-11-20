@@ -98,6 +98,37 @@ A test that needs no session, map or database can use `new NosCoreFixture()` dir
 follows the same rules. `TestLocalizers.Log` and `TestLocalizers.Game` echo the key they are
 asked for.
 
+## On PostgreSQL
+
+The in-memory database has no foreign keys, unique indexes or transactions, so a write it accepts
+can be one PostgreSQL refuses, and a rolled-back `IDaoTransactionScope` keeps its rows.
+`NosCore.Persistence.Tests` runs what depends on those against a real database:
+
+```csharp
+[TestInitialize]
+public async Task SetupAsync()
+{
+    _database = await PostgresDatabase.CreateAsync();
+    World = await TestWorld.CreateAsync(_database);
+}
+
+[TestCleanup]
+public async Task CleanupAsync()
+{
+    if (_database is { } database)
+    {
+        await database.DisposeAsync();
+    }
+}
+```
+
+`PostgresDatabase.CreateAsync()` creates a database of its own, applies every migration, and
+drops it on dispose; `CreateEmptyAsync()` skips the migrations. The world stores its maps, items
+and NPC there before anything else, so rows pointing at them pass the foreign keys; anything else
+a row points at, such as a skill, the test stores itself. It needs the same PostgreSQL as the
+end-to-end scenarios below, and without one reports its tests as not run unless
+`NOSCORE_E2E_REQUIRED=true`.
+
 ## End-to-end scenarios
 
 `NosCore.EndToEnd.Tests` starts the real master, login and world servers and talks to them
