@@ -67,6 +67,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IGameLanguageLocalizer _gameLanguage;
 
         private readonly SemaphoreSlim _gate = new(1, 1);
+        private readonly Lock _handOffLock = new();
+        private Task _handedOff = Task.CompletedTask;
         private readonly List<Func<Task>> _pending = [];
         private readonly Dictionary<int, short> _lockers = [];
         private readonly Dictionary<int, short> _lockerVNums = [];
@@ -1521,7 +1523,40 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         // Triggers and the work they ask for run one at a time and in order. The work is
         // carried out once the script has returned, so a script never sees the run half-applied.
-        private async Task RunAsync(Func<Task> trigger)
+        private Task RunAsync(Func<Task> trigger)
+        {
+            if (!MapExecutor.IsInsideAny)
+            {
+                return RunGatedAsync(trigger);
+            }
+
+            // The trigger holding the gate may be waiting for the very executor this flow holds, so
+            // a trigger raised from a map's work queues behind the others handed off this way.
+            if (ExecutionContext.IsFlowSuppressed())
+            {
+                HandOff(trigger);
+            }
+            else
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    HandOff(trigger);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private void HandOff(Func<Task> trigger)
+        {
+            lock (_handOffLock)
+            {
+                _handedOff = _handedOff.ContinueWith(_ => RunGatedAsync(trigger), CancellationToken.None,
+                    TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+            }
+        }
+
+        private async Task RunGatedAsync(Func<Task> trigger)
         {
             await _gate.WaitAsync();
             try
