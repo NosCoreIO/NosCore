@@ -60,7 +60,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         await CleanseAsync(target, bCards);
         await ReplaceSameGroupAsync(target, buffs, card);
-        buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
+        buffs.AddOrUpdate(card.CardId, buff, (_, current) => Refresh(current, buff, now));
         await NotifyMovementAsync(target, buff);
 
         // Notify the client so the buff icon appears + the visual effect plays. The
@@ -83,6 +83,12 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             });
         }
     }
+
+    // A card applied again while it still runs keeps pulsing on the rhythm it started with.
+    private static BuffInstance Refresh(BuffInstance current, BuffInstance applied, Instant now) =>
+        current.ExpiresAt > now && !current.FromSkill && !current.Static
+            ? applied with { StartedAt = current.StartedAt, PulsedUntil = current.PulsedUntil }
+            : applied;
 
     public async Task ApplySkillBuffAsync(IAliveEntity target, short skillVnum, short skillDuration, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster)
     {
