@@ -706,6 +706,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
+            MonstersSummoned++;
             var mapInstance = _rooms[room];
             var preyId = _newestArrival.TryGetValue(room, out var characterId) ? characterId : (long?)null;
             _pending.Add(() => OnRoom(mapInstance, () =>

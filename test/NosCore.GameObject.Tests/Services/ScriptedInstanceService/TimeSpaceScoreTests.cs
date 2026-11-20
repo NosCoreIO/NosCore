@@ -50,10 +50,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private sealed class Script : InstanceScript
         {
             private readonly bool _succeeds;
+            private readonly bool _hunts;
 
-            public Script(bool succeeds)
+            public Script(bool succeeds, bool hunts)
             {
                 _succeeds = succeeds;
+                _hunts = hunts;
                 Definition = new ScriptedInstanceDefinition
                 {
                     Id = TimeSpaceId,
@@ -66,6 +68,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             {
                 run.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)), new MonsterSpawn(Grunt, new Spot(2, 1)));
                 run.SummonNpcs(1, new NpcSpawn(Villager, new Spot(1, 2)), new NpcSpawn(Villager, new Spot(2, 2)));
+                if (_hunts)
+                {
+                    run.Hunt(1, Grunt);
+                }
             }
 
             public override void OnExitReached(IInstanceRun run, int room)
@@ -183,6 +189,28 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AHuntingMonsterLeftAliveKeepsTheMonstersFromBeingPerfect()
+        {
+            await new Spec("A clear that kills the two monsters set in the room but not the one hunting the player is not perfect on monsters")
+                .GivenAsync(ATimeSpaceWithAHunterThatSucceeds)
+                .AndAsync(_MonstersAreKilled, 2)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheScoreShouldBe, new ScorePacket
+                {
+                    Points = 8,
+                    Gold = (int)Gold,
+                    DrawRewardCount = 3,
+                    MonstersKilled = 2,
+                    RoomsExplored = 1,
+                    NpcsLeft = 2,
+                    Perfect = [false, true, true],
+                    ClearType = TimeSpaceClearType.FirstClear,
+                    Unknown = 1
+                })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AFailedRunShowsTheFailedScore()
         {
             await new Spec("A failed run shows only its end state and no cleared score")
@@ -235,9 +263,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private Task ATimeSpaceThatSucceeds() => ATimeSpaceAsync(true);
 
+        private Task ATimeSpaceWithAHunterThatSucceeds() => ATimeSpaceAsync(true, hunts: true);
+
         private Task ATimeSpaceThatFails() => ATimeSpaceAsync(false);
 
-        private async Task ATimeSpaceAsync(bool succeeds)
+        private async Task ATimeSpaceAsync(bool succeeds, bool hunts = false)
         {
             _room = World.MapInstanceGeneratorService.CreateMapInstance(
                 new GameObject.Map.Map
@@ -246,7 +276,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     NameI18NKey = "instanceRoom",
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
-            var script = new Script(succeeds);
+            var script = new Script(succeeds, hunts);
             _run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance
