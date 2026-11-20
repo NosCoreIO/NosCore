@@ -579,18 +579,21 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await Harness.GiveAsync(seller, WorldData.Seed, 5);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Market, 47, 52, c => c.Gold = 1000);
             long sellerId;
+            int leaving;
             await using (var alice = await EnterAsync(seller))
             {
                 sellerId = alice.CharacterId;
                 await OpenAsync(alice, bob, "stall", (PocketType.Etc, 0, 5, 30));
                 await LookAsync(bob, alice);
+                leaving = bob.Mark();
             }
 
-            await bob.ExpectAsync<OutPacket>(p => p.VisualType == VisualType.Player && p.VisualId == sellerId, "the seller leaving");
+            // Her arrival also showed Bob an out for her, so only one after the mark is her leaving.
+            await bob.ExpectSinceAsync<OutPacket>(leaving, p => p.VisualType == VisualType.Player && p.VisualId == sellerId, "the seller leaving");
             var tried = bob.Mark();
             await bob.SendAsync(Buy(sellerId, 1));
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            Assert.IsFalse(bob.Since(tried).Any(p => p is IvnPacket or GoldPacket or SMemoiPacket or NInvPacket), "nothing is bought from someone who has left");
+            Assert.IsTrue(await bob.NoneSinceAsync<IPacket>(tried, p => p is IvnPacket or GoldPacket or SMemoiPacket or NInvPacket, TimeSpan.FromSeconds(1)),
+                "nothing is bought from someone who has left");
 
             var returned = bob.Mark();
             await using var back = await Harness.ComeBackAsync(seller);
