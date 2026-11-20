@@ -3216,6 +3216,22 @@ of its user.
 - [ ] Your HP, your pet's and a hurt monster's beside you do not change
 - [ ] With no hurt NPC within six cells, using it changes nothing and the item stays in the bag
 
+### A time-space companion joining as a partner
+
+A Bold Warrior: Part 3 (`timespace-15`) on a character without partner 317.
+
+- [ ] In the second room the companion (vnum 317) joins you as an escort and follows you through
+      every room to the last one
+- [ ] In the last room the talk opens; press the button to take the companion along: a yellow
+      line says the companion joined, a sparkle plays on your character, and the companion
+      disappears from the room
+- [ ] The partner window lists the companion at level 24, not in your team
+- [ ] The time-space clock runs again after the button, and walking out of the last room and back
+      in does not open the talk again
+- [ ] Finish the time-space, change map and log out and back in: the partner is still listed
+- [ ] Run it again with the partner already owned: pressing the button shows "Already in your
+      party." in yellow, and the companion stays in the room
+
 ### Inside a time-space
 
 Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
