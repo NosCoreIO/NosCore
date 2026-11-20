@@ -189,7 +189,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             {
                 Points = points,
                 MonstersKilled = 25,
-                Perfect = [true, false, true]
+                Perfect = [false, false, false],
+                ClearType = TimeSpaceClearType.FirstClear,
+                Unknown = 15
             }, _session.LastPackets.OfType<ScorePacket>().Single());
     }
 }

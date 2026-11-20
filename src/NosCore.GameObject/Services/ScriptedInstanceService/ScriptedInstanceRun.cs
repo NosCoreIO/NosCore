@@ -85,6 +85,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
         private readonly Dictionary<int, long> _newestArrival = [];
         private readonly List<(MapInstance Room, int NpcId)> _escorts = [];
+        private readonly ConcurrentDictionary<(Guid Room, long NpcId), byte> _livingNpcs = new();
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
         private int _nextPortalId;
@@ -148,6 +149,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public int MonstersKilled { get; private set; }
 
         public int NpcsSummoned { get; private set; }
+
+        public int NpcsLost { get; private set; }
 
         // Each kill scores; a run of bonus kills scores more the longer it lasts.
         public int Points { get; private set; }
@@ -592,6 +595,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         npc.IsEscort = true;
                         _escorts.Add((mapInstance, (int)npc.VisualId));
                     }
+                    else
+                    {
+                        _livingNpcs.TryAdd((mapInstance.MapInstanceId, npc.VisualId), 0);
+                    }
 
                     return mapInstance.SendPacketAsync(npc.GenerateIn());
                 }));
@@ -670,6 +677,19 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (RoomOf(mapInstanceId) != null && EndState == null && !_abandoned)
                 {
                     End(EndStateType.Fail);
+                }
+
+                return Task.CompletedTask;
+            });
+        }
+
+        public Task NpcFellAsync(Guid mapInstanceId, long npcId)
+        {
+            return RunAsync(() =>
+            {
+                if (_livingNpcs.TryRemove((mapInstanceId, npcId), out _))
+                {
+                    NpcsLost++;
                 }
 
                 return Task.CompletedTask;
@@ -1021,6 +1041,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         // Loser Mode runs on a longer clock, and the time a script adds or takes scales with it.
         public int ClockScale { get; set; } = 1;
+
+        public bool IsLoserMode { get; set; }
 
         public void StartClock(TimeSpan limit)
         {

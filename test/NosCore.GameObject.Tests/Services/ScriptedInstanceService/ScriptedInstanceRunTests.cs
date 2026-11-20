@@ -565,9 +565,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await holder;
 
             Assert.AreEqual(EndStateType.Fail, run.EndState);
-            var scores = _first.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScoreFailedPacket>().ToList();
-            Assert.AreEqual(1, scores.Count);
-            Assert.AreEqual(EndStateType.Fail, scores[0].EndState);
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Fail },
+                _first.LastPackets.OfType<ScoreFailedPacket>().Single());
+            Assert.IsFalse(_first.LastPackets.OfType<ScorePacket>().Any());
         }
 
         [TestMethod]
@@ -585,8 +585,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
 
             Assert.AreEqual(EndStateType.Fail, run.EndState);
-            Assert.IsTrue(_first.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScoreFailedPacket>()
-                .All(s => s.EndState == EndStateType.Fail));
+            Assert.IsFalse(_first.LastPackets.OfType<ScorePacket>().Any());
+            Assert.IsTrue(_first.LastPackets.OfType<ScoreFailedPacket>().All(s => s.EndState == EndStateType.Fail));
         }
 
         [TestMethod]
@@ -596,8 +596,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.StartAsync();
 
-            Assert.IsTrue(_first.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScoreFailedPacket>()
-                .Any(s => s.EndState == EndStateType.Fail));
+            Assert.IsTrue(_first.LastPackets.OfType<ScoreFailedPacket>().Any(s => s.EndState == EndStateType.Fail));
         }
 
         [TestMethod]
@@ -1519,7 +1518,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
 
-            var score = session.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScorePacket>().Single();
+            var score = session.LastPackets.OfType<ScorePacket>().Single();
             Assert.AreEqual(4, score.Points);
         }
     }
