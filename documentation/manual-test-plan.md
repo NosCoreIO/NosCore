@@ -250,7 +250,7 @@ a crossbow in the secondary weapon slot). It deals no damage. Use two clients on
 - [ ] A monster further away than the effect's range takes nothing
 - [ ] A skill that already hits several targets does not hit them a second time
 
-### HP and MP leech — BCard type 21 subtypes 3 to 5
+### HP and MP leech and transfer — BCard type 21 subtypes 3 to 5, 51/2, 22/3 and 20/5
 
 - [ ] Hit a monster with a skill that leeches HP (`/mnt/project-files/bcard-effects/reset-leech.sh`
       gives Tester's skill 262 a 100% leech of 500 HP and drops Tester to 200 HP; key 1 casts):
@@ -259,6 +259,25 @@ a crossbow in the secondary weapon slot). It deals no damage. Use two clients on
 - [ ] An MP leech takes no more MP than the target has, and a "convert the enemy's HP into
       your MP" skill fills your MP bar instead of your HP bar
 - [ ] A monster carrying the leech (monster 3425 has 15% / 2500 HP) takes HP from you
+- [ ] As a swordsman of job level 35 or more, wear the Ninja card (`$CreateItem 902`), select another
+      player with a full MP bar and use Chain Attack (skill 825, 60% chance of burning 30% of the
+      remaining MP) until it rolls: their MP bar drops by 30% of what they had, and Cross Cutting (823)
+      burns 10% on a 15% chance. A miss burns nothing
+- [ ] As a mage of job level 55 or more, wear the Dark Gunner card (`$CreateItem 914`, at SP level 12 for
+      Evil Potion, skill 952) and cast Evil Potion on a monster with HP missing on your side: after the
+      card's delay, every 2 seconds a red number of 7 x your level rises from the monster and a green one
+      of the same size from you, your HP bar fills by it and the monster never goes below 1 HP
+- [ ] Let a Fernon's Spirit Mage (monster 2564, map 245) hit you until its skill 1471 puts Mana Drain
+      (card 228, 5% chance) on you: every 2 seconds your MP bar drops by 3 and the mage gains them;
+      while it lasts your own hits leech nothing
+- [ ] As a martial artist wearing the Mystic Arts card (`$CreateItem 4485`), land Shockwave (skill 1606)
+      on another player until Internal Injuries (card 695, 20% chance) shows on them: each skill they
+      cast, the basic attack included, costs them 5 HP per level of yours on top of its MP, with a red
+      number over them for everyone on the map, and never their last HP
+- [ ] Not verifiable yet: Lich Magic (cards 653 and 654, 12% and 25% of the remaining MP every 2
+      seconds) only comes from Yertirand's skill 1508, and Deadly Poison (card 60, 250 HP per cast)
+      only from monsters whose on-hit cards are not applied yet, so neither can be put on a
+      character in game
 
 ### Elemental resistance — BCard types 13 and 14
 

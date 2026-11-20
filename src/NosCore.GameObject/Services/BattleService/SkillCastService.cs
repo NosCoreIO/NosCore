@@ -57,13 +57,13 @@ public sealed class SkillCastService(IClock clock, IEquipmentStatsService equipm
             await character.SendPacketsAsync(character.InventoryService.RemoveItemAmountByVNum(withReagent.ItemVNum, ReagentsPerCast));
         }
 
-        if (mpCost <= 0)
+        if (mpCost > 0)
         {
-            return;
+            character.Mp = Math.Max(0, character.Mp - mpCost);
+            await character.SendPacketAsync(character.GenerateStat());
         }
 
-        character.Mp = Math.Max(0, character.Mp - mpCost);
-        await character.SendPacketAsync(character.GenerateStat());
+        await buffService.ApplyCastingEffectsAsync(character);
     }
 
     public Duration Cooldown(PlayerComponentBundle character, short cooldown)

@@ -413,9 +413,12 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
     // Periodic damage never takes the last hit point, so it never kills and never awards a kill.
     // A fixed amount that scales with a level scales with the level of whoever applied the card.
-    private static async Task PulseAsync(IAliveEntity target, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
+    // A drain takes from the bearer and gives what it took to whoever applied the card.
+    private async Task PulseAsync(IAliveEntity target, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
     {
         long hpPercent = 0, mpPercent = 0, hpFixed = 0, mpFixed = 0;
+        List<(IAliveEntity? Caster, long Hp, long Mp)>? drains = null;
+        List<int>? mpLosses = null;
         foreach (var (cardId, buff) in buffs)
         {
             if (buff.FromSkill || buff.ExpiresAt <= now || buff.PulsedUntil >= now)
@@ -423,6 +426,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 continue;
             }
 
+            long drainedHp = 0, drainedMp = 0;
             foreach (var bCard in buff.BCards)
             {
                 var times = buff.PulsesDue(bCard, now);
@@ -443,36 +447,151 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                     case BCardEffect.HealingBurningAndCastingDecreaseHp: hpFixed -= fixedAmount; break;
                     case BCardEffect.HealingBurningAndCastingRestoreMp: mpFixed += fixedAmount; break;
                     case BCardEffect.HealingBurningAndCastingDecreaseMp: mpFixed -= fixedAmount; break;
+                    case BCardEffect.DrainTransferEnemyHp: drainedHp += fixedAmount; break;
+                    case BCardEffect.DrainAndStealLeechEnemyMp: drainedMp += Successes(times, bCard.FirstData) * bCard.SecondData; break;
+                    case BCardEffect.ReflectionRemainingMpLostChance:
+                        for (var i = Successes(times, bCard.FirstData); i > 0; i--)
+                        {
+                            (mpLosses ??= []).Add(bCard.SecondData);
+                        }
+
+                        break;
                 }
+            }
+
+            if (drainedHp > 0 || drainedMp > 0)
+            {
+                (drains ??= []).Add((buff.Caster, drainedHp, drainedMp));
             }
 
             buffs.TryUpdate(cardId, buff with { PulsedUntil = now }, buff);
         }
 
-        if ((hpPercent == 0 && mpPercent == 0 && hpFixed == 0 && mpFixed == 0) || !target.IsAlive)
+        if ((hpPercent == 0 && mpPercent == 0 && hpFixed == 0 && mpFixed == 0 && drains == null && mpLosses == null)
+            || !target.IsAlive)
         {
             return;
         }
 
         var hp = (int)Math.Clamp(target.Hp + target.MaxHp * hpPercent / 100 + hpFixed, Math.Min(1, target.Hp), target.MaxHp);
         var mp = (int)Math.Clamp(target.Mp + target.MaxMp * mpPercent / 100 + mpFixed, 0, target.MaxMp);
+        List<(IAliveEntity Caster, int Hp, int Mp)>? gains = null;
+        foreach (var (caster, drainHp, drainMp) in drains ?? [])
+        {
+            var takenHp = (int)Math.Max(0, Math.Min(drainHp, hp - 1));
+            var takenMp = (int)Math.Min(drainMp, mp);
+            hp -= takenHp;
+            mp -= takenMp;
+            if (caster != null && target.MapInstance is { } map && IsOn(caster, map))
+            {
+                (gains ??= []).Add((caster.Live(), takenHp, takenMp));
+            }
+        }
+
+        foreach (var percent in mpLosses ?? [])
+        {
+            mp -= mp * Math.Clamp(percent, 0, 100) / 100;
+        }
+
         var hpChange = hp - target.Hp;
-        if (hpChange == 0 && mp == target.Mp)
+        if (hpChange != 0 || mp != target.Mp)
+        {
+            target.Hp = hp;
+            target.Mp = mp;
+            await ShowVitalsAsync(target, hpChange);
+        }
+
+        foreach (var (caster, gainedHp, gainedMp) in gains ?? [])
+        {
+            await GiveAsync(caster, gainedHp, gainedMp);
+        }
+    }
+
+    private static async Task GiveAsync(IAliveEntity entity, int hp, int mp)
+    {
+        if (!entity.IsAlive)
         {
             return;
         }
 
-        target.Hp = hp;
-        target.Mp = mp;
-        if (target is PlayerComponentBundle player)
+        var newHp = Math.Min(entity.MaxHp, entity.Hp + hp);
+        var newMp = Math.Min(entity.MaxMp, entity.Mp + mp);
+        var hpChange = newHp - entity.Hp;
+        if (hpChange == 0 && newMp == entity.Mp)
+        {
+            return;
+        }
+
+        entity.Hp = newHp;
+        entity.Mp = newMp;
+        await ShowVitalsAsync(entity, hpChange);
+    }
+
+    // Only an entity on the bearer's map is changed from the pulse: that map's executor is the one running.
+    private static bool IsOn(IAliveEntity entity, MapInstance map) => entity.Live() switch
+    {
+        PlayerComponentBundle p => p.World == map.EcsWorld && map.EcsWorld.IsAlive(p.Entity),
+        MonsterComponentBundle m => m.World == map.EcsWorld && map.EcsWorld.IsAlive(m.Entity),
+        NpcComponentBundle n => n.World == map.EcsWorld && map.EcsWorld.IsAlive(n.Entity),
+        MateComponentBundle mate => mate.World == map.EcsWorld && map.EcsWorld.IsAlive(mate.Entity),
+        _ => false,
+    };
+
+    private long Successes(long times, int percent)
+    {
+        long successes = 0;
+        for (var i = 0; i < times; i++)
+        {
+            if (Rolls(percent))
+            {
+                successes++;
+            }
+        }
+
+        return successes;
+    }
+
+    public Task ApplyCastingEffectsAsync(IAliveEntity caster) => caster.OnMapAsync(async () =>
+    {
+        long loss = 0;
+        foreach (var buff in GetActiveBuffs(caster))
+        {
+            foreach (var bCard in buff.BCards)
+            {
+                if (bCard.Effect() == BCardEffect.HealingBurningAndCastingDecreaseHpWhenCasting)
+                {
+                    loss += BattleStatsProvider.ScaleByLevel(bCard, buff.CasterLevel ?? caster.Level);
+                }
+            }
+        }
+
+        if (loss == 0 || !caster.IsAlive)
+        {
+            return;
+        }
+
+        var hp = (int)Math.Max(Math.Min(1, caster.Hp), caster.Hp - loss);
+        var hpChange = hp - caster.Hp;
+        if (hpChange == 0)
+        {
+            return;
+        }
+
+        caster.Hp = hp;
+        await ShowVitalsAsync(caster, hpChange);
+    });
+
+    private static async Task ShowVitalsAsync(IAliveEntity entity, int hpChange)
+    {
+        if (entity is PlayerComponentBundle player)
         {
             await player.SendPacketAsync(player.GenerateStat());
         }
 
-        if (target.MapInstance != null)
+        if (entity.MapInstance != null)
         {
-            await ShowHpChangeAsync(target, target.MapInstance, hpChange);
-            await target.MapInstance.SendPacketAsync(target.GenerateStatInfo());
+            await ShowHpChangeAsync(entity, entity.MapInstance, hpChange);
+            await entity.MapInstance.SendPacketAsync(entity.GenerateStatInfo());
         }
     }
 
