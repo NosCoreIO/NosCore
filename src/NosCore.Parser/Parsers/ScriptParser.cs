@@ -27,7 +27,7 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertScriptsAsync(string folder)
         {
-            var allScripts = scriptDao.LoadAll().ToList();
+            var stored = scriptDao.LoadAll().ToDictionary(s => (s.ScriptId, s.ScriptStepId), s => s.Id);
             using var stream = new StreamReader(folder + _fileCardDat, Encoding.Default);
             var scripts = new List<ScriptDto>();
             string? line;
@@ -43,14 +43,15 @@ namespace NosCore.Parser.Parsers
                 {
                     scriptId = Convert.ToByte(split[1]);
                 }
-                else if (split.Length > 2 && !allScripts.Any(s => s.ScriptId == scriptId && s.ScriptStepId == Convert.ToInt16(split[0])))
+                else if (split.Length > 2)
                 {
+                    var stepId = Convert.ToInt16(split[0]);
                     var canParse = short.TryParse(split[2], out var argument1);
                     var stringArgument = !canParse ? split[2] : null;
                     scripts.Add(new ScriptDto()
                     {
-                        Id = Guid.NewGuid(),
-                        ScriptStepId = Convert.ToInt16(split[0]),
+                        Id = stored.TryGetValue((scriptId, stepId), out var id) ? id : Guid.NewGuid(),
+                        ScriptStepId = stepId,
                         StepType = split[1],
                         StringArgument = stringArgument,
                         Argument1 = canParse ? argument1 : (short?)null,

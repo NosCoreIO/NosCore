@@ -85,6 +85,14 @@ should give the same NPCs.
       keepers all stand on the map, and the minimap shows them
 - [ ] The shops, skill shops and teleporters of the NPCs above still open and work
 
+### Quests after an import
+
+Run the parser twice on the same database, or once on a database an older parser filled
+several times.
+
+- [ ] Take quest 1510 and talk to Guard Sam: the quest completes and the next one is offered
+- [ ] A quest with several objectives lists each objective once in the quest window
+
 ---
 
 ## Movement

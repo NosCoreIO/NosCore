@@ -105,17 +105,15 @@ namespace NosCore.Parser.Parsers
         private void KeepExistingIds(IEnumerable<QuestDto> quests)
         {
             var links = questQuestRewardDao.LoadAll()
-                .GroupBy(l => (l.QuestId, l.QuestRewardId))
-                .ToDictionary(g => g.Key, g => new Queue<Guid>(g.Select(l => l.Id)));
+                .ToDictionary(l => (l.QuestId, l.QuestRewardId), l => l.Id);
             var objectives = questObjectiveDao.LoadAll()
-                .GroupBy(o => (o.QuestId, o.FirstData, o.SecondData, o.ThirdData, o.FourthData))
-                .ToDictionary(g => g.Key, g => new Queue<Guid>(g.Select(o => o.QuestObjectiveId)));
+                .ToDictionary(o => (o.QuestId, o.FirstData, o.SecondData, o.ThirdData, o.FourthData), o => o.QuestObjectiveId);
 
             foreach (var quest in quests)
             {
                 foreach (var link in quest.QuestQuestReward ?? [])
                 {
-                    if (links.TryGetValue((link.QuestId, link.QuestRewardId), out var ids) && ids.TryDequeue(out var id))
+                    if (links.TryGetValue((link.QuestId, link.QuestRewardId), out var id))
                     {
                         link.Id = id;
                     }
@@ -123,8 +121,7 @@ namespace NosCore.Parser.Parsers
 
                 foreach (var objective in quest.QuestObjective ?? [])
                 {
-                    if (objectives.TryGetValue((objective.QuestId, objective.FirstData, objective.SecondData, objective.ThirdData, objective.FourthData), out var ids)
-                        && ids.TryDequeue(out var id))
+                    if (objectives.TryGetValue((objective.QuestId, objective.FirstData, objective.SecondData, objective.ThirdData, objective.FourthData), out var id))
                     {
                         objective.QuestObjectiveId = id;
                     }

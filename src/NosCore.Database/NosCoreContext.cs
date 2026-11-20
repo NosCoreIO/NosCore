@@ -250,6 +250,15 @@ namespace NosCore.Database
                 .HasIndex(e => new { e.ScriptId, e.ScriptStepId })
                 .IsUnique();
 
+            modelBuilder.Entity<QuestObjective>()
+                .HasIndex(e => new { e.QuestId, e.FirstData, e.SecondData, e.ThirdData, e.FourthData })
+                .IsUnique()
+                .AreNullsDistinct(false);
+
+            modelBuilder.Entity<QuestQuestReward>()
+                .HasIndex(e => new { e.QuestId, e.QuestRewardId })
+                .IsUnique();
+
             modelBuilder.Entity<I18NActDesc>()
                 .HasIndex(e => new { e.Key, e.RegionType })
                 .IsUnique();

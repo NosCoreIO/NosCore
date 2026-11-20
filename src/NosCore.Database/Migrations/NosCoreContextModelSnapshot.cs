@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261120020156_AddNpcHealingReach";
+    public override string LastMigrationId => "20261120181952_UniqueQuestObjectivesAndPrizes";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2888,7 +2888,10 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.HasKey("QuestObjectiveId");
 
-                b.HasIndex("QuestId");
+                var index = b.HasIndex("QuestId", "FirstData", "SecondData", "ThirdData", "FourthData")
+                    .IsUnique();
+
+                NpgsqlIndexBuilderExtensions.AreNullsDistinct(index, false);
 
                 b.ToTable("QuestObjective");
             });
@@ -2906,9 +2909,10 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.HasKey("Id");
 
-                b.HasIndex("QuestId");
-
                 b.HasIndex("QuestRewardId");
+
+                b.HasIndex("QuestId", "QuestRewardId")
+                    .IsUnique();
 
                 b.ToTable("QuestQuestReward");
             });
