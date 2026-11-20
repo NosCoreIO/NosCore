@@ -116,7 +116,7 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public async Task BecomingAWarriorYardEndsWithThreeAsgobas()
+        public async Task BecomingAWarriorYardEndsWithThreeThornwalkers()
         {
             await LoadAsync("timespace-17");
             var yard = Room(4211, 2, 9);
@@ -130,7 +130,7 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public async Task TheDemonBattleCornerHoldsTwoDemonsThatEachCallAnother()
+        public async Task TheDemonBattleCornerHoldsTwoSwordsmenThatEachCallASpearman()
         {
             await LoadAsync("timespace-26");
             var corner = Room(5207, 3, 9);
@@ -182,7 +182,7 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public async Task HiddenSchemesBarracksHoldTheirKnightsBeforeTheTalk()
+        public async Task HiddenSchemesRoomsHoldTheirKnightsBeforeTheTalk()
         {
             await LoadAsync("timespace-18");
 
@@ -191,7 +191,7 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public async Task TheKovoltRiotGalleryKovoltCallsAnotherAsItFalls()
+        public async Task TheKovoltRiotGalleryMinerCallsAnotherAsItFalls()
         {
             await LoadAsync("timespace-09");
             var gallery = Room(4005, 7, 5);
@@ -215,6 +215,95 @@ namespace NosCore.Instances.Tests
             var calls = CallsSince(before);
             CollectionAssert.AreEqual(new[] { $"dialog({timed},8010)", $"roomClock({timed},120s)" }, calls.Take(2).ToList());
             Assert.AreEqual($"stopRoomClock({timed})", calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task TheStrikeCentreFirstFloorHoldsItsMinersBeforeTheTalk()
+        {
+            await LoadAsync("timespace-15");
+            var floor1 = Room(4012, 4, 11);
+            CollectionAssert.Contains(_run.Calls, $"summon({floor1},109,111,109,108)");
+            CollectionAssert.Contains(_run.Calls, $"summon({Room(4012, 4, 8)},108,105,111,105,111,111,108)");
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, floor1);
+            _script.OnDialogClosed(_run, floor1, 6190);
+
+            CollectionAssert.AreEqual(new[] { $"objective({floor1},TIMESPACE_GOAL_KILL_ALL_ENEMIES)", $"dialog({floor1},6190)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheStrikeCentreLeavesTheCalledMinersToTheChiefsThatCallThem()
+        {
+            await LoadAsync("timespace-15");
+            var floor5 = Room(4012, 4, 7);
+            var before = _run.Calls.Count;
+
+            _script.OnDialogClosed(_run, floor5, 6190);
+
+            CollectionAssert.AreEqual(new[] { $"summon({floor5},111,105,111,111,111,108)", $"objective({floor5},TIMESPACE_GOAL_KILL_ALL_ENEMIES)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheMonsterArmyFifthLeverRoomHoldsItsMonstersBeforeTheTalk()
+        {
+            await LoadAsync("timespace-16");
+            var fifthLever = Room(4212, 3, 10);
+            CollectionAssert.Contains(_run.Calls, $"summon({fifthLever},58,58,271)");
+            var before = _run.Calls.Count;
+
+            _script.OnDialogClosed(_run, fifthLever, 6079);
+
+            Assert.AreEqual(0, CallsSince(before).Count);
+        }
+
+        [TestMethod]
+        public async Task ANewCompanionNamesANewGoalAfterEachTalk()
+        {
+            await LoadAsync("timespace-22");
+            var firstFight = Room(5203, 5, 9);
+            var guardPost = Room(5203, 5, 7);
+            var before = _run.Calls.Count;
+
+            _script.OnDialogClosed(_run, firstFight, 6114);
+            _script.OnRoomCleared(_run, guardPost);
+            _script.OnDialogClosed(_run, guardPost, 6116);
+
+            var calls = CallsSince(before);
+            Assert.AreEqual("message(NewGoal)", calls[1]);
+            Assert.AreEqual("message(NewGoal)", calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task ANewCompanionExitRoomOpensItsWayAndTalksOnEntry()
+        {
+            await LoadAsync("timespace-22");
+            var way = Room(5203, 7, 9);
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, way);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"unlockExit({way})", "message(ADoorHasOpened)", $"dialog({way},6118)", "message(NewGoal)"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task NastyImpsLeverRoomOpensItsWayBackOnEntry()
+        {
+            await LoadAsync("timespace-08");
+            var leverRoom = Room(4106, 3, 10);
+            var thirdNest = Room(4103, 2, 10);
+            CollectionAssert.Contains(_run.Calls, $"portal({leverRoom}->{thirdNest},locked)");
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, leverRoom);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"unlock({leverRoom}->{thirdNest})", "message(ADoorHasOpened)", $"dialog({leverRoom},6044)"
+            }, CallsSince(before));
         }
     }
 }
