@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.Instances.Abstractions
 {
@@ -61,6 +62,22 @@ namespace NosCore.Instances.Abstractions
 
         // That long after the run started.
         protected void After(TimeSpan elapsed, Action<RunEvent> step) => _timers.Add((elapsed, step));
+
+        // Once every one of the rooms has been cleared, as the last of them is, whatever the order.
+        protected void OnAllCleared(IRoom[] rooms, Action<RunEvent> step)
+        {
+            var handles = rooms.Select(RoomHandle.Of).ToList();
+            foreach (var room in handles)
+            {
+                room.OnCleared(run =>
+                {
+                    if (!run.WasCleared(room.Key) && handles.All(other => other == room || run.WasCleared(other.Key)))
+                    {
+                        step(new RunEvent(run));
+                    }
+                });
+            }
+        }
 
         // Before the run fails for running out of time; a step that ends the run another way stands.
         protected void OnTimeout(Action<RunEvent> step) => _timeout += step;

@@ -49,6 +49,8 @@ namespace NosCore.Instances.Tests
             public void RunAfter(TimeSpan elapsed, Action<RunEvent> step) => After(elapsed, step);
 
             public void WhenTimeRunsOut(Action<RunEvent> step) => OnTimeout(step);
+
+            public void WhenAllCleared(IRoom[] rooms, Action<RunEvent> step) => OnAllCleared(rooms, step);
         }
 
         private IInstanceScript Script => _script;
@@ -218,6 +220,32 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void WavesCanWaitBeforeTheirFirstCall()
+        {
+            new Spec("Waves due from 60 seconds into a 90 second clock come at 60 and 90 seconds only")
+                .Given(TheFirstRoomHoldsOutFor90SecondsWithWavesEvery30SecondsFromTheFirstMinute)
+                .And(_PlayersAreInTheRoom, 1)
+                .And(TheRunStarts)
+                .When(Dialog_IsClosedInTheFirstRoom, 6000)
+                .And(TheTimersRun)
+                .Then(TheCallsShouldBe_, new[] { "roomClock(1,90s)", "summon(1,58)", "stopRoomClock(1)" })
+                .And(TheTimersShouldHaveBeenAt_Seconds, new[] { 60d, 90d, 90d })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void RoomsClearedTogetherActOnceTheLastOfThemIs()
+        {
+            new Spec("A step waiting on two rooms runs when the second is cleared, and not again")
+                .Given(ClearingBothRoomsSaysADoorHasOpened)
+                .When(TheSecondRoomIsCleared)
+                .And(TheFirstRoomIsCleared)
+                .And(TheSecondRoomIsCleared)
+                .Then(TheCallsShouldBe_, new[] { "message(ADoorHasOpened)" })
+                .Execute();
+        }
+
+        [TestMethod]
         public void AWaveIsSkippedWhileTheRoomIsEmpty()
         {
             new Spec("Nobody in the room means no wave, but the clock still runs out")
@@ -364,6 +392,13 @@ namespace NosCore.Instances.Tests
                 .OnClockOut(r => r.Unlock(door));
         }
 
+        private void TheFirstRoomHoldsOutFor90SecondsWithWavesEvery30SecondsFromTheFirstMinute() =>
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(90)))
+                .Every(TimeSpan.FromSeconds(30), r => r.Spawn(Declared.Mob(Grunt).At(5, 5)), from: TimeSpan.FromSeconds(60));
+
+        private void ClearingBothRoomsSaysADoorHasOpened() =>
+            _script.WhenAllCleared([_first, _second], r => r.Say(Game18NConstString.ADoorHasOpened));
+
         private void TheFirstRoomHolds_GruntsAnywhere(int copies) => _first.Spawn(Declared.Mob(Grunt).Anywhere().Count(copies));
 
         private void TheFirstRoomHoldsAGruntWithin_CellsOf_(short radius, Spot spot) =>
@@ -382,9 +417,15 @@ namespace NosCore.Instances.Tests
 
         private void Dialog_IsClosedInTheFirstRoom(int dialog) => Script.OnDialogClosed(_run, 1, dialog);
 
-        private void TheFirstRoomIsCleared() => Script.OnRoomCleared(_run, 1);
+        private void TheFirstRoomIsCleared() => RoomIsCleared(1);
 
-        private void TheSecondRoomIsCleared() => Script.OnRoomCleared(_run, 2);
+        private void TheSecondRoomIsCleared() => RoomIsCleared(2);
+
+        private void RoomIsCleared(int room)
+        {
+            Script.OnRoomCleared(_run, room);
+            _run.Cleared.Add(room);
+        }
 
         private void Button_OfTheFirstRoomIsUsed(int button) => Script.OnButtonUsed(_run, 1, button);
 

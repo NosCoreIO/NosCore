@@ -71,6 +71,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `Reward`, `Draw`, `Special` | The reward chest |
 | `Room(map, x, y)` | A room, at its place on the mission map |
 | `After(elapsed, step)` | A step that long after the run started |
+| `OnAllCleared(rooms, step)` | Once every one of the rooms has been cleared, as the last of them is |
 | `OnTimeout(step)` | Steps before the run fails for running out of time |
 
 ## Rooms and what they hold
@@ -84,7 +85,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `OnEnter(step)` | The first time anyone enters |
 | `OnCleared(step)` | When its last monster falls |
 | `OnDialogClosed(dialog, step)` | The first time that dialog is closed |
-| `Every(interval, step)` | While the room's clock runs: as it starts, then every interval, whenever someone is inside |
+| `Every(interval, step, from)` | While the room's clock runs: `from` after it starts (at once by default), then every interval, whenever someone is inside |
 | `OnClockOut(step)` | When the room's clock runs out; the clock is taken down after the step |
 
 ## Monsters

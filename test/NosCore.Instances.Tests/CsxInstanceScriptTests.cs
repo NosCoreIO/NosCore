@@ -39,6 +39,10 @@ namespace NosCore.Instances.Tests
 
         public int MonstersAlive(int room) => Alive;
 
+        public HashSet<int> Cleared { get; } = [];
+
+        public bool WasCleared(int room) => Cleared.Contains(room);
+
         public int Players { get; set; }
 
         public bool Decided { get; set; }

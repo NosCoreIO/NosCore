@@ -32,8 +32,9 @@ namespace NosCore.Instances.Abstractions
         // The first time someone closes that dialog after the room opened it.
         IRoom OnDialogClosed(int dialog, Action<RoomEvent> step);
 
-        // While the room's clock runs: as it starts, then every interval, whenever someone is inside.
-        IRoom Every(TimeSpan interval, Action<RoomEvent> step);
+        // While the room's clock runs: from that long after it starts (at once by default), then every
+        // interval, whenever someone is inside.
+        IRoom Every(TimeSpan interval, Action<RoomEvent> step, TimeSpan from = default);
 
         // When the room's clock runs out; the clock is taken down after the step.
         IRoom OnClockOut(Action<RoomEvent> step);
