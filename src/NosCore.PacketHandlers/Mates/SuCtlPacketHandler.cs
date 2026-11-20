@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Mates
                 return Task.CompletedTask;
             }
 
-            return mateControlService.AttackAsync(session.Character, packet.MateTransportId, packet.CastId, target);
+            return mateControlService.AttackAsync(session.Character, packet.MateTransportId, target);
         }
     }
 }

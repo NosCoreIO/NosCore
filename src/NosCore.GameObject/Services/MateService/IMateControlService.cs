@@ -16,6 +16,6 @@ namespace NosCore.GameObject.Services.MateService
 
         Task<bool> TalkAsync(PlayerComponentBundle owner, long mateTransportId, string? message);
 
-        Task<bool> AttackAsync(PlayerComponentBundle owner, long mateTransportId, long castId, IAliveEntity target);
+        Task<bool> AttackAsync(PlayerComponentBundle owner, long mateTransportId, IAliveEntity target);
     }
 }

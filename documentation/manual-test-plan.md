@@ -2045,17 +2045,23 @@ Have a pet and a partner out, and a second client on the same map watching.
 - [ ] Become visible again and take the pet back out with you, then make it talk: a speech
       bubble with your sentence shows over the pet on both screens, and the sentence is not cut
       at its first space
-- [ ] With a pet that has skills of its own (a pet without any only sends a move order when a
-      monster is clicked), select a monster next to the pet and use one of the pet's skills on
-      it: the pet plays the skill, the damage number shows on both screens and the monster's bar
-      drops
-- [ ] Use the same pet skill again at once: nothing happens until its cooldown is over
-- [ ] Kill a monster with a pet skill: it collapses as it does from your own hits, and what falls
-      is what an ordinary kill of the same monster on the same map drops (drops are rolled, so
-      compare a few kills); the pet's share of the damage gives no experience yet, to you or the
-      pet
-- [ ] Use a pet skill on a monster across the map: the pet does not hit it
-- [ ] Use a pet skill on another player or on an NPC: nothing happens
+- [ ] With the pet beside a monster, attack the monster: the pet joins in and hits it, the
+      damage number shows on both screens and the monster's bar drops; this works the same with
+      a pet that has no skill of its own (a Chicken, 333)
+- [ ] The pet's `su` lines read skill 0, animation 11, the pet's own basic cooldown and its own
+      hit effect: 14 and 0 for a pet like vnum 709, 12 and 200 for vnum 9
+- [ ] With a pet that has skills of its own (an Otter, 683), let it fight a while without
+      touching its skill bar: none of its skills plays, its MP does not drop and no slot of its
+      bar greys out
+- [ ] The pet hits no faster than its basic cooldown, however often the client sends it in
+- [ ] Kill a monster with the pet's help: it collapses as it does from your own hits, and what
+      falls is what an ordinary kill of the same monster on the same map drops (drops are rolled,
+      so compare a few kills); the pet's share of the damage gives no experience yet, to you or
+      the pet
+- [ ] Select a monster across the map: the pet does not hit it from where it stands
+- [ ] Send the pet at another player or at an NPC: nothing happens
+- [ ] In a time-space with an escort following you, attack a monster: the escort hits it with
+      skill 0 and animation 11 too
 
 ### A NosMate knocked out
 

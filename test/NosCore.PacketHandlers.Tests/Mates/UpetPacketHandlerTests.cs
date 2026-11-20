@@ -100,6 +100,15 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         [TestMethod]
+        public async Task APetsBasicAttackIsNoneOfItsSkills()
+        {
+            await new Spec("A pet ordered to attack with no skill hits with its basic attack, not with the first skill it knows")
+                .WhenAsync(ThePetAttacks)
+                .Then(ThePetShouldHitTheMonsterWithItsBasicAttack)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task APetCannotAttackAgainBeforeItsBasicCooldown()
         {
             await new Spec("A second basic attack before the creature's basic cooldown is over is ignored")
@@ -323,6 +332,12 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _pet.MateTransportId),
                 It.Is<IAliveEntity>(e => e.VisualType == VisualType.Monster && e.VisualId == _monster.VisualId),
                 It.Is<HitArguments>(a => a.Skill != null && a.Skill.SkillVNum == skill)), Times.Once);
+
+        private void ThePetShouldHitTheMonsterWithItsBasicAttack() =>
+            _battleService.Verify(b => b.Hit(
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _pet.MateTransportId),
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Monster && e.VisualId == _monster.VisualId),
+                It.Is<HitArguments>(a => a.BasicAttack && a.Skill == null)), Times.Once);
 
         private List<(long OwnerId, short Slot)> ReadySlots()
         {

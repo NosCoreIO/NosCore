@@ -20,6 +20,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.GroupService;
@@ -106,6 +107,32 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual((short?)0, resolved?.SkillVnum);
             Assert.AreEqual(0, resolved?.BCards.Count);
+        }
+
+        [TestMethod]
+        public async Task APetsBasicAttackIsItsOwnHitNotTheSkillItKnows()
+        {
+            var world = await TestWorld.CreateAsync();
+            var owner = (await world.CreateSessionAsync()).Character;
+            var pet = TestMates.Pet(owner.CharacterId, vnum: 709);
+            pet.NpcMonster.BasicSkill = 200;
+            pet.NpcMonster.BasicCooldown = 14;
+            pet.NpcMonster.BasicRange = 1;
+            await pet.SpawnAsync(owner, owner.MapInstance, 5, 5);
+            var resolver = new SkillResolver(
+                new NosCore.GameObject.Services.SkillService.SkillCatalog([new SkillDto { SkillVNum = 790, CastId = 0, Cooldown = 80, Range = 3, Effect = 791 }]),
+                new NpcCombatCatalog([new NpcMonsterSkillDto { NpcMonsterVNum = 709, SkillVNum = 790 }], new(), [Causes(790, 1, 100)]),
+                _cards.Object);
+
+            var basic = resolver.ResolveBasic(pet.Entity.NotNull());
+
+            Assert.IsNotNull(basic);
+            Assert.AreEqual((short)0, basic.SkillVnum);
+            Assert.AreEqual((short)200, basic.Effect);
+            Assert.AreEqual((short)11, basic.AttackAnimation);
+            Assert.AreEqual((short)14, basic.Cooldown);
+            Assert.AreEqual((byte)1, basic.Range);
+            Assert.AreEqual(0, basic.BCards.Count);
         }
 
         [TestMethod]

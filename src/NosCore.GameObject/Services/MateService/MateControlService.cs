@@ -4,9 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NodaTime;
-using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -17,19 +14,14 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public class MateControlService(IHeuristic distanceCalculator, IBattleService battleService,
-            INpcCombatCatalog catalog, ISkillCatalog skills, IClock clock) : IMateControlService
+    public class MateControlService(IHeuristic distanceCalculator, IMateAttackService mateAttackService)
+        : IMateControlService
     {
-
         public async Task<bool> MoveAsync(PlayerComponentBundle owner, long mateTransportId, short x, short y)
         {
             if (!TryGetOutMate(owner, mateTransportId, out var mate, out var entity))
@@ -106,59 +98,22 @@ namespace NosCore.GameObject.Services.MateService
             return true;
         }
 
-        public async Task<bool> AttackAsync(PlayerComponentBundle owner, long mateTransportId, long castId,
-            IAliveEntity target)
+        public async Task<bool> AttackAsync(PlayerComponentBundle owner, long mateTransportId, IAliveEntity target)
         {
             if (target.MapInstance != owner.MapInstance)
             {
                 return false;
             }
 
-            if (TryGetOutMate(owner, mateTransportId, out var mate, out var entity))
+            if (TryGetOutMate(owner, mateTransportId, out _, out var entity))
             {
-                return await StrikeAsync(entity, mate.VNum, entity.NextUsableAt, castId, target);
+                return await mateAttackService.BasicAttackAsync(entity, target);
             }
 
             return mateTransportId is > 0 and <= int.MaxValue
                 && owner.MapInstance.GetNpcById((int)mateTransportId) is { IsAlive: true } escort
                 && escort.LeaderId == owner.CharacterId
-                && await StrikeAsync(escort, escort.VNum, escort.NextUsableAt, castId, target);
-        }
-
-        private async Task<bool> StrikeAsync(IAliveEntity entity, short vNum, ConcurrentDictionary<short, Instant> nextUsableAt,
-            long castId, IAliveEntity target)
-        {
-            // Only a skill in the creature's own roster, picked as the resolver picks it (cast 0 means its first
-            // skill), so reach and cooldown are checked on the skill that is actually cast.
-            var skill = catalog.GetSkills(vNum)
-                .Select(s => skills.GetSkill(s.SkillVNum))
-                .FirstOrDefault(s => s != null && (s.CastId == castId || castId == 0));
-            if (skill == null)
-            {
-                return false;
-            }
-
-            var now = clock.GetCurrentInstant();
-            if (nextUsableAt.TryGetValue(skill.SkillVNum, out var readyAt) && readyAt > now)
-            {
-                return false;
-            }
-
-            var distance = (int)distanceCalculator.GetDistance((entity.PositionX, entity.PositionY),
-                (target.PositionX, target.PositionY));
-            var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
-            if (!SkillReach.IsInReach(skill.TargetType, skill.Range, skill.TargetRange, distance, targetArea))
-            {
-                return false;
-            }
-
-            if (!await battleService.Hit(entity, target, new HitArguments { SkillId = castId }))
-            {
-                return false;
-            }
-
-            nextUsableAt[skill.SkillVNum] = now.Plus(Duration.FromMilliseconds(Math.Max(200, skill.Cooldown * 100)));
-            return true;
+                && await mateAttackService.BasicAttackAsync(escort, target);
         }
 
         // Trusting the id alone would let a client drive somebody else's mate, or one left in the Miniland.
