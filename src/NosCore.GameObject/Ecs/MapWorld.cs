@@ -257,7 +257,7 @@ public class MapWorld : IDisposable
             new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
             new VisualComponent(0, 0, 0, 0, false, false, false),
             new NpcDataComponent(npcMonster.NpcMonsterVNum, npcMonster.Race, npcMonster.Level, npcMonster.HeroLevel, npcMonster.Speed, 10),
-            new SpawnComponent(firstX, firstY, isMoving, isHostile),
+            new SpawnComponent(firstX, firstY, isMoving, isHostile && npcMonster.IsHostile),
             new EffectComponent(0, 0),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
             new NpcStateComponent(npcMonster, mapInstance, null, isDisabled),
@@ -304,7 +304,7 @@ public class MapWorld : IDisposable
             // monsters can land hits on them.
             new VisualComponent(0, 0, 0, 0, false, false, false),
             new NpcDataComponent(npcMonster.NpcMonsterVNum, npcMonster.Race, npcMonster.Level, 0, npcMonster.Speed, 10),
-            new SpawnComponent(firstX, firstY, isMoving, false),
+            new SpawnComponent(firstX, firstY, isMoving, npcMonster.IsHostile),
             new EffectComponent(effect, effectDelay),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
             new NpcStateComponent(npcMonster, mapInstance, dialog, isDisabled),

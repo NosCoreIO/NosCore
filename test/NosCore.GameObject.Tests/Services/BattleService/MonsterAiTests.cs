@@ -215,6 +215,48 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AHostileMonsterSummonedPassiveIgnoresAPlayerUntilItIsThreatened()
+        {
+            var monster = _map.SummonMonster(Template(), 4, 1, isHostile: false);
+            PlacePlayer(4, 2);
+
+            Assert.IsFalse(await _ai.TickAsync(monster));
+            SwingsAtThePlayer(Times.Never());
+
+            _aggro.AddThreat(monster, _session.Character, 5);
+
+            Assert.IsTrue(await _ai.TickAsync(monster));
+            SwingsAtThePlayer(Times.Once());
+        }
+
+        [TestMethod]
+        public async Task APeacefulMonsterSummonedHostileStaysPeaceful()
+        {
+            var monster = _map.SummonMonster(Template(m => m.IsHostile = false), 4, 1, isHostile: true);
+            PlacePlayer(4, 2);
+
+            Assert.IsFalse(await _ai.TickAsync(monster));
+            SwingsAtThePlayer(Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AHostileNpcAttacksAMonsterWithinReach()
+        {
+            var monster = _map.SummonMonster(Template(m => m.IsHostile = false), 4, 1, isHostile: false);
+            _map.LoadNpcs(
+                new List<MapNpcDto> { new() { MapNpcId = 300, MapId = 0, MapX = 4, MapY = 2, VNum = 2 } },
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(
+                    new List<NpcMonsterDto> { Template(m => m.NpcMonsterVNum = 2) }));
+            var guard = _map.EnumerateNpcs().Single();
+
+            Assert.IsTrue(await _ai.TickAsync(guard));
+            var monsterId = monster.VisualId;
+            _battle.Verify(b => b.Hit(It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc),
+                It.Is<IAliveEntity>(t => t.VisualType == VisualType.Monster && t.VisualId == monsterId),
+                It.IsAny<HitArguments>()), Times.Once());
+        }
+
+        [TestMethod]
         public async Task AMonsterHitByANosMateFightsBack()
         {
             var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
@@ -506,6 +548,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private MonsterComponentBundle SpawnMonster(short x, short y, Action<NpcMonsterDto>? tune = null)
         {
+            _map.LoadMonsters(
+                new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = x, MapY = y, VNum = 1 } },
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { Template(tune) }));
+            return _map.EnumerateMonsters().Single();
+        }
+
+        private static NpcMonsterDto Template(Action<NpcMonsterDto>? tune = null)
+        {
             var template = new NpcMonsterDto
             {
                 NpcMonsterVNum = 1,
@@ -520,10 +570,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 Speed = 6,
             };
             tune?.Invoke(template);
-            _map.LoadMonsters(
-                new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = x, MapY = y, VNum = 1 } },
-                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { template }));
-            return _map.EnumerateMonsters().Single();
+            return template;
         }
 
         // Two peaceful monsters of one group: the first at (4,1), the second at (4,5).

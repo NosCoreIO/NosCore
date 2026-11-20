@@ -4150,6 +4150,12 @@ Recorded so nobody spends time hunting for them:
   type, so there is nothing to implement or to check.
 - **Finishing a Sound Flower quest** — the flower starts quest 5981, but nothing counts its
   objective or hands out the Sound Flower's Blessing yet, so the quest stays open until given up.
+- **A passive monster summoned by a script** — no script in `instances/` summons a monster with
+  `IsHostile: false`, so this is only reachable from a script written for it. Copy
+  `timespace-sample.csx` and give one of the first room's monsters `IsHostile: false`
+  (`new MonsterSpawn(58, new Spot(24, 31), IsHostile: false)`): that monster lets you walk up to it
+  while the other two come for you, and fights back once you hit it. `IsHostile: true`, the
+  default, never makes a peaceful monster attack on sight.
 
 ## Mount activation
 

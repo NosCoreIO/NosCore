@@ -21,6 +21,8 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         bool IsDisabled { get; }
 
+        bool IsHostile { get; }
+
         NpcMonsterDto NpcMonster { get; set; }
 
         Instant LastMove { get; set; }
