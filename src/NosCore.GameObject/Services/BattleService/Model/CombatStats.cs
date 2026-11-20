@@ -96,6 +96,10 @@ public readonly record struct CombatStats(
     // SurroundingDamageRadius cells of the target.
     int SurroundingDamageChance = 0,
     int SurroundingDamageRadius = 0,
+    // Type 29 subtype 2: every attack blows up and deals ExplosionDamage to each enemy within
+    // ExplosionRadius cells of the attacker.
+    int ExplosionRadius = 0,
+    int ExplosionDamage = 0,
     // Type 38 subtype 3: percent added to the final damage of this entity's critical hits.
     int FinalCriticalDamagePercent = 0,
     // Type 38 subtype 4: percent added to the final damage of critical hits this entity takes.

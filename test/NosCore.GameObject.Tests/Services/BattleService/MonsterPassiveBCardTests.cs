@@ -57,6 +57,23 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void AnExplosionCardGivesItsRadiusAndDamage()
+        {
+            var stats = StatsOf(Card(BCardEffect.SpecialDamageAndExplosionsExplosionCauses, 2, 500, slot: 0));
+
+            Assert.AreEqual(2, stats.ExplosionRadius);
+            Assert.AreEqual(500, stats.ExplosionDamage);
+        }
+
+        [TestMethod]
+        public void AnExplosionCardTriggeredElsewhereDoesNotExplodeOnAttack()
+        {
+            var stats = StatsOf(Card(BCardEffect.SpecialDamageAndExplosionsExplosionCauses, 4, 10, slot: 2));
+
+            Assert.AreEqual(0, stats.ExplosionRadius);
+        }
+
+        [TestMethod]
         public void AMonsterWithoutCardsKeepsItsOwnStats()
         {
             Assert.IsNull(StatsOf().ChanceDamageTaken);

@@ -270,6 +270,20 @@ a crossbow in the secondary weapon slot). It deals no damage. Use two clients on
 - [ ] A monster further away than the effect's range takes nothing
 - [ ] A skill that already hits several targets does not hit them a second time
 
+### Explosions — BCard type 29 subtype 21, and monsters that disappear after hitting
+
+- [ ] Kill a Wiggy Wiggler (226) or a Wiggler (227) on a map that has them: a Small Wiggler (229)
+      appears. Hit it so it fights back, with a second character two cells from it and a third four
+      cells away: when it strikes, the first two each take 500 and play the hit in the area, the
+      third takes nothing, and the Small Wiggler collapses and is gone
+- [ ] The same with an Angry Wiggler (228), whose Small Wiggler (231) deals 1200
+- [ ] A monster standing next to the Small Wiggler takes nothing from the explosion
+- [ ] Damage the Small Wiggler without killing it before it explodes: no experience, gold or drop
+      comes from it
+- [ ] Not verifiable yet: whether the explosion goes off when the Small Wiggler strikes or when it
+      comes into reach, and whether its own blow lands as well as the explosion; no trace shows
+      one
+
 ### HP and MP leech and transfer — BCard type 21 subtypes 3 to 5, 51/2, 22/3 and 20/5
 
 - [ ] Hit a monster with a skill that leeches HP (`/mnt/project-files/bcard-effects/reset-leech.sh`

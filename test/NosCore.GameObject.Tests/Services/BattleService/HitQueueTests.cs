@@ -192,6 +192,23 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AFixedDamageBlowTakesExactlyItsDamageWhateverTheRoll()
+        {
+            var target = new FakeBattleEntity { Hp = 1000, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+            var queue = BuildQueue(d => { d.Damage = 0; d.HitMode = SuPacketHitMode.Miss; });
+
+            var outcome = await queue.EnqueueAsync(Request(attacker, target) with
+            {
+                Skill = MakeSkill() with { FixedDamage = 500 }
+            });
+
+            Assert.AreEqual(HitStatus.Landed, outcome.Status);
+            Assert.AreEqual(500, outcome.Damage);
+            Assert.AreEqual(500, target.Hp);
+        }
+
+        [TestMethod]
         public async Task MissHitsDoNotAffectHpOrHitList()
         {
             var target = new FakeBattleEntity { Hp = 100, MaxHp = 100 };

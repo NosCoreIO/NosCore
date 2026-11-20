@@ -96,6 +96,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const int Brute = 105;
         private const short BruteVNum = 12;
 
+        // Hits back once and blows up doing it: every enemy within two cells takes WigglerBlast, and
+        // it is gone.
+        public const int Wiggler = 1100;
+        private const short WigglerVNum = 1100;
+        public const int WigglerBlast = 50;
+        public const short WigglerX = 50;
+        public const short WigglerY = 15;
+
         // Charge Power as the client data has it: melee attack +250 on the Swordsman's next blow,
         // and a basic Swordsman blow to spend it on.
         public const short ChargeSkill = 400;
@@ -590,6 +598,19 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             await context.SaveChangesAsync();
             context.Add(new MapMonster { MapMonsterId = Brute, MapId = Meadow, MapX = 80, MapY = 80, VNum = BruteVNum });
+
+            context.Add(new NpcMonster
+            {
+                NpcMonsterVNum = WigglerVNum, Name = "wiggler", Level = 1, MaxHp = 100000, DamageMinimum = 1, DamageMaximum = 1,
+                Concentrate = 2000, BasicRange = 1, BasicCooldown = 20, DisappearAfterHitting = true
+            });
+            await context.SaveChangesAsync();
+            context.Add(new MapMonster { MapMonsterId = Wiggler, MapId = Meadow, MapX = WigglerX, MapY = WigglerY, VNum = WigglerVNum });
+            context.Add(new BCard
+            {
+                NpcMonsterVNum = WigglerVNum, Type = BCardType.CardType.SpecialDamageAndExplosions, SubType = 21, FirstData = 2,
+                SecondData = WigglerBlast, Recipient = BCardRecipient.Enemy
+            });
 
             context.Add(new NpcMonster
             {
