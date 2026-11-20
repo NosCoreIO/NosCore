@@ -4,19 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Parser.Parsers;
-using NosCore.Shared.I18N;
+using NosCore.Tests.Shared;
 using System;
 using System.IO;
 using System.Linq;
@@ -27,14 +21,16 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ScriptParserTests
     {
+        private TestWorld World;
         private string _folder;
         private IDao<ScriptDto, Guid> _scripts;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            var options = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-            _scripts = new Dao<Script, ScriptDto, Guid>(NullLogger<Dao<Script, ScriptDto, Guid>>.Instance, () => new NosCoreContext(options));
+            World = await TestWorld.CreateAsync();
+            _scripts = World.Create<Dao<Script, ScriptDto, Guid>>();
+            World.Inject(_scripts);
             _folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(_folder);
         }
@@ -45,8 +41,7 @@ namespace NosCore.Parser.Tests
         private async Task ImportAsync(string tutorial)
         {
             await File.WriteAllTextAsync(Path.Combine(_folder, "tutorial.dat"), tutorial);
-            await new ScriptParser(_scripts, new Mock<ILogger<ScriptParser>>().Object,
-                new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object).InsertScriptsAsync(_folder);
+            await World.Create<ScriptParser>().InsertScriptsAsync(_folder);
         }
 
         [TestMethod]

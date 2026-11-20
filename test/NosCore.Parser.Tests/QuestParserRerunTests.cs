@@ -4,19 +4,16 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Core.Dao;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Parser.Parsers;
-using NosCore.Shared.I18N;
+using NosCore.Tests.Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,22 +39,24 @@ namespace NosCore.Parser.Tests
             "LINK\t-1\r\n" +
             "END";
 
+        private TestWorld World;
         private string _folder;
-        private IDao<QuestDto, short> _quests;
         private IDao<QuestObjectiveDto, Guid> _objectives;
-        private IDao<QuestRewardDto, short> _rewards;
         private IDao<QuestQuestRewardDto, Guid> _questRewards;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            var options = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-            NosCoreContext Context() => new(options);
-            _quests = new Dao<Quest, QuestDto, short>(NullLogger<Dao<Quest, QuestDto, short>>.Instance, Context);
-            _objectives = new Dao<QuestObjective, QuestObjectiveDto, Guid>(NullLogger<Dao<QuestObjective, QuestObjectiveDto, Guid>>.Instance, Context);
-            _rewards = new Dao<QuestReward, QuestRewardDto, short>(NullLogger<Dao<QuestReward, QuestRewardDto, short>>.Instance, Context);
-            _questRewards = new Dao<QuestQuestReward, QuestQuestRewardDto, Guid>(NullLogger<Dao<QuestQuestReward, QuestQuestRewardDto, Guid>>.Instance, Context);
-            await _rewards.TryInsertOrUpdateAsync(new[] { new QuestRewardDto { QuestRewardId = 4 }, new QuestRewardDto { QuestRewardId = 6 } }).OrThrowAsync();
+            World = await TestWorld.CreateAsync();
+            World.Inject<ILoggerFactory>(NullLoggerFactory.Instance);
+            World.Inject<IDao<QuestDto, short>>(World.Create<Dao<Quest, QuestDto, short>>());
+            _objectives = World.Create<Dao<QuestObjective, QuestObjectiveDto, Guid>>();
+            World.Inject(_objectives);
+            _questRewards = World.Create<Dao<QuestQuestReward, QuestQuestRewardDto, Guid>>();
+            World.Inject(_questRewards);
+            var rewards = World.Create<Dao<QuestReward, QuestRewardDto, short>>();
+            World.Inject<IDao<QuestRewardDto, short>>(rewards);
+            await rewards.TryInsertOrUpdateAsync(new[] { new QuestRewardDto { QuestRewardId = 4 }, new QuestRewardDto { QuestRewardId = 6 } }).OrThrowAsync();
 
             _folder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(_folder);
@@ -67,9 +66,7 @@ namespace NosCore.Parser.Tests
         [TestCleanup]
         public void Cleanup() => Directory.Delete(_folder, true);
 
-        private Task ImportAsync() =>
-            new QuestParser(_quests, _objectives, _rewards, _questRewards, NullLoggerFactory.Instance,
-                new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object).ImportQuestsAsync(_folder);
+        private Task ImportAsync() => World.Create<QuestParser>().ImportQuestsAsync(_folder);
 
         private List<string> Objectives() => _objectives.LoadAll()
             .Select(o => $"{o.QuestObjectiveId} {o.QuestId} {o.FirstData} {o.SecondData} {o.ThirdData} {o.FourthData}").Order().ToList();
