@@ -42,7 +42,7 @@ even when its packets are covered here.
 | NPC shops: buying and its refusals, a full bag, selling, what cannot be sold, reputation prices | `NpcShopTests` |
 | Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
 | Specialist skins: the skin used up, the look another player sees on transforming, the skin kept after relogging | `SpecialistSkinTests` |
-| Score quests: a band's button hands out its quest, a band above the character's level is refused | `ScoreQuestTests` |
+| Score quests: a band's button hands out its quest, a band above the character's level is refused, the button sent to an NPC whose dialog has none is refused | `ScoreQuestTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
@@ -2515,6 +2515,11 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 - [ ] Pick a band above your level: "Your level is too low"; one below it: "Your level is too high".
       Nothing is added.
 - [ ] Pick the same band again after taking it: nothing new is handed out.
+- [ ] Run the parser again first, so the dialog buttons are stored. Then open the dialog of an NPC that
+      offers no score quest (a shopkeeper next to you) and send `n_run 3002 0` naming that NPC, and
+      `n_run 201` naming it too: no quest is handed out, and the world log shows nothing at error level.
+- [ ] Open Raphael's dialog and send `n_run 3006 <id>` with a quest id that none of his buttons names:
+      nothing is handed out.
 - [ ] Not verifiable yet: completing a score quest. Nothing records a time-space score against the
       quest's required score, so a taken score quest stays open until it is given up.
 - [ ] At level 55+, Soraya Style's "Remove Princess Sakura's Seal!": "Use Princess Sakura's Seal!" is

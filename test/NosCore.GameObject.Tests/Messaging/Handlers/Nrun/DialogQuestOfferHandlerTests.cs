@@ -15,9 +15,11 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
@@ -26,6 +28,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     public class DialogQuestOfferHandlerTests
     {
         private const NrunRunnerType Engineer = NrunRunnerType.GetDailyQuestAkamurMerchantMilitaryEngineerEliminateMonsters;
+        private const short EngineerDialog = 300;
+        private const short EngineerQuestDialog = 301;
+        private const short DiggerDialog = 9700;
+        private const short OtherDialog = 1;
 
         private TestWorld World;
         private ClientSession Session;
@@ -50,11 +56,27 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             Random = World.Freeze<Mock<IRandomProvider>>();
             Random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns((int min, int max) => max - 1);
             World.Inject(Quests);
+            World.Inject(new List<NpcTalkButtonDto>
+            {
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = EngineerDialog, NextDialogId = EngineerQuestDialog },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = EngineerQuestDialog, Runner = Engineer },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = DiggerDialog, Runner = NrunRunnerType.GetQuestGingsengDagger },
+            });
+            World.UseReal<INpcTalkButtonCatalog, NpcTalkButtonCatalog>();
             Session.Character.Level = 90;
         }
 
-        private Task AskAsync() => World.Create<BurningSwordMonstersDailyQuestHandler>()
-            .HandleAsync(Session, null, new NrunPacket { Runner = Engineer });
+        private NpcComponentBundle NpcWithDialog(int npcId, short dialog)
+        {
+            var map = World.GetBaseMap(TestWorld.TestMapId);
+            return new NpcComponentBundle(map.EcsWorld.CreateNpc(npcId, new NpcMonsterDto { NpcMonsterVNum = 1, MaxHp = 10 }, map,
+                1, 1, 0, 1, 1, false, false, dialog, 0, 0, null), map.EcsWorld);
+        }
+
+        private Task AskAsync() => AskAsync(NpcWithDialog(1, EngineerDialog));
+
+        private Task AskAsync(NpcComponentBundle npc) => World.Create<BurningSwordMonstersDailyQuestHandler>()
+            .HandleAsync(Session, npc, new NrunPacket { Runner = Engineer, VisualType = VisualType.Npc, VisualId = npc.VisualId });
 
         private void Holds(short questId, Instant? completedOn) =>
             Session.Character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
@@ -122,9 +144,26 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task AStoryButtonHandsOutItsOneQuest()
         {
             await World.Create<GinsengDiggerQuestHandler>()
-                .HandleAsync(Session, null, new NrunPacket { Runner = NrunRunnerType.GetQuestGingsengDagger });
+                .HandleAsync(Session, NpcWithDialog(2, DiggerDialog), new NrunPacket { Runner = NrunRunnerType.GetQuestGingsengDagger });
 
             Offered(6036);
+        }
+
+        [TestMethod]
+        public async Task AnNpcWhoseDialogDoesNotOfferTheButtonHandsOutNothing()
+        {
+            await World.Create<GinsengDiggerQuestHandler>()
+                .HandleAsync(Session, NpcWithDialog(3, OtherDialog), new NrunPacket { Runner = NrunRunnerType.GetQuestGingsengDagger });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AnotherNpcsDailyButtonHandsOutNothing()
+        {
+            await AskAsync(NpcWithDialog(4, DiggerDialog));
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
         }
 
         [TestMethod]

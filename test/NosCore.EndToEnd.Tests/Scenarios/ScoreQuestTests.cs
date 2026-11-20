@@ -61,6 +61,26 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task AScoreQuestButtonSentToAnotherNpcIsRefused()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", x: WorldData.BrokerX, y: WorldData.BrokerY + 1);
+            await using var alice = Harness.Client(player);
+            await alice.EnterWorldAsync(player.Slot);
+            await alice.SendAsync(new RequestNpcPacket { Type = VisualType.Npc, TargetId = WorldData.Broker });
+            await alice.ExpectAsync<NpcReqPacket>(p => p.Type == VisualType.Npc && p.TargetId == WorldData.Broker, "the broker's dialog");
+            var asked = alice.Mark();
+
+            await alice.SendAsync(new NrunPacket
+            {
+                Runner = NrunRunnerType.GetQuestHigherTimeSpaceScore, Type = 0, VisualType = VisualType.Npc,
+                VisualId = WorldData.Broker
+            });
+
+            Assert.IsTrue(await alice.NoneSinceAsync<QstlistPacket>(asked,
+                p => p.QuestSubPackets.Any(q => q.QuestId == WorldData.AnyLevelScoreQuest), TimeSpan.FromSeconds(2)));
+        }
+
+        [TestMethod]
         public async Task AButtonForAHigherLevelRangeIsRefused()
         {
             await using var alice = await AtTheScoreKeeperAsync();
