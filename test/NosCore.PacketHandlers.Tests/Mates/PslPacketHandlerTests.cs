@@ -17,6 +17,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging.Handlers.Guri;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -115,10 +117,11 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task ThePartnerButtonStartsTheTransformationBar()
         {
-            await new Spec("Calling up a partner's specialist starts a five-second bar, and the partner dances")
+            await new Spec("Calling up a partner's specialist starts a five-second bar, and the partner dances once the client draws it")
                 .GivenAsync(APartnerIsOut)
                 .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
                 .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
+                .AndAsync(TheClientDrawsThePartnersBar)
                 .Then(AFiveSecondBarEndingInPsl1ShouldStart)
                 .And(ThePartnerShouldDance)
                 .And(ThePartnerShouldNotBeTransformed)
@@ -297,6 +300,10 @@ namespace NosCore.PacketHandlers.Tests.Mates
 
         private Task TheOwnerSendsPsl_(PslPacketType type) =>
             _handler.ExecuteAsync(new PslPacket { Type = type }, _session);
+
+        private Task TheClientDrawsThePartnersBar() =>
+            World.Create<DelayBarHandler>().Handle(new GuriPacketReceivedEvent(_session,
+                new NosCore.Packets.ClientPackets.UI.GuriPacket { Type = GuriPacketType.CharacterAnimation }));
 
         private IEnumerable<IPacket> Broadcast() =>
             _onlookers.Invocations.SelectMany(i => i.Arguments)

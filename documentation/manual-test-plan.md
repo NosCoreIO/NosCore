@@ -937,6 +937,10 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] With a second player watching, ride out of the map and come back: the watcher sees you on
       the mount, not on foot; the same when the watcher enters a map where you already ride
 - [ ] Walk, cast a skill, or take a hit during the mounting bar: you don't mount
+- [ ] With a second player watching, start the mounting bar: while it fills, the watcher sees your
+      character in the busy pose a progress bar puts it in, the same as on your own screen. The
+      same holds for a timespace lever, an item collected from an NPC and a specialist bar, and for
+      a partner's specialist bar (the partner, not you, is shown busy)
 - [ ] Start the mounting bar and transform into your specialist straight after: the specialist
       bar doesn't finish off the mount, and the other way round
 - [ ] Use a Movement Scroll (5214): after the bar you ride one of the novice mounts at its own

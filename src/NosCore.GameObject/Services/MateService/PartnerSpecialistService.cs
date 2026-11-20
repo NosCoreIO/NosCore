@@ -95,12 +95,6 @@ namespace NosCore.GameObject.Services.MateService
                 Delay = TransformDelayMilliseconds,
                 Packet = new PslPacket { Type = PslPacketType.Wear }
             }, specialist.Id, now);
-            await SendAsync(owner, new GuriPacket
-            {
-                Type = GuriPacketType.Dance,
-                Argument = (uint)VisualType.Npc,
-                EntityId = partner.MateTransportId
-            });
         }
 
         public async Task TransformAsync(PlayerComponentBundle owner)
