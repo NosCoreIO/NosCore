@@ -269,6 +269,11 @@ public sealed class BattleStatsProvider(
                     totals.SurroundingChance += card.FirstData;
                     totals.SurroundingRadius = Math.Max(totals.SurroundingRadius, (int)card.SecondData);
                 }
+                else if (effect == BCardEffect.SpecialDamageAndExplosionsExplosionCauses)
+                {
+                    totals.ExplosionRadius = Math.Max(totals.ExplosionRadius, (int)card.FirstData);
+                    totals.ExplosionDamage += card.SecondData;
+                }
                 else if (DamageTakenChances.TryGetValue(effect, out var taken))
                 {
                     var percent = taken.Increased ? card.SecondData : -card.SecondData;
@@ -336,6 +341,8 @@ public sealed class BattleStatsProvider(
             ForcedMovementResistance = stats.ForcedMovementResistance + totals.ForcedMovementResistance,
             SurroundingDamageChance = stats.SurroundingDamageChance + totals.SurroundingChance,
             SurroundingDamageRadius = Math.Max(stats.SurroundingDamageRadius, totals.SurroundingRadius),
+            ExplosionRadius = Math.Max(stats.ExplosionRadius, totals.ExplosionRadius),
+            ExplosionDamage = stats.ExplosionDamage + totals.ExplosionDamage,
             FinalCriticalDamagePercent = stats.FinalCriticalDamagePercent + totals.FinalCrit,
             FinalCriticalDamageTakenPercent = stats.FinalCriticalDamageTakenPercent + totals.FinalCritTaken,
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
@@ -376,7 +383,7 @@ public sealed class BattleStatsProvider(
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
         public int FairyElement;
         public int GuaranteedHit, GuaranteedDodge;
-        public int OnyxDragon, ForcedMovementResistance, SurroundingChance, SurroundingRadius;
+        public int OnyxDragon, ForcedMovementResistance, SurroundingChance, SurroundingRadius, ExplosionRadius, ExplosionDamage;
         public int FinalCrit, FinalCritTaken;
         public int DefencePercent;
         public List<ChanceDamage>? ChanceDamage;

@@ -143,10 +143,10 @@ public sealed class HitQueue(
             var attackerStats = statsProvider.GetStats(request.Origin);
             var defenderStats = statsProvider.GetStats(target);
             var debuffOnly = request.Skill.Kind == SkillKind.Debuff;
-            var damage = debuffOnly
-                ? new DamageResult(0, SuPacketHitMode.NoDamageSuccess)
+            var damage = debuffOnly ? new DamageResult(0, SuPacketHitMode.NoDamageSuccess)
+                : request.Skill.FixedDamage is { } fixedDamage ? new DamageResult(fixedDamage, SuPacketHitMode.SuccessAttack)
                 : damageCalculator.Calculate(attackerStats, defenderStats, request.Skill);
-            if (isPvp && !debuffOnly)
+            if (isPvp && !debuffOnly && request.Skill.FixedDamage == null)
             {
                 damage = damage with { Damage = PvpDamage(damage.Damage, attackerStats, defenderStats) };
             }

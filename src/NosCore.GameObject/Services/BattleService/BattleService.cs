@@ -125,8 +125,37 @@ namespace NosCore.GameObject.Services.BattleService
                 }
             }
 
+            await ExplodeAsync(origin, skill);
             await FinishCastAsync(origin, skill);
             return true;
+        }
+
+        // Type 29 subtype 2: the attacker blows up, and every enemy within the radius takes the
+        // card's damage as it is.
+        private async Task ExplodeAsync(IAliveEntity origin, SkillInfo skill)
+        {
+            var stats = statsProvider.GetStats(origin);
+            if (stats.ExplosionRadius <= 0 || stats.ExplosionDamage <= 0 || origin.MapInstance is not { } map)
+            {
+                return;
+            }
+
+            var blast = skill with
+            {
+                TargetRange = (byte)stats.ExplosionRadius,
+                FixedDamage = stats.ExplosionDamage,
+                Duration = 0,
+                BCards = [],
+                ChargeBCards = null,
+            };
+            var victims = targetResolver.ResolveArea(origin, map, origin.PositionX, origin.PositionY, blast)
+                .Where(victim => !(victim.VisualType == origin.VisualType && victim.VisualId == origin.VisualId))
+                .Where(victim => !(origin is MonsterComponentBundle && victim is MonsterComponentBundle))
+                .ToList();
+            foreach (var victim in victims)
+            {
+                await TryProcessHitAsync(origin, victim, blast, false, HitPresentation.Area);
+            }
         }
 
         // Type 29 subtype 3: a lucky single-target hit also lands on everyone around the target.
@@ -189,6 +218,7 @@ namespace NosCore.GameObject.Services.BattleService
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
+            await ExplodeAsync(origin, skill);
             await FinishCastAsync(origin, skill);
             return true;
         }
@@ -548,6 +578,33 @@ namespace NosCore.GameObject.Services.BattleService
             await buffService.InflictCasterCardsAsync(origin, skill.BCards);
             await summonService.SummonAsync(origin, skill.BCards);
             ScheduleCooldownReset(origin, skill);
+            await DisappearAfterHittingAsync(origin);
+        }
+
+        // A monster marked to disappear after hitting is gone once its attack is over, shown dying
+        // by its own hand. Nobody killed it, so nobody is rewarded for it.
+        private async Task DisappearAfterHittingAsync(IAliveEntity origin)
+        {
+            if (origin is not MonsterComponentBundle { IsAlive: true, NpcMonster.DisappearAfterHitting: true } monster
+                || monster.MapInstance is not { } map)
+            {
+                return;
+            }
+
+            await monster.OnMapAsync(async () =>
+            {
+                monster.Hp = 0;
+                monster.IsAlive = false;
+                await buffService.ClearAsync(monster);
+                await map.SendPacketAsync(new DiePacket
+                {
+                    VisualType = monster.VisualType,
+                    VisualId = monster.VisualId,
+                    TargetVisualType = monster.VisualType,
+                    TargetId = monster.VisualId,
+                });
+            });
+            await gameEvents.RaiseAsync(new EntityDiedEvent(monster, monster, new Dictionary<Arch.Core.Entity, int>()));
         }
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)

@@ -35,7 +35,9 @@ public sealed record SkillInfo(
     bool UsesSecondaryWeapon = false,
     SkillKind Kind = SkillKind.Attack,
     // The cards of a charge the caster spends on this attack.
-    IReadOnlyList<BCardDto>? ChargeBCards = null)
+    IReadOnlyList<BCardDto>? ChargeBCards = null,
+    // Damage every blow deals as it is, neither rolled nor reduced.
+    int? FixedDamage = null)
 {
     private const byte ChargeType = 4;
     private const byte DashType = 5;
