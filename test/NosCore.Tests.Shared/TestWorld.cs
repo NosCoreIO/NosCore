@@ -321,6 +321,13 @@ namespace NosCore.Tests.Shared
 
         public NpcDialogService NpcDialogService => Create<NpcDialogService>();
 
+        public GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost CreateTimeSpaceRunHost(
+            GameObject.Services.ScriptedInstanceService.ScriptedInstance entrance)
+        {
+            Inject(entrance);
+            return Create<GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost>();
+        }
+
         public const byte UpgraderShopType = 3;
 
         public const byte AlchemistShopType = 7;

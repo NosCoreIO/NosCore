@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -95,10 +94,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
             _script = new Script();
             _run = new ScriptedInstanceRun(
-                new TimeSpaceRunHost(
-                    new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, LevelMinimum = 1, Logic = _script },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object,
-                    World.Create<TimeSpacePenaltyService>()),
+                World.CreateTimeSpaceRunHost(new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, LevelMinimum = 1, Logic = _script }),
                 _script, new Dictionary<int, MapInstance> { [1] = _room }, catalog, new RandomProvider(), World.Clock,
                 World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
