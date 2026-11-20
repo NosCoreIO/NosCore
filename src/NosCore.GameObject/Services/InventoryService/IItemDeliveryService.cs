@@ -15,5 +15,9 @@ namespace NosCore.GameObject.Services.InventoryService
         // Puts the item in the player's inventory, or in their parcel box when it does not fit.
         // Returns false when it went to the parcel box.
         Task<bool> DeliverAsync(PlayerComponentBundle player, IItemInstance item);
+
+        // Gives back an amount taken with TryConsume, refreshing its old slot and wherever it went;
+        // when the inventory has no room it goes to the parcel box.
+        Task ReturnConsumedAsync(PlayerComponentBundle player, InventoryItemInstance source, short amount);
     }
 }

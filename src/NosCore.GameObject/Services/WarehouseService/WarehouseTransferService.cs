@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 {
     public class WarehouseTransferService(IWarehouseHub warehouseHub, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
         IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider,
-        ISaveService saveService)
+        ISaveService saveService, IItemDeliveryService itemDelivery)
         : IWarehouseTransferService
     {
         public async Task<List<StoredItem>> GetItemsAsync(long ownerId, WarehouseType warehouseType)
@@ -64,7 +64,8 @@ namespace NosCore.GameObject.Services.WarehouseService
         public async Task<IItemInstance?> DepositAsync(ClientSession session, WarehouseSlots warehouse, PocketType pocket,
             short slot, short amount, short warehouseSlot, Func<IItemInstance, bool> canStore)
         {
-            var source = session.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)pocket);
+            var inventory = session.Character.InventoryService;
+            var source = inventory.LoadBySlotAndType(slot, (NoscorePocketType)pocket);
             if (source?.ItemInstance == null || !canStore(source.ItemInstance)
                 || amount <= 0 || amount > source.ItemInstance.Amount
                 || warehouseSlot < 0 || warehouseSlot >= warehouse.Size
@@ -76,8 +77,15 @@ namespace NosCore.GameObject.Services.WarehouseService
             var stored = (IItemInstance)source.ItemInstance.Clone();
             stored.Id = Guid.NewGuid();
             stored.Amount = amount;
+            // Taken from the bag before the warehouse holds it, so nothing written meanwhile can take it twice.
+            if (!inventory.TryConsume(source, amount))
+            {
+                return null;
+            }
+
             if (await itemInstanceDao.TryInsertOrUpdateAsync(stored) == null)
             {
+                await itemDelivery.ReturnConsumedAsync(session.Character, source, amount);
                 return null;
             }
 
@@ -91,25 +99,20 @@ namespace NosCore.GameObject.Services.WarehouseService
             {
                 // Nothing points at the copy, so one left behind is unreachable.
                 _ = await itemInstanceDao.TryDeleteAsync(stored.Id);
+                await itemDelivery.ReturnConsumedAsync(session.Character, source, amount);
                 return null;
             }
 
-            InventoryItemInstance? remaining;
-            if (amount == source.ItemInstance.Amount)
+            if (!inventory.ContainsKey(source.ItemInstanceId))
             {
                 // The save below drops a bag row the inventory no longer holds, should this miss it.
                 _ = await inventoryItemInstanceDao.TryDeleteAsync(source.Id);
-                session.Character.InventoryService.DeleteById(source.ItemInstanceId);
-                remaining = null;
-            }
-            else
-            {
-                remaining = session.Character.InventoryService.RemoveItemAmountFromInventory(amount, source.ItemInstanceId);
             }
 
             // The warehouse side is already stored; the bag must not wait for the next save.
             await saveService.SaveAsync(session);
-            await session.SendPacketAsync(remaining.GeneratePocketChange(pocket, slot));
+            await session.SendPacketAsync(inventory.LoadBySlotAndType(slot, (NoscorePocketType)pocket)
+                .GeneratePocketChange(pocket, slot));
             await SendSlotAsync(session, warehouse.Type, stored, warehouseSlot);
             return stored;
         }

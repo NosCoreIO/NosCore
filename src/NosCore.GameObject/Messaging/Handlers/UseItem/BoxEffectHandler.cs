@@ -58,16 +58,15 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            if (!inventory.TryConsume(source, 1))
+            var added = inventory.ConsumeAndAdd(source, 1, rewards
+                .Select(reward => InventoryItemInstance.Create(reward, character.CharacterId)).ToList());
+            if (added == null)
             {
                 return;
             }
 
-            var added = inventory.AddItemsToPocket(rewards
-                .Select(reward => InventoryItemInstance.Create(reward, character.CharacterId)).ToList());
-            if (added is not { Count: > 0 })
+            if (added.Count == 0)
             {
-                inventory.RestoreConsumed(source, 1);
                 await SendNotEnoughSpaceAsync(evt);
                 return;
             }

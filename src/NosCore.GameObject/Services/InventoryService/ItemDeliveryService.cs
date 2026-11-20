@@ -35,5 +35,23 @@ namespace NosCore.GameObject.Services.InventoryService
                 item.ItemVNum, amount, (sbyte)item.Rare, item.Upgrade, false, null, null));
             return false;
         }
+
+        public async Task ReturnConsumedAsync(PlayerComponentBundle player, InventoryItemInstance source, short amount)
+        {
+            var (slot, pocket) = (source.Slot, source.Type);
+            var restored = player.InventoryService.RestoreConsumed(source, amount);
+            await player.SendPacketAsync(player.InventoryService.LoadBySlotAndType(slot, pocket)
+                .GeneratePocketChange(pocket.ToPocketType(), slot));
+            if (restored.Count > 0)
+            {
+                await player.SendPacketsAsync(restored.Where(s => s.Slot != slot || s.Type != pocket)
+                    .Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
+                return;
+            }
+
+            var item = source.ItemInstance;
+            await mailHub.SendMailAsync(GiftHelper.GenerateMailRequest(clock, player, player.CharacterId, null,
+                item.ItemVNum, amount, (sbyte)item.Rare, item.Upgrade, false, null, null));
+        }
     }
 }

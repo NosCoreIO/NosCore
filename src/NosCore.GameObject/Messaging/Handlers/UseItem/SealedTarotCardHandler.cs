@@ -44,15 +44,14 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            if (!inventory.TryConsume(source, 1))
+            var changed = inventory.ConsumeAndAdd(source, 1, [InventoryItemInstance.Create(gift, character.CharacterId)]);
+            if (changed == null)
             {
                 return;
             }
 
-            var added = inventory.AddItemToPocket(InventoryItemInstance.Create(gift, character.CharacterId))?.FirstOrDefault();
-            if (added == null)
+            if (changed.FirstOrDefault() is not { } added)
             {
-                inventory.RestoreConsumed(source, 1);
                 await SendNotEnoughSpaceAsync(evt);
                 return;
             }

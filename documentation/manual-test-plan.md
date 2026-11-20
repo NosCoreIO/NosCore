@@ -1762,6 +1762,8 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
       stays on the ground
 - [ ] Double-click a Tarot Card Game: it is used up and five sealed tarot cards from Fool to
       The Sun arrive, with one "received" line per kind of card
+- [ ] Holding a few sealed tarot cards already, double-click a Tarot Card Game: the "received" lines
+      still add up to five cards, though they join the stacks already held
 - [ ] With one free Main slot and no sealed cards yet, double-click a Tarot Card Game: unless all
       five cards came out the same, the not-enough-space message appears and the game stays
 - [ ] Use a title item and a speaker: both still work as before
@@ -1772,6 +1774,8 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
       and the set is gone; with the Equipment pocket full the set stays and the not-enough-space
       message appears
 - [ ] Double-click Raid Package A (1562): both raid seals and 99 Huge Recovery Potions arrive
+- [ ] Holding some Huge Recovery Potions already, double-click Raid Package A: the "received" line
+      for the potions says 99
 - [ ] With a Legendary Raid Box of Mother Cuby (4684, rarity 7) in the bag: it shows in the Equipment
       pocket, and double-clicking it gives one item from its list; a weapon or armour from it is
       legendary too

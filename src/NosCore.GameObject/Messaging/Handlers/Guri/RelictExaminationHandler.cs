@@ -94,15 +94,14 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 return;
             }
 
-            if (!inventory.TryConsume(relict, 1))
+            var added = inventory.ConsumeAndAdd(relict, 1, [InventoryItemInstance.Create(reward, character.CharacterId)]);
+            if (added == null)
             {
                 return;
             }
 
-            var added = inventory.AddItemToPocket(InventoryItemInstance.Create(reward, character.CharacterId)) ?? new List<InventoryItemInstance>();
             if (added.Count == 0)
             {
-                inventory.RestoreConsumed(relict, 1);
                 await SayAsync(evt, Game18NConstString.NotEnoughSpace);
                 return;
             }

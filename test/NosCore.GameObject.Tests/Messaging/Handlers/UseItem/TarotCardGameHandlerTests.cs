@@ -59,6 +59,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task CardsJoiningAHeldStackAreAnnouncedInFull()
+        {
+            await new Spec("Cards that join a stack already held are announced with the amount dealt")
+                .Given(ATarotCardGame)
+                .And(TheCharacterAlreadyHoldsSealedCards)
+                .WhenAsync(OpeningIt)
+                .Then(TheCharacterHolds_SealedCards, 15)
+                .And(EachDealtCardIsAnnounced)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AFullInventoryKeepsTheGame()
         {
             await new Spec("With no room for the cards the game stays in the inventory")
@@ -87,6 +99,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _game = InventoryItemInstance.Create(World.GenerateItemProvider().Create(GameVNum, 1), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(_game);
         }
+
+        private void TheCharacterAlreadyHoldsSealedCards() =>
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(World.GenerateItemProvider().Create(Deck[0], 10), _session.Character.CharacterId));
 
         private void TheGameHasAnotherEffect() => _game.ItemInstance.Item.Effect = ItemEffectType.Teleport;
 

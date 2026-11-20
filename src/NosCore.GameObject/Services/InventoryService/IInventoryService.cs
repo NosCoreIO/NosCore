@@ -43,7 +43,13 @@ namespace NosCore.GameObject.Services.InventoryService
 
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
         bool TryConsume(InventoryItemInstance source, short amount);
-        void RestoreConsumed(InventoryItemInstance source, short amount);
+        // Returns the entries that now hold it, which may not be its old slot; empty when it fits nowhere.
+        List<InventoryItemInstance> RestoreConsumed(InventoryItemInstance source, short amount);
+
+        // Takes the amount from the source and places every item, or does neither: null when the
+        // source no longer holds the amount, empty when the items do not all fit.
+        List<InventoryItemInstance>? ConsumeAndAdd(InventoryItemInstance source, short amount,
+            IReadOnlyCollection<InventoryItemInstance> newItems);
 
         void SortPocket(NoscorePocketType pocket);
     }

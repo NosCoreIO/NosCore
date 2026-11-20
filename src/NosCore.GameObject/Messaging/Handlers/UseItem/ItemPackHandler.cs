@@ -53,16 +53,16 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            if (!inventory.TryConsume(source, 1))
+            var received = contents.Select(item => (item.ItemVNum, item.Amount)).ToList();
+            var granted = inventory.ConsumeAndAdd(source, 1, contents
+                .Select(item => InventoryItemInstance.Create(item, character.CharacterId)).ToList());
+            if (granted == null)
             {
                 return;
             }
 
-            var granted = inventory.AddItemsToPocket(contents
-                .Select(item => InventoryItemInstance.Create(item, character.CharacterId)).ToList());
-            if (granted is not { Count: > 0 })
+            if (granted.Count == 0)
             {
-                inventory.RestoreConsumed(source, 1);
                 await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
                 return;
             }
@@ -72,10 +72,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
             }
 
-            foreach (var item in contents)
+            foreach (var (vNum, amount) in received)
             {
                 await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
-                    2, item.ItemVNum.ToString(), item.Amount));
+                    2, vNum.ToString(), amount));
             }
 
             await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)

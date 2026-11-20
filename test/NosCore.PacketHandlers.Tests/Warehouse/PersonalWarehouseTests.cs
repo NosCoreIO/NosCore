@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.Ecs.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -45,6 +46,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         private IItemGenerationService _items;
         private readonly Dictionary<Guid, IItemInstanceDto> _instances = new();
         private readonly List<(Guid Id, WarehouseType Type, short Slot, Guid ItemInstanceId)> _stored = new();
+        private Action? _duringDeposit;
+        private bool _refuseDeposits;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -75,6 +78,12 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             hub.Setup(s => s.AddWarehouseItemAsync(It.IsAny<WareHouseDepositRequest>()))
                 .ReturnsAsync((WareHouseDepositRequest r) =>
                 {
+                    _duringDeposit?.Invoke();
+                    if (_refuseDeposits)
+                    {
+                        return false;
+                    }
+
                     _stored.Add((Guid.NewGuid(), r.WarehouseType, r.Slot, r.ItemInstance.NotNull().Id));
                     return true;
                 });
@@ -115,7 +124,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
             return new PersonalWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object));
+                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object,
+                new ItemDeliveryService(new Mock<IMailHub>().Object, World.Clock)));
         }
 
         private void OwnsAMinilandWarehouse()
@@ -215,6 +225,34 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             Assert.AreEqual(6, _session.Character.InventoryService.CountItem(1012));
             Assert.AreEqual(2, _session.LastPackets.OfType<StashClientPacket>().Single().Items.NotNull().Single().Slot);
             _saves.Verify(s => s.SaveAsync(_session), Times.Once, "the bag is stored with the deposit");
+        }
+
+        [TestMethod]
+        public async Task ADepositWhoseSourceIsTakenMeanwhileIsNotDuplicated()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            var source = _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Main).NotNull();
+            var takenElsewhere = false;
+            _duringDeposit = () => takenElsewhere = _session.Character.InventoryService.TryConsume(source, 10);
+
+            await DepositAsync(10, 2);
+
+            var stored = _stored.Sum(s => _instances[s.ItemInstanceId].Amount);
+            Assert.AreEqual(10, stored + (takenElsewhere ? 10 : 0) + _session.Character.InventoryService.CountItem(1012));
+        }
+
+        [TestMethod]
+        public async Task ADepositTheWarehouseRefusesLeavesTheItemInTheBag()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _refuseDeposits = true;
+
+            await DepositAsync(10, 2);
+
+            Assert.AreEqual(0, _stored.Count);
+            Assert.AreEqual((short?)10, _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Main)?.ItemInstance.Amount);
         }
 
         [TestMethod]

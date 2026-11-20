@@ -48,6 +48,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 new Item { Type = NoscorePocketType.Main, VNum = 1012 },
                 new Item { Type = NoscorePocketType.Main, VNum = 1013 },
                 new Item { Type = NoscorePocketType.Main, VNum = 1014 },
+                new Item { Type = NoscorePocketType.Main, VNum = 1015 },
             };
             var options = new Mock<IOptions<WorldConfiguration>>();
             options.Setup(o => o.Value).Returns(() =>
@@ -212,10 +213,123 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Assert.IsTrue(_inventory.TryConsume(source, 1));
             Add(1013, 1);
 
-            _inventory.RestoreConsumed(source, 1);
+            var restored = _inventory.RestoreConsumed(source, 1);
 
-            Assert.IsTrue(_inventory.ContainsKey(source.ItemInstanceId));
+            CollectionAssert.AreEqual(new[] { source }, restored);
             Assert.AreEqual(1, source.Slot);
+        }
+
+        [TestMethod]
+        public void ACollectionRemovalDuringAnAddWaitsForIt()
+        {
+            var held = Add(1012, 998);
+            ICollection<KeyValuePair<Guid, InventoryItemInstance>> asCollection = _inventory;
+            short givenAway = 0;
+            var reads = 0;
+            WhenReading(() => ++reads == 2, () =>
+            {
+                asCollection.Remove(new KeyValuePair<Guid, InventoryItemInstance>(held.ItemInstanceId, held));
+                givenAway = held.ItemInstance.Amount;
+            });
+
+            _inventory.AddItemToPocket(Entry(1012, 5));
+            _otherWriter?.Join();
+
+            Assert.AreEqual(1003, givenAway + _inventory.CountItem(1012));
+        }
+
+        [TestMethod]
+        public void CountingDuringABatchSeesItWholeOrNotAtAll()
+        {
+            var held = Add(1012, 998);
+            Add(1013, 999);
+            var counted = 0;
+            WhenReading(() => held.ItemInstance.Amount == 999, () => counted = _inventory.CountItem(1012));
+
+            var result = _inventory.AddItemsToPocket([Entry(1012, 5), Entry(1014, 1)]);
+            _otherWriter?.Join();
+
+            Assert.IsNull(result);
+            Assert.AreEqual(998, counted, "the count never shows a batch that is later undone");
+        }
+
+        [TestMethod]
+        public void AnAmountAboveOneStackFillsSeveralSlots()
+        {
+            var item = Entry(1012, 1500);
+
+            var result = _inventory.AddItemToPocket(item);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(_inventory.Values.All(i => i.ItemInstance.Amount <= 999));
+            Assert.AreEqual(1500, _inventory.CountItem(1012));
+        }
+
+        [TestMethod]
+        public void AnAmountNeedingMoreSlotsThanAreFreeIsNotAdded()
+        {
+            Add(1013, 999);
+            Add(1013, 999);
+            var item = Entry(1012, 1500);
+
+            var result = _inventory.AddItemToPocket(item);
+
+            Assert.AreEqual(0, result?.Count);
+            Assert.AreEqual(0, _inventory.CountItem(1012));
+            Assert.AreEqual(1500, item.ItemInstance.Amount);
+        }
+
+        [TestMethod]
+        public void ConsumingAndAddingPutsTheSourceBackWhenTheItemsDoNotFit()
+        {
+            var source = Add(1012, 1);
+            Add(1013, 999);
+            Add(1013, 999);
+
+            var result = _inventory.ConsumeAndAdd(source, 1, [Entry(1014, 1), Entry(1015, 1)]);
+
+            Assert.AreEqual(0, result?.Count);
+            Assert.AreSame(source, _inventory.LoadBySlotAndType(0, NoscorePocketType.Main));
+            Assert.AreEqual(1, source.ItemInstance.Amount);
+            Assert.AreEqual(0, _inventory.CountItem(1014));
+        }
+
+        [TestMethod]
+        public void ConsumingAndAddingGivesTheItemsForTheSource()
+        {
+            var source = Add(1012, 1);
+            Add(1013, 999);
+            Add(1013, 999);
+
+            var result = _inventory.ConsumeAndAdd(source, 1, [Entry(1014, 1)]);
+
+            Assert.AreEqual(1, result?.Count);
+            Assert.IsFalse(_inventory.ContainsKey(source.ItemInstanceId));
+            Assert.AreEqual(1, _inventory.CountItem(1014));
+        }
+
+        [TestMethod]
+        public void ConsumingWhatIsGoneAddsNothing()
+        {
+            var source = Add(1012, 1);
+            _inventory.DeleteById(source.ItemInstanceId);
+
+            Assert.IsNull(_inventory.ConsumeAndAdd(source, 1, [Entry(1014, 1)]));
+            Assert.AreEqual(0, _inventory.CountItem(1014));
+        }
+
+        [TestMethod]
+        public void RestoringIntoAFullBagReportsNowhere()
+        {
+            var source = Add(1012, 1);
+            Assert.IsTrue(_inventory.TryConsume(source, 1));
+            Add(1013, 999);
+            Add(1013, 999);
+            Add(1013, 999);
+
+            Assert.AreEqual(0, _inventory.RestoreConsumed(source, 1).Count);
+            Assert.IsFalse(_inventory.ContainsKey(source.ItemInstanceId));
         }
 
         private void WhenReading(Func<bool> trigger, Action otherWrite) =>

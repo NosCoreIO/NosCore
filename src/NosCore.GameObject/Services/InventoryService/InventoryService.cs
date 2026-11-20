@@ -90,13 +90,19 @@ namespace NosCore.GameObject.Services.InventoryService
 
         public int CountItem(int itemVNum)
         {
-            return this.Select(s => s.Value).Where(s => s.Type != NoscorePocketType.Wear && s.ItemInstance?.ItemVNum == itemVNum)
-                .Sum(i => i.ItemInstance?.Amount ?? 0);
+            lock (_gate)
+            {
+                return this.Select(s => s.Value).Where(s => s.Type != NoscorePocketType.Wear && s.ItemInstance?.ItemVNum == itemVNum)
+                    .Sum(i => i.ItemInstance?.Amount ?? 0);
+            }
         }
 
         public int CountItemInAnPocket(NoscorePocketType inv)
         {
-            return this.Count(s => s.Value.Type == inv);
+            lock (_gate)
+            {
+                return this.Count(s => s.Value.Type == inv);
+            }
         }
 
         public List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem)
@@ -143,15 +149,46 @@ namespace NosCore.GameObject.Services.InventoryService
             }
         }
 
+        public List<InventoryItemInstance>? ConsumeAndAdd(InventoryItemInstance source, short amount,
+            IReadOnlyCollection<InventoryItemInstance> newItems)
+        {
+            lock (_gate)
+            {
+                if (!TryConsume(source, amount))
+                {
+                    return null;
+                }
+
+                if (AddItemsToPocket(newItems) is { Count: > 0 } added)
+                {
+                    return added;
+                }
+
+                // Nothing else could write while the lock was held, so the source's slot is still free.
+                if (TryGetValue(source.ItemInstanceId, out var left))
+                {
+                    left.ItemInstance.Amount += amount;
+                }
+                else
+                {
+                    source.ItemInstance.Amount = amount;
+                    this[source.ItemInstanceId] = source;
+                }
+
+                return [];
+            }
+        }
+
         private sealed record Merge(InventoryItemInstance Stack, short Was, short Becomes);
 
+        private sealed record NewStack(InventoryItemInstance Entry, short Slot, short Amount);
+
         private sealed record Placement(InventoryItemInstance Item, NoscorePocketType Pocket, IReadOnlyList<Merge> Merges,
-            short Remainder, short? Slot)
+            IReadOnlyList<NewStack> NewStacks, bool Fits)
         {
             public short Amount { get; } = Item.ItemInstance.Amount;
             public NoscorePocketType PocketBefore { get; } = Item.Type;
             public short SlotBefore { get; } = Item.Slot;
-            public bool Fits => Remainder == 0 || Slot.HasValue;
         }
 
         // Decides where every unit of the item goes without changing anything, so a placement
@@ -171,33 +208,47 @@ namespace NosCore.GameObject.Services.InventoryService
 
             var pocket = type ?? newItem.Type;
             var amount = newItem.ItemInstance.Amount;
+            var stackable = pocket is NoscorePocketType.Etc or NoscorePocketType.Main;
+            var maxAmount = configuration.Value.MaxItemAmount;
             var merges = new List<Merge>();
-            if ((slot == null) && ((pocket == NoscorePocketType.Etc) || (pocket == NoscorePocketType.Main)))
+            if (slot == null && stackable)
             {
-                var maxAmount = configuration.Value.MaxItemAmount;
                 var stacks = Values.Where(i => i.ItemInstance.ItemVNum.Equals(newItem.ItemInstance.ItemVNum)
                     && (i.ItemInstance.Amount < maxAmount)).ToList();
-                var freeSlots = GetMaxSlots(pocket) - this.Count(s => s.Value.Type == pocket);
-                if (amount <= freeSlots * maxAmount + stacks.Sum(s => maxAmount - s.ItemInstance.Amount))
+                foreach (var stack in stacks)
                 {
-                    foreach (var stack in stacks)
+                    if (amount <= 0)
                     {
-                        if (amount <= 0)
-                        {
-                            break;
-                        }
-
-                        var total = stack.ItemInstance.Amount + amount;
-                        var becomes = (short)Math.Min(total, maxAmount);
-                        amount = (short)(total - becomes);
-                        merges.Add(new Merge(stack, stack.ItemInstance.Amount, becomes));
+                        break;
                     }
-                }
-            }
 
-            if (amount <= 0)
-            {
-                return new Placement(newItem, pocket, merges, 0, null);
+                    var total = stack.ItemInstance.Amount + amount;
+                    var becomes = (short)Math.Min(total, maxAmount);
+                    amount = (short)(total - becomes);
+                    merges.Add(new Merge(stack, stack.ItemInstance.Amount, becomes));
+                }
+
+                if (amount <= 0)
+                {
+                    return new Placement(newItem, pocket, merges, [], true);
+                }
+
+                var chunks = (amount + maxAmount - 1) / maxAmount;
+                var freeSlots = FreeSlots(pocket).Take(chunks).ToList();
+                if (freeSlots.Count < chunks)
+                {
+                    return new Placement(newItem, pocket, [], [], false);
+                }
+
+                var newStacks = new List<NewStack>();
+                foreach (var freeSlot in freeSlots)
+                {
+                    var chunk = (short)Math.Min(amount, maxAmount);
+                    amount -= chunk;
+                    newStacks.Add(new NewStack(newStacks.Count == 0 ? newItem : SplitOff(newItem), freeSlot, chunk));
+                }
+
+                return new Placement(newItem, pocket, merges, newStacks, true);
             }
 
             var target = slot ?? (pocket == NoscorePocketType.Wear
@@ -207,10 +258,10 @@ namespace NosCore.GameObject.Services.InventoryService
                 : GetFreeSlot(pocket));
             if (!target.HasValue)
             {
-                return new Placement(newItem, pocket, merges, amount, null);
+                return new Placement(newItem, pocket, [], [], false);
             }
 
-            if (target < 0 || target >= GetMaxSlots(pocket)
+            if (target < 0 || target >= GetMaxSlots(pocket) || (stackable && amount > maxAmount)
                 || this.Any(s => (s.Value.Slot == target) && (s.Value.Type == pocket)))
             {
                 return null;
@@ -229,7 +280,14 @@ namespace NosCore.GameObject.Services.InventoryService
                 return null;
             }
 
-            return new Placement(newItem, pocket, merges, amount, target);
+            return new Placement(newItem, pocket, merges, [new NewStack(newItem, target.Value, amount)], true);
+        }
+
+        private static InventoryItemInstance SplitOff(InventoryItemInstance item)
+        {
+            var copy = (IItemInstance)item.ItemInstance.Clone();
+            copy.Id = Guid.NewGuid();
+            return new InventoryItemInstance(copy) { Id = Guid.NewGuid(), CharacterId = item.CharacterId };
         }
 
         private List<InventoryItemInstance> Commit(Placement placement)
@@ -243,12 +301,14 @@ namespace NosCore.GameObject.Services.InventoryService
 
             var item = placement.Item;
             item.Type = placement.Pocket;
-            item.ItemInstance.Amount = placement.Remainder;
-            if (placement.Slot is { } slot)
+            item.ItemInstance.Amount = 0;
+            foreach (var stack in placement.NewStacks)
             {
-                item.Slot = slot;
-                this[item.ItemInstanceId] = item;
-                changed.Add(item);
+                stack.Entry.Type = placement.Pocket;
+                stack.Entry.Slot = stack.Slot;
+                stack.Entry.ItemInstance.Amount = stack.Amount;
+                this[stack.Entry.ItemInstanceId] = stack.Entry;
+                changed.Add(stack.Entry);
             }
 
             return changed;
@@ -261,12 +321,12 @@ namespace NosCore.GameObject.Services.InventoryService
                 merge.Stack.ItemInstance.Amount = merge.Was;
             }
 
-            var item = placement.Item;
-            if (placement.Slot.HasValue)
+            foreach (var stack in placement.NewStacks)
             {
-                TryRemove(item.ItemInstanceId, out _);
+                TryRemove(stack.Entry.ItemInstanceId, out _);
             }
 
+            var item = placement.Item;
             item.ItemInstance.Amount = placement.Amount;
             item.Type = placement.PocketBefore;
             item.Slot = placement.SlotBefore;
@@ -624,21 +684,20 @@ namespace NosCore.GameObject.Services.InventoryService
             }
         }
 
-        public void RestoreConsumed(InventoryItemInstance source, short amount)
+        public List<InventoryItemInstance> RestoreConsumed(InventoryItemInstance source, short amount)
         {
             lock (_gate)
             {
                 if (TryGetValue(source.ItemInstanceId, out var inv))
                 {
                     inv.ItemInstance.Amount += amount;
-                    return;
+                    return [inv];
                 }
 
                 source.ItemInstance.Amount = amount;
-                if (AddItemToPocket(source, source.Type, source.Slot) is not { Count: > 0 })
-                {
-                    AddItemToPocket(source, source.Type);
-                }
+                return AddItemToPocket(source, source.Type, source.Slot) is { Count: > 0 } back
+                    ? back
+                    : AddItemToPocket(source, source.Type) ?? [];
             }
         }
 
@@ -646,19 +705,21 @@ namespace NosCore.GameObject.Services.InventoryService
         {
             lock (_gate)
             {
-                var maxSlots = GetMaxSlots(type);
-                var occupiedSlots = new HashSet<short>(
-                    this.Select(s => s.Value).Where(i => i.Type == type).Select(i => i.Slot));
+                return FreeSlots(type).Select(slot => (short?)slot).FirstOrDefault();
+            }
+        }
 
-                for (short slot = 0; slot < maxSlots; slot++)
+        private IEnumerable<short> FreeSlots(NoscorePocketType type)
+        {
+            var maxSlots = GetMaxSlots(type);
+            var occupiedSlots = new HashSet<short>(
+                this.Select(s => s.Value).Where(i => i.Type == type).Select(i => i.Slot));
+            for (short slot = 0; slot < maxSlots; slot++)
+            {
+                if (!occupiedSlots.Contains(slot))
                 {
-                    if (!occupiedSlots.Contains(slot))
-                    {
-                        return slot;
-                    }
+                    yield return slot;
                 }
-
-                return null;
             }
         }
 
@@ -725,6 +786,25 @@ namespace NosCore.GameObject.Services.InventoryService
             lock (_gate)
             {
                 return TryRemove(key, out _);
+            }
+        }
+
+        void ICollection<KeyValuePair<Guid, InventoryItemInstance>>.Add(KeyValuePair<Guid, InventoryItemInstance> item) =>
+            ((IDictionary<Guid, InventoryItemInstance>)this).Add(item.Key, item.Value);
+
+        bool ICollection<KeyValuePair<Guid, InventoryItemInstance>>.Remove(KeyValuePair<Guid, InventoryItemInstance> item)
+        {
+            lock (_gate)
+            {
+                return TryRemove(item);
+            }
+        }
+
+        void ICollection<KeyValuePair<Guid, InventoryItemInstance>>.Clear()
+        {
+            lock (_gate)
+            {
+                Clear();
             }
         }
 
