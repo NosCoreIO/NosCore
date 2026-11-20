@@ -49,7 +49,7 @@ public class TimeSpace15 : InstanceScript
         r.SpawnPortal(_room1, new(17, 9), _room2, new(0, 9), locked: false);
         r.SpawnPortal(_room2, new(17, 9), _room3, new(0, 9), locked: false);
         r.SpawnPortal(_room2, new(0, 9), _room1, new(17, 9), locked: false);
-        r.SummonNpcs(_room2, new NpcSpawn(317, new(3, 8)));
+        r.SummonNpcs(_room2, new NpcSpawn(317, new(3, 8), IsEscort: true));
         r.SpawnPortal(_room3, new(8, 0), _room4, new(8, 17));
         r.SpawnPortal(_room3, new(0, 9), _room2, new(17, 9));
         r.SummonNpcs(_room3, new NpcSpawn(320, new(8, 13)), new NpcSpawn(320, new(8, 3)), new NpcSpawn(320, new(8, 9)), new NpcSpawn(320, new(7, 5)), new NpcSpawn(320, new(6, 6)), new NpcSpawn(320, new(5, 10)), new NpcSpawn(320, new(5, 8)), new NpcSpawn(337, new(3, 9)));

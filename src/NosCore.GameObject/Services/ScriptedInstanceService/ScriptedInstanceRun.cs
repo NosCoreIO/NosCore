@@ -874,27 +874,64 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
-        public Task DialogClosedAsync(long characterId)
+        public Task DialogClosedAsync(long characterId) => RunAsync(() => CloseDialogAsync(characterId));
+
+        private async Task CloseDialogAsync(long characterId)
         {
+            if (EndState != null || _abandoned || !_openDialogs.Remove(characterId, out var closed)
+                || !_closedDialogs.Add(closed))
+            {
+                return;
+            }
+
+            if (_roomDialogs.TryGetValue(closed.Room, out var shown) && shown == closed.Dialog)
+            {
+                _roomDialogs.Remove(closed.Room);
+            }
+
+            if (_openDialogs.Count == 0)
+            {
+                ResumeClock();
+            }
+
+            await CallScriptAsync(run => _script.OnDialogClosed(run, closed.Room, closed.Dialog));
+        }
+
+        // A talk can offer to take an NPC of the player's room along as a partner. The client closes
+        // the talk on that answer without sending the usual close, so the answer closes it here.
+        public Task CompanionAnsweredAsync(PlayerComponentBundle player, short vNum,
+            Func<NpcComponentBundle, Task<bool>> join)
+        {
+            var characterId = player.CharacterId;
+            var mapInstanceId = player.MapInstance.MapInstanceId;
             return RunAsync(async () =>
             {
-                if (EndState != null || _abandoned || !_openDialogs.Remove(characterId, out var closed)
-                    || !_closedDialogs.Add(closed))
+                if (EndState != null || _abandoned || RoomOf(mapInstanceId) is not { } room
+                    || !_openDialogs.TryGetValue(characterId, out var open) || open.Room != room)
                 {
                     return;
                 }
 
-                if (_roomDialogs.TryGetValue(closed.Room, out var shown) && shown == closed.Dialog)
+                var mapInstance = _rooms[room];
+                if (mapInstance.FindNpc(npc => npc.VNum == vNum && npc.IsAlive
+                        && (npc.LeaderId == 0 || npc.LeaderId == characterId)) is not { } companion)
                 {
-                    _roomDialogs.Remove(closed.Room);
+                    return;
                 }
 
-                if (_openDialogs.Count == 0)
+                var companionId = (int)companion.VisualId;
+                _pending.Add(() => OnRoom(mapInstance, async () =>
                 {
-                    ResumeClock();
-                }
+                    if (mapInstance.GetNpcById(companionId) is not { IsAlive: true } stillThere || stillThere.VNum != vNum
+                        || !await join(stillThere) || !mapInstance.RemoveNpc(stillThere))
+                    {
+                        return;
+                    }
 
-                await CallScriptAsync(run => _script.OnDialogClosed(run, closed.Room, closed.Dialog));
+                    _escorts.Remove((mapInstance, companionId));
+                    await mapInstance.SendPacketAsync(new OutPacket { VisualType = VisualType.Npc, VisualId = companionId });
+                }));
+                await CloseDialogAsync(characterId);
             });
         }
 
