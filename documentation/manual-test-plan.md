@@ -3280,7 +3280,7 @@ A Bold Warrior: Part 3 (`timespace-15`) on a character without partner 317.
 Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
 dropping their `MaxHp` makes the run quick.
 
-- [ ] On entry a clock appears at ten minutes and stands still while you stay in the first room
+- [ ] On entry no clock is drawn while you stay in the first room
 - [ ] On entry the mission window shows the time-space's lives as hearts: two for time-space 1,
       four for time-space 9. Time-space 1 also shows the exit as its goal; time-space 9 shows
       "0/1" against its boss and no exit
@@ -3298,7 +3298,7 @@ dropping their `MaxHp` makes the run quick.
       spot is gone, and walking onto its cell leaves you in the room with the clock unchanged
 - [ ] Killing the third monster opens the padlock; walking onto it asks "Do you want to enter the
       first room?". Yes moves you to the second room, where a single Weak Devil Vampire waits, and
-      the clock starts counting down from ten minutes
+      the clock appears at ten minutes and starts counting down
 - [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
       the "Perfect" stamp when every summoned monster died
 - [ ] At the same moment the banner at the top reads "[1 Level ] Time-Space Stone complete",
@@ -3323,13 +3323,13 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Do the same with an `OnFirstEnter` that throws: the failure score comes at once and
       the world log shows the exception
 - [ ] Monsters killed inside a run do not respawn
-- [ ] Enter any time-space with more than one room and stand in the first room: the clock shows
-      its full time and does not count down. Walk onto the way out: instead of moving, a box asks
+- [ ] Enter any time-space with more than one room and stand in the first room: no clock is
+      drawn. Walk onto the way out: instead of moving, a box asks
       "Do you want to enter the first room?" with Yes and No
-- [ ] Answer No: you stay where you are and the clock still does not move. Walk onto the way out
+- [ ] Answer No: you stay where you are and still no clock is drawn. Walk onto the way out
       again: the same question comes back
 - [ ] Answer Yes: you go through to the next room, the first room stays marked as found on the
-      Mission Map, and the clock starts counting down from its full time. Walking back into the
+      Mission Map, and the clock appears at its full time and starts counting down. Walking back into the
       first room and out again asks nothing
 - [ ] Inside a run, the client's exit button (`rxit`) sends you back beside the stone, and a
       run you were alone in is gone (entering again starts a new one)

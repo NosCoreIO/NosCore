@@ -357,7 +357,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
-                if (_clockEndsAt != null && EndState == null)
+                if (_clockEndsAt != null && EndState == null && !AwaitsStart)
                 {
                     var clockPacket = GenerateClock();
                     _pending.Add(() => session.SendPacketAsync(clockPacket));
@@ -1120,8 +1120,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             BroadcastClock();
         }
 
+        // A clock waiting for the start is not drawn: the client would count it down by itself.
         private void BroadcastClock()
         {
+            if (AwaitsStart)
+            {
+                return;
+            }
+
             var packet = GenerateClock();
             _pending.Add(() => BroadcastAsync(packet));
         }

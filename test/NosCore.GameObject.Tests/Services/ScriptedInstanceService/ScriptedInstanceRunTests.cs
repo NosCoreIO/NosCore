@@ -851,6 +851,24 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task TheClockIsOnlyDrawnOnceTheStartIsConfirmedAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            World.Clock.AdvanceSeconds(20);
+            await run.TickAsync();
+
+            Assert.IsFalse(session.LastPackets.Concat(_first.LastPackets).OfType<EventPacket>().Any(p => p.Type == EventPacketType.TSTimer),
+                "a drawn clock would be counted down by the client while the run waits");
+
+            await run.ConfirmStartAsync(session);
+
+            PacketAssert.AreEqual(new EventPacket { Type = EventPacketType.TSTimer, Parameter = 600, SecondParameter = 600 },
+                _first.LastPackets.OfType<EventPacket>().Single(p => p.Type == EventPacketType.TSTimer));
+        }
+
+        [TestMethod]
         public async Task TheClockWaitsForTheStartToBeConfirmedAsync()
         {
             var session = await PlayerInFirstRoomAsync();
@@ -861,7 +879,6 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             World.Clock.AdvanceSeconds(100);
             await run.TickAsync();
             Assert.IsNull(run.EndState);
-            Assert.AreEqual(600, _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.TSTimer).Parameter);
 
             await run.ConfirmStartAsync(session);
             World.Clock.AdvanceSeconds(59);
