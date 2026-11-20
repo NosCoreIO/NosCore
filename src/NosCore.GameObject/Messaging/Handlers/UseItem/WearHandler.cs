@@ -162,6 +162,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());
             await session.SendPacketAsync(session.Character.GenerateEquipment());
             await session.SendPacketAsync(session.Character.GenerateSc(battleStatsProvider));
+            // Gear can change the maximum HP and MP, and only stat redraws the bars.
+            await session.SendPacketAsync(session.Character.GenerateStat());
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {

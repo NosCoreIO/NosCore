@@ -120,6 +120,9 @@ confirms it. The server log line `walk dropped` names every refused packet.
 - [ ] `$CreateItem` a weapon and an armour, equip both
 - [ ] The stat window changes as soon as each piece goes on, and again when it comes off,
       and the numbers include the piece's own values
+- [ ] Equip a piece that raises the maximum HP or MP: the HP and MP bars show the new maximum at
+      once, without waiting for regeneration or another action, and a packet logger shows a `stat`
+      after the `sc`
 - [ ] Level up with the window open: the base attack and defences go up
 - [ ] Hit a monster before and after equipping — the damage is visibly different
 - [ ] An upgraded piece (`$CreateItem <vnum> 1 <upgrade>`) contributes more than a +0 of

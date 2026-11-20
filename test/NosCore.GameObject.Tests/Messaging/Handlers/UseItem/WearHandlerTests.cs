@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -24,6 +25,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
@@ -148,6 +150,20 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .Then(NoWornItemShouldBeRaised)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task EquippingRedrawsTheHpAndMpBars()
+        {
+            await new Spec("Gear can change the maximum HP and MP, so equipping sends the bars again")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(TheStatShouldHaveBeenSent)
+                .ExecuteAsync();
+        }
+
+        private void TheStatShouldHaveBeenSent() =>
+            PacketAssert.AreEqual(_session.Character.GenerateStat(), _session.LastPackets.OfType<StatPacket>().Last());
 
         private void TheWornItemShouldBeRaised() =>
             _gameEvents.Verify(b => b.RaiseAsync(
