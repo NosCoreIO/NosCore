@@ -26,15 +26,15 @@ public sealed class AggroService(IClock clock) : IAggroService
     {
         if (!TryReadAggro(entity, out var aggro, out _, out _))
         {
-            return new AggroSnapshot(0, 0, false);
+            return default;
         }
 
         var now = clock.GetCurrentInstant();
         if (aggro.UntilLeash <= now || aggro.TargetVisualId == 0)
         {
-            return new AggroSnapshot(0, 0, false);
+            return default;
         }
-        return new AggroSnapshot(aggro.TargetVisualId, aggro.ThreatScore, true);
+        return new AggroSnapshot(aggro.TargetVisualType, aggro.TargetVisualId, aggro.ThreatScore, true);
     }
 
     public void AddThreat(IAliveEntity mob, IAliveEntity attacker, int damage)
