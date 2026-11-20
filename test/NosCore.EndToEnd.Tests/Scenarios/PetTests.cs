@@ -153,7 +153,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var pet = await PetOfAsync(alice);
             var sent = alice.Mark();
 
-            await alice.SendAsync(new SuCtlPacket { MateTransportId = pet, TargetType = VisualType.Monster, TargetId = WorldData.SturdyMonster });
+            await alice.SendAsync(new SuCtlPacket { MapId = WorldData.Meadow, Amount = 1, Mates = [new SuCtlSubPacket { MateTransportId = pet, TargetType = VisualType.Monster, TargetId = WorldData.SturdyMonster }] });
 
             var hit = await alice.ExpectSinceAsync(sent, HitBy(pet), "the pet's hit");
             Assert.AreEqual(0L, hit.SkillVnum, "no skill");

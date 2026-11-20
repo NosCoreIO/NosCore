@@ -87,11 +87,11 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         [TestMethod]
-        public async Task TheFirstFieldOfTheOrderPicksNoSkill()
+        public async Task TheMapIdLeadingTheOrderPicksNoSkill()
         {
-            await new Spec("An order whose first field matches one of the pet's skills still sends the pet in with its basic attack")
+            await new Spec("An order sent from a map whose id matches one of the pet's skills still sends the pet in with its basic attack")
                 .GivenAsync(APetOf_IsOut, "owner")
-                .WhenAsync(TheOwnerSendsThePetAtMonster_WithFirstField_, NearMonsterId, PetCastId)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_OnMap_, NearMonsterId, PetCastId)
                 .Then(ThePetShouldHitMonster_WithItsBasicAttack, NearMonsterId)
                 .ExecuteAsync();
         }
@@ -180,6 +180,18 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         [TestMethod]
+        public async Task OneOrderSendsEveryMateItNames()
+        {
+            await new Spec("A single order naming the pet and the escort sends both at the monster")
+                .GivenAsync(APetOf_IsOut, "owner")
+                .And(AnEscortLedBy_, "owner")
+                .WhenAsync(TheOwnerSendsThePetAndTheEscortAtMonster_, NearMonsterId)
+                .Then(ThePetShouldHitMonster_WithItsBasicAttack, NearMonsterId)
+                .And(TheEscortShouldHitMonster_WithItsBasicAttack, NearMonsterId)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AnEscortLedByAnotherPlayerIgnoresTheOrder()
         {
             await new Spec("A suctl naming an escort that follows another player does not attack")
@@ -200,12 +212,17 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         private Task TheOwnerSendsTheEscortAtMonster_(int monsterId) =>
-            _handler.ExecuteAsync(new SuCtlPacket
-            {
-                MateTransportId = _escort.VisualId,
-                TargetType = VisualType.Monster,
-                TargetId = monsterId
-            }, _session);
+            _handler.ExecuteAsync(Order(0, (_escort.VisualId, VisualType.Monster, monsterId)), _session);
+
+        private Task TheOwnerSendsThePetAndTheEscortAtMonster_(int monsterId) =>
+            _handler.ExecuteAsync(Order(0, (_pet.MateTransportId, VisualType.Monster, monsterId), (_escort.VisualId, VisualType.Monster, monsterId)), _session);
+
+        private static SuCtlPacket Order(short mapId, params (long Mate, VisualType TargetType, long TargetId)[] orders) => new()
+        {
+            MapId = mapId,
+            Amount = (byte)orders.Length,
+            Mates = orders.Select(o => (SuCtlSubPacket?)new SuCtlSubPacket { MateTransportId = o.Mate, TargetType = o.TargetType, TargetId = o.TargetId }).ToList()
+        };
 
         private Task APetOf_IsOut(string whose) => SpawnAsync(whose, TestMates.Pet((whose == "owner" ? _session : _otherSession).Character.CharacterId));
 
@@ -226,24 +243,13 @@ namespace NosCore.PacketHandlers.Tests.Mates
             World.Clock.Advance(Duration.FromSeconds(seconds));
         }
 
-        private Task TheOwnerSendsThePetAtMonster_(int monsterId) => TheOwnerSendsThePetAtMonster_WithFirstField_(monsterId, 0);
+        private Task TheOwnerSendsThePetAtMonster_(int monsterId) => TheOwnerSendsThePetAtMonster_OnMap_(monsterId, 0);
 
-        private Task TheOwnerSendsThePetAtMonster_WithFirstField_(int monsterId, int firstField) =>
-            _handler.ExecuteAsync(new SuCtlPacket
-            {
-                CastId = firstField,
-                MateTransportId = _pet.MateTransportId,
-                TargetType = VisualType.Monster,
-                TargetId = monsterId
-            }, _session);
+        private Task TheOwnerSendsThePetAtMonster_OnMap_(int monsterId, int mapId) =>
+            _handler.ExecuteAsync(Order((short)mapId, (_pet.MateTransportId, VisualType.Monster, monsterId)), _session);
 
         private Task TheOwnerSendsThePetAtTheOtherPlayer() =>
-            _handler.ExecuteAsync(new SuCtlPacket
-            {
-                MateTransportId = _pet.MateTransportId,
-                TargetType = VisualType.Player,
-                TargetId = _otherSession.Character.VisualId
-            }, _session);
+            _handler.ExecuteAsync(Order(0, (_pet.MateTransportId, VisualType.Player, _otherSession.Character.VisualId)), _session);
 
         private void ThePetShouldHitMonster_WithItsBasicAttack(int monsterId) =>
             ShouldHitWithABasicAttack(_pet.MateTransportId, monsterId);
