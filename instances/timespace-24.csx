@@ -1,266 +1,147 @@
-public class TimeSpace24 : InstanceScript
+public class TimeSpace24 : TimeSpaceScript
 {
-    private readonly int _room1;
-    private readonly int _room2;
-    private readonly int _room3;
-    private readonly int _room4;
-
-    public TimeSpace24()
+    public TimeSpace24() : base(24, "La lutte pour Fernon")
     {
-        Definition = InstanceDefinitionBuilder.Named(24, "La lutte pour Fernon", "La lutte pour Fernon")
-            .ForLevels(34, 99)
-            .StartingAt(15, 9)
-            .Requiring(1012, 3)
-            .WithLives(2)
-            .WithDraw(164, 1)
-            .WithDraw(170, 1)
-            .WithDraw(176, 1)
-            .WithSpecialReward(2047, 15)
-            .WithReward(2133, 1)
-            .WithReward(1087, 1)
-            .WithRoom(4202, out _room1, 0, 8)
-            .WithRoom(2100, out _room2, 1, 8)
-            .WithRoom(2100, out _room3, 2, 8)
-            .WithRoom(4205, out _room4, 3, 8)
-            .Build();
-    }
+        Levels(34, 99);
+        Start(15, 9);
+        Requires(1012, 3);
+        Lives(2);
+        Clock(TimeSpan.FromSeconds(400));
+        Draw(164, 1);
+        Draw(170, 1);
+        Draw(176, 1);
+        Special(2047, 15);
+        Reward(2133, 1);
+        Reward(1087, 1);
 
-    public override void OnFirstEnter(IInstanceRun r)
-    {
-        r.StartClock(TimeSpan.FromSeconds(400));
-        r.SpawnPortal(_room1, new(28, 15), _room2, new(9, 36), locked: false);
-        r.SpawnPortal(_room2, new(58, 37), _room3, new(9, 36));
-        r.SpawnPortal(_room2, new(9, 36), _room1, new(28, 15));
-        r.SummonNpcs(_room2, new NpcSpawn(310, new(22, 40)), new NpcSpawn(310, new(22, 37)), new NpcSpawn(310, new(22, 34)), new NpcSpawn(310, new(22, 31)), new NpcSpawn(310, new(22, 27)), new NpcSpawn(310, new(22, 24)), new NpcSpawn(310, new(22, 20)), new NpcSpawn(312, new(19, 21)), new NpcSpawn(312, new(18, 45)), new NpcSpawn(312, new(18, 41)));
-        r.SpawnPortal(_room3, new(58, 37), _room4, new(1, 15));
-        r.SpawnPortal(_room3, new(9, 36), _room2, new(58, 37));
-        r.SummonNpcs(_room3, new NpcSpawn(254, new(39, 39)), new NpcSpawn(254, new(39, 35)), new NpcSpawn(254, new(39, 31)), new NpcSpawn(254, new(39, 26)), new NpcSpawn(254, new(38, 43)), new NpcSpawn(254, new(35, 23)), new NpcSpawn(254, new(33, 40)), new NpcSpawn(254, new(33, 25)), new NpcSpawn(254, new(32, 37)), new NpcSpawn(254, new(32, 29)), new NpcSpawn(338, new(28, 26)), new NpcSpawn(338, new(28, 23)), new NpcSpawn(338, new(27, 35)), new NpcSpawn(338, new(27, 31)));
-        r.SpawnExit(_room4, new(28, 15), locked: false);
-        r.SpawnPortal(_room4, new(1, 15), _room3, new(58, 37), locked: false);
-        r.SummonNpcs(_room4, new NpcSpawn(310, new(14, 10)), new NpcSpawn(310, new(14, 20)));
-    }
+        var entrance = Room(4202, 0, 8);
+        var battlefield = Room(2100, 1, 8);
+        var camp = Room(2100, 2, 8);
+        var way = Room(4205, 3, 8);
 
-    public override void OnRoomEntered(IInstanceRun r, int room)
-    {
-        if (room == _room1)
-        {
-            r.Message(_room1, Game18NConstString.MissionStartWhenEnterFirstRoom);
-        }
-        else if (room == _room2)
-        {
-            r.Message(_room2, Game18NConstString.EnemiesReinforcements);
-            r.Dialog(_room2, 6119);
-        }
-        else if (room == _room3)
-        {
-            r.Dialog(_room3, 6121);
-        }
-        else if (room == _room4)
-        {
-            r.Dialog(_room4, 6122);
-        }
-    }
+        entrance.Portal(new(28, 15), battlefield, new(9, 36), locked: false);
+        entrance.OnEnter(r => r.SayToRoom(Game18NConstString.MissionStartWhenEnterFirstRoom));
 
-    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
-    {
-        if (room == _room2 && dialog == 6119)
-        {
-            r.Summon(_room2,
-                new MonsterSpawn(112, new(39, 29)),
-                new MonsterSpawn(20, new(34, 51)),
-                new MonsterSpawn(20, new(34, 47)),
-                new MonsterSpawn(20, new(34, 44)),
-                new MonsterSpawn(20, new(34, 39)),
-                new MonsterSpawn(20, new(34, 35)),
-                new MonsterSpawn(20, new(34, 32)),
-                new MonsterSpawn(20, new(34, 29)),
-                new MonsterSpawn(20, new(34, 25)),
-                new MonsterSpawn(20, new(34, 22)),
-                new MonsterSpawn(20, new(34, 19)));
-            r.Objective(_room2, LanguageKey.TIMESPACE_GOAL_FLEE_AFTER_FOUR_MINUTES);
-            r.StartRoomClock(_room2, TimeSpan.FromSeconds(240));
-            r.Summon(_room2,
-                new MonsterSpawn(110, new(47, 22)),
-                new MonsterSpawn(110, new(10, 23)),
-                new MonsterSpawn(112, new(31, 17)),
-                new MonsterSpawn(112, new(13, 29)));
-            r.At(r.Elapsed + TimeSpan.FromSeconds(30), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(110, new(41, 40)),
-                    new MonsterSpawn(110, new(46, 20)),
-                    new MonsterSpawn(112, new(55, 21)),
-                    new MonsterSpawn(112, new(49, 12)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(43), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(106, new(36, 30)),
-                    new MonsterSpawn(106, new(37, 30)),
-                    new MonsterSpawn(109, new(36, 32)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(60), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(110, new(17, 57)),
-                    new MonsterSpawn(110, new(19, 51)),
-                    new MonsterSpawn(112, new(38, 30)),
-                    new MonsterSpawn(112, new(31, 59)),
-                    new MonsterSpawn(113, new(47, 33)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(64), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(106, new(34, 30)),
-                    new MonsterSpawn(106, new(35, 31)),
-                    new MonsterSpawn(109, new(35, 29)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(90), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(110, new(24, 29)),
-                    new MonsterSpawn(110, new(45, 54)),
-                    new MonsterSpawn(112, new(48, 42)),
-                    new MonsterSpawn(112, new(22, 59)),
-                    new MonsterSpawn(113, new(47, 33)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(112), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(106, new(22, 52)),
-                    new MonsterSpawn(106, new(24, 52)),
-                    new MonsterSpawn(109, new(24, 54)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(119), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(106, new(25, 51)),
-                    new MonsterSpawn(106, new(24, 52)),
-                    new MonsterSpawn(109, new(24, 50)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(120), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(110, new(27, 35)),
-                    new MonsterSpawn(110, new(28, 17)),
-                    new MonsterSpawn(112, new(56, 13)),
-                    new MonsterSpawn(112, new(30, 13)),
-                    new MonsterSpawn(110, new(43, 19)),
-                    new MonsterSpawn(113, new(47, 33)),
-                    new MonsterSpawn(113, new(47, 46)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(137), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(107, new(27, 44)),
-                    new MonsterSpawn(107, new(28, 45)),
-                    new MonsterSpawn(110, new(27, 46)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(150), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(110, new(18, 20)),
-                    new MonsterSpawn(110, new(57, 13)),
-                    new MonsterSpawn(112, new(39, 32)),
-                    new MonsterSpawn(112, new(52, 16)),
-                    new MonsterSpawn(110, new(43, 19)),
-                    new MonsterSpawn(113, new(47, 33)),
-                    new MonsterSpawn(113, new(47, 46)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(154), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(106, new(50, 15)),
-                    new MonsterSpawn(106, new(48, 17)),
-                    new MonsterSpawn(109, new(49, 15)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(180), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(110, new(51, 20)),
-                    new MonsterSpawn(110, new(45, 43)),
-                    new MonsterSpawn(112, new(39, 43)),
-                    new MonsterSpawn(112, new(15, 26)),
-                    new MonsterSpawn(110, new(43, 19)),
-                    new MonsterSpawn(113, new(47, 33)),
-                    new MonsterSpawn(113, new(47, 46)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(192), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(107, new(13, 43)),
-                    new MonsterSpawn(107, new(13, 45)),
-                    new MonsterSpawn(110, new(13, 45)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(210), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(112, new(36, 52)),
-                    new MonsterSpawn(112, new(22, 12)),
-                    new MonsterSpawn(110, new(43, 19)),
-                    new MonsterSpawn(113, new(47, 33)),
-                    new MonsterSpawn(113, new(47, 46)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(240), r =>
-            {
-                r.Dismiss(_room2, 20);
-                r.Dismiss(_room2, 106);
-                r.Dismiss(_room2, 107);
-                r.Dismiss(_room2, 109);
-                r.Dismiss(_room2, 110);
-                r.Dismiss(_room2, 112);
-                r.Dismiss(_room2, 113);
-                r.UnlockPortal(_room2, _room3);
-                r.Message(_room2, Game18NConstString.ADoorHasOpened);
-                r.Dialog(_room2, 6120);
-                r.StopRoomClock(_room2);
-            });
-        }
-        else if (room == _room3 && dialog == 6121)
-        {
-            r.Summon(_room3,
-                new MonsterSpawn(112, new(37, 41), OnDeath: r =>
-                {
-                    r.Summon(_room3,
-                    new MonsterSpawn(110, new(35, 41)),
-                    new MonsterSpawn(110, new(36, 32)));
-                }),
-                new MonsterSpawn(112, new(37, 38), OnDeath: r =>
-                {
-                    r.Summon(_room3,
-                    new MonsterSpawn(110, new(33, 31)),
-                    new MonsterSpawn(110, new(35, 26), IsBonus: true));
-                }),
-                new MonsterSpawn(112, new(37, 35), IsBonus: true, OnDeath: r =>
-                {
-                    r.Summon(_room3, new MonsterSpawn(110, new(33, 35), OnDeath: r =>
-                    {
-                        r.Summon(_room3, new MonsterSpawn(110, new(36, 28)));
-                    }));
-                }),
-                new MonsterSpawn(112, new(37, 31)),
-                new MonsterSpawn(112, new(37, 27)),
-                new MonsterSpawn(110, new(34, 38)),
-                new MonsterSpawn(110, new(34, 34), OnDeath: r =>
-                {
-                    r.Summon(_room3, new MonsterSpawn(110, new(35, 36)));
-                }),
-                new MonsterSpawn(110, new(34, 29)));
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_CUARRY_KNIGHTS_AND_DEMONS);
-        }
-    }
+        // The miners that come in threes between the waves are called by the Chief Miners' own
+        // Summon Miner skills, which the monsters cast themselves.
+        var battlefieldToCamp = battlefield.Portal(new(58, 37), camp, new(9, 36));
+        battlefield.Portal(new(9, 36), entrance, new(28, 15));
+        battlefield.Spawn(Npc(310).At(22, 40), Npc(310).At(22, 37), Npc(310).At(22, 34), Npc(310).At(22, 31), Npc(310).At(22, 27), Npc(310).At(22, 24), Npc(310).At(22, 20), Npc(312).At(19, 21), Npc(312).At(18, 45), Npc(312).At(18, 41));
+        battlefield.OnEnter(r => r.Dialog(6119))
+            .OnDialogClosed(6119, r => r
+                .Spawn(
+                    Monster(112).At(39, 29),
+                    Monster(20).At(34, 51),
+                    Monster(20).At(34, 47),
+                    Monster(20).At(34, 44),
+                    Monster(20).At(34, 39),
+                    Monster(20).At(34, 35),
+                    Monster(20).At(34, 32),
+                    Monster(20).At(34, 29),
+                    Monster(20).At(34, 25),
+                    Monster(20).At(34, 22),
+                    Monster(20).At(34, 19))
+                .Objective(LanguageKey.TIMESPACE_GOAL_FLEE_AFTER_FOUR_MINUTES)
+                .StartRoomClock(TimeSpan.FromSeconds(240))
+                .Spawn(
+                    Monster(110).At(47, 22),
+                    Monster(110).At(10, 23),
+                    Monster(112).At(31, 17),
+                    Monster(112).At(13, 29))
+                .SayToRoom(Game18NConstString.EnemiesReinforcements)
+                .After(TimeSpan.FromSeconds(30), r => r
+                    .Spawn(
+                        Monster(110).At(41, 40),
+                        Monster(110).At(46, 20),
+                        Monster(112).At(55, 21),
+                        Monster(112).At(49, 12))
+                    .SayToRoom(Game18NConstString.EnemiesReinforcements))
+                .After(TimeSpan.FromSeconds(60), r => r
+                    .Spawn(
+                        Monster(110).At(17, 57),
+                        Monster(110).At(19, 51),
+                        Monster(112).At(38, 30),
+                        Monster(112).At(31, 59),
+                        Monster(113).At(47, 33))
+                    .SayToRoom(Game18NConstString.EnemiesReinforcements))
+                .After(TimeSpan.FromSeconds(90), r => r
+                    .Spawn(
+                        Monster(110).At(24, 29),
+                        Monster(110).At(45, 54),
+                        Monster(112).At(48, 42),
+                        Monster(112).At(22, 59),
+                        Monster(113).At(47, 33))
+                    .SayToRoom(Game18NConstString.EnemiesReinforcements))
+                .After(TimeSpan.FromSeconds(120), r => r
+                    .Spawn(
+                        Monster(110).At(27, 35),
+                        Monster(110).At(28, 17),
+                        Monster(112).At(56, 13),
+                        Monster(112).At(30, 13),
+                        Monster(110).At(43, 19),
+                        Monster(113).At(47, 33),
+                        Monster(113).At(47, 46))
+                    .SayToRoom(Game18NConstString.EnemiesReinforcements))
+                .After(TimeSpan.FromSeconds(150), r => r
+                    .Spawn(
+                        Monster(110).At(18, 20),
+                        Monster(110).At(57, 13),
+                        Monster(112).At(39, 32),
+                        Monster(112).At(52, 16),
+                        Monster(110).At(43, 19),
+                        Monster(113).At(47, 33),
+                        Monster(113).At(47, 46))
+                    .SayToRoom(Game18NConstString.EnemiesReinforcements))
+                .After(TimeSpan.FromSeconds(180), r => r
+                    .Spawn(
+                        Monster(110).At(51, 20),
+                        Monster(110).At(45, 43),
+                        Monster(112).At(39, 43),
+                        Monster(112).At(15, 26),
+                        Monster(110).At(43, 19),
+                        Monster(113).At(47, 33),
+                        Monster(113).At(47, 46))
+                    .SayToRoom(Game18NConstString.EnemiesReinforcements))
+                .After(TimeSpan.FromSeconds(210), r => r
+                    .Spawn(
+                        Monster(112).At(36, 52),
+                        Monster(112).At(22, 12),
+                        Monster(110).At(43, 19),
+                        Monster(113).At(47, 33),
+                        Monster(113).At(47, 46))
+                    .SayToRoom(Game18NConstString.EnemiesReinforcements)))
+            .OnClockOut(r => r
+                .Dismiss(20, 106, 107, 109, 110, 112, 113)
+                .Unlock(battlefieldToCamp)
+                .SayToRoom(Game18NConstString.ADoorHasOpened)
+                .Dialog(6120));
 
-    public override void OnRoomCleared(IInstanceRun r, int room)
-    {
-        if (room == _room3)
-        {
-            r.UnlockPortal(_room3, _room4);
-            r.Message(_room3, Game18NConstString.ADoorHasOpened);
-            r.Message(_room3, LanguageKey.TIMESPACE_DEMONS_CRUSH_KOVOLTS);
-        }
-    }
+        var campToWay = camp.Portal(new(58, 37), way, new(1, 15));
+        camp.Portal(new(9, 36), battlefield, new(58, 37));
+        camp.Spawn(Npc(254).At(39, 39), Npc(254).At(39, 35), Npc(254).At(39, 31), Npc(254).At(39, 26), Npc(254).At(38, 43), Npc(254).At(35, 23), Npc(254).At(33, 40), Npc(254).At(33, 25), Npc(254).At(32, 37), Npc(254).At(32, 29), Npc(338).At(28, 26), Npc(338).At(28, 23), Npc(338).At(27, 35), Npc(338).At(27, 31));
+        camp.OnEnter(r => r.Dialog(6121))
+            .OnDialogClosed(6121, r => r
+                .Spawn(
+                    Monster(112).At(37, 41).OnDeath(r => r.Spawn(Monster(110).At(35, 41), Monster(110).At(36, 32))),
+                    Monster(112).At(37, 38).OnDeath(r => r.Spawn(Monster(110).At(33, 31), Monster(110).At(35, 26).Bonus())),
+                    Monster(112).At(37, 35).Bonus().OnDeath(r => r.Spawn(
+                        Monster(110).At(33, 35).OnDeath(r => r.Spawn(Monster(110).At(36, 28))))),
+                    Monster(112).At(37, 31),
+                    Monster(112).At(37, 27),
+                    Monster(110).At(34, 38),
+                    Monster(110).At(34, 34).OnDeath(r => r.Spawn(Monster(110).At(35, 36))),
+                    Monster(110).At(34, 29))
+                .Objective(LanguageKey.TIMESPACE_GOAL_CUARRY_KNIGHTS_AND_DEMONS))
+            .OnCleared(r => r
+                .Unlock(campToWay)
+                .SayToRoom(Game18NConstString.ADoorHasOpened)
+                .SayToRoom(LanguageKey.TIMESPACE_DEMONS_CRUSH_KOVOLTS));
 
-    public override void OnExitReached(IInstanceRun r, int room) => r.Succeed();
+        way.Exit(new(28, 15), locked: false);
+        way.Portal(new(1, 15), camp, new(58, 37), locked: false);
+        way.Spawn(Npc(310).At(14, 10), Npc(310).At(14, 20));
+        way.OnEnter(r => r.Dialog(6122));
+    }
 }
 
 return new TimeSpace24();
