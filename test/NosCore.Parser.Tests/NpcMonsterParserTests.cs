@@ -9,13 +9,17 @@ using Moq;
 using NosCore.Algorithm.MateHpService;
 using NosCore.Algorithm.MateMpService;
 using NosCore.Algorithm.MonsterStatService;
+using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Database.Entities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
+using NosCore.Tests.Shared;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -198,12 +202,21 @@ namespace NosCore.Parser.Tests
                 + BuildMonster(862, "zts397e", 0, race: 8, raceType: 7, etc: -2147481593)
                 + BuildMonster(861, "zts396e", 0, race: 8, raceType: 5, etc: -2147481593)
                 + BuildMonster(45, "zts46e", 8, etc: 3));
-            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
-                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
-            await parser.InsertNpcMonstersAsync(_tempFolder);
+            var world = await TestWorld.CreateAsync();
+            world.Inject<ILoggerFactory>(NullLoggerFactory.Instance);
+            world.Inject<IDao<BCardDto, int>>(world.Create<Dao<BCard, BCardDto, int>>());
+            world.Inject<IDao<DropDto, short>>(world.Create<Dao<Drop, DropDto, short>>());
+            world.Inject<IDao<NpcMonsterSkillDto, long>>(world.Create<Dao<NpcMonsterSkill, NpcMonsterSkillDto, long>>());
+            var npcMonsterDao = world.Freeze<Mock<IDao<NpcMonsterDto, short>>>();
+            var saved = new List<NpcMonsterDto>();
+            npcMonsterDao
+                .Setup(x => x.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<NpcMonsterDto>>()))
+                .Callback<IEnumerable<NpcMonsterDto>>(m => saved.AddRange(m))
+                .ReturnsAsync(true);
+            await world.Create<NpcMonsterParser>().InsertNpcMonstersAsync(_tempFolder);
 
             CollectionAssert.AreEquivalent(new short[] { 862 },
-                _savedMonsters.Where(m => m.CanCollect).Select(m => m.NpcMonsterVNum).ToArray());
+                saved.Where(m => m.CanCollect).Select(m => m.NpcMonsterVNum).ToArray());
         }
 
         [TestMethod]
