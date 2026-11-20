@@ -9,6 +9,8 @@ namespace NosCore.GameObject.Services.MovementService;
 public enum PortalResult
 {
     Used,
+    // A portal in reach that can be taken now; only FindPortal answers it.
+    Ready,
     TooSoon,
     NoPortal,
     EnemyCitadel,

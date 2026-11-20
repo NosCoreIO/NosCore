@@ -23,6 +23,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
@@ -290,23 +291,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return true;
         }
 
-        public Task<bool> AskToStartAsync(ClientSession session)
-        {
-            var character = session.Character;
-            if (character.MapInstance is not { } room || GetRun(room.MapInstanceId) is not { } run
-                || !room.Portals.Any(s => s.Type != PortalType.Closed && run.Rooms.Values.Contains(s.DestinationMapInstanceId)
-                    && Math.Max(Math.Abs(s.SourceX - character.PositionX), Math.Abs(s.SourceY - character.PositionY)) <= 2))
-            {
-                return Task.FromResult(false);
-            }
+        public Task<bool> AskToStartAsync(ClientSession session, Portal wayOut) =>
+            RunLeftThrough(session, wayOut) is { } run ? run.AskToStartAsync(session) : Task.FromResult(false);
 
-            return run.AskToStartAsync(session);
-        }
+        public Task<bool> ConfirmStartAsync(ClientSession session, Portal wayOut) =>
+            RunLeftThrough(session, wayOut) is { } run ? run.ConfirmStartAsync(session) : Task.FromResult(false);
 
-        public Task<bool> ConfirmStartAsync(ClientSession session) =>
-            session.Character.MapInstance is { } room && GetRun(room.MapInstanceId) is { } run
-                ? run.ConfirmStartAsync(session)
-                : Task.FromResult(false);
+        private ScriptedInstanceRun? RunLeftThrough(ClientSession session, Portal wayOut) =>
+            session.Character.MapInstance is { } room && wayOut.SourceMapInstanceId == room.MapInstanceId
+                && GetRun(room.MapInstanceId) is { } run && run.Rooms.Values.Contains(wayOut.DestinationMapInstanceId)
+                ? run
+                : null;
 
         public async Task<bool> DisposeIfEmptyAsync(ScriptedInstanceRun run)
         {

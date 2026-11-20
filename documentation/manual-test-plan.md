@@ -3280,7 +3280,7 @@ A Bold Warrior: Part 3 (`timespace-15`) on a character without partner 317.
 Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
 dropping their `MaxHp` makes the run quick.
 
-- [ ] On entry a clock appears and counts down from ten minutes
+- [ ] On entry a clock appears at ten minutes and stands still while you stay in the first room
 - [ ] On entry the mission window shows the time-space's lives as hearts: two for time-space 1,
       four for time-space 9. Time-space 1 also shows the exit as its goal; time-space 9 shows
       "0/1" against its boss and no exit
@@ -3295,9 +3295,10 @@ dropping their `MaxHp` makes the run quick.
       east edge; walking onto the padlock does nothing
 - [ ] No time-space stone is drawn inside the rooms
 - [ ] No portal of Chicken Farm Path is drawn inside the rooms: the ring south of the start
-      spot is gone, and walking onto its cell leaves you in the room with the clock still running
-- [ ] Killing the third monster opens the padlock; walking onto it moves you to the second
-      room, where a single Weak Devil Vampire waits
+      spot is gone, and walking onto its cell leaves you in the room with the clock unchanged
+- [ ] Killing the third monster opens the padlock; walking onto it asks "Do you want to enter the
+      first room?". Yes moves you to the second room, where a single Weak Devil Vampire waits, and
+      the clock starts counting down from ten minutes
 - [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
       the "Perfect" stamp when every summoned monster died
 - [ ] At the same moment the banner at the top reads "[1 Level ] Time-Space Stone complete",

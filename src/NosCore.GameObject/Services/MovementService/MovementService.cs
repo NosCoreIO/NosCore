@@ -35,6 +35,9 @@ public interface IMovementService
     Task<WalkResult> WalkAsync(ClientSession session, short x, short y, short speed, byte checksum);
 
     Task<PortalResult> UsePortalAsync(ClientSession session);
+
+    // The portal UsePortalAsync would take now, without taking it: Ready with that portal, or why not.
+    (PortalResult Result, Portal? Portal) FindPortal(ClientSession session);
 }
 
 public sealed class MovementService(IHeuristic distanceCalculator, ILogger<MovementService> logger,
@@ -133,36 +136,13 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
 
     public async Task<PortalResult> UsePortalAsync(ClientSession session)
     {
+        var (result, found) = FindPortal(session);
+        if (result != PortalResult.Ready || found is not { } portal)
+        {
+            return result;
+        }
+
         var character = session.Character;
-        if (((clock.GetCurrentInstant() - character.LastPortal).TotalSeconds < 4) ||
-            (character.LastPortal > character.LastMove))
-        {
-            return PortalResult.TooSoon;
-        }
-
-        var portals = new List<Portal>();
-        portals.AddRange(character.MapInstance.Portals);
-        portals.AddRange(minilandService
-            .GetMinilandPortals(character.CharacterId)
-            .Where(s => s.SourceMapInstanceId == character.MapInstanceId));
-        var portal = portals.Find(port =>
-            distanceCalculator.GetDistance((character.PositionX, character.PositionY), (port.SourceX, port.SourceY))
-            <= 2);
-        if (portal?.Type == PortalType.Closed)
-        {
-            return PortalResult.Locked;
-        }
-
-        if (portal == null || portal.DestinationMapInstanceId == default || !IsPortalAccessible(portal.Type))
-        {
-            return PortalResult.NoPortal;
-        }
-
-        if (IsEnemyCitadel(portal.DestinationMapId, character.Faction))
-        {
-            return PortalResult.EnemyCitadel;
-        }
-
         character.LastPortal = clock.GetCurrentInstant();
 
         if ((mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)?.MapInstanceType
@@ -179,6 +159,41 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         }
 
         return PortalResult.Used;
+    }
+
+    public (PortalResult Result, Portal? Portal) FindPortal(ClientSession session)
+    {
+        var character = session.Character;
+        if (((clock.GetCurrentInstant() - character.LastPortal).TotalSeconds < 4) ||
+            (character.LastPortal > character.LastMove))
+        {
+            return (PortalResult.TooSoon, null);
+        }
+
+        var portals = new List<Portal>();
+        portals.AddRange(character.MapInstance.Portals);
+        portals.AddRange(minilandService
+            .GetMinilandPortals(character.CharacterId)
+            .Where(s => s.SourceMapInstanceId == character.MapInstanceId));
+        var portal = portals.Find(port =>
+            distanceCalculator.GetDistance((character.PositionX, character.PositionY), (port.SourceX, port.SourceY))
+            <= 2);
+        if (portal?.Type == PortalType.Closed)
+        {
+            return (PortalResult.Locked, portal);
+        }
+
+        if (portal == null || portal.DestinationMapInstanceId == default || !IsPortalAccessible(portal.Type))
+        {
+            return (PortalResult.NoPortal, null);
+        }
+
+        if (IsEnemyCitadel(portal.DestinationMapId, character.Faction))
+        {
+            return (PortalResult.EnemyCitadel, portal);
+        }
+
+        return (PortalResult.Ready, portal);
     }
 
     private bool IsEnemyCitadel(short mapId, FactionType faction)

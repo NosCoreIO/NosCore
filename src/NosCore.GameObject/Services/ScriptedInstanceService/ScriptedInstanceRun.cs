@@ -1016,7 +1016,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         }
 
         // Until one of them confirms the start, the way out of the first room asks the players whether
-        // to start, and the clock waits.
+        // to start, and the clock waits. Every yes from the first room lets its player through; only
+        // the first starts the clock.
         public async Task<bool> AskToStartAsync(ClientSession session)
         {
             var asked = false;
@@ -1045,15 +1046,16 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var confirmed = false;
             await RunAsync(() =>
             {
-                if (!AwaitsStart || EndState != null || _abandoned || !session.HasPlayerEntity
+                if (!_host.AsksToStart || EndState != null || _abandoned || !session.HasPlayerEntity
                     || RoomOf(session.Character.MapInstance.MapInstanceId) is not { } room || room != FirstRoom)
                 {
                     return Task.CompletedTask;
                 }
 
                 confirmed = true;
+                var starting = !_startConfirmed;
                 _startConfirmed = true;
-                if (_clockPausedAt is { } heldSince && _clockEndsAt is { } endsAt)
+                if (starting && _clockPausedAt is { } heldSince && _clockEndsAt is { } endsAt)
                 {
                     var now = _clock.GetCurrentInstant();
                     _clockEndsAt = endsAt.Plus(now - heldSince);

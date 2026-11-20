@@ -834,6 +834,23 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ALaterYesStillLetsItsPlayerThroughWithoutRestartingTheClockAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var second = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.StartAsync();
+
+            Assert.IsTrue(await run.ConfirmStartAsync(first));
+            World.Clock.AdvanceSeconds(10);
+            Assert.IsTrue(await run.ConfirmStartAsync(second), "the second answer lets its player through");
+
+            World.Clock.AdvanceSeconds(50);
+            await run.TickAsync();
+            Assert.AreEqual(EndStateType.Timeout, run.EndState, "the clock started once, with the first yes");
+        }
+
+        [TestMethod]
         public async Task TheClockWaitsForTheStartToBeConfirmedAsync()
         {
             var session = await PlayerInFirstRoomAsync();
