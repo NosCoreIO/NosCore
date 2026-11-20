@@ -177,6 +177,9 @@ same damage means only one of the two is being read.
 - [ ] **Push (subtype 11)** — the target is pushed back the declared number of cells
 - [ ] **Pull (subtype 21)** — the target is drawn *towards* you, not taunted in place.
       Drawing Shot, Rotating Hammer and Spider King's Draw carry this
+- [ ] Pull a monster that stands off to one side and further away along the other axis (say
+      two cells across and ten down): it comes straight to you and stops beside you, rather
+      than running on past you to the next wall
 - [ ] **Charge (subtype 31)** — you move to the target
 - [ ] In all three, a wall stops the movement in front of it — nobody ends up inside
       geometry or on the far side

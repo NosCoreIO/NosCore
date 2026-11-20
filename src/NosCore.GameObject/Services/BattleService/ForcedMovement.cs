@@ -39,8 +39,14 @@ public static class ForcedMovement
                 break;
             }
 
-            var nextX = (short)(x + stepX);
-            var nextY = (short)(y + stepY);
+            // Closing in, an axis that has lined up with the target stops moving, or the walk
+            // would carry on past it.
+            var nextX = (short)(x + (closingIn ? Math.Sign(towardsX - x) : stepX));
+            var nextY = (short)(y + (closingIn ? Math.Sign(towardsY - y) : stepY));
+            if (nextX == x && nextY == y)
+            {
+                break;
+            }
 
             // Zero is walkable and anything else is wall - the grid reads the opposite way round
             // from the obvious one.
