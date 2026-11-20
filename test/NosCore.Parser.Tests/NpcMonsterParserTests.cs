@@ -200,6 +200,7 @@ namespace NosCore.Parser.Tests
             File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"),
                 BuildMonster(915, "zts513e", 0, race: 8, raceType: 4, etc: -2147481593)
                 + BuildMonster(862, "zts397e", 0, race: 8, raceType: 7, etc: -2147481593)
+                + BuildMonster(1271, "zts1205e", 0, race: 8, raceType: 8, etc: -2147481593)
                 + BuildMonster(861, "zts396e", 0, race: 8, raceType: 5, etc: -2147481593)
                 + BuildMonster(45, "zts46e", 8, etc: 3));
             var world = await TestWorld.CreateAsync();
@@ -215,7 +216,7 @@ namespace NosCore.Parser.Tests
                 .ReturnsAsync(true);
             await world.Create<NpcMonsterParser>().InsertNpcMonstersAsync(_tempFolder);
 
-            CollectionAssert.AreEquivalent(new short[] { 862 },
+            CollectionAssert.AreEquivalent(new short[] { 862, 1271 },
                 saved.Where(m => m.CanCollect).Select(m => m.NpcMonsterVNum).ToArray());
         }
 

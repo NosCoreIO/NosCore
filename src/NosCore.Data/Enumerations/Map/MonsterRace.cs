@@ -45,5 +45,6 @@ namespace NosCore.Data.Enumerations.Map
     public enum ObjectRaceType : byte
     {
         Collectable = 7,
+        TradeGoods = 8,
     }
 }

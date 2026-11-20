@@ -3904,7 +3904,7 @@ Capture is skill 209; weaken the monster to under half health and stay at or abo
 
 ### Collectable map objects
 
-Gathering objects in the NPC data (race Object, subtype 7), such as the Ice Flowers on Mount
+Gathering objects in the NPC data (race Object, subtype 7 or 8), such as the Ice Flowers on Mount
 Krem. Stand next to one before each check.
 
 - [ ] Click the Ice Flower: a five second bar runs over the character
