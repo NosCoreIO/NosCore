@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NodaTime;
 using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -14,6 +13,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
@@ -26,12 +26,12 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
-        IGameEventDispatcher gameEvents, IClock clock, ITimeSpacePenaltyService timeSpacePenaltyService)
+        IGameEventDispatcher gameEvents, ITimeSpacePenaltyService timeSpacePenaltyService)
         : IInstanceRunHost
     {
-        private static readonly Duration ReviveDelay = Duration.FromSeconds(10);
-
-        private readonly Dictionary<long, Instant> _revivesAt = [];
+        // Every time-space revival in the packet traces names 568 for a level 14-19 character and 569 for a
+        // level 76 one; the level where one gives way to the other is not shown, so it follows the map's 20.
+        private const byte HighestLevelForTheLowLevelRevival = 20;
 
         private int _livesLost;
 
@@ -152,7 +152,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
-            _revivesAt[player.CharacterId] = clock.GetCurrentInstant().Plus(ReviveDelay);
             await player.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
@@ -160,21 +159,22 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 ArgumentType = 4,
                 Game18NArguments = { (entrance.Definition?.Lives ?? 0) - _livesLost }
             });
-            await player.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.ReviveSoon });
+            await player.SendPacketAsync(player.GenerateStat());
+            // Both answers carry the same revival: the run brings the player back where they fell.
+            await player.SendPacketAsync(new DlgiPacket
+            {
+                YesPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
+                NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
+                Question = player.Level <= HighestLevelForTheLowLevelRevival
+                    ? Game18NConstString.MissionContinueLessThanLevel10
+                    : Game18NConstString.MissionContinueHalfHpMp,
+            });
         }
 
-        public async Task TickAsync(ScriptedInstanceRun run)
+        public async Task RevivalAnsweredAsync(ScriptedInstanceRun run, PlayerComponentBundle player)
         {
-            var now = clock.GetCurrentInstant();
-            foreach (var (characterId, _) in _revivesAt.Where(revive => revive.Value <= now).ToList())
-            {
-                _revivesAt.Remove(characterId);
-                if (run.Players().FirstOrDefault(s => s.HasPlayerEntity && s.Character.CharacterId == characterId) is { } session)
-                {
-                    run.StoodUp(characterId);
-                    await session.Character.ReviveAsync(fully: true);
-                }
-            }
+            run.StoodUp(player.CharacterId);
+            await player.ReviveInPlaceAsync(percent: 50);
         }
     }
 }

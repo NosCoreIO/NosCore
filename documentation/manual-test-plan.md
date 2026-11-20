@@ -1611,7 +1611,8 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] At level 70, die the same way: the chat says "Dignity reduced: -50"
 - [ ] At -990 dignity, die at level 70: dignity stops at -1000 and the chat says
       "Dignity reduced: -10"
-- [ ] In a time-space with 2 lives, die once: you revive in the room and dignity does not move;
+- [ ] In a time-space with 2 lives, die once and answer the question: you revive in the room and
+      dignity does not move;
       die again: the run fails and the chat says "Dignity reduced" by your level, once
 
 ### Dignity restored by quests and time-spaces
@@ -3366,7 +3367,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-14`, the lever of the room east of the 4105 crossroads (map 4107) stands at
       (16,12), (19,15) or (22,23), and over a few runs it shows up in more than one of them
 - [ ] Dying in a time-space (`$Kill` works) shows "You can be revived 2 more time(s)." in `timespace-14`
-      and brings the character back 10 seconds later; the third death fails the run
+      and the question to continue the mission; answering it brings the character back; the third
+      death fails the run
 - [ ] In `timespace-21`, walking onto the exit before beating Tom shows "You still have an incomplete
       mission."; after beating him the same exit gives Mission Clear
 - [ ] In `timespace-18`, the room with the locked exit shows a red one-minute clock and "The enemies are
@@ -3436,9 +3438,11 @@ Copy `timespace-sample.csx` to `timespace-lives.csx`, point the row's `Script` a
 `.WithLives(2)` to its definition. Leave the monsters' damage as it is and enter with a low HP
 character so they kill you.
 
-- [ ] The first death shows "You can be revived 1 more time(s)." and "Will be revived in 10 seconds."
-      and you lie on the ground
-- [ ] Ten seconds later you stand up where you fell, at full HP and MP, still inside the run
+- [ ] The first death shows "You can be revived 1 more time(s).", your empty HP bar, and a question:
+      at level 20 or lower "Mission will continue here. No penalty for level 10 or lower.", above
+      it "Mission will be continued here. You will receive half your HP and MP."; you lie on the
+      ground until you answer, however long you wait
+- [ ] Either button stands you up where you fell, with half your HP and MP, still inside the run
 - [ ] The second death ends the run: the score window says "Failed because all vitality was
       consumed." and you are sent back beside the stone
 - [ ] With `.WithLives(1)`, the first death ends the run the same way

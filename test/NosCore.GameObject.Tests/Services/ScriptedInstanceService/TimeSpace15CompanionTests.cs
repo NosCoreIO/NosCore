@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new TimeSpaceRunHost(
                     new ScriptedInstance { ScriptedInstanceId = 15, MapId = 1, PositionX = 9, PositionY = 7, LevelMinimum = 1, Logic = script },
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object,
-                    World.Clock, World.Create<TimeSpacePenaltyService>()),
+                    World.Create<TimeSpacePenaltyService>()),
                 script, _rooms, catalog, new RandomProvider(), World.Clock, World.SessionRegistry,
                 World.Create<AggroService>(), World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
                 NullLogger.Instance, World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));

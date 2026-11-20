@@ -43,6 +43,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // ends, unless the host stands them up again.
         Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) => Task.CompletedTask;
 
+        // The player answered the revival dialog the host asked when they fell.
+        Task RevivalAnsweredAsync(ScriptedInstanceRun run, PlayerComponentBundle player) => Task.CompletedTask;
+
         Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
 
         // The lives a run's players still share, shown in the mission window. Null for a host with no window.

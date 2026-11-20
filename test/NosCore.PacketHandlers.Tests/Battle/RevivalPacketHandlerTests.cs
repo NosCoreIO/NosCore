@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestMethod]
         public async Task RevivalRequestsInsideAScriptedRunAreIgnored()
         {
-            await new Spec("Inside a time-space or raid the run revives its players, so a revival packet does nothing")
+            await new Spec("Inside a time-space or raid only the run brings its players back, so a revival it did not ask for does nothing")
                 .Given(CharacterIsDeadAtLevel_, (byte)10)
                 .And(CharacterIsInsideAScriptedRun)
                 .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
@@ -531,7 +531,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             var run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<IGameEventDispatcher>().Object, World.Clock, World.Create<TimeSpacePenaltyService>()),
+                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<IGameEventDispatcher>().Object, World.Create<TimeSpacePenaltyService>()),
                 script,
                 new Dictionary<int, GameObject.Services.MapInstanceGenerationService.MapInstance> { [1] = _session.Character.MapInstance },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),

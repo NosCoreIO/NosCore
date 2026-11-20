@@ -7,6 +7,8 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.Packets.ServerPackets.Player;
 using NodaTime;
 using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.Map;
@@ -74,8 +76,53 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(ThePlayerShouldBeTold_RevivesAreLeft, 1)
                 .And(TheRunShouldStillBeGoing)
                 .And(ThePlayerShouldHave_Dignity, (short)0)
-                .AndAsync(TenSecondsPass)
+                .AndAsync(ThePlayerAnswersTheRevival)
                 .Then(ThePlayerShouldBeAlive)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFallenPlayerIsAskedToContinueTheMission()
+        {
+            await new Spec("A player who falls with a life left is shown their empty bars and asked to continue the mission")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
+                .And(ThePlayerIsLevel_, (byte)15)
+                .WhenAsync(ThePlayerDies)
+                .Then(ThePlayerShouldBeAskedToContinueWith_, Game18NConstString.MissionContinueLessThanLevel10)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AHigherLevelPlayerIsWarnedOfTheHalfHpAndMp()
+        {
+            await new Spec("Above level 20 the question says the mission continues with half the HP and MP")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
+                .And(ThePlayerIsLevel_, (byte)76)
+                .WhenAsync(ThePlayerDies)
+                .Then(ThePlayerShouldBeAskedToContinueWith_, Game18NConstString.MissionContinueHalfHpMp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TimeAloneDoesNotBringAFallenPlayerBack()
+        {
+            await new Spec("A fallen player stays down until they answer the question")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
+                .AndAsync(ThePlayerDies)
+                .WhenAsync(TenSecondsPass)
+                .Then(ThePlayerShouldStillBeDown)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnsweringBringsThePlayerBackWithHalfTheirHpAndMp()
+        {
+            await new Spec("Answering the question brings the player back where they fell, with half their HP and MP")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
+                .AndAsync(ThePlayerDies)
+                .WhenAsync(ThePlayerAnswersTheRevival)
+                .Then(ThePlayerShouldBeAlive)
+                .And(ThePlayerShouldHaveHalfTheirHpAndMp)
                 .ExecuteAsync();
         }
 
@@ -85,7 +132,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await new Spec("The death that uses the party's last life fails the run")
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .AndAsync(ThePlayerDies)
-                .AndAsync(TenSecondsPass)
+                .AndAsync(ThePlayerAnswersTheRevival)
                 .WhenAsync(ThePlayerDies)
                 .Then(TheRunShouldHaveRunOutOfLives)
                 .ExecuteAsync();
@@ -107,7 +154,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await new Spec("Lives belong to the party, so a second player's death after the first used the spare life fails the run")
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)2)
                 .AndAsync(ThePlayerDies)
-                .AndAsync(TenSecondsPass)
+                .AndAsync(ThePlayerAnswersTheRevival)
                 .WhenAsync(AnotherPlayerInTheRunDies)
                 .Then(TheRunShouldHaveRunOutOfLives)
                 .ExecuteAsync();
@@ -340,7 +387,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChange.Object), _bus.Object, World.Clock, World.Create<TimeSpacePenaltyService>()),
+                    new Lazy<IMapChangeService>(_mapChange.Object), _bus.Object, World.Create<TimeSpacePenaltyService>()),
                 script,
                 new Dictionary<int, MapInstance> { [1] = room },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),
@@ -387,6 +434,35 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             other.Character.IsAlive = false;
             other.Character.Hp = 0;
             await _run.PlayerDownAsync(other.Character);
+        }
+
+        private Task ThePlayerAnswersTheRevival()
+        {
+            _session.LastPackets.Clear();
+            return _run.RevivalAnsweredAsync(_session.Character);
+        }
+
+        private void ThePlayerShouldBeAskedToContinueWith_(Game18NConstString question)
+        {
+            PacketAssert.AreEqual(_session.Character.GenerateStat(), _session.LastPackets.OfType<StatPacket>().Last());
+            PacketAssert.AreEqual(new DlgiPacket
+            {
+                YesPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
+                NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
+                Question = question,
+            }, _session.LastPackets.OfType<DlgiPacket>().Single());
+        }
+
+        private void ThePlayerShouldStillBeDown()
+        {
+            Assert.IsFalse(_session.Character.IsAlive);
+            Assert.IsTrue(_run.IsDown(_session.Character.CharacterId));
+        }
+
+        private void ThePlayerShouldHaveHalfTheirHpAndMp()
+        {
+            Assert.AreEqual(Math.Max(1, _session.Character.MaxHp / 2), _session.Character.Hp);
+            Assert.AreEqual(Math.Max(1, _session.Character.MaxMp / 2), _session.Character.Mp);
         }
 
         private async Task TenSecondsPass()
