@@ -42,6 +42,7 @@ even when its packets are covered here.
 | NPC shops: buying and its refusals, a full bag, selling, what cannot be sold, reputation prices | `NpcShopTests` |
 | Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
 | Specialist skins: the skin used up, the look another player sees on transforming, the skin kept after relogging | `SpecialistSkinTests` |
+| Score quests: a band's button hands out its quest, a band above the character's level is refused | `ScoreQuestTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
@@ -2506,6 +2507,24 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 - [ ] Below level 81 the NPC answers that your level is too low.
 - [ ] Fortune-Teller Nuki's Accept Quest (level 60+) and Malcolm Mix's daily (level 20+) hand out one
       of their quests the same way.
+
+### Quests from NPC dialog buttons
+
+- [ ] Open the High Scores NPC's dialog, pick Low-level Score Quest and then "Level 1 - 10 Score Quest"
+      at level 1 to 10: "Challenge it! Time-Space Stone Score!" (quest 900) appears in the quest window.
+- [ ] Pick a band above your level: "Your level is too low"; one below it: "Your level is too high".
+      Nothing is added.
+- [ ] Pick the same band again after taking it: nothing new is handed out.
+- [ ] Not verifiable yet: completing a score quest. Nothing records a time-space score against the
+      quest's required score, so a taken score quest stays open until it is given up.
+- [ ] At level 55+, Soraya Style's "Remove Princess Sakura's Seal!": "Use Princess Sakura's Seal!" is
+      handed out. At level 45+, the Jajamaru miner's "Accept Jajamaru Quest" hands out the Jajamaru Quest.
+- [ ] Raphael's "Ginseng Digger" (level 20+), Crusader Graham's "Sure, I'll help." in NosVille
+      (level 85+), Amora's "I'm on it. I'll be back soon." (level 70+), Flake the Snow Fairy's
+      "(I'm going to try to talk to her.)" (level 20+), Santa Claus's "Okay, I'll destroy those fiends."
+      and Eva Energy's "Just a moment..." each put their one quest in the quest window: Ginseng Digger,
+      Suspicious Person, Amora's Story, The Viking Family, "Defeat the winter monsters." and "Gathering
+      Ingredients for the Cake (Easter Event)". Pressing the button again after taking it adds nothing.
 
 ### Forming a party
 

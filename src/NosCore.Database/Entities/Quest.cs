@@ -69,6 +69,9 @@ namespace NosCore.Database.Entities
 
         public NrunRunnerType? OfferedBy { get; set; }
 
+        // The argument of the OfferedBy button that names this quest, when the NPC has one button per quest.
+        public short? OfferOption { get; set; }
+
         [Required]
         [MaxLength(255)]
         [I18NString(typeof(I18NQuest))]

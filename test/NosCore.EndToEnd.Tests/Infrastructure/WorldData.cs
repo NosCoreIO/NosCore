@@ -301,6 +301,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         // Done with a single kill of the prey and handed in by nobody, so the kill completes it.
         public const short PreyQuest = 600;
 
+        // Hands out a score quest per button: the first for any level, the second only from level 50.
+        public const int ScoreKeeper = 1000;
+        private const short ScoreKeeperVNum = 1000;
+        public const short ScoreKeeperDialog = 1000;
+        public const short ScoreKeeperX = 70;
+        public const short ScoreKeeperY = 130;
+        public const short AnyLevelScoreQuest = 1000;
+        public const short HighLevelScoreQuest = 1001;
+        public const byte HighLevelScoreQuestLevel = 50;
+
         // Glacernon: the angels' citadel the ship lands on, the demons' beside it, and the deck the
         // act4-ship script opens. The shipmaster in town takes passengers.
         public const short AngelCitadel = 130;
@@ -716,6 +726,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedAct4Async(context);
             SeedDignity(context);
             SeedPreyQuest(context);
+            await SeedScoreKeeperAsync(context);
             await context.SaveChangesAsync();
         }
 
@@ -936,6 +947,31 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 QuestLineId = PreyQuest, Title = "preyquest", Desc = "preyquest"
             });
             context.Add(new QuestObjective { QuestObjectiveId = Guid.NewGuid(), QuestId = PreyQuest, FirstData = PreyVNum, SecondData = 1 });
+        }
+
+        private static async Task SeedScoreKeeperAsync(NosCoreContext context)
+        {
+            context.Add(new NpcTalk { DialogId = ScoreKeeperDialog, Name = "scorekeeper" });
+            context.Add(new NpcMonster { NpcMonsterVNum = ScoreKeeperVNum, Name = "scorekeeper", Level = 1, MaxHp = 100 });
+            context.Add(new Quest
+            {
+                QuestId = AnyLevelScoreQuest, QuestType = QuestType.TsPoint, LevelMin = 1, LevelMax = 99,
+                QuestLineId = AnyLevelScoreQuest, OfferedBy = NrunRunnerType.GetQuestHigherTimeSpaceScore, OfferOption = 0,
+                Title = "anylevelscorequest", Desc = "anylevelscorequest"
+            });
+            context.Add(new Quest
+            {
+                QuestId = HighLevelScoreQuest, QuestType = QuestType.TsPoint, LevelMin = HighLevelScoreQuestLevel, LevelMax = 99,
+                QuestLineId = HighLevelScoreQuest, OfferedBy = NrunRunnerType.GetQuestHigherTimeSpaceScore, OfferOption = 1,
+                Title = "highlevelscorequest", Desc = "highlevelscorequest"
+            });
+            await context.SaveChangesAsync();
+            context.Add(new MapNpc
+            {
+                MapNpcId = ScoreKeeper, MapId = Town, MapX = ScoreKeeperX, MapY = ScoreKeeperY, VNum = ScoreKeeperVNum,
+                Dialog = ScoreKeeperDialog
+            });
+            await context.SaveChangesAsync();
         }
 
         private static async Task SeedFamilyManagerAsync(NosCoreContext context)
