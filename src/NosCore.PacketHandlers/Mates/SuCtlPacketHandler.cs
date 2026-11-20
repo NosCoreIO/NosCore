@@ -17,15 +17,18 @@ namespace NosCore.PacketHandlers.Mates
         : PacketHandler<SuCtlPacket>, IWorldPacketHandler
     {
         // A mate counts as an ally of every player and npc, so a monster is the only target it can hit.
-        public override Task ExecuteAsync(SuCtlPacket packet, ClientSession session)
+        public override async Task ExecuteAsync(SuCtlPacket packet, ClientSession session)
         {
-            if (packet.TargetType != VisualType.Monster
-                || session.Character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId) is not { } target)
+            foreach (var order in packet.Mates ?? [])
             {
-                return Task.CompletedTask;
-            }
+                if (order is not { TargetType: VisualType.Monster }
+                    || session.Character.MapInstance.FindMonster(s => s.VisualId == order.TargetId) is not { } target)
+                {
+                    continue;
+                }
 
-            return mateControlService.AttackAsync(session.Character, packet.MateTransportId, target);
+                await mateControlService.AttackAsync(session.Character, order.MateTransportId, target);
+            }
         }
     }
 }
