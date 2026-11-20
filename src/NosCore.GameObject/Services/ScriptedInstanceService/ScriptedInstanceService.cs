@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 : MapInstanceType.RaidInstance;
 
             return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _gameEvents, _timeSpacePenaltyService,
-                _timeSpaceExperienceService, _lowLevelBoostService, _experienceBonusService, _experienceProgression));
+                _timeSpaceExperienceService, _lowLevelBoostService, _experienceBonusService, _experienceProgression, _logger, _logLanguage));
         }
 
         public async Task<IInstanceScript?> LoadScriptAsync(string script)

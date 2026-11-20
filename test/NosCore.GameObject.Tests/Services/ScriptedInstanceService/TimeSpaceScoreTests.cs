@@ -10,9 +10,12 @@ using Moq;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.SkillPointService;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Messaging.Events;
@@ -20,6 +23,8 @@ using NosCore.GameObject.Messaging.Handlers.TimeSpace;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ExperienceService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
@@ -47,12 +52,16 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private const short Grunt = 58;
         private const short Villager = 59;
         private const long Gold = 7462;
+        private const short Stone = 1184;
 
         private TestWorld World;
         private ClientSession _session;
         private MapInstance _room;
         private ScriptedInstanceRun _run;
         private readonly Mock<IGameEventDispatcher> _gameEvents = new();
+        private Mock<IExperienceProgressionService> _progression;
+        private ClientSession _second;
+        private long _awarded;
 
         private sealed class Script : InstanceScript
         {
@@ -269,6 +278,31 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ARewardThatFailsForOnePlayerStillRewardsTheOthers()
+        {
+            await new Spec("When the first player's experience cannot be awarded, the second still gets the score, the experience and the clear")
+                .Given(TheFirstPlayersExperienceCannotBeAwarded)
+                .AndAsync(ATimeSpaceThatSucceeds)
+                .AndAsync(ASecondPlayerHasEntered)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheSecondPlayerShouldBeRewarded)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnExperienceAwardThatFailsHalfwayStillTakesTheStoneAndRecordsTheClear()
+        {
+            await new Spec("When the award throws after adding the experience, the stone is still taken, the clear recorded and the experience added once")
+                .Given(TheExperienceAwardFailsAfterAddingIt)
+                .AndAsync(ATimeSpaceOpenedWithAStoneThatSucceeds)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheStoneShouldBeTaken)
+                .And(TheClearShouldBeRecordedOnce)
+                .And(TheExperienceShouldBeAddedOnce)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AFailedRunAwardsNoExperience()
         {
             await new Spec("A failed run awards no experience")
@@ -312,6 +346,59 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private void TheRoomRateIs_(int rate) => _room.XpRate = rate;
 
+        private void TheFirstPlayersExperienceCannotBeAwarded()
+        {
+            var firstId = _session.Character.CharacterId;
+            _progression = World.Freeze<Mock<IExperienceProgressionService>>();
+            _progression.Setup(p => p.AddExperienceAsync(It.Is<PlayerComponentBundle>(c => c.CharacterId == firstId),
+                    It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()))
+                .ThrowsAsync(new InvalidOperationException());
+        }
+
+        private void TheExperienceAwardFailsAfterAddingIt()
+        {
+            _progression = World.Freeze<Mock<IExperienceProgressionService>>();
+            _progression.Setup(p => p.AddExperienceAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>(), It.IsAny<long>(),
+                    It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()))
+                .Callback((PlayerComponentBundle player, long experience, long _, long _, long _, int _) =>
+                {
+                    _awarded += experience;
+                    player.LevelXp += experience;
+                })
+                .ThrowsAsync(new InvalidOperationException());
+        }
+
+        private void TheStoneShouldBeTaken() => Assert.AreEqual(0, _session.Character.InventoryService.CountItem(Stone));
+
+        private void TheClearShouldBeRecordedOnce() =>
+            _gameEvents.Verify(e => e.RaiseAsync(It.IsAny<ScriptedInstanceSucceededEvent>()), Times.Once);
+
+        private void TheExperienceShouldBeAddedOnce()
+        {
+            _progression.Verify(p => p.AddExperienceAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>(), It.IsAny<long>(),
+                It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()), Times.Once);
+            Assert.AreEqual(_awarded, _session.Character.LevelXp);
+        }
+
+        private async Task ASecondPlayerHasEntered()
+        {
+            _second = await World.CreateSessionAsync();
+            _second.Character.Level = LevelMinimum;
+            _second.Character.MapInstance = _room;
+            World.SessionRegistry.UpdateCharacter(_second.Channel?.Id ?? string.Empty, _second.Character.CharacterId, _room.MapInstanceId);
+            await _run.EnteredAsync(_second, _room.MapInstanceId);
+        }
+
+        private void TheSecondPlayerShouldBeRewarded()
+        {
+            var secondId = _second.Character.CharacterId;
+            Assert.AreEqual(1, _second.LastPackets.OfType<ScorePacket>().Count());
+            _progression.Verify(p => p.AddExperienceAsync(It.Is<PlayerComponentBundle>(c => c.CharacterId == secondId),
+                It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()), Times.Once);
+            _gameEvents.Verify(e => e.RaiseAsync(It.Is<ScriptedInstanceSucceededEvent>(evt => evt.Character.CharacterId == secondId)),
+                Times.Once);
+        }
+
         private void TheCharacterIsLevel_(byte level) => _session.Character.Level = level;
 
         private void TheScoresLastFieldShouldBe_(byte unknown) =>
@@ -333,9 +420,24 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private Task ATimeSpaceWithAHunterThatSucceeds() => ATimeSpaceAsync(true, hunts: true);
 
+        private Task ATimeSpaceOpenedWithAStoneThatSucceeds()
+        {
+            var stone = InventoryItemInstance.Create(new ItemInstance(new Item
+            {
+                VNum = Stone, Type = NoscorePocketType.Main, ItemType = ItemType.Special
+            })
+            {
+                Amount = 1,
+            }, _session.Character.CharacterId);
+            stone.Slot = 0;
+            stone.Type = NoscorePocketType.Main;
+            _session.Character.InventoryService[stone.ItemInstanceId] = stone;
+            return ATimeSpaceAsync(true, stone: Stone);
+        }
+
         private Task ATimeSpaceThatFails() => ATimeSpaceAsync(false);
 
-        private async Task ATimeSpaceAsync(bool succeeds, bool hunts = false)
+        private async Task ATimeSpaceAsync(bool succeeds, bool hunts = false, short? stone = null)
         {
             _room = World.MapInstanceGeneratorService.CreateMapInstance(
                 new GameObject.Map.Map
@@ -348,7 +450,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _run = new ScriptedInstanceRun(
                 World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance
                     {
-                        ScriptedInstanceId = 1, MapId = 1, LevelMinimum = LevelMinimum, Logic = script
+                        ScriptedInstanceId = 1, MapId = 1, LevelMinimum = LevelMinimum, Logic = script, StoneVNum = stone
                     }),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _room },
