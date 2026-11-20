@@ -9,6 +9,9 @@ namespace NosCore.Data.Enumerations.Interaction
     public enum TeleporterType : byte
     {
         Teleporter = 0,
-        TeleporterOnMap = 1
+        TeleporterOnMap = 1,
+
+        // Talking to the NPC runs a bar, then carries the player and their mates across its own map.
+        TeleporterOnMapAfterBar = 2
     }
 }

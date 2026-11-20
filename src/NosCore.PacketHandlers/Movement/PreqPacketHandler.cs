@@ -26,6 +26,11 @@ namespace NosCore.PacketHandlers.Movement
     {
         public override async Task ExecuteAsync(PreqPacket _, ClientSession session)
         {
+            if (await scriptedInstanceService.AskToStartAsync(session))
+            {
+                return;
+            }
+
             var result = await movementService.UsePortalAsync(session);
             if (result == PortalResult.NoPortal)
             {

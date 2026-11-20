@@ -20,6 +20,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Packets.ServerPackets.UI;
+using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
+using NosCore.Tests.Shared;
 
 namespace NosCore.Parser.Tests
 {
@@ -59,6 +62,24 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1897L, ((NrunPacket)read[2]).VisualId);
             CollectionAssert.AreEqual(new short[] { 1002, 1003 }, ((MlistPacket)read[3]).ItemVNums);
             Assert.AreEqual((short)2029, ((MlistMaterialsPacket)read[4]).Materials.Single().VNum);
+        }
+
+        [TestMethod]
+        public async Task AStoneBarsFollowUpIsReadWithTheServersGuriShapeAsync()
+        {
+            var delay = new DelayPacket
+            {
+                Delay = 5000,
+                Type = DelayPacketType.Button,
+                Packet = new ClientGuriPacket { Type = GuriPacketType.MapTeleporter, Argument = 22, VisualId = 72, Data = 5980 }
+            };
+            await File.WriteAllLinesAsync(_file, [new Serializer([typeof(DelayPacket), typeof(ClientGuriPacket)]).Serialize(delay)]);
+
+            var read = await new PacketTrace(new Mock<ILogger<PacketTrace>>().Object,
+                new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object).ReadAsync(_file);
+
+            PacketAssert.AreEqual(new GuriPacket { Type = GuriPacketType.MapTeleporter, Argument = 22, SecondArgument = 72, EntityId = 5980 },
+                (GuriPacket)read.OfType<DelayPacket>().Single().Packet.NotNull());
         }
     }
 }

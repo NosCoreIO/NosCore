@@ -9,6 +9,7 @@ using Moq;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MovementService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
@@ -29,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         private PreqPacketHandler Handler;
         private ClientSession Session;
         private Mock<IMovementService> MovementService;
+        private Mock<IScriptedInstanceService> ScriptedInstances;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -36,7 +38,19 @@ namespace NosCore.PacketHandlers.Tests.Movement
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
             MovementService = World.Freeze<Mock<IMovementService>>();
+            ScriptedInstances = World.Freeze<Mock<IScriptedInstanceService>>();
             Handler = World.Create<PreqPacketHandler>();
+        }
+
+        [TestMethod]
+        public async Task TheWayOutOfARunsFirstRoomAsksBeforeMoving()
+        {
+            await new Spec("The way out of a time-space's first room asks whether to start instead of moving")
+                .Given(TheRunWillAskToStart)
+                .And(UsingThePortalWillBe_, PortalResult.Used)
+                .WhenAsync(UsingPortal)
+                .Then(ThePortalIsNotUsed)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -117,5 +131,11 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             Assert.AreEqual(0, Session.LastPackets.Count);
         }
+
+        private void TheRunWillAskToStart() =>
+            ScriptedInstances.Setup(s => s.AskToStartAsync(Session)).ReturnsAsync(true);
+
+        private void ThePortalIsNotUsed() =>
+            MovementService.Verify(s => s.UsePortalAsync(It.IsAny<ClientSession>()), Times.Never);
     }
 }

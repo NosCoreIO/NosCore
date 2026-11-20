@@ -290,6 +290,24 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return true;
         }
 
+        public Task<bool> AskToStartAsync(ClientSession session)
+        {
+            var character = session.Character;
+            if (character.MapInstance is not { } room || GetRun(room.MapInstanceId) is not { } run
+                || !room.Portals.Any(s => s.Type != PortalType.Closed && run.Rooms.Values.Contains(s.DestinationMapInstanceId)
+                    && Math.Max(Math.Abs(s.SourceX - character.PositionX), Math.Abs(s.SourceY - character.PositionY)) <= 2))
+            {
+                return Task.FromResult(false);
+            }
+
+            return run.AskToStartAsync(session);
+        }
+
+        public Task<bool> ConfirmStartAsync(ClientSession session) =>
+            session.Character.MapInstance is { } room && GetRun(room.MapInstanceId) is { } run
+                ? run.ConfirmStartAsync(session)
+                : Task.FromResult(false);
+
         public async Task<bool> DisposeIfEmptyAsync(ScriptedInstanceRun run)
         {
             foreach (var id in run.Rooms.Values)

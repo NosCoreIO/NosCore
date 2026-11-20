@@ -21,6 +21,9 @@ using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using SpecLight;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Parser.Tests
 {
@@ -68,6 +71,28 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(8, teleporter.MapX);
             Assert.AreEqual(87, teleporter.MapY);
             Assert.AreEqual(TeleporterType.Teleporter, teleporter.Type);
+        }
+
+        [TestMethod]
+        public async Task AStonesBarNamesItsDestinationAcrossTheMap()
+        {
+            await _parser.InsertTeleportersAsync([
+                new RequestNpcPacket { Type = VisualType.Npc, TargetId = 9821 },
+                new DelayPacket
+                {
+                    Delay = 5000,
+                    Type = DelayPacketType.Button,
+                    Packet = new GuriPacket { Type = GuriPacketType.MapTeleporter, Argument = 22, SecondArgument = 72, EntityId = 9821 }
+                },
+            ]);
+
+            var teleporter = _saved.Single();
+            Assert.AreEqual(9821, teleporter.MapNpcId);
+            Assert.AreEqual((short)177, teleporter.MapId);
+            Assert.AreEqual((short)22, teleporter.MapX);
+            Assert.AreEqual((short)72, teleporter.MapY);
+            Assert.IsNull(teleporter.Runner);
+            Assert.AreEqual(TeleporterType.TeleporterOnMapAfterBar, teleporter.Type);
         }
 
         [TestMethod]

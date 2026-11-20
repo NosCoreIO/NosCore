@@ -44,6 +44,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // True when the player stood on the open exit of the run they are in.
         Task<bool> UseExitAsync(ClientSession session);
 
+        // True when the player stood on a way out of a run's first room and was asked to start it first.
+        Task<bool> AskToStartAsync(ClientSession session);
+
+        // True when the player confirmed the start of the run they are in, from its first room.
+        Task<bool> ConfirmStartAsync(ClientSession session);
+
         Task<bool> DisposeIfEmptyAsync(ScriptedInstanceRun run);
 
         Task TickAsync();
