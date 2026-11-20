@@ -69,6 +69,44 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        [DataRow("timespace-33", 6, 7, "unlock(5->8)")]
+        [DataRow("timespace-33", 10, 9, "unlock(8->11)")]
+        [DataRow("timespace-35", 6, 5, "unlock(4->7)")]
+        public async Task ACrossingOpensOnceBothItsSideRoomsAreCleared(string name, int first, int second, string unlock)
+        {
+            var script = await LoadAsync(name);
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+
+            script.OnRoomCleared(run, first);
+            run.Cleared.Add(first);
+            var afterFirst = run.Calls.Contains(unlock);
+            script.OnRoomCleared(run, second);
+
+            Assert.IsFalse(afterFirst);
+            Assert.IsTrue(run.Calls.Contains(unlock));
+        }
+
+        [TestMethod]
+        [DataRow("timespace-33")]
+        [DataRow("timespace-35")]
+        [DataRow("timespace-38")]
+        [DataRow("timespace-46")]
+        [DataRow("timespace-628")]
+        public async Task EnteringTheFirstRoomStartsTheMission(string name)
+        {
+            var script = await LoadAsync(name);
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+            var first = script.Definition.Rooms[0].Key;
+
+            script.OnRoomEntered(run, first);
+
+            Assert.AreEqual("message(MissionStartWhenEnterFirstRoom)", run.Calls[^1]);
+            Assert.IsTrue(run.Portals.Any(p => p.From == first && !p.Locked));
+        }
+
+        [TestMethod]
         [DynamicData(nameof(TimeSpaces))]
         public async Task ReachingTheExitWinsTheTimeSpace(string name)
         {
