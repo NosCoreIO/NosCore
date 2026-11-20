@@ -137,6 +137,9 @@ namespace NosCore.Data.Enumerations.Items
         // Opened by an archaeologist rather than from the bag; EffectValue is the gold the examination costs.
         Relict = 1026,
 
+        // Applies the item's own effects to its user, such as a bandage stopping bleedings.
+        Bandage = 1027,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

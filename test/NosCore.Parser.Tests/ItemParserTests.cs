@@ -196,6 +196,23 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)2087, "8", 2)]
+        [DataRow((short)2128, "12", 3)]
+        public async Task ItemParser_ABandageStopsBleedingsUpToItsLevel(short vnum, string level, int expectedLevel)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum, buff: $"25\t0\t{level}\t4\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemEffectType.Bandage, _savedItems.Single().Effect);
+            var cleanse = _savedBCards.Single(b => b.ItemVNum == vnum);
+            Assert.AreEqual(BCardEffect.BuffCancelGroupOfEffects, cleanse.Effect());
+            Assert.AreEqual(0, cleanse.FirstData);
+            Assert.AreEqual(expectedLevel, cleanse.SecondData);
+        }
+
+        [TestMethod]
         [DataRow((short)1365)]
         [DataRow((short)9039)]
         public async Task ItemParser_MarksTheSoulRevivalStones(short vnum)

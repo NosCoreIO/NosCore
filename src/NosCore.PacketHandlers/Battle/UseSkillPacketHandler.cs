@@ -74,12 +74,17 @@ namespace NosCore.PacketHandlers.Battle
             var (previousX, previousY) = (character.PositionX, character.PositionY);
             var moved = AcceptReportedPosition(character, packet);
 
-            if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed, out var missingItem))
+            if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed, out var refusal, out var itemVNum))
             {
                 (character.PositionX, character.PositionY) = (previousX, previousY);
-                if (missingItem is { } itemVNum)
+                switch (refusal)
                 {
-                    await UseAoeSkillPacketHandler.MissingItemAsync(character, itemVNum);
+                    case SkillCastRefusal.NotEnoughMp:
+                        await UseAoeSkillPacketHandler.NotEnoughMpAsync(character);
+                        break;
+                    case SkillCastRefusal.MissingItem:
+                        await UseAoeSkillPacketHandler.MissingItemAsync(character, itemVNum);
+                        break;
                 }
                 await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
                 return;
@@ -133,26 +138,27 @@ namespace NosCore.PacketHandlers.Battle
         // so the packet path stays permissive and SkillResolver produces a single
         // consistent "unknown skill" response.
         private bool TryConsumeSkill(ClientSession session, long castId, IAliveEntity target, out Func<Task>? commit,
-            out short? missingItem)
+            out SkillCastRefusal refusal, out short itemVNum)
         {
             commit = null;
-            missingItem = null;
+            refusal = SkillCastRefusal.None;
+            itemVNum = 0;
             var character = session.Character;
             var skill = skillCastService.FindLearned(character, castId);
             if (skill?.Skill == null)
             {
                 return true;
             }
+            itemVNum = skill.Skill.ItemVNum;
             var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (target.PositionX, target.PositionY));
             var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
             if (!SkillReach.IsInReach(skill.Skill.TargetType, skill.Skill.Range, skill.Skill.TargetRange, distance, targetArea))
             {
                 return false;
             }
-            var refusal = skillCastService.Check(character, skill, out var mpCost);
+            refusal = skillCastService.Check(character, skill, out var mpCost);
             if (refusal != SkillCastRefusal.None)
             {
-                missingItem = refusal == SkillCastRefusal.MissingItem ? skill.Skill.ItemVNum : null;
                 return false;
             }
 

@@ -14,7 +14,9 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.PacketHandlers.Battle;
 using NosCore.Packets.ClientPackets.Battle;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using NosCore.GameObject.Services.MovementService;
@@ -187,16 +189,49 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestMethod]
         public async Task UsingKnownSkillWithInsufficientMpSendsCancelAndSkipsBattleService()
         {
-            await new Spec("A skill whose MpCost exceeds the character's Mp sends a cancel and does not call Hit")
+            await new Spec("A skill whose MpCost exceeds the character's Mp sends the not-enough-MP line, then a cancel, and does not call Hit")
                 .Given(CharacterIsOnMap)
                 .And(TargetIsOnSameMap)
                 .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)100, (short)1)
                 .And(CharacterHasMp_, 20)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheNotEnoughMpLineShouldComeBeforeTheCancel)
                 .And(BattleServiceShouldNotBeCalled)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ACastOnCooldownSendsNoNotEnoughMpLine()
+        {
+            await new Spec("A skill still on cooldown is cancelled without the not-enough-MP line")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)300)
+                .And(CharacterHasMp_, 50)
+                .And(SkillWasUsedJustNow)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(ShouldReceiveCancelPacket)
+                .And(NoSayiShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void TheNotEnoughMpLineShouldComeBeforeTheCancel()
+        {
+            var sent = Session.LastPackets.ToList();
+            var sayi = sent.OfType<SayiPacket>().Single();
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = Session.Character.VisualId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.NotEnoughMpForSpell,
+            }, sayi);
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack },
+                sent.OfType<CancelPacket>().Single());
+            Assert.IsTrue(sent.IndexOf(sayi) < sent.FindIndex(p => p is CancelPacket));
+        }
+
+        private void NoSayiShouldBeSent() => Assert.IsFalse(Session.LastPackets.OfType<SayiPacket>().Any());
 
         [TestMethod]
         public async Task ALearnedSkillOutOfReachSendsCancelAndSpendsNothing()
