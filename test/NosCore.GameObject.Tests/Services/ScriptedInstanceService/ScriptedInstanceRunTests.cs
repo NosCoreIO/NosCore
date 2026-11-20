@@ -1613,6 +1613,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ATriggerRaisedByAnotherOfTheRunsTriggersRunsAfterItAsync()
+        {
+            var run = Run(new Script { Exit = (r, _) => r.Succeed() });
+            await run.StartAsync();
+
+            await run.RunHostAsync(() => run.ExitReachedAsync(_first.MapInstanceId)).WaitAsync(TimeSpan.FromSeconds(5));
+
+            Assert.IsTrue(await EventuallyAsync(() => run.EndState == EndStateType.Success));
+        }
+
+        [TestMethod]
         public async Task AClockRunningOutSeenFromARoomsWorkStillEndsTheRunAsATimeoutAsync()
         {
             var run = Run(new Script { Enter = r => r.StartClock(TimeSpan.FromMinutes(1)) });
