@@ -38,6 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             new() { QuestId = 5906, IsDaily = true, LevelMin = 85, LevelMax = 99, OfferedBy = Engineer },
             new() { QuestId = 5514, IsDaily = true, LevelMin = 81, LevelMax = 99,
                 OfferedBy = NrunRunnerType.GetDailyQuestSerizardIceFlowerOil },
+            new() { QuestId = 6036, LevelMin = 20, LevelMax = 99, OfferedBy = NrunRunnerType.GetQuestGingsengDagger },
         ];
 
         [TestInitialize]
@@ -115,6 +116,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await AskAsync();
 
             Offered(5906);
+        }
+
+        [TestMethod]
+        public async Task AStoryButtonHandsOutItsOneQuest()
+        {
+            await World.Create<GinsengDiggerQuestHandler>()
+                .HandleAsync(Session, null, new NrunPacket { Runner = NrunRunnerType.GetQuestGingsengDagger });
+
+            Offered(6036);
         }
 
         [TestMethod]

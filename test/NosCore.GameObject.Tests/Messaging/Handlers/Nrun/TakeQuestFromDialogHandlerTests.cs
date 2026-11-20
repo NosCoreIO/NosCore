@@ -54,6 +54,24 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
+        public async Task TheSpecialistQuestButtonHandsOutItsQuest()
+        {
+            await World.Create<TakeSpecialistQuestFromDialogHandler>()
+                .HandleAsync(Session, null, new NrunPacket { Runner = NrunRunnerType.GetXSPQuest, Type = 6864 });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), QuestActionType.Achieve, 6864), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task TheSpecialistQuestButtonWaitsForTheQuestBeforeIt()
+        {
+            await World.Create<TakeSpecialistQuestFromDialogHandler>()
+                .HandleAsync(Session, null, new NrunPacket { Runner = NrunRunnerType.GetXSPQuest, Type = 5007 });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task AnUnknownQuestIsIgnored()
         {
             await TakeAsync(1);

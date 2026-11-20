@@ -52,6 +52,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.AutoFinish, chunk => chunk["VNUM"][0][3] == "1")
                 .Field(x => x.IsDaily, chunk => DailyQuests.Contains(Convert.ToInt16(chunk["VNUM"][0][1])))
                 .Field(x => x.OfferedBy, chunk => DialogQuestOffers.OfferedBy(Convert.ToInt16(chunk["VNUM"][0][1])))
+                .Field(x => x.OfferOption, chunk => DialogQuestOffers.OfferOption(Convert.ToInt16(chunk["VNUM"][0][1])))
                 .Field(x => x.RequiredQuestId, chunk => chunk["VNUM"][0][5] != "-1" ? short.Parse(chunk["VNUM"][0][5]) : (short?)null)
                 .Field(x => x.IsSecondary, chunk => chunk["VNUM"][0][6] != "-1")
                 .Field(x => x.LevelMin, chunk => Convert.ToByte(chunk["LEVEL"][0][1]))
