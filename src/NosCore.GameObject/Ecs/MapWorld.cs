@@ -447,6 +447,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new WalkTrailComponent(0, 0));
         _world.Add(entity, new SkillComboComponent(0, 0));
         _world.Add(entity, new WarehouseWindowComponent(false, false, null));
+        _world.Add(entity, new ChargeComponent(null));
         return entity;
     }
 
@@ -478,7 +479,8 @@ public class MapWorld : IDisposable
         HitListComponent hitList,
         BaseMapPositionComponent baseMapPosition,
         SkillResetComponent skillResets,
-        FactionComponent faction)
+        FactionComponent faction,
+        ChargeComponent charge)
     {
         // World.Create stops short of 25 generic components, so the last ones are added afterwards.
         using var scope = _sync.EnterScope();
@@ -499,6 +501,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, faction);
         _world.Add(entity, new SkillComboComponent(0, 0));
         _world.Add(entity, new WarehouseWindowComponent(false, false, null));
+        _world.Add(entity, charge);
         return entity;
     }
 

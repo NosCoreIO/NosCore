@@ -14,6 +14,7 @@ using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -99,6 +100,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await buffService.RemoveEffectAsync(origin, BCardEffect.SpecialActionsHide);
+            skill = await SpendChargeAsync(origin, skill);
             var targets = targetResolver.Resolve(origin, target, skill);
             if (skill.HitsSeveral && arguments.ListedTargets is { Count: > 0 } listed)
             {
@@ -162,6 +164,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await buffService.RemoveEffectAsync(origin, BCardEffect.SpecialActionsHide);
+            skill = await SpendChargeAsync(origin, skill);
 
             if (skill.BCards.Any(b => b.Effect() == BCardEffect.FairyXpIncreaseTeleportToLocation)
                 && mapInstance.Map.IsWalkable(mapX, mapY))
@@ -228,12 +231,18 @@ namespace NosCore.GameObject.Services.BattleService
 
             if (aroundCaster)
             {
+                skill = await SpendChargeAsync(origin, skill);
                 var presentation = new HitPresentation(origin.PositionX, origin.PositionY, true);
                 var targets = targetResolver.ResolveArea(origin, mapInstance, origin.PositionX, origin.PositionY, skill);
                 for (var i = 0; i < targets.Count; i++)
                 {
                     await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
                 }
+            }
+            else if (skill.IsCharge && origin is PlayerComponentBundle charger)
+            {
+                charger.ChargeBCards = skill.BCards;
+                await SendChargeAsync(charger, ChargeValue(skill.BCards, charger.Level));
             }
             else
             {
@@ -279,6 +288,35 @@ namespace NosCore.GameObject.Services.BattleService
             await FinishCastAsync(origin, skill);
             return true;
         }
+
+        // Every blow of the next attack carries the charge, whether it lands or not.
+        private static async Task<SkillInfo> SpendChargeAsync(IAliveEntity origin, SkillInfo skill)
+        {
+            if (skill.Kind == SkillKind.Debuff || origin is not PlayerComponentBundle { ChargeBCards: { } charge } player)
+            {
+                return skill;
+            }
+
+            player.ChargeBCards = null;
+            await SendChargeAsync(player, 0);
+            return skill with { ChargeBCards = charge };
+        }
+
+        // A trace shows a level 92 character holding a charge of 2724, far above any charge skill's
+        // own bonus, so the live value may be worked out some other way.
+        private static int ChargeValue(IReadOnlyList<BCardDto> cards, int level) => cards
+            .Where(card => card.Type == BCardType.CardType.AttackPower)
+            .Sum(card => BattleStatsProvider.ScaleByLevel(card, level));
+
+        // A charge is drawn as card 0, its value given both as the charge and as the duration.
+        private static Task SendChargeAsync(PlayerComponentBundle player, int value) =>
+            player.MapInstance?.SendPacketAsync(new BfPacket
+            {
+                VisualType = player.VisualType,
+                VisualId = player.VisualId,
+                Buff = new BfPacket.BuffElementSubPacket { ChargeValue = value, BuffId = 0, Duration = value },
+                BuffLevel = player.Level,
+            }) ?? Task.CompletedTask;
 
         // The caster, the friendly players around it and the pets and partners those players have out.
         private IReadOnlyList<IAliveEntity> FriendliesAround(IAliveEntity origin, MapInstance mapInstance, byte range)

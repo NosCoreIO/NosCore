@@ -49,7 +49,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(SkillResetComponent),
     typeof(FactionComponent),
     typeof(SkillComboComponent),
-    typeof(WarehouseWindowComponent)
+    typeof(WarehouseWindowComponent),
+    typeof(ChargeComponent)
 )]
 public readonly partial struct PlayerComponentBundle : INamedEntity
 {

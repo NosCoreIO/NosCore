@@ -443,6 +443,20 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 MeleeSkill with { BCards = basicMagic.BCards }));
         }
 
+        // Charge Power's "melee attack +250" on a naked level 10 swordsman's basic attack: 26 + 15 + 250 - 18 + 9.
+        [TestMethod]
+        public void AChargeAddsItsAttackBonusToTheMatchingAttack()
+        {
+            var charge = new[] { new BCardDto { Type = BCardType.CardType.AttackPower, SubType = 21, FirstData = 250 } };
+
+            Assert.AreEqual(282, Hit(Player(CharacterClassType.Swordsman, 10, attack: 26), Chicken(), MeleeSkill with { ChargeBCards = charge }));
+            Assert.AreEqual(97, Hit(Player(CharacterClassType.Mage, 10, attack: 26), Chicken(), MagicSkill with
+            {
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.AttackPower, SubType = 41, FirstData = 60 } },
+                ChargeBCards = charge,
+            }));
+        }
+
         // Level 30 swordsman, 100 weapon attack at +5: the upgrade adds 43% of the weapon only.
         [TestMethod]
         public void AWeaponUpgradeScalesOnlyTheWeaponsAttack()

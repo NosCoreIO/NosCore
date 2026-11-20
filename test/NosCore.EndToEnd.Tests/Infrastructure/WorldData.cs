@@ -96,6 +96,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const int Brute = 105;
         private const short BruteVNum = 12;
 
+        // Charge Power as the client data has it: melee attack +250 on the Swordsman's next blow,
+        // and a basic Swordsman blow to spend it on.
+        public const short ChargeSkill = 400;
+        public const short ChargeSkillCastId = 12;
+        public const int ChargeAttack = 250;
+        public const short SwordsmanSwing = 401;
+
         // Taunting Shot as the client data has it: a Swordsman's debuff from job level 9 that deals
         // no damage and draws the target's attention to the caster.
         public const short TauntSkill = 230;
@@ -523,8 +530,20 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 LevelMinimum = TauntSkillJobLevel, Range = 10, CastTime = 6, Cooldown = 100, MpCost = 30, Kind = SkillKind.Debuff,
                 UsesSecondaryWeapon = true, Effect = 528, AttackAnimation = 23, CastAnimation = 26, CastEffect = 527
             });
+            context.Add(new Skill
+            {
+                SkillVNum = ChargeSkill, Name = "skill400", CastId = ChargeSkillCastId, SkillType = 1,
+                Class = (byte)CharacterClassType.Swordsman, Type = 4, TargetType = 1, Cooldown = 6,
+                Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
+            });
+            context.Add(new Skill
+            {
+                SkillVNum = SwordsmanSwing, Name = "skill401", CastId = 0, SkillType = 1, Class = (byte)CharacterClassType.Swordsman,
+                Type = 0, Range = 1, CastTime = 2, Cooldown = 6, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
+            });
             await context.SaveChangesAsync();
             context.Add(new BCard { SkillVNum = TauntSkill, Type = BCardType.CardType.SpecialEffects2, SubType = 11, FirstData = 1 });
+            context.Add(new BCard { SkillVNum = ChargeSkill, Type = BCardType.CardType.AttackPower, SubType = 21, FirstData = ChargeAttack });
 
             context.Add(new Skill
             {
