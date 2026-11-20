@@ -649,6 +649,31 @@ player plays, costs its mana and goes on cooldown. Its hit type decides the rest
       upgraded Blood Oath card (18) shows for 4 minutes, and hits do more damage than with Blood
       Oath alone (card 17)
 
+### Charge skills
+
+A charge skill (skill type 4: Charged Attack 208, Charge Power 231, Death Charge 252, Spell
+Charge 270, Meditation 1537) gives nothing when cast. Its attack bonus waits on the caster, drawn
+as card 0 carrying the bonus, and the next attack spends it.
+
+- [ ] As an Adventurer at job level 14 or more (`$SetJobLevel 14`), learn Charged Attack (208) at
+      a skill teacher. Hit a monster with the basic attack a few times and note the damage. Use
+      Charged Attack: it plays, mana and cooldown are spent, and a charge icon showing 40 appears
+      beside the portrait
+- [ ] Hit the monster again: the damage is about 40 higher than before and the charge icon goes
+      away. The hit after it is back to the usual damage
+- [ ] As a Swordsman (`$ChangeClass`, job level 13 or more), learn Charge Power (231): the icon
+      shows 250 and the next melee hit is about 250 higher. Use the crossbow's ranged skill after
+      a charge instead: the charge is spent but adds nothing, since it is a melee bonus
+- [ ] As a Martial Artist, use Meditation (1537): the icon shows 200 and the next hit is about 200
+      higher
+- [ ] The charge's value is also sent as its duration: note whether the icon shows a timer and
+      whether it disappears on its own before an attack spends it
+- [ ] Charge, then change map before attacking: the next attack on the new map still spends the
+      charge; note whether the icon was still shown after the map change
+- [ ] A debuff-only skill (Taunting Shot) after a charge leaves the icon in place
+- [ ] Not verifiable yet: whether the value the live game shows for a charge matches the skill's
+      flat bonus. A trace of a level 92 character shows a charge of 2724, far above any of these
+
 ### Skills that use up an item
 
 Four skills name an item in the client data and take one from the bag on every cast: Stop

@@ -33,8 +33,15 @@ public sealed record SkillInfo(
     // Tenths of a second the caster winds up before the hit lands.
     short CastTime = 0,
     bool UsesSecondaryWeapon = false,
-    SkillKind Kind = SkillKind.Attack)
+    SkillKind Kind = SkillKind.Attack,
+    // The cards of a charge the caster spends on this attack.
+    IReadOnlyList<BCardDto>? ChargeBCards = null)
 {
+    private const byte ChargeType = 4;
+
+    // A charge's cards make the caster's next attack stronger instead of landing when cast.
+    public bool IsCharge => Type == ChargeType;
+
     public bool IsAoe => HitType is TargetHitType.SingleAoeTargetHit
                          or TargetHitType.AoeTargetHit
                          or TargetHitType.ZoneHit

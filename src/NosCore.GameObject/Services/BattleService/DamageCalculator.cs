@@ -5,10 +5,12 @@
 //
 
 using System;
+using System.Collections.Generic;
 using NosCore.Algorithm.DodgeChanceService;
 using NosCore.Algorithm.MonsterLevelDamageService;
 using NosCore.Algorithm.UpgradeBonusService;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.Enumerations;
@@ -258,10 +260,13 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         return damage * Math.Max(0, 100 + percent) / 100;
     }
 
-    private static int SkillAttackBonus(SkillInfo skill, AttackKind kind, int level)
+    private static int SkillAttackBonus(SkillInfo skill, AttackKind kind, int level) =>
+        AttackBonus(skill.BCards, kind, level) + AttackBonus(skill.ChargeBCards ?? [], kind, level);
+
+    private static int AttackBonus(IReadOnlyList<BCardDto> cards, AttackKind kind, int level)
     {
         var bonus = 0;
-        foreach (var card in skill.BCards)
+        foreach (var card in cards)
         {
             var value = BattleStatsProvider.ScaleByLevel(card, level);
             bonus += (card.Effect(), kind) switch
