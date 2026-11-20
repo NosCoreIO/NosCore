@@ -73,6 +73,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, short> _lockers = [];
         private readonly Dictionary<int, short> _lockerVNums = [];
         private readonly HashSet<int> _visited = [];
+        private readonly HashSet<int> _cleared = [];
         private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
         private readonly Dictionary<int, TimeSpan> _roomClockEnds = [];
         private readonly HashSet<long> _showingObjective = [];
@@ -258,7 +259,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
-        private Task RoomClearedAsync(int room)
+        private async Task RoomClearedAsync(int room)
         {
             // A room on its own clock is not over when one wave dies, so its objective stays up.
             if (!_roomClockEnds.ContainsKey(room) && _roomObjectives.Remove(room))
@@ -269,7 +270,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
-            return CallScriptAsync(run => _script.OnRoomCleared(run, room));
+            await CallScriptAsync(run => _script.OnRoomCleared(run, room));
+            _cleared.Add(room);
         }
 
         private void Advance(ObjectiveKind kind, short vNum)
@@ -537,6 +539,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         }
 
         public int MonstersAlive(int room) => _aliveByRoom.GetValueOrDefault(room);
+
+        public bool WasCleared(int room) => _cleared.Contains(room);
 
         public int PlayersIn(int room) => PlayersOf(_rooms[room]).Count();
 
@@ -1700,6 +1704,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void SummonNpcs(int room, params NpcSpawn[] npcs) => Do(() => run.SummonNpcs(room, npcs));
 
             public int MonstersAlive(int room) => run.MonstersAlive(room);
+
+            public bool WasCleared(int room) => run.WasCleared(room);
 
             public int PlayersIn(int room) => run.PlayersIn(room);
 

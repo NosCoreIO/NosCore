@@ -107,6 +107,7 @@ namespace NosCore.Instances.Tests
                 }
 
                 script.OnRoomCleared(run, room);
+                run.Cleared.Add(room);
                 foreach (var (_, button) in run.Buttons.Where(b => b.Room == room).ToList())
                 {
                     run.Used.Add((room, button));

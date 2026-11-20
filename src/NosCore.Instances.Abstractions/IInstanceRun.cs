@@ -64,6 +64,9 @@ namespace NosCore.Instances.Abstractions
 
         int MonstersAlive(int room);
 
+        // Whether the room's last monster fell before the trigger being handled.
+        bool WasCleared(int room);
+
         int PlayersIn(int room);
 
         // True once the players in the room who are still in the fight are all on one side,
