@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ using NosCore.GameObject.Services.BoxService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Drops;
@@ -74,6 +76,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                 return;
             }
 
+            var (boxes, spot) = (lying.Amount, (lying.PositionX, lying.PositionY, lying.OwnerId));
             var opened = new GroundEffectPacket
             {
                 Effect = OpenedEffect,
@@ -89,9 +92,11 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                     return;
                 }
 
+                var leftOver = LeaveTheRest(mapInstance, boxes, box, spot);
                 await mapInstance.SendPacketAsync(opened);
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.BoxIsEmpty });
                 await mapInstance.SendPacketAsync(evt.GenerateGet());
+                await ShowAsync(mapInstance, leftOver);
                 return;
             }
 
@@ -109,45 +114,70 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                 return;
             }
 
+            var rest = LeaveTheRest(mapInstance, boxes, box, spot);
+
             // Every reward is placed before anything is sent, so nothing awaited can take its room or
-            // leave it undelivered; one the bag still refuses stays on the ground for the opener.
-            var received = new List<(IItemInstance Reward, IvnPacket PocketChange)>();
+            // leave it undelivered; what the bag still refuses stays on the ground for the opener.
+            var received = new List<(short VNum, short Amount, IvnPacket PocketChange)>();
             var leftOnTheGround = new List<MapItemComponentBundle>();
             foreach (var reward in rewards)
             {
-                if ((inventory.AddItemToPocket(InventoryItemInstance.Create(reward, character.CharacterId)) ?? []).GeneratePocketChange() is { } pocketChange)
+                var vNum = reward.ItemVNum;
+                var (placed, left, changed) = inventory.AddAsMuchAsFits(reward, character.CharacterId);
+                if (placed > 0 && changed.GeneratePocketChange() is { } pocketChange)
                 {
-                    received.Add((reward, pocketChange));
-                    continue;
+                    received.Add((vNum, placed, pocketChange));
                 }
 
-                leftOnTheGround.Add(mapItemProvider.Create(mapInstance, reward, lying.PositionX, lying.PositionY, character.CharacterId));
+                if (left > 0)
+                {
+                    leftOnTheGround.Add(mapItemProvider.Create(mapInstance, reward, spot.PositionX, spot.PositionY, character.CharacterId));
+                }
             }
 
             await mapInstance.SendPacketAsync(opened);
-            foreach (var (reward, pocketChange) in received)
+            foreach (var (vNum, _, pocketChange) in received)
             {
                 await session.SendPacketAsync(pocketChange);
-                await session.SendPacketAsync(character.GenerateIcon(1, reward.ItemVNum));
+                await session.SendPacketAsync(character.GenerateIcon(1, vNum));
                 await session.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 1,
-                    Game18NArguments = { reward.ItemVNum }
+                    Game18NArguments = { vNum }
                 });
             }
 
             await mapInstance.SendPacketAsync(evt.GenerateGet());
+            await ShowAsync(mapInstance, rest);
             foreach (var dropped in leftOnTheGround)
             {
                 await mapInstance.SendPacketAsync(dropped.GenerateDrop());
             }
 
-            foreach (var (reward, _) in received)
+            foreach (var (vNum, amount, _) in received)
             {
-                await gameEvents.RaiseAsync(new ItemsReceivedEvent(character, reward.ItemVNum, reward.Amount));
+                await gameEvents.RaiseAsync(new ItemsReceivedEvent(character, vNum, amount));
             }
         }
+
+        // One box of a dropped stack is opened at a time; the others go back on the ground as a new
+        // stack, shown once the opened one is gone.
+        private MapItemComponentBundle? LeaveTheRest(MapInstance mapInstance, short boxes, IItemInstance box,
+            (short X, short Y, long? OwnerId) spot)
+        {
+            if (boxes <= 1 || box.Clone() is not IItemInstance rest)
+            {
+                return null;
+            }
+
+            rest.Id = Guid.NewGuid();
+            rest.Amount = (short)(boxes - 1);
+            return mapItemProvider.Create(mapInstance, rest, spot.X, spot.Y, spot.OwnerId);
+        }
+
+        private static Task ShowAsync(MapInstance mapInstance, MapItemComponentBundle? item) =>
+            item is { } shown ? mapInstance.SendPacketAsync(shown.GenerateDrop()) : Task.CompletedTask;
     }
 }

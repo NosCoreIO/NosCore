@@ -31,6 +31,8 @@ using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
+using NosCore.GameObject.Ecs.Extensions;
+using ServerDropPacket = NosCore.Packets.ServerPackets.Entities.DropPacket;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
 {
@@ -48,6 +50,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private readonly Mock<ISessionGroup> _mapSessions = new();
         private Mock<IGameEventDispatcher> _gameEvents;
         private sbyte _boxRare;
+        private short _boxes = 1;
         private long _boxId;
         private short _boxX;
         private short _boxY;
@@ -165,6 +168,33 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         }
 
         [TestMethod]
+        public async Task OpeningAStackOfBoxesOpensOneAndLeavesTheRest()
+        {
+            await new Spec("Opening a dropped stack of boxes opens one of them and leaves the others on the ground")
+                .Given(TheBoxIsAStackOf_, (short)3)
+                .And(ABoxHolding_LiesNextToTheCharacter, NormalWood)
+                .AndAsync(TheCharacterPicksItUp)
+                .And(TheBarRunsOut)
+                .WhenAsync(TheBarSendsItsFollowUp)
+                .Then(TheBagHolds_, NormalWood)
+                .And(AStackOf_BoxesStillLiesWhereItLay, (short)2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARewardMergedIntoAHeldStackIsAnnouncedWithItsOwnAmount()
+        {
+            await new Spec("A reward that joins a stack already in the bag is announced with the amount it added")
+                .Given(TheBagAlreadyHolds_Of_, (short)998, NormalWood)
+                .And(ABoxHolding_LiesNextToTheCharacter, NormalWood)
+                .AndAsync(TheCharacterPicksItUp)
+                .And(TheBarRunsOut)
+                .WhenAsync(TheBarSendsItsFollowUp)
+                .Then(TheReceivedItemIsAnnouncedAs_Of_, (short)1, NormalWood)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AnEmptyBoxSaysSoAndGoes()
         {
             await new Spec("A box holding nothing says it is empty and leaves the map")
@@ -181,13 +211,30 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         {
             _boxX = _session.Character.PositionX;
             _boxY = _session.Character.PositionY;
-            var box = World.GenerateItemProvider().Create(RegularBox, 1);
+            var box = World.GenerateItemProvider().Create(RegularBox, _boxes);
             box.Rare = _boxRare;
             _boxId = World.MapItemProvider.NotNull().Create(_session.Character.MapInstance,
                 box, _boxX, _boxY, _session.Character.CharacterId).VisualId;
         }
 
         private void TheBoxHasRarity_(sbyte rare) => _boxRare = rare;
+
+        private void TheBoxIsAStackOf_(short boxes) => _boxes = boxes;
+
+        private void TheBagAlreadyHolds_Of_(short amount, short vNum) =>
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                World.GenerateItemProvider().Create(vNum, amount), _session.Character.CharacterId));
+
+        private void AStackOf_BoxesStillLiesWhereItLay(short boxes)
+        {
+            var map = _session.Character.MapInstance;
+            var rest = map.GetMapItemBundles().Single(i => i.VNum == RegularBox);
+            Assert.AreEqual((boxes, _boxX, _boxY), (rest.Amount, rest.PositionX, rest.PositionY));
+            PacketAssert.AreEqual(rest.GenerateDrop(), map.LastPackets.OfType<ServerDropPacket>().Single());
+        }
+
+        private void TheReceivedItemIsAnnouncedAs_Of_(short amount, short vNum) =>
+            _gameEvents.Verify(e => e.RaiseAsync(It.Is<ItemsReceivedEvent>(r => r.VNum == vNum && r.Amount == amount)), Times.Once);
 
         private void ABoxHoldingARareRandom_LiesNextToTheCharacter(short vNum)
         {
@@ -253,7 +300,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private Task Pick(long isDelayed)
         {
             var box = _session.Character.MapInstance.TryGetMapItem(_boxId);
-            return World.Create<MapBoxHandler>().Handle(new MapItemPickedUpEvent(_session, _boxId, RegularBox, 1,
+            return World.Create<MapBoxHandler>().Handle(new MapItemPickedUpEvent(_session, _boxId, RegularBox, box?.Amount ?? 0,
                 box?.ItemInstance, new GetPacket
                 {
                     PickerType = VisualType.Player, PickerId = _session.Character.CharacterId, VisualId = _boxId, IsDelayed = isDelayed
