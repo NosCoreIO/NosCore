@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Battle
             var character = clientSession.Character;
             if (!character.CanFight || character.IsVehicled || character.MapInstance == null)
             {
-                await CancelAsync(clientSession);
+                await CancelAsync(clientSession, packet.CastId, CancelPacketType.CancelAutoAttack);
                 return;
             }
 
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Battle
             var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (packet.MapX, packet.MapY));
             if (skill?.Skill == null || !SkillReach.IsTargetInReach(skill.Skill.Range, distance))
             {
-                await CancelAsync(clientSession);
+                await CancelAsync(clientSession, packet.CastId, CancelPacketType.CancelAutoAttack);
                 return;
             }
 
@@ -57,14 +57,14 @@ namespace NosCore.PacketHandlers.Battle
             {
                 case SkillCastRefusal.NotEnoughMp:
                     await NotEnoughMpAsync(character);
-                    await CancelAsync(clientSession);
+                    await CancelAsync(clientSession, packet.CastId, CancelPacketType.CancelAutoAttack);
                     return;
                 case SkillCastRefusal.MissingItem:
                     await MissingItemAsync(character, skill.Skill.ItemVNum);
-                    await CancelAsync(clientSession);
+                    await CancelAsync(clientSession, packet.CastId, CancelPacketType.CancelAutoAttack);
                     return;
                 case SkillCastRefusal.OnCooldown:
-                    await CancelAsync(clientSession);
+                    await CancelAsync(clientSession, packet.CastId, CancelPacketType.CancelCast);
                     return;
             }
 
@@ -85,9 +85,9 @@ namespace NosCore.PacketHandlers.Battle
                 ItemNameArgument, itemVNum.ToString()));
         }
 
-        private static Task CancelAsync(ClientSession session)
+        internal static Task CancelAsync(ClientSession session, long castId, CancelPacketType type)
         {
-            return session.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
+            return session.SendPacketAsync(new CancelPacket { Type = type, TargetId = castId, Unknow = -1 });
         }
     }
 }
