@@ -38,9 +38,13 @@ public sealed record SkillInfo(
     IReadOnlyList<BCardDto>? ChargeBCards = null)
 {
     private const byte ChargeType = 4;
+    private const byte DashType = 5;
 
     // A charge's cards make the caster's next attack stronger instead of landing when cast.
     public bool IsCharge => Type == ChargeType;
+
+    // A dash rushes or leaps its caster onto the target.
+    public bool IsDash => Type == DashType && TargetType == SkillReach.TargetedSkill;
 
     public bool IsAoe => HitType is TargetHitType.SingleAoeTargetHit
                          or TargetHitType.AoeTargetHit

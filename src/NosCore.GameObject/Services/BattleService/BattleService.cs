@@ -112,17 +112,16 @@ namespace NosCore.GameObject.Services.BattleService
 
             // Primary target is always first; we pass IsPrimaryTarget so the queue /
             // packet layer can treat the main hit specially (big animation, SkillEffect).
-            var presentation = new HitPresentation(origin.PositionX, origin.PositionY, false);
             for (var i = 0; i < targets.Count; i++)
             {
-                await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
+                await TryProcessHitAsync(origin, targets[i], skill, i == 0, i == 0 ? StrikeOn(origin, skill) : HitPresentation.Direct);
             }
 
             if (targets.Count == 1 && !skill.HitsSeveral)
             {
                 foreach (var bystander in SurroundingTargets(origin, target, skill))
                 {
-                    await TryProcessHitAsync(origin, bystander, skill, false, presentation with { InArea = true });
+                    await TryProcessHitAsync(origin, bystander, skill, false, HitPresentation.Area);
                 }
             }
 
@@ -218,13 +217,10 @@ namespace NosCore.GameObject.Services.BattleService
                 SkillCooldown = skill.Cooldown,
                 AttackAnimation = skill.AttackAnimation,
                 SkillEffect = skill.Effect,
-                PositionX = origin.PositionX,
-                PositionY = origin.PositionY,
                 TargetIsAlive = true,
                 HpPercentage = recipient.MaxHp > 0 ? (byte)(recipient.Hp * 100 / recipient.MaxHp) : (byte)0,
                 Damage = 0,
                 HitMode = aroundCaster ? SuPacketHitMode.NoDamageFail : SuPacketHitMode.NoDamageSuccess,
-                SkillTypeMinusOne = (int)skill.Type - 1,
                 TargetCurrentHp = recipient.Hp,
                 TargetMaxHp = recipient.MaxHp,
             });
@@ -232,11 +228,10 @@ namespace NosCore.GameObject.Services.BattleService
             if (aroundCaster)
             {
                 skill = await SpendChargeAsync(origin, skill);
-                var presentation = new HitPresentation(origin.PositionX, origin.PositionY, true);
                 var targets = targetResolver.ResolveArea(origin, mapInstance, origin.PositionX, origin.PositionY, skill);
                 for (var i = 0; i < targets.Count; i++)
                 {
-                    await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
+                    await TryProcessHitAsync(origin, targets[i], skill, i == 0, HitPresentation.Area);
                 }
             }
             else if (skill.IsCharge && origin is PlayerComponentBundle charger)
@@ -266,7 +261,6 @@ namespace NosCore.GameObject.Services.BattleService
                             TargetIsAlive = true,
                             HpPercentage = friendly.MaxHp > 0 ? (byte)(friendly.Hp * 100 / friendly.MaxHp) : (byte)0,
                             HitMode = SuPacketHitMode.AttackedInAoe,
-                            SkillTypeMinusOne = (int)skill.Type - 1,
                             TargetCurrentHp = friendly.Hp,
                             TargetMaxHp = friendly.MaxHp,
                         });
@@ -470,7 +464,6 @@ namespace NosCore.GameObject.Services.BattleService
                 HpPercentage = target.MaxHp > 0 ? (byte)(target.Hp * 100 / target.MaxHp) : (byte)0,
                 Damage = (uint)outcome.Damage,
                 HitMode = presentation.InArea ? InArea(outcome.HitMode) : outcome.HitMode,
-                SkillTypeMinusOne = (int)skill.Type - 1,
                 TargetCurrentHp = target.Hp,
                 TargetMaxHp = target.MaxHp,
             };
@@ -487,8 +480,17 @@ namespace NosCore.GameObject.Services.BattleService
             _ => hitMode,
         };
 
-        // Where su draws the blow from and whether it is drawn as caught in an area.
-        private readonly record struct HitPresentation(short X, short Y, bool InArea);
+        // A dash names the cell its caster lands on. The caster is not moved, so that is where it stands.
+        private static HitPresentation StrikeOn(IAliveEntity origin, SkillInfo skill) =>
+            skill.IsDash ? new HitPresentation(origin.PositionX, origin.PositionY, false) : HitPresentation.Direct;
+
+        // The cell su names, if any, and whether the blow is drawn as caught in an area.
+        private readonly record struct HitPresentation(short X, short Y, bool InArea)
+        {
+            public static HitPresentation Direct => new(0, 0, false);
+
+            public static HitPresentation Area => new(0, 0, true);
+        }
 
         // The client sends the skill as soon as it is used and leaves the wind-up to the server:
         // ct starts the cast animation, and the hit resolves once the cast time has passed and

@@ -114,13 +114,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 SkillCooldown = PetBasicCooldown,
                 AttackAnimation = 11,
                 SkillEffect = PetHitEffect,
-                PositionX = _pet.PositionX,
-                PositionY = _pet.PositionY,
                 TargetIsAlive = true,
                 HpPercentage = (byte)(_monster.Hp * 100 / _monster.MaxHp),
                 Damage = 10,
                 HitMode = SuPacketHitMode.SuccessAttack,
-                SkillTypeMinusOne = 0,
                 TargetCurrentHp = _monster.Hp,
                 TargetMaxHp = _monster.MaxHp,
             }, _map.LastPackets.OfType<SuPacket>().Single());
