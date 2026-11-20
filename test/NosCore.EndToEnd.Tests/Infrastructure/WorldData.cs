@@ -316,6 +316,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short HighLevelScoreQuest = 1001;
         public const byte HighLevelScoreQuestLevel = 50;
 
+        // Names the quest it hands out in its button, as the specialist story NPCs do.
+        public const int Fisherman = 1200;
+        private const short FishermanVNum = 1200;
+        public const short FishermanDialog = 1200;
+        public const short FishermanX = 60;
+        public const short FishermanY = 140;
+        public const short FishermanQuest = 1200;
+
         // Glacernon: the angels' citadel the ship lands on, the demons' beside it, and the deck the
         // act4-ship script opens. The shipmaster in town takes passengers.
         public const short AngelCitadel = 130;
@@ -747,6 +755,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             SeedPreyQuest(context);
             await SeedScoreKeeperAsync(context);
             await SeedStorytellerAsync(context);
+            await SeedFishermanAsync(context);
             await context.SaveChangesAsync();
         }
 
@@ -1030,6 +1039,30 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 MapNpcId = Storyteller, MapId = Town, MapX = StorytellerX, MapY = StorytellerY, VNum = StorytellerVNum,
                 Dialog = StorytellerDialog
             });
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedFishermanAsync(NosCoreContext context)
+        {
+            context.Add(new NpcTalk { DialogId = FishermanDialog, Name = "fisherman" });
+            context.Add(new NpcMonster { NpcMonsterVNum = FishermanVNum, Name = "fisherman", Level = 1, MaxHp = 100 });
+            context.Add(new Quest
+            {
+                QuestId = FishermanQuest, QuestType = QuestType.Hunt, LevelMin = 1, LevelMax = 99,
+                QuestLineId = FishermanQuest, Title = "fishermanquest", Desc = "fishermanquest"
+            });
+            await context.SaveChangesAsync();
+            context.Add(new NpcTalkButton
+            {
+                NpcTalkButtonId = Guid.NewGuid(), DialogId = FishermanDialog,
+                Runner = NrunRunnerType.GetQuestTheMerlingsCurse, Argument = FishermanQuest
+            });
+            context.Add(new MapNpc
+            {
+                MapNpcId = Fisherman, MapId = Town, MapX = FishermanX, MapY = FishermanY, VNum = FishermanVNum,
+                Dialog = FishermanDialog
+            });
+            await context.SaveChangesAsync();
         }
 
         private static async Task SeedFamilyManagerAsync(NosCoreContext context)
