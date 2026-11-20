@@ -112,6 +112,9 @@ namespace NosCore.Database.Entities
         // Negative effects up to this card level end on use; 0 for none.
         public byte RemovesDebuffsUpToLevel { get; set; }
 
+        // Cells around the user within which the item restores EffectValue HP to every NPC; 0 for none.
+        public byte HealsNpcsWithin { get; set; }
+
         public short HpRegeneration { get; set; }
 
         public bool IsMinilandActionable { get; set; }

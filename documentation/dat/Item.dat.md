@@ -82,6 +82,7 @@
 | ElementRate | Int16 | DATA[varies] | Element rate % |
 | EquipmentSlot | EquipmentType | INDEX[3] | Equipment slot |
 | FireResistance | Int16 | DATA[7] or DATA[15] | Fire resistance; SP uses DATA[15], others DATA[7] |
+| HealsNpcsWithin | Byte | NpcHealingItems | Cells around the user within which every NPC gets EffectValue HP back |
 | Height | Byte | DATA[4] (miniland only) | Miniland object footprint height |
 | HitRate | Int16 | DATA[varies] | Hit rate |
 | Hp | Int16 | DATA[varies] | Hp bonus on equip |

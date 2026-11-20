@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Visibility;
 
@@ -23,5 +24,13 @@ public static class NpcBundleExtensions
         }
 
         return packet;
+    }
+
+    // Returns the HP actually given back, never past the maximum; a dead NPC gets none.
+    public static int RestoreHp(this NpcComponentBundle npc, int hp)
+    {
+        var healed = npc.IsAlive ? Math.Max(Math.Min(npc.MaxHp - npc.Hp, hp), 0) : 0;
+        npc.Hp += healed;
+        return healed;
     }
 }

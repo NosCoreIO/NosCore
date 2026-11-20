@@ -3080,6 +3080,16 @@ Danger (`timespace-20`) does it for the five guards (vnum 320) of its last room.
       HP bars go down
 - [ ] Let the monsters kill the escort: the time-space ends with "Failed to protect the NPC"
 
+Luinia of Restoration (`$CreateItem 2127 5`) gives 800 HP back to every NPC within six cells
+of its user.
+
+- [ ] In the last room of Guards in Danger, let the monsters hurt two guards, stand within six
+      cells of both and use the item: a green 800 (or what each was missing) rises over each
+      guard, their HP bars grow, and one item is gone
+- [ ] A hurt guard seven cells or more away keeps its HP
+- [ ] Your HP, your pet's and a hurt monster's beside you do not change
+- [ ] With no hurt NPC within six cells, using it changes nothing and the item stays in the bag
+
 ### Inside a time-space
 
 Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
