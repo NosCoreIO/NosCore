@@ -4,6 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.FamilyService;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Families;
+using NosCore.Packets.ServerPackets.Entities;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Algorithm.TimeSpacePenaltyService;
@@ -319,6 +324,22 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             var panel = sent.FindLastIndex(p => p is PinitPacket);
             var firstBar = sent.FindIndex(p => p is PstPacket s && s.Type == VisualType.Player);
             Assert.IsTrue(panel >= 0 && firstBar > panel, "a pinit rebuilds the panel, so bars sent before it are lost");
+        }
+
+        [TestMethod]
+        public async Task TheArrivingPlayerIsToldTheirOwnTitleSizeAndFamily()
+        {
+            Session.LastPackets.Clear();
+
+            await ChangingToBaseMap1();
+
+            var sent = Session.LastPackets.ToList();
+            var me = Session.Character.VisualId;
+            var titInfo = sent.FindIndex(p => p is TitleInfoPacket t && t.VisualId == me);
+            var enteredMap = sent.FindIndex(p => p is CMapPacket { IsEntering: true });
+            Assert.IsTrue(titInfo >= 0 && titInfo < enteredMap, "their own titinfo comes before the c_map that enters the map");
+            PacketAssert.AreEqual(Session.Character.GenerateCharSc(), sent.OfType<CharScPacket>().Single(p => p.VisualId == me));
+            PacketAssert.AreEqual(Session.Character.GenerateGidx(), sent.OfType<GidxPacket>().Single(p => p.VisualId == me));
         }
 
         private async Task ChangingToBaseMap1()

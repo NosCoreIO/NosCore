@@ -1560,6 +1560,9 @@ Two clients, A and B.
       can keep walking, and the server log shows no map-change warning
 - [ ] A leaves a map as its last player while B walks onto it: half a minute later the
       monsters there still move for B
+- [ ] With a title equipped and a size changed by `$Size`, take a portal: your own title and size
+      are still shown above your head on the new map, and a packet logger shows `titinfo`,
+      `char_sc` and `gidx` naming you between your `cond` and the `c_map` that enters the map
 - [ ] A opens their miniland, B visits, A closes it: B is sent back to their own map and A's
       miniland keeps working on the next visit
 - [ ] Lock your miniland, take away an object that stands in it, log out and in again and walk
