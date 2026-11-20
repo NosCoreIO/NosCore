@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -21,7 +22,8 @@ using NosCore.Packets.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     // A dialog button that hands out one of its NPC's quests at random. A quest of that NPC still
-    // held, or done today, stands for all of them, so the NPC gives one a day.
+    // held, or done today, stands for all of them, so the NPC gives one a day. A quest that follows
+    // another is only offered once that one is done.
     public abstract class DialogQuestOfferHandler(
         IQuestService questService,
         List<QuestDto> quests,
@@ -35,13 +37,13 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            var offers = quests.Where(q => q.OfferedBy == Runner).ToList();
+            var character = session.Character;
+            var offers = quests.Where(q => q.OfferedBy == Runner && character.HasDoneRequiredQuest(q)).ToList();
             if (offers.Count == 0 || target is not NpcComponentBundle npc || !npcTalkButtons.Offers(npc, Runner))
             {
                 return Task.CompletedTask;
             }
 
-            var character = session.Character;
             var now = clock.GetCurrentInstant();
             var taken = character.Quests.Values.FirstOrDefault(q =>
                 q.Quest.OfferedBy == Runner && (q.CompletedOn == null || q.IsDoneAt(now)));

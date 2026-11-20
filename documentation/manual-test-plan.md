@@ -43,6 +43,7 @@ even when its packets are covered here.
 | Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
 | Specialist skins: the skin used up, the look another player sees on transforming, the skin kept after relogging | `SpecialistSkinTests` |
 | Score quests: a band's button hands out its quest, a band above the character's level is refused, the button sent to an NPC whose dialog has none is refused | `ScoreQuestTests` |
+| Dialog buttons naming their quest: the Merling's Curse button hands out the quest it names | `NamedQuestButtonTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
@@ -2456,11 +2457,32 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 - [ ] At level 55+, Soraya Style's "Remove Princess Sakura's Seal!": "Use Princess Sakura's Seal!" is
       handed out. At level 45+, the Jajamaru miner's "Accept Jajamaru Quest" hands out the Jajamaru Quest.
 - [ ] Raphael's "Ginseng Digger" (level 20+), Crusader Graham's "Sure, I'll help." in NosVille
-      (level 85+), Amora's "I'm on it. I'll be back soon." (level 70+), Flake the Snow Fairy's
-      "(I'm going to try to talk to her.)" (level 20+), Santa Claus's "Okay, I'll destroy those fiends."
-      and Eva Energy's "Just a moment..." each put their one quest in the quest window: Ginseng Digger,
-      Suspicious Person, Amora's Story, The Viking Family, "Defeat the winter monsters." and "Gathering
-      Ingredients for the Cake (Easter Event)". Pressing the button again after taking it adds nothing.
+      (level 85+), Amora's "I'm on it. I'll be back soon." (level 70+), Santa Claus's "Okay, I'll
+      destroy those fiends." and Eva Energy's "Just a moment..." each put their one quest in the quest
+      window: Ginseng Digger, Suspicious Person, Amora's Story, "Defeat the winter monsters." and
+      "Gathering Ingredients for the Cake (Easter Event)". Pressing the button again after taking it adds
+      nothing.
+- [ ] At level 20+, Flake the Snow Fairy's "(I'm going to try to talk to her.)" hands out nothing: The
+      Viking Family (quest 5970) follows quest 5969 in quest.dat, and quest.dat holds no quest 5969, so
+      no character can have done it.
+- [ ] At level 80+, Fisherman Wade's "Greetings. Is there a problem?", the Talking Mouse's "What
+      powers?", Pet Trainer Lucy's "Oh, and what brings you here? (Accept)" and Soraya Style's "A
+      Special Energy" hand out The Merling's Curse, The Talking Mouse, A Curious Rabbit and A Special
+      Energy.
+- [ ] At level 20+, Mr Park's First Son's "Okay, I'll bring you some." and "Yes, I'll vanquish that
+      nine-tailed fox creature.", and Mr Park's Second Son's "Okay, I'll hunt them down." hand out Fresh
+      Liver Please!, Foxy's Verdict and Fox Hunt. Each is given once.
+- [ ] At level 20+, Eva Energy's Daily Quest "Alright! I'll return when I've defeated the snowman!"
+      hands out "Daily Quest (Eva Energy)"; once it is done, pressing it again the same day shows the
+      once-per-day message and adds nothing, and the next day hands it out again.
+- [ ] At level 65+, Doctor Frox's two daily quest buttons do nothing until "Defeat Lord Melonoth (Event
+      Quest)" has handed out and you have finished Revenge of the Melon Lord. After that, "All right.
+      I'll take care of it. (Accept)" hands out Lab on Alert or Return of the Melon Lord, once a day each.
+- [ ] Professor Macavity's "Nothing is free. *purr*" (level 30+), Soraya Style's Easter "Okay, great!"
+      (level 20+), Merchant Ben's "Cause for the Arrival (Main Quest Act 7)" (level 80+), Amora's "Yes,
+      of course." on her Valentine's Day page (level 70+) and Mary's "Of course I'll stop the ritual!"
+      (level 20+) hand out The Path to the Lost Catacombs, Not Enough Ingredients! (Easter Event), Cause
+      for the Arrival, Let Your Love Show! and The Cursed 13.
 
 ### Forming a party
 

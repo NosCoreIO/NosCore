@@ -5,11 +5,10 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NpcDialogService;
@@ -35,14 +34,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return;
             }
 
-            var character = session.Character;
-            if (quest.RequiredQuestId is { } required
-                && !character.Quests.Values.Any(q => q.QuestId == required && q.CompletedOn != null))
+            if (!session.Character.HasDoneRequiredQuest(quest))
             {
                 return;
             }
 
-            await questService.AddQuestAsync(character, QuestActionType.Achieve, questId);
+            await questService.AddQuestAsync(session.Character, QuestActionType.Achieve, questId);
         }
     }
 
