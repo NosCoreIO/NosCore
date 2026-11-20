@@ -174,8 +174,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await KillAsync((_session, 100));
 
             // Level 5 against a level 30 monster loses nothing to the level gap, so only the
-            // boosts apply: three times the experience, and twice the job experience at job level 15.
-            Assert.AreEqual((3000L, 200L), _awarded[_session.Character.CharacterId]);
+            // level 5 boosts apply: three times the experience and three times the job experience.
+            Assert.AreEqual((3000L, 300L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
+        public async Task TheJobExperienceBoostFollowsTheCharacterLevelNotTheJobLevel()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 3;
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual((1000L, 100L), _awarded[_session.Character.CharacterId]);
         }
 
         [TestMethod]
