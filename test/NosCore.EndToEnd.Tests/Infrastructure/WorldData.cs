@@ -249,6 +249,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short FlowerQuest = 5981;
         public const byte FlowerQuestLevel = 20;
 
+        // Done with a single kill of the prey and handed in by nobody, so the kill completes it.
+        public const short PreyQuest = 600;
+
         // Glacernon: the angels' citadel the ship lands on, the demons' beside it, and the deck the
         // act4-ship script opens. The shipmaster in town takes passengers.
         public const short AngelCitadel = 130;
@@ -619,6 +622,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             SeedSoundFlower(context);
             await SeedAct4Async(context);
             SeedDignity(context);
+            SeedPreyQuest(context);
             await context.SaveChangesAsync();
         }
 
@@ -782,6 +786,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             }
         }
 
+        private static void SeedPreyQuest(NosCoreContext context)
+        {
+            context.Add(new Quest
+            {
+                QuestId = PreyQuest, QuestType = QuestType.Hunt, LevelMin = 1, LevelMax = 99,
+                QuestLineId = PreyQuest, Title = "preyquest", Desc = "preyquest"
+            });
+            context.Add(new QuestObjective { QuestObjectiveId = Guid.NewGuid(), QuestId = PreyQuest, FirstData = PreyVNum, SecondData = 1 });
+        }
+
         private static async Task SeedFamilyManagerAsync(NosCoreContext context)
         {
             context.Add(new Item
@@ -852,6 +866,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public static async Task CompleteTimeSpaceAsync(NosCoreContext context, long characterId, short timeSpaceId)
         {
             context.Add(new CompletedTimeSpace { Id = Guid.NewGuid(), CharacterId = characterId, TimeSpaceId = timeSpaceId });
+            await context.SaveChangesAsync();
+        }
+
+        public static async Task GiveQuestAsync(NosCoreContext context, long characterId, short questId)
+        {
+            context.Add(new CharacterQuest { Id = Guid.NewGuid(), CharacterId = characterId, QuestId = questId });
             await context.SaveChangesAsync();
         }
 

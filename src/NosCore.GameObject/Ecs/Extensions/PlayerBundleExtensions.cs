@@ -419,6 +419,37 @@ public static class PlayerBundleExtensions
         await player.SendPacketAsync(player.GenerateFd());
     }
 
+    // The client is sent a gain in the same colour as a loss.
+    public static async Task GainDignityAsync(this PlayerComponentBundle player, short amount)
+    {
+        if (DignityLevels.Maximum is not { } maximum)
+        {
+            return;
+        }
+
+        var gained = (short)Math.Min(amount, Math.Max(0, maximum - player.Dignity));
+        if (gained == 0)
+        {
+            return;
+        }
+
+        player.Dignity += gained;
+        await player.SendPacketAsync(player.GenerateSayi(SayColorType.Red, Game18NConstString.DignityIncreased, 4, gained));
+        await player.SendPacketAsync(player.GenerateFd());
+    }
+
+    // Unlike a gain, a restore is not announced; only the bar moves.
+    public static async Task RestoreDignityAsync(this PlayerComponentBundle player)
+    {
+        if (DignityLevels.Maximum is not { } maximum)
+        {
+            return;
+        }
+
+        player.Dignity = Math.Max(player.Dignity, maximum);
+        await player.SendPacketAsync(player.GenerateFd());
+    }
+
     // The right-click info card for a player: class, level, family, worn gear, faction and PvP stats.
     public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)

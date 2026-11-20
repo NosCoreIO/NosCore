@@ -19,10 +19,16 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
 {
+    // Runs after the quests, so a clear that completes one has already restored dignity to the maximum and gains nothing on top.
     [UsedImplicitly]
+    [GameEventOrder(1)]
     public sealed class TimeSpaceSucceededHandler(IDao<CompletedTimeSpaceDto, Guid> completedTimeSpaceDao,
         ILogger<TimeSpaceSucceededHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
+        // A first clear has been seen giving its 100 only once, against several repeats giving 50.
+        private const short FirstClearDignity = 100;
+        private const short RepeatClearDignity = 50;
+
         [UsedImplicitly]
         public async Task Handle(ScriptedInstanceSucceededEvent evt)
         {
@@ -36,10 +42,12 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
             var completed = character.CompletedTimeSpaces ?? ImmutableHashSet<short>.Empty;
             if (completed.Contains(evt.InstanceId))
             {
+                await character.GainDignityAsync(RepeatClearDignity);
                 return;
             }
 
             character.CompletedTimeSpaces = completed.Add(evt.InstanceId);
+            await character.GainDignityAsync(FirstClearDignity);
             var saved = await completedTimeSpaceDao.TryInsertOrUpdateAsync(new CompletedTimeSpaceDto
             {
                 Id = Guid.NewGuid(),

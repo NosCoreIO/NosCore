@@ -1515,6 +1515,20 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] In a time-space with 2 lives, die once: you revive in the room and dignity does not move;
       die again: the run fails and the chat says "Dignity reduced" by your level, once
 
+### Dignity restored by quests and time-spaces
+
+Lower dignity first by dying a few times.
+
+- [ ] Gain a level from monster kills alone: dignity does not move
+- [ ] Complete a quest (one that finishes on its last kill, and one handed in to an NPC):
+      dignity jumps to 100 in the reputation window with no chat line about it
+- [ ] Clear a time-space the character has never cleared, outside any quest: the chat says
+      "Dignity increased: +100" (in the same colour as a loss) and the window shows 100 more
+- [ ] Clear it again: "Dignity increased: +50"; from 80, the line says +20 and dignity stops at 100
+- [ ] Clear the time-space a quest asks for while dignity is low: dignity lands on 100 and no
+      "Dignity increased" line appears
+- [ ] Relog — the restored dignity is still there
+
 ### Compliments
 
 Needs two characters on the same channel. The commending one must be level 31 or higher
