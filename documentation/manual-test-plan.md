@@ -3604,9 +3604,19 @@ Run `timespace-01` ("The Time-Space", level 5, seven rooms, two draw items, guar
 and 4) with a level 5 character that has never cleared it.
 
 - [ ] Clear it killing every monster, walking into all seven rooms and keeping both guards alive:
-      Mission Clear shows the points, 0 experience and 0 job experience (NosCore awards none on a
-      clear yet, #3640), 0 gold, the monsters killed, 7 rooms, 2 NPCs left, and a "Perfect" stamp
-      on monsters, rooms and NPCs. The reward draw offers two draws
+      Mission Clear shows the points, 15 experience per monster killed (3 × the minimum level 5)
+      and the kills × 21 / 4 rounded down as job experience, 0 gold, the monsters killed, 7 rooms,
+      2 NPCs left, and a "Perfect" stamp on monsters, rooms and NPCs. The reward draw offers two
+      draws
+- [ ] Right after the window opens, `lev` grows by three times the window's experience and three
+      times its job experience: the low-level boost of a level 5 character, at a rate of 1 and with
+      no experience bonus
+- [ ] Clear it again at level 15 with Tart Hapendam's Martial Arts (buff 684, "increases
+      experience points earned by 100%") active: the window shows the same values for the same
+      kills, and `lev` grows by four times both (twice for the level, twice for the buff)
+- [ ] Clear it at level 60: the window shows 0 points but the full experience and job
+      experience, and `lev` grows by exactly those values
+- [ ] Let the clock run out: `lev` does not move
 - [ ] Lure monsters onto a guard until it dies, then clear the run: the window shows 1 NPC left
       and no "Perfect" stamp on the NPCs. If the monsters never attack the guard, note that this
       check could not be run

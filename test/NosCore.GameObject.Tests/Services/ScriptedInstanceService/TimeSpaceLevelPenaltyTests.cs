@@ -7,10 +7,15 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.Algorithm.SkillPointService;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
@@ -18,6 +23,7 @@ using NosCore.Instances.Abstractions;
 using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -66,6 +72,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
+            World.UseReal<IExperienceProgressionService, ExperienceProgressionService>();
             _session = await World.CreateSessionAsync();
         }
 
@@ -96,6 +103,19 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AFarOverLevelledCharacterStillGainsTheWholeExperience()
+        {
+            await new Spec("The level penalty takes every point but none of the 750 experience and 131 job experience of 25 kills")
+                .Given(ACharacterOfLevel_, (byte)60)
+                .And(ATimeSpaceThatSucceeds)
+                .AndAsync(_MonstersAreKilled, 25)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheScoreShouldShow_Points, 0)
+                .And(TheCharacterShouldHave_ExperienceAnd_JobExperience, 750L, 131L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ACharacterAtTheMinimumKeepsEveryPoint()
         {
             await new Spec("A character at the minimum level is told nothing and keeps every point")
@@ -120,7 +140,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .ExecuteAsync();
         }
 
-        private void ACharacterOfLevel_(byte level) => _session.Character.Level = level;
+        private void ACharacterOfLevel_(byte level)
+        {
+            _session.Character.Level = level;
+            _session.Character.JobLevel = 10;
+        }
 
         private void ATimeSpaceThatSucceeds() => ATimeSpace(true);
 
@@ -177,6 +201,22 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.IsTrue(packets.IndexOf(penalty) < packets.IndexOf(packets.OfType<ScorePacket>().Single()));
         }
 
+        private void TheCharacterShouldHave_ExperienceAnd_JobExperience(long experience, long jobExperience)
+        {
+            var character = _session.Character;
+            PacketAssert.AreEqual(new LevPacket
+            {
+                Level = character.Level,
+                LevelXp = experience,
+                JobLevel = character.JobLevel,
+                JobLevelXp = jobExperience,
+                XpLoad = World.Create<IExperienceService>().GetExperience(character.Level),
+                JobXpLoad = World.Create<IJobExperienceService>().GetJobExperience(character.Class, character.JobLevel),
+                Reputation = character.Reputation,
+                SkillCp = character.RemainingSkillPoints(World.Create<ISkillPointService>())
+            }, _session.LastPackets.OfType<LevPacket>().Single());
+        }
+
         private void NoPenaltyShouldBeAnnounced() =>
             Assert.IsFalse(_session.LastPackets.OfType<SayiPacket>().Any(p => p.Message == Game18NConstString.PointsReducedLevelPenalty));
 
@@ -186,6 +226,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             PacketAssert.AreEqual(new ScorePacket
             {
                 Points = points,
+                Experience = 750,
+                JobExperience = 131,
                 MonstersKilled = 25,
                 Perfect = [false, false, false],
                 ClearType = TimeSpaceClearType.FirstClear,
