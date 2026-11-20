@@ -40,4 +40,10 @@ namespace NosCore.Data.Enumerations.Map
         Dragon = 3,
         Robot = 4,
     }
+
+    // RaceType of the Object group.
+    public enum ObjectRaceType : byte
+    {
+        Collectable = 7,
+    }
 }

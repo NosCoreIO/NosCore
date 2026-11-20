@@ -116,7 +116,9 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.PetInfoVal3, "PETINFO", 0, 4, s => Convert.ToInt32(s), "Pet stat factor 3 (collectable: needItem flag; teleporter: removeItem; mate: magic/MP factor)")
                 .Field(x => x.PetInfoVal4, "PETINFO", 0, 5, s => Convert.ToInt32(s), "Pet stat factor 4 (collectable: dance duration; mate: level threshold)")
                 .Field(x => x.CanWalk, "ETC", 0, 2, s => (Convert.ToInt64(s) & 1) == 0, "ETC bit 0 clear -> can walk")
-                .Field(x => x.CanCollect, "ETC", 0, 2, s => (Convert.ToInt64(s) & 2) != 0, "ETC bit 1 -> harvestable")
+                .Field(x => x.CanCollect, chunk => IsCollectable(chunk),
+                    reads: new[] { ("RACE", 0, 2), ("RACE", 0, 3), ("ETC", 0, 2) },
+                    source: "RACE[2,3] + ETC[2]", description: "Gathering object: race Object, subtype 7, with ETC bit 1 set")
                 .Field(x => x.CantDebuff, "ETC", 0, 2, s => (Convert.ToInt64(s) & 4) != 0, "ETC bit 2 -> immune to debuffs")
                 .Field(x => x.CanCatch, "ETC", 0, 2, s => (Convert.ToInt64(s) & 8) != 0, "ETC bit 3 -> catchable (mate)")
                 .Field(x => x.DisappearAfterSeconds, "ETC", 0, 2, s => (Convert.ToInt64(s) & 16) != 0, "ETC bit 4 -> despawns on a timer")
@@ -455,6 +457,11 @@ namespace NosCore.Parser.Parsers
         {
             return Convert.ToInt64(chunk["ETC"][0][2]);
         }
+
+        private bool IsCollectable(Dictionary<string, string[][]> chunk) =>
+            Race(chunk) == (byte)MonsterRace.Object
+            && Convert.ToByte(chunk["RACE"][0][3]) == (byte)ObjectRaceType.Collectable
+            && (LoadUnknownData(chunk) & 2) != 0;
 
         private bool ShouldLoadPetinfo(Dictionary<string, string[][]> chunk)
         {

@@ -191,6 +191,22 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task NpcMonsterParser_OnlyAGatheringObjectCanBeCollected()
+        {
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"),
+                BuildMonster(915, "zts513e", 0, race: 8, raceType: 4, etc: -2147481593)
+                + BuildMonster(862, "zts397e", 0, race: 8, raceType: 7, etc: -2147481593)
+                + BuildMonster(861, "zts396e", 0, race: 8, raceType: 5, etc: -2147481593)
+                + BuildMonster(45, "zts46e", 8, etc: 3));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            CollectionAssert.AreEquivalent(new short[] { 862 },
+                _savedMonsters.Where(m => m.CanCollect).Select(m => m.NpcMonsterVNum).ToArray());
+        }
+
+        [TestMethod]
         public async Task NpcMonsterParser_DeduplicatesByVNum()
         {
             File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"),

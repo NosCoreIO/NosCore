@@ -159,7 +159,7 @@
 |---:|---|---|---|---|
 | 2 | Parsed | AmountRequired | Byte | Amount of the required item |
 | 2 | Parsed | CanCatch | Boolean | ETC bit 3 -> catchable (mate) |
-| 2 | Parsed | CanCollect | Boolean | ETC bit 1 -> harvestable |
+| 2 | Parsed | CanCollect | Boolean | Gathering object: race Object, subtype 7, with ETC bit 1 set |
 | 2 | Parsed | CantDebuff | Boolean | ETC bit 2 -> immune to debuffs |
 | 2 | Parsed | CantTargetInfo | Boolean | ETC bit 31 -> hidden from target-info UI |
 | 2 | Parsed | CantVoke | Boolean | ETC bit 11 -> immune to voke |
@@ -360,6 +360,7 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
+| 2 | Parsed | CanCollect | Boolean | Gathering object: race Object, subtype 7, with ETC bit 1 set |
 | 2 | Parsed | CloseDefence | Int16 | Close defence |
 | 2 | Parsed | Concentrate | Int16 | Hit rate |
 | 2 | Parsed | DamageMaximum | Int16 | Max attack damage |
@@ -373,6 +374,7 @@
 | 2 | Parsed | MonsterType | MonsterType | Categorisation (Boss when ETC bit 30 is set, Elite, Special or Unknown) |
 | 2 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 2 | Parsed | Race | Byte | Race group (plant, animal, monster, dragon, …) |
+| 3 | Parsed | CanCollect | Boolean | Gathering object: race Object, subtype 7, with ETC bit 1 set |
 | 3 | Parsed | MonsterType | MonsterType | Categorisation (Boss when ETC bit 30 is set, Elite, Special or Unknown) |
 | 3 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 3 | Parsed | RaceType | Byte | Subtype within the race group |
