@@ -3468,7 +3468,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] Fail a time-space twice, clear a different one, then open the first stone again: Loser Mode
       is no longer offered
 - [ ] In `timespace-06`, the exit room holds only its lever on entry and shows no talk; pulling the
-      lever shows talk 6028, "The lever has been pulled." and "Watch out, enemies!" and brings the
+      lever shows talk 6028, "The lever has been pulled." and "Look out, enemies!" and brings the
       monster in, and the exit stays shut until it is dead
 - [ ] In every time-space, a room whose opening talk leads to a fight shows no monster, no objective
       and no red room clock while the talk is up; closing it with End Dialogue brings the monsters in,
@@ -3505,7 +3505,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-01`, clearing the third and fourth rooms shows "You have defeated all the monsters!" across
       the top of the screen, and entering the room on map 4104 shows "The exit is near!"; with the account
       language set to French the same lines read "Tu as éliminé tous les monstres !" and "La sortie est proche !"
-- [ ] In `timespace-01`, entering the third room shows "Watch out, enemies!" in the time-space panel; the line
+- [ ] In `timespace-01`, entering the third room shows "Look out, enemies!" in the time-space panel; the line
       goes blank once the room is cleared, and walking back into a room that still has monsters shows its
       line again. In French it reads "Attention, des ennemis !"
 - [ ] Each of `timespace-14` to `timespace-32` can be finished with Mission Clear

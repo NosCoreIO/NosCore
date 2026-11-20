@@ -913,40 +913,40 @@
     <value>This is the lobby.</value>
   </data>
   <data name="TIMESPACE_NOSVILLE_GUARD_SAFE" xml:space="preserve">
-    <value>The NosVille guard is safe.</value>
+    <value>The NosVille Guard is safe.</value>
   </data>
   <data name="TIMESPACE_ALL_MONSTERS_DEFEATED" xml:space="preserve">
-    <value>You have defeated all the monsters!</value>
+    <value>You've defeated all the monsters!</value>
   </data>
   <data name="TIMESPACE_EXIT_IS_NEAR" xml:space="preserve">
-    <value>The exit is near!</value>
+    <value>It's not much further to the exit!</value>
   </data>
   <data name="TIMESPACE_CHOOSE_A_KEY" xml:space="preserve">
-    <value>Choose one of the keys!</value>
+    <value>Select one of the keys!</value>
   </data>
   <data name="TIMESPACE_SWEET_SCENT_PURE_GLOW" xml:space="preserve">
-    <value>A sweet scent and a pure glow?</value>
+    <value>Sweet Smells and Soft Lights?</value>
   </data>
   <data name="TIMESPACE_GUARDS_ARRIVING" xml:space="preserve">
     <value>The guards are coming!</value>
   </data>
   <data name="TIMESPACE_MORE_KEEP_COMING" xml:space="preserve">
-    <value>More and more keep coming!</value>
+    <value>There seems to be no end to them!</value>
   </data>
   <data name="TIMESPACE_LABYRINTH_ENTRANCE" xml:space="preserve">
-    <value>The entrance to the labyrinth...</value>
+    <value>The entrance to the maze...</value>
   </data>
   <data name="TIMESPACE_NO_SHAME_IN_FLEEING" xml:space="preserve">
-    <value>There is no shame in running from monsters that are still too strong for you.</value>
+    <value>There's no shame in running away from monsters which are too powerful for you.</value>
   </data>
   <data name="TIMESPACE_ALL_LOCKED_DOORS_OPENED" xml:space="preserve">
-    <value>All the locked doors have opened.</value>
+    <value>All locked doors have opened.</value>
   </data>
   <data name="TIMESPACE_CAN_YOU_SEE_THE_EXIT" xml:space="preserve">
-    <value>Can you see whether the exit is near?</value>
+    <value>Can you see whether we're getting closer to the exit?</value>
   </data>
   <data name="TIMESPACE_FIND_KEY_FOR_BONUS_TIME" xml:space="preserve">
-    <value>Find the key to earn bonus time.</value>
+    <value>Find the key to receive bonus time!</value>
   </data>
   <data name="TIMESPACE_BONUS_TIME_ROOM" xml:space="preserve">
     <value>This room holds bonus time...</value>
@@ -955,16 +955,16 @@
     <value>You have killed all the enemies. You earn {0} seconds of bonus time.</value>
   </data>
   <data name="TIMESPACE_LEVER_TOO_DANGEROUS" xml:space="preserve">
-    <value>If only we could pull the lever! But it looks very dangerous. Better to turn back...</value>
+    <value>If only we could operate the lever! But it seems very dangerous. Let's go back...</value>
   </data>
   <data name="TIMESPACE_ROOM_WITH_A_WAY_OUT" xml:space="preserve">
-    <value>A room with a way out!</value>
+    <value>A room with an exit!</value>
   </data>
   <data name="TIMESPACE_MINERS_PROTESTING" xml:space="preserve">
-    <value>The miners are protesting...</value>
+    <value>The miners are demonstrating...</value>
   </data>
   <data name="TIMESPACE_DEAD_END_TURN_BACK" xml:space="preserve">
-    <value>A dead end! Turn back!</value>
+    <value>Dead end! Go back!</value>
   </data>
   <data name="TIMESPACE_SEALED_SCULPTURE" xml:space="preserve">
     <value>There is a sealed sculpture.</value>
@@ -1165,22 +1165,22 @@
     <value>Whatever happens, Glacerus must be eliminated!</value>
   </data>
   <data name="TIMESPACE_GOAL_UNDER_ATTACK" xml:space="preserve">
-    <value>You are under attack!</value>
+    <value>You're under attack!</value>
   </data>
   <data name="TIMESPACE_GOAL_KILL_ALL_IN_TIME" xml:space="preserve">
-    <value>Defeat all the enemies within the time limit.</value>
+    <value>Defeat all the enemies before the time runs out!</value>
   </data>
   <data name="TIMESPACE_GOAL_PROTECT_GUARD_KILL_ALL" xml:space="preserve">
-    <value>Protect the NosVille guard and defeat all the monsters!</value>
+    <value>Protect the NosVille Guards and eliminate all the monsters!</value>
   </data>
   <data name="TIMESPACE_GOAL_WATCH_OUT_ENEMIES" xml:space="preserve">
-    <value>Watch out, enemies!</value>
+    <value>Look out, enemies!</value>
   </data>
   <data name="TIMESPACE_GOAL_MONSTERS_KILL_THEM_ALL" xml:space="preserve">
-    <value>Monsters! Defeat them all!</value>
+    <value>Monsters! Eliminate them all!</value>
   </data>
   <data name="TIMESPACE_GOAL_ENEMIES_APPROACHING_KILL_ALL" xml:space="preserve">
-    <value>Enemies are approaching! Defeat them all!</value>
+    <value>Enemies are approaching. Eliminate them!</value>
   </data>
   <data name="TIMESPACE_GOAL_MUST_KILL_ALL_IN_TIME" xml:space="preserve">
     <value>You must defeat all the monsters within the time limit!</value>
@@ -1198,10 +1198,10 @@
     <value>Enemies in sight!</value>
   </data>
   <data name="TIMESPACE_GOAL_ENEMY_CREATURES_APPROACHING" xml:space="preserve">
-    <value>Enemy creatures are approaching!</value>
+    <value>Dangerous creatures are approaching!</value>
   </data>
   <data name="TIMESPACE_GOAL_MORE_MONSTERS_KILL_THEM" xml:space="preserve">
-    <value>More and more monsters have arrived! Defeat them!</value>
+    <value>More enemies have appeared! Defeat them!</value>
   </data>
   <data name="TIMESPACE_GOAL_BOSS_APPROACHING" xml:space="preserve">
     <value>The boss is approaching!</value>
@@ -1210,22 +1210,22 @@
     <value>The boss has appeared!</value>
   </data>
   <data name="TIMESPACE_GOAL_SURVIVE_UNTIL_DOOR_OPENS" xml:space="preserve">
-    <value>Survive for 1 minute until the door opens.</value>
+    <value>Survive one minute until a door opens.</value>
   </data>
   <data name="TIMESPACE_GOAL_KILL_ENEMIES_FOR_BONUS_TIME" xml:space="preserve">
     <value>Defeat all the enemies to earn bonus time!</value>
   </data>
   <data name="TIMESPACE_GOAL_CAREFUL_MONSTERS_IN_SIGHT" xml:space="preserve">
-    <value>Careful, monsters in sight!</value>
+    <value>Warning, incoming enemies!</value>
   </data>
   <data name="TIMESPACE_GOAL_ENEMIES_COMING" xml:space="preserve">
-    <value>The enemies are coming!</value>
+    <value>Enemies are coming!</value>
   </data>
   <data name="TIMESPACE_GOAL_IMPS_ATTACK" xml:space="preserve">
-    <value>The imps are attacking!</value>
+    <value>The Imps are attacking!</value>
   </data>
   <data name="TIMESPACE_GOAL_PROTECT_GUARD_SOLDIER" xml:space="preserve">
-    <value>Protect the NosVille guard soldier from the attacks.</value>
+    <value>Protect the NosVille Guard soldier from attack.</value>
   </data>
   <data name="TIMESPACE_GOAL_KILL_ALL_ENEMIES" xml:space="preserve">
     <value>Defeat all the enemies!</value>
