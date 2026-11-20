@@ -58,6 +58,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private static readonly IReadOnlySet<short> NoneCleared = new HashSet<short>();
 
+        private const byte BelowEveryLevel = 0;
+
         private static ScriptedInstanceDto TimeSpace(short id, short mapId, short x, short y,
             bool heroic = false, byte levelMinimum = 1, short? timeSpaceId = null)
         {
@@ -91,7 +93,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var service = Build(TimeSpace(1, 1, 10, 10));
 
             Assert.AreEqual(0, service.GetByMap(2).Count);
-            Assert.AreEqual(0, service.GenerateWp(2, NoneCleared).Count());
+            Assert.AreEqual(0, service.GenerateWp(2, BelowEveryLevel, NoneCleared).Count());
             Assert.IsNull(service.GetAt(2, 10, 10));
         }
 
@@ -107,7 +109,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public void TheMarkerCarriesTheRowKeyTheClientWillSendBack()
         {
-            var packet = Build(TimeSpace(42, 1, 10, 20, levelMinimum: 55)).GenerateWp(1, NoneCleared).Single();
+            var packet = Build(TimeSpace(42, 1, 10, 20, levelMinimum: 55)).GenerateWp(1, BelowEveryLevel, NoneCleared).Single();
 
             Assert.AreEqual(42, packet.ScriptedInstanceId);
             Assert.AreEqual(10, packet.PositionX);
@@ -120,9 +122,19 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public void AHeroTimeSpaceIsMarkedAsOne()
         {
             Assert.AreEqual(WpPortalType.HeroTs,
-                Build(TimeSpace(1, 1, 10, 20, heroic: true)).GenerateWp(1, NoneCleared).Single().PortalType);
+                Build(TimeSpace(1, 1, 10, 20, heroic: true)).GenerateWp(1, BelowEveryLevel, NoneCleared).Single().PortalType);
             Assert.AreEqual(WpPortalType.NormalTs,
-                Build(TimeSpace(1, 1, 10, 20)).GenerateWp(1, NoneCleared).Single().PortalType);
+                Build(TimeSpace(1, 1, 10, 20)).GenerateWp(1, BelowEveryLevel, NoneCleared).Single().PortalType);
+        }
+
+        [TestMethod]
+        public void AStoneIsReachableFromItsLevelMinimumUntilItIsCleared()
+        {
+            var service = Build(TimeSpace(1, 1, 10, 20, levelMinimum: 15, timeSpaceId: 6));
+
+            Assert.AreEqual(WpPortalType.NormalTs, service.GenerateWp(1, 14, NoneCleared).Single().PortalType);
+            Assert.AreEqual(WpPortalType.NormalTsReachable, service.GenerateWp(1, 15, NoneCleared).Single().PortalType);
+            Assert.AreEqual(WpPortalType.NormalTsDone, service.GenerateWp(1, 15, new HashSet<short> { 6 }).Single().PortalType);
         }
 
         [TestMethod]
@@ -134,7 +146,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 TimeSpace(3, 1, 50, 60, timeSpaceId: 5),
                 TimeSpace(4, 1, 70, 80, heroic: true, timeSpaceId: 6));
 
-            var markers = service.GenerateWp(1, new HashSet<short> { 4, 9 }).ToDictionary(s => s.ScriptedInstanceId, s => s.PortalType);
+            var markers = service.GenerateWp(1, BelowEveryLevel, new HashSet<short> { 4, 9 }).ToDictionary(s => s.ScriptedInstanceId, s => s.PortalType);
 
             Assert.AreEqual(WpPortalType.NormalTsDone, markers[1]);
             Assert.AreEqual(WpPortalType.HeroTsDone, markers[2]);
@@ -147,7 +159,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var service = Build(TimeSpace(4, 1, 10, 20));
 
-            Assert.AreEqual(WpPortalType.NormalTs, service.GenerateWp(1, new HashSet<short> { 4 }).Single().PortalType);
+            Assert.AreEqual(WpPortalType.NormalTs, service.GenerateWp(1, BelowEveryLevel, new HashSet<short> { 4 }).Single().PortalType);
         }
 
         [TestMethod]
@@ -165,7 +177,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 });
 
             Assert.AreEqual(2, service.GetByMap(2500).Count);
-            Assert.AreEqual(1, service.GenerateWp(2500, NoneCleared).Single().ScriptedInstanceId);
+            Assert.AreEqual(1, service.GenerateWp(2500, BelowEveryLevel, NoneCleared).Single().ScriptedInstanceId);
         }
 
         private ScriptedInstanceDto Scripted(short id, short mapId, short x, short y, string? script,
@@ -337,6 +349,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.IsNull(entrance.Definition);
             Assert.IsTrue(await service.LoadAsync(entrance));
             Assert.AreEqual("two-rooms", entrance.GenerateRbr().TitleAndDescription?.Title);
+        }
+
+        [TestMethod]
+        public void TheTimeSpaceWindowTellsAClearedStoneFromAnOpenOne()
+        {
+            var entrance = new GameObject.Services.ScriptedInstanceService.ScriptedInstance();
+
+            var open = entrance.GenerateRbr();
+            var cleared = entrance.GenerateRbr(completed: true);
+
+            Assert.AreEqual(((byte)1, (byte)0), (open.Unknown, open.Unknown2));
+            Assert.AreEqual(((byte)4, (byte)15), (cleared.Unknown, cleared.Unknown2));
         }
 
         [TestMethod]

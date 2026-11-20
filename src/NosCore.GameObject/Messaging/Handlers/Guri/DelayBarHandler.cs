@@ -13,7 +13,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.Guri
@@ -45,13 +45,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 return Task.CompletedTask;
             }
 
-            var packet = new GuriPacket
-            {
-                Type = GuriPacketType.Dance,
-                Argument = (uint)entity.Type,
-                EntityId = entity.Id,
-                Value = 0
-            };
+            var packet = new GuriDancePacket { VisualType = entity.Type, VisualId = entity.Id };
             return character.Invisible ? character.SendPacketAsync(packet) : character.MapInstance.SendPacketAsync(packet);
         }
     }

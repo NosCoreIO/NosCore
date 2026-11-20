@@ -35,6 +35,7 @@ using NosCore.Data.Enumerations.Items;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using NosCore.Packets.ServerPackets.Entities;
 
 namespace NosCore.GameObject.Services.TransformationService
 {
@@ -77,11 +78,10 @@ namespace NosCore.GameObject.Services.TransformationService
             await session.SendPacketAsync(character.GenerateSayi(SayColorType.Red, Game18NConstString.DurationOfSideEffect, 4, spCooldown));
             await session.SendPacketAsync(new SdPacket { Cooldown = spCooldown });
             await mapInstance.SendPacketAsync(cModePacket);
-            await mapInstance.SendPacketAsync(new GuriPacket
+            await mapInstance.SendPacketAsync(new GuriDancePacket
             {
-                Type = GuriPacketType.Dance,
-                Value = 1,
-                EntityId = characterId
+                VisualType = VisualType.Player,
+                VisualId = characterId
             });
             await session.SendPacketAsync(statPacket);
 
@@ -149,11 +149,10 @@ namespace NosCore.GameObject.Services.TransformationService
             await mapInstance.SendPacketAsync(cModePacket);
             await session.SendPacketAsync(levPacket);
             await mapInstance.SendPacketAsync(effPacket);
-            await mapInstance.SendPacketAsync(new GuriPacket
+            await mapInstance.SendPacketAsync(new GuriDancePacket
             {
-                Type = GuriPacketType.Dance,
-                Value = 1,
-                EntityId = characterId2
+                VisualType = VisualType.Player,
+                VisualId = characterId2
             });
             await session.SendPacketAsync(spPointPacket);
             await session.SendPacketAsync(condPacket);

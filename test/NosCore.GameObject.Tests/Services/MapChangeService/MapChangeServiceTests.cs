@@ -170,10 +170,10 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         public async Task TimeSpaceStonesAreOnlyPlacedOnTheOpenWorld()
         {
             await ChangingToBaseMap1();
-            ScriptedInstances.Verify(s => s.GenerateWp(1, It.IsAny<IReadOnlySet<short>>()), Times.Once);
+            ScriptedInstances.Verify(s => s.GenerateWp(1, It.IsAny<byte>(), It.IsAny<IReadOnlySet<short>>()), Times.Once);
 
             await ChangingToMinilandInstance();
-            ScriptedInstances.Verify(s => s.GenerateWp(It.IsAny<short>(), It.IsAny<IReadOnlySet<short>>()), Times.Once);
+            ScriptedInstances.Verify(s => s.GenerateWp(It.IsAny<short>(), It.IsAny<byte>(), It.IsAny<IReadOnlySet<short>>()), Times.Once);
         }
 
         private sealed class EmptyScript : NosCore.Instances.Abstractions.InstanceScript;

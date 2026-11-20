@@ -348,7 +348,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 });
         }
 
-        public IEnumerable<WpPacket> GenerateWp(short mapId, IReadOnlySet<short> completedTimeSpaces)
+        public IEnumerable<WpPacket> GenerateWp(short mapId, byte level, IReadOnlySet<short> completedTimeSpaces)
         {
             return GetByMap(mapId)
                 .Where(s => s.Type == ScriptedInstanceType.TimeSpace)
@@ -362,6 +362,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         (true, true) => WpPortalType.HeroTsDone,
                         (true, false) => WpPortalType.HeroTs,
                         (false, true) => WpPortalType.NormalTsDone,
+                        _ when level >= s.LevelMinimum => WpPortalType.NormalTsReachable,
                         _ => WpPortalType.NormalTs
                     },
                     LevelMinimum = s.LevelMinimum,

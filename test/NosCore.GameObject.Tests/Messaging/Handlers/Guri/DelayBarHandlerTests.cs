@@ -18,6 +18,7 @@ using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.Mates;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -64,13 +65,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
 
             await TheClientReportsAsync(GuriPacketType.Dance);
 
-            PacketAssert.AreEqual(new GuriPacket
-            {
-                Type = GuriPacketType.Dance,
-                Argument = (uint)VisualType.Player,
-                EntityId = _session.Character.CharacterId,
-                Value = 0
-            }, Broadcast().OfType<GuriPacket>().Single());
+            PacketAssert.AreEqual(new GuriDancePacket { VisualType = VisualType.Player, VisualId = _session.Character.CharacterId },
+                Broadcast().OfType<GuriDancePacket>().Single());
         }
 
         [TestMethod]
@@ -92,7 +88,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             await TheClientReportsAsync(GuriPacketType.Dance);
 
             Assert.IsFalse(Broadcast().Any());
-            Assert.AreEqual(_session.Character.CharacterId, _session.LastPackets.OfType<GuriPacket>().Single().EntityId);
+            Assert.AreEqual(_session.Character.CharacterId, _session.LastPackets.OfType<GuriDancePacket>().Single().VisualId);
         }
 
         [TestMethod]
@@ -111,13 +107,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
 
             await TheClientReportsAsync(GuriPacketType.CharacterAnimation);
 
-            PacketAssert.AreEqual(new GuriPacket
-            {
-                Type = GuriPacketType.Dance,
-                Argument = (uint)VisualType.Npc,
-                EntityId = partner.MateTransportId,
-                Value = 0
-            }, Broadcast().OfType<GuriPacket>().Single());
+            PacketAssert.AreEqual(new GuriDancePacket { VisualType = VisualType.Npc, VisualId = partner.MateTransportId },
+                Broadcast().OfType<GuriDancePacket>().Single());
         }
     }
 }
