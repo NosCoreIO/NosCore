@@ -3280,7 +3280,7 @@ A Bold Warrior: Part 3 (`timespace-15`) on a character without partner 317.
 Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
 dropping their `MaxHp` makes the run quick.
 
-- [ ] On entry no clock is drawn while you stay in the first room
+- [ ] On entry no clock is drawn in the first room until a player confirms the start
 - [ ] On entry the mission window shows the time-space's lives as hearts: two for time-space 1,
       four for time-space 9. Time-space 1 also shows the exit as its goal; time-space 9 shows
       "0/1" against its boss and no exit
