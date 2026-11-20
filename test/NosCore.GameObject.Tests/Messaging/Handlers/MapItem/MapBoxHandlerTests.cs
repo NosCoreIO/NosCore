@@ -27,6 +27,10 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Networking.SessionGroup;
+using NosCore.Packets.Interfaces;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
 {
@@ -35,10 +39,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
     {
         private const short RegularBox = 1042;
         private const short NormalWood = 2039;
+        private const short Stick = 1;
+        private const short Filler = 2040;
 
         private TestWorld World;
         private ClientSession _session;
         private readonly List<RollGeneratedItemDto> _contents = [];
+        private readonly Mock<ISessionGroup> _mapSessions = new();
+        private Mock<IGameEventDispatcher> _gameEvents;
+        private sbyte _boxRare;
         private long _boxId;
         private short _boxX;
         private short _boxY;
@@ -48,6 +57,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
+            _gameEvents = World.Freeze<Mock<IGameEventDispatcher>>();
             var rolls = new Mock<IDao<RollGeneratedItemDto, short>>();
             rolls.Setup(x => x.Where(It.IsAny<Expression<Func<RollGeneratedItemDto, bool>>>())).Returns(() => _contents);
             World.Inject(rolls.Object);
@@ -61,6 +71,19 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
                 VNum = NormalWood, Type = NoscorePocketType.Etc, ItemType = ItemType.Production,
                 Name = new I18NString { [RegionType.EN] = "Normal Wood" }
             });
+            World.ItemList.Add(new ItemDto
+            {
+                VNum = Filler, Type = NoscorePocketType.Etc, ItemType = ItemType.Production,
+                Name = new I18NString { [RegionType.EN] = "Rough Wood" }
+            });
+            if (World.ItemList.All(i => i.VNum != Stick))
+            {
+                World.ItemList.Add(new ItemDto
+                {
+                    VNum = Stick, Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon,
+                    Name = new I18NString { [RegionType.EN] = "Wooden Stick" }
+                });
+            }
         }
 
         [TestMethod]
@@ -102,6 +125,46 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         }
 
         [TestMethod]
+        public async Task ABoxHandsItsRarityToTheRewardsThatTakeIt()
+        {
+            await new Spec("A rare box gives its rarity to a reward marked to take it, as one opened from the bag does")
+                .Given(TheBoxHasRarity_, (sbyte)7)
+                .And(ABoxHoldingARareRandom_LiesNextToTheCharacter, Stick)
+                .AndAsync(TheCharacterPicksItUp)
+                .And(TheBarRunsOut)
+                .WhenAsync(TheBarSendsItsFollowUp)
+                .Then(TheBagHolds_WithRarity_, Stick, (sbyte)7)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EveryRewardIsInTheBagEvenWhenTellingAboutItFails()
+        {
+            await new Spec("Each reward of an opened box is in the bag before anything about it is sent")
+                .Given(ABoxHolding_And_LiesNextToTheCharacter, NormalWood, Filler)
+                .And(AnnouncingAReceivedItemFails)
+                .AndAsync(TheCharacterPicksItUp)
+                .And(TheBarRunsOut)
+                .WhenAsync(TheBarSendsItsFollowUpWhichFails)
+                .Then(TheBagHolds_, NormalWood)
+                .And(TheBagHolds_, Filler)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARewardIsInTheBagBeforeTheMapIsShownTheOpening()
+        {
+            await new Spec("A reward cannot lose its room in the bag while the opening is shown to the map")
+                .Given(ABoxHolding_LiesNextToTheCharacter, NormalWood)
+                .And(ShowingTheOpeningFillsTheBag)
+                .AndAsync(TheCharacterPicksItUp)
+                .And(TheBarRunsOut)
+                .WhenAsync(TheBarSendsItsFollowUp)
+                .Then(TheBagHolds_, NormalWood)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AnEmptyBoxSaysSoAndGoes()
         {
             await new Spec("A box holding nothing says it is empty and leaves the map")
@@ -118,15 +181,67 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         {
             _boxX = _session.Character.PositionX;
             _boxY = _session.Character.PositionY;
+            var box = World.GenerateItemProvider().Create(RegularBox, 1);
+            box.Rare = _boxRare;
             _boxId = World.MapItemProvider.NotNull().Create(_session.Character.MapInstance,
-                World.GenerateItemProvider().Create(RegularBox, 1), _boxX, _boxY, _session.Character.CharacterId).VisualId;
+                box, _boxX, _boxY, _session.Character.CharacterId).VisualId;
         }
+
+        private void TheBoxHasRarity_(sbyte rare) => _boxRare = rare;
+
+        private void ABoxHoldingARareRandom_LiesNextToTheCharacter(short vNum)
+        {
+            _contents.Add(new RollGeneratedItemDto
+            {
+                OriginalItemVNum = RegularBox, ItemGeneratedVNum = vNum, ItemGeneratedAmount = 1, Probability = 1,
+                MinimumOriginalItemRare = -2, MaximumOriginalItemRare = 8, IsRareRandom = true
+            });
+            AnEmptyBoxLiesNextToTheCharacter();
+        }
+
+        private void ABoxHolding_And_LiesNextToTheCharacter(short first, short second)
+        {
+            _contents.Add(new RollGeneratedItemDto
+            {
+                OriginalItemVNum = RegularBox, ItemGeneratedVNum = first, ItemGeneratedAmount = 1, Probability = 1
+            });
+            _contents.Add(new RollGeneratedItemDto
+            {
+                OriginalItemVNum = RegularBox, ItemGeneratedVNum = second, ItemGeneratedAmount = 1, Probability = 1
+            });
+            AnEmptyBoxLiesNextToTheCharacter();
+        }
+
+        private void AnnouncingAReceivedItemFails() =>
+            _gameEvents.Setup(e => e.RaiseAsync(It.IsAny<ItemsReceivedEvent>())).ThrowsAsync(new InvalidOperationException());
+
+        private async Task TheBarSendsItsFollowUpWhichFails() =>
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(TheBarSendsItsFollowUp);
+
+        private void ShowingTheOpeningFillsTheBag()
+        {
+            _session.Character.MapInstance.Sessions = _mapSessions.Object;
+            _mapSessions.Setup(s => s.Broadcast(It.Is<IPacket[]>(p => p.OfType<GroundEffectPacket>().Any())))
+                .Callback(() =>
+                {
+                    var inventory = _session.Character.InventoryService;
+                    while (inventory.AddItemToPocket(InventoryItemInstance.Create(
+                               World.GenerateItemProvider().Create(Filler, 999), _session.Character.CharacterId)) is { Count: > 0 })
+                    {
+                    }
+                })
+                .Returns(Task.CompletedTask);
+        }
+
+        private void TheBagHolds_WithRarity_(short vNum, sbyte rare) =>
+            Assert.AreEqual((short)rare, _session.Character.InventoryService.Values.Single(i => i.ItemInstance.ItemVNum == vNum).ItemInstance.Rare);
 
         private void ABoxHolding_LiesNextToTheCharacter(short vNum)
         {
             _contents.Add(new RollGeneratedItemDto
             {
-                OriginalItemVNum = RegularBox, ItemGeneratedVNum = vNum, ItemGeneratedAmount = 1, Probability = 1
+                OriginalItemVNum = RegularBox, ItemGeneratedVNum = vNum, ItemGeneratedAmount = 1, Probability = 1,
+                MinimumOriginalItemRare = -2, MaximumOriginalItemRare = 8
             });
             AnEmptyBoxLiesNextToTheCharacter();
         }
