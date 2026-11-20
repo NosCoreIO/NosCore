@@ -3551,6 +3551,11 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       opened." before its talk
 - [ ] With the client in English, the time-space lines of time-spaces 0 to 10 read as the game writes
       them, e.g. "You're under attack!", "Look out, enemies!", "The entrance to the maze..."
+- [ ] In `timespace-06`, the key of the room on map 4100 (middle of the maze) lies on a different cell on
+      each run, anywhere in the room away from its doors
+- [ ] In `timespace-24`, the battlefield (map 2100) says "The enemies are getting reinforcements!" with
+      each of its eight waves; the groups of two Miners and an Expy Miner, or of two Angry Miners and a
+      Strong Expy Miner, only come between the waves, when a Chief Miner or a Nervous Chief Miner calls them
 - [ ] In `timespace-00`, the red clock of the room with the timed fight starts as you walk in,
       not when its talk is closed
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client does not draw
