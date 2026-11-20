@@ -868,6 +868,9 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       a red 152 (4 per level of the dog) rises from your character every 2 seconds for 20
       seconds, and the HP bar drops with it
 - [ ] The bleeding never kills: at 1 HP the numbers stop and the character stays alive
+- [ ] Let a Hellhound (monster 377) hit you again while its Burn (card 64) is on you: the `bf`
+      shows the full 20 seconds again and the icon lasts 20 seconds from that hit, while the red
+      numbers keep their 2-second beat with no gap or extra number at the hit
 - [ ] A second player on the map sees the same numbers over your character
 - [ ] Bleeding inflicted on a monster shows the numbers over the monster, for a bystander who
       has not selected it too, and leaves it at 1 HP
@@ -881,6 +884,9 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       has it selected, and the drain stops at 1 HP without killing it
 - [ ] A regeneration card on a monster (card 1426: 20 % every 6 seconds) refills its bar up to
       its maximum and no further
+- [ ] Put card 455 on an attack that lands about once a second and keep hitting the same monster:
+      the 8 % drops keep coming every 4 seconds while the hits land, rather than starting only 4
+      seconds after the last one
 - [ ] At each step the amount rises from the monster as a number, red for a drain, for everyone
       on the map whether or not they have it selected
 - [ ] The same draining card on a Training Stake (monster 195, immune to debuffs): no `bf` is

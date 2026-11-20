@@ -244,6 +244,56 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(character.MaxHp * 8 / 100, shown.Damages);
         }
 
+        [TestMethod]
+        public async Task ACardAppliedAgainBeforeItsIntervalStillPulses()
+        {
+            var monster = Monster(100);
+            await _buffs.ApplyAsync(monster, Poison, [HpReduced(8, 2)], null);
+            for (var second = 1; second < 4; second++)
+            {
+                World.Clock.Advance(Duration.FromSeconds(1));
+                await _buffs.TickAsync(monster);
+                await _buffs.ApplyAsync(monster, Poison, [HpReduced(8, 2)], null);
+            }
+
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await _buffs.TickAsync(monster);
+
+            Assert.AreEqual(92, monster.Hp);
+        }
+
+        [TestMethod]
+        public async Task ACardAppliedAgainPulsesOnTheRhythmItStartedWith()
+        {
+            var monster = Monster(1000);
+            await _buffs.ApplyAsync(monster, Bleeding, [Fixed(HpTaken, 10, steps: 1, perLevel: false)], null);
+            World.Clock.Advance(Duration.FromSeconds(3));
+            await _buffs.TickAsync(monster);
+            await _buffs.ApplyAsync(monster, Bleeding, [Fixed(HpTaken, 10, steps: 1, perLevel: false)], null);
+
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await _buffs.TickAsync(monster);
+
+            Assert.AreEqual(980, monster.Hp);
+        }
+
+        [TestMethod]
+        public async Task ACardAppliedAgainLastsItsWholeDurationFromThen()
+        {
+            var monster = Monster(1000);
+            await _buffs.ApplyAsync(monster, Bleeding, [Fixed(HpTaken, 10, steps: 1, perLevel: false)], null);
+            World.Clock.Advance(Duration.FromSeconds(15));
+            await _buffs.ApplyAsync(monster, Bleeding, [Fixed(HpTaken, 10, steps: 1, perLevel: false)], null);
+
+            World.Clock.Advance(Duration.FromSeconds(19));
+            await _buffs.TickAsync(monster);
+            Assert.IsTrue(_buffs.HasBuff(monster, Bleeding.CardId));
+
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await _buffs.TickAsync(monster);
+            Assert.IsFalse(_buffs.HasBuff(monster, Bleeding.CardId));
+        }
+
         private static BCardDto HpRecovered(int percent, int steps) => new()
         {
             Type = BCardType.CardType.RecoveryAndDamagePercent, SubType = 11, FirstData = percent, ThirdData = steps,
