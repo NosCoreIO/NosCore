@@ -130,7 +130,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await gm.SendAsync(new ShoutPacket { Message = "The arena opens in five minutes" });
 
-            const string text = "(Administrator) The arena opens in five minutes";
+            const string text = "The arena opens in five minutes";
             var line = await alice.ExpectSinceAsync<Sayi2Packet>(mark, p => p.Game18NArguments.Contains(text), "the shout line");
             PacketAssert.AreEqual(new Sayi2Packet
             {
@@ -142,7 +142,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 Game18NArguments = { text },
             }, line);
 #pragma warning disable CS0618 // The shout's notice has no client text, so it goes out as msg.
-            await alice.ExpectSinceAsync<MsgPacket>(mark, p => p is { Type: MessageType.Shout, Message: text }, "the shout notice");
+            await alice.ExpectSinceAsync<MsgPacket>(mark, p => p is { Type: MessageType.Shout, Message: "(Administrator) " + text }, "the shout notice");
 #pragma warning restore CS0618
         }
     }

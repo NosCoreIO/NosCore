@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Tests.Command
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.Administrator,
                 ArgumentType = 999,
-                Game18NArguments = { $"({World.GameLanguageLocalizer[LanguageKey.ADMINISTRATOR, Session.Account.Language]}) Test announcement message" },
+                Game18NArguments = { "Test announcement message" },
             }, Serialized.OfType<Sayi2Packet>().Single());
         }
 

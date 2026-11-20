@@ -2606,8 +2606,9 @@ A GM account and a second character, on two channels if you have them.
 - [ ] With the GM: `$Shout The arena opens in five minutes`. Every connected player gets the
       line in yellow in the chat window as "(Administrator) The arena opens in five minutes" and
       the same text across the screen as a notice. The `sayi2` line in a packet logger reads
-      `sayi2 1 -1  10 90 999 (Administrator) The arena opens in five minutes`
-- [ ] The chat line shows the text once, with no stray number in front of it
+      `sayi2 1 -1  10 90 999 The arena opens in five minutes`: the client adds "(Administrator)"
+      itself
+- [ ] The chat line shows "(Administrator)" and the text once each, with no stray number in front
 
 ### Hero chat
 
