@@ -1783,6 +1783,10 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
       its matching hat arrive together, each with its own "received" line
 - [ ] Double-click the Simple Reward Chest for the Defensive Battle (9912): one item of the
       Defensive Battle reward chest (4663) arrives
+- [ ] Not verifiable from a stock client: a reward written by another player's action, such as a
+      trade, a raid or an arena reward, landing at the same instant as the player's own pick-up, box
+      or purchase. The bag then takes the whole item or none of it; the unit tests cover the
+      interleavings.
 
 ### Perfume
 

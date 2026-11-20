@@ -23,6 +23,9 @@ namespace NosCore.GameObject.Services.InventoryService
         List<InventoryItemInstance>?
             AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot);
 
+        // Places every item or none of them: null when they do not all fit.
+        List<InventoryItemInstance>? AddItemsToPocket(IReadOnlyCollection<InventoryItemInstance> newItems);
+
         bool CanAddItem(short itemVnum);
         bool HasRoomFor(IItemInstance itemInstance);
         bool HasRoomFor(IReadOnlyCollection<IItemInstance> itemInstances);

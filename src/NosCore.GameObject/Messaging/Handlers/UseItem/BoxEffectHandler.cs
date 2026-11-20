@@ -63,9 +63,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var added = rewards.SelectMany(reward => inventory.AddItemToPocket(InventoryItemInstance.Create(reward, character.CharacterId))
-                ?? []).ToList();
-            if (added.Count == 0)
+            var added = inventory.AddItemsToPocket(rewards
+                .Select(reward => InventoryItemInstance.Create(reward, character.CharacterId)).ToList());
+            if (added is not { Count: > 0 })
             {
                 inventory.RestoreConsumed(source, 1);
                 await SendNotEnoughSpaceAsync(evt);

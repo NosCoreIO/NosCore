@@ -58,16 +58,22 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var granted = contents
-                .Select(item => (Item: item, Slots: inventory.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId)) ?? []))
-                .ToList();
-            foreach (var (item, slots) in granted)
+            var granted = inventory.AddItemsToPocket(contents
+                .Select(item => InventoryItemInstance.Create(item, character.CharacterId)).ToList());
+            if (granted is not { Count: > 0 })
             {
-                foreach (var added in slots)
-                {
-                    await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
-                }
+                inventory.RestoreConsumed(source, 1);
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
+                return;
+            }
 
+            foreach (var added in granted)
+            {
+                await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
+            }
+
+            foreach (var item in contents)
+            {
                 await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                     2, item.ItemVNum.ToString(), item.Amount));
             }
