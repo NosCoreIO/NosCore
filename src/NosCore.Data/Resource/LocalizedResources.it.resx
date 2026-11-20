@@ -612,5 +612,41 @@
   <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
     <value>I server verranno spenti tra {0} minuto/i per manutenzione.</value>
   </data>
+  <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
+    <value>Il portale si aprirà quando avrai sconfitto tutti i mostri.</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IS_OPEN" xml:space="preserve">
+    <value>L'uscita è aperta.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_IN_TWO_MINUTES_FOR_BONUS" xml:space="preserve">
+    <value>Sconfiggi tutti i mostri entro 2 minuti per ottenere tempo bonus.</value>
+  </data>
+  <data name="TIMESPACE_BONUS_THREE_MINUTES" xml:space="preserve">
+    <value>Hai ottenuto 3 minuti di tempo bonus.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_DEMONS_TO_OPEN_EXIT" xml:space="preserve">
+    <value>Sconfiggi tutti i demoni per aprire l'uscita.</value>
+  </data>
+  <data name="TIMESPACE_EXITS_ALL_AROUND_OPEN" xml:space="preserve">
+    <value>Le uscite tutt'intorno sono aperte.</value>
+  </data>
+  <data name="TIMESPACE_SEE_LEVER_IN_CENTRE" xml:space="preserve">
+    <value>Vedi la leva al centro?</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DARK_TRAP_ONE_MINUTE" xml:space="preserve">
+    <value>La trappola delle tenebre! Sei intrappolato per 1 minuto.</value>
+  </data>
+  <data name="TIMESPACE_PORTAL_HAS_OPENED" xml:space="preserve">
+    <value>Il portale si è aperto.</value>
+  </data>
+  <data name="TIMESPACE_TIME_ROOM_TWO_MINUTES" xml:space="preserve">
+    <value>Sala del tempo: hai ottenuto 2 minuti di tempo bonus!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_FIGHT_TWO_MINUTES" xml:space="preserve">
+    <value>Sopravvivi al combattimento contro i mostri per 2 minuti.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
+    <value>Pattuglia qui per 2 minuti.</value>
+  </data>
 </root>
 
