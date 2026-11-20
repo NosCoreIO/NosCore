@@ -65,6 +65,12 @@ namespace NosCore.Instances.Abstractions
             return button;
         }
 
+        public IRoom ClearedAfter(short kills, short vNum)
+        {
+            script.Setup(run => run.SetMonsterLocker(Key, kills, vNum));
+            return this;
+        }
+
         public IExit Exit(Spot at, bool locked = true)
         {
             if (_exit != null)
