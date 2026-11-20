@@ -10,6 +10,7 @@ using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
@@ -381,7 +382,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             Visitor = await World.CreateSessionAsync();
             Visitor.LastPackets.Clear();
-            Session.Character.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(Visitor));
+            await Session.Character.AnswerRequestAsync(Visitor);
         }
 
         private void TheOtherPlayerShouldReceiveTheItemList()

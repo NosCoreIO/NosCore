@@ -137,9 +137,6 @@ namespace NosCore.PacketHandlers.Shops
                             mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
                     }
 
-                    var owner = clientSession.Character;
-                    shop.DialogSubscription = owner.Requests[typeof(NpcDialogRequestSubject)].Subscribe(data =>
-                        data.ClientSession.SendPacketAsync(owner.GenerateNInv(shop, 0, 0)));
                     clientSession.Character.Shop = shop;
 
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateShop(clientSession.Character.AccountLanguage));

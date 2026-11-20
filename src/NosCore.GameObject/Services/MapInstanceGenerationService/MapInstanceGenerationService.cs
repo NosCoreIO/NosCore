@@ -149,7 +149,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 dtoShopItems = shopItems?.Where(si => shopIds.Contains(si.ShopId))?.ToList() ?? new List<ShopItemDto>();
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            bundle.Value.InitializeShopAndDialog(shopsOfNpc, dialog, dtoShopItems, itemProvider, shopSkills);
+                            bundle.Value.InitializeShop(shopsOfNpc, dialog, dtoShopItems, itemProvider, shopSkills);
                             if (recipes.TryGetValue(s.MapNpcId, out var npcRecipes))
                             {
                                 var npcBundle = bundle.Value;

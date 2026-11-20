@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Npcs;
@@ -117,6 +119,69 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .WhenAsync(TheCharacterTalksToTheMonster)
                 .Then(TheMonsterAnswersWithNoDialog)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TalkingToAShopNpcEndsOnlyOnceItsShopIsListed()
+        {
+            await new Spec("req_npc on a shop NPC finishes only once the shop list it opens is done")
+                .GivenAsync(TheShopListIsHeldBack)
+                .And(ShopOnlyNpcExistsOnMap)
+                .When(TheHeldCharacterStartsTalkingToTheNpc)
+                .Then(TheRequestShouldStillBeRunning)
+                .AndAsync(TheRequestShouldEndOnceTheShopListIsDone)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFailingShopListReachesTheRequest()
+        {
+            await new Spec("An error while listing the shop of an NPC is thrown by req_npc")
+                .GivenAsync(TheShopListIsHeldBack)
+                .And(ShopOnlyNpcExistsOnMap)
+                .When(TheHeldCharacterStartsTalkingToTheNpc)
+                .AndAsync(TheShopListFails)
+                .Then(TheRequestShouldHaveThrownTheError)
+                .ExecuteAsync();
+        }
+
+        private readonly TaskCompletionSource _shopList = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private ClientSession _heldSession;
+        private Task _request = Task.CompletedTask;
+        private Exception? _requestFailure;
+
+        private async Task TheShopListIsHeldBack() =>
+            _heldSession = await World.CreateSessionAsync(new List<IPacketHandler> { new HeldShoppingPacketHandler(_shopList.Task) });
+
+        private void TheHeldCharacterStartsTalkingToTheNpc() =>
+            _request = _requestNpcPacketHandler.ExecuteAsync(new RequestNpcPacket { Type = VisualType.Npc, TargetId = 100 }, _heldSession);
+
+        private void TheRequestShouldStillBeRunning() => Assert.IsFalse(_request.IsCompleted);
+
+        private async Task TheRequestShouldEndOnceTheShopListIsDone()
+        {
+            _shopList.SetResult();
+            await _request.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private async Task TheShopListFails()
+        {
+            _shopList.SetException(new InvalidOperationException("shop list"));
+            try
+            {
+                await _request.WaitAsync(TimeSpan.FromSeconds(5));
+            }
+            catch (InvalidOperationException e)
+            {
+                _requestFailure = e;
+            }
+        }
+
+        private void TheRequestShouldHaveThrownTheError() => Assert.AreEqual("shop list", _requestFailure?.Message);
+
+        private sealed class HeldShoppingPacketHandler(Task shopList) : PacketHandler<ShoppingPacket>
+        {
+            public override Task ExecuteAsync(ShoppingPacket packet, ClientSession clientSession) => shopList;
         }
 
         private void AMonsterStandsBesideTheCharacter() =>
@@ -245,7 +310,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 new List<MapNpcDto> { npc },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } }));
             var bundle = _session.Character.MapInstance.GetNpcById(100).NotNull();
-            bundle.InitializeShopAndDialog(
+            bundle.InitializeShop(
                 new List<ShopDto> { new() { ShopId = 1, MapNpcId = 100, MenuType = 0, ShopType = 0 } },
                 null,
                 new List<ShopItemDto>

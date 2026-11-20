@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
@@ -42,7 +43,7 @@ namespace NosCore.PacketHandlers.Shops
                         }
 
                         npcDialogService.Open(character, player, NpcDialogWindow.Shop);
-                        player.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
+                        await player.AnswerRequestAsync(clientSession);
                         return;
                     }
                     break;
@@ -58,7 +59,7 @@ namespace NosCore.PacketHandlers.Shops
                         }
 
                         npcDialogService.Open(character, found, NpcDialogWindow.Conversation);
-                        found.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
+                        await found.AnswerRequestAsync(clientSession);
                         await gameEvents.RaiseAsync(new NpcTalkedEvent(character, found));
                         return;
                     }

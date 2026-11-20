@@ -27,7 +27,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
@@ -60,38 +59,10 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static void InitializeShopAndDialog(this NpcComponentBundle bundle,
+        public static void InitializeShop(this NpcComponentBundle bundle,
             IReadOnlyList<ShopDto> shopDtos, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto,
             IItemGenerationService itemProvider, IReadOnlyList<ShopSkill>? shopSkills = null)
         {
-            var dialogId = bundle.Dialog ?? 0;
-            if (bundle.Requests.TryGetValue(typeof(NpcDialogRequestSubject), out var subject))
-            {
-                var visualId = bundle.VisualId;
-                Task RequestExecAsync(RequestData request)
-                {
-                    if (dialogId != 0)
-                    {
-                        return ((INonPlayableEntity)bundle).ShowDialogAsync(request, dialogId);
-                    }
-                    if (bundle.Shop != null)
-                    {
-                        return request.ClientSession.HandlePacketsAsync(new[]
-                        {
-                            new ShoppingPacket
-                            {
-                                VisualType = VisualType.Npc,
-                                VisualId = visualId,
-                                ShopType = 0,
-                                Unknown = 0
-                            }
-                        });
-                    }
-                    return Task.CompletedTask;
-                }
-                subject.Select(RequestExecAsync).Subscribe();
-            }
-
             if (shopDtos.Count == 0)
             {
                 return;
@@ -137,9 +108,28 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
         }
 
-        public static Task ShowDialogAsync(this INonPlayableEntity entity, RequestData requestData, long dialog)
+        public static Task AnswerRequestAsync(this NpcComponentBundle npc, ClientSession requester)
         {
-            return requestData.ClientSession.SendPacketAsync(AliveEntityExtension.GenerateNpcReq(entity, dialog));
+            if (npc.Dialog is { } dialog and not 0)
+            {
+                return requester.SendPacketAsync(npc.GenerateNpcReq(dialog));
+            }
+
+            if (npc.Shop != null)
+            {
+                return requester.HandlePacketsAsync(new[]
+                {
+                    new ShoppingPacket
+                    {
+                        VisualType = VisualType.Npc,
+                        VisualId = npc.VisualId,
+                        ShopType = 0,
+                        Unknown = 0
+                    }
+                });
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

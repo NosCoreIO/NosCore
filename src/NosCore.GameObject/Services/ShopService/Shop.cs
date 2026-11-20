@@ -33,8 +33,6 @@ namespace NosCore.GameObject.Services.ShopService
 
         public bool IsClosed { get; internal set; }
 
-        public IDisposable? DialogSubscription { get; set; }
-
         public int Size
         {
             get => _size ?? ShopItems.Values.Select(s => s.Slot).DefaultIfEmpty().Max() + 1;

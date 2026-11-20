@@ -47,7 +47,6 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -213,11 +212,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 new ConcurrentDictionary<long, long>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerMatesComponent(
                 new ConcurrentDictionary<long, Mate>()));
-            mapInstance.EcsWorld.AddComponent(playerEntity, new RequestsComponent(
-                new Dictionary<Type, Subject<RequestData>>
-                {
-                    { typeof(NpcDialogRequestSubject), new Subject<RequestData>() }
-                }));
             clientSession.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 
             var character = clientSession.Character;
