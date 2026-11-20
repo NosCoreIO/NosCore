@@ -119,9 +119,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                 opens += TimeSpan.FromMinutes(30);
             }
 
-            await Harness.Stack.AdvanceClockAsync(Second, opens - local - TimeSpan.FromSeconds(30));
+            // The server ignores a jump backwards, so with boarding opening in under 30 s the first jump stays put.
+            var firstJump = opens - local - TimeSpan.FromSeconds(30);
+            var stopped = await Harness.Stack.AdvanceClockAsync(Second, firstJump > TimeSpan.Zero ? firstJump : TimeSpan.Zero);
             await Task.Delay(TimeSpan.FromSeconds(4));
-            await Harness.Stack.AdvanceClockAsync(Second, TimeSpan.FromSeconds(35));
+            await Harness.Stack.AdvanceClockAsync(Second, opens - stopped + TimeSpan.FromSeconds(5));
         }
 
         // The schedule opens boarding on the channel's own timer, so the first request may still
