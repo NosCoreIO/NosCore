@@ -141,7 +141,7 @@ public class TimeSpace9 : TimeSpaceScript
 
         gallery.Portal(new(17, 9), farGallery, new(0, 9), locked: false);
         gallery.Portal(new(0, 9), crossroads, new(17, 9), locked: false);
-        gallery.Spawn(Monster(108).At(1, 9).Bonus());
+        gallery.Spawn(Monster(108).At(1, 9).Bonus().OnDeath(r => r.Spawn(Monster(108).At(6, 8))));
 
         farGallery.Portal(new(17, 9), galleryLever, new(0, 9), locked: false);
         farGallery.Portal(new(0, 9), gallery, new(17, 9), locked: false);
