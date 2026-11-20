@@ -26,14 +26,11 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 return;
             }
 
-            var character = session.Character;
+            await session.GenerateMailAsync(new[] { data });
             if (data.ItemInstance != null && !data.MailDto.IsSenderCopy)
             {
-                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ParcelReceived,
-                    2, data.ItemInstance.ItemVNum.ToString(), data.ItemInstance.Amount));
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NewParcelArrived2));
             }
-
-            await session.GenerateMailAsync(new[] { data });
         }
     }
 }

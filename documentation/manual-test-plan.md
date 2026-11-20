@@ -2151,8 +2151,9 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
 
 ### Parcels and private shops
 
-- [ ] `$Gift 1012 5 0 0 <your name>`: chat shows "Gift has been delivered." and, once,
-      "Parcel received >> Seed of Power x 5" in the client's language; the parcel icon lights up
+- [ ] `$Gift 1012 5 0 0 <your name>`: chat shows "Gift has been delivered." and, once, "A new
+      parcel has arrived." in yellow; the parcel icon lights up
+- [ ] Take that parcel: "Parcel received >> Seed of Power x 5" shows in red as the item lands
 - [ ] Send yourself three gifts in a row, then open the parcel window: each is listed once, and
       taking each one puts exactly that item in the inventory and removes only that parcel
 - [ ] Take a parcel's item with the inventory window open: the item appears in its slot at once,

@@ -15,6 +15,8 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System.Linq;
@@ -153,11 +155,15 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private void ShouldSendSayPacket()
         {
-            var sayPacket = Session.LastPackets.OfType<SayiPacket>().FirstOrDefault();
-            Assert.IsNotNull(sayPacket);
-            Assert.AreEqual(Game18NConstString.ParcelReceived, sayPacket.Message);
-            Assert.AreEqual("1012", sayPacket.Game18NArguments[0]);
-            Assert.AreEqual(5, System.Convert.ToInt32(sayPacket.Game18NArguments[1]));
+            var sent = Session.LastPackets.ToList();
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = Session.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.NewParcelArrived2,
+            }, sent.OfType<SayiPacket>().Single());
+            Assert.IsTrue(sent.FindIndex(p => p is ParcelPacket) < sent.FindIndex(p => p is SayiPacket));
         }
     }
 }
