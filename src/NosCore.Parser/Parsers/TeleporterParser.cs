@@ -97,13 +97,16 @@ namespace NosCore.Parser.Parsers
             }
 
             // The same NPC was often recorded under several ids, and only one of them was used for a
-            // given option, so its copies take the destinations it has.
+            // given option, so its copies take the destinations it has. A stone's bar is its own: only
+            // the copies standing where it stands take its destination.
             foreach (var group in npcs.Values.GroupBy(s => (s.MapId, s.VNum, s.Dialog)))
             {
-                var known = captured.Where(t => group.Any(n => n.MapNpcId == t.Key.MapNpcId))
-                    .GroupBy(t => (t.Key.Runner, t.Key.Index)).Select(g => g.First()).ToList();
+                var inGroup = captured.Where(t => group.Any(n => n.MapNpcId == t.Key.MapNpcId)).ToList();
                 foreach (var npc in group)
                 {
+                    var known = inGroup
+                        .Where(t => t.Key.Runner != null || (npcs[t.Key.MapNpcId].MapX, npcs[t.Key.MapNpcId].MapY) == (npc.MapX, npc.MapY))
+                        .GroupBy(t => (t.Key.Runner, t.Key.Index)).Select(g => g.First()).ToList();
                     foreach (var (key, teleporter) in known.Where(t => !captured.ContainsKey((npc.MapNpcId, t.Key.Runner, t.Key.Index))))
                     {
                         captured[(npc.MapNpcId, key.Runner, key.Index)] = new TeleporterDto
