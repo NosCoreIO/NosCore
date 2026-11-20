@@ -66,6 +66,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IGameLanguageLocalizer _gameLanguage;
 
+        private static readonly AsyncLocal<ScriptedInstanceRun?> Running = new();
         private readonly Lock _queueLock = new();
         private Task _queue = Task.CompletedTask;
         private readonly List<Func<Task>> _pending = [];
@@ -1525,13 +1526,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // is carried out once the script has returned, so a script never sees the run half-applied.
         private Task RunAsync(Func<Task> trigger)
         {
-            if (!MapExecutor.IsInsideAny)
+            if (!MapExecutor.IsInsideAny && Running.Value != this)
             {
                 return Enqueue(trigger);
             }
 
-            // A trigger ahead in the queue may be waiting for the very executor this flow holds, so work
-            // on a map's executor queues its trigger without waiting for it or lending it its hold.
+            // Work on a map's executor, or one of this run's own triggers, may be what a trigger ahead in
+            // the queue is waiting for, so it queues the trigger without waiting for it or lending it its hold.
             if (!ExecutionContext.IsFlowSuppressed())
             {
                 using (ExecutionContext.SuppressFlow())
@@ -1559,6 +1560,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private async Task RunTriggerAsync(Func<Task> trigger)
         {
+            Running.Value = this;
             try
             {
                 await trigger();
