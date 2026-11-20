@@ -3386,6 +3386,22 @@ character so they kill you.
 - [ ] Not verifiable yet: the lives counter on the time-space HUD. The packet that draws it
       (`minfo`) freezes this client
 
+### Time-space level penalty
+
+Run `timespace-sample` (minimum level 1) with a level 10 character, killing a few monsters on
+the way, then again with a level 60 character.
+
+- [ ] At level 10, Mission Clear is preceded by the yellow chat line "18% of points reduced
+      because of level penalty." and the points on the score window are 82% of what the same
+      kills score at level 1
+- [ ] At level 60 the line says 100% and the score window shows 0 points
+- [ ] At level 1 no such line appears and the points are unchanged
+- [ ] Let the clock run out with the level 10 character: no penalty line appears
+- [ ] In a party of a level 1 and a level 10 character, only the level 10 one sees the line and
+      the reduced points
+- [ ] Not verifiable yet: which total the client shows as the reduced points. The score packet's
+      fields do not match the client yet (#3468)
+
 ### Raids
 
 The parser gives each known raid gate (`Type` 1 in `ScriptedInstance`) its script from `instances/`.

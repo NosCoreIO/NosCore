@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -25,7 +26,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
-        IGameEventDispatcher gameEvents, IClock clock)
+        IGameEventDispatcher gameEvents, IClock clock, ITimeSpacePenaltyService timeSpacePenaltyService)
         : IInstanceRunHost
     {
         private static readonly Duration ReviveDelay = Duration.FromSeconds(10);
@@ -57,22 +58,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
-            await run.BroadcastAsync(new ScorePacket
-            {
-                EndState = state,
-                Points = run.Points,
-                DrawItemsCount = (byte)(entrance.Definition?.DrawItems.Count ?? 0),
-                MonsterKilled = (short)run.MonstersKilled,
-                RemainingNpc = (byte)run.NpcsSummoned,
-                RoomsVisited = (short)run.RoomsVisited,
-                IsAllMonstersKilled = run.MonstersKilled >= run.MonstersSummoned,
-                IsNoNpcDead = true
-            });
-
             if (state != EndStateType.Success)
             {
+                await run.BroadcastAsync(Score(run, state, run.Points));
                 await RaiseFailedAsync(participants);
                 return;
+            }
+
+            foreach (var character in participants)
+            {
+                var penalty = timeSpacePenaltyService.GetPointPenalty(character.Level, entrance.EffectiveLevelMinimum);
+                if (penalty > 0)
+                {
+                    await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow,
+                        Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
+                }
+
+                await character.SendPacketAsync(Score(run, state, run.Points * (100 - penalty) / 100));
             }
 
             if (entrance.Definition is not { } definition)
@@ -90,6 +92,18 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 await gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
             }
         }
+
+        private ScorePacket Score(ScriptedInstanceRun run, EndStateType state, int points) => new()
+        {
+            EndState = state,
+            Points = points,
+            DrawItemsCount = (byte)(entrance.Definition?.DrawItems.Count ?? 0),
+            MonsterKilled = (short)run.MonstersKilled,
+            RemainingNpc = (byte)run.NpcsSummoned,
+            RoomsVisited = (short)run.RoomsVisited,
+            IsAllMonstersKilled = run.MonstersKilled >= run.MonstersSummoned,
+            IsNoNpcDead = true
+        };
 
         // Taken before any await, so a player leaving mid-loop does not cut the others' events short.
         private static List<PlayerComponentBundle> Participants(ScriptedInstanceRun run) =>

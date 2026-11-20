@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.Interaction;
 using System;
 using NosCore.GameObject.Ecs;
@@ -530,7 +531,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             var run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
+                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<IGameEventDispatcher>().Object, World.Clock, World.Create<TimeSpacePenaltyService>()),
                 script,
                 new Dictionary<int, GameObject.Services.MapInstanceGenerationService.MapInstance> { [1] = _session.Character.MapInstance },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),
