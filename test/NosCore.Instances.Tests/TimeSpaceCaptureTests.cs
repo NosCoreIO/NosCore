@@ -305,5 +305,32 @@ namespace NosCore.Instances.Tests
                 $"unlock({leverRoom}->{thirdNest})", "message(ADoorHasOpened)", $"dialog({leverRoom},6044)"
             }, CallsSince(before));
         }
+
+        [TestMethod]
+        public async Task TheLabyrinthKeyLiesOnACellPickedForEachRun()
+        {
+            await LoadAsync("timespace-06");
+            var keyRoom = Room(4100, 2, 9);
+
+            CollectionAssert.AreEqual(new[] { keyRoom }, _run.RandomCellRooms);
+            CollectionAssert.Contains(_run.Calls, $"button({keyRoom},1,10,5,1057,1057,False)");
+        }
+
+        [TestMethod]
+        public async Task TheStruggleForFernonLeavesTheCalledMinersToTheChiefsThatCallThem()
+        {
+            await LoadAsync("timespace-24");
+            var battlefield = Room(2100, 1, 8);
+            _script.OnDialogClosed(_run, battlefield, 6119);
+            var before = _run.Calls.Count;
+
+            RunTimers();
+
+            var waves = CallsSince(before).Where(c => c.StartsWith($"summon({battlefield},", StringComparison.Ordinal)).ToList();
+            Assert.AreEqual(7, waves.Count);
+            Assert.IsFalse(waves.Any(w => w.Contains(",106", StringComparison.Ordinal) || w.Contains(",107", StringComparison.Ordinal)
+                || w.Contains(",109", StringComparison.Ordinal)));
+            Assert.AreEqual(7, CallsSince(before).Count(c => c == $"message({battlefield},EnemiesReinforcements)"));
+        }
     }
 }
