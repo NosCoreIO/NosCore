@@ -71,6 +71,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             if (loserMode)
             {
+                run.IsLoserMode = true;
                 run.ClockScale = LoserModeClockScale;
             }
 

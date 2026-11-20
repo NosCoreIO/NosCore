@@ -18,10 +18,17 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
         [UsedImplicitly]
         public Task Handle(EntityDiedEvent evt)
         {
-            if (evt.Victim is NpcComponentBundle { IsEscort: true, MapInstance: { } npcMap })
+            if (evt.Victim is NpcComponentBundle { MapInstance: { } npcMap } npc)
             {
-                return scriptedInstanceService.GetRun(npcMap.MapInstanceId)?.EscortFellAsync(npcMap.MapInstanceId)
-                    ?? Task.CompletedTask;
+                var npcRun = scriptedInstanceService.GetRun(npcMap.MapInstanceId);
+                if (npcRun == null)
+                {
+                    return Task.CompletedTask;
+                }
+
+                return npc.IsEscort
+                    ? npcRun.EscortFellAsync(npcMap.MapInstanceId)
+                    : npcRun.NpcFellAsync(npcMap.MapInstanceId, npc.VisualId);
             }
 
             if (evt.Victim is not MonsterComponentBundle { MapInstance: { } mapInstance } monster)
