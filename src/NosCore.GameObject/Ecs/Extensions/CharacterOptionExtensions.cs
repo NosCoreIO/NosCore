@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Data.Dto;
 using NosCore.Packets.Enumerations;
 using System;
 using System.Linq;
@@ -65,25 +64,4 @@ public static class CharacterOptionExtensions
         Enum.GetValues<GopPacketType>()
             .Where(option => player.GetOption(option) != (option == GopPacketType.MouseAimLock))
             .Sum(option => 1 << ((int)option - 1));
-
-    public static void LoadOptions(this PlayerComponentBundle player, CharacterDto characterDto)
-    {
-        player.ExchangeBlocked = characterDto.ExchangeBlocked;
-        player.FriendRequestBlocked = characterDto.FriendRequestBlocked;
-        player.FamilyRequestBlocked = characterDto.FamilyRequestBlocked;
-        player.WhisperBlocked = characterDto.WhisperBlocked;
-        player.GroupRequestBlocked = characterDto.GroupRequestBlocked;
-        player.PetAutoRelive = characterDto.PetAutoRelive;
-        player.PartnerAutoRelive = characterDto.PartnerAutoRelive;
-        player.GroupSharing = characterDto.GroupSharing;
-        player.MouseAimLock = characterDto.MouseAimLock;
-        player.HeroChatBlocked = characterDto.HeroChatBlocked;
-        player.QuickGetUp = characterDto.QuickGetUp;
-        player.EmoticonsBlocked = characterDto.EmoticonsBlocked;
-        player.HpBlocked = characterDto.HpBlocked;
-        player.BuffBlocked = characterDto.BuffBlocked;
-        player.MinilandInviteBlocked = characterDto.MinilandInviteBlocked;
-        player.HatInvisible = characterDto.HatInvisible;
-        player.LockInterface = characterDto.LockInterface;
-    }
 }

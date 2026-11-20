@@ -41,7 +41,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class SelectPacketHandlerTests
     {
         private TestWorld World;
-        private static readonly ILogger<SelectPacketHandler> Logger = new Mock<ILogger<SelectPacketHandler>>().Object;
         private SelectPacketHandler SelectPacketHandler;
         private ClientSession Session;
 
@@ -53,37 +52,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Session.ClearPlayerEntity();
             var mates = World.Freeze<Mock<NosCore.GameObject.Services.MateService.IMateService>>();
             mates.Setup(s => s.LoadAsync(It.IsAny<long>())).ReturnsAsync(new List<Mate>());
-            SelectPacketHandler = new SelectPacketHandler(
-                World.CharacterDao,
-                Logger,
-                NullLoggerFactory.Instance,
-                new Mock<IItemGenerationService>().Object,
-                World.MapInstanceAccessorService,
-                new Mock<IDao<IItemInstanceDto?, Guid>>().Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object,
-                new Mock<IDao<StaticBonusDto, long>>().Object,
-                new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                new Mock<IDao<TitleDto, Guid>>().Object,
-                new Mock<IDao<CharacterQuestDto, Guid>>().Object,
-                new Mock<IDao<CharacterQuestObjectiveDto, Guid>>().Object,
-                new Mock<IDao<RespawnDto, long>>().Object,
-                World.CompletedTimeSpaceDao,
-                new Mock<IDao<ScriptDto, Guid>>().Object,
-                new NosCore.GameObject.Services.QuestService.QuestCatalog(new List<QuestDto>(), new List<QuestObjectiveDto>()),
-                World.WorldConfiguration,
-                World.LogLanguageLocalizer,
-                World.PubSubHub.Object,
-                World.Clock,
-                new ItemCatalog(new List<ItemDto>()),
-                new HpService(),
-                new MpService(),
-                new SpeedService(),
-                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
-                World.SessionGroupFactory,
-                World.Create<ICharacterInitializationService>(),
-                mates.Object,
-                new Mock<NosCore.GameObject.Services.FamilyService.IFamilyService>().Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IStaticBuffService>().Object);
+            SelectPacketHandler = World.Create<SelectPacketHandler>();
         }
 
         [TestMethod]

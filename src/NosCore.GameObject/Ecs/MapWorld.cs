@@ -374,80 +374,48 @@ public class MapWorld : IDisposable
         return entity;
     }
 
-    public Entity CreatePlayer(
-        int visaulId,
-        long characterId,
-        long accountId,
-        string name,
-        Guid mapInstanceId,
-        short mapId,
-        short positionX,
-        short positionY,
-        byte direction,
-        int hp,
-        int maxHp,
-        int mp,
-        int maxMp,
-        byte level,
-        long levelXp,
-        byte jobLevel,
-        long jobLevelXp,
-        byte heroLevel,
-        long heroLevelXp,
-        long gold,
-        long bankGold,
-        long reputation,
-        int spPoint,
-        int spAdditionPoint,
-        short dignity,
-        short compliment,
-        GenderType gender,
-        HairStyleType hairStyle,
-        HairColorType hairColor,
-        CharacterClassType characterClass,
-        byte face,
-        byte speed,
-        AuthorityType authority,
-        bool isGm,
-        int serverId,
-        FactionType faction)
+    public Entity CreatePlayer(PlayerSpawn spawn)
     {
         var now = _clock.GetCurrentInstant();
+        var characterId = spawn.Character.CharacterId;
+        var authority = spawn.Account.Authority;
         using var scope = _sync.EnterScope();
         ThrowIfDisposed();
         var entity = _world.Create(
-            new EntityIdentityComponent(visaulId, VisualType.Player, characterId),
-            new HealthComponent(hp, maxHp, true),
-            new ManaComponent(mp, maxMp),
-            new PositionComponent(positionX, positionY, direction, mapInstanceId),
+            new EntityIdentityComponent((int)characterId, VisualType.Player, characterId),
+            new HealthComponent(0, spawn.MaxHp, true),
+            new ManaComponent(0, spawn.MaxMp),
+            new PositionComponent(spawn.PositionX, spawn.PositionY, 2, spawn.MapInstanceId),
             new VisualComponent(0, 0, 0, 0, false, false, false),
-            new AppearanceComponent(gender, hairStyle, hairColor, characterClass, face, 100),
-            new ExperienceComponent(level, levelXp, jobLevel, jobLevelXp, heroLevel, heroLevelXp),
-            new GoldComponent(gold, bankGold),
-            new ReputationComponent(reputation, dignity, compliment),
-            new SpComponent(0, spPoint, spAdditionPoint),
-            new NameComponent(name),
+            new AppearanceComponent(default, default, default, default, 0, 100),
+            new ExperienceComponent(0, 0, 0, 0, 0, 0),
+            new GoldComponent(0, spawn.Account.BankMoney),
+            new ReputationComponent(0, 0, 0),
+            new SpComponent(0, 0, 0),
+            new NameComponent(spawn.Character.Name ?? string.Empty),
             new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
-            new PlayerComponent(accountId, characterId, isGm, serverId),
+            new PlayerComponent(spawn.Account.AccountId, characterId, authority >= AuthorityType.GameMaster, spawn.ServerId),
             new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false),
             new TimingComponent(now, Instant.MinValue, Instant.MinValue, Instant.MinValue, Instant.MinValue),
-            new SpeedComponent(speed),
+            new SpeedComponent(spawn.Speed),
+            new PlayerStateComponent(spawn.Character, spawn.Account, spawn.Script, false, false, false, true, now, now, 0, 0, now),
             new DigestionComponent(new DigestionState()),
             new PendingDelayComponent(null, Instant.MinValue, null),
             new WalkAllowanceComponent(0),
             new NpcDialogComponent(null),
             new ListedTargetsComponent(null),
-            new MinigameSessionComponent(null, Instant.MinValue, null),
-            new HitListComponent(new ConcurrentDictionary<Entity, int>())
+            new MinigameSessionComponent(null, Instant.MinValue, null)
         );
-        _world.Add(entity, new BaseMapPositionComponent(mapId, positionX, positionY));
+        _world.Add(entity, new HitListComponent(new ConcurrentDictionary<Entity, int>()));
+        _world.Add(entity, new BaseMapPositionComponent(0, 0, 0));
         _world.Add(entity, new SkillResetComponent(new ConcurrentDictionary<long, Instant>()));
-        _world.Add(entity, new FactionComponent(faction));
+        _world.Add(entity, new FactionComponent(default));
         _world.Add(entity, new WalkTrailComponent(0, 0));
         _world.Add(entity, new SkillComboComponent(0, 0));
         _world.Add(entity, new WarehouseWindowComponent(false, false, null));
         _world.Add(entity, new ChargeComponent(null));
+        CharacterMapping.Load(spawn.Character, new PlayerComponentBundle(entity, this));
         return entity;
     }
 

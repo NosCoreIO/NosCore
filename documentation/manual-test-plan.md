@@ -71,6 +71,9 @@ compute and will mask a regression.
       and the session stays up
 - [ ] Close the client while in the world, log back in at once: the character is not
       reported as already connected and loads normally
+- [ ] Change the character's level, job level, hero level and experience, gold, reputation,
+      dignity, compliment, SP points, hair, faction, biography and a few game options, move on a
+      base map, log out and back in: every value comes back as it was, HP and MP included
 
 ### NPCs after an import
 

@@ -32,6 +32,7 @@ using NosCore.GameObject.Services.ShopService;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
@@ -161,6 +162,7 @@ namespace NosCore.Tests.Shared
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
+            Fixture.UseReal<GameObject.Services.CharacterService.ICharacterLoadService, GameObject.Services.CharacterService.CharacterLoadService>();
             Fixture.UseReal<GameObject.Services.MateService.IPartnerSkillCatalog, GameObject.Services.MateService.PartnerSkillCatalog>();
             Fixture.Freeze<Mock<IMinilandService>>()
                 .Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.Map.Portal>());
@@ -387,49 +389,20 @@ namespace NosCore.Tests.Shared
             session.InitializeAccount(account);
 
             var mapInstance = GetBaseMap(TestMapId);
-            var playerEntity = mapInstance.EcsWorld.CreatePlayer(
-                (int)characterDto.CharacterId,
-                characterDto.CharacterId,
-                account.AccountId,
-                characterDto.Name ?? string.Empty,
+            var ecs = mapInstance.EcsWorld;
+            var playerEntity = ecs.CreatePlayer(new PlayerSpawn(
+                characterDto,
+                account,
+                null,
+                WorldConfiguration.Value.ServerId,
                 mapInstance.MapInstanceId,
-                characterDto.MapId,
                 characterDto.MapX,
                 characterDto.MapY,
-                2,
-                characterDto.Hp,
                 (int)new HpService().GetHp(characterDto.Class, characterDto.Level),
-                characterDto.Mp,
                 (int)new MpService().GetMp(characterDto.Class, characterDto.Level),
-                characterDto.Level,
-                characterDto.LevelXp,
-                characterDto.JobLevel,
-                characterDto.JobLevelXp,
-                characterDto.HeroLevel,
-                characterDto.HeroXp,
-                characterDto.Gold,
-                account.BankMoney,
-                characterDto.Reput,
-                characterDto.SpPoint,
-                characterDto.SpAdditionPoint,
-                (short)characterDto.Dignity,
-                (short)characterDto.Compliment,
-                characterDto.Gender,
-                characterDto.HairStyle,
-                characterDto.HairColor,
-                characterDto.Class,
-                0,
-                10,
-                account.Authority,
-                account.Authority >= AuthorityType.GameMaster,
-                WorldConfiguration.Value.ServerId,
-                characterDto.Faction);
+                10));
 
-            var now = Clock.GetCurrentInstant();
             var group = new Group(Data.Enumerations.Group.GroupType.Group, SessionGroupFactory);
-            var ecs = mapInstance.EcsWorld;
-            ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerStateComponent(
-                characterDto, account, null, false, false, false, true, now, now, 0, 0, now));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerNetworkComponent(session, session.Channel));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerContextComponent(mapInstance, group, null));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerInventoryComponent(
