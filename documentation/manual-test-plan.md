@@ -835,8 +835,10 @@ cooldown once.
 
 - [ ] At level 5 and job level 5, kill a Baby Dander (60 XP, 120 job XP): `lev` shows 180
       XP and 360 job XP, three times the monster's values
-- [ ] At level 15, the kill gives twice the experience; at level 20 and job level 21, the
-      plain amount
+- [ ] At level 15 and job level 25, the kill gives twice the experience and twice the job
+      experience: the job experience boost follows the character's level, not its job level
+- [ ] At level 19 and job level 3, the kill gives the plain experience and twice the job
+      experience; at level 21, the plain amount of both
 - [ ] In a group of two at the same level, each member gets 75 % of the kill; in a group of
       three, 70 %
 

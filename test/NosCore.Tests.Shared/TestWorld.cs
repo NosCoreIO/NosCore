@@ -159,6 +159,7 @@ namespace NosCore.Tests.Shared
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<GameObject.Services.BoxService.IBoxRollService, GameObject.Services.BoxService.BoxRollService>();
+            Fixture.UseReal<GameObject.Services.ExperienceService.IExperienceBonusService, GameObject.Services.ExperienceService.ExperienceBonusService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
             Fixture.UseReal<GameObject.Services.CharacterService.ICharacterLoadService, GameObject.Services.CharacterService.CharacterLoadService>();
             Fixture.UseReal<GameObject.Services.MateService.IPartnerSkillCatalog, GameObject.Services.MateService.PartnerSkillCatalog>();
