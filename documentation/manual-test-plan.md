@@ -22,7 +22,7 @@ even when its packets are covered here.
 | The map: seeing someone arrive, walk and talk, portals and their delay, the position saved on leaving | `MapTests` |
 | Items: what a character carries on entering, dropping and picking up, an NPC shop selling and buying back | `ItemTests` |
 | Trade: gold changing hands and stored at once, a declined trade | `TradeTests` |
-| Chat: whispers, a whisper to nobody, a muted account | `ChatTests` |
+| Chat: whispers, a whisper to nobody, a muted account, a game master's shout | `ChatTests` |
 | Friends and groups: a request accepted, friend and group messages | `SocialTests` |
 | Two channels: the channel list, players apart, a whisper across, one account on one channel | `ChannelTests` |
 | Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival, a main-weapon card marking what it hits | `CombatTests` |
@@ -34,7 +34,7 @@ even when its packets are covered here.
 | The bag: moving, splitting and merging stacks, sorting, wearing and taking off, costumes, potions, dropping, destroying | `InventoryTests` |
 | The bank: depositing, withdrawing and its fee, every limit, a window that is not open | `BankTests` |
 | Groups: inviting, declining, leaving, disbanding, a full group, a member leaving the world, shared experience | `GroupTests` |
-| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP, a taunt drawing a monster off another player | `FightTests` |
+| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP, a taunt drawing a monster off another player, a charge sliding its caster | `FightTests` |
 | Sacrifice cast on a friendly player: the card for its target and the one for its caster | `SacrificeTests` |
 | Loot: whose a drop is, loot in turn and shared loot, how far a drop can be picked up from | `LootTests` |
 | Minilands: entering, friends and strangers, locking, placing and taking away objects, what visitors see, invitations | `MinilandTests` |
@@ -184,6 +184,11 @@ same damage means only one of the two is being read.
 - [ ] In all three, a wall stops the movement in front of it — nobody ends up inside
       geometry or on the far side
 - [ ] A value of 0 on a pull means "up against you", not "no movement"
+- [ ] In all three the moved character or monster glides to its new cell instead of vanishing and
+      reappearing there, and a second player watching sees the same glide. A packet logger shows
+      `guri 3 <type> <id> <x> <y> 3 ...` for the move and no `tp`: `3 2 2 -1` after the cell for
+      a push, `3 4 2 -1` for a pull, `3 2 2 11` for a charge, then `1` when a player moved and `0`
+      for a monster
 
 ### Damage as a percentage of HP — BCard type 37 subtype 31
 
@@ -227,6 +232,8 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] A "move back" skill slides you away from the target instead
 - [ ] The PvP-only push leaves monsters where they are and moves a player
 - [ ] A target resisting forced movement stays put, while your own jump back still happens
+- [ ] Every push and jump back glides the entity over the cells rather than snapping it there,
+      on your screen and on a second player's
 
 ### Taunt — BCard type 30 subtype 11
 
@@ -2595,6 +2602,17 @@ is needed.
 - [ ] Use a speaker item: the red line shows, nobody hears it and the speaker stays in the bag
 - [ ] Set `DateEnd` to the past: the next line is said normally
 
+### Game master shout
+
+A GM account and a second character, on two channels if you have them.
+
+- [ ] With the GM: `$Shout The arena opens in five minutes`. Every connected player gets the
+      line in yellow in the chat window as "(Administrator) The arena opens in five minutes" and
+      the same text across the screen as a notice. The `sayi2` line in a packet logger reads
+      `sayi2 1 -1  10 90 999 The arena opens in five minutes`: the client adds "(Administrator)"
+      itself
+- [ ] The chat line shows "(Administrator)" and the text once each, with no stray number in front
+
 ### Hero chat
 
 Run two world servers (two channels). You need a GM account to set reputation, and five
@@ -2763,10 +2781,14 @@ Found a family as above, or seed one: a `Family` row, then a `FamilyCharacter` r
 member (`Authority` 0 head, 1 assistant, 2 manager, 3 member). Log two members in on the
 same map.
 
-- [ ] Each member sees the other's tag under their name as `Name(Rank)`, with the rank
-      in the viewer's own language, and nothing printed after it
-- [ ] Your own tag shows under your own name after character select, with nothing after it
-- [ ] A character with no family has no tag
+- [ ] Each member sees the other's tag under their name as `Name(Rank)`, the rank once and
+      in the client's own wording (`Testers(Member)` for a plain member), and nothing
+      printed after it
+- [ ] A third character arriving on the map after them sees both tags at once, without
+      any family change happening first
+- [ ] Your own tag shows under your own name after character select, with the rank once
+      and nothing after it
+- [ ] A character with no family has no tag, and nothing in its place
 - [ ] Opening the family window shows the name, the head, the level bar and the notice,
       with the notice's spaces intact
 
@@ -3411,6 +3433,8 @@ countdown starts at :55). Use two characters on a base map.
       and 10 seconds, in the chat and as a notice, in the client's language
 - [ ] "An Instant Combat has started" shows and the join question appears as an icon; a second
       `$Event InstantCombat` answers that the event is already running
+- [ ] Clicking the icon opens the question without a "Corrupted packet received: guri" line in
+      the world log; closing it with No leaves the character out of the fight
 - [ ] After 30 seconds whoever said yes is moved to the Instant Combat map; whoever did not has
       the question removed
 - [ ] Characters of level 45 and 85 land in different rooms, each fighting its own bracket's

@@ -284,7 +284,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                         ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, otherCharacter.AccountLanguage]}]"
                         : string.Empty;
                     yield return otherCharacter.GenerateIn(prefix);
-                    yield return otherCharacter.GenerateGidx(gameLanguageLocalizer, accountLanguage);
+                    yield return otherCharacter.GenerateGidx();
 
                     if (!otherCharacter.Invisible)
                     {
@@ -326,12 +326,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
                     if (!invisible)
                     {
-                        var watchers = await newMapInstance.Executor.RunAsync(() => Task.FromResult(sessionRegistry
-                            .GetSessions(s => s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId)
-                            .Select(watcher => (watcher, watcher.Character.AccountLanguage))
-                            .ToList()));
-                        await Task.WhenAll(watchers.Select(w =>
-                            w.watcher.SendPacketAsync(character.GenerateGidx(gameLanguageLocalizer, w.AccountLanguage))));
+                        await newMapInstance.SendPacketAsync(character.GenerateGidx(), new EveryoneBut(channelId));
                     }
                 }
 

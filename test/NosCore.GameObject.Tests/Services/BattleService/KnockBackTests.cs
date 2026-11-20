@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,10 +13,13 @@ using Moq;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -63,6 +67,23 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 Completion: new TaskCompletionSource<HitOutcome>(TaskCreationOptions.RunContinuationsAsynchronously),
                 Cancellation: CancellationToken.None));
 
+        private static void TheMapShouldSeeTheSlide(IAliveEntity entity, byte unknown6, short unknown8)
+        {
+            var map = entity.MapInstance;
+            Assert.IsNotNull(map);
+            PacketAssert.AreEqual(new GuriForcedMovePacket
+            {
+                VisualType = entity.VisualType,
+                VisualId = entity.VisualId,
+                X = entity.PositionX,
+                Y = entity.PositionY,
+                Unknown6 = unknown6,
+                Unknown8 = unknown8,
+                Unknown9 = entity.VisualType == VisualType.Player ? (byte)1 : (byte)0,
+            }, map.LastPackets.OfType<GuriForcedMovePacket>().Single());
+            Assert.IsFalse(map.LastPackets.OfType<TpPacket>().Any(), "a forced move slides rather than snaps");
+        }
+
         [TestMethod]
         public async Task APushBackChancePushesTheTargetAway()
         {
@@ -72,6 +93,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(7, Target.Character.PositionX);
             Assert.AreEqual(5, Target.Character.PositionY);
+            TheMapShouldSeeTheSlide(Target.Character, 2, -1);
+        }
+
+        [TestMethod]
+        public async Task APullDrawsTheTargetInAndSlidesItThere()
+        {
+            Target.Character.PositionX = 8;
+
+            await HitWithAsync(Card(BCardEffect.SpecialActionsDrawEnemies, 1, 0));
+
+            Assert.AreEqual(5, Target.Character.PositionX);
+            TheMapShouldSeeTheSlide(Target.Character, 4, -1);
+        }
+
+        [TestMethod]
+        public async Task AChargeSlidesTheAttackerUpToTheTarget()
+        {
+            Target.Character.PositionX = 8;
+
+            await HitWithAsync(Card(BCardEffect.SpecialActionsCharge, 5, 0));
+
+            Assert.AreEqual(7, Attacker.Character.PositionX);
+            TheMapShouldSeeTheSlide(Attacker.Character, 2, 11);
+        }
+
+        [TestMethod]
+        public async Task AFailedRollSendsNoSlide()
+        {
+            Roll = 60;
+
+            await HitWithAsync(Card(BCardEffect.JumpBackPushPushBackChance, 60, 2));
+
+            Assert.IsFalse(Target.Character.MapInstance.LastPackets.OfType<GuriForcedMovePacket>().Any());
         }
 
         [TestMethod]
@@ -120,6 +174,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 Cancellation: CancellationToken.None));
 
             Assert.AreEqual(6, monster.PositionX);
+            TheMapShouldSeeTheSlide(monster, 2, -1);
         }
 
         [TestMethod]
@@ -137,6 +192,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(2, Attacker.Character.PositionX);
             Assert.AreEqual(5, Target.Character.PositionX);
+            TheMapShouldSeeTheSlide(Attacker.Character, 2, -1);
         }
 
         [TestMethod]

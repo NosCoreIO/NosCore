@@ -382,6 +382,24 @@ namespace NosCore.GameObject.Ecs.Extensions
             return aliveEntity.MapInstance?.SendPacketAsync(aliveEntity.GenerateTp()) ?? Task.CompletedTask;
         }
 
+        public static GuriForcedMovePacket GenerateForcedMove(this IAliveEntity aliveEntity, ForcedMoveKind kind) => new()
+        {
+            VisualType = aliveEntity.VisualType,
+            VisualId = aliveEntity.VisualId,
+            X = aliveEntity.PositionX,
+            Y = aliveEntity.PositionY,
+            Unknown6 = kind == ForcedMoveKind.Pull ? (byte)4 : (byte)2,
+            Unknown8 = kind == ForcedMoveKind.Charge ? (short)11 : (short)-1,
+            Unknown9 = aliveEntity.VisualType == VisualType.Player ? (byte)1 : (byte)0,
+        };
+
+        public static Task ForceMoveAsync(this IAliveEntity aliveEntity, short x, short y, ForcedMoveKind kind)
+        {
+            aliveEntity.PositionX = x;
+            aliveEntity.PositionY = y;
+            return aliveEntity.MapInstance?.SendPacketAsync(aliveEntity.GenerateForcedMove(kind)) ?? Task.CompletedTask;
+        }
+
         public static EffectPacket GenerateEff(this IAliveEntity aliveEntity, int effectid)
         {
             return new EffectPacket

@@ -385,6 +385,45 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task AChargeSlidesItsCasterUpToWhatItStrikes()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 60, 66, c => c.Class = CharacterClassType.Swordsman);
+            await Harness.TeachAsync(player, WorldData.ChargeSkill);
+            await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 62, 66);
+            await using var alice = Harness.Client(player);
+            await alice.EnterWorldAsync(player.Slot);
+            var tried = Stopwatch.StartNew();
+
+            while (true)
+            {
+                var watched = bob.Mark();
+                var cast = alice.Mark();
+                await alice.SendAsync(Cast(WorldData.ChargeSkillCastId, WorldData.SturdyMonster));
+                var hit = await bob.ExpectSinceAsync<SuPacket>(watched, HitBy(alice, WorldData.SturdyMonster), "the charge");
+                if (hit.Damage != 0)
+                {
+                    var slide = await bob.ExpectSinceAsync<GuriForcedMovePacket>(watched, p => p.VisualId == alice.CharacterId, "Alice sliding");
+                    PacketAssert.AreEqual(new GuriForcedMovePacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = alice.CharacterId,
+                        X = 60,
+                        Y = 61,
+                        Unknown6 = 2,
+                        Unknown8 = 11,
+                        Unknown9 = 1,
+                    }, slide);
+                    Assert.IsTrue(await bob.NoneSinceAsync<TpPacket>(watched, p => p.VisualId == alice.CharacterId, TimeSpan.FromSeconds(1)),
+                        "no snap to the cell");
+                    return;
+                }
+
+                Assert.IsTrue(tried.Elapsed < TimeSpan.FromSeconds(30), "no charge landed in thirty seconds");
+                await alice.ExpectSinceAsync<SkillResetPacket>(cast, p => p.CastId == WorldData.ChargeSkillCastId, "the skill ready again");
+            }
+        }
+
+        [TestMethod]
         public async Task AnotherPlayerCannotBeHitOnAnOrdinaryMap()
         {
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 84, 40);

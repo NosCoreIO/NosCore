@@ -17,6 +17,7 @@ using FamilyQuestKind = NosCore.Packets.Enumerations.FamilyQuestKind;
 using FamilyQuestState = NosCore.Packets.Enumerations.FamilyQuestState;
 using FamilyRankingType = NosCore.Packets.Enumerations.FamilyRankingType;
 using FamilyRankingTypeExtensions = NosCore.Packets.Enumerations.FamilyRankingTypeExtensions;
+using Game18NConstString = NosCore.Packets.Enumerations.Game18NConstString;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,34 +25,32 @@ namespace NosCore.GameObject.Services.FamilyService;
 
 public static class FamilyPackets
 {
-    public static GidxPacket GenerateGidx(this PlayerComponentBundle player,
-        IGameLanguageLocalizer localizer, RegionType viewerLanguage)
+    public static GidxPacket GenerateGidx(this PlayerComponentBundle player)
     {
         var family = player.Family;
-        if (family == null)
-        {
-            return new GidxPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = player.VisualId,
-                FamilyId = null,
-                FamilyName = null,
-                FamilyLevel = 0
-            };
-        }
-
         return new GidxPacket
         {
             VisualType = VisualType.Player,
             VisualId = player.VisualId,
-            FamilyId = family.FamilyId,
-            Unknown = -1,
-            FamilyName = player.GenerateFamilyTag(localizer, viewerLanguage),
-            FamilyLevel = family.FamilyLevel,
+            FamilyId = family?.FamilyId,
+            FamilyRank = player.FamilyRank(),
+            FamilyName = family?.Name,
+            FamilyLevel = family?.FamilyLevel ?? 0,
             // Without the three icon flags the client draws a stray string after the tag.
             FamilyIcons = [0, 0, 0]
         };
     }
+
+    // The client draws the rank after the family's name from its own text.
+    public static Game18NConstString? FamilyRank(this PlayerComponentBundle player) =>
+        player.Family?.AuthorityOf(player.CharacterId) switch
+        {
+            null => null,
+            FamilyAuthority.Head => Game18NConstString.Familyhead,
+            FamilyAuthority.Assistant => Game18NConstString.Familydeputy,
+            FamilyAuthority.Manager => Game18NConstString.Familykeeper,
+            _ => Game18NConstString.Member
+        };
 
     public static FmiPacket? GenerateFmi(this PlayerComponentBundle player)
     {

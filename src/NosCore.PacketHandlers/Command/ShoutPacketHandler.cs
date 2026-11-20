@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(ShoutPacket shoutPacket, ClientSession session)
         {
-            var message = $"({gameLanguageLocalizer[LanguageKey.ADMINISTRATOR, session.Account.Language]}) {shoutPacket.Message}";
+            var notice = $"({gameLanguageLocalizer[LanguageKey.ADMINISTRATOR, session.Account.Language]}) {shoutPacket.Message}";
 
             var sayPacket = new Sayi2Packet
             {
@@ -40,13 +40,15 @@ namespace NosCore.PacketHandlers.Command
                 VisualId = -1,
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.Administrator,
-                Game18NArguments = { 999, message }
+                ArgumentType = 999,
+                // The client puts its own "(Administrator)" in front of the line.
+                Game18NArguments = { shoutPacket.Message ?? string.Empty }
             };
 
             var msgiPacket = new MsgPacket
             {
                 Type = MessageType.Shout,
-                Message = message
+                Message = notice
             };
 
             var sayPostedPacket = new PostedPacket

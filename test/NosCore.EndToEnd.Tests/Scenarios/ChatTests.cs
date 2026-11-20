@@ -5,9 +5,12 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NodaTime;
+using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
@@ -107,6 +110,40 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }, await alice.ExpectAsync<SayiPacket>(p => p.Message == Game18NConstString.RemainingPunishment, "the minutes left"));
             Assert.IsTrue(await bob.NoneSinceAsync<SayPacket>(said, null, TimeSpan.FromSeconds(1)),
                 "the words themselves are sent to nobody");
+        }
+
+        [TestMethod]
+        public async Task AGameMastersShoutReachesEveryPlayerAsAServerLine()
+        {
+            var master = await Harness.AddPlayerAsync("Gm");
+            await using (var context = Harness.Database.CreateContext())
+            {
+                var account = await context.Set<Account>().SingleAsync(a => a.Name == master.Account);
+                account.Authority = AuthorityType.GameMaster;
+                await context.SaveChangesAsync();
+            }
+
+            await using var gm = Harness.Client(master);
+            await gm.EnterWorldAsync(master.Slot);
+            await using var alice = await Harness.EnterAsync("Alice");
+            var mark = alice.Mark();
+
+            await gm.SendAsync(new ShoutPacket { Message = "The arena opens in five minutes" });
+
+            const string text = "The arena opens in five minutes";
+            var line = await alice.ExpectSinceAsync<Sayi2Packet>(mark, p => p.Game18NArguments.Contains(text), "the shout line");
+            PacketAssert.AreEqual(new Sayi2Packet
+            {
+                VisualType = VisualType.Player,
+                VisualId = -1,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.Administrator,
+                ArgumentType = 999,
+                Game18NArguments = { text },
+            }, line);
+#pragma warning disable CS0618 // The shout's notice has no client text, so it goes out as msg.
+            await alice.ExpectSinceAsync<MsgPacket>(mark, p => p is { Type: MessageType.Shout, Message: "(Administrator) " + text }, "the shout notice");
+#pragma warning restore CS0618
         }
     }
 }
