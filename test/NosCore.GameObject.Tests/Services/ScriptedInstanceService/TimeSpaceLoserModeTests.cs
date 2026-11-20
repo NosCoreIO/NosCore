@@ -59,6 +59,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task EachFurtherFailureRaisesTheCountAsync()
+        {
+            await new Spec("Failing again after Loser Mode is offered tells the player the new count, and the stone still offers it")
+                .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 3)
+                .WhenAsync(ThePlayerFails_, TimeSpaceId)
+                .Then(ThePlayerShouldBeToldLoserModeIsAvailableAfter_Failures, 4)
+                .AndAsync(TheStoneShould_OfferLoserMode, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task LoserModeEntryNeedsTheFailuresAsync()
         {
             await new Spec("Asking to enter in Loser Mode without enough failed attempts opens no run")
