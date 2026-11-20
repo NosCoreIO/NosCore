@@ -146,6 +146,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await WorldData.CompleteTimeSpaceAsync(context, player.CharacterId, timeSpaceId);
         }
 
+        // Gives a character a quest in progress. Call it before the character enters the world.
+        public static async Task GiveQuestAsync(Player player, short questId)
+        {
+            await using var context = Database.CreateContext();
+            await WorldData.GiveQuestAsync(context, player.CharacterId, questId);
+        }
+
         // Gives a character a partner in its team wearing a partner card. Call it before the character enters the world.
         public static async Task GivePartnerAsync(Player player)
         {
