@@ -36,6 +36,7 @@ using NosCore.Tests.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
@@ -586,7 +587,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.AreEqual(EndStateType.Fail, run.EndState);
             Assert.IsFalse(_first.LastPackets.OfType<ScorePacket>().Any());
-            Assert.IsTrue(_first.LastPackets.OfType<ScoreFailedPacket>().All(s => s.EndState == EndStateType.Fail));
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Fail },
+                _first.LastPackets.OfType<ScoreFailedPacket>().Single());
         }
 
         [TestMethod]
@@ -1506,6 +1508,80 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.EscortFellAsync(_first.MapInstanceId);
 
             Assert.AreEqual(EndStateType.Fail, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task AnEscortFallingOnARoomDoesNotWaitForATriggerWaitingOnThatRoomAsync()
+        {
+            var scriptRunning = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    scriptRunning.SetResult();
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                }
+            });
+            var start = Task.CompletedTask;
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    start = Task.Run(run.StartAsync);
+                }
+
+                await scriptRunning.Task;
+                await run.EscortFellAsync(_first.MapInstanceId).WaitAsync(TimeSpan.FromSeconds(5));
+            });
+            await start;
+
+            Assert.AreEqual(1, _first.EnumerateMonsters().Count());
+            Assert.AreEqual(EndStateType.Fail, await EndStateOfAsync(run));
+        }
+
+        [TestMethod]
+        public async Task AKillOnARoomDoesNotWaitForATriggerWaitingOnThatRoomAsync()
+        {
+            var scriptRunning = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var cleared = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    scriptRunning.SetResult();
+                    r.SetMonsterLocker(1, 1);
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                },
+                Cleared = (_, _) => cleared.SetResult()
+            });
+            var start = Task.CompletedTask;
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    start = Task.Run(run.StartAsync);
+                }
+
+                await scriptRunning.Task;
+                await run.MonsterKilledAsync(_first.MapInstanceId, Grunt).WaitAsync(TimeSpan.FromSeconds(5));
+            });
+            await start;
+
+            await cleared.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.AreEqual(1, _first.EnumerateMonsters().Count());
+            Assert.AreEqual(1, run.MonstersKilled);
+        }
+
+        private static async Task<EndStateType?> EndStateOfAsync(ScriptedInstanceRun run)
+        {
+            for (var i = 0; i < 100 && run.EndState == null; i++)
+            {
+                await Task.Delay(50);
+            }
+
+            return run.EndState;
         }
 
         [TestMethod]
