@@ -30,8 +30,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using DbEquipmentOption = NosCore.Database.Entities.EquipmentOption;
-using DbInventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
-using DbItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.GameObject.Tests.Services.TransferService
 {
@@ -63,11 +61,12 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
         private IDao<InventoryItemInstanceDto, Guid> _inventoryDao;
         private IDao<EquipmentOptionDto, Guid> _optionDao;
-        private GameObject.Services.TransferService.TransferService _service;
         private TransferOffer _firstOffer = Nothing;
         private TransferOffer _secondOffer = Nothing;
         private List<KeyValuePair<long, IvnPacket>>? _result;
         private Mock<IDaoTransaction> _transaction;
+        private TaskCompletionSource<bool> _inventoryWrite;
+        private Task _transfer;
 
         private InventoryItemInstance _firstStack;
         private InventoryItemInstance _secondStack;
@@ -76,6 +75,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private InventoryItemInstance _armorEntry;
         private Snapshot _before;
         private InvalidOperationException? _thrown;
+        private InventoryItemInstance _pickedUp;
 
         private static TransferOffer Nothing => new(0, 0, new Dictionary<InventoryItemInstance, short>());
 
@@ -92,21 +92,13 @@ namespace NosCore.GameObject.Tests.Services.TransferService
                 session.Character.InventoryService.Clear();
             }
 
-            var context = World.DbContextBuilder;
-            _itemInstanceDao = new Dao<DbItemInstance, IItemInstanceDto?, Guid>(
-                NullLogger<Dao<DbItemInstance, IItemInstanceDto?, Guid>>.Instance, context);
-            _inventoryDao = new Dao<DbInventoryItemInstance, InventoryItemInstanceDto, Guid>(
-                NullLogger<Dao<DbInventoryItemInstance, InventoryItemInstanceDto, Guid>>.Instance, context);
+            _itemInstanceDao = World.ItemInstanceDao;
+            _inventoryDao = World.InventoryItemInstanceDao;
             _optionDao = new Dao<DbEquipmentOption, EquipmentOptionDto, Guid>(
-                NullLogger<Dao<DbEquipmentOption, EquipmentOptionDto, Guid>>.Instance, context);
-            _service = Create(new DaoTransactionScope(context), _inventoryDao);
+                NullLogger<Dao<DbEquipmentOption, EquipmentOptionDto, Guid>>.Instance, World.DbContextBuilder);
+            World.Inject(_optionDao);
+            World.Inject(_configuration);
         }
-
-        private GameObject.Services.TransferService.TransferService Create(IDaoTransactionScope scope,
-            IDao<InventoryItemInstanceDto, Guid> inventoryDao) =>
-            new(_configuration, NullLogger<GameObject.Services.TransferService.TransferService>.Instance,
-                World.LogLanguageLocalizer, scope, World.CharacterDao,
-                World.AccountDao, _itemInstanceDao, inventoryDao, _optionDao);
 
         [TestMethod]
         public async Task ATransferPersistsBothCharactersTogether()
@@ -172,6 +164,22 @@ namespace NosCore.GameObject.Tests.Services.TransferService
                 .WhenAsync(Transferring)
                 .Then(TheTransferFails)
                 .And(BothCharactersAreAsBefore)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFailedWriteKeepsWhatTheReceiverGotMeanwhile()
+        {
+            await new Spec("A write that fails takes back only the trade, not what the receiver got while it was written")
+                .Given(FirstOffersGoldAndPartOfAStackSecondAlreadyHolds)
+                .And(TheInventoryWriteIsPending)
+                .When(TransferringStarts)
+                .And(SecondEarnsGoldPicksUpAnItemAndAddsToTheStack)
+                .AndAsync(TheInventoryWriteFailsNow)
+                .Then(TheTransferFails)
+                .And(NothingIsCommitted)
+                .And(FirstIsAsBefore)
+                .And(SecondKeepsWhatTheyGotMeanwhile)
                 .ExecuteAsync();
         }
 
@@ -242,6 +250,15 @@ namespace NosCore.GameObject.Tests.Services.TransferService
             _firstOffer = new TransferOffer(0, 0, new Dictionary<InventoryItemInstance, short> { [_firstStack] = 3 });
         }
 
+        private void FirstOffersGoldAndPartOfAStackSecondAlreadyHolds()
+        {
+            _first.Character.Gold = 1_000;
+            _firstStack = _first.Character.InventoryService.AddItemToPocket(Stack(Stackable, 10, _first), NoscorePocketType.Main, 0).NotNull().First();
+            _secondStack = _second.Character.InventoryService.AddItemToPocket(Stack(Stackable, 10, _second), NoscorePocketType.Main, 0).NotNull().First();
+            _firstOffer = new TransferOffer(600, 0, new Dictionary<InventoryItemInstance, short> { [_firstStack] = 4 });
+            _before = new Snapshot(_first, _second);
+        }
+
         private void SecondOffersAnItemFirstHasNoRoomFor()
         {
             _secondOther = _second.Character.InventoryService.AddItemToPocket(Stack(Other, 1, _second), NoscorePocketType.Main, 1).NotNull().First();
@@ -264,15 +281,52 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private void TheInventoryWriteHasABug() =>
             WithInventoryWrite(d => d.ThrowsAsync(new InvalidOperationException()));
 
+        private void TheInventoryWriteIsPending()
+        {
+            _inventoryWrite = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            WithInventoryWrite(d => d.Returns(_inventoryWrite.Task));
+        }
+
         private void WithInventoryWrite(
             Action<Moq.Language.Flow.ISetup<IDao<InventoryItemInstanceDto, Guid>, Task<bool>>> outcome)
         {
             _transaction = new Mock<IDaoTransaction>();
-            var scope = new Mock<IDaoTransactionScope>();
-            scope.Setup(s => s.Begin()).Returns(_transaction.Object);
-            var inventoryDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
-            outcome(inventoryDao.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<InventoryItemInstanceDto>>())));
-            _service = Create(scope.Object, inventoryDao.Object);
+            World.Freeze<Mock<IDaoTransactionScope>>().Setup(s => s.Begin()).Returns(_transaction.Object);
+            outcome(World.Freeze<Mock<IDao<InventoryItemInstanceDto, Guid>>>()
+                .Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<InventoryItemInstanceDto>>())));
+        }
+
+        private void TransferringStarts()
+        {
+            _transfer = Transferring();
+            Assert.IsFalse(_transfer.IsCompleted, "the transfer waits on the inventory write");
+        }
+
+        private void SecondEarnsGoldPicksUpAnItemAndAddsToTheStack()
+        {
+            _second.Character.Gold += 50;
+            _pickedUp = _second.Character.InventoryService.AddItemToPocket(Stack(Other, 1, _second)).NotNull().Single();
+            _second.Character.InventoryService.AddItemToPocket(Stack(Stackable, 5, _second)).NotNull();
+        }
+
+        private async Task TheInventoryWriteFailsNow()
+        {
+            _inventoryWrite.SetResult(false);
+            await _transfer;
+        }
+
+        private void FirstIsAsBefore() => _before.AssertUnchanged(_first);
+
+        private void SecondKeepsWhatTheyGotMeanwhile()
+        {
+            var inventory = _second.Character.InventoryService;
+            Assert.IsTrue(inventory.TryGetValue(_pickedUp.ItemInstanceId, out var held), "the picked-up item survives");
+            Assert.AreSame(_pickedUp, held);
+            Assert.AreEqual((short)1, _pickedUp.ItemInstance.Amount);
+            Assert.AreEqual((short)15, inventory[_secondStack.ItemInstanceId].ItemInstance.Amount,
+                "the stack keeps what was added to it and loses only the four traded");
+            Assert.AreEqual(2, inventory.Count);
+            Assert.AreEqual(50L, _second.Character.Gold);
         }
 
         private async Task TransferringThrows()
@@ -292,7 +346,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private sealed class LostConnection : DbException;
 
         private async Task Transferring() =>
-            _result = await _service.TransferAsync(_first.Character, _firstOffer, _second.Character, _secondOffer);
+            _result = await World.Create<GameObject.Services.TransferService.TransferService>().TransferAsync(_first.Character, _firstOffer, _second.Character, _secondOffer);
 
         private void TheTransferSucceeds() => Assert.IsNotNull(_result);
 

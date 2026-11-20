@@ -57,10 +57,10 @@ namespace NosCore.GameObject.Services.TransferService
                 .ToDictionary(i => i.ItemInstanceId,
                     i => equipmentOptionDao.Where(o => o.WearableInstanceId == i.ItemInstanceId)?.ToList() ?? []);
 
-            var snapshot = new Snapshot(first, second);
+            var undo = new Stack<Action>();
             try
             {
-                var changes = Apply(sides, options);
+                var changes = Apply(sides, options, undo);
                 if (changes != null && await PersistAsync(first, second, changes))
                 {
                     return changes.Packets;
@@ -68,13 +68,29 @@ namespace NosCore.GameObject.Services.TransferService
             }
             catch
             {
-                snapshot.Restore();
+                Revert(undo, first, second);
                 throw;
             }
 
-            snapshot.Restore();
+            Revert(undo, first, second);
             logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
             return null;
+        }
+
+        // Other writers can reach both inventories while the trade is persisted, so only the trade's own
+        // changes are reverted, never a whole earlier state.
+        private static void Revert(Stack<Action> undo, params PlayerComponentBundle[] characters)
+        {
+            while (undo.TryPop(out var step))
+            {
+                step();
+            }
+
+            foreach (var character in characters)
+            {
+                character.CharacterDto.Gold = character.Gold;
+                character.Account.BankMoney = character.BankGold;
+            }
         }
 
         private bool IsCovered(Side side)
@@ -94,34 +110,40 @@ namespace NosCore.GameObject.Services.TransferService
                 && live.ItemInstance.Amount >= item.Value);
         }
 
-        private static Changes? Apply(IReadOnlyList<Side> sides, IReadOnlyDictionary<Guid, List<EquipmentOptionDto>> options)
+        private static Changes? Apply(IReadOnlyList<Side> sides, IReadOnlyDictionary<Guid, List<EquipmentOptionDto>> options,
+            Stack<Action> undo)
         {
             var changes = new Changes();
             foreach (var side in sides)
             {
                 var giver = side.Giver;
                 var receiver = side.Receiver;
-                giver.Gold -= side.Offer.Gold;
-                receiver.Gold += side.Offer.Gold;
-                giver.BankGold -= side.Offer.BankGold;
-                receiver.BankGold += side.Offer.BankGold;
-
-                foreach (var (item, amount) in side.Offer.Items)
+                var offer = side.Offer;
+                giver.Gold -= offer.Gold;
+                receiver.Gold += offer.Gold;
+                giver.BankGold -= offer.BankGold;
+                receiver.BankGold += offer.BankGold;
+                undo.Push(() =>
                 {
-                    InventoryItemInstance? remaining = null;
-                    if (amount == item.ItemInstance.Amount)
+                    giver.Gold += offer.Gold;
+                    receiver.Gold -= offer.Gold;
+                    giver.BankGold += offer.BankGold;
+                    receiver.BankGold -= offer.BankGold;
+                });
+
+                var inventory = giver.InventoryService;
+                foreach (var (item, amount) in offer.Items)
+                {
+                    if (!inventory.TryConsume(item, amount))
                     {
-                        side.Giver.InventoryService.Remove(item.ItemInstanceId);
-                        changes.Deleted.Add(item);
-                    }
-                    else
-                    {
-                        remaining = side.Giver.InventoryService.RemoveItemAmountFromInventory(amount, item.ItemInstanceId);
-                        changes.Upserted.Add(item);
+                        return null;
                     }
 
-                    changes.Packets.Add(new KeyValuePair<long, IvnPacket>(side.Giver.VisualId,
-                        remaining.GeneratePocketChange(item.Type.ToPocketType(), item.Slot)));
+                    undo.Push(() => inventory.RestoreConsumed(item, amount));
+                    var whole = item.ItemInstance.Amount == 0;
+                    (whole ? changes.Deleted : changes.Upserted).Add(item);
+                    changes.Packets.Add(new KeyValuePair<long, IvnPacket>(giver.VisualId,
+                        (whole ? null : item).GeneratePocketChange(item.Type.ToPocketType(), item.Slot)));
                 }
             }
 
@@ -135,8 +157,16 @@ namespace NosCore.GameObject.Services.TransferService
                         .Where(s => s.ItemInstance.ItemVNum == clone.ItemVNum)
                         .ToDictionary(s => s.ItemInstanceId, s => s.ItemInstance.Amount);
                     var touched = inventory.AddItemToPocket(InventoryItemInstance.Create(clone, side.Receiver.VisualId)) ?? [];
-                    var received = touched.Sum(s =>
-                        s.ItemInstance.Amount - (before.TryGetValue(s.ItemInstanceId, out var was) ? was : 0));
+                    var received = 0;
+                    foreach (var stack in touched)
+                    {
+                        var added = (short)(stack.ItemInstance.Amount
+                            - (before.TryGetValue(stack.ItemInstanceId, out var was) ? was : 0));
+                        received += added;
+                        // The receiver may have used part of it meanwhile; what is left is all there is to take.
+                        undo.Push(() => inventory.TryConsume(stack, Math.Min(added, stack.ItemInstance.Amount)));
+                    }
+
                     if (received != amount)
                     {
                         return null;
@@ -206,41 +236,6 @@ namespace NosCore.GameObject.Services.TransferService
             }
 
             return clone;
-        }
-
-        private sealed class Snapshot
-        {
-            private readonly List<(PlayerComponentBundle Character, long Gold, long BankGold,
-                List<(InventoryItemInstance Item, short Amount)> Items)> _parties;
-
-            public Snapshot(params PlayerComponentBundle[] characters)
-            {
-                _parties = characters.Select(c => (c, c.Gold, c.BankGold,
-                    c.InventoryService.Values.Select(s => (s, s.ItemInstance.Amount)).ToList())).ToList();
-            }
-
-            public void Restore()
-            {
-                foreach (var (character, gold, bankGold, items) in _parties)
-                {
-                    character.Gold = gold;
-                    character.BankGold = bankGold;
-                    character.CharacterDto.Gold = gold;
-                    character.Account.BankMoney = bankGold;
-                    var inventory = character.InventoryService;
-                    var kept = items.Select(s => s.Item.ItemInstanceId).ToHashSet();
-                    foreach (var added in inventory.Keys.Where(id => !kept.Contains(id)).ToList())
-                    {
-                        inventory.Remove(added);
-                    }
-
-                    foreach (var (item, amount) in items)
-                    {
-                        item.ItemInstance.Amount = amount;
-                        inventory[item.ItemInstanceId] = item;
-                    }
-                }
-            }
         }
     }
 }

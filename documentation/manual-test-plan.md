@@ -4308,6 +4308,10 @@ Recorded so nobody spends time hunting for them:
 - **Both sides confirming a trade at the same moment** — two people cannot click within the same
   instant reliably; an automated test sends both confirmations concurrently and checks the trade
   settles once.
+- **A trade whose save fails while a player receives something else** — the database cannot be
+  made to fail between the confirmation and the commit from the client. An automated test holds the
+  save open, gives the receiver gold, a new item and more of a stack the trade added to, then fails
+  it: only the trade is taken back, and what arrived meanwhile stays.
 - **Casting range of skills with a range of 0** — the skill data does not say how far they
   reach, so they are not gated and there is nothing to observe.
 - **NPC services sent without the NPC** — an unmodified client only sends a dialog choice, a
