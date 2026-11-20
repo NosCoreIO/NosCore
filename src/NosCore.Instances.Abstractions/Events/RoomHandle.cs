@@ -57,11 +57,15 @@ namespace NosCore.Instances.Abstractions
 
         public IButton Sculpture(Spot at, short offVNum, short onVNum) => Button(at, offVNum, onVNum, ButtonKind.Sculpture);
 
-        private ButtonHandle Button(Spot at, short offVNum, short onVNum, ButtonKind kind)
+        public IButton KeyAnywhere(short vNum) => Button(run => run.RandomCell(Key), vNum, vNum, ButtonKind.Key);
+
+        private ButtonHandle Button(Spot at, short offVNum, short onVNum, ButtonKind kind) => Button(_ => at, offVNum, onVNum, kind);
+
+        private ButtonHandle Button(Func<IInstanceRun, Spot> at, short offVNum, short onVNum, ButtonKind kind)
         {
             var button = new ButtonHandle(_buttons.Count + 1);
             _buttons.Add(button);
-            script.Setup(run => run.PlaceButton(Key, button.Id, at, offVNum, onVNum, kind: kind));
+            script.Setup(run => run.PlaceButton(Key, button.Id, at(run), offVNum, onVNum, kind: kind));
             return button;
         }
 

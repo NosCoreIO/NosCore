@@ -142,7 +142,13 @@ namespace NosCore.Instances.Tests
 
         private short _randomCells;
 
-        public Spot RandomCell(int room) => new(10, (short)(5 + _randomCells++));
+        public List<int> RandomCellRooms { get; } = [];
+
+        public Spot RandomCell(int room)
+        {
+            RandomCellRooms.Add(room);
+            return new(10, (short)(5 + _randomCells++));
+        }
 
         private int _cellsAround;
 

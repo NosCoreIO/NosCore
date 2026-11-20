@@ -18,6 +18,9 @@ namespace NosCore.Instances.Abstractions
 
         private protected IInstanceRun Run { get; }
 
+        // How many times longer the run's clock and its added time are: 2 in Loser Mode.
+        public int ClockScale => Run.ClockScale;
+
         // Shown to everyone in the run.
         public TSelf Say(Game18NConstString message)
         {

@@ -25,6 +25,9 @@ namespace NosCore.Instances.Abstractions
         // Moved without a word when it is used.
         IButton Sculpture(Spot at, short offVNum, short onVNum);
 
+        // A key on a walkable cell of the room picked anew for each run, taken off the map by whoever uses it.
+        IButton KeyAnywhere(short vNum);
+
         // The room counts as cleared once that many of its monsters of that vnum have fallen.
         IRoom ClearedAfter(short kills, short vNum);
 

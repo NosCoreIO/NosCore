@@ -81,6 +81,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `Portal(at, to, arrival, locked)` | A one-way portal, kept as a handle to unlock later; one per pair of rooms |
 | `Lever(at)` | A lever, with `OnUse(step)`; `Lever(at, off, on)` draws it with other vnums, such as a button |
 | `Sculpture(at, off, on)` | A sculpture, moved without a word, with `OnUse(step)` |
+| `KeyAnywhere(vnum)` | A key on a walkable cell picked anew for each run, taken by whoever uses it |
 | `ClearedAfter(kills, vnum)` | The room counts as cleared once that many of its monsters of that vnum fall |
 | `Exit(at, locked)` | The way out, at most one per room, with `OnReached(step)`; reaching it wins the run |
 | `OnEnter(step)` | The first time anyone enters |
@@ -129,6 +130,7 @@ or its exit act in that room; `After` and `OnTimeout` steps reach a room with `r
 | `After(delay, step)` | That long after this event, in the same room |
 | `IfAnyoneInside(step)` | Only while someone stands in the room |
 | `In(room)` | The same verbs, acting in another room |
+| `ClockScale` | How many times longer the run's clock is: 2 in Loser Mode, for a line that names the time added |
 
 A room held for a minute while waves come through it, from `instances/timespace-18.csx`:
 
