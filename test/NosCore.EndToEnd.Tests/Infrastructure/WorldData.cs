@@ -67,6 +67,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short ClassBox = 4101;
         public const short SwordsmanBlade = 4102;
         public const short AdventurerBlade = 4103;
+
+        // A box made to lie on a map, opened where it lies; it holds two pebbles.
+        public const short GroundBox = 4104;
+        public const short GroundBoxPebbles = 2;
         public const short Bench = 3001;
         public const short PowerSeed = 2026;
         public const int ChestSlots = 4;
@@ -392,6 +396,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             context.Add(new Item
             {
+                VNum = GroundBox, Name = "groundbox", Type = NoscorePocketType.Main, ItemType = ItemType.Map,
+                Effect = ItemEffectType.BoxEffect, IsDroppable = true
+            });
+            context.Add(new Item
+            {
                 VNum = SwordsmanBlade, Name = "swordsmanblade", Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon,
                 EquipmentSlot = EquipmentType.MainWeapon, Class = (byte)(1 << (byte)CharacterClassType.Swordsman)
             });
@@ -459,6 +468,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new RollGeneratedItem
             {
                 OriginalItemVNum = Box, ItemGeneratedVNum = Pebble, ItemGeneratedAmount = BoxPebbles, Probability = 1, MaximumOriginalItemRare = 8
+            });
+            context.Add(new RollGeneratedItem
+            {
+                OriginalItemVNum = GroundBox, ItemGeneratedVNum = Pebble, ItemGeneratedAmount = GroundBoxPebbles, Probability = 1,
+                MaximumOriginalItemRare = 8
             });
             context.Add(new RollGeneratedItem
             {

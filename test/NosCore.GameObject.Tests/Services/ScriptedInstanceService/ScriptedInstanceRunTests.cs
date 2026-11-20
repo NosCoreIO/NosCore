@@ -31,6 +31,7 @@ using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Tests.Shared;
 using System;
 using System.Collections.Generic;
@@ -888,6 +889,47 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             World.Clock.AdvanceSeconds(1);
             await run.TickAsync();
             Assert.AreEqual(EndStateType.Timeout, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task AMonsterSummonedWithATalkShowsItAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Dialog(1, 6028);
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), Dialog: 6028));
+                }
+            });
+
+            await run.StartAsync();
+
+            var monster = _first.EnumerateMonsters().Single();
+            Assert.AreEqual((short)6028, monster.Dialog);
+            Assert.AreEqual((short)6028, _first.LastPackets.OfType<InPacket>().Single().InNonPlayerSubPacket.NotNull().Dialog);
+        }
+
+        [TestMethod]
+        public async Task ClosingTheTalkTakesItOffTheMonsterThatCarriesItAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Dialog(1, 6028);
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), Dialog: 6028));
+                }
+            });
+            await run.StartAsync();
+
+            await run.DialogClosedAsync(session.Character.CharacterId);
+
+            var monster = _first.EnumerateMonsters().Single();
+            Assert.IsNull(monster.Dialog);
+            Assert.AreEqual((short)0, monster.GenerateIn().InNonPlayerSubPacket.NotNull().Dialog);
         }
 
         [TestMethod]

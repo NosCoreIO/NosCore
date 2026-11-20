@@ -51,6 +51,34 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         }
 
         [TestMethod]
+        public void AnItemThatDoesNotFitWholeIsLeftWholeInsteadOfSplit()
+        {
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 998), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013, 999), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013, 999), 0));
+            var item = ItemProvider.Create(1012, 5);
+
+            var (placed, left, changed) = Inventory.AddAsMuchAsFits(item, 0);
+
+            Assert.AreEqual((0, 5), ((int)placed, (int)left));
+            Assert.AreEqual(5, item.Amount, "what did not fit stays in the item");
+            Assert.AreEqual(0, changed.Count);
+            Assert.AreEqual(998, Inventory.Values.Single(i => i.ItemInstance.ItemVNum == 1012).ItemInstance.Amount);
+        }
+
+        [TestMethod]
+        public void AnItemThatJoinsAHeldStackCountsEverythingItPlaced()
+        {
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 998), 0));
+            var item = ItemProvider.Create(1012, 5);
+
+            var (placed, left, _) = Inventory.AddAsMuchAsFits(item, 0);
+
+            Assert.AreEqual((5, 0), ((int)placed, (int)left));
+            Assert.AreEqual(1003, Inventory.Values.Where(i => i.ItemInstance.ItemVNum == 1012).Sum(i => i.ItemInstance.Amount));
+        }
+
+        [TestMethod]
         public void CreatingItemShouldAddToInventory()
         {
             new Spec("Creating item should add to inventory")

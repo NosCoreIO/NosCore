@@ -1699,6 +1699,14 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
       card is gone; with a stack of two, two rapid double-clicks give two rewards and empty the stack
 - [ ] With the bag full, double-click a box: the not-enough-space message appears and the box
       stays in its slot
+- [ ] `$CreateItem 1042` (Regular Box), drop it and press pick-up on it: instead of going into the
+      bag it starts a two-second "opening" bar over the character, and the box stays on the ground
+- [ ] Let the bar run out: a ground effect plays where the box lay, the box disappears for everyone
+      on the map, one item from the box's list (Normal Wood, for example) lands in the bag with an
+      icon over the character and the "You received [item]" line in the middle of the screen
+- [ ] Walk away or get hit while the bar runs: the box stays on the ground and nothing arrives
+- [ ] With the bag full, let the bar run out: the not-enough-space message appears and the box
+      stays on the ground
 - [ ] Double-click a Tarot Card Game: it is used up and five sealed tarot cards from Fool to
       The Sun arrive, with one "received" line per kind of card
 - [ ] With one free Main slot and no sealed cards yet, double-click a Tarot Card Game: unless all
@@ -3343,6 +3351,10 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Answer Yes: you go through to the next room, the first room stays marked as found on the
       Mission Map, and the clock appears at its full time and starts counting down. Walking back into the
       first room and out again asks nothing
+- [ ] Time-space 6, last room: pull the lever. The talk that opens names the room's danger, and
+      the first monster that comes in (vnum 33) carries it: click that monster without closing the
+      talk and the same talk opens again. Close the talk and click the monster again: nothing
+      opens. The monsters that follow it carry no talk
 - [ ] Inside a run, the client's exit button (`rxit`) sends you back beside the stone, and a
       run you were alone in is gone (entering again starts a new one)
 - [ ] An `escape` sent inside a run does the same as `rxit`: the player is back beside the

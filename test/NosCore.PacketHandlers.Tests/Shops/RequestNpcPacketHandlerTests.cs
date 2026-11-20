@@ -123,6 +123,17 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         [TestMethod]
+        public async Task TalkingToAMonsterThatCarriesATalkAnswersWithIt()
+        {
+            await new Spec("Talking to a monster that carries a talk answers with that talk")
+                .Given(AMonsterStandsBesideTheCharacter)
+                .And(TheMonsterCarriesTalk_, (short)6028)
+                .WhenAsync(TheCharacterTalksToTheMonster)
+                .Then(TheMonsterAnswersWithTalk_, (short)6028)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task TalkingToAShopNpcEndsOnlyOnceItsShopIsListed()
         {
             await new Spec("req_npc on a shop NPC finishes only once the shop list it opens is done")
@@ -200,13 +211,17 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private async Task TheCharacterTalksToTheMonster() =>
             await _requestNpcPacketHandler.ExecuteAsync(new RequestNpcPacket { Type = VisualType.Monster, TargetId = 200 }, _session);
 
-        private void TheMonsterAnswersWithNoDialog()
+        private void TheMonsterAnswersWithNoDialog() => TheMonsterAnswersWithTalk_(0);
+
+        private void TheMonsterCarriesTalk_(short dialog)
         {
-            var answer = _session.LastPackets.OfType<NpcReqPacket>().Single();
-            Assert.AreEqual(VisualType.Monster, answer.Type);
-            Assert.AreEqual(200, answer.TargetId);
-            Assert.AreEqual(0, answer.Data);
+            var monster = _session.Character.MapInstance.GetMonsterById(200).NotNull();
+            monster.Dialog = dialog;
         }
+
+        private void TheMonsterAnswersWithTalk_(short dialog) =>
+            PacketAssert.AreEqual(new NpcReqPacket { Type = VisualType.Monster, TargetId = 200, Data = dialog },
+                _session.LastPackets.OfType<NpcReqPacket>().Single());
 
         private void NpcTalkedEventShouldBeRaised()
         {

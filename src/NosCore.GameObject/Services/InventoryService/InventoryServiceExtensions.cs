@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ServerPackets.Inventory;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,18 @@ namespace NosCore.GameObject.Services.InventoryService
 
         public static InventoryItemInstance? DeleteFromTypeAndSlot(this IInventoryService inventory, NoscorePocketType type,
             EquipmentType slot) => inventory.DeleteFromTypeAndSlot(type, (short)slot);
+
+        // Places the item and says how much of it went in, read from what the pocket did rather than
+        // assumed: Left is what stays in the item, to be put somewhere else.
+        public static (short Placed, short Left, List<InventoryItemInstance> Changed) AddAsMuchAsFits(
+            this IInventoryService inventory, IItemInstance item, long characterId)
+        {
+            var wanted = item.Amount;
+            var entry = InventoryItemInstance.Create(item, characterId);
+            var changed = inventory.AddItemToPocket(entry) ?? [];
+            var left = changed.Any(c => c.ItemInstanceId == entry.ItemInstanceId) ? (short)0 : item.Amount;
+            return ((short)(wanted - left), left, changed);
+        }
 
         // Takes the amount from as many stacks as it needs, never from what is worn, and returns
         // the refresh for every stack it touched.
