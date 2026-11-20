@@ -274,9 +274,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _cleared.Add(room);
         }
 
-        private void Advance(ObjectiveKind kind, short vNum)
+        private void Advance(ObjectiveKind kind, short vNum, int amount = 1)
         {
-            _objectiveProgress[(kind, vNum)] = _objectiveProgress.GetValueOrDefault((kind, vNum)) + 1;
+            _objectiveProgress[(kind, vNum)] = _objectiveProgress.GetValueOrDefault((kind, vNum)) + amount;
             if (_script.Definition.Objectives.Any(o => o.Kind == kind && o.VNum == vNum))
             {
                 _pending.Add(BroadcastMissionInfoAsync);
@@ -292,6 +292,33 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             return points;
+        }
+
+        public Task ItemCollectedAsync(Guid mapInstanceId, short vNum, short amount)
+        {
+            return RunAsync(async () =>
+            {
+                if (RoomOf(mapInstanceId) is not { } room || EndState != null || _abandoned)
+                {
+                    return;
+                }
+
+                Advance(ObjectiveKind.CollectItem, vNum, amount);
+                await CallScriptAsync(run => _script.OnItemCollected(run, room, vNum));
+            });
+        }
+
+        public Task NpcFellAsync(Guid mapInstanceId, Action<IInstanceRun> deathStep)
+        {
+            return RunAsync(async () =>
+            {
+                if (RoomOf(mapInstanceId) == null || EndState != null || _abandoned)
+                {
+                    return;
+                }
+
+                await CallScriptAsync(deathStep);
+            });
         }
 
         public Task ExitReachedAsync(Guid mapInstanceId)
@@ -626,6 +653,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 _pending.Add(() => OnRoom(mapInstance, () =>
                 {
                     var npc = mapInstance.SummonNpc(npcMonster, spawn.At.X, spawn.At.Y);
+                    npc.IsHostile |= spawn.IsAlly;
+                    npc.DeathStep = spawn.OnDeath;
                     if (spawn.IsEscort)
                     {
                         npc.IsEscort = true;
@@ -765,6 +794,21 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _pending.Add(() => OnRoom(mapInstance, async () =>
             {
                 foreach (var monster in mapInstance.EnumerateMonsters().Where(m => m.VNum == vNum && m.IsAlive).ToList())
+                {
+                    monster.IsAlive = false;
+                    _aggroService.Clear(monster);
+                    await mapInstance.SendPacketAsync(new OutPacket { VisualType = VisualType.Monster, VisualId = monster.VisualId });
+                }
+            }));
+        }
+
+        public void Dismiss(int room)
+        {
+            var mapInstance = _rooms[room];
+            _aliveByRoom[room] = 0;
+            _pending.Add(() => OnRoom(mapInstance, async () =>
+            {
+                foreach (var monster in mapInstance.EnumerateMonsters().Where(m => m.IsAlive).ToList())
                 {
                     monster.IsAlive = false;
                     _aggroService.Clear(monster);
@@ -975,6 +1019,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 await mapInstance.SendPacketAsync(npc.GenerateIn());
                 await _host.NpcPlacedAsync(this, mapInstance, npc);
             }));
+        }
+
+        public void PlaceItem(int room, short vNum, Spot at)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () => _itemThrowService.PlaceAsync(mapInstance, at, vNum)));
         }
 
         public Task DialogClosedAsync(long characterId) => RunAsync(() => CloseDialogAsync(characterId));
@@ -1459,8 +1509,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             Status = _visited.Contains(room.Key) ? 0 : 1
         };
 
-        // The window with the run's lives and objective counters. Kills of everything, talks, items
-        // to collect and NPCs to protect are not objectives a script can set yet, so they stay empty.
+        // The window with the run's lives and objective counters. Kills of everything, talks and NPCs to
+        // protect are not objectives a script can set yet, so they stay empty.
         private MinfoPacket? GenerateMissionInfo()
         {
             if (_host.LivesLeft is not { } lives)
@@ -1473,6 +1523,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 GoToExit = _hasExit,
                 KillMonster = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.KillMonster)),
+                CollectItem = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.CollectItem)),
                 InteractObjects = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.UseObject)),
                 MaxLives = lives
             };
@@ -1717,6 +1768,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void Dismiss(int room, short vNum) => Do(() => run.Dismiss(room, vNum));
 
+            public void Dismiss(int room) => Do(() => run.Dismiss(room));
+
             public void SetRates(int room, int experience, int drops) => Do(() => run.SetRates(room, experience, drops));
 
             public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
@@ -1749,6 +1802,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void RemoveButton(int room, int button) => Do(() => run.RemoveButton(room, button));
 
             public void PlaceNpc(int room, short vNum, Spot at) => Do(() => run.PlaceNpc(room, vNum, at));
+
+            public void PlaceItem(int room, short vNum, Spot at) => Do(() => run.PlaceItem(room, vNum, at));
 
             public void StartClock(TimeSpan limit) => Do(() => run.StartClock(limit));
 

@@ -32,6 +32,12 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
                     : npcRun.NpcFellAsync(npcMap.MapInstanceId, npc.VisualId);
             }
 
+            if (evt.Victim is NpcComponentBundle { DeathStep: { } npcDeath, MapInstance: { } fallenMap })
+            {
+                return scriptedInstanceService.GetRun(fallenMap.MapInstanceId)?.NpcFellAsync(fallenMap.MapInstanceId, npcDeath)
+                    ?? Task.CompletedTask;
+            }
+
             if (evt.Victim is not MonsterComponentBundle { MapInstance: { } mapInstance } monster)
             {
                 return Task.CompletedTask;
@@ -63,6 +69,18 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
             }
 
             return run.MonsterHitAsync(mapInstance.MapInstanceId, monster.HitStep, crossed.Select(t => t.Step).ToList());
+        }
+
+        [UsedImplicitly]
+        public Task Handle(ItemsReceivedEvent evt)
+        {
+            if (evt.PlayerHasLeft || evt.Character.MapInstance is not { } mapInstance)
+            {
+                return Task.CompletedTask;
+            }
+
+            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.ItemCollectedAsync(mapInstance.MapInstanceId, evt.VNum, evt.Amount)
+                ?? Task.CompletedTask;
         }
 
         [UsedImplicitly]

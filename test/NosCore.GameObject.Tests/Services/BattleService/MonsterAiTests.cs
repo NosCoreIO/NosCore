@@ -292,6 +292,26 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        [DataRow(true, 1)]
+        [DataRow(false, 0)]
+        public async Task AnNpcOfAPeacefulKindGoesForAMonsterOnlyAsAnAlly(bool ally, int swings)
+        {
+            var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
+            var npc = _map.SummonNpc(new NpcMonsterDto
+            {
+                NpcMonsterVNum = 2, MaxHp = 100, Level = 5, NoticeRange = 5, BasicRange = 1, BasicCooldown = 10,
+                CanWalk = true, Speed = 6
+            }, 4, 2);
+            npc.IsHostile = ally;
+
+            await _ai.TickAsync(npc);
+
+            _battle.Verify(b => b.Hit(It.IsAny<IAliveEntity>(),
+                It.Is<IAliveEntity>(t => t.VisualType == VisualType.Monster && t.VisualId == monster.VisualId),
+                It.IsAny<HitArguments>()), Times.Exactly(swings));
+        }
+
+        [TestMethod]
         public async Task ASwingIsNotRepeatedBeforeItsCooldownElapses()
         {
             var monster = SpawnMonster(4, 1);
