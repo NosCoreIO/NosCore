@@ -15,6 +15,9 @@ namespace NosCore.Instances.Abstractions
 
         IRoom Spawn(params INpc[] npcs);
 
+        // Items lying on the floor for anyone to pick up.
+        IRoom Spawn(params IItem[] items);
+
         // A one-way portal; the way back is a portal of the other room.
         IPortal Portal(Spot at, IRoom to, Spot arrival, bool locked = true);
 
@@ -33,11 +36,14 @@ namespace NosCore.Instances.Abstractions
         IRoom OnDialogClosed(int dialog, Action<RoomEvent> step);
 
         // While the room's clock runs: from that long after it starts (at once by default), then every
-        // interval, whenever someone is inside.
-        IRoom Every(TimeSpan interval, Action<RoomEvent> step, TimeSpan from = default);
+        // interval, whenever someone is inside; only the first times calls when it is given.
+        IRoom Every(TimeSpan interval, Action<RoomEvent> step, TimeSpan from = default, int? times = null);
 
         // When the room's clock runs out; the clock is taken down after the step.
         IRoom OnClockOut(Action<RoomEvent> step);
+
+        // Each time someone in the room picks up an item of that vnum.
+        IRoom OnItemCollected(short vNum, Action<RoomEvent> step);
     }
 
     public interface IPortal;
@@ -79,5 +85,15 @@ namespace NosCore.Instances.Abstractions
     public interface INpc
     {
         INpc At(short x, short y);
+
+        // Fights the monsters around it beside the players, whatever its kind would do.
+        INpc Ally();
+
+        INpc OnDeath(Action<RoomEvent> step);
+    }
+
+    public interface IItem
+    {
+        IItem At(short x, short y);
     }
 }

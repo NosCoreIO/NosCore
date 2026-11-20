@@ -98,6 +98,10 @@ namespace NosCore.Instances.Abstractions
     {
         private Spot? Place { get; init; }
 
+        private bool IsAlly { get; init; }
+
+        private Action<RoomEvent>? Death { get; init; }
+
         internal static NpcSpec Of(INpc npc)
         {
             var spec = npc as NpcSpec ?? throw new ArgumentException($"{npc} is not an NPC of this script.", nameof(npc));
@@ -106,6 +110,26 @@ namespace NosCore.Instances.Abstractions
 
         public INpc At(short x, short y) => this with { Place = new Spot(x, y) };
 
-        internal NpcSpawn Spawn() => new(VNum, Place ?? default);
+        public INpc Ally() => this with { IsAlly = true };
+
+        public INpc OnDeath(Action<RoomEvent> step) => this with { Death = Death + step };
+
+        internal NpcSpawn Spawn(RoomHandle room) =>
+            new(VNum, Place ?? default, IsAlly: IsAlly, OnDeath: Death is { } death ? run => death(new RoomEvent(run, room)) : null);
+    }
+
+    internal sealed record ItemSpec(short VNum) : IItem
+    {
+        private Spot? Place { get; init; }
+
+        internal static ItemSpec Of(IItem item)
+        {
+            var spec = item as ItemSpec ?? throw new ArgumentException($"{item} is not an item of this script.", nameof(item));
+            return spec.Place == null ? throw new InvalidOperationException($"Item {spec.VNum} has no place: give it At.") : spec;
+        }
+
+        public IItem At(short x, short y) => this with { Place = new Spot(x, y) };
+
+        internal Spot Cell => Place ?? default;
     }
 }

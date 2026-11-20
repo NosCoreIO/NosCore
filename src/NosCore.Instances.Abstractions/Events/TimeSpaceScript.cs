@@ -60,6 +60,8 @@ namespace NosCore.Instances.Abstractions
 
         protected static INpc Npc(short vNum) => new NpcSpec(vNum);
 
+        protected static IItem Item(short vNum) => new ItemSpec(vNum);
+
         // That long after the run started.
         protected void After(TimeSpan elapsed, Action<RunEvent> step) => _timers.Add((elapsed, step));
 
@@ -114,6 +116,8 @@ namespace NosCore.Instances.Abstractions
         void IInstanceScript.OnButtonUsed(IInstanceRun run, int room, int button) => RoomOf(room)?.ButtonUsed(run, button);
 
         void IInstanceScript.OnDialogClosed(IInstanceRun run, int room, int dialog) => RoomOf(room)?.DialogClosed(run, dialog);
+
+        void IInstanceScript.OnItemCollected(IInstanceRun run, int room, short vNum) => RoomOf(room)?.ItemCollected(run, vNum);
 
         // Reaching the way out is how a time-space is won.
         void IInstanceScript.OnExitReached(IInstanceRun run, int room)

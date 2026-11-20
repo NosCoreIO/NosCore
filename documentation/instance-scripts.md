@@ -78,15 +78,16 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 
 | On a room | Meaning |
 |---|---|
-| `Spawn(monsters…)`, `Spawn(npcs…)` | What the room holds from the start |
+| `Spawn(monsters…)`, `Spawn(npcs…)`, `Spawn(items…)` | What the room holds from the start |
 | `Portal(at, to, arrival, locked)` | A one-way portal, kept as a handle to unlock later |
 | `Lever(at)` | A lever, with `OnUse(step)` |
 | `Exit(at, locked)` | The way out, at most one per room, with `OnReached(step)`; reaching it wins the run |
 | `OnEnter(step)` | The first time anyone enters |
 | `OnCleared(step)` | When its last monster falls |
 | `OnDialogClosed(dialog, step)` | The first time that dialog is closed |
-| `Every(interval, step, from)` | While the room's clock runs: `from` after it starts (at once by default), then every interval, whenever someone is inside |
+| `Every(interval, step, from, times)` | While the room's clock runs: `from` after it starts (at once by default), then every interval, whenever someone is inside; only the first `times` calls when it is given |
 | `OnClockOut(step)` | When the room's clock runs out; the clock is taken down after the step |
+| `OnItemCollected(vnum, step)` | Each time someone in the room picks up an item of that vnum |
 
 ## Monsters
 
@@ -103,7 +104,12 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `OnHit(step)` | On each hit it survives |
 | `OnHpBelow(percent, step)` | Once, on the hit that takes its HP below that share of its maximum |
 
-A monster needs one of `At`, `Anywhere` or `Around`. `Npc(vnum).At(x, y)` places an NPC.
+A monster needs one of `At`, `Anywhere` or `Around`. `Npc(vnum).At(x, y)` places an NPC; `Ally()` sets it
+on the monsters around it, whatever its kind would do, and `OnDeath(step)` runs in its room when it falls.
+`Item(vnum).At(x, y)` lays an item on the floor for anyone to pick up.
+
+`Objective(ObjectiveKind.CollectItem, vnum, n)` counts the items of that vnum picked up in the run, in the
+mission window; a time-space won by picking one up says so with `OnItemCollected(vnum, r => r.Succeed())`.
 
 ## Steps
 
@@ -120,6 +126,7 @@ or its exit act in that room; `After` and `OnTimeout` steps reach a room with `r
 | `Dialog(id)` | Opens that NPC dialog for the players in the room |
 | `Objective(key)` | The room's line in the mission panel until it is cleared |
 | `StartRoomClock(length)` | The room's red clock, which drives `Every` and `OnClockOut` |
+| `DismissMonsters()` | Takes the room's living monsters off the map, as a holding room does when its clock ends |
 
 A room held for a minute while waves come through it, from `instances/timespace-18.csx`:
 
@@ -139,5 +146,5 @@ holdout.OnDialogClosed(6097, r => r
 ## Testing a script
 
 `test/NosCore.Instances.Tests` loads every `timespace-*.csx` against a recording run and walks
-from the first room to the exit, closing each dialog, clearing each room, pulling each lever and
-killing each monster on the way. A script that leaves the exit out of reach fails there.
+from the first room to the exit, closing each dialog, clearing each room, pulling each lever, picking up
+each item and killing each monster on the way. A script that leaves the exit out of reach fails there.

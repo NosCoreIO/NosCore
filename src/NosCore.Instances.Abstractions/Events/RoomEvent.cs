@@ -99,6 +99,13 @@ namespace NosCore.Instances.Abstractions
             _room.StartClock(Run, length);
             return this;
         }
+
+        // Takes the room's living monsters off the map without anyone killing them.
+        public RoomEvent DismissMonsters()
+        {
+            Run.Dismiss(_room.Key);
+            return this;
+        }
     }
 
     public sealed class RunEvent : InstanceEvent<RunEvent>
