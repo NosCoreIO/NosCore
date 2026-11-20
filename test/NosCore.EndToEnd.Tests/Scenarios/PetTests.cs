@@ -28,6 +28,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const short SentBack = 6;
         private const short SendBackBar = 3000;
         private const short NoSkill = -1;
+        private const short NoTeam = -2;
 
         // The owner stands a cell from the monster, which puts the pet that came in at her side on it.
         private static async Task<TestClient> EnterWithAPetAsync(string name)
@@ -88,7 +89,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await PetManagementAsync(alice, SentBack, pet);
 
             await alice.ExpectSinceAsync<OutPacket>(sent, p => p.VisualType == VisualType.Npc && p.VisualId == pet, "the pet leaving");
-            await alice.ExpectSinceAsync(sent, BarOf(NoSkill), "the skill bar going with it");
+            await alice.ExpectSinceAsync<PetskiPacket>(sent, p => p.FirstSkillVNum == NoTeam && p.SecondSkillVNum == null,
+                "the skill bar going with it");
         }
 
         [TestMethod]

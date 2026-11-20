@@ -2103,6 +2103,8 @@ Have such a pet in the team and a second client on the map.
 - [ ] Cast Sushi Party, send the Otter back to the Miniland (the bar goes away) and take it out again
       before the 70 seconds are over: the bar is back, Sushi Party stays greyed out with its time left
       until 70 seconds after the cast, and Smackeroo is usable meanwhile
+- [ ] With the Otter alone in the team, send it back: the bar goes away the same way as when a
+      partner stays in the team, and logging in with no mate in the team shows no bar either
 - [ ] In the Miniland, Company on a pet with other skills: the bar shows that pet's skills
 - [ ] Let a monster knock the Otter out: the bar goes away, and comes back with the Otter
 - [ ] Catch a monster with no pet out: no pet skill bar appears for it
