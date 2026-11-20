@@ -177,6 +177,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // Has something to say, so talking to it is answered, and stands away from the shopkeeper.
         public const int Broker = 2;
+        public const short BrokerX = 76;
+        public const short BrokerY = 118;
         public const short BrokerDialog = 1;
         private const short BrokerVNum = 5;
 
@@ -689,7 +691,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new NpcTalk { DialogId = BrokerDialog, Name = "broker" });
             context.Add(new NpcMonster { NpcMonsterVNum = BrokerVNum, Name = "broker", Level = 1, MaxHp = 100 });
             await context.SaveChangesAsync();
-            context.Add(new MapNpc { MapNpcId = Broker, MapId = Town, MapX = 76, MapY = 118, VNum = BrokerVNum, Dialog = BrokerDialog });
+            context.Add(new MapNpc { MapNpcId = Broker, MapId = Town, MapX = BrokerX, MapY = BrokerY, VNum = BrokerVNum, Dialog = BrokerDialog });
             await context.SaveChangesAsync();
             await SeedMarketAsync(context);
             await SeedFamilyManagerAsync(context);
@@ -933,6 +935,17 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 Title = "highlevelscorequest", Desc = "highlevelscorequest"
             });
             await context.SaveChangesAsync();
+            context.AddRange(
+                new NpcTalkButton
+                {
+                    NpcTalkButtonId = Guid.NewGuid(), DialogId = ScoreKeeperDialog,
+                    Runner = NrunRunnerType.GetQuestHigherTimeSpaceScore, Argument = 0
+                },
+                new NpcTalkButton
+                {
+                    NpcTalkButtonId = Guid.NewGuid(), DialogId = ScoreKeeperDialog,
+                    Runner = NrunRunnerType.GetQuestHigherTimeSpaceScore, Argument = 1
+                });
             context.Add(new MapNpc
             {
                 MapNpcId = ScoreKeeper, MapId = Town, MapX = ScoreKeeperX, MapY = ScoreKeeperY, VNum = ScoreKeeperVNum,

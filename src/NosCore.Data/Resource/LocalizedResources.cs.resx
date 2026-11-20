@@ -491,6 +491,12 @@
   <data name="NPCTALKS_PARSED" xml:space="preserve">
     <value>{0} NPC Talks Parsed!</value>
   </data>
+  <data name="NPC_TALK_BUTTONS_PARSED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons Parsed!</value>
+  </data>
+  <data name="NPC_TALK_BUTTONS_LOADED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons loaded.</value>
+  </data>
   <data name="WALK_CHECKSUM_INVALID" xml:space="preserve">
     <value>Invalid walk checksum.</value>
   </data>

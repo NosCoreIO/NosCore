@@ -195,6 +195,8 @@ namespace NosCore.Database
 
         public virtual DbSet<NpcTalk>? NpcTalk { get; set; }
 
+        public virtual DbSet<NpcTalkButton>? NpcTalkButton { get; set; }
+
         private const int MaxEnumLabelLength = 63;
 
         static void HasPostgresEnum(ModelBuilder modelBuilder, Type type)
@@ -371,6 +373,12 @@ namespace NosCore.Database
                 .HasMany(e => e.MapNpc)
                 .WithOne(e => e.NpcTalk)
                 .HasForeignKey(e => e.Dialog)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<NpcTalk>()
+                .HasMany(e => e.NpcTalkButton)
+                .WithOne(e => e.NpcTalk)
+                .HasForeignKey(e => e.DialogId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Character>()

@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261121105038_AddQuestOfferOption";
+    public override string LastMigrationId => "20261121105109_AddNpcTalkButtons";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2717,6 +2717,31 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.ToTable("NpcTalk");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.NpcTalkButton", b =>
+            {
+                b.Property<Guid>("NpcTalkButtonId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid");
+
+                b.Property<short>("Argument")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("DialogId")
+                    .HasColumnType("smallint");
+
+                b.Property<short?>("NextDialogId")
+                    .HasColumnType("smallint");
+
+                b.Property<short?>("Runner")
+                    .HasColumnType("smallint");
+
+                b.HasKey("NpcTalkButtonId");
+
+                b.HasIndex("DialogId");
+
+                b.ToTable("NpcTalkButton");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.PenaltyLog", b =>
             {
                 var penaltyLogId = b.Property<int>("PenaltyLogId")
@@ -4435,6 +4460,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Skill");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.NpcTalkButton", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.NpcTalk", "NpcTalk")
+                    .WithMany("NpcTalkButton")
+                    .HasForeignKey("DialogId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("NpcTalk");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.PenaltyLog", b =>
             {
                 b.HasOne("NosCore.Database.Entities.Account", "Account")
@@ -4949,6 +4985,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         modelBuilder.Entity("NosCore.Database.Entities.NpcTalk", b =>
             {
                 b.Navigation("MapNpc");
+
+                b.Navigation("NpcTalkButton");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.Quest", b =>

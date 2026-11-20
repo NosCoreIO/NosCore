@@ -9,9 +9,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
@@ -24,7 +26,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         IQuestService questService,
         List<QuestDto> quests,
         IRandomProvider random,
-        IClock clock) : INrunEventHandler
+        IClock clock,
+        INpcTalkButtonCatalog npcTalkButtons) : INrunEventHandler
     {
         public abstract NrunRunnerType Runner { get; }
 
@@ -33,7 +36,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             var offers = quests.Where(q => q.OfferedBy == Runner).ToList();
-            if (offers.Count == 0)
+            if (offers.Count == 0 || target is not NpcComponentBundle npc || !npcTalkButtons.Offers(npc, Runner))
             {
                 return Task.CompletedTask;
             }

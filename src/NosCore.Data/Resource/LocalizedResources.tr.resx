@@ -501,6 +501,12 @@
   <data name="NPCTALKS_PARSED" xml:space="preserve">
     <value>{0} NPC diyaloğu işlendi!</value>
   </data>
+  <data name="NPC_TALK_BUTTONS_PARSED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons Parsed!</value>
+  </data>
+  <data name="NPC_TALK_BUTTONS_LOADED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons loaded.</value>
+  </data>
   <data name="SCRIPTS_PARSED" xml:space="preserve">
     <value>{0} Script işlendi!</value>
   </data>
