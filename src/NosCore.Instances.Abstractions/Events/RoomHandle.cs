@@ -14,11 +14,12 @@ namespace NosCore.Instances.Abstractions
     internal sealed class RoomHandle(TimeSpaceScript script, int key) : IRoom
     {
         private readonly Dictionary<int, Action<RoomEvent>> _dialogsClosed = [];
-        private readonly List<(TimeSpan Interval, Action<RoomEvent> Step)> _waves = [];
+        private readonly List<(TimeSpan Interval, TimeSpan From, Action<RoomEvent> Step)> _waves = [];
         private readonly List<ButtonHandle> _buttons = [];
         private readonly HashSet<PortalHandle> _portals = [];
         private Action<RoomEvent>? _entered;
         private Action<RoomEvent>? _cleared;
+        private Action<IInstanceRun>? _clearedForRun;
         private Action<RoomEvent>? _clockOut;
         private ExitHandle? _exit;
 
@@ -105,10 +106,11 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
-        public IRoom Every(TimeSpan interval, Action<RoomEvent> step)
+        public IRoom Every(TimeSpan interval, Action<RoomEvent> step, TimeSpan from = default)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(interval, TimeSpan.Zero);
-            _waves.Add((interval, step));
+            ArgumentOutOfRangeException.ThrowIfLessThan(from, TimeSpan.Zero);
+            _waves.Add((interval, from, step));
             return this;
         }
 
@@ -120,7 +122,13 @@ namespace NosCore.Instances.Abstractions
 
         internal void Entered(IInstanceRun run) => _entered?.Invoke(new RoomEvent(run, this));
 
-        internal void Cleared(IInstanceRun run) => _cleared?.Invoke(new RoomEvent(run, this));
+        internal void Cleared(IInstanceRun run)
+        {
+            _cleared?.Invoke(new RoomEvent(run, this));
+            _clearedForRun?.Invoke(run);
+        }
+
+        internal void OnCleared(Action<IInstanceRun> step) => _clearedForRun += step;
 
         internal void DialogClosed(IInstanceRun run, int dialog) =>
             _dialogsClosed.GetValueOrDefault(dialog)?.Invoke(new RoomEvent(run, this));
@@ -161,9 +169,16 @@ namespace NosCore.Instances.Abstractions
                     over.StopRoomClock(Key);
                 }
             });
-            foreach (var (interval, step) in _waves)
+            foreach (var (interval, from, step) in _waves)
             {
-                Wave(run, startedAt, interval, step, clock);
+                if (from == TimeSpan.Zero)
+                {
+                    Wave(run, startedAt, interval, step, clock);
+                }
+                else
+                {
+                    run.At(startedAt + from, first => Wave(first, startedAt + from, interval, step, clock));
+                }
             }
         }
 
