@@ -100,13 +100,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 SkillCooldown = 12,
                 AttackAnimation = 11,
                 SkillEffect = Fireball,
-                PositionX = _vampie.PositionX,
-                PositionY = _vampie.PositionY,
                 TargetIsAlive = true,
                 HpPercentage = (byte)(player.Hp * 100 / player.MaxHp),
                 Damage = 10,
                 HitMode = SuPacketHitMode.SuccessAttack,
-                SkillTypeMinusOne = 1,
                 TargetCurrentHp = player.Hp,
                 TargetMaxHp = player.MaxHp,
             }, _map.LastPackets.OfType<SuPacket>().Single());

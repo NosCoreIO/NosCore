@@ -636,6 +636,26 @@ Use two clients on the same map.
 - [ ] A monster that sees hidden things (BCard 40/52) still notices and attacks a hidden player
 - [ ] Enter a map while hidden: players already there do not see you arrive
 
+### The cell and attack class a hit line names
+
+A `su` line names no cell and an attack class of 0, as the live game sends it, except for the first
+blow of a dash (a type 5 skill aimed at a target, such as Rocket Charge 366 or Rocket Jump 386),
+which names the caster's cell, and a ground skill's blows, which name the cast cell. Nothing on
+screen is expected to change; these checks are for a regression.
+
+- [ ] With a packet logger, let a monster hit you, hit it back with the basic attack, and let a pet
+      fight: every `su` reads `0 0` for the two cells after the effect, and `0` before the target's
+      HP
+- [ ] Cast an area skill around yourself (Spinning Hit, 204) next to two monsters, then a buff on
+      yourself: the same `0 0` and `0` on every line, the area hits still play on the monsters, and
+      the self line still plays on the character
+- [ ] Cast a ground skill: its hits still play on the clicked cell, and their `su` lines name it
+- [ ] Use Rocket Jump on a monster a few cells away: the leap plays and the character ends where
+      it stood; a second player sees it in the same place
+- [ ] Not verifiable yet: a dash carrying its caster onto the target. The live game names the cell
+      the caster lands on, next to the target; the server does not move the caster, so the line
+      names the cell it still stands on
+
 ### Area skills and bystanders
 
 - [ ] Stand a second character next to a monster and cast an area skill at the monster: the
