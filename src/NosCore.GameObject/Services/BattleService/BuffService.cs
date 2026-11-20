@@ -36,6 +36,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 {
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
+    private const byte CardArgument = 3;
 
     public async Task ApplyAsync(IAliveEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster, int overrideDuration = -1)
     {
@@ -60,6 +61,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         await CleanseAsync(target, bCards);
         await ReplaceSameGroupAsync(target, buffs, card);
+        var alreadyRunning = buffs.TryGetValue(card.CardId, out var running) && running.ExpiresAt > now;
         buffs.AddOrUpdate(card.CardId, buff, (_, current) => Refresh(current, buff, now));
         await NotifyMovementAsync(target, buff);
 
@@ -81,6 +83,11 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 },
                 BuffLevel = level,
             });
+        }
+
+        if (!alreadyRunning)
+        {
+            await AnnounceAsync(target, buff, Game18NConstString.UnderEffect);
         }
     }
 
@@ -298,17 +305,29 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         {
             if (!buff.Static && buffs.TryRemove(cardId, out var removed))
             {
-                await SendIconRemovalAsync(target, removed);
+                await SendIconRemovalAsync(target, removed, announce: false);
             }
         }
     }
 
     // The client keeps a greyed icon on bf_e; a bf with no duration left is what takes it down.
-    private async Task SendIconRemovalAsync(IAliveEntity target, BuffInstance buff)
+    // Cards cleared by a death go without a line.
+    private async Task SendIconRemovalAsync(IAliveEntity target, BuffInstance buff, bool announce = true)
     {
+        if (announce)
+        {
+            await AnnounceAsync(target, buff, Game18NConstString.LostSideEffect);
+        }
+
         await NotifyMovementAsync(target, buff);
         await SendIconPacketRemovalAsync(target, buff);
     }
+
+    // Only the bearer reads which card started or ended, and only for a card with a bf icon.
+    private static Task AnnounceAsync(IAliveEntity target, BuffInstance buff, Game18NConstString message) =>
+        target is PlayerComponentBundle player && !buff.Static && !buff.FromSkill
+            ? player.SendPacketAsync(player.GenerateSayi(SayColorType.WhiteTimeout, message, CardArgument, buff.CardId.ToString()))
+            : Task.CompletedTask;
 
     private static Task SendIconPacketRemovalAsync(IAliveEntity target, BuffInstance buff)
     {

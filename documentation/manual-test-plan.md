@@ -436,6 +436,18 @@ an unknown skill, a ground cast) still stop the auto-attack.
       bar in the group window. Their portrait there shows their specialist only while they are
       transformed.
 
+### Buff lines
+
+The line is a white message under the buff icons at the top left, gone after about five
+seconds. It is not written in the chat, so look right after the icon appears.
+
+- [ ] Drink an Attack Potion: "You are under the effect of Attack power increased." shows
+      under the buff icons. Drink a second one while the first still runs: no second line.
+- [ ] Wait for that buff to run out: "You have lost the Attack power increased effect." shows
+      there before the icon goes.
+- [ ] Die with a buff running: the icons go without a line.
+- [ ] Watch a second character drink a potion next to you: no line appears on your screen.
+
 ### Debuff resistance
 
 - [ ] Let a monster whose skill causes Blackout hit you: Blackout lands on every hit that
