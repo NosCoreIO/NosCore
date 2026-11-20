@@ -68,6 +68,46 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual((short?)0, resolver.ResolveBasic(monster.Object)?.SkillVnum);
         }
 
+        private const short FireballVnum = 1028;
+
+        private SkillResolver ResolverWithAFireballThatParalyses() => new(
+            new NosCore.GameObject.Services.SkillService.SkillCatalog([new SkillDto { SkillVNum = FireballVnum, CastId = 0, Cooldown = 50, Range = 9, Effect = 1029, AttackAnimation = 12, SkillType = 1 }]),
+            new NpcCombatCatalog(new(), new(), [Causes(FireballVnum, 194, 80)]),
+            _cards.Object);
+
+        private static INonPlayableEntity AFireVampie()
+        {
+            var monster = new Mock<INonPlayableEntity>();
+            monster.Setup(m => m.NpcMonster).Returns(new NpcMonsterDto
+            {
+                NpcMonsterVNum = 58, BasicSkill = FireballVnum, BasicCooldown = 12, BasicRange = 4, AttackClass = 2
+            });
+            return monster.Object;
+        }
+
+        [TestMethod]
+        public void AMonstersBasicAttackOnlyPlaysTheEffectThatSharesASkillsNumber()
+        {
+            var basic = ResolverWithAFireballThatParalyses().ResolveBasic(AFireVampie());
+
+            Assert.IsNotNull(basic);
+            Assert.AreEqual((short)0, basic.SkillVnum);
+            Assert.AreEqual(FireballVnum, basic.Effect);
+            Assert.AreEqual((short)11, basic.AttackAnimation);
+            Assert.AreEqual((short)12, basic.Cooldown);
+            Assert.AreEqual((byte)4, basic.Range);
+            Assert.AreEqual(0, basic.BCards.Count);
+        }
+
+        [TestMethod]
+        public void AMonsterWithoutSkillsFallsBackToItsBasicAttackNotToTheSkillItsEffectNames()
+        {
+            var resolved = ResolverWithAFireballThatParalyses().Resolve(AFireVampie(), 0);
+
+            Assert.AreEqual((short?)0, resolved?.SkillVnum);
+            Assert.AreEqual(0, resolved?.BCards.Count);
+        }
+
         [TestMethod]
         public void UnknownCasterReturnsNull()
         {
