@@ -97,7 +97,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         if (entity.CastingUntil > clock.GetCurrentInstant()) return true;
 
         var target = CurrentTarget(entity);
-        if (target == null && entity.NpcMonster.IsHostile)
+        if (target == null && entity.IsHostile)
         {
             var noticed = DetectNearbyEnemy(entity);
             if (noticed != null)

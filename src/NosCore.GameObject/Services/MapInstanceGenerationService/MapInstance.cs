@@ -356,7 +356,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     this,
                     x.MapX, x.MapY, x.Direction,
                     x.MapX, x.MapY,
-                    npcMonster.CanWalk, false, x.IsDisabled);
+                    npcMonster.CanWalk, npcMonster.IsHostile, x.IsDisabled);
                 entries[x.MapMonsterId] = new MonsterComponentBundle(entity, EcsWorld);
             }
             _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>(entries);

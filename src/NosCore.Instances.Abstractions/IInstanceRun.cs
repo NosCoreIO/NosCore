@@ -13,7 +13,8 @@ namespace NosCore.Instances.Abstractions
     public readonly record struct Spot(short X, short Y);
 
     // A bonus monster flashes while alive, and each one killed in a row adds to the run's combo.
-    // OnDeath runs when this particular monster falls.
+    // OnDeath runs when this particular monster falls. IsHostile: false keeps a monster that aggroes on
+    // sight from noticing anyone until it is attacked; it cannot make a peaceful monster aggressive.
     public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true, bool IsBonus = false,
         Action<IInstanceRun>? OnDeath = null);
 
