@@ -63,19 +63,19 @@ namespace NosCore.GameObject.Services.BattleService
             if (origin is PlayerComponentBundle or MateComponentBundle && CanCast(origin) && !IsStunned(origin)
                 && Resolve(origin, arguments) is { SkillVnum: not 0, TargetType: not SkillReach.TargetedSkill and not SkillReach.GroundSkill } supportSkill)
             {
-                return await CastOnSelfOrAllyAsync(origin, target, supportSkill);
+                return await CastOnSelfOrAllyAsync(origin, target, supportSkill, arguments.SkillId);
             }
 
             if (!CanAttack(origin, target) || IsStunned(origin))
             {
-                await CancelAsync(origin, target);
+                await CancelAsync(origin, arguments.SkillId, AttackRefusal(origin, target));
                 return false;
             }
 
             var skill = Resolve(origin, arguments);
             if (skill == null)
             {
-                await CancelAsync(origin, target);
+                await CancelAsync(origin, arguments.SkillId, CancelPacketType.CancelAutoAttack);
                 return false;
             }
 
@@ -95,7 +95,7 @@ namespace NosCore.GameObject.Services.BattleService
 
             if (!await CastAsync(origin, target, skill))
             {
-                await CancelAsync(origin, target);
+                await CancelAsync(origin, arguments.SkillId, AttackRefusal(origin, target));
                 return false;
             }
 
@@ -153,13 +153,13 @@ namespace NosCore.GameObject.Services.BattleService
             var skill = CanCast(origin) && !IsStunned(origin) && mapInstance != null ? Resolve(origin, arguments) : null;
             if (mapInstance == null || skill == null || !(skill.HitsSeveral || skill.TargetType == SkillReach.GroundSkill) || captureService.IsCaptureSkill(skill))
             {
-                await CancelAsync(origin, null);
+                await CancelAsync(origin, arguments.SkillId, CancelPacketType.CancelAutoAttack);
                 return false;
             }
 
             if (!await CastAsync(origin, null, skill))
             {
-                await CancelAsync(origin, null);
+                await CancelAsync(origin, arguments.SkillId, CancelPacketType.CancelAutoAttack);
                 return false;
             }
 
@@ -196,14 +196,14 @@ namespace NosCore.GameObject.Services.BattleService
 
         // A skill aimed at the caster or a friendly player: a buff for them, a buff for everyone
         // around, or a blow to every enemy around the caster, by its hit type.
-        private async Task<bool> CastOnSelfOrAllyAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill)
+        private async Task<bool> CastOnSelfOrAllyAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, long castId)
         {
             var mapInstance = origin.MapInstance;
             var recipient = skill.TargetType == SkillReach.AllySkill ? target : origin;
             if (mapInstance == null || !recipient.IsAlive || !ReferenceEquals(recipient.MapInstance, mapInstance)
                 || CanAttack(origin, recipient) || !await CastAsync(origin, null, skill))
             {
-                await CancelAsync(origin, target);
+                await CancelAsync(origin, castId, CancelPacketType.CancelAutoAttack);
                 return false;
             }
 
@@ -621,15 +621,18 @@ namespace NosCore.GameObject.Services.BattleService
             return aAlly && bAlly;
         }
 
-        private static async Task CancelAsync(IAliveEntity origin, IAliveEntity? target)
+        // A dead target, a stunned caster or an attack aimed at the caster itself only ends the cast;
+        // any other refusal also stops the auto attack.
+        private CancelPacketType AttackRefusal(IAliveEntity origin, IAliveEntity target) =>
+            IsStunned(origin) || !target.IsAlive || (target.VisualType == origin.VisualType && target.VisualId == origin.VisualId)
+                ? CancelPacketType.CancelCast
+                : CancelPacketType.CancelAutoAttack;
+
+        private static async Task CancelAsync(IAliveEntity origin, long castId, CancelPacketType type)
         {
             if (origin is PlayerComponentBundle character)
             {
-                await character.SendPacketAsync(new CancelPacket
-                {
-                    Type = CancelPacketType.CancelAutoAttack,
-                    TargetId = target?.VisualId ?? 0,
-                });
+                await character.SendPacketAsync(new CancelPacket { Type = type, TargetId = castId, Unknow = -1 });
             }
         }
     }

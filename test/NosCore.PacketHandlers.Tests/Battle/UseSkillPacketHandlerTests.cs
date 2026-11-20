@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(TargetIsOnSameMap)
                 .And(CharacterCannotFight)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(BattleServiceShouldNotBeCalled)
                 .ExecuteAsync();
         }
@@ -181,7 +181,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterHasMp_, 50)
                 .And(SkillWasUsedJustNow)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheCastShouldBeCancelled)
                 .And(BattleServiceShouldNotBeCalled)
                 .ExecuteAsync();
         }
@@ -210,7 +210,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterHasMp_, 50)
                 .And(SkillWasUsedJustNow)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheCastShouldBeCancelled)
                 .And(NoSayiShouldBeSent)
                 .ExecuteAsync();
         }
@@ -226,7 +226,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.NotEnoughMpForSpell,
             }, sayi);
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 1, Unknow = -1 },
                 sent.OfType<CancelPacket>().Single());
             Assert.IsTrue(sent.IndexOf(sayi) < sent.FindIndex(p => p is CancelPacket));
         }
@@ -245,7 +245,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
                 .And(TargetIsAt_, (short)5)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(BattleServiceShouldNotBeCalled)
                 .And(CharacterMpShouldBe_, 50)
                 .ExecuteAsync();
@@ -278,7 +278,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterIsAt_WithSpeed_, (short)0, (byte)2)
                 .And(TargetIsAt_, (short)5)
                 .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)4)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(BattleServiceShouldNotBeCalled)
                 .And(CharacterShouldBeAt_, (short)0)
                 .ExecuteAsync();
@@ -295,7 +295,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
                 .And(TargetIsAt_, (short)20)
                 .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(CharacterShouldBeAt_, (short)0)
                 .ExecuteAsync();
         }
@@ -411,7 +411,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(SkillCarriesAnUpgradeLinkWithoutBeingAnUpgrade)
                 .And(SkillWasUsedJustNow)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheCastShouldBeCancelled)
                 .And(BattleServiceShouldNotBeCalled)
                 .ExecuteAsync();
         }
@@ -428,7 +428,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
                 .And(TargetIsAt_, (short)10)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(BattleServiceShouldNotBeCalled)
                 .And(CharacterMpShouldBe_, 50)
                 .ExecuteAsync();
@@ -462,7 +462,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
                 .And(TargetIsAt_, (short)20)
                 .WhenAsync(UsingSkillOnExistingPlayer)
-                .Then(ShouldReceiveCancelPacket)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(BattleServiceShouldNotBeCalled)
                 .ExecuteAsync();
         }
@@ -650,11 +650,13 @@ namespace NosCore.PacketHandlers.Tests.Battle
             }, Session);
         }
 
-        private void ShouldReceiveCancelPacket()
-        {
-            var packet = Session.LastPackets.OfType<CancelPacket>().FirstOrDefault();
-            Assert.IsNotNull(packet);
-        }
+        private void TheCastShouldBeCancelled() =>
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelCast, TargetId = 1, Unknow = -1 },
+                Session.LastPackets.OfType<CancelPacket>().Single());
+
+        private void TheAutoAttackShouldBeStopped() =>
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 1, Unknow = -1 },
+                Session.LastPackets.OfType<CancelPacket>().Single());
 
         private void NoPacketShouldBeSent()
         {

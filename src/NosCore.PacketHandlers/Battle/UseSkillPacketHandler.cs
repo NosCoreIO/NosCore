@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Battle
         {
             if (!clientSession.Character.CanFight)
             {
-                await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
+                await UseAoeSkillPacketHandler.CancelAsync(clientSession, packet.CastId, CancelPacketType.CancelAutoAttack);
                 return;
             }
 
@@ -77,8 +77,12 @@ namespace NosCore.PacketHandlers.Battle
             if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed, out var refusal, out var itemVNum))
             {
                 (character.PositionX, character.PositionY) = (previousX, previousY);
+                var cancel = CancelPacketType.CancelAutoAttack;
                 switch (refusal)
                 {
+                    case SkillCastRefusal.OnCooldown:
+                        cancel = CancelPacketType.CancelCast;
+                        break;
                     case SkillCastRefusal.NotEnoughMp:
                         await UseAoeSkillPacketHandler.NotEnoughMpAsync(character);
                         break;
@@ -86,7 +90,7 @@ namespace NosCore.PacketHandlers.Battle
                         await UseAoeSkillPacketHandler.MissingItemAsync(character, itemVNum);
                         break;
                 }
-                await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
+                await UseAoeSkillPacketHandler.CancelAsync(clientSession, packet.CastId, cancel);
                 return;
             }
 

@@ -53,7 +53,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static Func<DlgiPacket, bool> AskedHowToRevive =>
             packet => packet.YesPacket is RevivalPacket { Type: RevivalType.InPlace } && packet.NoPacket is RevivalPacket { Type: RevivalType.AtSavePoint };
 
-        private static Func<CancelPacket, bool> Refused => packet => packet.Type == CancelPacketType.CancelAutoAttack;
+        private static CancelPacket CastCancelled(long castId) => new() { Type = CancelPacketType.CancelCast, TargetId = castId, Unknow = -1 };
+
+        private static CancelPacket AutoAttackStopped(long castId) => new() { Type = CancelPacketType.CancelAutoAttack, TargetId = castId, Unknow = -1 };
 
         private static Func<CMapPacket, bool> InTown => packet => packet is { Type: 0, Id: WorldData.Town, IsEntering: true };
 
@@ -243,7 +245,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await far.SendAsync(Cast(RangedSkill, WorldData.SturdyMonster));
 
-            await far.ExpectSinceAsync(refused, Refused, "the refusal");
+            PacketAssert.AreEqual(AutoAttackStopped(RangedSkill), await far.ExpectSinceAsync<CancelPacket>(refused, description: "the refusal"));
             Assert.IsTrue(await near.NoneSinceAsync(watched, HitBy(far, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit from out of range");
 
             await near.SendAsync(Cast(RangedSkill, WorldData.SturdyMonster));
@@ -262,7 +264,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.SendAsync(Cast(0, WorldData.SturdyMonster));
 
-            await alice.ExpectSinceAsync(refused, Refused, "the refusal");
+            PacketAssert.AreEqual(AutoAttackStopped(0), await alice.ExpectSinceAsync<CancelPacket>(refused, description: "the refusal"));
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit from four cells away");
         }
 
@@ -286,7 +288,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.SendAsync(Cast(WorldData.SlowSkillCastId, WorldData.SturdyMonster));
 
-            await alice.ExpectSinceAsync(again, Refused, "the refusal");
+            PacketAssert.AreEqual(CastCancelled(WorldData.SlowSkillCastId), await alice.ExpectSinceAsync<CancelPacket>(again, description: "the refusal"));
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no second hit");
             Assert.IsFalse(alice.Since<StatPacket>(again).Any(p => p.Mp < MostMp - WorldData.SlowSkillMp), "and no MP spent on it");
         }
@@ -304,7 +306,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.SendAsync(Cast(WorldData.SlowSkillCastId, WorldData.SturdyMonster));
 
-            var cancel = await alice.ExpectSinceAsync(refused, Refused, "the refusal");
+            var cancel = await alice.ExpectSinceAsync<CancelPacket>(refused, description: "the refusal");
+            PacketAssert.AreEqual(AutoAttackStopped(WorldData.SlowSkillCastId), cancel);
             PacketAssert.AreEqual(new SayiPacket
             {
                 VisualType = VisualType.Player,
@@ -349,8 +352,20 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var message = await alice.ExpectSinceAsync<SayiPacket>(refused, p => p.Message == Game18NConstString.MissingItemForSkill, "the missing item");
             Assert.AreEqual((byte)2, message.ArgumentType);
             Assert.AreEqual<object>((long)WorldData.Bandage, message.Game18NArguments[0], "naming the bandage");
-            await alice.ExpectSinceAsync(refused, Refused, "the refusal");
+            PacketAssert.AreEqual(AutoAttackStopped(WorldData.BandageSkillCastId), await alice.ExpectSinceAsync<CancelPacket>(refused, description: "the refusal"));
             Assert.IsTrue(await bob.NoneSinceAsync(watched, HitBy(alice, WorldData.SturdyMonster), TimeSpan.FromSeconds(1)), "no hit");
+        }
+
+        [TestMethod]
+        public async Task AnAttackOnAnNpcIsRefusedAndStopsTheAutoAttack()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", WorldData.Town, 84, 119);
+            var refused = alice.Mark();
+
+            await alice.SendAsync(new UseSkillPacket { CastId = 0, TargetVisualType = VisualType.Npc, TargetId = WorldData.Shopkeeper });
+
+            PacketAssert.AreEqual(AutoAttackStopped(0), await alice.ExpectSinceAsync<CancelPacket>(refused, description: "the refusal"));
+            Assert.IsTrue(await alice.NoneSinceAsync<SuPacket>(refused, hit => hit.TargetVisualType == VisualType.Npc, TimeSpan.FromSeconds(1)), "no hit on the NPC");
         }
 
         private static Func<IvnPacket, bool> Bandages(short amount) =>

@@ -34,7 +34,7 @@ even when its packets are covered here.
 | The bag: moving, splitting and merging stacks, sorting, wearing and taking off, costumes, potions, dropping, destroying | `InventoryTests` |
 | The bank: depositing, withdrawing and its fee, every limit, a window that is not open | `BankTests` |
 | Groups: inviting, declining, leaving, disbanding, a full group, a member leaving the world, shared experience | `GroupTests` |
-| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP, a taunt drawing a monster off another player, a charge sliding its caster | `FightTests` |
+| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP, an attack on an NPC, a taunt drawing a monster off another player, a charge sliding its caster | `FightTests` |
 | Sacrifice cast on a friendly player: the card for its target and the one for its caster | `SacrificeTests` |
 | Loot: whose a drop is, loot in turn and shared loot, how far a drop can be picked up from | `LootTests` |
 | Minilands: entering, friends and strangers, locking, placing and taking away objects, what visitors see, invitations | `MinilandTests` |
@@ -375,6 +375,26 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] A second character next to you sees the same wind-up
 - [ ] Kill the target with another character during the wind-up: the cast ends without a hit
 - [ ] A monster with a cast-time skill stops chasing while it winds up, then resumes
+
+### Refused casts
+
+A refused cast is cancelled with its cast id. A skill on cooldown, a dead target, a stunned
+caster or an attack aimed at yourself only ends the cast; an attack on an NPC also stops the
+auto-attack. Refusals no packet trace shows yet (not enough MP, out of reach, a missing item,
+an unknown skill, a ground cast) still stop the auto-attack.
+
+- [ ] Cast a skill, then cast it again before its slot is ready: nothing is hit, the client
+      does not freeze in a casting pose, you can walk and cast another skill at once, and the
+      monster stays targeted as it does after a refused cast on the live servers
+- [ ] Hold the basic attack on a monster another character kills: the auto-attack ends the
+      way it does on the live servers and the client stays responsive
+- [ ] While stunned (a Blackout), press a skill: the cast is refused, and once the stun ends
+      the next cast goes through without re-selecting the monster
+- [ ] Attack an NPC (a shopkeeper, a time-space ally or your own pet): the cast is refused and
+      the red auto-attack arrow turns into the yellow selection arrow
+- [ ] Drop below a skill's mana cost and cast it, then back out of reach and cast: each cast
+      is refused and the client stays responsive; note whether the auto-attack stops, as
+      no trace shows these yet
 
 ### Buffs on a target
 

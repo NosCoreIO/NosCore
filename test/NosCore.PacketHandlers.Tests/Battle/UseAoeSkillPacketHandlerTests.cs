@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(TheCharacterKnowsAGroundSkillOfRange_MpCost_Cooldown_, (byte)5, (short)20, (short)50)
                 .And(TheCharacterHas_Mp, 50)
                 .WhenAsync(CastingAt_, (short)7)
-                .Then(ACancelShouldBeSent)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(TheAreaShouldNotBeHit)
                 .And(TheCharacterShouldHave_Mp, 50)
                 .ExecuteAsync();
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(TheCharacterHas_Mp, 50)
                 .And(TheSkillWasJustUsed)
                 .WhenAsync(CastingAt_, (short)4)
-                .Then(ACancelShouldBeSent)
+                .Then(TheCastShouldBeCancelled)
                 .And(TheAreaShouldNotBeHit)
                 .And(TheCharacterShouldHave_Mp, 50)
                 .ExecuteAsync();
@@ -110,7 +110,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(TheCharacterKnowsAGroundSkillOfRange_MpCost_Cooldown_, (byte)5, (short)80, (short)50)
                 .And(TheCharacterHas_Mp, 50)
                 .WhenAsync(CastingAt_, (short)4)
-                .Then(ACancelShouldBeSent)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(TheNotEnoughMpMessageShouldBeSent)
                 .And(TheAreaShouldNotBeHit)
                 .ExecuteAsync();
@@ -122,7 +122,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             await new Spec("A cast id the character has not learned is cancelled")
                 .Given(TheCharacterKnowsNoSkill)
                 .WhenAsync(CastingAt_, (short)4)
-                .Then(ACancelShouldBeSent)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(TheAreaShouldNotBeHit)
                 .ExecuteAsync();
         }
@@ -147,7 +147,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(TheCharacterKnowsAGroundSkillOfRange_MpCost_Cooldown_, (byte)5, (short)20, (short)50)
                 .And(TheCharacterIsVehicled)
                 .WhenAsync(CastingAt_, (short)4)
-                .Then(ACancelShouldBeSent)
+                .Then(TheAutoAttackShouldBeStopped)
                 .And(TheAreaShouldNotBeHit)
                 .ExecuteAsync();
         }
@@ -188,7 +188,13 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void TheAreaShouldNotBeHit() =>
             _battleService.Verify(b => b.HitArea(It.IsAny<IAliveEntity>(), It.IsAny<short>(), It.IsAny<short>(), It.IsAny<HitArguments>()), Times.Never);
 
-        private void ACancelShouldBeSent() => Assert.IsNotNull(_session.LastPackets.OfType<CancelPacket>().FirstOrDefault());
+        private void TheCastShouldBeCancelled() =>
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelCast, TargetId = 3, Unknow = -1 },
+                _session.LastPackets.OfType<CancelPacket>().Single());
+
+        private void TheAutoAttackShouldBeStopped() =>
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 3, Unknow = -1 },
+                _session.LastPackets.OfType<CancelPacket>().Single());
 
         private void TheNotEnoughMpMessageShouldBeSent() =>
             Assert.IsTrue(_session.LastPackets.OfType<SayiPacket>().Any(p => p.Message == Game18NConstString.NotEnoughMpForSpell));
