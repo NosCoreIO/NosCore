@@ -7,7 +7,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
@@ -138,13 +137,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
             var script = new Script(succeeds);
             _run = new ScriptedInstanceRun(
-                new TimeSpaceRunHost(
-                    new GameObject.Services.ScriptedInstanceService.ScriptedInstance
+                World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance
                     {
                         ScriptedInstanceId = 1, MapId = 1, LevelMinimum = LevelMinimum, Logic = script
-                    },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object,
-                    World.Create<TimeSpacePenaltyService>()),
+                    }),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _room },
                 new NpcMonsterCatalog([]),
