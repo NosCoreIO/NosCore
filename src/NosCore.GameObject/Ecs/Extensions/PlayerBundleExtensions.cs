@@ -54,6 +54,29 @@ public static class PlayerBundleExtensions
 {
 
     // Back on their feet where they fell, either with full HP and MP or with one of each.
+    public static async Task ReviveInPlaceAsync(this PlayerComponentBundle player, int percent)
+    {
+        await player.OnMapAsync(() =>
+        {
+            player.Hp = Math.Max(1, player.MaxHp * percent / 100);
+            player.Mp = Math.Max(1, player.MaxMp * percent / 100);
+            player.IsAlive = true;
+            return Task.CompletedTask;
+        });
+        await player.TeleportAsync(player.PositionX, player.PositionY);
+        if (player.MapInstance is { } mapInstance)
+        {
+            await mapInstance.SendPacketAsync(new RevivePacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = player.VisualId,
+                Data = 0,
+            });
+        }
+
+        await player.SendPacketAsync(player.GenerateStat());
+    }
+
     public static async Task ReviveAsync(this PlayerComponentBundle player, bool fully)
     {
         await player.OnMapAsync(() =>

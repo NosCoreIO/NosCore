@@ -98,7 +98,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 new TimeSpaceRunHost(
                     new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, LevelMinimum = 1, Logic = _script },
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object,
-                    World.Clock, World.Create<TimeSpacePenaltyService>()),
+                    World.Create<TimeSpacePenaltyService>()),
                 _script, new Dictionary<int, MapInstance> { [1] = _room }, catalog, new RandomProvider(), World.Clock,
                 World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),

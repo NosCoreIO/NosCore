@@ -376,6 +376,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        public Task RevivalAnsweredAsync(PlayerComponentBundle player)
+        {
+            return RunAsync(() =>
+            {
+                if (EndState == null && _down.Contains(player.CharacterId))
+                {
+                    _pending.Add(async () =>
+                    {
+                        await _host.RevivalAnsweredAsync(this, player);
+                        await BroadcastMissionInfoAsync();
+                    });
+                }
+
+                return Task.CompletedTask;
+            });
+        }
+
         public bool IsDown(long characterId) => _down.Contains(characterId);
 
         // For a host that brings a fallen player back; only call it from one of the host's hooks.

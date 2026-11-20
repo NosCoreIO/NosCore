@@ -114,7 +114,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private ScriptedInstanceRun Run(Script script, TimeSpan? timeout = null) =>
             new(_host ?? new TimeSpaceRunHost(
                     new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, LevelMinimum = 1, Logic = script },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _gameEvents.Object, World.Clock, World.Create<TimeSpacePenaltyService>()),
+                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _gameEvents.Object, World.Create<TimeSpacePenaltyService>()),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new NpcMonsterCatalog([new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10, IsHostile = true }]),

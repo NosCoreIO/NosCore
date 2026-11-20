@@ -175,7 +175,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             var run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new ScriptedInstance { MapId = 1, Logic = script, StoneVNum = GateVNum },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Clock, World.Create<TimeSpacePenaltyService>()),
+                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Create<TimeSpacePenaltyService>()),
                 script,
                 new Dictionary<int, MapInstance> { [script.Room] = room },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),

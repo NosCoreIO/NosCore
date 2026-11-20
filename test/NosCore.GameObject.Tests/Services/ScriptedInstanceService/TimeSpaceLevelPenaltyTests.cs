@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                         ScriptedInstanceId = 1, MapId = 1, LevelMinimum = LevelMinimum, Logic = script
                     },
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object,
-                    World.Clock, World.Create<TimeSpacePenaltyService>()),
+                    World.Create<TimeSpacePenaltyService>()),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _room },
                 new NpcMonsterCatalog([]),
