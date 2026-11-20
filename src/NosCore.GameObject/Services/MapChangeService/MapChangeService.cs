@@ -233,8 +233,12 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateStat());
                 await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music, newMapInstance.MapType));
                 await session.SendPacketAsync(character.GenerateCond());
+                // The map's broadcast below reaches only those already on it, so the arriving player gets their own.
+                await session.SendPacketAsync(titInfoPacket);
                 await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
                 await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
+                await session.SendPacketAsync(character.GenerateCharSc());
+                await session.SendPacketAsync(character.GenerateGidx());
                 await session.SendPacketAsync(character.GeneratePairy(fairy));
                 await session.SendPacketsAsync(newMapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
