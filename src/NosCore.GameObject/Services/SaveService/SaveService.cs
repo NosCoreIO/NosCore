@@ -15,7 +15,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
-using Mapster;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -38,20 +37,6 @@ namespace NosCore.GameObject.Services.SaveService
             IDaoTransactionScope daoTransactionScope, IStaticBuffService staticBuffService)
         : ISaveService
     {
-        // The row's identity is fixed when the character is created; the bundle only shows it.
-        private static readonly TypeAdapterConfig CharacterSave = BuildCharacterSave();
-
-        private static TypeAdapterConfig BuildCharacterSave()
-        {
-            var config = new TypeAdapterConfig();
-            config.NewConfig<PlayerComponentBundle, CharacterDto>()
-                .Map(dest => dest.HeroXp, src => src.HeroLevelXp)
-                .Map(dest => dest.Reput, src => src.Reputation)
-                .Ignore(dest => dest.CharacterId, dest => dest.AccountId, dest => dest.ServerId,
-                    dest => dest.Name, dest => dest.Slot, dest => dest.Prefix);
-            return config;
-        }
-
         public async Task<bool> SaveAsync(ClientSession session)
         {
             var started = Stopwatch.GetTimestamp();
@@ -89,7 +74,7 @@ namespace NosCore.GameObject.Services.SaveService
                     character.MapX = character.PositionX;
                     character.MapY = character.PositionY;
                 }
-                character.Adapt(characterDto, CharacterSave);
+                CharacterMapping.Save(character, characterDto);
 
                 // Every DAO call below shares this scope's transaction: the DAOs swallow
                 // their own exceptions and report failure through their return value, so
