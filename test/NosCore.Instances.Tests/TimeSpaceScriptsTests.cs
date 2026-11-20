@@ -60,6 +60,16 @@ namespace NosCore.Instances.Tests
                 }
             }
 
+            foreach (var (room, vNum) in run.Items.ToList())
+            {
+                script.OnItemCollected(run, room, vNum);
+            }
+
+            foreach (var npc in run.SummonedNpcs.ToList())
+            {
+                npc.OnDeath?.Invoke(run);
+            }
+
             for (var fallen = 0; fallen < run.Summoned.Count; fallen++)
             {
                 run.Summoned[fallen].OnDeath?.Invoke(run);
@@ -89,8 +99,11 @@ namespace NosCore.Instances.Tests
 
         [TestMethod]
         [DataRow("timespace-33")]
+        [DataRow("timespace-34")]
         [DataRow("timespace-35")]
+        [DataRow("timespace-36")]
         [DataRow("timespace-38")]
+        [DataRow("timespace-44")]
         [DataRow("timespace-46")]
         [DataRow("timespace-628")]
         public async Task EnteringTheFirstRoomStartsTheMission(string name)
@@ -104,6 +117,113 @@ namespace NosCore.Instances.Tests
 
             Assert.AreEqual("message(MissionStartWhenEnterFirstRoom)", run.Calls[^1]);
             Assert.IsTrue(run.Portals.Any(p => p.From == first && !p.Locked));
+        }
+
+        [TestMethod]
+        public async Task PickingUpTheArtifactInTheDarkTrapWinsTheTreasureRoom()
+        {
+            var script = await LoadAsync("timespace-34");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+            const int trap = 16;
+
+            script.OnItemCollected(run, 4, 1001);
+            var boxWins = run.Calls.Contains("succeed");
+            script.OnItemCollected(run, trap, 1059);
+
+            Assert.IsFalse(boxWins);
+            Assert.AreEqual("succeed", run.Calls[^1]);
+            CollectionAssert.Contains(run.Items, (trap, (short)1059));
+            Assert.AreEqual(new InstanceObjective(ObjectiveKind.CollectItem, 1059, 1), script.Definition.Objectives.Single());
+        }
+
+        [TestMethod]
+        public async Task TheDarkTrapHoldsItsDoorsUntilItsClockRunsOut()
+        {
+            var script = await LoadAsync("timespace-34");
+            var run = new RecordingRun { Players = 1 };
+            script.OnFirstEnter(run);
+            const int trap = 16;
+
+            script.OnRoomEntered(run, trap);
+            script.OnRoomCleared(run, trap);
+            var openedOnClearing = run.Unlocked.Any(p => p.From == trap);
+            RunTimers(run);
+
+            Assert.IsFalse(openedOnClearing);
+            CollectionAssert.IsSubsetOf(new[] { (trap, 11), (trap, 17), (trap, 15) }, run.Unlocked.ToList());
+            CollectionAssert.Contains(run.Calls, "message(TIMESPACE_PORTAL_HAS_OPENED)");
+        }
+
+        [TestMethod]
+        public async Task TheKovoltsFightBesideThePlayer()
+        {
+            var script = await LoadAsync("timespace-36");
+            var run = new RecordingRun();
+
+            script.OnFirstEnter(run);
+
+            Assert.IsTrue(run.SummonedNpcs.Where(n => n.VNum is 116 or 122 or 329).All(n => n.IsAlly));
+            Assert.IsFalse(run.SummonedNpcs.Where(n => n.VNum == 319).Any(n => n.IsAlly));
+        }
+
+        [TestMethod]
+        public async Task AFallenKovoltBringsAKenkoRaider()
+        {
+            var script = await LoadAsync("timespace-36");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+
+            run.SummonedNpcs.Select(n => n.OnDeath).OfType<Action<IInstanceRun>>().Single()(run);
+
+            Assert.AreEqual("summon(7,152)", run.Calls[^1]);
+        }
+
+        [TestMethod]
+        [DataRow(12, 13, 5)]
+        [DataRow(14, 15, 6)]
+        public async Task AHoldoutTakesItsLeftoverMonstersAwayWhenItsClockEnds(int holdout, int next, int perWave)
+        {
+            var script = await LoadAsync("timespace-44");
+            var run = new RecordingRun { Players = 1 };
+            script.OnFirstEnter(run);
+
+            script.OnRoomEntered(run, holdout);
+            RunTimers(run);
+
+            var wave = $"summon({holdout},{string.Join(",", Enumerable.Repeat(154, perWave))})";
+            Assert.AreEqual(4, run.Calls.Count(c => c == wave));
+            var unlock = run.Calls.IndexOf($"unlock({holdout}->{next})");
+            Assert.IsTrue(unlock >= 0 && run.Calls.IndexOf($"dismiss({holdout})") > unlock);
+        }
+
+        [TestMethod]
+        public async Task TheHeartSendsSpearmenThreeTimesAndRaidersUntilItsClockEnds()
+        {
+            var script = await LoadAsync("timespace-44");
+            var run = new RecordingRun { Players = 1 };
+            script.OnFirstEnter(run);
+            const int heart = 16;
+
+            script.OnRoomEntered(run, heart);
+            script.OnDialogClosed(run, heart, 6173);
+            RunTimers(run);
+
+            Assert.AreEqual(3, run.Calls.Count(c => c == $"summon({heart},154,154,154,154)"));
+            Assert.AreEqual(4, run.Calls.Count(c => c == $"summon({heart},155,155)"));
+            Assert.IsTrue(run.UnlockedExits.Contains(heart));
+            CollectionAssert.AreEqual(new[] { $"dismiss({heart})", $"stopRoomClock({heart})" }, run.Calls.TakeLast(2).ToList());
+        }
+
+        private static void RunTimers(RecordingRun run)
+        {
+            while (run.Scheduled.Count > 0)
+            {
+                var next = run.Scheduled.OrderBy(s => s.At).First();
+                run.Scheduled.Remove(next);
+                run.Elapsed = next.At;
+                next.Step(run);
+            }
         }
 
         [TestMethod]
@@ -150,6 +270,11 @@ namespace NosCore.Instances.Tests
                 {
                     run.Used.Add((room, button));
                     script.OnButtonUsed(run, room, button);
+                }
+
+                foreach (var (_, vNum) in run.Items.Where(i => i.Room == room).ToList())
+                {
+                    script.OnItemCollected(run, room, vNum);
                 }
 
                 for (var step = 0; step < run.Scheduled.Count; step++)
