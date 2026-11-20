@@ -81,6 +81,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `Portal(at, to, arrival, locked)` | A one-way portal, kept as a handle to unlock later; one per pair of rooms |
 | `Lever(at)` | A lever, with `OnUse(step)`; `Lever(at, off, on)` draws it with other vnums, such as a button |
 | `Sculpture(at, off, on)` | A sculpture, moved without a word, with `OnUse(step)` |
+| `ClearedAfter(kills, vnum)` | The room counts as cleared once that many of its monsters of that vnum fall |
 | `Exit(at, locked)` | The way out, at most one per room, with `OnReached(step)`; reaching it wins the run |
 | `OnEnter(step)` | The first time anyone enters |
 | `OnCleared(step)` | When its last monster falls |
@@ -103,7 +104,8 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `OnHit(step)` | On each hit it survives |
 | `OnHpBelow(percent, step)` | Once, on the hit that takes its HP below that share of its maximum |
 
-A monster needs one of `At`, `Anywhere` or `Around`. `Npc(vnum).At(x, y)` places an NPC.
+A monster needs one of `At`, `Anywhere` or `Around`. `Npc(vnum).At(x, y)` places an NPC, and
+`.Escort()` makes it follow the first player who reaches it; the run fails if it falls.
 
 ## Steps
 

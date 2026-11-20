@@ -95,8 +95,13 @@ namespace NosCore.Instances.Tests
             Calls.Add($"unlockExit({room})");
         }
 
-        public void SummonNpcs(int room, params NpcSpawn[] npcs) =>
+        public List<NpcSpawn> Npcs { get; } = [];
+
+        public void SummonNpcs(int room, params NpcSpawn[] npcs)
+        {
+            Npcs.AddRange(npcs);
             Calls.Add($"npcs({room},{string.Join(",", npcs.Select(m => m.VNum))})");
+        }
 
         public void AddClockTime(TimeSpan extra) => Calls.Add($"addClock({extra.TotalSeconds}s)");
 

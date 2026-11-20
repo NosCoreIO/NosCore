@@ -25,6 +25,9 @@ namespace NosCore.Instances.Abstractions
         // Moved without a word when it is used.
         IButton Sculpture(Spot at, short offVNum, short onVNum);
 
+        // The room counts as cleared once that many of its monsters of that vnum have fallen.
+        IRoom ClearedAfter(short kills, short vNum);
+
         // A room has at most one exit: the run cannot tell two of them apart.
         IExit Exit(Spot at, bool locked = true);
 
@@ -84,5 +87,8 @@ namespace NosCore.Instances.Abstractions
     public interface INpc
     {
         INpc At(short x, short y);
+
+        // Joins the first player who comes near it and follows them; the run fails if it falls.
+        INpc Escort();
     }
 }

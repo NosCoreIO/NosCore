@@ -407,6 +407,26 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void ARoomCanBeClearedByItsCountedKills()
+        {
+            new Spec("A room set to clear after two grunts holds its locker from the start")
+                .Given(TheFirstRoomIsClearedAfterTwoGrunts)
+                .When(TheRunStarts)
+                .Then(TheCallsShouldBe_, new[] { "monsterLocker(1,2,58)" })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AnEscortIsMarkedAsOne()
+        {
+            new Spec("An escort comes in as one, a guide does not")
+                .Given(TheFirstRoomHoldsAGuideAndAnEscort)
+                .When(TheRunStarts)
+                .Then(TheEscortsShouldBe_, new[] { false, true })
+                .Execute();
+        }
+
+        [TestMethod]
         public void NpcsStandWhereTheyArePut()
         {
             _first.Spawn(Declared.Guide(311).At(16, 12), Declared.Guide(318).At(14, 14));
@@ -481,6 +501,13 @@ namespace NosCore.Instances.Tests
 
         private void TheFirstRoomHoldsTwoBonusGruntsAt_(Spot spot) =>
             _first.Spawn(Declared.Mob(Grunt).At(spot.X, spot.Y).Bonus().Count(2));
+
+        private void TheFirstRoomIsClearedAfterTwoGrunts() => _first.ClearedAfter(2, Grunt);
+
+        private void TheFirstRoomHoldsAGuideAndAnEscort() =>
+            _first.Spawn(Declared.Guide(311).At(1, 1), Declared.Guide(318).At(2, 2).Escort());
+
+        private void TheEscortsShouldBe_(bool[] escorts) => CollectionAssert.AreEqual(escorts, _run.Npcs.Select(n => n.IsEscort).ToArray());
 
         private void ClearingTheFirstRoomStopsItsClock() => _first.OnCleared(r => r.StopRoomClock());
 
