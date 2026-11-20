@@ -4,9 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging;
 using NosCore.Algorithm.LowLevelBoostService;
 using NosCore.Algorithm.TimeSpaceExperienceService;
 using NosCore.Algorithm.TimeSpacePenaltyService;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -22,6 +24,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +35,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
     public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
         IGameEventDispatcher gameEvents, ITimeSpacePenaltyService timeSpacePenaltyService,
         ITimeSpaceExperienceService timeSpaceExperienceService, ILowLevelBoostService lowLevelBoostService,
-        IExperienceBonusService experienceBonusService, IExperienceProgressionService experienceProgression)
+        IExperienceBonusService experienceBonusService, IExperienceProgressionService experienceProgression,
+        ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IInstanceRunHost
     {
         // Every time-space revival in the packet traces names 568 for a level 14-19 character and 569 for a
@@ -65,36 +69,53 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
-            foreach (var character in participants)
+            // A participant's rate is that of the room they cleared, even if they leave while others are rewarded.
+            foreach (var (character, rate) in participants.Select(c => (c, c.MapInstance?.XpRate ?? 1)).ToList())
             {
-                var penalty = timeSpacePenaltyService.GetPointPenalty(character.Level, entrance.EffectiveLevelMinimum);
-                if (penalty > 0)
-                {
-                    await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow,
-                        Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
-                }
-
                 var experience = timeSpaceExperienceService.GetExperience(entrance.EffectiveLevelMinimum, run.MonstersKilled);
                 var jobExperience = timeSpaceExperienceService.GetJobExperience(run.MonstersKilled);
-                await character.SendPacketAsync(Score(run, character, run.Points * (100 - penalty) / 100, experience, jobExperience));
-                await AwardExperienceAsync(character, experience, jobExperience);
-            }
-
-            if (entrance.Definition is not { } definition)
-            {
-                return;
-            }
-
-            foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
-            {
-                if (entrance.StoneVNum is { } stone)
-                {
-                    await session.Character.SendPacketsAsync(session.Character.InventoryService.RemoveItemAmountByVNum(stone, 1));
-                }
-
-                await gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
+                await RewardStepAsync(character, () => SendScoreAsync(run, character, experience, jobExperience));
+                await RewardStepAsync(character, () => AwardExperienceAsync(character, experience, jobExperience, rate));
+                await RewardStepAsync(character, () => TakeStoneAsync(character));
+                await RewardStepAsync(character, () => RecordClearAsync(character));
             }
         }
+
+        // Each step of a participant's reward stands on its own, so one that fails costs neither the
+        // participant's other steps nor the other participants anything.
+        private async Task RewardStepAsync(PlayerComponentBundle character, Func<Task> step)
+        {
+            try
+            {
+                await step();
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, logLanguage[LogLanguageKey.TIME_SPACE_CLEAR_REWARD_FAILED], Name, character.CharacterId);
+            }
+        }
+
+        private async Task SendScoreAsync(ScriptedInstanceRun run, PlayerComponentBundle character, int experience, int jobExperience)
+        {
+            var penalty = timeSpacePenaltyService.GetPointPenalty(character.Level, entrance.EffectiveLevelMinimum);
+            if (penalty > 0)
+            {
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow,
+                    Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
+            }
+
+            await character.SendPacketAsync(Score(run, character, run.Points * (100 - penalty) / 100, experience, jobExperience));
+        }
+
+        private Task TakeStoneAsync(PlayerComponentBundle character) =>
+            entrance.Definition != null && entrance.StoneVNum is { } stone
+                ? character.SendPacketsAsync(character.InventoryService.RemoveItemAmountByVNum(stone, 1))
+                : Task.CompletedTask;
+
+        private Task RecordClearAsync(PlayerComponentBundle character) =>
+            entrance.Definition is { } definition
+                ? gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(character, entrance.Type, definition.Id))
+                : Task.CompletedTask;
 
         // Read before the succeeded event records this clear, so a first clear still reads as one.
         private ScorePacket Score(ScriptedInstanceRun run, PlayerComponentBundle character, int points,
@@ -125,10 +146,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         };
 
         // The score shows the base values; the rate, low-level boost and bonuses apply only to what is gained.
-        private Task AwardExperienceAsync(PlayerComponentBundle character, int experience, int jobExperience)
+        private Task AwardExperienceAsync(PlayerComponentBundle character, int experience, int jobExperience, int rate)
         {
             var bonus = experienceBonusService.GetBonus(character);
-            var rate = character.MapInstance?.XpRate ?? 1;
             return experienceProgression.AddExperienceAsync(character,
                 bonus.ApplyToExperience((long)experience * lowLevelBoostService.GetExperienceBoost(character.Level) * rate),
                 bonus.ApplyToJobExperience((long)jobExperience * lowLevelBoostService.GetJobExperienceBoost(character.Level) * rate),
