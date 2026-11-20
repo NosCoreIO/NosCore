@@ -1537,7 +1537,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await start;
 
             Assert.AreEqual(1, _first.EnumerateMonsters().Count());
-            Assert.AreEqual(EndStateType.Fail, await EndStateOfAsync(run));
+            Assert.IsTrue(await EventuallyAsync(() => run.EndState == EndStateType.Fail));
         }
 
         [TestMethod]
@@ -1574,14 +1574,59 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(1, run.MonstersKilled);
         }
 
-        private static async Task<EndStateType?> EndStateOfAsync(ScriptedInstanceRun run)
+        [TestMethod]
+        public async Task AClockRunningOutSeenFromARoomsWorkStillEndsTheRunAsATimeoutAsync()
         {
-            for (var i = 0; i < 100 && run.EndState == null; i++)
+            var run = Run(new Script { Enter = r => r.StartClock(TimeSpan.FromMinutes(1)) });
+            await run.StartAsync();
+            World.Clock.AdvanceSeconds(60);
+
+            await _first.Executor.RunAsync(run.TickAsync);
+
+            Assert.IsTrue(await EventuallyAsync(() => _first.LastPackets.OfType<ScoreFailedPacket>().Any()));
+            Assert.AreEqual(EndStateType.Timeout, run.EndState);
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Timeout },
+                _first.LastPackets.OfType<ScoreFailedPacket>().Single());
+        }
+
+        [TestMethod]
+        public async Task AnNpcFallingDuringARoomsWorkIsStillCountedAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2))) });
+            await run.StartAsync();
+            var npc = _first.EnumerateNpcs().Single();
+
+            await _first.Executor.RunAsync(() => run.NpcFellAsync(_first.MapInstanceId, npc.VisualId));
+
+            Assert.IsTrue(await EventuallyAsync(() => run.NpcsLost == 1));
+        }
+
+        [TestMethod]
+        public async Task KillsDuringARoomsWorkReachTheScriptInTheOrderTheyHappenedAsync()
+        {
+            var script = new Script();
+            var run = Run(script);
+            await run.StartAsync();
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+                await run.MonsterKilledAsync(_first.MapInstanceId, Boss);
+            });
+
+            Assert.IsTrue(await EventuallyAsync(() => script.Calls.Count == 3));
+            CollectionAssert.AreEqual(new[] { "enter", $"killed(1,{Grunt})", $"killed(1,{Boss})" }, script.Calls);
+        }
+
+        // What a room's own work raises reaches the run once that work is over, so it is waited for.
+        private static async Task<bool> EventuallyAsync(Func<bool> condition)
+        {
+            for (var i = 0; i < 100 && !condition(); i++)
             {
                 await Task.Delay(50);
             }
 
-            return run.EndState;
+            return condition();
         }
 
         [TestMethod]
