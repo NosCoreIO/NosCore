@@ -3904,7 +3904,7 @@ Capture is skill 209; weaken the monster to under half health and stay at or abo
 
 ### Collectable map objects
 
-Objects flagged collectable in the NPC data (ETC bit 1), such as the Ice Flowers on Mount
+Gathering objects in the NPC data (race Object, subtype 7 or 8), such as the Ice Flowers on Mount
 Krem. Stand next to one before each check.
 
 - [ ] Click the Ice Flower: a five second bar runs over the character
@@ -3916,6 +3916,10 @@ Krem. Stand next to one before each check.
       can be collected again
 - [ ] Change map and come back while the flower is gone: it is still absent until it respawns
 - [ ] With a full main inventory, finish the bar: "not enough space" shows and the flower stays
+- [ ] NosVille, the Score Board at (90, 45): double-clicking it opens its dialog, no bar runs
+      and the board stays on the map
+- [ ] A Tombstone, a Wanted List or a Tree Stump: clicking it runs no gathering bar and the
+      object stays on the map
 - [ ] **Collect a map object** (CollectMapEntity) — with a quest of that type open that names
       the flower, each collect advances the quest window and the last one completes the quest;
       opening the flower without finishing the bar does not count
