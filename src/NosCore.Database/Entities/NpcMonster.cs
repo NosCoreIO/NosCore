@@ -85,6 +85,7 @@ namespace NosCore.Database.Entities
 
         public byte BasicRange { get; set; }
 
+        // The effect a basic hit plays, not a skill vnum.
         public short BasicSkill { get; set; }
 
         public short CloseDefence { get; set; }

@@ -164,6 +164,13 @@ same damage means only one of the two is being read.
       roughly 460 to 560 instead of 265 to 390
 - [ ] A monster below level 45 adds nothing on top of its usual hit
 - [ ] A level 60 monster hitting another monster or an NPC adds nothing either
+- [ ] Stand between two or three Fire Vampies (58) or Strong Fire Vampies (59) and let them hit
+      you: no hit paralyses you (no `cond` with no-attack and no `bf` with card 194), and you can
+      attack back between their hits
+- [ ] Their `su` lines read skill 0, cooldown 12, animation 11 and effect 1028, the fire impact
+      on your character
+- [ ] A monster that has its own skills (from its monster data) still casts them with their
+      own effects and cards
 
 ### Combo chains
 

@@ -17,11 +17,12 @@ using NosCore.GameObject.Services.SkillService;
 namespace NosCore.GameObject.Services.BattleService;
 
 // Characters index their skills by CastId (matches client packets). Non-player entities
-// pick from the catalog's NpcMonsterSkill table and fall back to BasicSkill when the
-// requested cast is not in their roster — this is also what "monster attacks something"
-// ends up calling with castId == 0.
+// pick from the catalog's NpcMonsterSkill table and fall back to their basic attack when the
+// requested cast is not in their roster.
 public sealed class SkillResolver : ISkillResolver
 {
+    private const short BasicAttackAnimation = 11;
+
     private readonly ISkillCatalog _skills;
     private readonly INpcCombatCatalog _catalog;
     private readonly ICardCatalog _cards;
@@ -122,34 +123,20 @@ public sealed class SkillResolver : ISkillResolver
             : BasicAttack(mob);
     }
 
-    public SkillInfo? ResolveBasic(IAliveEntity caster)
-    {
-        if (caster is not INonPlayableEntity { NpcMonster: { } mob })
-        {
-            return null;
-        }
+    public SkillInfo? ResolveBasic(IAliveEntity caster) =>
+        caster is INonPlayableEntity { NpcMonster: { } mob } ? BasicAttack(mob) : null;
 
-        return mob.BasicSkill > 0 && _skills.GetSkill(mob.BasicSkill) is { } basic
-            ? BuildInfo(basic, null, 0, _catalog.GetSkillBCards(basic.SkillVNum))
-            : BasicAttack(mob);
-    }
-
+    // A basic attack is no skill: its reach and cooldown are the monster's own, it carries no
+    // cards, and BasicSkill is only the effect its hit plays.
     private static SkillInfo BasicAttack(NpcMonsterDto mob)
     {
-        // No skill in the catalog and no BasicSkill vnum — but the monster still
-        // needs to hit. The overwhelming majority of low-level mobs fall here
-        // (melee wolf, rat, etc.) so we synthesise a minimal basic-attack SkillInfo
-        // from the monster's raw stats. Type/AttackClass follow the monster's attack class
-        // (0 melee, 1 ranged, 2 magic), Range/Cooldown come from the
-        // NpcMonsterDto itself, and Damage comes from the min/max hit range via
-        // CombatStats — not via skill BCards.
         return new SkillInfo(
             SkillVnum: 0,
             CastId: 0,
             Cooldown: mob.BasicCooldown,
-            AttackAnimation: 0,
+            AttackAnimation: BasicAttackAnimation,
             CastEffect: 0,
-            Effect: 0,
+            Effect: mob.BasicSkill,
             Type: mob.AttackClass,
             HitType: TargetHitType.SingleTargetHit,
             Range: mob.BasicRange,
@@ -163,19 +150,12 @@ public sealed class SkillResolver : ISkillResolver
 
     private SkillDto? ResolveNpcSkill(NpcMonsterDto mob, long castId)
     {
-        // If the monster knows this skill vnum, use it; otherwise fall back to the
-        // monster's default attack. The fall-through covers the extremely common
-        // case where the AI just calls Resolve(mob, 0) to mean "basic attack".
         foreach (var sk in _catalog.GetSkills(mob.NpcMonsterVNum))
         {
             if (_skills.GetSkill(sk.SkillVNum) is { } s && (s.CastId == castId || castId == 0))
             {
                 return s;
             }
-        }
-        if (mob.BasicSkill > 0 && _skills.GetSkill(mob.BasicSkill) is { } basic)
-        {
-            return basic;
         }
         return null;
     }

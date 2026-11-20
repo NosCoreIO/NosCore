@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Services.BattleService;
 
 // Picks the right SkillDto for a given caster + cast intent. For characters this indexes
 // into their learned skill dictionary; for monsters/pets it picks from NpcMonsterSkill
-// (or falls back to BasicSkill). Null return = the caster cannot use this skill now.
+// (or falls back to their basic attack). Null return = the caster cannot use this skill now.
 public interface ISkillResolver
 {
     SkillInfo? Resolve(IAliveEntity caster, long castId);
