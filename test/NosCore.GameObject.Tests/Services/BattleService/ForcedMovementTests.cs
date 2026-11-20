@@ -75,6 +75,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual((3, 4), Push(2, 3, 1, 2, 1));
         }
 
+        [TestMethod]
+        public void ADrawStopsSteppingSidewaysOnceItLinesUpWithWhoDrewIt()
+        {
+            Assert.AreEqual((2, 4), Draw(0, 0, 2, 5, 1));
+        }
+
+        [TestMethod]
+        public void ADrawEndsOnWhoDrewItWhenNothingIsLeftBetweenThem()
+        {
+            Assert.AreEqual((4, 1), Draw(0, 4, 4, 1, 0));
+        }
+
         // "Draws enemies to %s fields away from you": the target closes in until it is that far,
         // and no nearer. Twenty-five of the sixty-four declarations say zero.
         [TestMethod]
