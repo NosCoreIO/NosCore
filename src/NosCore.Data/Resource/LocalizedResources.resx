@@ -1281,6 +1281,30 @@
   <data name="TIMESPACE_GOAL_SURVIVE_KOARENS" xml:space="preserve">
     <value>Try to survive the Koarens' attack for 1 minute.</value>
   </data>
+  <data name="TIMESPACE_VIOLENT_KENKO_HIDE" xml:space="preserve">
+    <value>A violent Kenko striker! Hide!</value>
+  </data>
+  <data name="TIMESPACE_KORRKOAREN_MEETS_KENKO" xml:space="preserve">
+    <value>Korrkoaren meets Kenko</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIGHT_DEMON_THREE_MINUTES" xml:space="preserve">
+    <value>You must fight the demon for 3 minutes.</value>
+  </data>
+  <data name="TIMESPACE_SOMEONE_WATCHING" xml:space="preserve">
+    <value>Is someone watching us?</value>
+  </data>
+  <data name="TIMESPACE_ELIMINATE_ALL_ENEMIES_QUESTION" xml:space="preserve">
+    <value>Eliminate all the enemies?</value>
+  </data>
+  <data name="TIMESPACE_ALL_CLEAR" xml:space="preserve">
+    <value>All clear!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_TRAP_HOLD_ON" xml:space="preserve">
+    <value>It's a trap! Hold on!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_UNEXPECTED_ATTACK" xml:space="preserve">
+    <value>An unexpected attack!</value>
+  </data>
   <data name="TIMESPACE_DEMONS_CRUSH_KOVOLTS" xml:space="preserve">
     <value>The demons inflict a crushing defeat on the Kovolts!</value>
   </data>
