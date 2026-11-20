@@ -3630,6 +3630,30 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-32`, each hunting room shows its red clock and "The enemies are getting
       reinforcements!" every 30 seconds. Its other messages reach only the players in that room: a
       second character waiting in the hub sees none of them
+- [ ] In `timespace-27`, the first hunting room (map 2101) is empty as you walk in, then shows a
+      180 second red clock and "The enemies are getting reinforcements!" with a few monsters at once
+      and every 30 seconds after, six waves in all on different cells each run. Staying inside
+      until its clock ends shows "You have successfully completed the Quick Mission." and puts 300 seconds on the time-space
+      clock; leaving before then adds nothing. The held room (map 2101, lower) also says
+      "The enemies are getting reinforcements!" with each of its six waves
+- [ ] In `timespace-23`, moving the sculpture of the room on map 4003 (west of the mines) shows
+      "The object has been moved.", brings nine Kovolts and "Defeat all the enemies!"; the south door
+      only opens with "A door has opened." once they and the four that follow are dead
+- [ ] In `timespace-17`, in the yard (map 4211) the Kovolt that comes when the third falls brings
+      an Asgoba when it dies, and that Asgoba brings two more
+- [ ] In `timespace-26`, the corner room (map 5207) holds two demons as you walk in, and each one
+      brings a third monster as it falls
+- [ ] In `timespace-10`, the room with the strange button (map 4109, east) is empty until the
+      button is pressed; pressing it brings three monsters, "That button summoned enemies!"
+      and "New goal!"
+- [ ] In `timespace-19`, the second room's red clock, its objective and its monsters come as you
+      walk in, before its talk is closed; every wave in the three rooms comes with "The enemies are
+      getting reinforcements!"
+- [ ] In `timespace-18`, the two rooms on map 4102 already hold their soldiers as you walk in,
+      before their talk is closed
+- [ ] In `timespace-09`, the Kovolt of the gallery (map 4005, middle) brings another as it falls
+- [ ] In `timespace-00`, the red clock of the room with the timed fight starts as you walk in,
+      not when its talk is closed
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client does not draw
       (NosCoreIO/NosCore.ClientLab#34); the guards of `timespace-20` and the
       companion of `timespace-22` follow the player and take orders in the log, which NosCore does not do yet
