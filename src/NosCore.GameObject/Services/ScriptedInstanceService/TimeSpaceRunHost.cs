@@ -4,12 +4,15 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.LowLevelBoostService;
+using NosCore.Algorithm.TimeSpaceExperienceService;
 using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -27,7 +30,9 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
-        IGameEventDispatcher gameEvents, ITimeSpacePenaltyService timeSpacePenaltyService)
+        IGameEventDispatcher gameEvents, ITimeSpacePenaltyService timeSpacePenaltyService,
+        ITimeSpaceExperienceService timeSpaceExperienceService, ILowLevelBoostService lowLevelBoostService,
+        IExperienceBonusService experienceBonusService, IExperienceProgressionService experienceProgression)
         : IInstanceRunHost
     {
         // Every time-space revival in the packet traces names 568 for a level 14-19 character and 569 for a
@@ -69,7 +74,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
                 }
 
-                await character.SendPacketAsync(Score(run, character, run.Points * (100 - penalty) / 100));
+                var experience = timeSpaceExperienceService.GetExperience(entrance.EffectiveLevelMinimum, run.MonstersKilled);
+                var jobExperience = timeSpaceExperienceService.GetJobExperience(run.MonstersKilled);
+                await character.SendPacketAsync(Score(run, character, run.Points * (100 - penalty) / 100, experience, jobExperience));
+                await AwardExperienceAsync(character, experience, jobExperience);
             }
 
             if (entrance.Definition is not { } definition)
@@ -89,9 +97,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         }
 
         // Read before the succeeded event records this clear, so a first clear still reads as one.
-        private ScorePacket Score(ScriptedInstanceRun run, PlayerComponentBundle character, int points) => new()
+        private ScorePacket Score(ScriptedInstanceRun run, PlayerComponentBundle character, int points,
+            int experience, int jobExperience) => new()
         {
             Points = points,
+            Experience = experience,
+            JobExperience = jobExperience,
             Gold = (int)Math.Min(entrance.Definition?.Gold ?? 0, int.MaxValue),
             DrawRewardCount = run.IsLoserMode ? (byte)0 : (byte)(entrance.Definition?.DrawItems.Count ?? 0),
             MonstersKilled = (short)run.MonstersKilled,
@@ -112,6 +123,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             // clear type. No capture lies between, so where it changes from 1 to 15 is not known.
             Unknown = character.Level <= 20 ? (byte)1 : (byte)15
         };
+
+        // The score shows the base values; the rate, low-level boost and bonuses apply only to what is gained.
+        private Task AwardExperienceAsync(PlayerComponentBundle character, int experience, int jobExperience)
+        {
+            var bonus = experienceBonusService.GetBonus(character);
+            var rate = character.MapInstance?.XpRate ?? 1;
+            return experienceProgression.AddExperienceAsync(character,
+                bonus.ApplyToExperience((long)experience * lowLevelBoostService.GetExperienceBoost(character.Level) * rate),
+                bonus.ApplyToJobExperience((long)jobExperience * lowLevelBoostService.GetJobExperienceBoost(character.Level) * rate),
+                0, 0, 0);
+        }
 
         // Taken before any await, so a player leaving mid-loop does not cut the others' events short.
         private static List<PlayerComponentBundle> Participants(ScriptedInstanceRun run) =>

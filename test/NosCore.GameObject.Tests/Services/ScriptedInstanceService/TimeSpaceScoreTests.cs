@@ -7,18 +7,25 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.Algorithm.SkillPointService;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.TimeSpace;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -36,6 +43,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
     {
         private const short TimeSpaceId = 7;
         private const byte LevelMinimum = 10;
+        private const byte JobLevel = 10;
         private const short Grunt = 58;
         private const short Villager = 59;
         private const long Gold = 7462;
@@ -90,9 +98,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
+            World.UseReal<IExperienceProgressionService, ExperienceProgressionService>();
             World.Inject(_gameEvents.Object);
             _session = await World.CreateSessionAsync();
             _session.Character.Level = LevelMinimum;
+            _session.Character.JobLevel = JobLevel;
         }
 
         [TestMethod]
@@ -106,6 +116,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
                     Points = 8,
+                    Experience = 60,
+                    JobExperience = 10,
                     Gold = (int)Gold,
                     DrawRewardCount = 3,
                     MonstersKilled = 2,
@@ -130,6 +142,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
                     Points = 8,
+                    Experience = 60,
+                    JobExperience = 10,
                     Gold = (int)Gold,
                     DrawRewardCount = 3,
                     MonstersKilled = 2,
@@ -153,6 +167,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
                     Points = 8,
+                    Experience = 60,
+                    JobExperience = 10,
                     Gold = (int)Gold,
                     DrawRewardCount = 0,
                     MonstersKilled = 2,
@@ -176,6 +192,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
                     Points = 4,
+                    Experience = 30,
+                    JobExperience = 5,
                     Gold = (int)Gold,
                     DrawRewardCount = 3,
                     MonstersKilled = 1,
@@ -198,6 +216,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
                     Points = 8,
+                    Experience = 60,
+                    JobExperience = 10,
                     Gold = (int)Gold,
                     DrawRewardCount = 3,
                     MonstersKilled = 2,
@@ -223,6 +243,43 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AClearAwardsTheBoostedExperienceAfterTheScore()
+        {
+            await new Spec("A level 10 character clearing a minimum level 10 time-space with 2 kills sees 60 and 10 and gains them with its low-level boost")
+                .GivenAsync(ATimeSpaceThatSucceeds)
+                .AndAsync(_MonstersAreKilled, 2)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheScoreShouldShow_Experience_AndJobExperience, 60, 10)
+                .And(TheCharacterShouldGain_Experience_AndJobExperienceAfterTheScore, 120L, 30L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnExperienceBuffAndTheRoomRateRaiseOnlyTheGain()
+        {
+            await new Spec("A doubled room rate and a +100% experience buff quadruple the gain but not the score")
+                .GivenAsync(TheCharacterHasAnExperienceBuff)
+                .AndAsync(ATimeSpaceThatSucceeds)
+                .And(TheRoomRateIs_, 2)
+                .AndAsync(_MonstersAreKilled, 2)
+                .WhenAsync(TheExitIsReached)
+                .Then(TheScoreShouldShow_Experience_AndJobExperience, 60, 10)
+                .And(TheCharacterShouldGain_Experience_AndJobExperienceAfterTheScore, 480L, 120L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFailedRunAwardsNoExperience()
+        {
+            await new Spec("A failed run awards no experience")
+                .GivenAsync(ATimeSpaceThatFails)
+                .AndAsync(_MonstersAreKilled, 2)
+                .WhenAsync(TheExitIsReached)
+                .Then(NoExperienceShouldBeGained)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ALevelTwentyCharacterScoresOneInTheLastField()
         {
             await new Spec("A character of level 20 or below gets 1 in the score's last field")
@@ -243,6 +300,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(TheScoresLastFieldShouldBe_, (byte)15)
                 .ExecuteAsync();
         }
+
+        private async Task TheCharacterHasAnExperienceBuff()
+        {
+            var buffs = World.Create<BuffService>();
+            World.Inject<IBuffService>(buffs);
+            await buffs.ApplyAsync(_session.Character, new CardDto { CardId = 684, Duration = 30000 },
+                [new BCardDto { Type = BCardType.CardType.StanceAndExperience, SubType = 41, FirstData = 100, CardId = 684 }],
+                _session.Character);
+        }
+
+        private void TheRoomRateIs_(int rate) => _room.XpRate = rate;
 
         private void TheCharacterIsLevel_(byte level) => _session.Character.Level = level;
 
@@ -316,6 +384,37 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private void TheScoreShouldBe(ScorePacket expected) =>
             PacketAssert.AreEqual(expected, _session.LastPackets.OfType<ScorePacket>().Single());
+
+        private void TheScoreShouldShow_Experience_AndJobExperience(int experience, int jobExperience)
+        {
+            var score = _session.LastPackets.OfType<ScorePacket>().Single();
+            Assert.AreEqual((experience, jobExperience), (score.Experience, score.JobExperience));
+        }
+
+        private void TheCharacterShouldGain_Experience_AndJobExperienceAfterTheScore(long experience, long jobExperience)
+        {
+            var packets = _session.LastPackets.ToList();
+            var lev = packets.OfType<LevPacket>().Single();
+            var character = _session.Character;
+            PacketAssert.AreEqual(new LevPacket
+            {
+                Level = LevelMinimum,
+                LevelXp = experience,
+                JobLevel = JobLevel,
+                JobLevelXp = jobExperience,
+                XpLoad = World.Create<IExperienceService>().GetExperience(LevelMinimum),
+                JobXpLoad = World.Create<IJobExperienceService>().GetJobExperience(character.Class, JobLevel),
+                Reputation = character.Reputation,
+                SkillCp = character.RemainingSkillPoints(World.Create<ISkillPointService>())
+            }, lev);
+            Assert.IsTrue(packets.IndexOf(packets.OfType<ScorePacket>().Single()) < packets.IndexOf(lev));
+        }
+
+        private void NoExperienceShouldBeGained()
+        {
+            Assert.IsFalse(_session.LastPackets.OfType<LevPacket>().Any());
+            Assert.AreEqual((0L, 0L), (_session.Character.LevelXp, _session.Character.JobLevelXp));
+        }
 
         private void TheFailedScoreShouldBe(EndStateType state) =>
             PacketAssert.AreEqual(new ScoreFailedPacket { EndState = state },
