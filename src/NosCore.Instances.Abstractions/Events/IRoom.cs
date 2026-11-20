@@ -19,7 +19,11 @@ namespace NosCore.Instances.Abstractions
         // rooms they join, so a room has at most one portal to each other room.
         IPortal Portal(Spot at, IRoom to, Spot arrival, bool locked = true);
 
-        IButton Lever(Spot at);
+        // Drawn as offVNum until it is used, then as onVNum; says it has been pulled.
+        IButton Lever(Spot at, short offVNum = 1000, short onVNum = 1045);
+
+        // Moved without a word when it is used.
+        IButton Sculpture(Spot at, short offVNum, short onVNum);
 
         // A room has at most one exit: the run cannot tell two of them apart.
         IExit Exit(Spot at, bool locked = true);

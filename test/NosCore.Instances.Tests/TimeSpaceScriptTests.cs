@@ -384,6 +384,71 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void AStoppedRoomClockBringsNoMoreWavesAndNeverRunsOut()
+        {
+            new Spec("Clearing the room takes its clock down, so the second wave and the clock's end never come")
+                .Given(TheFirstRoomHoldsOutForAMinuteWithWavesEvery30Seconds)
+                .And(ClearingTheFirstRoomStopsItsClock)
+                .And(_PlayersAreInTheRoom, 1)
+                .And(TheRunStarts)
+                .When(Dialog_IsClosedInTheFirstRoom, 6000)
+                .And(TheFirstRoomIsCleared)
+                .And(TheTimersRun)
+                .Then(TheCallsShouldBe_, new[]
+                {
+                    "portal(1->2,locked)",
+                    "roomClock(1,60s)", "message(EnemiesReinforcements)", "summon(1,58)",
+                    "stopRoomClock(1)"
+                })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AStepCanWaitBeforeActingInItsRoom()
+        {
+            new Spec("Thirty seconds after the room is entered, the grunt comes in")
+                .Given(EnteringTheFirstRoomBringsAGruntAfter_Seconds, 30)
+                .When(TheFirstRoomIsEntered)
+                .And(TheTimersRun)
+                .Then(TheCallsShouldBe_, new[] { "summon(1,58)" })
+                .And(TheTimersShouldHaveBeenAt_Seconds, new[] { 30d })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AStepCanDismissSpeakToItsRoomAndBringNpcs()
+        {
+            new Spec("A cleared room sends its monsters away, tells only its own players and brings a guide")
+                .Given(ClearingTheFirstRoomDismissesSpeaksAndBringsAGuide)
+                .When(TheFirstRoomIsCleared)
+                .Then(TheCallsShouldBe_, new[] { "dismiss(1,58)", "dismiss(1,59)", "message(1,ADoorHasOpened)", "npcs(1,311)" })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AStepCanActOnlyWhenSomeoneIsInside()
+        {
+            new Spec("Clearing an empty room adds no time; clearing it with someone inside does")
+                .Given(ClearingTheFirstRoomAddsTimeIfAnyoneIsInside)
+                .And(_PlayersAreInTheRoom, 0)
+                .When(TheFirstRoomIsCleared)
+                .And(_PlayersAreInTheRoom, 1)
+                .And(TheFirstRoomIsCleared)
+                .Then(TheCallsShouldBe_, new[] { "addClock(300s)" })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void ASculptureAndALeverAreDrawnWithTheirOwnVnums()
+        {
+            new Spec("A sculpture and a button are placed with the vnums they were given")
+                .Given(TheFirstRoomHasASculptureAndAButton)
+                .When(TheRunStarts)
+                .Then(TheCallsShouldBe_, new[] { "button(1,1,10,16,1048,1049,False)", "button(1,2,15,15,1051,1052,False)" })
+                .Execute();
+        }
+
+        [TestMethod]
         public void NpcsStandWhereTheyArePut()
         {
             _first.Spawn(Declared.Guide(311).At(16, 12), Declared.Guide(318).At(14, 14));
@@ -458,6 +523,23 @@ namespace NosCore.Instances.Tests
 
         private void TheFirstRoomHoldsTwoBonusGruntsAt_(Spot spot) =>
             _first.Spawn(Declared.Mob(Grunt).At(spot.X, spot.Y).Bonus().Count(2));
+
+        private void ClearingTheFirstRoomStopsItsClock() => _first.OnCleared(r => r.StopRoomClock());
+
+        private void EnteringTheFirstRoomBringsAGruntAfter_Seconds(int seconds) =>
+            _first.OnEnter(r => r.After(TimeSpan.FromSeconds(seconds), r => r.Spawn(Declared.Mob(Grunt).At(1, 1))));
+
+        private void ClearingTheFirstRoomDismissesSpeaksAndBringsAGuide() =>
+            _first.OnCleared(r => r.Dismiss(Grunt, Boss).SayToRoom(Game18NConstString.ADoorHasOpened).Spawn(Declared.Guide(311).At(1, 1)));
+
+        private void ClearingTheFirstRoomAddsTimeIfAnyoneIsInside() =>
+            _first.OnCleared(r => r.IfAnyoneInside(r => r.AddTime(TimeSpan.FromSeconds(300))));
+
+        private void TheFirstRoomHasASculptureAndAButton()
+        {
+            _first.Sculpture(new Spot(10, 16), 1048, 1049);
+            _first.Lever(new Spot(15, 15), 1051, 1052);
+        }
 
         private void _PlayersAreInTheRoom(int players) => _run.Players = players;
 

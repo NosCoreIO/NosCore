@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Packets.Enumerations;
 using System;
+using System.Linq;
 
 namespace NosCore.Instances.Abstractions
 {
@@ -99,6 +100,63 @@ namespace NosCore.Instances.Abstractions
             _room.StartClock(Run, length);
             return this;
         }
+
+        // Takes the clock down before it runs out, so its waves and OnClockOut steps do not come.
+        public RoomEvent StopRoomClock()
+        {
+            Run.StopRoomClock(_room.Key);
+            return this;
+        }
+
+        public RoomEvent Spawn(params INpc[] npcs)
+        {
+            Run.SummonNpcs(_room.Key, npcs.Select(npc => NpcSpec.Of(npc).Spawn()).ToArray());
+            return this;
+        }
+
+        // Takes the living copies of those monsters out of the room.
+        public RoomEvent Dismiss(params short[] vNums)
+        {
+            foreach (var vNum in vNums)
+            {
+                Run.Dismiss(_room.Key, vNum);
+            }
+
+            return this;
+        }
+
+        // Shown only to the players standing in the room.
+        public RoomEvent SayToRoom(Game18NConstString message)
+        {
+            Run.Message(_room.Key, message);
+            return this;
+        }
+
+        public RoomEvent SayToRoom(LanguageKey message, params object[] arguments)
+        {
+            Run.Message(_room.Key, message, arguments);
+            return this;
+        }
+
+        // That long after this event, in the same room.
+        public RoomEvent After(TimeSpan delay, Action<RoomEvent> step)
+        {
+            Run.At(Run.Elapsed + delay, later => step(new RoomEvent(later, _room)));
+            return this;
+        }
+
+        // Only when someone is standing in the room as the event runs.
+        public RoomEvent IfAnyoneInside(Action<RoomEvent> step)
+        {
+            if (Run.PlayersIn(_room.Key) > 0)
+            {
+                step(this);
+            }
+
+            return this;
+        }
+
+        public RoomEvent In(IRoom room) => new(Run, RoomHandle.Of(room));
     }
 
     public sealed class RunEvent : InstanceEvent<RunEvent>
