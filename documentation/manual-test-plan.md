@@ -3825,6 +3825,16 @@ Krem. Stand next to one before each check.
       the flower, each collect advances the quest window and the last one completes the quest;
       opening the flower without finishing the bar does not count
 
+### Reward chat lines
+
+- [ ] Complete Rookie Training quest 1508 or another quest that pays gold and items: as each
+      reward lands the chat shows "Quest reward [2500 Gold]", then one "Quest reward [item x
+      amount]" line per item, all in yellow, before the reward window opens
+- [ ] The gold reward adds no separate "gold updated" line
+- [ ] Complete a hunt quest that pays experience and reputation: "Quest reward [Experience
+      points]" and "Quest reward [Reputation 30]" show
+- [ ] Complete a story quest that raises the level: "Quest Reward [Level Up]" shows
+
 ### Collect quest drops
 
 Collect quests name a monster, the item it drops and a chance per 10 000. Put a character on
