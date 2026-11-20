@@ -1663,6 +1663,8 @@ under half health first.
 - [ ] With a pet already out, catch another: it joins the pet window only
 - [ ] A failed roll says the capture failed; a monster above your level or above half health
       says why it cannot be caught
+- [ ] A monster at exactly half health (a Chicken, 156 HP, at 78 HP or below) can be caught;
+      one hit point more and "You can only capture animals whose HP is 50% or lower" shows
 - [ ] Capture spends its mana and goes on cooldown, whether the roll succeeds or fails; casting
       it again before the cooldown is over is refused
 - [ ] Capture from further away than the skill's range is refused and catches nothing
