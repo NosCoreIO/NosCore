@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BoxService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -20,15 +20,11 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class BoxEffectHandler(
-        IItemGenerationService itemProvider,
-        IItemCatalog itemCatalog,
-        IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, IRandomProvider random)
+    public sealed class BoxEffectHandler(IItemGenerationService itemProvider, IBoxRollService boxRoll)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -42,51 +38,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-            var boxVNum = source.ItemInstance.ItemVNum;
             var boxRare = source.ItemInstance.Rare;
-            var boxDesign = source.ItemInstance.Design;
-
-            var sets = (rollGeneratedItemDao.Where(r =>
-                    r.OriginalItemVNum == boxVNum
-                    && r.MinimumOriginalItemRare <= boxRare
-                    && r.MaximumOriginalItemRare >= boxRare
-                    && r.OriginalItemDesign == boxDesign
-                    && r.Probability > 0)
-                ?? Enumerable.Empty<RollGeneratedItemDto>())
-                .GroupBy(r => r.RollGroup)
-                .OrderBy(g => g.Key)
-                .Select(g => g.OrderBy(r => r.ItemGeneratedVNum).ToList())
-                .ToList();
-
-            if (effect == ItemEffectType.ClassBox)
-            {
-                var fitting = sets.Where(set => set.All(r => itemCatalog.GetItem(r.ItemGeneratedVNum) is { } item
-                    && item.FitsClass(character.Class) && item.FitsGender(character.Gender))).ToList();
-                if (fitting.Count > 0)
-                {
-                    sets = fitting;
-                }
-            }
-
-            var sum = sets.Sum(set => (int)set[0].Probability);
-            if (sum <= 0)
+            if (boxRoll.Roll(source.ItemInstance, character) is not { } chosen)
             {
                 return;
             }
-
-            var roll = random.Next(0, sum);
-            var cumulative = 0;
-            List<RollGeneratedItemDto>? chosen = null;
-            foreach (var set in sets)
-            {
-                cumulative += set[0].Probability;
-                if (roll < cumulative)
-                {
-                    chosen = set;
-                    break;
-                }
-            }
-            if (chosen == null) return;
 
             var rewards = chosen.Select(r => itemProvider.Create(
                 r.ItemGeneratedVNum,

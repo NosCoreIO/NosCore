@@ -556,6 +556,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     var monster = mapInstance.SummonMonster(npcMonster, spawn.At.X, spawn.At.Y, spawn.IsHostile);
                     monster.IsBonus = spawn.IsBonus;
                     monster.DeathStep = spawn.OnDeath;
+                    if (spawn.Dialog != 0)
+                    {
+                        monster.Dialog = spawn.Dialog;
+                    }
+
                     if (spawn.IsBonus)
                     {
                         monster.Effect = BonusEffect;
@@ -911,6 +916,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 _roomDialogs.Remove(closed.Room);
             }
+
+            var closedRoom = _rooms[closed.Room];
+            _pending.Add(() => OnRoom(closedRoom, () =>
+            {
+                foreach (var monster in closedRoom.EnumerateMonsters())
+                {
+                    if (monster.Dialog == closed.Dialog)
+                    {
+                        monster.Dialog = null;
+                    }
+                }
+
+                return Task.CompletedTask;
+            }));
 
             if (_openDialogs.Count == 0)
             {

@@ -15,8 +15,9 @@ namespace NosCore.Instances.Abstractions
     // A bonus monster flashes while alive, and each one killed in a row adds to the run's combo.
     // OnDeath runs when this particular monster falls. IsHostile: false keeps a monster that aggroes on
     // sight from noticing anyone until it is attacked; it cannot make a peaceful monster aggressive.
+    // A monster with a Dialog carries that talk of its room until someone closes it.
     public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true, bool IsBonus = false,
-        Action<IInstanceRun>? OnDeath = null);
+        Action<IInstanceRun>? OnDeath = null, short Dialog = 0);
 
     // An escort joins the first player who comes near it, walks where that player's client sends it and goes
     // with them from room to room. The run fails if it falls.

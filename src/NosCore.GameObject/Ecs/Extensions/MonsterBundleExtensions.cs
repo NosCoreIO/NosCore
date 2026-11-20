@@ -23,5 +23,5 @@ public static class MonsterBundleExtensions
     }
 
     public static InPacket GenerateIn(this MonsterComponentBundle monster) =>
-        monster.GenerateIn(SpawnEffectType.Summon);
+        monster.GenerateIn(SpawnEffectType.Summon, monster.Dialog ?? 0);
 }

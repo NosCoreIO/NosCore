@@ -75,12 +75,11 @@ namespace NosCore.PacketHandlers.Shops
                     var monster = character.MapInstance.FindMonster(s => s.VisualId == requestNpcPacket.TargetId);
                     if (monster is { } target && npcDialogService.IsWithinReach(character, target))
                     {
-                        // Monsters have no dialog; the answer names dialog 0.
                         await clientSession.SendPacketAsync(new NpcReqPacket
                         {
                             Type = VisualType.Monster,
                             TargetId = target.VisualId,
-                            Data = 0
+                            Data = target.Dialog ?? 0
                         });
                         return;
                     }
