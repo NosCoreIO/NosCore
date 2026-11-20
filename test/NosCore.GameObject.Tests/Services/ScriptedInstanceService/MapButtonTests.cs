@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
+using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging;
@@ -224,7 +225,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = _script },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Clock),
+                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Clock, World.Create<TimeSpacePenaltyService>()),
                 _script,
                 new Dictionary<int, MapInstance> { [1] = _room },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),

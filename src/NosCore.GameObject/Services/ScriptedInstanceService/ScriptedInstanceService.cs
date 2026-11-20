@@ -15,6 +15,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NodaTime;
+using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.GameObject.Messaging;
 using NosCore.Packets.ServerPackets.Portals;
 using System;
@@ -57,6 +58,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IClock _clock;
         private readonly IRandomProvider _random;
         private readonly IGameEventDispatcher _gameEvents;
+        private readonly ITimeSpacePenaltyService _timeSpacePenaltyService;
 
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
@@ -84,9 +86,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IOptions<WorldConfiguration> worldConfiguration,
             ILogger<ScriptedInstanceService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IGameLanguageLocalizer gameLanguage)
+            IGameLanguageLocalizer gameLanguage,
+            ITimeSpacePenaltyService timeSpacePenaltyService)
         {
             _gameLanguage = gameLanguage;
+            _timeSpacePenaltyService = timeSpacePenaltyService;
             _scriptTimeout = worldConfiguration.Value.InstanceScriptTimeout;
             _gameEvents = gameEvents;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
@@ -170,7 +174,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 ? MapInstanceType.TimeSpaceInstance
                 : MapInstanceType.RaidInstance;
 
-            return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _gameEvents, _clock));
+            return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _gameEvents, _clock, _timeSpacePenaltyService));
         }
 
         public async Task<IInstanceScript?> LoadScriptAsync(string script)
