@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using System.Threading.Tasks;
@@ -58,7 +59,8 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.Reputation = 5_000;
             _session.Character.Dignity = -300;
 
-            Assert.AreEqual(unchecked((byte)-(int)DignityType.Dreadful), _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco);
+            Assert.AreEqual((short)ExtendedReputationType.BluffedNameOnly, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco);
+            Assert.AreEqual(ExtendedReputationType.BluffedNameOnly, _session.Character.GenerateCInfo(World.GameLanguageLocalizer).Icon);
         }
 
         [TestMethod]
@@ -73,7 +75,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             var nowDignity = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco;
 
             Assert.AreEqual((byte)ReputationType.RedExperienced, stillReputation);
-            Assert.AreEqual(unchecked((byte)-(int)DignityType.Dubious), nowDignity);
+            Assert.AreEqual((short)ExtendedReputationType.Suspected, nowDignity);
         }
     }
 }

@@ -114,12 +114,14 @@ public static class QuicklistExtensions
                 var qi = characterEntity.QuicklistEntries.FirstOrDefault(n =>
                     (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == morph));
 
-                subpacket.Add(new QsetClientSubPacket
-                {
-                    OriginQuickList = qi?.Type ?? 7,
-                    OriginQuickListSlot = qi?.IconType ?? -1,
-                    Data = qi?.IconVNum ?? -1
-                });
+                subpacket.Add(qi == null
+                    ? new QsetClientSubPacket { Type = QSetType.Reset, OriginQuickList = -1, OriginQuickListSlot = -1 }
+                    : new QsetClientSubPacket
+                    {
+                        Type = (QSetType)qi.Type,
+                        OriginQuickList = qi.IconType,
+                        OriginQuickListSlot = qi.IconVNum
+                    });
             }
 
             pktQs[i] = new QSlotPacket

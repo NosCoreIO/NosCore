@@ -328,6 +328,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static CModePacket GenerateCMode(this IAliveEntity aliveEntity)
         {
+            var isPlayer = aliveEntity.VisualType == VisualType.Player;
             return new CModePacket
             {
                 VisualType = aliveEntity.VisualType,
@@ -335,8 +336,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Morph = aliveEntity.Morph,
                 MorphUpgrade = aliveEntity.MorphUpgrade,
                 MorphDesign = aliveEntity.MorphDesign,
-                MorphBonus = aliveEntity.MorphBonus,
-                Size = aliveEntity.Size
+                MorphBonus = isPlayer ? aliveEntity.MorphBonus : null,
+                Size = isPlayer ? aliveEntity.Size : null,
+                MorphSkin = isPlayer ? (short)0 : null
             };
         }
 

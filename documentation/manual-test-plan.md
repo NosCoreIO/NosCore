@@ -1655,6 +1655,10 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] In a time-space with 2 lives, die once and answer the question: you revive in the room and
       dignity does not move;
       die again: the run fails and the chat says "Dignity reduced" by your level, once
+- [ ] Drop dignity until the reputation window shows a dignity rank below the first one, then
+      change map: the icon beside your name is that dignity rank's icon instead of the reputation
+      icon, for you and for a second player watching;
+      restore dignity to 100 and change map again: the reputation icon is back
 
 ### Dignity restored by quests and time-spaces
 

@@ -16,7 +16,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
-using NosCore.Packets.ClientPackets.Instance;
+using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
@@ -187,11 +187,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private void TheScoreShouldShow_Points(int points) =>
             PacketAssert.AreEqual(new ScorePacket
             {
-                EndState = EndStateType.Success,
                 Points = points,
-                MonsterKilled = 25,
-                IsAllMonstersKilled = true,
-                IsNoNpcDead = true
+                MonstersKilled = 25,
+                Perfect = [true, false, true]
             }, _session.LastPackets.OfType<ScorePacket>().Single());
     }
 }

@@ -17,6 +17,7 @@ using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Collections.Generic;
@@ -52,17 +53,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
         {
             var participants = Participants(run);
-            if (state == EndStateType.Timeout)
-            {
-                // A run that ran out of time scores nothing.
-                await run.BroadcastAsync(new ScorePacket { EndState = state });
-                await RaiseFailedAsync(participants);
-                return;
-            }
-
             if (state != EndStateType.Success)
             {
-                await run.BroadcastAsync(Score(run, state, run.Points));
+                await run.BroadcastAsync(new ScoreFailedPacket { EndState = state });
                 await RaiseFailedAsync(participants);
                 return;
             }
@@ -76,7 +69,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
                 }
 
-                await character.SendPacketAsync(Score(run, state, run.Points * (100 - penalty) / 100));
+                await character.SendPacketAsync(Score(run, run.Points * (100 - penalty) / 100));
             }
 
             if (entrance.Definition is not { } definition)
@@ -95,16 +88,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        private ScorePacket Score(ScriptedInstanceRun run, EndStateType state, int points) => new()
+        private ScorePacket Score(ScriptedInstanceRun run, int points) => new()
         {
-            EndState = state,
             Points = points,
-            DrawItemsCount = (byte)(entrance.Definition?.DrawItems.Count ?? 0),
-            MonsterKilled = (short)run.MonstersKilled,
-            RemainingNpc = (byte)run.NpcsSummoned,
-            RoomsVisited = (short)run.RoomsVisited,
-            IsAllMonstersKilled = run.MonstersKilled >= run.MonstersSummoned,
-            IsNoNpcDead = true
+            Gold = (int)Math.Min(entrance.Definition?.Gold ?? 0, int.MaxValue),
+            DrawRewardCount = (byte)(entrance.Definition?.DrawItems.Count ?? 0),
+            MonstersKilled = (short)run.MonstersKilled,
+            RoomsExplored = (short)run.RoomsVisited,
+            NpcsLeft = (short)run.NpcsSummoned,
+            Perfect = [run.MonstersKilled >= run.MonstersSummoned, run.RoomsVisited >= run.Rooms.Count, true]
         };
 
         // Taken before any await, so a player leaving mid-loop does not cut the others' events short.

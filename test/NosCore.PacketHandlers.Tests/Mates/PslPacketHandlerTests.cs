@@ -351,6 +351,9 @@ namespace NosCore.PacketHandlers.Tests.Mates
             var cMode = Broadcast().OfType<CModePacket>().Last();
             Assert.AreEqual(_partner.MateTransportId, cMode.VisualId);
             Assert.AreEqual(morph, cMode.Morph);
+            Assert.IsNull(cMode.MorphBonus);
+            Assert.IsNull(cMode.Size);
+            Assert.IsNull(cMode.MorphSkin);
             Assert.AreEqual(morph, Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket.NotNull().Morph);
             Assert.AreEqual(morph, _session.LastPackets.OfType<ScnPacket>().Last().MorphId);
         }

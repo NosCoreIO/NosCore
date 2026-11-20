@@ -67,6 +67,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Then(ThePlayerShouldBeShownRooms_, "3.11.0 3.10.1 3.9.1")
                 .And(ThePlayerShouldBeMarkedAt_, 3, 11)
                 .And(TheMapShouldOpen_Times, 1)
+                .And(TheMapShouldCarryTimeSpace_, (short)1)
                 .ExecuteAsync();
         }
 
@@ -202,6 +203,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private void TheMapShouldOpen_Times(int times) =>
             Assert.AreEqual(times, _session.LastPackets.OfType<RsfmPacket>().Count(p => p.Type == RsfmPacketType.Open));
+
+        private void TheMapShouldCarryTimeSpace_(short timeSpaceId) =>
+            PacketAssert.AreEqual(new RsfmPacket { TimeSpaceId = timeSpaceId, Type = RsfmPacketType.Open },
+                _session.LastPackets.OfType<RsfmPacket>().Single());
 
         private void TheMapShouldOpenForThePartner() =>
             Assert.AreEqual(1, _partner.LastPackets.OfType<RsfmPacket>().Count(p => p.Type == RsfmPacketType.Open));

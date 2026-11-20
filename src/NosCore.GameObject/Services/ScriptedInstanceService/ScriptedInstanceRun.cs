@@ -1367,7 +1367,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             packets.Add(new RsfpPacket { MapX = current.IndexX, MapY = current.IndexY });
             if (firstSight)
             {
-                packets.Add(new RsfmPacket { Type = RsfmPacketType.Open });
+                packets.Add(new RsfmPacket { TimeSpaceId = _script.Definition.Id, Type = RsfmPacketType.Open });
             }
 
             _pending.Add(() => session.SendPacketsAsync(packets));

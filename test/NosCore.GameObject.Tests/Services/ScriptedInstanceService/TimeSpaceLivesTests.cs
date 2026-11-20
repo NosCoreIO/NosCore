@@ -23,7 +23,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking.SessionGroup;
-using NosCore.Packets.ClientPackets.Instance;
+using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -493,7 +493,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private void TheScoreShouldBeEmpty()
         {
             var broadcast = _roomSessions.Invocations.SelectMany(call => call.Arguments.OfType<IPacket[]>()).SelectMany(packets => packets);
-            PacketAssert.AreEqual(new ScorePacket { EndState = EndStateType.Timeout }, broadcast.OfType<ScorePacket>().Single());
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Timeout }, broadcast.OfType<ScoreFailedPacket>().Single());
         }
 
         private void EachPlayerShouldHave_FailedAttempt(int count)
