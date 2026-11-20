@@ -5,7 +5,6 @@
 //
 
 using System.Threading.Tasks;
-using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.MateService
@@ -13,6 +12,6 @@ namespace NosCore.GameObject.Services.MateService
     public interface IMateAttackService
     {
         // The creature's own basic attack, gated by its BasicCooldown and BasicRange.
-        Task<bool> BasicAttackAsync(MateComponentBundle mate, IAliveEntity target);
+        Task<bool> BasicAttackAsync(INonPlayableEntity attacker, IAliveEntity target);
     }
 }

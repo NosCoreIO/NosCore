@@ -146,6 +146,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short PetSkill = 220;
         public const short PetSkillMp = 40;
         public const short PetSkillCooldown = 30;
+        public const short PetBasicCooldown = 20;
 
         // A partner, and a partner card whose one skill is cast on the partner itself and buffs it.
         public const short PartnerVNum = 13;
@@ -593,7 +594,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new NpcMonster
             {
                 NpcMonsterVNum = PetVNum, Name = "pet", Level = 1, MaxHp = 100, MaxMp = 100, HpBonus = 100, MpBonus = 100,
-                BasicRange = 1, BasicCooldown = 20
+                BasicRange = 1, BasicCooldown = PetBasicCooldown
             });
             await context.SaveChangesAsync();
             context.Add(new NpcMonsterSkill { NpcMonsterVNum = PetVNum, SkillVNum = PetSkill });

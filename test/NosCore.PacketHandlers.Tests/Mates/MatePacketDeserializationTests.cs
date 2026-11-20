@@ -52,9 +52,9 @@ namespace NosCore.PacketHandlers.Tests.Mates
         }
 
         [TestMethod]
-        public void APartnerSkillReachesItsHandler()
+        public void AnOrderToAttackReachesItsHandler()
         {
-            var packet = new SuCtlPacket { CastId = 200, MateTransportId = 1135623, TargetType = VisualType.Monster, TargetId = 2045 };
+            var packet = new SuCtlPacket { MateTransportId = 1135623, TargetType = VisualType.Monster, TargetId = 2045 };
 
             Assert.IsInstanceOfType(RoundTrip(packet), HandledBy(typeof(SuCtlPacketHandler)));
         }

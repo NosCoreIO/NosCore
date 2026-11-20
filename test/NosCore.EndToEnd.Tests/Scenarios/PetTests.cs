@@ -147,6 +147,22 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task APetSentAtAMonsterHitsItWithItsBasicAttackNotItsSkill()
+        {
+            await using var alice = await EnterWithAPetAsync("Alice");
+            var pet = await PetOfAsync(alice);
+            var sent = alice.Mark();
+
+            await alice.SendAsync(new SuCtlPacket { MateTransportId = pet, TargetType = VisualType.Monster, TargetId = WorldData.SturdyMonster });
+
+            var hit = await alice.ExpectSinceAsync(sent, HitBy(pet), "the pet's hit");
+            Assert.AreEqual(0L, hit.SkillVnum, "no skill");
+            Assert.AreEqual((long)WorldData.PetBasicCooldown, hit.SkillCooldown, "the pet's basic cooldown");
+            Assert.AreEqual(11L, hit.AttackAnimation, "the basic attack's animation");
+            Assert.AreEqual(0L, hit.SkillEffect, "the pet's own hit effect");
+        }
+
+        [TestMethod]
         public async Task APetOnlyUsesTheSkillsOfItsOwnBar()
         {
             await using var alice = await EnterWithAPetAsync("Alice");

@@ -34,14 +34,12 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private const int PetCastId = 3;
         private const int NearMonsterId = 200;
         private const int FarMonsterId = 201;
-        private const short LongReachSkillVNum = 701;
 
         private SuCtlPacketHandler _handler;
         private ClientSession _session;
         private ClientSession _otherSession;
         private MapInstance _map;
         private Mock<IBattleService> _battleService;
-        private Mock<INpcCombatCatalog> _catalog;
         private Mate _pet;
 
         [TestInitialize]
@@ -64,27 +62,47 @@ namespace NosCore.PacketHandlers.Tests.Mates
             _battleService = World.Freeze<Mock<IBattleService>>();
             _battleService.Setup(s => s.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))
                 .ReturnsAsync(true);
-            _catalog = World.Freeze<Mock<INpcCombatCatalog>>();
-            _catalog.Setup(c => c.GetSkills(It.IsAny<short>())).Returns(new List<NpcMonsterSkillDto>
+            World.Inject(new List<SkillDto>
             {
-                new() { NpcMonsterVNum = 333, SkillVNum = PetSkillVNum }
+                new() { SkillVNum = PetSkillVNum, CastId = PetCastId, Range = 20, TargetType = 0, Cooldown = 10 }
             });
-            var skills = new List<SkillDto>
+            World.Inject(new List<NpcMonsterSkillDto>
             {
-                new() { SkillVNum = PetSkillVNum, CastId = PetCastId, Range = 2, TargetType = 0, Cooldown = 10 },
-                new() { SkillVNum = LongReachSkillVNum, CastId = 0, Range = 20, TargetType = 0, Cooldown = 10 }
-            };
-            World.Inject(skills);
-            _handler = World.UseReal<IMateControlService, MateControlService>().Create<SuCtlPacketHandler>();
+                new() { NpcMonsterSkillId = 1, NpcMonsterVNum = 333, SkillVNum = PetSkillVNum }
+            });
+            _handler = World.UseReal<IMateControlService, MateControlService>()
+                .UseReal<IMateAttackService, MateAttackService>()
+                .UseReal<INpcCombatCatalog, NpcCombatCatalog>()
+                .Create<SuCtlPacketHandler>();
         }
 
         [TestMethod]
-        public async Task AnOwnPetHitsAMonsterWithItsSkill()
+        public async Task AnOwnPetHitsAMonsterWithItsBasicAttack()
         {
-            await new Spec("An own pet hits a monster in reach with a skill it knows, through the battle service")
+            await new Spec("An own pet sent at a monster in reach hits it with its basic attack, through the battle service")
                 .GivenAsync(APetOf_IsOut, "owner")
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, NearMonsterId)
-                .Then(ThePetShouldHitMonster_WithCast_, NearMonsterId, PetCastId)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_, NearMonsterId)
+                .Then(ThePetShouldHitMonster_WithItsBasicAttack, NearMonsterId)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheFirstFieldOfTheOrderPicksNoSkill()
+        {
+            await new Spec("An order whose first field matches one of the pet's skills still sends the pet in with its basic attack")
+                .GivenAsync(APetOf_IsOut, "owner")
+                .WhenAsync(TheOwnerSendsThePetAtMonster_WithFirstField_, NearMonsterId, PetCastId)
+                .Then(ThePetShouldHitMonster_WithItsBasicAttack, NearMonsterId)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task APetWithoutSkillsStillAttacks()
+        {
+            await new Spec("A pet that knows no skill still hits the monster it is sent at")
+                .GivenAsync(APetWithoutSkillsIsOut)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_, NearMonsterId)
+                .Then(ThePetShouldHitMonster_WithItsBasicAttack, NearMonsterId)
                 .ExecuteAsync();
         }
 
@@ -93,17 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         {
             await new Spec("A suctl naming another player's pet does not attack")
                 .GivenAsync(APetOf_IsOut, "other player")
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, NearMonsterId)
-                .Then(NothingShouldBeHit)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ASkillThePetDoesNotKnowIsRefused()
-        {
-            await new Spec("A cast id outside the pet's own skills is refused, not swapped for its basic attack")
-                .GivenAsync(APetOf_IsOut, "owner")
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, 9, NearMonsterId)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_, NearMonsterId)
                 .Then(NothingShouldBeHit)
                 .ExecuteAsync();
         }
@@ -111,9 +119,9 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task AMonsterOutOfReachIsRefused()
         {
-            await new Spec("A monster beyond the skill's range is not hit")
+            await new Spec("A monster beyond the pet's basic range is not hit, however far its skills reach")
                 .GivenAsync(APetOf_IsOut, "owner")
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, FarMonsterId)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_, FarMonsterId)
                 .Then(NothingShouldBeHit)
                 .ExecuteAsync();
         }
@@ -123,7 +131,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         {
             await new Spec("A target id that is not a monster on the map is refused")
                 .GivenAsync(APetOf_IsOut, "owner")
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, 999)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_, 999)
                 .Then(NothingShouldBeHit)
                 .ExecuteAsync();
         }
@@ -131,54 +139,43 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task APlayerIsNotATarget()
         {
-            await new Spec("A pet cannot be ordered at a player")
+            await new Spec("A pet cannot be sent at a player")
                 .GivenAsync(APetOf_IsOut, "owner")
-                .WhenAsync(TheOwnerOrdersCastOnTheOtherPlayer)
+                .WhenAsync(TheOwnerSendsThePetAtTheOtherPlayer)
                 .Then(NothingShouldBeHit)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ASkillWaitsForItsCooldown()
+        public async Task AnAttackWaitsForTheBasicCooldown()
         {
-            await new Spec("A pet's skill cannot be cast again before its cooldown is over")
+            await new Spec("A pet cannot hit again before its basic cooldown is over")
                 .GivenAsync(APetOf_IsOut, "owner")
-                .AndAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, NearMonsterId)
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, NearMonsterId)
+                .AndAsync(TheOwnerSendsThePetAtMonster_, NearMonsterId)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_, NearMonsterId)
                 .Then(ThePetShouldHaveHit_Times, 1)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ASkillIsBackAfterItsCooldown()
+        public async Task AnAttackIsBackAfterTheBasicCooldown()
         {
-            await new Spec("A pet's skill can be cast again once its cooldown is over")
+            await new Spec("A pet hits again once its basic cooldown is over")
                 .GivenAsync(APetOf_IsOut, "owner")
-                .AndAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, NearMonsterId)
+                .AndAsync(TheOwnerSendsThePetAtMonster_, NearMonsterId)
                 .And(_SecondsPass, 1)
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, NearMonsterId)
+                .WhenAsync(TheOwnerSendsThePetAtMonster_, NearMonsterId)
                 .Then(ThePetShouldHaveHit_Times, 2)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task CastZeroIsCheckedOnTheSkillTheResolverCasts()
-        {
-            await new Spec("Cast 0 is the pet's first skill, so a far monster is out of that skill's reach")
-                .GivenAsync(APetOf_IsOut, "owner")
-                .And(ThePetsSecondSkillHasCastZeroAndAMuchLongerRange)
-                .WhenAsync(TheOwnerOrdersCast_OnMonster_, 0, FarMonsterId)
-                .Then(NothingShouldBeHit)
                 .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task AnEscortHitsAMonsterItsLeaderPoints()
         {
-            await new Spec("An escort following the player hits the monster the player sends it at")
+            await new Spec("An escort following the player hits the monster the player sends it at with its basic attack")
                 .Given(AnEscortLedBy_, "owner")
                 .WhenAsync(TheOwnerSendsTheEscortAtMonster_, NearMonsterId)
-                .Then(ThePetShouldHaveHit_Times, 1)
+                .Then(TheEscortShouldHitMonster_WithItsBasicAttack, NearMonsterId)
                 .ExecuteAsync();
         }
 
@@ -197,7 +194,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private void AnEscortLedBy_(string whose)
         {
             var leader = whose == "owner" ? _session : _otherSession;
-            _escort = _map.SummonNpc(new NpcMonsterDto { NpcMonsterVNum = 318, MaxHp = 10, Speed = 10 }, 5, 5);
+            _escort = _map.SummonNpc(new NpcMonsterDto { NpcMonsterVNum = 318, MaxHp = 10, Speed = 10, BasicRange = 1 }, 5, 5);
             _escort.IsEscort = true;
             _escort.LeaderId = leader.Character.CharacterId;
         }
@@ -205,25 +202,21 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private Task TheOwnerSendsTheEscortAtMonster_(int monsterId) =>
             _handler.ExecuteAsync(new SuCtlPacket
             {
-                CastId = PetCastId,
                 MateTransportId = _escort.VisualId,
                 TargetType = VisualType.Monster,
                 TargetId = monsterId
             }, _session);
 
-        private void ThePetsSecondSkillHasCastZeroAndAMuchLongerRange()
-        {
-            _catalog.Setup(c => c.GetSkills(It.IsAny<short>())).Returns(new List<NpcMonsterSkillDto>
-            {
-                new() { NpcMonsterVNum = 333, SkillVNum = PetSkillVNum },
-                new() { NpcMonsterVNum = 333, SkillVNum = LongReachSkillVNum }
-            });
-        }
+        private Task APetOf_IsOut(string whose) => SpawnAsync(whose, TestMates.Pet((whose == "owner" ? _session : _otherSession).Character.CharacterId));
 
-        private async Task APetOf_IsOut(string whose)
+        private Task APetWithoutSkillsIsOut() => SpawnAsync("owner", TestMates.Pet(_session.Character.CharacterId, vnum: 334));
+
+        private async Task SpawnAsync(string whose, Mate pet)
         {
             var owner = whose == "owner" ? _session : _otherSession;
-            _pet = TestMates.Pet(owner.Character.CharacterId);
+            _pet = pet;
+            _pet.NpcMonster.BasicRange = 1;
+            _pet.NpcMonster.BasicCooldown = 10;
             owner.Character.Mates[_pet.MateTransportId] = _pet;
             await _pet.SpawnAsync(owner.Character, _map, 5, 5);
         }
@@ -233,30 +226,37 @@ namespace NosCore.PacketHandlers.Tests.Mates
             World.Clock.Advance(Duration.FromSeconds(seconds));
         }
 
-        private Task TheOwnerOrdersCast_OnMonster_(int castId, int monsterId) =>
+        private Task TheOwnerSendsThePetAtMonster_(int monsterId) => TheOwnerSendsThePetAtMonster_WithFirstField_(monsterId, 0);
+
+        private Task TheOwnerSendsThePetAtMonster_WithFirstField_(int monsterId, int firstField) =>
             _handler.ExecuteAsync(new SuCtlPacket
             {
-                CastId = castId,
+                CastId = firstField,
                 MateTransportId = _pet.MateTransportId,
                 TargetType = VisualType.Monster,
                 TargetId = monsterId
             }, _session);
 
-        private Task TheOwnerOrdersCastOnTheOtherPlayer() =>
+        private Task TheOwnerSendsThePetAtTheOtherPlayer() =>
             _handler.ExecuteAsync(new SuCtlPacket
             {
-                CastId = PetCastId,
                 MateTransportId = _pet.MateTransportId,
                 TargetType = VisualType.Player,
                 TargetId = _otherSession.Character.VisualId
             }, _session);
 
-        private void ThePetShouldHitMonster_WithCast_(int monsterId, int castId)
+        private void ThePetShouldHitMonster_WithItsBasicAttack(int monsterId) =>
+            ShouldHitWithABasicAttack(_pet.MateTransportId, monsterId);
+
+        private void TheEscortShouldHitMonster_WithItsBasicAttack(int monsterId) =>
+            ShouldHitWithABasicAttack(_escort.VisualId, monsterId);
+
+        private void ShouldHitWithABasicAttack(long attackerId, int monsterId)
         {
             _battleService.Verify(s => s.Hit(
-                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == _pet.MateTransportId),
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Npc && e.VisualId == attackerId),
                 It.Is<IAliveEntity>(e => e.VisualType == VisualType.Monster && e.VisualId == monsterId),
-                It.Is<HitArguments>(a => a.SkillId == castId)), Times.Once);
+                It.Is<HitArguments>(a => a.BasicAttack && a.Skill == null)), Times.Once);
         }
 
         private void ThePetShouldHaveHit_Times(int times)
