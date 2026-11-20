@@ -16,6 +16,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ClientPackets.Shops;
@@ -237,11 +238,14 @@ namespace NosCore.GameObject.Ecs.Extensions
             await SendShopClosedAsync(characterEntity);
         }
 
+        public static Task AnswerRequestAsync(this PlayerComponentBundle owner, ClientSession requester) =>
+            owner.Shop is { IsClosed: false } shop
+                ? requester.SendPacketAsync(owner.GenerateNInv(shop, 0, 0))
+                : Task.CompletedTask;
+
         private static void CloseShop(PlayerComponentBundle characterEntity, Shop shop)
         {
             shop.IsClosed = true;
-            shop.DialogSubscription?.Dispose();
-            shop.DialogSubscription = null;
             if (ReferenceEquals(characterEntity.Shop, shop))
             {
                 characterEntity.Shop = null;

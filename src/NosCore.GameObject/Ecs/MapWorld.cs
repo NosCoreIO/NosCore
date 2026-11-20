@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reactive.Subjects;
 using System.Threading;
 using Arch.Core;
 using NodaTime;
@@ -261,7 +260,6 @@ public class MapWorld : IDisposable
             new EffectComponent(0, 0),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
             new NpcStateComponent(npcMonster, mapInstance, null, isDisabled),
-            new RequestsComponent(new Dictionary<Type, Subject<RequestData>>()),
             new NpcShopComponent(null),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
@@ -308,7 +306,6 @@ public class MapWorld : IDisposable
             new EffectComponent(effect, effectDelay),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
             new NpcStateComponent(npcMonster, mapInstance, dialog, isDisabled),
-            new RequestsComponent(new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }),
             new NpcShopComponent(shop),
             new RecipesComponent(null),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
@@ -344,7 +341,6 @@ public class MapWorld : IDisposable
             new EffectComponent(0, 0),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
             new NpcStateComponent(mate.NpcMonster, mapInstance, null, false),
-            new RequestsComponent(new Dictionary<Type, Subject<RequestData>>()),
             new NpcShopComponent(null),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
@@ -477,7 +473,6 @@ public class MapWorld : IDisposable
         PlayerContextComponent context,
         PlayerInventoryComponent inventory,
         PlayerSocialComponent social,
-        RequestsComponent requests,
         PlayerMatesComponent mates,
         DigestionComponent digestion,
         HitListComponent hitList,
@@ -490,7 +485,7 @@ public class MapWorld : IDisposable
         ThrowIfDisposed();
         var entity = _world.Create(identity, health, mana, position, visual, appearance, experience, gold,
             reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
-            context, inventory, social, requests, mates);
+            context, inventory, social, mates);
         _world.Add(entity, digestion);
         _world.Add(entity, hitList);
         _world.Add(entity, baseMapPosition);

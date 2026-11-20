@@ -453,11 +453,6 @@ namespace NosCore.Tests.Shared
                 new ConcurrentDictionary<long, long>()));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerMatesComponent(
                 new ConcurrentDictionary<long, GameObject.Services.MateService.Mate>()));
-            ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.RequestsComponent(
-                new Dictionary<Type, System.Reactive.Subjects.Subject<RequestData>>
-                {
-                    { typeof(NpcDialogRequestSubject), new System.Reactive.Subjects.Subject<RequestData>() }
-                }));
             session.SetPlayerEntity(playerEntity, ecs);
 
             SessionWorlds.AddOrUpdate(session, this);

@@ -375,8 +375,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             _visitor = _secondBuyer;
             _visitor.LastPackets.Clear();
-            _owner.Character.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(_visitor));
-            return Task.CompletedTask;
+            return _owner.Character.AnswerRequestAsync(_visitor);
         }
 
         private Task TheOwnerChangesMap() =>

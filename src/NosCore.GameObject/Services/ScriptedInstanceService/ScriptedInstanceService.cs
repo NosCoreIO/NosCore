@@ -26,7 +26,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -54,7 +53,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IItemThrowService _itemThrowService;
         private readonly IDao<MapMonsterDto, int> _mapMonsters;
         private readonly IDao<MapNpcDto, int> _mapNpcs;
-        private readonly IItemGenerationService _itemProvider;
         private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
         private readonly IRandomProvider _random;
@@ -79,7 +77,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IItemThrowService itemThrowService,
             IDao<MapMonsterDto, int> mapMonsters,
             IDao<MapNpcDto, int> mapNpcs,
-            IItemGenerationService itemProvider,
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
             IRandomProvider random,
@@ -100,7 +97,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _itemThrowService = itemThrowService;
             _mapMonsters = mapMonsters;
             _mapNpcs = mapNpcs;
-            _itemProvider = itemProvider;
             _mapChangeService = mapChangeService;
             _clock = clock;
             _random = random;
@@ -253,10 +249,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 .Select(g => g.OrderBy(n => n.MapNpcId).First())
                 .ToList();
             mapInstance.LoadNpcs(npcs, _npcMonsters);
-            foreach (var npc in mapInstance.EnumerateNpcs())
-            {
-                npc.InitializeShopAndDialog([], null, [], _itemProvider);
-            }
         }
 
         public async Task TickAsync()
