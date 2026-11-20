@@ -591,4 +591,40 @@
   <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
     <value>Sunucular bakım için {0} dakika içinde kapatılacak.</value>
   </data>
+  <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
+    <value>Tüm canavarları yendiğinde portal açılacak.</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IS_OPEN" xml:space="preserve">
+    <value>Çıkış açık.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_IN_TWO_MINUTES_FOR_BONUS" xml:space="preserve">
+    <value>Bonus süre kazanmak için tüm canavarları 2 dakika içinde yen.</value>
+  </data>
+  <data name="TIMESPACE_BONUS_THREE_MINUTES" xml:space="preserve">
+    <value>3 dakika bonus süre kazandın.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_DEMONS_TO_OPEN_EXIT" xml:space="preserve">
+    <value>Çıkışı açmak için tüm iblisleri yen.</value>
+  </data>
+  <data name="TIMESPACE_EXITS_ALL_AROUND_OPEN" xml:space="preserve">
+    <value>Etraftaki tüm çıkışlar açık.</value>
+  </data>
+  <data name="TIMESPACE_SEE_LEVER_IN_CENTRE" xml:space="preserve">
+    <value>Ortadaki kolu görüyor musun?</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DARK_TRAP_ONE_MINUTE" xml:space="preserve">
+    <value>Karanlık tuzağı! 1 dakika boyunca tuzağa düştün.</value>
+  </data>
+  <data name="TIMESPACE_PORTAL_HAS_OPENED" xml:space="preserve">
+    <value>Portal açıldı.</value>
+  </data>
+  <data name="TIMESPACE_TIME_ROOM_TWO_MINUTES" xml:space="preserve">
+    <value>Zaman odası: 2 dakika bonus süre kazandın!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_FIGHT_TWO_MINUTES" xml:space="preserve">
+    <value>Canavarlara karşı savaşta 2 dakika hayatta kal.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
+    <value>Burada 2 dakika devriye gez.</value>
+  </data>
 </root>
