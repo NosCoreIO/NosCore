@@ -106,12 +106,6 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
             Delay = 5000,
             Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
         }, specialistInstance.Id, clock.GetCurrentInstant());
-        await character.MapInstance.SendPacketAsync(new GuriPacket
-        {
-            Type = GuriPacketType.Dance,
-            Argument = 1,
-            EntityId = character.CharacterId
-        });
         return SpecialistTransformationOutcome.Handled;
     }
 
