@@ -23,6 +23,7 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
@@ -289,6 +290,18 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             await run.ExitReachedAsync(room.MapInstanceId);
             return true;
         }
+
+        public Task<bool> AskToStartAsync(ClientSession session, Portal wayOut) =>
+            RunLeftThrough(session, wayOut) is { } run ? run.AskToStartAsync(session) : Task.FromResult(false);
+
+        public Task<bool> ConfirmStartAsync(ClientSession session, Portal wayOut) =>
+            RunLeftThrough(session, wayOut) is { } run ? run.ConfirmStartAsync(session) : Task.FromResult(false);
+
+        private ScriptedInstanceRun? RunLeftThrough(ClientSession session, Portal wayOut) =>
+            session.Character.MapInstance is { } room && wayOut.SourceMapInstanceId == room.MapInstanceId
+                && GetRun(room.MapInstanceId) is { } run && run.Rooms.Values.Contains(wayOut.DestinationMapInstanceId)
+                ? run
+                : null;
 
         public async Task<bool> DisposeIfEmptyAsync(ScriptedInstanceRun run)
         {

@@ -51,6 +51,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // The lives a run's players still share, shown in the mission window. Null for a host with no window.
         int? LivesLeft => null;
 
+        // Whether the players leave the first room only once one of them confirms the start.
+        bool AsksToStart => false;
+
         // Whether the client draws the run's rooms as a map that fills in as they are discovered.
         bool DrawsRoomMap => false;
 

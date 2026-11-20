@@ -1672,6 +1672,18 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] Keep the sender online for another hour after the relog, then commend again: the
       once-per-day line still appears, so the limit survived the relog
 
+### Teleportation stones
+
+Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 51, 85,
+120 and 121 have more. They need a parser run over a capture that holds their bars.
+
+- [ ] Click the stone at (21, 56) on map 49: no talk opens; a five-second bar runs over the
+      character instead
+- [ ] Let it run out: the character, and each pet and partner following it, jump to (22, 72)
+      and the cells beside it without a map change
+- [ ] Walk away or get hit while the bar runs: nobody moves
+- [ ] Click an ordinary NPC: its talk opens as before
+
 ### Picking up and using items
 
 - [ ] Drop an item and pick it up again: it lands in the bag, the ground item disappears for
@@ -3280,7 +3292,7 @@ A Bold Warrior: Part 3 (`timespace-15`) on a character without partner 317.
 Run `timespace-sample`, the sample shipped in `instances/`. Its monsters are 58, 59 and 60;
 dropping their `MaxHp` makes the run quick.
 
-- [ ] On entry a clock appears and counts down from ten minutes
+- [ ] On entry no clock is drawn in the first room until a player confirms the start
 - [ ] On entry the mission window shows the time-space's lives as hearts: two for time-space 1,
       four for time-space 9. Time-space 1 also shows the exit as its goal; time-space 9 shows
       "0/1" against its boss and no exit
@@ -3295,9 +3307,10 @@ dropping their `MaxHp` makes the run quick.
       east edge; walking onto the padlock does nothing
 - [ ] No time-space stone is drawn inside the rooms
 - [ ] No portal of Chicken Farm Path is drawn inside the rooms: the ring south of the start
-      spot is gone, and walking onto its cell leaves you in the room with the clock still running
-- [ ] Killing the third monster opens the padlock; walking onto it moves you to the second
-      room, where a single Weak Devil Vampire waits
+      spot is gone, and walking onto its cell leaves you in the room with the clock unchanged
+- [ ] Killing the third monster opens the padlock; walking onto it asks "Do you want to enter the
+      first room?". Yes moves you to the second room, where a single Weak Devil Vampire waits, and
+      the clock appears at ten minutes and starts counting down
 - [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
       the "Perfect" stamp when every summoned monster died
 - [ ] At the same moment the banner at the top reads "[1 Level ] Time-Space Stone complete",
@@ -3322,6 +3335,14 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Do the same with an `OnFirstEnter` that throws: the failure score comes at once and
       the world log shows the exception
 - [ ] Monsters killed inside a run do not respawn
+- [ ] Enter any time-space with more than one room and stand in the first room: no clock is
+      drawn. Walk onto the way out: instead of moving, a box asks
+      "Do you want to enter the first room?" with Yes and No
+- [ ] Answer No: you stay where you are and still no clock is drawn. Walk onto the way out
+      again: the same question comes back
+- [ ] Answer Yes: you go through to the next room, the first room stays marked as found on the
+      Mission Map, and the clock appears at its full time and starts counting down. Walking back into the
+      first room and out again asks nothing
 - [ ] Inside a run, the client's exit button (`rxit`) sends you back beside the stone, and a
       run you were alone in is gone (entering again starts a new one)
 - [ ] An `escape` sent inside a run does the same as `rxit`: the player is back beside the

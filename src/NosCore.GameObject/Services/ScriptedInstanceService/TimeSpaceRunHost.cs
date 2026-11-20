@@ -43,6 +43,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public bool DrawsRoomMap => true;
 
+        public bool AsksToStart => true;
+
         public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
 
         public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;

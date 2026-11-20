@@ -22,6 +22,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
+using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
@@ -55,6 +56,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             public Script(byte id = 0, params InstanceObjective[] objectives) =>
                 Definition = new ScriptedInstanceDefinition { Id = id, Objectives = objectives };
+
+            public Script(ScriptedInstanceDefinition definition) => Definition = definition;
 
             public override void OnFirstEnter(IInstanceRun run)
             {
@@ -781,6 +784,110 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.EnteredAsync(later, _first.MapInstanceId);
 
             Assert.IsFalse(later.LastPackets.OfType<NpcReqPacket>().Any());
+        }
+
+        private static ScriptedInstanceDefinition TwoRooms => new()
+        {
+            Rooms = [new InstanceRoom(1, 2004, 2, 9), new InstanceRoom(2, 2004, 3, 9)]
+        };
+
+        [TestMethod]
+        public async Task TheWayOutOfTheFirstRoomAsksWhetherToStartAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms));
+            await run.StartAsync();
+
+            Assert.IsTrue(await run.AskToStartAsync(session));
+
+            PacketAssert.AreEqual(new DlgiPacket
+            {
+                YesPacket = new RStartPacket { Type = RStartPacketType.TimeSpaceInstanceEntry },
+                NoPacket = new RStartPacket(),
+                Question = Game18NConstString.WantEnterFirstRoom
+            }, session.LastPackets.OfType<DlgiPacket>().Single());
+        }
+
+        [TestMethod]
+        public async Task OnlyTheFirstRoomAsksWhetherToStartAsync()
+        {
+            var session = await PlayerInRoomAsync(_second);
+            var run = Run(new Script(TwoRooms));
+            await run.StartAsync();
+
+            Assert.IsFalse(await run.AskToStartAsync(session));
+            Assert.IsFalse(await run.ConfirmStartAsync(session));
+        }
+
+        [TestMethod]
+        public async Task OnceStartedTheFirstRoomNoLongerAsksAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms));
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            Assert.IsTrue(await run.ConfirmStartAsync(session));
+
+            Assert.IsFalse(await run.AskToStartAsync(session));
+            PacketAssert.AreEqual(new RsfnPacket { MapIndexX = 2, MapIndexY = 9, Status = 0 },
+                session.LastPackets.OfType<RsfnPacket>().Last());
+        }
+
+        [TestMethod]
+        public async Task ALaterYesStillLetsItsPlayerThroughWithoutRestartingTheClockAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var second = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.StartAsync();
+
+            Assert.IsTrue(await run.ConfirmStartAsync(first));
+            World.Clock.AdvanceSeconds(10);
+            Assert.IsTrue(await run.ConfirmStartAsync(second), "the second answer lets its player through");
+
+            World.Clock.AdvanceSeconds(50);
+            await run.TickAsync();
+            Assert.AreEqual(EndStateType.Timeout, run.EndState, "the clock started once, with the first yes");
+        }
+
+        [TestMethod]
+        public async Task TheClockIsOnlyDrawnOnceTheStartIsConfirmedAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            World.Clock.AdvanceSeconds(20);
+            await run.TickAsync();
+
+            Assert.IsFalse(session.LastPackets.Concat(_first.LastPackets).OfType<EventPacket>().Any(p => p.Type == EventPacketType.TSTimer),
+                "a drawn clock would be counted down by the client while the run waits");
+
+            await run.ConfirmStartAsync(session);
+
+            PacketAssert.AreEqual(new EventPacket { Type = EventPacketType.TSTimer, Parameter = 600, SecondParameter = 600 },
+                _first.LastPackets.OfType<EventPacket>().Single(p => p.Type == EventPacketType.TSTimer));
+        }
+
+        [TestMethod]
+        public async Task TheClockWaitsForTheStartToBeConfirmedAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var script = new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) };
+            var run = Run(script);
+            await run.StartAsync();
+
+            World.Clock.AdvanceSeconds(100);
+            await run.TickAsync();
+            Assert.IsNull(run.EndState);
+
+            await run.ConfirmStartAsync(session);
+            World.Clock.AdvanceSeconds(59);
+            await run.TickAsync();
+            Assert.IsNull(run.EndState);
+
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+            Assert.AreEqual(EndStateType.Timeout, run.EndState);
         }
 
         [TestMethod]

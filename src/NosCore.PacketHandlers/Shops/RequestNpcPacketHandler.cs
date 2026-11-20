@@ -12,6 +12,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MapTeleporterService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -24,7 +25,8 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Shops
 {
     public class RequestNpcPacketHandler(ILogger<RequestNpcPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
-            IGameEventDispatcher gameEvents, INpcDialogService npcDialogService, IRainbowBattleService rainbowBattleService)
+            IGameEventDispatcher gameEvents, INpcDialogService npcDialogService, IRainbowBattleService rainbowBattleService,
+            IMapTeleporterService mapTeleporterService)
         : PacketHandler<RequestNpcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
@@ -55,6 +57,11 @@ namespace NosCore.PacketHandlers.Shops
                             || character.MapInstance.MapInstanceType == MapInstanceType.RainbowBattleInstance)
                         {
                             await gameEvents.RaiseAsync(new NpcTalkedEvent(character, found));
+                            return;
+                        }
+
+                        if (await mapTeleporterService.StartAsync(character, found))
+                        {
                             return;
                         }
 

@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking;
+using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
@@ -89,6 +90,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private int _nextPortalId;
         private int _combo;
         private bool _started;
+        private bool _startConfirmed;
         private bool _hasExit;
         private Instant? _clockEndsAt;
         private Instant? _clockPausedAt;
@@ -136,6 +138,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public EndStateType? EndState { get; private set; }
 
         public bool HasStarted => _started;
+
+        private bool AwaitsStart => _host.AsksToStart && !_startConfirmed && FirstRoom != null;
+
+        private int? FirstRoom => _script.Definition.Rooms is [var first, ..] ? first.Key : null;
 
         public int MonstersSummoned { get; private set; }
 
@@ -351,7 +357,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
-                if (_clockEndsAt != null && EndState == null)
+                if (_clockEndsAt != null && EndState == null && !AwaitsStart)
                 {
                     var clockPacket = GenerateClock();
                     _pending.Add(() => session.SendPacketAsync(clockPacket));
@@ -412,7 +418,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
-                if (_clockPausedAt is { } pausedAt && now - pausedAt >= TalkPauseLimit)
+                if (!AwaitsStart && _clockPausedAt is { } pausedAt && now - pausedAt >= TalkPauseLimit)
                 {
                     ResumeClock();
                 }
@@ -1000,8 +1006,72 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public void StartClock(TimeSpan limit)
         {
             _clockLimit = Duration.FromTimeSpan(limit * ClockScale);
+            if (AwaitsStart)
+            {
+                _clockPausedAt ??= _clock.GetCurrentInstant();
+            }
+
             _clockEndsAt = (_clockPausedAt ?? _clock.GetCurrentInstant()).Plus(_clockLimit);
             BroadcastClock();
+        }
+
+        // Until one of them confirms the start, the way out of the first room asks the players whether
+        // to start, and the clock waits. Every yes from the first room lets its player through; only
+        // the first starts the clock.
+        public async Task<bool> AskToStartAsync(ClientSession session)
+        {
+            var asked = false;
+            await RunAsync(() =>
+            {
+                if (!AwaitsStart || EndState != null || _abandoned || !session.HasPlayerEntity
+                    || RoomOf(session.Character.MapInstance.MapInstanceId) is not { } room || room != FirstRoom)
+                {
+                    return Task.CompletedTask;
+                }
+
+                asked = true;
+                _pending.Add(() => session.SendPacketAsync(new DlgiPacket
+                {
+                    YesPacket = new RStartPacket { Type = RStartPacketType.TimeSpaceInstanceEntry },
+                    NoPacket = new RStartPacket(),
+                    Question = Game18NConstString.WantEnterFirstRoom
+                }));
+                return Task.CompletedTask;
+            });
+            return asked;
+        }
+
+        public async Task<bool> ConfirmStartAsync(ClientSession session)
+        {
+            var confirmed = false;
+            await RunAsync(() =>
+            {
+                if (!_host.AsksToStart || EndState != null || _abandoned || !session.HasPlayerEntity
+                    || RoomOf(session.Character.MapInstance.MapInstanceId) is not { } room || room != FirstRoom)
+                {
+                    return Task.CompletedTask;
+                }
+
+                confirmed = true;
+                var starting = !_startConfirmed;
+                _startConfirmed = true;
+                if (starting && _clockPausedAt is { } heldSince && _clockEndsAt is { } endsAt)
+                {
+                    var now = _clock.GetCurrentInstant();
+                    _clockEndsAt = endsAt.Plus(now - heldSince);
+                    _clockPausedAt = _openDialogs.Count > 0 ? now : null;
+                    BroadcastClock();
+                }
+
+                if (_host.DrawsRoomMap && _script.Definition.Rooms.FirstOrDefault(r => r.Key == room) is { } first)
+                {
+                    var cell = GenerateRoom(first);
+                    _pending.Add(() => session.SendPacketAsync(cell));
+                }
+
+                return Task.CompletedTask;
+            });
+            return confirmed;
         }
 
         public void AddClockTime(TimeSpan extra)
@@ -1033,6 +1103,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private void ResumeClock()
         {
+            if (AwaitsStart)
+            {
+                return;
+            }
+
             if (_clockPausedAt is not { } pausedAt || _clockEndsAt is not { } endsAt)
             {
                 _clockPausedAt = null;
@@ -1045,8 +1120,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             BroadcastClock();
         }
 
+        // A clock waiting for the start is not drawn: the client would count it down by itself.
         private void BroadcastClock()
         {
+            if (AwaitsStart)
+            {
+                return;
+            }
+
             var packet = GenerateClock();
             _pending.Add(() => BroadcastAsync(packet));
         }

@@ -57,7 +57,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NullLogger<RequestNpcPacketHandler>.Instance,
                 World.LogLanguageLocalizer,
                 World.SessionRegistry,
-                GameEvents.Object, World.NpcDialogService, new Mock<IRainbowBattleService>().Object);
+                GameEvents.Object, World.NpcDialogService, new Mock<IRainbowBattleService>().Object,
+                World.Create<NosCore.GameObject.Services.MapTeleporterService.MapTeleporterService>());
         }
 
         [TestMethod]

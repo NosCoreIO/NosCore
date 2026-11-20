@@ -21,6 +21,9 @@ using NosCore.Packets.Interfaces;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using SpecLight;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.Parser.Tests
 {
@@ -48,6 +51,11 @@ namespace NosCore.Parser.Tests
                 new() { MapNpcId = 1899, MapId = 1, VNum = 330, Dialog = 11 },
                 new() { MapNpcId = 2022, MapId = 1, VNum = 330, Dialog = 11 },
                 new() { MapNpcId = 9821, MapId = 177, VNum = 955, Dialog = 453 },
+                new() { MapNpcId = 5980, MapId = 49, VNum = 856, Dialog = 1, MapX = 21, MapY = 56 },
+                new() { MapNpcId = 5981, MapId = 49, VNum = 856, Dialog = 1, MapX = 113, MapY = 54 },
+                new() { MapNpcId = 6103, MapId = 49, VNum = 856, Dialog = 1, MapX = 21, MapY = 56 },
+                new() { MapNpcId = 6104, MapId = 49, VNum = 856, Dialog = 1, MapX = 113, MapY = 54 },
+                new() { MapNpcId = 6105, MapId = 49, VNum = 856, Dialog = 1, MapX = 60, MapY = 60 },
             });
             _parser = new TeleporterParser(_teleporterDao.Object, mapNpcDao.Object,
                 new Mock<ILogger<TeleporterParser>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
@@ -69,6 +77,50 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(87, teleporter.MapY);
             Assert.AreEqual(TeleporterType.Teleporter, teleporter.Type);
         }
+
+        [TestMethod]
+        public async Task AStonesBarNamesItsDestinationAcrossTheMap()
+        {
+            await _parser.InsertTeleportersAsync([
+                new RequestNpcPacket { Type = VisualType.Npc, TargetId = 9821 },
+                new DelayPacket
+                {
+                    Delay = 5000,
+                    Type = DelayPacketType.Button,
+                    Packet = new GuriPacket { Type = GuriPacketType.MapTeleporter, Argument = 22, SecondArgument = 72, EntityId = 9821 }
+                },
+            ]);
+
+            var teleporter = _saved.Single();
+            Assert.AreEqual(9821, teleporter.MapNpcId);
+            Assert.AreEqual((short)177, teleporter.MapId);
+            Assert.AreEqual((short)22, teleporter.MapX);
+            Assert.AreEqual((short)72, teleporter.MapY);
+            Assert.IsNull(teleporter.Runner);
+            Assert.AreEqual(TeleporterType.TeleporterOnMapAfterBar, teleporter.Type);
+        }
+
+        [TestMethod]
+        public async Task EachStoneKeepsItsOwnDestinationAndOnlyItsCopiesShareIt()
+        {
+            await _parser.InsertTeleportersAsync([StoneBar(5980, 22, 72), StoneBar(5981, 112, 39)]);
+
+            Assert.AreEqual(((short)22, (short)72), Destination(5980));
+            Assert.AreEqual(((short)112, (short)39), Destination(5981));
+            Assert.AreEqual(((short)22, (short)72), Destination(6103));
+            Assert.AreEqual(((short)112, (short)39), Destination(6104));
+            Assert.IsFalse(_saved.Any(s => s.MapNpcId == 6105), "a stone standing elsewhere takes no bar of another");
+        }
+
+        private static DelayPacket StoneBar(long stoneId, uint x, uint y) => new()
+        {
+            Delay = 5000,
+            Type = DelayPacketType.Button,
+            Packet = new GuriPacket { Type = GuriPacketType.MapTeleporter, Argument = x, SecondArgument = y, EntityId = stoneId }
+        };
+
+        private (short X, short Y) Destination(int mapNpcId) =>
+            _saved.Where(s => s.MapNpcId == mapNpcId).Select(s => (s.MapX, s.MapY)).Single();
 
         [TestMethod]
         public async Task ADestinationOnTheSameMapIsMarkedSo()

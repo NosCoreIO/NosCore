@@ -18,12 +18,14 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 
 namespace NosCore.Parser.Parsers
 {
     // A teleport is captured as the n_run the player sent to the NPC followed by the at packet of the
-    // map they arrived on; the option index is the n_run type.
+    // map they arrived on; the option index is the n_run type. An NPC that carries players across its
+    // own map answers its talk with a bar whose follow-up names the destination cell.
     public class TeleporterParser(IDao<TeleporterDto, short> teleporterDao, IDao<MapNpcDto, int> mapNpcDao,
         ILogger<TeleporterParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
@@ -42,11 +44,27 @@ namespace NosCore.Parser.Parsers
         {
             var npcs = mapNpcDao.LoadAll().ToDictionary(s => s.MapNpcId);
             var stored = teleporterDao.LoadAll().ToList();
-            var captured = new Dictionary<(int MapNpcId, NrunRunnerType Runner, short Index), TeleporterDto>();
-            (int MapNpcId, NrunRunnerType Runner, short Index)? pending = null;
+            var captured = new Dictionary<(int MapNpcId, NrunRunnerType? Runner, short Index), TeleporterDto>();
+            (int MapNpcId, NrunRunnerType? Runner, short Index)? pending = null;
 
             foreach (var packet in packets)
             {
+                // A capture reads the bar's follow-up with the server's guri shape, which puts the cell's Y in
+                // SecondArgument and the NPC in EntityId.
+                if (packet is DelayPacket { Type: DelayPacketType.Button, Packet: GuriPacket { Type: GuriPacketType.MapTeleporter } guri }
+                    && guri is { Argument: var x, SecondArgument: { } y, EntityId: var stoneId } && npcs.TryGetValue((int)stoneId, out var stone))
+                {
+                    captured.TryAdd((stone.MapNpcId, null, 0), new TeleporterDto
+                    {
+                        MapNpcId = stone.MapNpcId,
+                        MapId = stone.MapId,
+                        MapX = (short)x,
+                        MapY = (short)y,
+                        Type = TeleporterType.TeleporterOnMapAfterBar,
+                    });
+                    continue;
+                }
+
                 if (packet is NrunPacket nrun)
                 {
                     pending = TeleportRunners.Contains(nrun.Runner) && nrun is { Type: { } index, VisualId: { } npcId }
@@ -79,13 +97,16 @@ namespace NosCore.Parser.Parsers
             }
 
             // The same NPC was often recorded under several ids, and only one of them was used for a
-            // given option, so its copies take the destinations it has.
+            // given option, so its copies take the destinations it has. A stone's bar is its own: only
+            // the copies standing where it stands take its destination.
             foreach (var group in npcs.Values.GroupBy(s => (s.MapId, s.VNum, s.Dialog)))
             {
-                var known = captured.Where(t => group.Any(n => n.MapNpcId == t.Key.MapNpcId))
-                    .GroupBy(t => (t.Key.Runner, t.Key.Index)).Select(g => g.First()).ToList();
+                var inGroup = captured.Where(t => group.Any(n => n.MapNpcId == t.Key.MapNpcId)).ToList();
                 foreach (var npc in group)
                 {
+                    var known = inGroup
+                        .Where(t => t.Key.Runner != null || (npcs[t.Key.MapNpcId].MapX, npcs[t.Key.MapNpcId].MapY) == (npc.MapX, npc.MapY))
+                        .GroupBy(t => (t.Key.Runner, t.Key.Index)).Select(g => g.First()).ToList();
                     foreach (var (key, teleporter) in known.Where(t => !captured.ContainsKey((npc.MapNpcId, t.Key.Runner, t.Key.Index))))
                     {
                         captured[(npc.MapNpcId, key.Runner, key.Index)] = new TeleporterDto
