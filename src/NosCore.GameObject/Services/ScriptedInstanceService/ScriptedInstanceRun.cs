@@ -66,9 +66,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IGameLanguageLocalizer _gameLanguage;
 
-        private readonly SemaphoreSlim _gate = new(1, 1);
-        private readonly Lock _handOffLock = new();
-        private Task _handedOff = Task.CompletedTask;
+        private readonly Lock _queueLock = new();
+        private Task _queue = Task.CompletedTask;
         private readonly List<Func<Task>> _pending = [];
         private readonly Dictionary<int, short> _lockers = [];
         private readonly Dictionary<int, short> _lockerVNums = [];
@@ -1522,69 +1521,62 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Task OnRoom(MapInstance room, Func<Task> action) =>
             room.Executor.RunAsync(() => _abandoned ? Task.CompletedTask : action());
 
-        // Triggers and the work they ask for run one at a time and in order. The work is
-        // carried out once the script has returned, so a script never sees the run half-applied.
+        // Triggers and the work they ask for run one at a time, in the order they were raised. The work
+        // is carried out once the script has returned, so a script never sees the run half-applied.
         private Task RunAsync(Func<Task> trigger)
         {
             if (!MapExecutor.IsInsideAny)
             {
-                return RunGatedAsync(trigger);
+                return Enqueue(trigger);
             }
 
-            // The trigger holding the gate may be waiting for the very executor this flow holds, so
-            // a trigger raised from a map's work queues behind the others handed off this way.
-            if (ExecutionContext.IsFlowSuppressed())
-            {
-                HandOff(trigger);
-            }
-            else
+            // A trigger ahead in the queue may be waiting for the very executor this flow holds, so work
+            // on a map's executor queues its trigger without waiting for it or lending it its hold.
+            if (!ExecutionContext.IsFlowSuppressed())
             {
                 using (ExecutionContext.SuppressFlow())
                 {
-                    HandOff(trigger);
+                    Enqueue(trigger);
                 }
+            }
+            else
+            {
+                Enqueue(trigger);
             }
 
             return Task.CompletedTask;
         }
 
-        private void HandOff(Func<Task> trigger)
+        private Task Enqueue(Func<Task> trigger)
         {
-            lock (_handOffLock)
+            lock (_queueLock)
             {
-                _handedOff = _handedOff.ContinueWith(_ => RunGatedAsync(trigger), CancellationToken.None,
+                _queue = _queue.ContinueWith(_ => RunTriggerAsync(trigger), CancellationToken.None,
                     TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+                return _queue;
             }
         }
 
-        private async Task RunGatedAsync(Func<Task> trigger)
+        private async Task RunTriggerAsync(Func<Task> trigger)
         {
-            await _gate.WaitAsync();
             try
             {
-                try
-                {
-                    await trigger();
-                }
-                catch (ScriptAbandonedException)
-                {
-                    _pending.Clear();
-                    Abandon();
-                }
-                catch (Exception exception)
-                {
-                    _pending.Clear();
-                    _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_FAILED], Name);
-                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
-                    return;
-                }
-
-                await ApplyPendingAsync();
+                await trigger();
             }
-            finally
+            catch (ScriptAbandonedException)
             {
-                _gate.Release();
+                _pending.Clear();
+                Abandon();
             }
+            catch (Exception exception)
+            {
+                _pending.Clear();
+                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_FAILED], Name);
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
+                return;
+            }
+
+            await ApplyPendingAsync();
         }
 
         private async Task ApplyPendingAsync()

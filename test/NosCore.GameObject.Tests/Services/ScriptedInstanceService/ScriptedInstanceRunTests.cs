@@ -1575,6 +1575,44 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AnExitReachedAfterAnEscortFellComesAfterItAsync()
+        {
+            var scriptRunning = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    scriptRunning.SetResult();
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                },
+                Exit = (r, _) => r.Succeed()
+            });
+            var start = Task.CompletedTask;
+            var exit = Task.CompletedTask;
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    start = Task.Run(run.StartAsync);
+                }
+
+                await scriptRunning.Task;
+                await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+                await run.EscortFellAsync(_first.MapInstanceId);
+                using (ExecutionContext.SuppressFlow())
+                {
+                    exit = Task.Run(() => run.ExitReachedAsync(_first.MapInstanceId));
+                }
+
+                await Task.Delay(100);
+            });
+            await Task.WhenAll(start, exit);
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+        }
+
+        [TestMethod]
         public async Task AClockRunningOutSeenFromARoomsWorkStillEndsTheRunAsATimeoutAsync()
         {
             var run = Run(new Script { Enter = r => r.StartClock(TimeSpan.FromMinutes(1)) });
