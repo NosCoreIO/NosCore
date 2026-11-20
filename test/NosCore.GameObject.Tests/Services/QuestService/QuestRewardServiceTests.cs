@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -265,6 +266,73 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             Experience.Verify(e => e.AddExperienceAsync(Character, (4 * 150 + 2 * 200) / 2, 0, 0, 0, 0));
             Experience.Verify(e => e.AddExperienceAsync(Character, 0, 4 * 20 + 2 * 30, 0, 0, 0));
+        }
+
+        [TestMethod]
+        public async Task EachRewardIsPrintedInTheChatAsItIsHandedOut()
+        {
+            Character.Gold = 0;
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.Gold, Amount = 2500 });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.EtcMainItem, Data = 1012, Amount = 10 });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.ExperiencePerKill, Amount = 50 });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.Reputation, Amount = 30 });
+
+            await GiveAsync();
+
+            var lines = RewardLines();
+            Assert.AreEqual(4, lines.Count);
+            PacketAssert.AreEqual(Line(Game18NConstString.QuestRewardGold, 4, 2500L), lines[0]);
+            PacketAssert.AreEqual(Line(Game18NConstString.QuestRewardItem, 2, "1012", 10L), lines[1]);
+            PacketAssert.AreEqual(Line(Game18NConstString.QuestRewardExperience, 0), lines[2]);
+            PacketAssert.AreEqual(Line(Game18NConstString.QuestRewardReputation, 4, 30L), lines[3]);
+        }
+
+        [TestMethod]
+        public async Task ALevelRewardIsPrintedInTheChat()
+        {
+            Character.Level = 10;
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.Level, Data = 17 });
+
+            await GiveAsync();
+
+            PacketAssert.AreEqual(Line(Game18NConstString.QuestRewardLevelUp, 0), RewardLines().Single());
+        }
+
+        [TestMethod]
+        public async Task QuestGoldPrintsOnlyTheRewardLine()
+        {
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.Gold, Amount = 2500 });
+
+            await GiveAsync();
+
+            Assert.IsFalse(Session.LastPackets.OfType<SayPacket>().Any());
+        }
+
+        private static readonly Game18NConstString[] RewardMessages =
+        [
+            Game18NConstString.QuestRewardGold, Game18NConstString.QuestRewardItem, Game18NConstString.QuestRewardExperience,
+            Game18NConstString.QuestRewardReputation, Game18NConstString.QuestRewardLevelUp,
+        ];
+
+        private List<SayiPacket> RewardLines() =>
+            Session.LastPackets.OfType<SayiPacket>().Where(p => RewardMessages.Contains(p.Message)).ToList();
+
+        private SayiPacket Line(Game18NConstString message, byte argumentType, params object[] arguments)
+        {
+            var line = new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = message,
+                ArgumentType = argumentType,
+            };
+            foreach (var argument in arguments)
+            {
+                line.Game18NArguments.Add(argument);
+            }
+
+            return line;
         }
 
         [TestMethod]

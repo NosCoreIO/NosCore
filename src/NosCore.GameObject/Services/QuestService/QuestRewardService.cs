@@ -26,6 +26,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
@@ -43,6 +44,8 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
     : IQuestRewardService
 {
     private const int WindowSlots = 4;
+    private const byte ItemArgument = 2;
+    private const byte NumberArgument = 4;
 
     public bool HasRoomFor(PlayerComponentBundle character, short questId) =>
         RewardsOf(questId).Where(r => ItemCandidates(r).Count > 0)
@@ -57,6 +60,10 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
             if (await GiveAsync(character, quest, reward) is { } slot)
             {
                 slots.Add(slot);
+                if (ChatLine(character, slot) is { } line)
+                {
+                    await character.SendPacketAsync(line);
+                }
             }
         }
 
@@ -213,9 +220,31 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
     private async Task<(QuestRewardType, int, int)> GiveGoldAsync(PlayerComponentBundle character, QuestRewardType type, long amount)
     {
         var gold = Math.Min(amount, Math.Max(0, worldConfiguration.Value.MaxGoldAmount - character.Gold));
-        await character.AddGoldAsync(gold, localizer);
+        character.Gold += gold;
+        await character.SendPacketAsync(character.GenerateGold());
         return (type, 0, (int)gold);
     }
+
+    private static SayiPacket? ChatLine(PlayerComponentBundle character, (QuestRewardType Type, int Data, int Amount) slot) => slot.Type switch
+    {
+        QuestRewardType.Gold or QuestRewardType.GoldPerMonster or QuestRewardType.GoldPerKill =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardGold, NumberArgument, (long)slot.Amount),
+        QuestRewardType.Experience or QuestRewardType.ExperiencePerMonster or QuestRewardType.ExperiencePerKill =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardExperience),
+        QuestRewardType.JobExperience or QuestRewardType.JobExperiencePerKill =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardJobExperience),
+        QuestRewardType.HeroExperience =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardChampionExperience),
+        QuestRewardType.Reputation =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardReputation, NumberArgument, (long)slot.Amount),
+        QuestRewardType.EtcMainItem or QuestRewardType.WearItem or QuestRewardType.ClassItem or QuestRewardType.ConsecutiveItem =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardItem, ItemArgument, slot.Data.ToString(), (long)slot.Amount),
+        QuestRewardType.Level =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardLevelUp),
+        QuestRewardType.LevelAndJobLevel =>
+            character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardLevelJobLevelUp),
+        _ => null,
+    };
 
     private long RollGold(byte monsterLevel, int monsters)
     {
