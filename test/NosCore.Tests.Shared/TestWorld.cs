@@ -66,6 +66,7 @@ using NosCore.Tests.Shared.AutoFixture;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Character = NosCore.Database.Entities.Character;
@@ -103,7 +104,7 @@ namespace NosCore.Tests.Shared
             BlankMap(TestMapId, "testMap", false), BlankMap(ShopMapId, "shopMap", true), BlankMap(MinilandMapId, "miniland", true)
         };
 
-        private TestWorld()
+        private TestWorld(DbContextOptions<NosCoreContext> options)
         {
             Fixture = new NosCoreFixture();
             Clock = Fixture.Create<TestClock>();
@@ -124,10 +125,6 @@ namespace NosCore.Tests.Shared
             Random = Fixture.Freeze<Mock<GameObject.Services.BattleService.IRandomProvider>>();
             Random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns((int min, int _) => min);
 
-            var options = new DbContextOptionsBuilder<NosCoreContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                .Options;
             DbContextBuilder = () => new NosCoreContext(options);
             Fixture.Inject(DbContextBuilder);
             Fixture.Inject<IDaoTransactionScope>(new DaoTransactionScope(DbContextBuilder));
@@ -178,17 +175,46 @@ namespace NosCore.Tests.Shared
             Fixture.Inject<IMapInstanceGeneratorService>(MapInstanceGeneratorService);
         }
 
-        public static async Task<TestWorld> CreateAsync()
+        public static Task<TestWorld> CreateAsync() => CreateAsync(new DbContextOptionsBuilder<NosCoreContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+            .Options, false);
+
+        // The world's maps, items and NPC are stored first so that rows pointing at them pass the
+        // database's foreign keys.
+        public static Task<TestWorld> CreateAsync(PostgresDatabase database) => CreateAsync(database.Options, true);
+
+        private static async Task<TestWorld> CreateAsync(DbContextOptions<NosCoreContext> options, bool storesStaticData)
         {
             GameObject.Ecs.ReputationLevels.Load(ClientLadders.ReputationLevels());
             GameObject.Ecs.DignityLevels.Load(ClientLadders.DignityLevels());
-            var world = new TestWorld();
+            var world = new TestWorld(options);
+            if (storesStaticData)
+            {
+                await world.StoreStaticDataAsync();
+            }
+
             await world.MapNpcDao.TryInsertOrUpdateAsync(new MapNpcDto()).OrThrowAsync();
             await world.MapInstanceGeneratorService.InitializeAsync();
             await world.MapInstanceGeneratorService.AddMapInstanceAsync(new MapInstance((Map)world._maps[2], world.MinilandId, false,
                 MapInstanceType.NormalInstance, world.MapItemProvider, NullLogger<MapInstance>.Instance, world.LogLanguageLocalizer, world.Clock,
                 world.MapChangeService, world.SessionGroupFactory, world.SessionRegistry, world.DistanceCalculator, world.Random.Object));
             return world;
+        }
+
+        private async Task StoreStaticDataAsync()
+        {
+            await using var context = DbContextBuilder();
+            context.Set<Database.Entities.Map>().AddRange(_maps.Select(m => new Database.Entities.Map
+            {
+                MapId = m.MapId, Name = m.NameI18NKey, ShopAllowed = m.ShopAllowed, Data = m.Data
+            }));
+            context.Set<Database.Entities.NpcMonster>().Add(new Database.Entities.NpcMonster { NpcMonsterVNum = 0, Name = "testNpc" });
+            context.Set<Database.Entities.Item>().AddRange(ItemList.Select(i => new Database.Entities.Item
+            {
+                VNum = i.VNum, Name = "testItem" + i.VNum
+            }));
+            await context.SaveChangesAsync();
         }
 
         public NosCoreFixture Fixture { get; }
