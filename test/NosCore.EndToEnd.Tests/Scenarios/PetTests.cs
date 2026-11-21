@@ -28,7 +28,6 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const short SentBack = 6;
         private const short SendBackBar = 3000;
         private const short NoSkill = -1;
-        private const short EverySlot = -1;
 
         // The owner stands a cell from the monster, which puts the pet that came in at her side on it.
         private static async Task<TestClient> EnterWithAPetAsync(string name)
@@ -72,7 +71,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await EnterWithAPetAsync("Alice");
 
             await alice.ExpectSinceAsync(0, BarOf(WorldData.PetSkill), "the pet's skill bar");
-            await alice.ExpectSinceAsync<PetsrPacket>(0, p => p.Slot == EverySlot, "every slot of it ready");
+            await alice.ExpectSinceAsync<PetCool2Packet>(0, p => p is { Cooldown1: 0, Cooldown2: 0, Cooldown3: 0 }, "nothing of it cooling down");
         }
 
         [TestMethod]

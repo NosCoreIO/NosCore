@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Concurrent;
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -32,6 +33,9 @@ namespace NosCore.GameObject.Services.MateService
         public Game18NConstString SpecialistName { get; set; }
 
         public Instant SpecialistCooldownEndsAt { get; set; }
+
+        /// <summary>When each of the mate's skills can be used again. Held here so a map change does not end a cooldown.</summary>
+        public ConcurrentDictionary<short, Instant> SkillsReadyAt { get; } = new();
 
         /// <summary>Set while the mate is dead and waiting to come back to its owner.</summary>
         public Instant? RevivesAt { get; set; }

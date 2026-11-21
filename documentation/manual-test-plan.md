@@ -2090,6 +2090,9 @@ Have such a pet in the team and a second client on the map.
       on the monster
 - [ ] Kill a monster with a pet skill: it collapses as it does from your own hits
 - [ ] Change map: the bar is still there
+- [ ] Use Sushi Party, then take a portal within its 70 seconds: on the new map its slot is still greyed
+      out with the time left counting down, pressing it does nothing, and it is usable again 70 seconds
+      after the cast; a slot that was ready stays usable
 - [ ] Send the Otter back to the Miniland: the bar goes away; take it out again: the bar is back
       with every slot usable
 - [ ] In the Miniland, Company on a pet with other skills: the bar shows that pet's skills
