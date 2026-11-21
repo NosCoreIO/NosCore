@@ -130,6 +130,7 @@ namespace NosCore.GameObject.Tests.Services.RainbowBattleService
         public async Task ARunningBattleIsNotStartedAgain()
         {
             await new Spec("A Rainbow Battle already open on the channel is not started a second time")
+                .Given(TheEventScriptIsStillLoading)
                 .When(StartingARainbowBattle)
                 .Then(StartingAnotherShouldBeRefused)
                 .ExecuteAsync();
@@ -189,6 +190,14 @@ namespace NosCore.GameObject.Tests.Services.RainbowBattleService
             Assert.AreEqual(2, RainbowBattle.PointsOf(RainbowCrystalSize.Medium));
             Assert.AreEqual(RainbowCrystalSize.Small, RainbowBattle.SizeOf(RainbowBattle.SmallCrystal));
             Assert.AreEqual(1, RainbowBattle.PointsOf(RainbowCrystalSize.Small));
+        }
+
+        private void TheEventScriptIsStillLoading()
+        {
+            World.Freeze<Mock<IScriptedInstanceService>>()
+                .Setup(s => s.LoadScriptAsync(It.IsAny<string>()))
+                .Returns(new TaskCompletionSource<IInstanceScript?>().Task);
+            _service = World.Create<RainbowBattle>();
         }
 
         private void StartingARainbowBattle() => Assert.IsTrue(_service.TryStart(true));
