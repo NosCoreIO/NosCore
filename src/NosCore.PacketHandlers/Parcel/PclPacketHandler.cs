@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Ecs.Extensions;
@@ -62,19 +61,9 @@ namespace NosCore.PacketHandlers.Parcel
                     : [];
                 item.Id = Guid.NewGuid();
                 var inventory = clientSession.Character.InventoryService;
-                if (!inventory.CanAddItem(item.ItemVNum)
-                    && !inventory.EnoughPlace(new List<IItemInstance> { item }, item.Item.Type))
-                {
-                    await SendNotEnoughSpaceAsync(clientSession);
-                    return;
-                }
-
-                if (!await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, characterId, isCopy))
-                {
-                    return;
-                }
-
                 var amount = item.Amount;
+                // The parcel is only removed once the item is in the bag with its options stored, so a bag
+                // that fills up meanwhile or a failed write leaves the parcel where it was.
                 var slots = inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                 if (slots is not { Count: > 0 })
                 {
@@ -82,11 +71,11 @@ namespace NosCore.PacketHandlers.Parcel
                     return;
                 }
 
-                if (options.Count > 0 && item is WearableInstance wearable)
+                if (!await StoreOptionsAsync(item, options)
+                    || !await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, characterId, isCopy))
                 {
-                    wearable.EquipmentOptions = options.Select(o => o.CopyFor(item.Id)).ToList();
-                    await itemInstanceDao.TryInsertOrUpdateAsync(item).OrThrowAsync();
-                    await equipmentOptionDao.TryInsertOrUpdateAsync(wearable.EquipmentOptions).OrThrowAsync();
+                    await TakeBackAsync(inventory, slots, amount, item, options.Count > 0);
+                    return;
                 }
 
                 await clientSession.SendPacketsAsync(slots.Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
@@ -102,6 +91,37 @@ namespace NosCore.PacketHandlers.Parcel
                 {
                     await clientSession.SendPacketAsync(new ParcelPacket { Type = ParcelPacketType.Deleted, Box = MailBoxType.Received, Id = (short)getGiftPacket.GiftId });
                 }
+            }
+        }
+
+        private async Task<bool> StoreOptionsAsync(IItemInstance item, List<EquipmentOptionDto> options)
+        {
+            if (options.Count == 0 || item is not WearableInstance wearable)
+            {
+                return true;
+            }
+
+            wearable.EquipmentOptions = options.Select(o => o.CopyFor(item.Id)).ToList();
+            return await itemInstanceDao.TryInsertOrUpdateAsync(item) != null
+                && await equipmentOptionDao.TryInsertOrUpdateAsync(wearable.EquipmentOptions);
+        }
+
+        // The parcel is still there, so what was placed for it comes back out of the bag.
+        private async Task TakeBackAsync(IInventoryService inventory, List<InventoryItemInstance> slots, short amount,
+            IItemInstance item, bool storedOptions)
+        {
+            foreach (var stack in Enumerable.Reverse(slots))
+            {
+                var taken = (short)Math.Min(amount, stack.ItemInstance.Amount);
+                if (taken > 0 && inventory.TryConsume(stack, taken))
+                {
+                    amount -= taken;
+                }
+            }
+
+            if (storedOptions)
+            {
+                _ = await itemInstanceDao.TryDeleteAsync(item.Id);
             }
         }
 

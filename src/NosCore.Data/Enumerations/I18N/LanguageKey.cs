@@ -266,6 +266,7 @@ namespace NosCore.Data.Enumerations.I18N
         ITEM_SLOT_TAKEN,
         PARCEL_RETURN_FAILED,
         DEPOSIT_OUTCOME_UNKNOWN,
+        PARCEL_NOT_STORED,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

@@ -7,9 +7,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -49,14 +51,15 @@ namespace NosCore.GameObject.Services.InventoryService
         {
             var (slot, pocket) = (source.Slot, source.Type);
             var (restored, left) = player.InventoryService.RestoreConsumed(source, amount);
-            await player.SendPacketAsync(player.InventoryService.LoadBySlotAndType(slot, pocket)
-                .GeneratePocketChange(pocket.ToPocketType(), slot));
-            await player.SendPacketsAsync(restored.Where(s => s.Slot != slot || s.Type != pocket)
-                .Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
             if (left > 0)
             {
                 await SendToParcelBoxAsync(player, source.ItemInstance, left);
             }
+
+            await player.SendPacketAsync(player.InventoryService.LoadBySlotAndType(slot, pocket)
+                .GeneratePocketChange(pocket.ToPocketType(), slot));
+            await player.SendPacketsAsync(restored.Where(s => s.Slot != slot || s.Type != pocket)
+                .Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
         }
 
         // The parcel carries a stored copy of the item itself, so its options and what it holds come back with it.
@@ -89,18 +92,30 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             // A refused mail removes its attachment, so the copy is written again for whoever recovers it.
+            var kept = false;
             try
             {
-                await StoreAsync(parcel, options);
+                kept = await StoreAsync(parcel, options);
             }
             catch (Exception e)
             {
                 failure ??= e;
             }
 
-            logger.LogError(failure, logLanguage[LogLanguageKey.PARCEL_RETURN_FAILED], parcel.ItemVNum, amount, parcel.Rare,
-                parcel.Upgrade, player.CharacterId, parcel.Id);
+            if (kept)
+            {
+                logger.LogError(failure, logLanguage[LogLanguageKey.PARCEL_RETURN_FAILED], parcel.ItemVNum, amount, parcel.Rare,
+                    parcel.Upgrade, player.CharacterId, parcel.Id);
+                return;
+            }
+
+            logger.LogError(failure, logLanguage[LogLanguageKey.PARCEL_NOT_STORED], parcel.ItemVNum, amount,
+                player.CharacterId, JsonSerializer.Serialize(parcel, parcel.GetType().BaseType ?? typeof(object), DetailJson),
+                JsonSerializer.Serialize(options, DetailJson));
         }
+
+        private static readonly JsonSerializerOptions DetailJson =
+            new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 
         private async Task<bool> StoreAsync(IItemInstance parcel, List<EquipmentOptionDto> options) =>
             await itemInstanceDao.TryInsertOrUpdateAsync(parcel) != null

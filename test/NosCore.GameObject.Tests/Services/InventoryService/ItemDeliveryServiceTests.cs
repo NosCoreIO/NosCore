@@ -5,12 +5,16 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Packets.Interfaces;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
@@ -122,6 +126,36 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
             Assert.AreEqual(999, source.ItemInstance.Amount);
             Assert.AreEqual((short)100, (await ParcelAsync()).Amount);
+        }
+
+        [TestMethod]
+        public async Task AReturnWhoseRefreshFailsStillReachesTheParcelBox()
+        {
+            var source = ConsumedFromAFullBag(1012, 1);
+            var sender = new Mock<IPacketSender>();
+            sender.Setup(s => s.SendPacketAsync(It.IsAny<IPacket?>())).ThrowsAsync(new TimeoutException());
+            sender.Setup(s => s.SendPacketsAsync(It.IsAny<IEnumerable<IPacket?>>())).ThrowsAsync(new TimeoutException());
+            _session.Character.Sender = sender.Object;
+
+            await Assert.ThrowsExactlyAsync<TimeoutException>(() => _delivery.ReturnConsumedAsync(_session.Character, source, 1));
+
+            Assert.AreEqual((short)1012, (await ParcelAsync()).ItemVNum);
+        }
+
+        [TestMethod]
+        public async Task AParcelThatCannotBeStoredIsLoggedAsLost()
+        {
+            var items = World.Freeze<Mock<IDao<IItemInstanceDto?, Guid>>>();
+            items.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>())).ReturnsAsync((IItemInstanceDto?)null);
+            var delivery = World.Create<ItemDeliveryService>();
+            var source = ConsumedFromAFullBag(1012, 1);
+
+            await delivery.ReturnConsumedAsync(_session.Character, source, 1);
+
+            _mail.Verify(m => m.SendMailAsync(It.IsAny<MailRequest>()), Times.Never);
+            _logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => $"{state}".Contains("PARCEL_NOT_STORED")),
+                It.IsAny<Exception?>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
         }
 
         private InventoryItemInstance ConsumedFromAFullBag(short vnum, short amount)

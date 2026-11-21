@@ -1380,4 +1380,7 @@
   <data name="DEPOSIT_OUTCOME_UNKNOWN" xml:space="preserve">
     <value>The warehouse did not confirm the deposit of item {ItemVNum}x{Amount} by character {CharacterId} into slot {Slot}; it is kept as item instance {ItemInstanceId}</value>
   </data>
+  <data name="PARCEL_NOT_STORED" xml:space="preserve">
+    <value>Item {ItemVNum}x{Amount} for the parcel box of character {CharacterId} could not be stored and is not kept anywhere: {Item} with options {Options}</value>
+  </data>
 </root>

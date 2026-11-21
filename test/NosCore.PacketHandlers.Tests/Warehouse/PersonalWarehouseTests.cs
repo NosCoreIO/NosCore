@@ -324,6 +324,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
             Assert.AreEqual(10, _instances.Values.Where(i => i.ItemVNum == 1012).Sum(i => i.Amount), "the copy is kept for recovery");
+            _saves.Verify(s => s.SaveAsync(_session), Times.Once, "the bag is stored without the deposited amount");
         }
 
         private async Task DepositIgnoringFailureAsync(short amount, short newSlot)

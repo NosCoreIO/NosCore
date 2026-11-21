@@ -4,11 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.RarityPointService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -22,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.InventoryService
 {
@@ -37,30 +36,24 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         private Func<bool>? _hook;
         private Thread? _testThread;
         private Thread? _otherWriter;
-        private GameObject.Services.ItemGenerationService.ItemGenerationService _itemProvider;
+        private const short OtherMainItem = 9015;
+        private TestWorld World;
+        private IItemGenerationService _itemProvider;
         private GameObject.Services.InventoryService.InventoryService _inventory;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            var items = new List<ItemDto>
-            {
-                new Item { Type = NoscorePocketType.Main, VNum = 1012 },
-                new Item { Type = NoscorePocketType.Main, VNum = 1013 },
-                new Item { Type = NoscorePocketType.Main, VNum = 1014 },
-                new Item { Type = NoscorePocketType.Main, VNum = 1015 },
-            };
-            var options = new Mock<IOptions<WorldConfiguration>>();
-            options.Setup(o => o.Value).Returns(() =>
+            World = await TestWorld.CreateAsync();
+            World.ItemList.Add(new Item { Type = NoscorePocketType.Main, VNum = OtherMainItem });
+            World.Inject<IItemCatalog>(new ItemCatalog(World.ItemList));
+            World.Freeze<Mock<IOptions<WorldConfiguration>>>().Setup(o => o.Value).Returns(() =>
             {
                 RunHook();
                 return _config;
             });
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(new ItemCatalog(items),
-                NullLoggerFactory.Instance, TestLocalizers.Log, new RarityPointService(),
-                new NosCore.GameObject.Services.BattleService.RandomProvider());
-            _inventory = new GameObject.Services.InventoryService.InventoryService(new ItemCatalog(items), options.Object,
-                NullLogger<GameObject.Services.InventoryService.InventoryService>.Instance, TestLocalizers.Log);
+            _itemProvider = World.GenerateItemProvider();
+            _inventory = World.Create<GameObject.Services.InventoryService.InventoryService>();
             _testThread = Thread.CurrentThread;
         }
 
@@ -288,7 +281,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Add(1013, 999);
             Add(1013, 999);
 
-            var result = _inventory.ConsumeAndAdd(source, 1, [Entry(1014, 1), Entry(1015, 1)]);
+            var result = _inventory.ConsumeAndAdd(source, 1, [Entry(1014, 1), Entry(OtherMainItem, 1)]);
 
             Assert.AreEqual(0, result?.Count);
             Assert.AreSame(source, _inventory.LoadBySlotAndType(0, NoscorePocketType.Main));

@@ -14,6 +14,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -86,6 +87,39 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             var held = back.ItemInstance as BoxInstance;
             Assert.AreEqual((short?)333, held?.HoldingVNum);
             Assert.AreEqual((byte?)7, held?.SpLevel);
+        }
+
+        [TestMethod]
+        public async Task AParcelTakenWhileTheBagFillsUpIsNeverLost()
+        {
+            var inventory = _session.Character.InventoryService;
+            var weapon = Holds(WeaponVNum);
+            Assert.IsTrue(inventory.TryConsume(weapon, 1));
+            while (inventory.CountItemInAnPocket(NoscorePocketType.Equipment) < inventory.GetMaxSlots(NoscorePocketType.Equipment))
+            {
+                Holds(BeadVNum);
+            }
+
+            await _delivery.ReturnConsumedAsync(_session.Character, weapon, 1);
+            inventory.DeleteFromTypeAndSlot(NoscorePocketType.Equipment, 0);
+            var mail = _parcels.GetMails(_session.Character.CharacterId, false).Values.Single();
+            var mails = new Mock<IMailHub>();
+            mails.Setup(m => m.GetMails(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()))
+                .ReturnsAsync(new List<MailData> { mail });
+            mails.Setup(m => m.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()))
+                .ReturnsAsync((long id, long character, bool copy) =>
+                {
+                    // Another writer takes the free slot while the parcel is being claimed.
+                    Holds(BeadVNum);
+                    return _parcels.RemoveMail(character, copy, id, out _);
+                });
+            World.Inject(mails.Object);
+
+            await World.Create<PclPacketHandler>().ExecuteAsync(new PclPacket { Type = 4, GiftId = (int)mail.MailId }, _session);
+
+            var received = inventory.Values.Any(i => i.ItemInstance.ItemVNum == WeaponVNum);
+            var stillInTheParcelBox = _parcels.GetMails(_session.Character.CharacterId, false).Count == 1;
+            Assert.IsTrue(received || stillInTheParcelBox, "the weapon is either in the bag or still in the parcel box");
         }
 
         private async Task<InventoryItemInstance> ReturnedToAFullBagAndTakenOutAsync(InventoryItemInstance source)

@@ -160,6 +160,8 @@ namespace NosCore.Tests.Shared
             Fixture.Inject(ShopTypeServices);
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
+            // Its pocket expansions are state, not a dependency to invent.
+            Fixture.Customize<InventoryService>(c => c.OmitAutoProperties());
             Fixture.UseReal<GameObject.Services.BoxService.IBoxRollService, GameObject.Services.BoxService.BoxRollService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
             Fixture.UseReal<GameObject.Services.CharacterService.ICharacterLoadService, GameObject.Services.CharacterService.CharacterLoadService>();
