@@ -36,6 +36,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Families;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
@@ -86,16 +87,6 @@ namespace NosCore.PacketHandlers.Game
                 return;
             }
 
-            if (worldConfiguration.Value.WorldInformation)
-            {
-                await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
-                    SayColorType.Yellow));
-                await session.SendPacketAsync(session.Character.GenerateSay("Github : https://github.com/NosCoreIO/NosCore/",
-                    SayColorType.Red));
-                await session.SendPacketAsync(session.Character.GenerateSay("-----------------------------------------------",
-                    SayColorType.Yellow));
-            }
-
             await skillService.LoadSkill(session.Character);
             vitalityService.Refresh(session.Character);
             await session.SendPacketAsync(session.Character.GenerateTit());
@@ -143,6 +134,9 @@ namespace NosCore.PacketHandlers.Game
             }
 
             await warehouseService.SendCarriedStoragesAsync(session);
+
+            await session.SendPacketsAsync(worldConfiguration.Value.NoticeBoard
+                .Select((line, index) => new BnPacket { BnNumber = (byte)index, Message = line }));
 
             session.Character.LoadExpensions();
             await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration));

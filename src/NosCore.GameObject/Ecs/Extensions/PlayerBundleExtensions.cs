@@ -565,7 +565,8 @@ public static class PlayerBundleExtensions
             Invisible = false,
             FamilyLevel = player.Family?.FamilyLevel ?? 0,
             MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
-            ArenaWinner = false
+            ArenaWinner = false,
+            Unknown3 = -1
         };
     }
 

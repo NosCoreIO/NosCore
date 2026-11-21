@@ -183,13 +183,15 @@ namespace NosCore.GameObject.Services.MapChangeService
                     }
                 }
 
-                if (session.Channel?.Id != null)
+                // On entering the game the player is not on a map yet, so there is nothing to leave.
+                var wasOnMap = session.Channel?.Id != null && currentMapInstance.Sessions.Remove(session.Channel);
+                if (wasOnMap)
                 {
-                    currentMapInstance.Sessions.Remove(session.Channel);
+                    await session.SendPacketAsync(currentMapInstance.GenerateCMap(false));
+                    currentMapInstance.LastUnregister = clock.GetCurrentInstant();
+                    await currentMapInstance.SendPacketAsync(character.GenerateOut(), new EveryoneBut(session.ConnectedChannel.Id));
                 }
-                await session.SendPacketAsync(currentMapInstance.GenerateCMap(false));
-                currentMapInstance.LastUnregister = clock.GetCurrentInstant();
-                await currentMapInstance.SendPacketAsync(character.GenerateOut(), new EveryoneBut(session.ConnectedChannel.Id));
+
                 foreach (var mate in character.Mates.Values)
                 {
                     await mate.DespawnAsync(currentMapInstance);
@@ -209,7 +211,11 @@ namespace NosCore.GameObject.Services.MapChangeService
                     return;
                 }
 
-                await session.SendPacketAsync(new MapOutPacket());
+                if (wasOnMap)
+                {
+                    await session.SendPacketAsync(new MapOutPacket());
+                }
+
                 if (currentMapInstance.Sessions.Count == 0)
                 {
                     currentMapInstance.IsSleeping = true;

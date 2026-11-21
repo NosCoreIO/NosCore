@@ -21,7 +21,10 @@ Act4Channel: ${ACT4_CHANNEL,false}
 #16-19 Polish
 #20-23 Spanish
 ServerId: 0
-WorldInformation: true
+# The notice board the client shows on entering the game: at most ten lines, in the server's language.
+NoticeBoard:
+  - Powered by NosCore
+  - "GitHub: https://github.com/NosCoreIO/NosCore/"
 WebApi:
   Host: ${WEBAPI_HOST,http://localhost}
   Port: 5001

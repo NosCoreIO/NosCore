@@ -6,6 +6,9 @@
 
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Map;
+using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.Entities;
@@ -340,6 +343,34 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             Assert.IsTrue(titInfo >= 0 && titInfo < enteredMap, "their own titinfo comes before the c_map that enters the map");
             PacketAssert.AreEqual(Session.Character.GenerateCharSc(), sent.OfType<CharScPacket>().Single(p => p.VisualId == me));
             PacketAssert.AreEqual(Session.Character.GenerateGidx(), sent.OfType<GidxPacket>().Single(p => p.VisualId == me));
+        }
+
+        [TestMethod]
+        public async Task EnteringTheGameLeavesNoMapBehind()
+        {
+            Session.LastPackets.Clear();
+
+            await ChangingToBaseMap1();
+
+            Assert.IsFalse(Session.LastPackets.Any(p => p is CMapPacket { IsEntering: false } or MapOutPacket),
+                "a player entering the game is not on a map, so no c_map leaves one and no mapout follows");
+        }
+
+        [TestMethod]
+        public async Task APlayerOnAMapLeavesItBeforeArrivingOnTheNextOne()
+        {
+            var sessions = new Mock<ISessionGroup>();
+            sessions.Setup(s => s.Remove(It.IsAny<IChannel>())).Returns(true);
+            World.GetBaseMap(0).Sessions = sessions.Object;
+            Session.LastPackets.Clear();
+
+            await ChangingToBaseMap1();
+
+            var sent = Session.LastPackets.ToList();
+            var left = sent.FindIndex(p => p is CMapPacket { IsEntering: false, Id: 0 });
+            var mapOut = sent.FindIndex(p => p is MapOutPacket);
+            var info = sent.FindIndex(p => p is CInfoPacket);
+            Assert.IsTrue(left >= 0 && left < mapOut && mapOut < info, "c_map 0 leaves the old map and mapout follows, both before c_info");
         }
 
         private async Task ChangingToBaseMap1()

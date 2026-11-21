@@ -152,6 +152,32 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
+        public async Task GameStartPinsTheConfiguredNoticeBoard()
+        {
+            World.WorldConfiguration.Value.NoticeBoard = ["Never give your password away", "Rules: see the forum"];
+            CharacterIsReadyToStart();
+
+            await ExecutingGameStart();
+
+            var board = Session.LastPackets.OfType<BnPacket>().ToList();
+            Assert.AreEqual(2, board.Count);
+            PacketAssert.AreEqual(new BnPacket { BnNumber = 0, Message = "Never give your password away" }, board[0]);
+            PacketAssert.AreEqual(new BnPacket { BnNumber = 1, Message = "Rules: see the forum" }, board[1]);
+        }
+
+        [TestMethod]
+        public async Task GameStartSendsNoNoticeBoardWhenNoneIsConfigured()
+        {
+            World.WorldConfiguration.Value.NoticeBoard = [];
+            CharacterIsReadyToStart();
+
+            await ExecutingGameStart();
+
+            Assert.IsFalse(Session.LastPackets.OfType<BnPacket>().Any());
+            Assert.IsFalse(Session.LastPackets.OfType<NosCore.Packets.ServerPackets.Chats.SayPacket>().Any());
+        }
+
+        [TestMethod]
         public async Task GameStartShouldWaitForTheFirstQuestScript()
         {
             await new Spec("Game start should wait for the first quest script")
