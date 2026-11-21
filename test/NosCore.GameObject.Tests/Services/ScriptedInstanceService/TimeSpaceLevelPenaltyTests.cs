@@ -184,12 +184,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private void NoPenaltyShouldBeAnnounced() =>
             Assert.IsFalse(_session.LastPackets.OfType<SayiPacket>().Any(p => p.Message == Game18NConstString.PointsReducedLevelPenalty));
 
-        private void TheScoreShouldShow_Points(int points) =>
+        private void TheScoreShouldShow_Points(int points)
+        {
+            var score = _session.LastPackets.OfType<ScorePacket>().Single();
             PacketAssert.AreEqual(new ScorePacket
             {
                 Points = points,
                 MonstersKilled = 25,
-                Perfect = [true, false, true]
-            }, _session.LastPackets.OfType<ScorePacket>().Single());
+                Perfect = [false, false, false],
+                ClearType = TimeSpaceClearType.FirstClear,
+                Unknown = score.Unknown
+            }, score);
+        }
     }
 }

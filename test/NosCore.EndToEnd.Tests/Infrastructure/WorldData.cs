@@ -144,6 +144,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short StoneY = 95;
         public const short StoneTimeSpace = 4;
 
+        // The sample time-space, entered on foot from the meadow; its rooms are one open map.
+        public const short SampleTimeSpaceX = 15;
+        public const short SampleTimeSpaceY = 95;
+        public const short SampleRoomMap = 2550;
+
         // A swordsman's skill cast on a friendly player, laid out like Sacrifice: a card for whoever
         // it is cast on, and one for whoever casts it.
         public const short SacrificeSkill = 213;
@@ -696,6 +701,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedGamblerAsync(context);
             await SeedRaidAsync(context);
             await SeedInstantCombatAsync(context);
+            await SeedSampleTimeSpaceAsync(context);
             SeedSoundFlower(context);
             await SeedAct4Async(context);
             SeedDignity(context);
@@ -815,6 +821,24 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 QuestId = FlowerQuest, QuestType = QuestType.FlowerQuest, LevelMin = FlowerQuestLevel, LevelMax = 99,
                 QuestLineId = FlowerQuest, Title = "flowerquest", Desc = "flowerquest"
             });
+        }
+
+        // The sample's monsters stand still and fall to one blow.
+        private static async Task SeedSampleTimeSpaceAsync(NosCoreContext context)
+        {
+            context.Add(OpenMap(SampleRoomMap, 60, 60));
+            foreach (short vnum in new short[] { 58, 59, 60 })
+            {
+                context.Add(new NpcMonster { NpcMonsterVNum = vnum, Name = "sample" + vnum, Level = 1, MaxHp = 1 });
+            }
+
+            await context.SaveChangesAsync();
+            context.Add(new ScriptedInstance
+            {
+                MapId = Meadow, PositionX = SampleTimeSpaceX, PositionY = SampleTimeSpaceY, Type = ScriptedInstanceType.TimeSpace,
+                Script = "timespace-sample", LevelMinimum = 1, LevelMaximum = 99
+            });
+            await context.SaveChangesAsync();
         }
 
         private static async Task SeedAct4Async(NosCoreContext context)

@@ -3389,7 +3389,8 @@ dropping their `MaxHp` makes the run quick.
       first room?". Yes moves you to the second room, where a single Weak Devil Vampire waits, and
       the clock appears at ten minutes and starts counting down
 - [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
-      the "Perfect" stamp when every summoned monster died
+      the "Perfect" stamp on the monsters when every summoned monster died (the full list is
+      under "Time-space score")
 - [ ] At the same moment the banner at the top reads "[1 Level ] Time-Space Stone complete",
       with the stone's minimum level and no raw placeholder
 - [ ] About ten seconds later you are back beside the stone on the open world, and the clock
@@ -3401,8 +3402,8 @@ dropping their `MaxHp` makes the run quick.
       be attempted in Loser Mode.", and its stone window now offers Loser Mode. Clear it once and
       the offer is gone. Log out and back in after two failures instead: the offer is gone too
 - [ ] Fail it a third and a fourth time: the same line says 3, then 4, and the offer stays
-- [ ] Not verifiable yet: what a Loser Mode run changes besides its doubled clock (score, rewards,
-      monsters). No packet trace shows a run entered through the Loser Mode button
+- [ ] Not verifiable yet: what a Loser Mode run changes besides its doubled clock and its score
+      (rewards, monsters). Only the score line of a Loser Mode clear has been traced
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
       from, not in a room, and the world log shows the run's rooms being removed and no
       failed disconnect step
@@ -3593,8 +3594,34 @@ the way, then again with a level 60 character.
 - [ ] Let the clock run out with the level 10 character: no penalty line appears
 - [ ] In a party of a level 1 and a level 10 character, only the level 10 one sees the line and
       the reduced points
-- [ ] Not verifiable yet: which total the client shows as the reduced points. The score packet's
-      fields do not match the client yet (#3468)
+- [ ] The points on the score window are the reduced ones, before the client adds its own bonuses
+
+### Time-space score
+
+Run `timespace-01` ("The Time-Space", level 5, seven rooms, two draw items, guards 320 in rooms 3
+and 4) with a level 5 character that has never cleared it.
+
+- [ ] Clear it killing every monster, walking into all seven rooms and keeping both guards alive:
+      Mission Clear shows the points, 0 experience and 0 job experience (NosCore awards none on a
+      clear yet, #3640), 0 gold, the monsters killed, 7 rooms, 2 NPCs left, and a "Perfect" stamp
+      on monsters, rooms and NPCs. The reward draw offers two draws
+- [ ] Lure monsters onto a guard until it dies, then clear the run: the window shows 1 NPC left
+      and no "Perfect" stamp on the NPCs. If the monsters never attack the guard, note that this
+      check could not be run
+- [ ] Skip a room or leave a monster alive: that category has no "Perfect" stamp
+- [ ] Clear it a second time and compare the window with the first clear's: the server now marks
+      the run as cleared before, so note what the client shows differently
+- [ ] Fail it twice, enter through the Loser Mode button and clear it: the window shows no draw
+      and the run is marked as a Loser Mode clear
+- [ ] In a party where only one member has cleared it before, each member's window reflects their
+      own clear and their own level penalty
+- [ ] Let the clock run out: the failure window opens ("Failed because time ran out.") and the
+      server sent `score 1`. Lose the last life instead: the failure window opens for that end too,
+      from `score 3`
+- [ ] Do the same in `timespace-sample`: running out of time sends `score 1`, not `score 2`
+- [ ] Not verifiable yet: the last field of the score line. Every traced run of a level 76 or 98
+      character carries 15 and every one of a level 6 to 20 character carries 1; NosCore sends 1 up
+      to level 20 and 15 above. Where it changes between 21 and 75 is not known
 
 ### Raids
 

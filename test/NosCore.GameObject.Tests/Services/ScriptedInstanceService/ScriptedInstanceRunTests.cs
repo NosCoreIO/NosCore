@@ -36,6 +36,7 @@ using NosCore.Tests.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
@@ -565,9 +566,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await holder;
 
             Assert.AreEqual(EndStateType.Fail, run.EndState);
-            var scores = _first.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScoreFailedPacket>().ToList();
-            Assert.AreEqual(1, scores.Count);
-            Assert.AreEqual(EndStateType.Fail, scores[0].EndState);
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Fail },
+                _first.LastPackets.OfType<ScoreFailedPacket>().Single());
+            Assert.IsFalse(_first.LastPackets.OfType<ScorePacket>().Any());
         }
 
         [TestMethod]
@@ -585,8 +586,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
 
             Assert.AreEqual(EndStateType.Fail, run.EndState);
-            Assert.IsTrue(_first.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScoreFailedPacket>()
-                .All(s => s.EndState == EndStateType.Fail));
+            Assert.IsFalse(_first.LastPackets.OfType<ScorePacket>().Any());
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Fail },
+                _first.LastPackets.OfType<ScoreFailedPacket>().Single());
         }
 
         [TestMethod]
@@ -596,8 +598,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.StartAsync();
 
-            Assert.IsTrue(_first.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScoreFailedPacket>()
-                .Any(s => s.EndState == EndStateType.Fail));
+            Assert.IsTrue(_first.LastPackets.OfType<ScoreFailedPacket>().Any(s => s.EndState == EndStateType.Fail));
         }
 
         [TestMethod]
@@ -807,6 +808,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 NoPacket = new RStartPacket(),
                 Question = Game18NConstString.WantEnterFirstRoom
             }, session.LastPackets.OfType<DlgiPacket>().Single());
+        }
+
+        [TestMethod]
+        public async Task APacketHandlerOnTheRoomGetsTheStartQuestionsAnswerAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms));
+            await run.StartAsync();
+            var asked = false;
+
+            await _first.Executor.RunHandlerAsync(async () => asked = await run.AskToStartAsync(session))
+                .WaitAsync(TimeSpan.FromSeconds(5));
+
+            Assert.IsTrue(asked);
         }
 
         [TestMethod]
@@ -1510,6 +1525,174 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AnEscortFallingOnARoomDoesNotWaitForATriggerWaitingOnThatRoomAsync()
+        {
+            var scriptRunning = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    scriptRunning.SetResult();
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                }
+            });
+            var start = Task.CompletedTask;
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    start = Task.Run(run.StartAsync);
+                }
+
+                await scriptRunning.Task;
+                await run.EscortFellAsync(_first.MapInstanceId).WaitAsync(TimeSpan.FromSeconds(5));
+            });
+            await start;
+
+            Assert.AreEqual(1, _first.EnumerateMonsters().Count());
+            Assert.IsTrue(await EventuallyAsync(() => run.EndState == EndStateType.Fail));
+        }
+
+        [TestMethod]
+        public async Task AKillOnARoomDoesNotWaitForATriggerWaitingOnThatRoomAsync()
+        {
+            var scriptRunning = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var cleared = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    scriptRunning.SetResult();
+                    r.SetMonsterLocker(1, 1);
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                },
+                Cleared = (_, _) => cleared.SetResult()
+            });
+            var start = Task.CompletedTask;
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    start = Task.Run(run.StartAsync);
+                }
+
+                await scriptRunning.Task;
+                await run.MonsterKilledAsync(_first.MapInstanceId, Grunt).WaitAsync(TimeSpan.FromSeconds(5));
+            });
+            await start;
+
+            await cleared.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.AreEqual(1, _first.EnumerateMonsters().Count());
+            Assert.AreEqual(1, run.MonstersKilled);
+        }
+
+        [TestMethod]
+        public async Task AnExitReachedAfterAnEscortFellComesAfterItAsync()
+        {
+            var scriptRunning = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    scriptRunning.SetResult();
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                },
+                Exit = (r, _) => r.Succeed()
+            });
+            var start = Task.CompletedTask;
+            var exit = Task.CompletedTask;
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    start = Task.Run(run.StartAsync);
+                }
+
+                await scriptRunning.Task;
+                await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+                await run.EscortFellAsync(_first.MapInstanceId);
+                using (ExecutionContext.SuppressFlow())
+                {
+                    exit = Task.Run(() => run.ExitReachedAsync(_first.MapInstanceId));
+                }
+
+                await Task.Delay(100);
+            });
+            await Task.WhenAll(start, exit);
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task ATriggerRaisedByAnotherOfTheRunsTriggersRunsAfterItAsync()
+        {
+            var run = Run(new Script { Exit = (r, _) => r.Succeed() });
+            await run.StartAsync();
+
+            await run.RunHostAsync(() => run.ExitReachedAsync(_first.MapInstanceId)).WaitAsync(TimeSpan.FromSeconds(5));
+
+            Assert.IsTrue(await EventuallyAsync(() => run.EndState == EndStateType.Success));
+        }
+
+        [TestMethod]
+        public async Task AClockRunningOutSeenFromARoomsWorkStillEndsTheRunAsATimeoutAsync()
+        {
+            var run = Run(new Script { Enter = r => r.StartClock(TimeSpan.FromMinutes(1)) });
+            await run.StartAsync();
+            World.Clock.AdvanceSeconds(60);
+
+            await _first.Executor.RunAsync(run.TickAsync);
+
+            Assert.IsTrue(await EventuallyAsync(() => _first.LastPackets.OfType<ScoreFailedPacket>().Any()));
+            Assert.AreEqual(EndStateType.Timeout, run.EndState);
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = EndStateType.Timeout },
+                _first.LastPackets.OfType<ScoreFailedPacket>().Single());
+        }
+
+        [TestMethod]
+        public async Task AnNpcFallingDuringARoomsWorkIsStillCountedAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2))) });
+            await run.StartAsync();
+            var npc = _first.EnumerateNpcs().Single();
+
+            await _first.Executor.RunAsync(() => run.NpcFellAsync(_first.MapInstanceId, npc.VisualId));
+
+            Assert.IsTrue(await EventuallyAsync(() => run.NpcsLost == 1));
+        }
+
+        [TestMethod]
+        public async Task KillsDuringARoomsWorkReachTheScriptInTheOrderTheyHappenedAsync()
+        {
+            var script = new Script();
+            var run = Run(script);
+            await run.StartAsync();
+
+            await _first.Executor.RunAsync(async () =>
+            {
+                await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+                await run.MonsterKilledAsync(_first.MapInstanceId, Boss);
+            });
+
+            Assert.IsTrue(await EventuallyAsync(() => script.Calls.Count == 3));
+            CollectionAssert.AreEqual(new[] { "enter", $"killed(1,{Grunt})", $"killed(1,{Boss})" }, script.Calls);
+        }
+
+        // What a room's own work raises reaches the run once that work is over, so it is waited for.
+        private static async Task<bool> EventuallyAsync(Func<bool> condition)
+        {
+            for (var i = 0; i < 100 && !condition(); i++)
+            {
+                await Task.Delay(50);
+            }
+
+            return condition();
+        }
+
+        [TestMethod]
         public async Task TheScoreCarriesThePointsAsync()
         {
             var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1), Cleared = (r, _) => r.Succeed() });
@@ -1519,7 +1702,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
 
-            var score = session.LastPackets.OfType<NosCore.Packets.ServerPackets.TimeSpaces.ScorePacket>().Single();
+            var score = session.LastPackets.OfType<ScorePacket>().Single();
             Assert.AreEqual(4, score.Points);
         }
     }

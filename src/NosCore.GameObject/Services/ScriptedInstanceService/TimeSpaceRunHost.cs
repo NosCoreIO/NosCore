@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
                 }
 
-                await character.SendPacketAsync(Score(run, run.Points * (100 - penalty) / 100));
+                await character.SendPacketAsync(Score(run, character, run.Points * (100 - penalty) / 100));
             }
 
             if (entrance.Definition is not { } definition)
@@ -88,15 +88,29 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        private ScorePacket Score(ScriptedInstanceRun run, int points) => new()
+        // Read before the succeeded event records this clear, so a first clear still reads as one.
+        private ScorePacket Score(ScriptedInstanceRun run, PlayerComponentBundle character, int points) => new()
         {
             Points = points,
             Gold = (int)Math.Min(entrance.Definition?.Gold ?? 0, int.MaxValue),
-            DrawRewardCount = (byte)(entrance.Definition?.DrawItems.Count ?? 0),
+            DrawRewardCount = run.IsLoserMode ? (byte)0 : (byte)(entrance.Definition?.DrawItems.Count ?? 0),
             MonstersKilled = (short)run.MonstersKilled,
             RoomsExplored = (short)run.RoomsVisited,
-            NpcsLeft = (short)run.NpcsSummoned,
-            Perfect = [run.MonstersKilled >= run.MonstersSummoned, run.RoomsVisited >= run.Rooms.Count, true]
+            NpcsLeft = (short)(run.NpcsSummoned - run.NpcsLost),
+            // A category the run had none of is not marked perfect.
+            Perfect =
+            [
+                run.MonstersSummoned > 0 && run.MonstersKilled >= run.MonstersSummoned,
+                run.RoomsVisited >= run.Rooms.Count,
+                run.NpcsSummoned > 0 && run.NpcsLost == 0
+            ],
+            ClearType = run.IsLoserMode ? TimeSpaceClearType.LoserMode
+                : entrance.Definition is { } definition && character.CompletedTimeSpaces?.Contains(definition.Id) == true
+                    ? TimeSpaceClearType.ClearedBefore
+                    : TimeSpaceClearType.FirstClear,
+            // Captured runs carry 1 up to level 20 and 15 at levels 76 and 98, whatever the time-space or
+            // clear type. No capture lies between, so where it changes from 1 to 15 is not known.
+            Unknown = character.Level <= 20 ? (byte)1 : (byte)15
         };
 
         // Taken before any await, so a player leaving mid-loop does not cut the others' events short.
