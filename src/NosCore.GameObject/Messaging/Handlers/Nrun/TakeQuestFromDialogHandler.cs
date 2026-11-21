@@ -9,25 +9,28 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
-    // n_run 3006 {questId}: the NPC dialog button that hands the player a quest.
-    [UsedImplicitly]
-    public sealed class TakeQuestFromDialogHandler(IQuestService questService, IQuestCatalog quests) : INrunEventHandler
+    // A dialog button whose argument is the id of the quest it hands out.
+    public abstract class NamedQuestDialogHandler(IQuestService questService, IQuestCatalog quests,
+        INpcTalkButtonCatalog npcTalkButtons) : INrunEventHandler
     {
-        public NrunRunnerType Runner => NrunRunnerType.GetXQuest;
+        public abstract NrunRunnerType Runner { get; }
 
         public bool RequiresNpc => true;
 
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (packet.Type is not { } questId || quests.GetQuest(questId) is not { } quest)
+            if (packet.Type is not { } questId || quests.GetQuest(questId) is not { } quest
+                || target is not NpcComponentBundle npc || !npcTalkButtons.Offers(npc, Runner, questId))
             {
                 return;
             }
@@ -41,5 +44,23 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
             await questService.AddQuestAsync(character, QuestActionType.Achieve, questId);
         }
+    }
+
+    // n_run 3006 {questId}: the NPC dialog button that hands the player a quest.
+    [UsedImplicitly]
+    public sealed class TakeQuestFromDialogHandler(IQuestService questService, IQuestCatalog quests,
+            INpcTalkButtonCatalog npcTalkButtons)
+        : NamedQuestDialogHandler(questService, quests, npcTalkButtons)
+    {
+        public override NrunRunnerType Runner => NrunRunnerType.GetXQuest;
+    }
+
+    // n_run 2000 {questId}: the NPC dialog button that starts a specialist card or seal quest.
+    [UsedImplicitly]
+    public sealed class TakeSpecialistQuestFromDialogHandler(IQuestService questService, IQuestCatalog quests,
+            INpcTalkButtonCatalog npcTalkButtons)
+        : NamedQuestDialogHandler(questService, quests, npcTalkButtons)
+    {
+        public override NrunRunnerType Runner => NrunRunnerType.GetXSPQuest;
     }
 }

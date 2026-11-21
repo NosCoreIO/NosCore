@@ -254,14 +254,14 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public async Task TheClockRunningOutFailsTheRun()
+        public async Task TheClockRunningOutIsLeftToEndTheRunAsATimeout()
         {
             var script = await LoadAsync("timespace-sample");
             var run = new RecordingRun();
 
             script.OnTimeout(run);
 
-            CollectionAssert.AreEqual(new[] { "fail" }, run.Calls);
+            CollectionAssert.AreEqual(Array.Empty<string>(), run.Calls);
         }
 
         [TestMethod]

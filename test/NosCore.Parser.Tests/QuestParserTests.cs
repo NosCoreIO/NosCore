@@ -192,6 +192,30 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task QuestParser_AScoreQuestKnowsTheButtonOfItsLevelRange()
+        {
+            CreateTestFile(CreateQuestData(questId: 903, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(NrunRunnerType.GetQuestHigherTimeSpaceScore, _savedQuests.Single().OfferedBy);
+            Assert.AreEqual((short)3, _savedQuests.Single().OfferOption);
+        }
+
+        [TestMethod]
+        public async Task QuestParser_AQuestOfAButtonWithoutArgumentHasNoOption()
+        {
+            CreateTestFile(CreateQuestData(questId: 6036, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(NrunRunnerType.GetQuestGingsengDagger, _savedQuests.Single().OfferedBy);
+            Assert.IsNull(_savedQuests.Single().OfferOption);
+        }
+
+        [TestMethod]
         public async Task QuestParser_AQuestNoDialogButtonHandsOutHasNoButton()
         {
             CreateTestFile(CreateQuestData(questId: 100, questLineId: -1));

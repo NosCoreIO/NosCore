@@ -18,6 +18,7 @@ namespace NosCore.Database.Entities
         public NpcTalk()
         {
             MapNpc = new HashSet<MapNpc>();
+            NpcTalkButton = new HashSet<NpcTalkButton>();
         }
 
         [Key]
@@ -29,5 +30,7 @@ namespace NosCore.Database.Entities
         public required string Name { get; set; }
 
         public virtual ICollection<MapNpc> MapNpc { get; set; }
+
+        public virtual ICollection<NpcTalkButton> NpcTalkButton { get; set; }
     }
 }

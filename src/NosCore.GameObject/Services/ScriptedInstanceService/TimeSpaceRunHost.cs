@@ -4,12 +4,17 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging;
+using NosCore.Algorithm.LowLevelBoostService;
+using NosCore.Algorithm.TimeSpaceExperienceService;
 using NosCore.Algorithm.TimeSpacePenaltyService;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -17,7 +22,9 @@ using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +33,10 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
-        IGameEventDispatcher gameEvents, ITimeSpacePenaltyService timeSpacePenaltyService)
+        IGameEventDispatcher gameEvents, ITimeSpacePenaltyService timeSpacePenaltyService,
+        ITimeSpaceExperienceService timeSpaceExperienceService, ILowLevelBoostService lowLevelBoostService,
+        IExperienceBonusService experienceBonusService, IExperienceProgressionService experienceProgression,
+        ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IInstanceRunHost
     {
         // Every time-space revival in the packet traces names 568 for a level 14-19 character and 569 for a
@@ -52,60 +62,98 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public async Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
         {
             var participants = Participants(run);
-            if (state == EndStateType.Timeout)
-            {
-                // A run that ran out of time scores nothing.
-                await run.BroadcastAsync(new ScorePacket { EndState = state });
-                await RaiseFailedAsync(participants);
-                return;
-            }
-
             if (state != EndStateType.Success)
             {
-                await run.BroadcastAsync(Score(run, state, run.Points));
+                await run.BroadcastAsync(new ScoreFailedPacket { EndState = state });
                 await RaiseFailedAsync(participants);
                 return;
             }
 
-            foreach (var character in participants)
+            // A participant's rate is that of the room they cleared, even if they leave while others are rewarded.
+            foreach (var (character, rate) in participants.Select(c => (c, c.MapInstance?.XpRate ?? 1)).ToList())
             {
-                var penalty = timeSpacePenaltyService.GetPointPenalty(character.Level, entrance.EffectiveLevelMinimum);
-                if (penalty > 0)
-                {
-                    await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow,
-                        Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
-                }
-
-                await character.SendPacketAsync(Score(run, state, run.Points * (100 - penalty) / 100));
-            }
-
-            if (entrance.Definition is not { } definition)
-            {
-                return;
-            }
-
-            foreach (var session in run.Players().Where(s => s.HasPlayerEntity).ToList())
-            {
-                if (entrance.StoneVNum is { } stone)
-                {
-                    await session.Character.SendPacketsAsync(session.Character.InventoryService.RemoveItemAmountByVNum(stone, 1));
-                }
-
-                await gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(session.Character, entrance.Type, definition.Id));
+                var experience = timeSpaceExperienceService.GetExperience(entrance.EffectiveLevelMinimum, run.MonstersKilled);
+                var jobExperience = timeSpaceExperienceService.GetJobExperience(run.MonstersKilled);
+                await RewardStepAsync(character, () => SendScoreAsync(run, character, experience, jobExperience));
+                await RewardStepAsync(character, () => AwardExperienceAsync(character, experience, jobExperience, rate));
+                await RewardStepAsync(character, () => TakeStoneAsync(character));
+                await RewardStepAsync(character, () => RecordClearAsync(character));
             }
         }
 
-        private ScorePacket Score(ScriptedInstanceRun run, EndStateType state, int points) => new()
+        // Each step of a participant's reward stands on its own, so one that fails costs neither the
+        // participant's other steps nor the other participants anything.
+        private async Task RewardStepAsync(PlayerComponentBundle character, Func<Task> step)
         {
-            EndState = state,
+            try
+            {
+                await step();
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, logLanguage[LogLanguageKey.TIME_SPACE_CLEAR_REWARD_FAILED], Name, character.CharacterId);
+            }
+        }
+
+        private async Task SendScoreAsync(ScriptedInstanceRun run, PlayerComponentBundle character, int experience, int jobExperience)
+        {
+            var penalty = timeSpacePenaltyService.GetPointPenalty(character.Level, entrance.EffectiveLevelMinimum);
+            if (penalty > 0)
+            {
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow,
+                    Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
+            }
+
+            await character.SendPacketAsync(Score(run, character, run.Points * (100 - penalty) / 100, experience, jobExperience));
+        }
+
+        private Task TakeStoneAsync(PlayerComponentBundle character) =>
+            entrance.Definition != null && entrance.StoneVNum is { } stone
+                ? character.SendPacketsAsync(character.InventoryService.RemoveItemAmountByVNum(stone, 1))
+                : Task.CompletedTask;
+
+        private Task RecordClearAsync(PlayerComponentBundle character) =>
+            entrance.Definition is { } definition
+                ? gameEvents.RaiseAsync(new ScriptedInstanceSucceededEvent(character, entrance.Type, definition.Id))
+                : Task.CompletedTask;
+
+        // Read before the succeeded event records this clear, so a first clear still reads as one.
+        private ScorePacket Score(ScriptedInstanceRun run, PlayerComponentBundle character, int points,
+            int experience, int jobExperience) => new()
+        {
             Points = points,
-            DrawItemsCount = (byte)(entrance.Definition?.DrawItems.Count ?? 0),
-            MonsterKilled = (short)run.MonstersKilled,
-            RemainingNpc = (byte)run.NpcsSummoned,
-            RoomsVisited = (short)run.RoomsVisited,
-            IsAllMonstersKilled = run.MonstersKilled >= run.MonstersSummoned,
-            IsNoNpcDead = true
+            Experience = experience,
+            JobExperience = jobExperience,
+            Gold = (int)Math.Min(entrance.Definition?.Gold ?? 0, int.MaxValue),
+            DrawRewardCount = run.IsLoserMode ? (byte)0 : (byte)(entrance.Definition?.DrawItems.Count ?? 0),
+            MonstersKilled = (short)run.MonstersKilled,
+            RoomsExplored = (short)run.RoomsVisited,
+            NpcsLeft = (short)(run.NpcsSummoned - run.NpcsLost),
+            // A category the run had none of is not marked perfect.
+            Perfect =
+            [
+                run.MonstersSummoned > 0 && run.MonstersKilled >= run.MonstersSummoned,
+                run.RoomsVisited >= run.Rooms.Count,
+                run.NpcsSummoned > 0 && run.NpcsLost == 0
+            ],
+            ClearType = run.IsLoserMode ? TimeSpaceClearType.LoserMode
+                : entrance.Definition is { } definition && character.CompletedTimeSpaces?.Contains(definition.Id) == true
+                    ? TimeSpaceClearType.ClearedBefore
+                    : TimeSpaceClearType.FirstClear,
+            // Captured runs carry 1 up to level 20 and 15 at levels 76 and 98, whatever the time-space or
+            // clear type. No capture lies between, so where it changes from 1 to 15 is not known.
+            Unknown = character.Level <= 20 ? (byte)1 : (byte)15
         };
+
+        // The score shows the base values; the rate, low-level boost and bonuses apply only to what is gained.
+        private Task AwardExperienceAsync(PlayerComponentBundle character, int experience, int jobExperience, int rate)
+        {
+            var bonus = experienceBonusService.GetBonus(character);
+            return experienceProgression.AddExperienceAsync(character,
+                bonus.ApplyToExperience((long)experience * lowLevelBoostService.GetExperienceBoost(character.Level) * rate),
+                bonus.ApplyToJobExperience((long)jobExperience * lowLevelBoostService.GetJobExperienceBoost(character.Level) * rate),
+                0, 0, 0);
+        }
 
         // Taken before any await, so a player leaving mid-loop does not cut the others' events short.
         private static List<PlayerComponentBundle> Participants(ScriptedInstanceRun run) =>
