@@ -14,6 +14,9 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -74,7 +77,41 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             Assert.IsTrue(_session.Character.Skills.ContainsKey(20));
             Assert.AreEqual(100_000 - 480, _session.Character.Gold);
             Assert.AreEqual(1, _dao.Rows.Count(r => r.SkillVNum == 20));
-            Assert.AreEqual(Game18NConstString.SkillLearned, LastMessage());
+            TheChatSaysASkillWasLearned();
+        }
+
+        [TestMethod]
+        public async Task ABoughtSkillShowsItsIconAndRefreshesTheQuickBar()
+        {
+            await _service.BuyAsync(_session.Character, Slash);
+
+            PacketAssert.AreEqual(new IconPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.VisualId,
+                IconType = 0,
+                IconParameter = Slash.SkillVNum
+            }, _session.LastPackets.OfType<IconPacket>().Single());
+            Assert.AreEqual(2, _session.LastPackets.OfType<QSlotPacket>().Count());
+            TheChatSaysASkillWasLearned();
+        }
+
+        [TestMethod]
+        public async Task ARefusedPurchaseShowsNoIcon()
+        {
+            _session.Character.Gold = 0;
+
+            await _service.BuyAsync(_session.Character, Beginner);
+
+            Assert.IsFalse(_session.LastPackets.OfType<IconPacket>().Any());
+            Assert.IsFalse(_session.LastPackets.OfType<SayiPacket>().Any());
+        }
+
+        private void TheChatSaysASkillWasLearned()
+        {
+            PacketAssert.AreEqual(_session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.SkillLearned),
+                _session.LastPackets.OfType<SayiPacket>().Single());
+            Assert.IsFalse(_session.LastPackets.OfType<MsgiPacket>().Any(m => m.Message == Game18NConstString.SkillLearned));
         }
 
         [TestMethod]

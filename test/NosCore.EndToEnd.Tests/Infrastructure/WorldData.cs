@@ -202,6 +202,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         // Worth something, yet neither sold to a shop nor handed to another player.
         public const short Keepsake = 2029;
 
+        // Teaches one skill nobody starts with, on the market.
+        public const int Teacher = 9700;
+        private const short TeacherVNum = 9701;
+        public const short TeacherX = 30;
+        public const short TeacherY = 20;
+        public const short TaughtSkill = SlowSkill;
+
         // A mount whose booster gives one buff when it is used and another when the boost runs out,
         // and restores some HP.
         public const short Steed = 5000;
@@ -750,6 +757,15 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Token, Slot = 2, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Gem, Slot = 3, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Trinket, Slot = 4, Type = 1 });
+            await context.SaveChangesAsync();
+
+            context.Add(new NpcMonster { NpcMonsterVNum = TeacherVNum, Name = "teacher", Level = 1, MaxHp = 100 });
+            await context.SaveChangesAsync();
+            context.Add(new MapNpc { MapNpcId = Teacher, MapId = Market, MapX = TeacherX, MapY = TeacherY, VNum = TeacherVNum });
+            var lessons = new Shop { MapNpcId = Teacher, MenuType = 0, ShopType = 0 };
+            context.Add(lessons);
+            await context.SaveChangesAsync();
+            context.Add(new ShopSkill { ShopId = lessons.ShopId, SkillVNum = TaughtSkill, Slot = 0, Type = 0 });
             await context.SaveChangesAsync();
         }
 
