@@ -117,9 +117,18 @@ jobs:
         NOSCORE_E2E_REQUIRED: true
       run: dotnet test test/NosCore.EndToEnd.Tests/NosCore.EndToEnd.Tests.csproj --no-build --logger GitHubActions
 
+  # The branch protection requires a check named build; it passes only when every lane did.
+  build:
+    if: always()
+    needs: [tests, end-to-end]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Every lane passed
+      run: test "${{ needs.tests.result }}" = success && test "${{ needs.end-to-end.result }}" = success
+
   docker:
     if: github.ref == 'refs/heads/master'
-    needs: [tests, end-to-end]
+    needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
