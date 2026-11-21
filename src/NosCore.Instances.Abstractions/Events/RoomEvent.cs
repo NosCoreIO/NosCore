@@ -104,6 +104,9 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        // Until the room's clock is stopped or runs out.
+        public bool IsClockRunning => Run.RoomClockOf(_room.Key) is { } clock && Run.Elapsed < clock.End;
+
         // Takes the clock down before it runs out, so its waves and OnClockOut steps do not come.
         public RoomEvent StopRoomClock()
         {
@@ -113,13 +116,20 @@ namespace NosCore.Instances.Abstractions
 
         public RoomEvent Spawn(params INpc[] npcs)
         {
-            Run.SummonNpcs(_room.Key, npcs.Select(npc => NpcSpec.Of(npc).Spawn()).ToArray());
+            Run.SummonNpcs(_room.Key, npcs.Select(npc => NpcSpec.Of(npc).Spawn(_room)).ToArray());
             return this;
         }
 
-        // Takes the living copies of those monsters out of the room.
+        // Takes the living copies of those monsters out of the room without anyone killing them; with no
+        // vnum, every living monster of the room.
         public RoomEvent Dismiss(params short[] vNums)
         {
+            if (vNums.Length == 0)
+            {
+                Run.Dismiss(_room.Key);
+                return this;
+            }
+
             foreach (var vNum in vNums)
             {
                 Run.Dismiss(_room.Key, vNum);

@@ -1032,4 +1032,40 @@
   <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
     <value>Les serveurs seront arrêtés dans {0} minute(s) pour maintenance.</value>
   </data>
+  <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
+    <value>Le portail s'ouvrira une fois que tu auras éliminé tous les monstres.</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IS_OPEN" xml:space="preserve">
+    <value>La sortie est ouverte.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_IN_TWO_MINUTES_FOR_BONUS" xml:space="preserve">
+    <value>Élimine tous les monstres en 2 minutes pour gagner du temps bonus.</value>
+  </data>
+  <data name="TIMESPACE_BONUS_THREE_MINUTES" xml:space="preserve">
+    <value>Tu as gagné 3 minutes de temps bonus.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_DEMONS_TO_OPEN_EXIT" xml:space="preserve">
+    <value>Élimine tous les démons pour ouvrir la sortie.</value>
+  </data>
+  <data name="TIMESPACE_EXITS_ALL_AROUND_OPEN" xml:space="preserve">
+    <value>Les sorties tout autour sont ouvertes.</value>
+  </data>
+  <data name="TIMESPACE_SEE_LEVER_IN_CENTRE" xml:space="preserve">
+    <value>Vois-tu le levier au centre ?</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DARK_TRAP_ONE_MINUTE" xml:space="preserve">
+    <value>Le piège des ténèbres ! Tu es piégé pendant 1 minute.</value>
+  </data>
+  <data name="TIMESPACE_PORTAL_HAS_OPENED" xml:space="preserve">
+    <value>Le portail s'est ouvert.</value>
+  </data>
+  <data name="TIMESPACE_TIME_ROOM_TWO_MINUTES" xml:space="preserve">
+    <value>Salle du temps : tu as gagné 2 minutes de temps bonus !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_FIGHT_TWO_MINUTES" xml:space="preserve">
+    <value>Survis au combat contre les monstres pendant 2 minutes.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
+    <value>Patrouille ici pendant 2 minutes.</value>
+  </data>
 </root>

@@ -44,6 +44,8 @@ namespace NosCore.Instances.Tests
 
             public static INpc Guide(short vNum) => Npc(vNum);
 
+            public static IItem Loot(short vNum) => Item(vNum);
+
             public void WithClock(TimeSpan limit) => Clock(limit);
 
             public void RunAfter(TimeSpan elapsed, Action<RunEvent> step) => After(elapsed, step);
@@ -366,6 +368,26 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void AWaveIntervalThatFindsTheRoomEmptyDoesNotCountTowardsItsTimes()
+        {
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(30)))
+                .Every(TimeSpan.FromSeconds(5), r => r.Say(Game18NConstString.EnemiesReinforcements),
+                    from: TimeSpan.FromSeconds(5), times: 2);
+
+            Script.OnDialogClosed(_run, 1, 6000);
+            while (_run.Scheduled.Count > 0)
+            {
+                var next = _run.Scheduled.OrderBy(s => s.At).First();
+                _run.Scheduled.Remove(next);
+                _run.Elapsed = next.At;
+                _run.Players = next.At >= TimeSpan.FromSeconds(10) ? 1 : 0;
+                next.Step(_run);
+            }
+
+            Assert.AreEqual(2, _run.Calls.Count(c => c == "message(EnemiesReinforcements)"));
+        }
+
+        [TestMethod]
         public void ASecondPortalToTheSameRoomIsRefused()
         {
             _first.Portal(new Spot(17, 9), _second, new Spot(0, 9));
@@ -517,6 +539,74 @@ namespace NosCore.Instances.Tests
             CollectionAssert.AreEqual(new[] { "npcs(1,311,318)" }, _run.Calls);
         }
 
+        [TestMethod]
+        public void AnItemLiesWhereItIsPutAndPickingItUpRunsItsSteps()
+        {
+            new Spec("Only the item a room waits for, picked up in that room, runs its steps")
+                .Given(TheFirstRoomHoldsTheArtifactAndPickingItUpWins)
+                .And(TheRunStarts)
+                .When(Item_IsPickedUpInRoom_, (short)1001, 1)
+                .And(Item_IsPickedUpInRoom_, Artifact, 2)
+                .And(Item_IsPickedUpInRoom_, Artifact, 1)
+                .Then(TheCallsShouldBe_, new[] { "item(1,1059,19,11)", "succeed" })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AnItemWithoutAPlaceIsRefused()
+        {
+            Assert.ThrowsExactly<InvalidOperationException>(() => _first.Spawn(Declared.Loot(Artifact)));
+        }
+
+        [TestMethod]
+        public void AnAllyIsSummonedToFightAndItsDeathActsInItsRoom()
+        {
+            new Spec("An ally comes in as one, and its fall brings a monster into its own room")
+                .Given(TheSecondRoomHoldsAnAllyWhoseDeathBringsTheBoss)
+                .And(TheRunStarts)
+                .When(Npc_Falls, 0)
+                .Then(Npc_ShouldBeAnAlly, 0)
+                .And(Npc_ShouldNotBeAnAlly, 1)
+                .And(TheCallsShouldEndWith_, new[] { "summon(2,59)" })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void WavesCanStopAfterAGivenNumberOfCalls()
+        {
+            new Spec("Waves limited to two calls come at the start and 30 seconds in, though the clock runs on")
+                .Given(TheFirstRoomHoldsOutFor90SecondsWithTwoWaves)
+                .And(_PlayersAreInTheRoom, 1)
+                .And(TheRunStarts)
+                .When(Dialog_IsClosedInTheFirstRoom, 6000)
+                .And(TheTimersRun)
+                .Then(TheCallsShouldBe_, new[] { "roomClock(1,90s)", "summon(1,58)", "summon(1,58)", "dismiss(1)", "stopRoomClock(1)" })
+                .And(TheTimersShouldHaveBeenAt_Seconds, new[] { 30d, 90d })
+                .Execute();
+        }
+
+        private const short Artifact = 1059;
+
+        private void TheFirstRoomHoldsTheArtifactAndPickingItUpWins() =>
+            _first.Spawn(Declared.Loot(Artifact).At(19, 11)).OnItemCollected(Artifact, r => r.Succeed());
+
+        private void Item_IsPickedUpInRoom_(short vNum, int room) => Script.OnItemCollected(_run, room, vNum);
+
+        private void TheSecondRoomHoldsAnAllyWhoseDeathBringsTheBoss() =>
+            _second.Spawn(Declared.Guide(116).At(19, 21).Ally().OnDeath(r => r.Spawn(Declared.Mob(Boss).At(7, 12))),
+                Declared.Guide(319).At(8, 14));
+
+        private void Npc_Falls(int index) => _run.SummonedNpcs[index].OnDeath?.Invoke(_run);
+
+        private void Npc_ShouldBeAnAlly(int index) => Assert.IsTrue(_run.SummonedNpcs[index].IsAlly);
+
+        private void Npc_ShouldNotBeAnAlly(int index) => Assert.IsFalse(_run.SummonedNpcs[index].IsAlly);
+
+        private void TheFirstRoomHoldsOutFor90SecondsWithTwoWaves() =>
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(90)))
+                .Every(TimeSpan.FromSeconds(30), r => r.Spawn(Declared.Mob(Grunt).At(5, 5)), times: 2)
+                .OnClockOut(r => r.Dismiss());
+
         private void TheRunHasAClockOf_Minutes(int minutes) => _script.WithClock(TimeSpan.FromMinutes(minutes));
 
         private void TheSecondRoomHolds_At_(short vNum, Spot at) => _second.Spawn(Declared.Mob(vNum).At(at.X, at.Y));
@@ -595,7 +685,7 @@ namespace NosCore.Instances.Tests
         private void TheFirstRoomHoldsAGuideAndAnEscort() =>
             _first.Spawn(Declared.Guide(311).At(1, 1), Declared.Guide(318).At(2, 2).Escort());
 
-        private void TheEscortsShouldBe_(bool[] escorts) => CollectionAssert.AreEqual(escorts, _run.Npcs.Select(n => n.IsEscort).ToArray());
+        private void TheEscortsShouldBe_(bool[] escorts) => CollectionAssert.AreEqual(escorts, _run.SummonedNpcs.Select(n => n.IsEscort).ToArray());
 
         private void ClearingTheFirstRoomStopsItsClock() => _first.OnCleared(r => r.StopRoomClock());
 

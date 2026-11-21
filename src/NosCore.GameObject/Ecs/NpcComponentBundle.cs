@@ -23,7 +23,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(SkillCooldownComponent),
     typeof(HitListComponent),
     typeof(RespawnComponent),
-    typeof(EscortComponent)
+    typeof(EscortComponent),
+    typeof(ScriptedNpcComponent)
 )]
 public readonly partial struct NpcComponentBundle : INonPlayableEntity
 {

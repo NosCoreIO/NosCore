@@ -29,8 +29,10 @@ namespace NosCore.Instances.Abstractions
         IReadOnlyList<HpThreshold>? OnHpBelow = null);
 
     // An escort joins the first player who comes near it, walks where that player's client sends it and goes
-    // with them from room to room. The run fails if it falls.
-    public readonly record struct NpcSpawn(short VNum, Spot At, bool IsEscort = false);
+    // with them from room to room. The run fails if it falls, and that failure takes the place of its OnDeath.
+    // An ally fights the monsters around it.
+    public readonly record struct NpcSpawn(short VNum, Spot At, bool IsEscort = false, bool IsAlly = false,
+        Action<IInstanceRun>? OnDeath = null);
 
     // A lever says it has been pulled, a sculpture is moved without a word, and a key is taken
     // off the map by whoever uses it.
@@ -85,6 +87,9 @@ namespace NosCore.Instances.Abstractions
         // Takes that monster's living copies out of the room.
         void Dismiss(int room, short vNum);
 
+        // Takes every living monster out of the room.
+        void Dismiss(int room);
+
         // Multiplies what the room's monsters give in experience and drops.
         void SetRates(int room, int experience, int drops);
 
@@ -127,6 +132,9 @@ namespace NosCore.Instances.Abstractions
 
         // An NPC that stands where it is put for the rest of the run, such as a Rainbow Crystal.
         void PlaceNpc(int room, short vNum, Spot at);
+
+        // Lays one item on that cell for anyone to pick up.
+        void PlaceItem(int room, short vNum, Spot at);
 
         void StartClock(TimeSpan limit);
 
@@ -206,6 +214,9 @@ namespace NosCore.Instances.Abstractions
         // The first time someone closes a dialog the run opened in the room.
         void OnDialogClosed(IInstanceRun run, int room, int dialog);
 
+        // When someone in the room picks up an item.
+        void OnItemCollected(IInstanceRun run, int room, short vNum);
+
         void OnTimeout(IInstanceRun run);
     }
 
@@ -227,6 +238,8 @@ namespace NosCore.Instances.Abstractions
         public virtual void OnButtonUsed(IInstanceRun run, int room, int button) { }
 
         public virtual void OnDialogClosed(IInstanceRun run, int room, int dialog) { }
+
+        public virtual void OnItemCollected(IInstanceRun run, int room, short vNum) { }
 
         public virtual void OnTimeout(IInstanceRun run) { }
     }

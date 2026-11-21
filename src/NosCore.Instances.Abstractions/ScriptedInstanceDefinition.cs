@@ -20,10 +20,12 @@ namespace NosCore.Instances.Abstractions
     public enum ObjectiveKind
     {
         KillMonster,
-        UseObject
+        UseObject,
+        CollectItem
     }
 
-    // An objective counts kills of the monster, or uses of the objects drawn with that vnum before use.
+    // An objective counts kills of the monster, uses of the objects drawn with that vnum before use, or
+    // items of that vnum picked up.
     public record InstanceObjective(ObjectiveKind Kind, short VNum, short Count);
 
     public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false)
