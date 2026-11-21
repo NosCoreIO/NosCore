@@ -139,17 +139,18 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
             p.Faction == killerFaction ? SayColorType.Green : SayColorType.Red,
             Game18NConstString.PlayerHasDefeteadPlayerX, 2, killerName, victimName))));
 
-        if (killer.Family is { } family)
-        {
-            await familyContributionService.GlacernonEnemyDefeatedAsync(family.FamilyId, killer.CharacterId);
-        }
-
         if (guardianCalled != null)
         {
             await SummonGuardianAsync(guardianCalled);
         }
 
         await RefreshAsync();
+
+        if (killer.Family is { } family)
+        {
+            await familyContributionService.GlacernonEnemyDefeatedAsync(family.FamilyId, killer.CharacterId);
+        }
+
         return true;
     }
 
