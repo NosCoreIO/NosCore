@@ -264,6 +264,8 @@ namespace NosCore.Data.Enumerations.I18N
         ITEM_CANNOT_CHANGE_POCKET,
         ITEM_REFUSED_BY_POCKET,
         ITEM_SLOT_TAKEN,
+        PARCEL_RETURN_FAILED,
+        DEPOSIT_OUTCOME_UNKNOWN,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

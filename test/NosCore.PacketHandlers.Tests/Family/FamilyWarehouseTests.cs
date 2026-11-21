@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -178,7 +177,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             return new FamilyWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
                 new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object,
-                new ItemDeliveryService(new Mock<IMailHub>().Object, World.Clock)), _log.Object, World.Clock);
+                World.Create<ItemDeliveryService>(),
+                NullLogger<WarehouseTransferService>.Instance, World.LogLanguageLocalizer), _log.Object, World.Clock);
         }
 
         private void Store(short vnum, short amount, short slot)

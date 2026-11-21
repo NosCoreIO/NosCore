@@ -684,20 +684,34 @@ namespace NosCore.GameObject.Services.InventoryService
             }
         }
 
-        public List<InventoryItemInstance> RestoreConsumed(InventoryItemInstance source, short amount)
+        public (List<InventoryItemInstance> Restored, short Left) RestoreConsumed(InventoryItemInstance source, short amount)
         {
             lock (_gate)
             {
                 if (TryGetValue(source.ItemInstanceId, out var inv))
                 {
-                    inv.ItemInstance.Amount += amount;
-                    return [inv];
+                    var room = Math.Max(0, configuration.Value.MaxItemAmount - inv.ItemInstance.Amount);
+                    var taken = (short)Math.Min(amount, room);
+                    inv.ItemInstance.Amount += taken;
+                    List<InventoryItemInstance> restored = taken > 0 ? [inv] : [];
+                    var rest = (short)(amount - taken);
+                    if (rest == 0)
+                    {
+                        return (restored, 0);
+                    }
+
+                    var split = SplitOff(inv);
+                    split.Type = inv.Type;
+                    split.ItemInstance.Amount = rest;
+                    var placed = AddItemToPocket(split, inv.Type) ?? [];
+                    return ([.. restored, .. placed], placed.Count > 0 ? (short)0 : rest);
                 }
 
                 source.ItemInstance.Amount = amount;
-                return AddItemToPocket(source, source.Type, source.Slot) is { Count: > 0 } back
-                    ? back
+                var back = AddItemToPocket(source, source.Type, source.Slot) is { Count: > 0 } own
+                    ? own
                     : AddItemToPocket(source, source.Type) ?? [];
+                return (back, back.Count > 0 ? (short)0 : amount);
             }
         }
 

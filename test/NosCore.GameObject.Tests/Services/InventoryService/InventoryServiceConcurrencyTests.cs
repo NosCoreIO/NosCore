@@ -213,9 +213,10 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Assert.IsTrue(_inventory.TryConsume(source, 1));
             Add(1013, 1);
 
-            var restored = _inventory.RestoreConsumed(source, 1);
+            var (restored, left) = _inventory.RestoreConsumed(source, 1);
 
             CollectionAssert.AreEqual(new[] { source }, restored);
+            Assert.AreEqual(0, left);
             Assert.AreEqual(1, source.Slot);
         }
 
@@ -328,8 +329,31 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Add(1013, 999);
             Add(1013, 999);
 
-            Assert.AreEqual(0, _inventory.RestoreConsumed(source, 1).Count);
+            var (restored, left) = _inventory.RestoreConsumed(source, 1);
+
+            Assert.AreEqual(0, restored.Count);
+            Assert.AreEqual(1, left);
             Assert.IsFalse(_inventory.ContainsKey(source.ItemInstanceId));
+        }
+
+        [TestMethod]
+        public void AnAmountTooLargeForTheFreeSlotsIsLeftWhole()
+        {
+            Add(1013, 999);
+            Add(1013, 999);
+
+            var (placed, left, changed) = _inventory.AddAsMuchAsFits(_itemProvider.Create(1012, 1500), 0);
+
+            Assert.AreEqual((0, 1500, 0), ((int)placed, (int)left, changed.Count));
+        }
+
+        [TestMethod]
+        public void AnAmountLargerThanOneStackIsPlacedInFull()
+        {
+            var (placed, left, changed) = _inventory.AddAsMuchAsFits(_itemProvider.Create(1012, 1500), 0);
+
+            Assert.AreEqual((1500, 0, 2), ((int)placed, (int)left, changed.Count));
+            Assert.IsTrue(_inventory.Values.All(i => i.ItemInstance.Amount <= 999));
         }
 
         private void WhenReading(Func<bool> trigger, Action otherWrite) =>

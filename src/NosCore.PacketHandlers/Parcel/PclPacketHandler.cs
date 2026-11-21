@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Ecs.Extensions;
@@ -27,7 +28,7 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Parcel
 {
     public class PclPacketHandler(IMailHub mailHttpClient, IItemGenerationService itemProvider,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<EquipmentOptionDto, Guid> equipmentOptionDao)
         : PacketHandler<PclPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PclPacket getGiftPacket, ClientSession clientSession)
@@ -55,6 +56,10 @@ namespace NosCore.PacketHandlers.Parcel
                 }
 
                 var item = itemProvider.Convert(itemInstance);
+                // Removing the mail removes its attachment and the options stored against it.
+                var options = item is WearableInstance
+                    ? equipmentOptionDao.Where(o => o.WearableInstanceId == item.Id)?.ToList() ?? []
+                    : [];
                 item.Id = Guid.NewGuid();
                 var inventory = clientSession.Character.InventoryService;
                 if (!inventory.CanAddItem(item.ItemVNum)
@@ -75,6 +80,13 @@ namespace NosCore.PacketHandlers.Parcel
                 {
                     await SendNotEnoughSpaceAsync(clientSession);
                     return;
+                }
+
+                if (options.Count > 0 && item is WearableInstance wearable)
+                {
+                    wearable.EquipmentOptions = options.Select(o => o.CopyFor(item.Id)).ToList();
+                    await itemInstanceDao.TryInsertOrUpdateAsync(item).OrThrowAsync();
+                    await equipmentOptionDao.TryInsertOrUpdateAsync(wearable.EquipmentOptions).OrThrowAsync();
                 }
 
                 await clientSession.SendPacketsAsync(slots.Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));

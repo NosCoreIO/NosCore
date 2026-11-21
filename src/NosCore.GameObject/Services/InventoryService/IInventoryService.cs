@@ -43,8 +43,9 @@ namespace NosCore.GameObject.Services.InventoryService
 
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
         bool TryConsume(InventoryItemInstance source, short amount);
-        // Returns the entries that now hold it, which may not be its old slot; empty when it fits nowhere.
-        List<InventoryItemInstance> RestoreConsumed(InventoryItemInstance source, short amount);
+        // Returns the entries that now hold it, which may not be its old slot, and the amount that fits
+        // nowhere without going over the stack limit.
+        (List<InventoryItemInstance> Restored, short Left) RestoreConsumed(InventoryItemInstance source, short amount);
 
         // Takes the amount from the source and places every item, or does neither: null when the
         // source no longer holds the amount, empty when the items do not all fit.

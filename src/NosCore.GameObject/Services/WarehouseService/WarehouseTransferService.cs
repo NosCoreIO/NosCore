@@ -5,10 +5,12 @@
 //
 
 using Mapster;
+using Microsoft.Extensions.Logging;
 using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs.Extensions;
@@ -18,6 +20,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.I18N;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Warehouse;
@@ -31,7 +34,8 @@ namespace NosCore.GameObject.Services.WarehouseService
 {
     public class WarehouseTransferService(IWarehouseHub warehouseHub, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
         IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider,
-        ISaveService saveService, IItemDeliveryService itemDelivery)
+        ISaveService saveService, IItemDeliveryService itemDelivery, ILogger<WarehouseTransferService> logger,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IWarehouseTransferService
     {
         public async Task<List<StoredItem>> GetItemsAsync(long ownerId, WarehouseType warehouseType)
@@ -83,19 +87,55 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return null;
             }
 
-            if (await itemInstanceDao.TryInsertOrUpdateAsync(stored) == null)
+            IItemInstanceDto? copy;
+            try
+            {
+                copy = await itemInstanceDao.TryInsertOrUpdateAsync(stored);
+            }
+            catch
+            {
+                await itemDelivery.ReturnConsumedAsync(session.Character, source, amount);
+                throw;
+            }
+
+            if (copy == null)
             {
                 await itemDelivery.ReturnConsumedAsync(session.Character, source, amount);
                 return null;
             }
 
-            if (!await warehouseHub.AddWarehouseItemAsync(new WareHouseDepositRequest
+            bool deposited;
+            try
             {
-                OwnerId = warehouse.OwnerId,
-                WarehouseType = warehouse.Type,
-                ItemInstance = stored.Adapt<ItemInstanceDto>(),
-                Slot = warehouseSlot
-            }))
+                deposited = await warehouseHub.AddWarehouseItemAsync(new WareHouseDepositRequest
+                {
+                    OwnerId = warehouse.OwnerId,
+                    WarehouseType = warehouse.Type,
+                    ItemInstance = stored.Adapt<ItemInstanceDto>(),
+                    Slot = warehouseSlot
+                });
+            }
+            catch (Exception e)
+            {
+                // The warehouse may have stored it before failing, so only what it reads back decides.
+                switch (await IsStoredAsync(warehouse, warehouseSlot, stored.Id))
+                {
+                    case true:
+                        deposited = true;
+                        break;
+                    case false:
+                        _ = await itemInstanceDao.TryDeleteAsync(stored.Id);
+                        await itemDelivery.ReturnConsumedAsync(session.Character, source, amount);
+                        throw;
+                    default:
+                        // Giving it back could leave it in both places; the copy is kept and named instead.
+                        logger.LogError(e, logLanguage[LogLanguageKey.DEPOSIT_OUTCOME_UNKNOWN], stored.ItemVNum, amount,
+                            session.Character.CharacterId, warehouseSlot, stored.Id);
+                        throw;
+                }
+            }
+
+            if (!deposited)
             {
                 // Nothing points at the copy, so one left behind is unreachable.
                 _ = await itemInstanceDao.TryDeleteAsync(stored.Id);
@@ -115,6 +155,19 @@ namespace NosCore.GameObject.Services.WarehouseService
                 .GeneratePocketChange(pocket, slot));
             await SendSlotAsync(session, warehouse.Type, stored, warehouseSlot);
             return stored;
+        }
+
+        private async Task<bool?> IsStoredAsync(WarehouseSlots warehouse, short warehouseSlot, Guid itemInstanceId)
+        {
+            try
+            {
+                return (await warehouseHub.GetWarehouseItems(null, warehouse.OwnerId, warehouse.Type, (byte)warehouseSlot))
+                    .Any(link => link.ItemInstance?.Id == itemInstanceId);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public async Task<IItemInstance?> WithdrawAsync(ClientSession session, WarehouseSlots warehouse, short warehouseSlot,

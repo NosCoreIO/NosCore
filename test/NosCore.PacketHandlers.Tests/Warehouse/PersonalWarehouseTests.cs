@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.Ecs.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,6 +47,10 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         private readonly List<(Guid Id, WarehouseType Type, short Slot, Guid ItemInstanceId)> _stored = new();
         private Action? _duringDeposit;
         private bool _refuseDeposits;
+        private bool _insertThrows;
+        private (bool Stores, bool Throws) _depositFails;
+        private bool _depositAttempted;
+        private bool _readBackThrows;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -67,8 +70,10 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         private IPersonalWarehouseService Service()
         {
             var hub = new Mock<IWarehouseHub>();
-            hub.Setup(s => s.GetWarehouseItems(null, It.IsAny<long?>(), It.IsAny<WarehouseType>(), null))
-                .ReturnsAsync((Guid? _, long? _, WarehouseType type, byte? _) => _stored.Where(s => s.Type == type)
+            hub.Setup(s => s.GetWarehouseItems(null, It.IsAny<long?>(), It.IsAny<WarehouseType>(), It.IsAny<byte?>()))
+                .ReturnsAsync((Guid? _, long? _, WarehouseType type, byte? slot) => _readBackThrows && _depositAttempted
+                    ? throw new TimeoutException()
+                    : _stored.Where(s => s.Type == type && (slot == null || s.Slot == slot))
                     .Select(s => new WarehouseLink
                     {
                         WarehouseItemId = s.Id,
@@ -79,12 +84,22 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                 .ReturnsAsync((WareHouseDepositRequest r) =>
                 {
                     _duringDeposit?.Invoke();
+                    _depositAttempted = true;
                     if (_refuseDeposits)
                     {
                         return false;
                     }
 
+                    if (_depositFails is { Stores: false, Throws: true })
+                    {
+                        throw new TimeoutException();
+                    }
+
                     _stored.Add((Guid.NewGuid(), r.WarehouseType, r.Slot, r.ItemInstance.NotNull().Id));
+                    if (_depositFails.Throws)
+                    {
+                        throw new TimeoutException();
+                    }
                     return true;
                 });
             hub.Setup(s => s.TakeWarehouseItemAsync(It.IsAny<Guid>(), It.IsAny<short>()))
@@ -119,13 +134,16 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             var instances = new Mock<IDao<IItemInstanceDto?, Guid>>();
             instances.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
-                .ReturnsAsync((IItemInstanceDto? i) => _instances[i.NotNull().Id] = i.NotNull());
+                .ReturnsAsync((IItemInstanceDto? i) => _insertThrows ? throw new TimeoutException() : _instances[i.NotNull().Id] = i.NotNull());
+            instances.Setup(s => s.TryDeleteAsync(It.IsAny<Guid>()))
+                .ReturnsAsync((Guid id) => _instances.Remove(id, out var removed) ? removed : null);
             instances.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
             return new PersonalWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
                 new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object,
-                new ItemDeliveryService(new Mock<IMailHub>().Object, World.Clock)));
+                World.Create<ItemDeliveryService>(),
+                NullLogger<WarehouseTransferService>.Instance, World.LogLanguageLocalizer));
         }
 
         private void OwnsAMinilandWarehouse()
@@ -253,6 +271,70 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             Assert.AreEqual(0, _stored.Count);
             Assert.AreEqual((short?)10, _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Main)?.ItemInstance.Amount);
+        }
+
+        [TestMethod]
+        public async Task ADepositWhoseCopyCannotBeWrittenLeavesTheItemInTheBag()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _insertThrows = true;
+
+            await DepositIgnoringFailureAsync(10, 2);
+
+            Assert.AreEqual(0, _stored.Count);
+            Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1012));
+        }
+
+        [TestMethod]
+        public async Task ADepositTheWarehouseFailsBeforeStoringLeavesTheItemInTheBag()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _depositFails = (Stores: false, Throws: true);
+
+            await DepositIgnoringFailureAsync(10, 2);
+
+            Assert.AreEqual(0, _stored.Count);
+            Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1012));
+        }
+
+        [TestMethod]
+        public async Task ADepositTheWarehouseStoredBeforeFailingStaysInTheWarehouseOnly()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _depositFails = (Stores: true, Throws: true);
+
+            await DepositIgnoringFailureAsync(10, 2);
+
+            Assert.AreEqual(10, At(WarehouseType.Warehouse, 2).Amount);
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
+        }
+
+        [TestMethod]
+        public async Task ADepositWhoseOutcomeCannotBeReadBackIsKeptOnceAndNotGivenBack()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _depositFails = (Stores: false, Throws: true);
+            _readBackThrows = true;
+
+            await DepositIgnoringFailureAsync(10, 2);
+
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
+            Assert.AreEqual(10, _instances.Values.Where(i => i.ItemVNum == 1012).Sum(i => i.Amount), "the copy is kept for recovery");
+        }
+
+        private async Task DepositIgnoringFailureAsync(short amount, short newSlot)
+        {
+            try
+            {
+                await DepositAsync(amount, newSlot);
+            }
+            catch (TimeoutException)
+            {
+            }
         }
 
         [TestMethod]

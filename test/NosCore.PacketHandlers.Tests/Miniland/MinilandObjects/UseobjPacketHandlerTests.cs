@@ -16,7 +16,6 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
@@ -104,7 +103,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider,
                 new PersonalWarehouseService(new WarehouseTransferService(_warehouseHubMock.Object, _itemInstanceDaoMock.Object,
                     new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _itemProvider, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
-                    new ItemDeliveryService(new Mock<IMailHub>().Object, World.Clock))),
+                    World.Create<ItemDeliveryService>(),
+                NullLogger<WarehouseTransferService>.Instance, World.LogLanguageLocalizer)),
                 MinigameRewards);
         }
 

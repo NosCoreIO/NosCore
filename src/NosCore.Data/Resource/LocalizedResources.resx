@@ -1374,4 +1374,10 @@
   <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
     <value>The servers will be shut down in {0} minute(s) for maintenance.</value>
   </data>
+  <data name="PARCEL_RETURN_FAILED" xml:space="preserve">
+    <value>Item {ItemVNum}x{Amount} (rarity {Rare}, upgrade {Upgrade}) could not be sent to the parcel box of character {CharacterId}; it is kept as item instance {ItemInstanceId}</value>
+  </data>
+  <data name="DEPOSIT_OUTCOME_UNKNOWN" xml:space="preserve">
+    <value>The warehouse did not confirm the deposit of item {ItemVNum}x{Amount} by character {CharacterId} into slot {Slot}; it is kept as item instance {ItemInstanceId}</value>
+  </data>
 </root>
