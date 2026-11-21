@@ -351,7 +351,7 @@ public class MapWorld : IDisposable
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new ChasePathComponent(null),
-            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
+            new SkillCooldownComponent(mate.SkillsReadyAt, Instant.MinValue),
             new SkillResetComponent(new ConcurrentDictionary<long, Instant>()),
             new MateStateComponent(mate, mate.CharacterId),
             new FactionComponent(default),

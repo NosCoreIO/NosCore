@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -19,11 +20,10 @@ using NosCore.Packets.ServerPackets.Mates;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public sealed class PetSkillBarService(ISkillCatalog skills, INpcCombatCatalog catalog)
+    public sealed class PetSkillBarService(IClock clock, ISkillCatalog skills, INpcCombatCatalog catalog)
         : IPetSkillBarService, ISingletonService
     {
         private const int Slots = 3;
-        private const short EverySlot = -1;
 
 
         public IReadOnlyList<SkillDto> Skills(Mate pet) =>
@@ -42,13 +42,24 @@ namespace NosCore.GameObject.Services.MateService
             var pet = owner.Mates.Values.FirstOrDefault(s => s.MateType == MateType.Pet && s.IsTeamMember && s.Entity != null);
             var bar = pet == null ? [] : Skills(pet);
             await owner.SendPacketAsync(bar.GeneratePetski());
-
-            // The client keeps a slot greyed out while its bar is away, and a pet's cooldowns end with its
-            // entity: a bar shown for a pet with nothing cooling down has to be told so.
-            if (bar.Count > 0 && pet?.Entity is { PendingResets.IsEmpty: true })
+            if (pet?.Entity is not { } entity)
             {
-                await owner.SendPacketAsync(new PetsrPacket { Slot = EverySlot });
+                return;
             }
+
+            // The slots still cooling down from before the bar came back, which the map announces again when ready.
+            var now = clock.GetCurrentInstant();
+            var left = new int[Slots];
+            for (var slot = 0; slot < bar.Count; slot++)
+            {
+                if (entity.NextUsableAt.TryGetValue(bar[slot].SkillVNum, out var readyAt) && readyAt > now)
+                {
+                    entity.PendingResets[slot] = readyAt;
+                    left[slot] = (int)((readyAt - now).TotalMilliseconds / 100);
+                }
+            }
+
+            await owner.SendPacketAsync(new PetCool2Packet { Cooldown1 = left[0], Cooldown2 = left[1], Cooldown3 = left[2] });
         }
     }
 }

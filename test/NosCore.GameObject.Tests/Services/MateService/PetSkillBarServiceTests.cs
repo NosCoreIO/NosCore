@@ -92,20 +92,38 @@ namespace NosCore.GameObject.Tests.Services.MateService
             await _service.RefreshAsync(owner.Character);
 
             Assert.AreEqual((663, 664, -1), Shown(owner));
-            Assert.AreEqual((short)-1, owner.LastPackets.OfType<PetsrPacket>().Single().Slot, "nothing of a new bar is cooling down");
+            PacketAssert.AreEqual(new PetCool2Packet { Cooldown1 = 0, Cooldown2 = 0, Cooldown3 = 0 },
+                owner.LastPackets.OfType<PetCool2Packet>().Single());
         }
 
         [TestMethod]
-        public async Task ASlotThatIsCoolingDownIsNotCalledReady()
+        public async Task ASlotThatIsCoolingDownShowsTheTimeLeftAndIsAnnouncedWhenReady()
         {
             var owner = await World.CreateSessionAsync();
             var pet = await PetOutAsync(owner, TestMates.Pet(owner.Character.CharacterId, vnum: Otter));
-            pet.Entity.NotNull().PendingResets[1] = World.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(35));
+            var readyAt = World.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(35));
+            pet.Entity.NotNull().NextUsableAt[664] = readyAt;
 
             await _service.RefreshAsync(owner.Character);
 
-            Assert.AreEqual((663, 664, -1), Shown(owner));
-            Assert.IsFalse(owner.LastPackets.OfType<PetsrPacket>().Any());
+            PacketAssert.AreEqual(new PetCool2Packet { Cooldown1 = 0, Cooldown2 = 350, Cooldown3 = 0 },
+                owner.LastPackets.OfType<PetCool2Packet>().Single());
+            Assert.AreEqual(readyAt, pet.Entity.NotNull().PendingResets[1]);
+        }
+
+        [TestMethod]
+        public async Task ACooldownOutlivesThePetLeavingTheMap()
+        {
+            var owner = await World.CreateSessionAsync();
+            var pet = await PetOutAsync(owner, TestMates.Pet(owner.Character.CharacterId, vnum: Otter));
+            pet.Entity.NotNull().NextUsableAt[663] = World.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(80));
+            await pet.DespawnAsync(owner.Character.MapInstance);
+            World.Clock.Advance(Duration.FromSeconds(38));
+
+            await pet.SpawnAsync(owner.Character, owner.Character.MapInstance, 5, 5);
+            await _service.RefreshAsync(owner.Character);
+
+            Assert.AreEqual(420, owner.LastPackets.OfType<PetCool2Packet>().Single().Cooldown1);
         }
 
         [TestMethod]
@@ -118,7 +136,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             await _service.RefreshAsync(owner.Character);
 
             Assert.AreEqual((-1, -1, -1), Shown(owner));
-            Assert.IsFalse(owner.LastPackets.OfType<PetsrPacket>().Any());
+            Assert.IsFalse(owner.LastPackets.OfType<PetCool2Packet>().Any());
         }
 
         [TestMethod]
