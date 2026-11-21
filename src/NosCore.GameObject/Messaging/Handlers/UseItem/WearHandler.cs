@@ -52,8 +52,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var itemInstance = evt.InventoryItem;
             var packet = evt.Packet;
 
-            await session.SendPacketAsync(session.Character.GenerateEff(123));
-
             if (itemInstance.ItemInstance.BoundCharacterId == null && packet.Mode == 0 && itemInstance.ItemInstance.Item.RequireBinding)
             {
                 await session.SendPacketAsync(new QnaiPacket
@@ -158,20 +156,28 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var newItem = session.Character.InventoryService
                 .LoadBySlotAndType(packet.Slot, packet.Type.ToNoscorePocketType());
 
+            await gameEvents.RaiseAsync(new MovementConditionChangedEvent(session.Character));
+            var fairy = session.Character.InventoryService
+                .LoadBySlotAndType(EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
+            if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
+            {
+                await session.Character.MapInstance.SendPacketAsync(session.Character.GeneratePairy(fairy));
+            }
+            else
+            {
+                await session.SendPacketAsync(session.Character.GeneratePairy(fairy));
+            }
+
+            await vitalityService.RefreshAndNotifyAsync(session.Character);
+            await session.SendPacketAsync(session.Character.GenerateSc(battleStatsProvider));
+            await gameEvents.RaiseAsync(new MovementConditionChangedEvent(session.Character));
+            await session.SendPacketAsync(session.Character.GenerateEquipment());
             await session.SendPacketAsync(newItem.GeneratePocketChange(packet.Type, packet.Slot));
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());
-            await session.SendPacketAsync(session.Character.GenerateEquipment());
-            await session.SendPacketAsync(session.Character.GenerateSc(battleStatsProvider));
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
                 await session.SendPacketAsync(session.Character.GenerateSpPoint(worldConfiguration));
-            }
-
-            if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
-            {
-                await session.Character.MapInstance.SendPacketAsync(
-                    session.Character.GeneratePairy(itemInstance.ItemInstance as WearableInstance));
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Amulet)
@@ -187,8 +193,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance.Item.ItemValidTime));
             }
 
-            await vitalityService.RefreshAndNotifyAsync(session.Character);
-            await gameEvents.RaiseAsync(new MovementConditionChangedEvent(session.Character));
             await gameEvents.RaiseAsync(new ItemWornEvent(session.Character, itemInstance.ItemInstance.ItemVNum));
         }
     }

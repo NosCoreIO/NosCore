@@ -1041,6 +1041,14 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       "cannot be traded after wearing" question opens, in the client's language
 - [ ] Answer yes: the item is worn; answer no: it stays in the inventory
 
+### Putting gear on
+
+- [ ] Double-click a weapon, an armour and a hat in turn: each goes on with no effect played
+      over the character, the equipment window shows it at once, and the walking speed is
+      unchanged afterwards
+- [ ] With a fairy worn, put on an armour: the fairy stays drawn beside the character
+- [ ] Put on a fairy: it appears beside the character, and a second client on the map sees it
+
 ### Specialist transformation
 
 - [ ] Put a specialist card in the bag (not worn), log out and back in: it is still in the

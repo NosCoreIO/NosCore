@@ -23,6 +23,8 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -147,6 +149,60 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .WhenAsync(UsingTheItemWithMode_, (byte)1)
                 .Then(NoWornItemShouldBeRaised)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SuccessfulEquipSendsTheGameSequenceWithoutAnEffect()
+        {
+            await new Spec("A piece of gear put on is answered with pairy, sc, equip and ivn, in that order, and no effect")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(TheEquipPacketsShouldFollowTheGameOrder)
+                .And(NoEffectShouldHaveBeenSent)
+                .And(TheMovementConditionShouldBeSentTwice)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GearOtherThanAFairyTellsOnlyTheWearerTheirFairy()
+        {
+            await new Spec("Armour put on sends the wearer an empty pairy, and nothing to the map")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(TheWearerShouldBeToldThereIsNoFairy)
+                .ExecuteAsync();
+        }
+
+        private void TheEquipPacketsShouldFollowTheGameOrder()
+        {
+            var sent = _session.LastPackets.ToList();
+            var order = new[]
+            {
+                sent.FindIndex(p => p is PairyPacket),
+                sent.FindIndex(p => p is ScPacket),
+                sent.FindIndex(p => p is EquipPacket),
+                sent.FindIndex(p => p is IvnPacket),
+            };
+            Assert.IsTrue(order.All(i => i >= 0), "pairy, sc, equip and ivn are all sent");
+            CollectionAssert.AreEqual(order.OrderBy(i => i).ToList(), order.ToList(), "pairy, sc, equip, ivn");
+        }
+
+        private void NoEffectShouldHaveBeenSent() =>
+            Assert.IsFalse(_session.LastPackets.OfType<EffectPacket>().Any());
+
+        private void TheMovementConditionShouldBeSentTwice() =>
+            _gameEvents.Verify(b => b.RaiseAsync(It.IsAny<MovementConditionChangedEvent>()), Times.Exactly(2));
+
+        private void TheWearerShouldBeToldThereIsNoFairy()
+        {
+            PacketAssert.AreEqual(new PairyPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.CharacterId,
+            }, _session.LastPackets.OfType<PairyPacket>().Single());
+            Assert.IsFalse(_session.Character.MapInstance.LastPackets.OfType<PairyPacket>().Any());
         }
 
         private void TheWornItemShouldBeRaised() =>
