@@ -19,7 +19,17 @@ namespace NosCore.Instances.Abstractions
         // rooms they join, so a room has at most one portal to each other room.
         IPortal Portal(Spot at, IRoom to, Spot arrival, bool locked = true);
 
-        IButton Lever(Spot at);
+        // Drawn as offVNum until it is used, then as onVNum; says it has been pulled.
+        IButton Lever(Spot at, short offVNum = 1000, short onVNum = 1045);
+
+        // Moved without a word when it is used.
+        IButton Sculpture(Spot at, short offVNum, short onVNum);
+
+        // A key on a walkable cell of the room picked anew for each run, taken off the map by whoever uses it.
+        IButton KeyAnywhere(short vNum);
+
+        // The room counts as cleared once that many of its monsters of that vnum have fallen.
+        IRoom ClearedAfter(short kills, short vNum);
 
         // A room has at most one exit: the run cannot tell two of them apart.
         IExit Exit(Spot at, bool locked = true);
@@ -80,5 +90,8 @@ namespace NosCore.Instances.Abstractions
     public interface INpc
     {
         INpc At(short x, short y);
+
+        // Joins the first player who comes near it and follows them; the run fails if it falls.
+        INpc Escort();
     }
 }

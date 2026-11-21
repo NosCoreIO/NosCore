@@ -142,43 +142,43 @@ public class TimeSpace18 : TimeSpaceScript
 
         descent.Portal(new(14, 1), crossing, new(14, 28));
         descent.Portal(new(14, 28), barracks, new(14, 1), locked: false);
-        descent.OnEnter(r => r.Dialog(6098))
-            .OnDialogClosed(6098, r => r.Spawn(
-                Monster(338).At(14, 12),
-                Monster(338).At(9, 23).Bonus(),
-                Monster(338).At(9, 21),
-                Monster(338).At(9, 19),
-                Monster(338).At(9, 17),
-                Monster(338).At(9, 15),
-                Monster(338).At(9, 13).Bonus(),
-                Monster(338).At(7, 10),
-                Monster(338).At(9, 7),
-                Monster(338).At(10, 6),
-                Monster(338).At(6, 21).Count(2),
-                Monster(338).At(6, 18),
-                Monster(338).At(6, 15),
-                Monster(338).At(6, 14),
-                Monster(338).At(6, 11),
-                Monster(338).At(6, 9)));
+        descent.OnEnter(r => r.Dialog(6098));
+        descent.Spawn(
+            Monster(338).At(14, 12),
+            Monster(338).At(9, 23).Bonus(),
+            Monster(338).At(9, 21),
+            Monster(338).At(9, 19),
+            Monster(338).At(9, 17),
+            Monster(338).At(9, 15),
+            Monster(338).At(9, 13).Bonus(),
+            Monster(338).At(7, 10),
+            Monster(338).At(9, 7),
+            Monster(338).At(10, 6),
+            Monster(338).At(6, 21).Count(2),
+            Monster(338).At(6, 18),
+            Monster(338).At(6, 15),
+            Monster(338).At(6, 14),
+            Monster(338).At(6, 11),
+            Monster(338).At(6, 9));
 
         barracks.Portal(new(14, 1), descent, new(14, 28), locked: false);
         barracks.Portal(new(28, 14), hideout, new(1, 14), locked: false);
-        barracks.OnEnter(r => r.Dialog(6099))
-            .OnDialogClosed(6099, r => r.Spawn(
-                Monster(338).At(18, 21),
-                Monster(338).At(18, 18),
-                Monster(338).At(17, 15),
-                Monster(338).At(12, 17).Bonus(),
-                Monster(338).At(15, 15),
-                Monster(338).At(13, 20),
-                Monster(338).At(12, 18),
-                Monster(338).At(11, 14),
-                Monster(338).At(10, 21),
-                Monster(338).At(9, 18),
-                Monster(338).At(9, 16),
-                Monster(338).At(8, 21),
-                Monster(338).At(6, 19),
-                Monster(338).At(8, 15).Count(2)));
+        barracks.OnEnter(r => r.Dialog(6099));
+        barracks.Spawn(
+            Monster(338).At(18, 21),
+            Monster(338).At(18, 18),
+            Monster(338).At(17, 15),
+            Monster(338).At(12, 17).Bonus(),
+            Monster(338).At(15, 15),
+            Monster(338).At(13, 20),
+            Monster(338).At(12, 18),
+            Monster(338).At(11, 14),
+            Monster(338).At(10, 21),
+            Monster(338).At(9, 18),
+            Monster(338).At(9, 16),
+            Monster(338).At(8, 21),
+            Monster(338).At(6, 19),
+            Monster(338).At(8, 15).Count(2));
 
         hideout.Exit(new(28, 14), locked: false);
         hideout.Portal(new(1, 14), barracks, new(28, 14), locked: false);

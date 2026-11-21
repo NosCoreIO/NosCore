@@ -98,6 +98,8 @@ namespace NosCore.Instances.Abstractions
     {
         private Spot? Place { get; init; }
 
+        private bool IsEscort { get; init; }
+
         internal static NpcSpec Of(INpc npc)
         {
             var spec = npc as NpcSpec ?? throw new ArgumentException($"{npc} is not an NPC of this script.", nameof(npc));
@@ -106,6 +108,8 @@ namespace NosCore.Instances.Abstractions
 
         public INpc At(short x, short y) => this with { Place = new Spot(x, y) };
 
-        internal NpcSpawn Spawn() => new(VNum, Place ?? default);
+        public INpc Escort() => this with { IsEscort = true };
+
+        internal NpcSpawn Spawn() => new(VNum, Place ?? default, IsEscort);
     }
 }
