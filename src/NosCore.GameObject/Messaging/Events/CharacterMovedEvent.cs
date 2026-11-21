@@ -4,8 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
@@ -16,6 +16,8 @@ namespace NosCore.GameObject.Messaging.Events
     // packet handler itself knows nothing about any of them.
     public sealed record CharacterMovedEvent(PlayerComponentBundle Character, short X, short Y, short MapId) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => Character;
+
         // Read when handled, possibly after a map change replaced a player's entity.
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
 

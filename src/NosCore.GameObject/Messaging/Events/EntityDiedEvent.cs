@@ -17,6 +17,8 @@ namespace NosCore.GameObject.Messaging.Events
         IAliveEntity? Killer,
         IReadOnlyDictionary<Entity, int> HitSnapshot) : IGameEvent
     {
+        public IAliveEntity? Subject => Victim;
+
         public EntityDiedEvent(IAliveEntity victim, IAliveEntity? killer)
             : this(victim, killer, SnapshotHits(victim)) { }
 

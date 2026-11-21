@@ -13,6 +13,8 @@ namespace NosCore.GameObject.Messaging.Events
     // the worn gear changed.
     public sealed record MovementConditionChangedEvent(IAliveEntity Target) : IGameEvent
     {
+        public IAliveEntity? Subject => Target;
+
         public IAliveEntity Target { get => field.Live(); init; } = Target;
     }
 }

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -14,6 +15,8 @@ namespace NosCore.GameObject.Messaging.Events
     // Each handler filters by ItemType/Effect internally.
     public sealed record ItemUsedEvent(ClientSession ClientSession, InventoryItemInstance InventoryItem, UseItemPacket Packet) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => ClientSession.HasPlayerEntity ? ClientSession.Character : null;
+
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
     }
 }

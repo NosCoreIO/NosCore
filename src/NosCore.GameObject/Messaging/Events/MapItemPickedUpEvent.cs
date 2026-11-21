@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Drops;
@@ -22,6 +23,8 @@ namespace NosCore.GameObject.Messaging.Events
         IItemInstance? ItemInstance,
         GetPacket Packet) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => ClientSession.HasPlayerEntity ? ClientSession.Character : null;
+
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
 
         // The player or the pet that picked the item up.

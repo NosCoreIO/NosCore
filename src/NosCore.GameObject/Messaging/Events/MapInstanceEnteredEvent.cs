@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 
@@ -14,6 +15,8 @@ namespace NosCore.GameObject.Messaging.Events
     // it by map type or state itself.
     public sealed record MapInstanceEnteredEvent(ClientSession ClientSession, MapInstance MapInstance, MapInstance LeftMapInstance) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => ClientSession.HasPlayerEntity ? ClientSession.Character : null;
+
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
     }
 }

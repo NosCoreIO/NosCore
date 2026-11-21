@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using NosCore.Core.Observability;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Messaging
@@ -26,7 +27,8 @@ namespace NosCore.GameObject.Messaging
 
     // Every class of this assembly or the event's with a public Handle or HandleAsync taking one event handles it.
     // Each raise builds the handlers from the container, like a message handler, and runs them one
-    // after another; one that throws is logged and the next still runs.
+    // after another; one that throws is logged and the next still runs. Like a packet handler,
+    // they run on the subject's map unless the raiser already holds one.
     public sealed class GameEventDispatcher(IServiceProvider services, ILogger<GameEventDispatcher> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IGameEventDispatcher
     {
@@ -37,6 +39,30 @@ namespace NosCore.GameObject.Messaging
                 return;
             }
 
+            var map = MapExecutor.IsInsideAny ? null : gameEvent.Subject?.MapInstance;
+            if (map == null)
+            {
+                await HandleAsync(gameEvent);
+                return;
+            }
+
+            var started = false;
+            try
+            {
+                await map.Executor.RunHandlerAsync(() =>
+                {
+                    started = true;
+                    return HandleAsync(gameEvent);
+                });
+            }
+            catch (ObjectDisposedException) when (!started)
+            {
+                await HandleAsync(gameEvent);
+            }
+        }
+
+        private async Task HandleAsync<TEvent>(TEvent gameEvent) where TEvent : IGameEvent
+        {
             foreach (var handler in Handlers<TEvent>.All)
             {
                 try
