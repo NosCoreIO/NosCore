@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,8 +56,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             potionCooldown.Start(character);
             var left = character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            character.Hp = item.RestoresAllHp ? character.MaxHp : Math.Min(character.MaxHp, character.Hp + recoveryBonus.Boost(character, item.Hp));
-            character.Mp = item.RestoresAllMp ? character.MaxMp : Math.Min(character.MaxMp, character.Mp + recoveryBonus.Boost(character, item.Mp));
+            await character.HealAsync(item.RestoresAllHp ? character.MaxHp : recoveryBonus.Boost(character, item.Hp),
+                item.RestoresAllMp ? character.MaxMp : recoveryBonus.Boost(character, item.Mp));
             if (fullRestore)
             {
                 foreach (var mate in character.Mates.Values.Where(m => m.IsTeamMember))
@@ -75,7 +74,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             await session.SendPacketAsync(left.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
-            await session.SendPacketAsync(session.Character.GenerateStat());
             await session.SendPacketsAsync(refilledMates.Select(m => m.GeneratePst()));
         }
     }
