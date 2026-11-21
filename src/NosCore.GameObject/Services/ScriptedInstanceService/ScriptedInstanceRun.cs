@@ -1526,9 +1526,18 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // is carried out once the script has returned, so a script never sees the run half-applied.
         private Task RunAsync(Func<Task> trigger)
         {
-            if (!MapExecutor.IsInsideAny && Running.Value != this)
+            if (Running.Value != this)
             {
-                return Enqueue(trigger);
+                if (!MapExecutor.IsInsideAny)
+                {
+                    return Enqueue(trigger);
+                }
+
+                // A packet handler gives its map back while it waits for its trigger's turn.
+                if (MapExecutor.CanStepAway)
+                {
+                    return MapExecutor.StepAwayAsync(() => Enqueue(trigger));
+                }
             }
 
             // Work on a map's executor, or one of this run's own triggers, may be what a trigger ahead in

@@ -811,6 +811,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task APacketHandlerOnTheRoomGetsTheStartQuestionsAnswerAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms));
+            await run.StartAsync();
+            var asked = false;
+
+            await _first.Executor.RunHandlerAsync(async () => asked = await run.AskToStartAsync(session))
+                .WaitAsync(TimeSpan.FromSeconds(5));
+
+            Assert.IsTrue(asked);
+        }
+
+        [TestMethod]
         public async Task OnlyTheFirstRoomAsksWhetherToStartAsync()
         {
             var session = await PlayerInRoomAsync(_second);
