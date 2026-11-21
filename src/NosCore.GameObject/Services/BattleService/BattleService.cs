@@ -58,6 +58,8 @@ namespace NosCore.GameObject.Services.BattleService
         IRandomProvider random,
         ILogger<BattleService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IBattleService, ISingletonService
     {
+        private const long StartCooldownMark = -10;
+
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
             if (origin is PlayerComponentBundle or MateComponentBundle && CanCast(origin) && !IsStunned(origin)
@@ -88,8 +90,13 @@ namespace NosCore.GameObject.Services.BattleService
             // failed attempt still costs the cooldown below.
             if (captureService.IsCaptureSkill(skill))
             {
+                if (!await captureService.TryCaptureAsync(origin, target, skill))
+                {
+                    return false;
+                }
+
                 ScheduleCooldownReset(origin, skill);
-                await captureService.TryCaptureAsync(origin, target, skill);
+                await StartCooldownAsync(origin, skill);
                 return true;
             }
 
@@ -605,6 +612,20 @@ namespace NosCore.GameObject.Services.BattleService
                 });
             });
             await gameEvents.RaiseAsync(new EntityDiedEvent(monster, monster, new Dictionary<Arch.Core.Entity, int>()));
+        }
+
+        // A capture's su names no skill, so the client starts the cooldown from this line instead.
+        private async Task StartCooldownAsync(IAliveEntity origin, SkillInfo skill)
+        {
+            if (origin is not PlayerComponentBundle character) return;
+
+            var cooldown = skillCastService.Cooldown(character, skill.Cooldown);
+            await character.SendPacketAsync(new SkillResetPacket
+            {
+                CastId = StartCooldownMark,
+                Unknown1 = (short)skill.CastId,
+                Unknown2 = (short)(cooldown.TotalMilliseconds / 100)
+            });
         }
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)

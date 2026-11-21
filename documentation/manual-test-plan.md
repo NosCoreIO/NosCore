@@ -1935,6 +1935,11 @@ under half health first.
 - [ ] Capture spends its mana and goes on cooldown, whether the roll succeeds or fails; casting
       it again before the cooldown is over is refused
 - [ ] Capture from further away than the skill's range is refused and catches nothing
+- [ ] Capture a monster at full health: the character plays the capture cast, the refusal shows,
+      the mana is spent and the Capture slot shows its 15 s cooldown
+- [ ] Capture another player's pet: nothing is spent and the slot stays ready
+- [ ] With the rookie quest "Capture Chicken" open, catch a chicken: the chicken becomes a pet
+      and the quest completes in the same capture
 - [ ] Order a pet out with you to attack a monster: it hits, then waits its usual attack delay
       before the next hit even if the order is spammed
 - [ ] Order the pet to attack a monster far from where the pet stands: nothing happens

@@ -49,20 +49,18 @@ namespace NosCore.GameObject.Services.BattleService
         public bool IsCaptureSkill(SkillInfo skill) =>
             HasCaptureBCard(skill);
 
-        public async Task TryCaptureAsync(IAliveEntity caster, IAliveEntity target, SkillInfo skill)
+        public async Task<bool> TryCaptureAsync(IAliveEntity caster, IAliveEntity target, SkillInfo skill)
         {
             if (!HasCaptureBCard(skill) || caster is not PlayerComponentBundle owner)
             {
-                return;
+                return false;
             }
 
-            // The client holds the cast until it hears back; a refusal that only explains itself
-            // leaves the character unable to act.
             if (target is not MonsterComponentBundle monster
                 || monster.NpcMonster == null || !monster.IsAlive || monster.MapInstance == null)
             {
-                await owner.SendPacketAsync(Cancel(skill));
-                return;
+                await owner.SendPacketAsync(Cancel(skill.CastId));
+                return false;
             }
 
             var distance = (int)distanceCalculator.GetDistance((owner.PositionX, owner.PositionY),
@@ -70,15 +68,28 @@ namespace NosCore.GameObject.Services.BattleService
             if (monster.MapInstance != owner.MapInstance
                 || !SkillReach.IsInReach(skill.TargetType, skill.Range, skill.TargetRange, distance, monster.NpcMonster.BasicArea))
             {
-                await owner.SendPacketAsync(Cancel(skill));
-                return;
+                await owner.SendPacketAsync(Cancel(skill.CastId));
+                return false;
             }
 
+            await monster.MapInstance.SendPacketAsync(new CtPacket
+            {
+                VisualType = owner.VisualType,
+                VisualId = owner.VisualId,
+                TargetVisualType = monster.VisualType,
+                TargetId = monster.VisualId,
+                CastAnimationId = skill.CastAnimation,
+                CastEffect = skill.CastEffect,
+                SkillId = skill.SkillVnum
+            });
+
+            // A refused attempt still costs its mana and cooldown; the cancel naming the skill
+            // rather than the cast ends the client's cast.
             if (monster.NpcMonster.Level > owner.Level)
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureToHighLevel));
-                await owner.SendPacketAsync(Cancel(skill));
-                return;
+                await owner.SendPacketAsync(Cancel(skill.SkillVnum));
+                return true;
             }
 
             var maxHp = monster.NpcMonster.MaxHp;
@@ -86,8 +97,8 @@ namespace NosCore.GameObject.Services.BattleService
             if (maxHp <= 0 || monster.Hp * 100L > maxHp * (long)CaptureHpThresholdPercent)
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureTooMuchLife));
-                await owner.SendPacketAsync(Cancel(skill));
-                return;
+                await owner.SendPacketAsync(Cancel(skill.SkillVnum));
+                return true;
             }
 
             var rate = owner.Level < LowLevelCutoff ? LowLevelCaptureRate : DefaultCaptureRate;
@@ -95,7 +106,7 @@ namespace NosCore.GameObject.Services.BattleService
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureFailed));
                 await monster.MapInstance.SendPacketAsync(Animation(owner, monster, hpPercent, EscapedAnimation));
-                return;
+                return true;
             }
 
             // Claimed before anything is awaited, so a second capture or a kill cannot take it as well.
@@ -110,7 +121,7 @@ namespace NosCore.GameObject.Services.BattleService
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessfulQuest));
                 await ShowCaughtAsync(owner, monster, caughtAt);
                 await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner));
-                return;
+                return true;
             }
 
             var row = await mateDao.TryInsertOrUpdateAsync(new MateDto
@@ -134,6 +145,7 @@ namespace NosCore.GameObject.Services.BattleService
                 Type = VisualType.Npc, PetId = mate.MateTransportId, Action = 3, Unknown = 0
             });
             await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessful));
+            await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner));
             await owner.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
             if (mate.IsTeamMember)
             {
@@ -149,7 +161,7 @@ namespace NosCore.GameObject.Services.BattleService
                 await owner.SendPacketAsync(mate.GeneratePst());
             }
 
-            await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner));
+            return true;
         }
 
         private static async Task ShowCaughtAsync(PlayerComponentBundle owner, MonsterComponentBundle monster, SuPacket caughtAt)
@@ -181,9 +193,8 @@ namespace NosCore.GameObject.Services.BattleService
             TargetMaxHp = monster.NpcMonster.MaxHp
         };
 
-        // In a cast cancel the TargetId field carries the cast id.
-        private static CancelPacket Cancel(SkillInfo skill) =>
-            new() { Type = CancelPacketType.CancelCast, TargetId = skill.CastId, Unknow = -1 };
+        private static CancelPacket Cancel(long castOrSkill) =>
+            new() { Type = CancelPacketType.CancelAutoAttack, TargetId = castOrSkill, Unknow = -1 };
 
         private static MsgiPacket Message(Game18NConstString message) =>
             new() { Type = MessageType.Default, Message = message };
