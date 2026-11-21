@@ -17,6 +17,7 @@ using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
@@ -134,9 +135,18 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
     {
         var character = session.Character;
         var now = clock.GetCurrentInstant();
-        if (!character.UseSp || character.IsVehicled || now - character.LastAttack > CombatWindow
-            || character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
-                is not SpecialistInstance { Item.SpType: > 0 } specialist)
+        var specialist = character.UseSp && character.IsAlive && !character.IsVehicled && now - character.LastAttack <= CombatWindow
+            ? character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+                as SpecialistInstance
+            : null;
+        var draining = specialist is { Item.SpType: > 0 };
+        if (draining != character.IsDrainingPoints)
+        {
+            character.IsDrainingPoints = draining;
+            await session.SendPacketAsync(new ScpIndicatorPacket { IsDraining = draining });
+        }
+
+        if (specialist is not { Item.SpType: > 0 })
         {
             return;
         }

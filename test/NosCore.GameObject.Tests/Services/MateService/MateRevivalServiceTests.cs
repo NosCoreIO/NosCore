@@ -62,6 +62,23 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
+        public async Task AnOwnerGettingUpWhereTheyFellHasTheTeamBesideThemWithThePetBar()
+        {
+            var owner = _session.Character;
+            _pet.Entity.NotNull().NextUsableAt[PetSkill] = World.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(80));
+            World.Clock.AdvanceSeconds(38);
+
+            await _service.RejoinOwnerAsync(owner, 2, 2);
+
+            var entity = _pet.Entity.NotNull();
+            Assert.IsTrue(System.Math.Abs(entity.PositionX - 2) <= 2 && System.Math.Abs(entity.PositionY - 2) <= 2,
+                "the pet stands beside where the owner got up");
+            Assert.IsTrue(owner.MapInstance.LastPackets.OfType<OutPacket>().Any(p => p.VisualId == _pet.MateTransportId));
+            Assert.AreEqual(PetSkill, _session.LastPackets.OfType<PetskiPacket>().Last().FirstSkillVNum);
+            Assert.AreEqual(420, _session.LastPackets.OfType<PetCool2Packet>().Single().Cooldown1);
+        }
+
+        [TestMethod]
         public async Task FiveSeedsBringTheNosMateBackAfterThreeMinutes()
         {
             await new Spec("Five seeds bring the NosMate back after three minutes")
