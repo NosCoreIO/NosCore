@@ -2794,6 +2794,8 @@ Same setup as above, with both players inside the arena.
 - [ ] After five seconds the icon disappears for everyone, and hits in both directions land again
 - [ ] Outside an arena, revive in place and at the respawn point: no buff icon appears, and a
       monster's hit lands straight away
+- [ ] Not verifiable yet: a protection that fails to apply keeps the fighter revived and the fee
+      paid, and the failure is counted at the packet boundary; a client cannot make it fail
 
 ---
 

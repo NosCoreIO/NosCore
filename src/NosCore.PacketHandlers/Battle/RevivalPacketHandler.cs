@@ -80,6 +80,7 @@ namespace NosCore.PacketHandlers.Battle
 
             character.IsAlive = true;
 
+            var protect = false;
             try
             {
                 var inLandOfDeath = character.MapInstance?.MapInstanceType == MapInstanceType.LodInstance;
@@ -98,7 +99,7 @@ namespace NosCore.PacketHandlers.Battle
                         break;
                     case RevivalType.AtSavePoint: await ReviveAtSavePointAsync(session); break;
                     case RevivalType.InArena when character.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance:
-                        await ReviveInArenaAsync(session);
+                        protect = await ReviveInArenaAsync(session);
                         break;
                     default:
                         character.IsAlive = false;
@@ -109,6 +110,13 @@ namespace NosCore.PacketHandlers.Battle
             {
                 character.IsAlive = false;
                 throw;
+            }
+
+            // Outside the try above: the client has already been told the fighter is back, so a failure
+            // here must not undo that.
+            if (protect)
+            {
+                await ApplyArenaProtectionAsync(character);
             }
         }
 
@@ -178,16 +186,25 @@ namespace NosCore.PacketHandlers.Battle
             await BroadcastReviveAsync(session, x, y);
         }
 
-        private async Task ReviveInArenaAsync(ClientSession session)
+        // False when the fighter could not pay and went back to the save point instead.
+        private async Task<bool> ReviveInArenaAsync(ClientSession session)
         {
             var character = session.Character;
-            if (character.Gold < ArenaReviveCost) { await ReviveAtSavePointAsync(session); return; }
+            if (character.Gold < ArenaReviveCost)
+            {
+                await ReviveAtSavePointAsync(session);
+                return false;
+            }
 
             character.Gold -= ArenaReviveCost;
             RestoreLife(session, 100);
             await session.SendPacketAsync(character.GenerateGold());
             await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
+            return true;
+        }
 
+        private async Task ApplyArenaProtectionAsync(PlayerComponentBundle character)
+        {
             var protection = cardCatalog.GetTriggeredCard(CardTrigger.ArenaRevival);
             if (protection == null)
             {
@@ -195,16 +212,7 @@ namespace NosCore.PacketHandlers.Battle
                 return;
             }
 
-            // The client has already been told the fighter is back; losing the protection must not undo that.
-            try
-            {
-                await buffService.ApplyAsync(character, protection,
-                    cardCatalog.GetCardBCards(protection.CardId), character);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, logLanguage[LogLanguageKey.ARENA_REVIVAL_PROTECTION_FAILED], character.CharacterId);
-            }
+            await buffService.ApplyAsync(character, protection, cardCatalog.GetCardBCards(protection.CardId), character);
         }
 
         private static void RestoreLife(ClientSession session, int percent)
