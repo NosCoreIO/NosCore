@@ -215,7 +215,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         private Task ThePlayerIsHit()
         {
             return World.Create<DelayInterruptionHandler>().Handle(
-                new EntityDamagedEvent(_friend.Character, _session.Character, 10, false));
+                new EntityDamagedEvent(_friend.Character, _session.Character, 10, false, 90));
         }
 
         private void CharacterHasWings()

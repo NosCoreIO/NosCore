@@ -73,8 +73,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, short> _lockers = [];
         private readonly Dictionary<int, short> _lockerVNums = [];
         private readonly HashSet<int> _visited = [];
+        private readonly HashSet<int> _cleared = [];
         private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
-        private readonly HashSet<int> _timedRooms = [];
+        private readonly Dictionary<int, TimeSpan> _roomClockEnds = [];
         private readonly HashSet<long> _showingObjective = [];
         private readonly HashSet<long> _shownRoomMap = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
@@ -234,10 +235,34 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
-        private Task RoomClearedAsync(int room)
+        // Only a monster summoned with hit or HP steps is reported, so a script that asked for none is never called.
+        // The hit was survived, so its steps run even if a later hit has killed the monster since.
+        public Task MonsterHitAsync(Guid mapInstanceId, Action<IInstanceRun>? hitStep,
+            IReadOnlyList<Action<IInstanceRun>> crossedThresholds)
+        {
+            return RunAsync(async () =>
+            {
+                if (RoomOf(mapInstanceId) == null || EndState != null || _abandoned)
+                {
+                    return;
+                }
+
+                if (hitStep != null)
+                {
+                    await CallScriptAsync(hitStep);
+                }
+
+                foreach (var step in crossedThresholds)
+                {
+                    await CallScriptAsync(step);
+                }
+            });
+        }
+
+        private async Task RoomClearedAsync(int room)
         {
             // A room on its own clock is not over when one wave dies, so its objective stays up.
-            if (!_timedRooms.Contains(room) && _roomObjectives.Remove(room))
+            if (!_roomClockEnds.ContainsKey(room) && _roomObjectives.Remove(room))
             {
                 foreach (var session in SessionsIn(room))
                 {
@@ -245,7 +270,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
-            return CallScriptAsync(run => _script.OnRoomCleared(run, room));
+            await CallScriptAsync(run => _script.OnRoomCleared(run, room));
+            _cleared.Add(room);
         }
 
         private void Advance(ObjectiveKind kind, short vNum)
@@ -514,6 +540,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public int MonstersAlive(int room) => _aliveByRoom.GetValueOrDefault(room);
 
+        public bool WasCleared(int room) => _cleared.Contains(room);
+
         public int PlayersIn(int room) => PlayersOf(_rooms[room]).Count();
 
         public bool OneSideStanding(int room)
@@ -564,6 +592,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     if (spawn.Dialog != 0)
                     {
                         monster.Dialog = spawn.Dialog;
+                    }
+
+                    if (spawn.OnHit != null || spawn.OnHpBelow is { Count: > 0 })
+                    {
+                        monster.HitStep = spawn.OnHit;
+                        monster.HpThresholds = spawn.OnHpBelow ?? [];
                     }
 
                     if (spawn.IsBonus)
@@ -855,6 +889,24 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             var (x, y) = cells.Count == 0 ? ((short)0, (short)0) : cells[_random.Next(0, cells.Count)];
             return new Spot(x, y);
+        }
+
+        public Spot RandomCell(int room, Spot around, short radius)
+        {
+            var map = _rooms[room].Map;
+            var cells = new List<Spot>();
+            for (var y = around.Y - radius; y <= around.Y + radius; y++)
+            {
+                for (var x = around.X - radius; x <= around.X + radius; x++)
+                {
+                    if (map.IsWalkable((short)x, (short)y))
+                    {
+                        cells.Add(new Spot((short)x, (short)y));
+                    }
+                }
+            }
+
+            return cells.Count == 0 ? around : cells[_random.Next(0, cells.Count)];
         }
 
         private static List<(short X, short Y)> WalkableCells(GameObject.Map.Map map, short margin)
@@ -1178,7 +1230,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StartRoomClock(int room, TimeSpan length)
         {
-            _timedRooms.Add(room);
+            _roomClockEnds[room] = Elapsed + length;
             var mapInstance = _rooms[room];
             var deciseconds = (int)(length.TotalMilliseconds / 100);
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
@@ -1191,7 +1243,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StopRoomClock(int room)
         {
-            _timedRooms.Remove(room);
+            _roomClockEnds.Remove(room);
             var mapInstance = _rooms[room];
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
             {
@@ -1201,6 +1253,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 SecondParameter = -1
             }));
         }
+
+        public TimeSpan? RoomClockEnd(int room) => _roomClockEnds.TryGetValue(room, out var end) ? end : null;
 
         public void Dialog(int room, int dialog)
         {
@@ -1651,6 +1705,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public int MonstersAlive(int room) => run.MonstersAlive(room);
 
+            public bool WasCleared(int room) => run.WasCleared(room);
+
             public int PlayersIn(int room) => run.PlayersIn(room);
 
             public bool OneSideStanding(int room) => run.OneSideStanding(room);
@@ -1683,6 +1739,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public Spot RandomCell(int room) => run.RandomCell(room);
 
+            public Spot RandomCell(int room, Spot around, short radius) => run.RandomCell(room, around, radius);
+
             public bool IsButtonOn(int room, int button) => run.IsButtonOn(room, button);
 
             public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever) =>
@@ -1701,6 +1759,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void StartRoomClock(int room, TimeSpan length) => Do(() => run.StartRoomClock(room, length));
 
             public void StopRoomClock(int room) => Do(() => run.StopRoomClock(room));
+
+            public TimeSpan? RoomClockEnd(int room) => run.RoomClockEnd(room);
 
             public void Dialog(int room, int dialog) => Do(() => run.Dialog(room, dialog));
 
