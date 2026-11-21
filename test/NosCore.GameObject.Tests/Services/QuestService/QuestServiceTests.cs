@@ -292,6 +292,28 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task AnAcknowledgedStepIsNotSentBack()
+        {
+            await new Spec("Acknowledging a step sends only the next one, so the client does not play the step again")
+                .Given(CharacterIsOnTalkStepOneOfScript_, (byte)100)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)1, (byte)100)
+                .Then(TheOnlyStepSentShouldBe_OfScript_, (short)2, (byte)100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastStepOfAChapterIsNotSentBack()
+        {
+            await new Spec("Acknowledging a chapter's last step names the next chapter's NPC once and sends no step")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)2, (byte)1)
+                .Then(NoStepShouldBeSent)
+                .And(TheQuestNpcShouldBeSentOnce)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task FinishingAChapterPointsAtTheNpcThatOffersTheNextOne()
         {
             await new Spec("Finishing a chapter names the NPC, map and level of the next one and says how to find it")
@@ -1096,6 +1118,22 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 Session.LastPackets.OfType<MsgiPacket>().Last());
             PacketAssert.AreEqual(Session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ClickButtonToSearachNewQuests),
                 Session.LastPackets.OfType<SayiPacket>().Last());
+        }
+
+        private void TheOnlyStepSentShouldBe_OfScript_(short stepId, byte scriptId)
+        {
+            PacketAssert.AreEqual(new ScriptPacket { ScriptId = scriptId, ScriptStepId = stepId },
+                Session.LastPackets.OfType<ScriptPacket>().Single());
+        }
+
+        private void NoStepShouldBeSent()
+        {
+            Assert.IsFalse(Session.LastPackets.OfType<ScriptPacket>().Any());
+        }
+
+        private void TheQuestNpcShouldBeSentOnce()
+        {
+            Assert.AreEqual(1, Session.LastPackets.OfType<QnpcPacket>().Count());
         }
 
         private void NoQuestNpcShouldBeSent()

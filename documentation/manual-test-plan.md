@@ -4101,7 +4101,8 @@ chapter's level. Put a level 20 character in Nosville (map 1) on script 1 step 2
 1`, the last step of the opening story) and enter the world.
 
 - [ ] Once the target shows, "Click the button at the bottom to search for new quests!" crosses
-      the screen and appears in the chat, and the new-quest button shows at the bottom
+      the screen and appears once in the chat, and the new-quest button (a scroll) shows at the
+      bottom right, left of the Shop button
 - [ ] Clicking the button writes in the chat that the quest is received at level 19 from NPC 331
       (the one standing at 59, 86) in Nosville
 - [ ] Take chapter 2 ("Level 19") from that NPC's "Get Quest" list: the chapter starts, and the
