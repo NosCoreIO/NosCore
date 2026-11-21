@@ -4050,6 +4050,17 @@ starting on its own. Put a level 60 character on the last step of chapter 11 nex
 - [ ] At level 50, picking "Level 56" does nothing
 - [ ] Finishing a chapter's last step does not start the next chapter until it is taken from its NPC
 
+### Replaying an act's scene
+
+The Story tab of the Character Info window has an "Act.N" button for each act the player has
+reached; the server reports act 1 to everyone for now, so only "Act.1" shows.
+
+- [ ] Open Character Info, Story tab: there is one button, "Act.1"
+- [ ] Press "Act.1": the act 1 opening scene plays, the one a new character sees on first entering
+      the world
+- [ ] Not verifiable yet: "Act.2" to "Act.5". The client shows them only once the server reports a
+      later act, and nothing reports one yet
+
 ### Quests the client knows are done
 
 The client only hides a finished quest's offer, and only shows a hand-in button that needs a
