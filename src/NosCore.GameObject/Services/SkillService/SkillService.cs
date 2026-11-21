@@ -204,7 +204,7 @@ namespace NosCore.GameObject.Services.SkillService
             return true;
         }
 
-        public Task BuyAsync(PlayerComponentBundle character, SkillDto skill) => TeachAsync(character, skill, skill.Price);
+        public Task BuyAsync(PlayerComponentBundle character, SkillDto skill) => TeachAsync(character, skill, skill.Price, fromShop: true);
 
         public async Task<bool> LearnFromBookAsync(PlayerComponentBundle character, short skillVNum)
         {
@@ -214,10 +214,10 @@ namespace NosCore.GameObject.Services.SkillService
                 return false;
             }
 
-            return await TeachAsync(character, skill, 0);
+            return await TeachAsync(character, skill, 0, fromShop: false);
         }
 
-        private async Task<bool> TeachAsync(PlayerComponentBundle character, SkillDto skill, int price)
+        private async Task<bool> TeachAsync(PlayerComponentBundle character, SkillDto skill, int price, bool fromShop)
         {
             var refusal = LearningRefusal(character, skill, price);
             if (refusal != null)
@@ -257,6 +257,12 @@ namespace NosCore.GameObject.Services.SkillService
             }
 
             await SendSkillListAsync(character, useSpecialist: false);
+            if (fromShop)
+            {
+                await character.SendPacketsAsync(character.GenerateQuicklist());
+                await character.SendPacketAsync(character.GenerateIcon(0, skill.SkillVNum));
+            }
+
             if (character is Ecs.PlayerComponentBundle player)
             {
                 if (skill.IsPassive())
@@ -271,7 +277,15 @@ namespace NosCore.GameObject.Services.SkillService
                 }
             }
 
-            await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
+            if (fromShop)
+            {
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.SkillLearned));
+            }
+            else
+            {
+                await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
+            }
+
             return true;
         }
 

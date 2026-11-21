@@ -1021,6 +1021,9 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] The second tab lists only your own class's skills
 - [ ] Double-click a course you have the level and gold for and confirm: "You've learned a new
       skill", the gold drops by its price and the course appears under Skill Info > Training
+- [ ] Learn a skill from a teacher: "You've learned a new skill" is written in yellow in the chat,
+      not across the screen, the skill's icon pops up over the character and the quick bar is
+      redrawn
 - [ ] Buy the stronger course of the same kind: the weaker one disappears from Training
 - [ ] Try the weaker one again: "You've already learned a higher level"
 - [ ] Try a course above your level: "You cannot learn that yet", no gold taken

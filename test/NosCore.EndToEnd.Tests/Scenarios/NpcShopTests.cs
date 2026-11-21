@@ -20,6 +20,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -262,6 +263,30 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var back = await Harness.ComeBackAsync(player);
             Same(new[] { ((short)0, WorldData.Trinket, (short)2) }, Listed(back, PocketType.Etc));
             Assert.AreEqual(1000 - 2 * WorldData.TrinketPrice, await GoldOnEnteringAsync(back));
+        }
+
+        [TestMethod]
+        public async Task ASkillLearnedFromATeacherShowsItsIconAndIsToldInTheChat()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", WorldData.Market, WorldData.TeacherX, WorldData.TeacherY + 1);
+            await using var alice = await EnterAsync(player);
+            var talked = alice.Mark();
+            await alice.SendAsync(new RequestNpcPacket { Type = VisualType.Npc, TargetId = WorldData.Teacher });
+            await alice.SendAsync(new ShoppingPacket { ShopType = 0, Unknown = 0, VisualType = VisualType.Npc, VisualId = WorldData.Teacher });
+            await alice.ExpectSinceAsync<NInvPacket>(talked, p => p.VisualId == WorldData.Teacher, "the teacher's lessons");
+            var bought = alice.Mark();
+
+            await alice.SendAsync(new BuyPacket { VisualType = VisualType.Npc, VisualId = WorldData.Teacher, Slot = WorldData.TaughtSkill });
+
+            PacketAssert.AreEqual(new IconPacket
+            {
+                VisualType = VisualType.Player, VisualId = alice.CharacterId, IconType = 0, IconParameter = WorldData.TaughtSkill
+            }, await alice.ExpectSinceAsync<IconPacket>(bought, null, "the skill's icon over Alice"));
+            await alice.ExpectSinceAsync<QSlotPacket>(bought, null, "the quick bar");
+            await alice.ExpectSinceAsync<SayiPacket>(bought, p => p.VisualId == alice.CharacterId && p.Type == SayColorType.Yellow
+                && p.Message == Game18NConstString.SkillLearned, "the chat line");
+            Assert.IsTrue(await alice.NoneSinceAsync<MsgiPacket>(bought, p => p.Message == Game18NConstString.SkillLearned, TimeSpan.Zero),
+                "no line across the screen");
         }
 
         [TestMethod]
