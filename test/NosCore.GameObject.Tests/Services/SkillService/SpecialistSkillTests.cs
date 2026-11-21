@@ -153,7 +153,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             await _service.LoadSpecialistSkillsAsync(_session.Character, MorphOfCard, spLevel: 99);
 
-            Assert.AreEqual<short?>(900, QuickBarSlot(1, 2));
+            PacketAssert.AreEqual(new QsetClientSubPacket { Type = QSetType.Set, OriginQuickList = 1, OriginQuickListSlot = 900 },
+                QuickBarSlot(1, 2));
         }
 
         [TestMethod]
@@ -166,7 +167,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             await _service.UnloadSpecialistSkillsAsync(_session.Character);
 
-            Assert.AreEqual<short?>(-1, QuickBarSlot(1, 2));
+            PacketAssert.AreEqual(new QsetClientSubPacket { Type = QSetType.Reset, OriginQuickList = -1, OriginQuickListSlot = -1 },
+                QuickBarSlot(1, 2));
         }
 
         private void WearTheCard()
@@ -175,7 +177,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             _session.Character.Morph = MorphOfCard;
         }
 
-        private short? QuickBarSlot(int bar, int slot) =>
-            _session.LastPackets.OfType<QSlotPacket>().Single(p => p.Slot == bar).Data?[slot]?.Data;
+        private QsetClientSubPacket? QuickBarSlot(int bar, int slot) =>
+            _session.LastPackets.OfType<QSlotPacket>().Single(p => p.Slot == bar).Data?[slot];
     }
 }

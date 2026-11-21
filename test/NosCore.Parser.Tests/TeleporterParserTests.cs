@@ -87,7 +87,7 @@ namespace NosCore.Parser.Tests
                 {
                     Delay = 5000,
                     Type = DelayPacketType.Button,
-                    Packet = new GuriPacket { Type = GuriPacketType.MapTeleporter, Argument = 22, SecondArgument = 72, EntityId = 9821 }
+                    Packet = new GuriMapTeleporterPacket { DestinationX = 22, DestinationY = 72, NpcId = 9821 }
                 },
             ]);
 
@@ -112,11 +112,11 @@ namespace NosCore.Parser.Tests
             Assert.IsFalse(_saved.Any(s => s.MapNpcId == 6105), "a stone standing elsewhere takes no bar of another");
         }
 
-        private static DelayPacket StoneBar(long stoneId, uint x, uint y) => new()
+        private static DelayPacket StoneBar(long stoneId, short x, short y) => new()
         {
             Delay = 5000,
             Type = DelayPacketType.Button,
-            Packet = new GuriPacket { Type = GuriPacketType.MapTeleporter, Argument = x, SecondArgument = y, EntityId = stoneId }
+            Packet = new GuriMapTeleporterPacket { DestinationX = x, DestinationY = y, NpcId = stoneId }
         };
 
         private (short X, short Y) Destination(int mapNpcId) =>

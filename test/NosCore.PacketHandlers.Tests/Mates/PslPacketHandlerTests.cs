@@ -351,6 +351,9 @@ namespace NosCore.PacketHandlers.Tests.Mates
             var cMode = Broadcast().OfType<CModePacket>().Last();
             Assert.AreEqual(_partner.MateTransportId, cMode.VisualId);
             Assert.AreEqual(morph, cMode.Morph);
+            Assert.IsNull(cMode.MorphBonus);
+            Assert.IsNull(cMode.Size);
+            Assert.IsNull(cMode.MorphSkin);
             Assert.AreEqual(morph, Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket.NotNull().Morph);
             Assert.AreEqual(morph, _session.LastPackets.OfType<ScnPacket>().Last().MorphId);
         }
@@ -364,7 +367,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private void TheSkillBarShouldHold_(short[] skills)
         {
             var bar = _session.LastPackets.OfType<PSkiPacket>().Single();
-            CollectionAssert.AreEqual(skills, new[] { (short)bar.FirstSkill, (short)bar.SecondSkill, (short)bar.ThirdSkill });
+            CollectionAssert.AreEqual(skills, new short?[] { (short)bar.FirstSkill, (short)bar.SecondSkill, (short?)bar.ThirdSkill });
             var scn = _session.LastPackets.OfType<ScnPacket>().Last();
             CollectionAssert.AreEqual(skills, new[] { scn.Skill1Details, scn.Skill2Details, scn.Skill3Details }
                 .Select(s => (short)s.NotNull().SkillId).ToArray());

@@ -78,8 +78,8 @@ namespace NosCore.Parser.Tests
             var read = await new PacketTrace(new Mock<ILogger<PacketTrace>>().Object,
                 new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object).ReadAsync(_file);
 
-            PacketAssert.AreEqual(new GuriPacket { Type = GuriPacketType.MapTeleporter, Argument = 22, SecondArgument = 72, EntityId = 5980 },
-                (GuriPacket)read.OfType<DelayPacket>().Single().Packet.NotNull());
+            PacketAssert.AreEqual(new GuriMapTeleporterPacket { DestinationX = 22, DestinationY = 72, NpcId = 5980 },
+                (GuriMapTeleporterPacket)read.OfType<DelayPacket>().Single().Packet.NotNull());
         }
     }
 }

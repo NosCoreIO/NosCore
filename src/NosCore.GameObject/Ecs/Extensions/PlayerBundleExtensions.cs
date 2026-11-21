@@ -331,7 +331,7 @@ public static class PlayerBundleExtensions
                     ? new FamilySubPacket { FamilyId = family.FamilyId, FamilyRank = player.FamilyRank() }
                     : null,
                 FamilyName = player.Family?.Name,
-                ReputIco = GetIcon(player),
+                ReputIco = (short)GetIcon(player),
                 Invisible = player.Invisible,
                 MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
                 Faction = player.MapInstance is { IsAct4: true } ? player.Faction switch
@@ -576,12 +576,12 @@ public static class PlayerBundleExtensions
 
     // The icon slot carries one of the two ladders: the reputation icon while dignity is
     // untouched, and the negated dignity icon once it drops into a penalty band.
-    private static byte GetIcon(PlayerComponentBundle player)
+    private static ExtendedReputationType GetIcon(PlayerComponentBundle player)
     {
         var dignity = DignityLevels.FromDignity(player.Dignity);
         return dignity == DignityType.Default
-            ? (byte)player.ReputIcon
-            : (byte)-(int)dignity;
+            ? (ExtendedReputationType)player.ReputIcon
+            : (ExtendedReputationType)(-(int)dignity);
     }
 
     // A worn wig is drawn in its own colour instead of the hair's.

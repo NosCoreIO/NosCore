@@ -91,7 +91,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             await _service.RefreshAsync(owner.Character);
 
-            Assert.AreEqual((663, 664, -1), Shown(owner));
+            Assert.AreEqual((663, (int?)664, (int?)-1), Shown(owner));
             PacketAssert.AreEqual(new PetCool2Packet { Cooldown1 = 0, Cooldown2 = 0, Cooldown3 = 0 },
                 owner.LastPackets.OfType<PetCool2Packet>().Single());
         }
@@ -135,7 +135,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             await _service.RefreshAsync(owner.Character);
 
-            Assert.AreEqual((-1, -1, -1), Shown(owner));
+            Assert.AreEqual((-1, (int?)-1, (int?)-1), Shown(owner));
             Assert.IsFalse(owner.LastPackets.OfType<PetCool2Packet>().Any());
         }
 
@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             await _service.RefreshAsync(owner.Character);
 
-            Assert.AreEqual((-1, -1, -1), Shown(owner));
+            Assert.AreEqual((-1, (int?)-1, (int?)-1), Shown(owner));
             Assert.IsFalse(owner.LastPackets.OfType<PetsrPacket>().Any());
         }
 
@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             return mate;
         }
 
-        private static (int, int, int) Shown(ClientSession owner)
+        private static (int, int?, int?) Shown(ClientSession owner)
         {
             var bar = owner.LastPackets.OfType<PetskiPacket>().Last();
             return (bar.FirstSkillVNum, bar.SecondSkillVNum, bar.ThirdSkillVNum);
