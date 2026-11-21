@@ -15,6 +15,7 @@ using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
