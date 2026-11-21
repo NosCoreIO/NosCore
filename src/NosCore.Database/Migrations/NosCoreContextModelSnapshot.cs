@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261121191113_AddNpcTalkButtons";
+    public override string LastMigrationId => "20261121193358_AddScriptOfferMap";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -3244,6 +3244,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.Property<byte>("LevelMinimum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("MapId")
                     .HasColumnType("smallint");
 
                 b.Property<short>("NpcVNum")

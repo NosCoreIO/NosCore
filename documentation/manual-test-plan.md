@@ -43,6 +43,7 @@ even when its packets are covered here.
 | Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
 | Specialist skins: the skin used up, the look another player sees on transforming, the skin kept after relogging | `SpecialistSkinTests` |
 | Score quests: a band's button hands out its quest, a band above the character's level is refused, the button sent to an NPC whose dialog has none is refused | `ScoreQuestTests` |
+| Story chapters: the NPC that hands out the next chapter named when one ends, and cleared once it is taken | `StoryChapterTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
@@ -4221,6 +4222,23 @@ starting on its own. Put a level 60 character on the last step of chapter 11 nex
 - [ ] Picking "Level 57" does nothing while chapter 56 is not done
 - [ ] At level 50, picking "Level 56" does nothing
 - [ ] Finishing a chapter's last step does not start the next chapter until it is taken from its NPC
+
+### The next chapter's NPC
+
+Ending a chapter whose next one an NPC hands out sends `qnpc` with that NPC, its map and the
+chapter's level. Put a level 20 character in Nosville (map 1) on script 1 step 2145 (`target 59 86
+1`, the last step of the opening story) and enter the world.
+
+- [ ] Once the target shows, "Click the button at the bottom to search for new quests!" crosses
+      the screen and appears in the chat, and the new-quest button shows at the bottom
+- [ ] Clicking the button writes in the chat that the quest is received at level 19 from NPC 331
+      (the one standing at 59, 86) in Nosville
+- [ ] Take chapter 2 ("Level 19") from that NPC's "Get Quest" list: the chapter starts, and the
+      button no longer names an NPC
+- [ ] On master nothing appears at the bottom once the last step is acknowledged
+- [ ] Not verifiable yet: whether the button should come back after relogging or changing map before
+      the chapter is taken. The traces only show `qnpc` when a chapter ends and when the next is
+      taken, and NosCore sends it only then
 
 ### Quests the client knows are done
 
