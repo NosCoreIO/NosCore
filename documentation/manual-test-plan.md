@@ -1813,6 +1813,9 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
 
 - [ ] Take some damage, then use a Small Health Potion (`$CreateItem 1002`): the HP bar
       rises by 300 and one potion is gone
+- [ ] With a second client beside you, drink a Small Health Potion with less than 300 HP
+      missing: the missing amount, not 300, floats over you in green on both screens
+- [ ] An MP-only potion (Small Mana Potion 1005) floats no number
 - [ ] A Large Recovery Potion (`$CreateItem 1010`) refills both bars, never past their maximum
 - [ ] At full HP a health potion stays in the inventory, even with MP missing
 - [ ] Mooncakes, from the Main tab: a White one (`$CreateItem 1301`) adds 1500 HP, a Green one

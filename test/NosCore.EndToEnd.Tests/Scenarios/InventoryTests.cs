@@ -18,6 +18,7 @@ using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -668,6 +669,24 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var back = await Harness.ComeBackAsync(player);
             Same([(0, WorldData.Potion, 2)], Listed(back, PocketType.Main));
             Assert.IsTrue((await Harness.StoredAsync(player.CharacterId)).Hp >= 100 + WorldData.PotionHp, "the restored HP is stored");
+        }
+
+        [TestMethod]
+        public async Task TheHpAPotionHealsFloatsOverTheDrinkerForTheWholeMap()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", configure: c => c.Hp = 100);
+            await Harness.GiveAsync(player, WorldData.Potion, 1, pocket: NoscorePocketType.Main);
+            await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
+            await using var alice = await EnterAsync(player);
+            var drunk = alice.Mark();
+            var seen = bob.Mark();
+
+            await alice.SendAsync(Use(alice, PocketType.Main));
+
+            var healed = new RcPacket { VisualType = VisualType.Player, VisualId = alice.CharacterId, HealAmount = WorldData.PotionHp, Unknown = 0 };
+            PacketAssert.AreEqual(healed, await alice.ExpectSinceAsync<RcPacket>(drunk, null, "the healed HP over Alice"));
+            PacketAssert.AreEqual(healed, await bob.ExpectSinceAsync<RcPacket>(seen, p => p.VisualId == alice.CharacterId,
+                "the healed HP over Alice, seen by Bob"));
         }
 
         [TestMethod]

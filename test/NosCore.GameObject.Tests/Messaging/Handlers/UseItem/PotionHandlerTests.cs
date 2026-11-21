@@ -28,6 +28,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using Moq;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
@@ -73,6 +74,40 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .And(MpShouldBe_, 200)
                 .And(PotionCountShouldBe_, 0)
                 .And(TheStatBarShouldShow_Hp_Mp, 800, 200)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheHpAPotionHealsFloatsOverTheCharacter()
+        {
+            await new Spec("The map is shown how much HP a potion healed")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .WhenAsync(DrinkingThePotion)
+                .Then(TheMapIsShownAHealOf_, 300)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheNumberShownIsOnlyTheHpThatWasMissing()
+        {
+            await new Spec("A potion stronger than the missing HP shows only what it filled")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 879, 200)
+                .WhenAsync(DrinkingThePotion)
+                .Then(TheMapIsShownAHealOf_, 121)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AManaPotionShowsNoNumber()
+        {
+            await new Spec("A potion that only restores MP floats no number")
+                .Given(APotionRestoring_Hp_Mp, 0, 300)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .WhenAsync(DrinkingThePotion)
+                .Then(MpShouldBe_, 500)
+                .And(NoHealIsShown)
                 .ExecuteAsync();
         }
 
@@ -406,6 +441,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(hp, stat.Hp);
             Assert.AreEqual(mp, stat.Mp);
         }
+
+        private void TheMapIsShownAHealOf_(int amount) =>
+            PacketAssert.AreEqual(new RcPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.VisualId,
+                HealAmount = amount,
+                Unknown = 0
+            }, _session.Character.MapInstance.LastPackets.OfType<RcPacket>().Single());
+
+        private void NoHealIsShown() => Assert.IsFalse(_session.Character.MapInstance.LastPackets.OfType<RcPacket>().Any());
 
         private void NoStatBarShouldBeSent() => Assert.IsFalse(_session.LastPackets.OfType<StatPacket>().Any());
 
