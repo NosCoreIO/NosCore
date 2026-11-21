@@ -14,12 +14,16 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Linq;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Tests.Shared;
@@ -100,6 +104,17 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .WhenAsync(Transforming)
                 .Then(TheMapIsSentTheMorph_, MasterchefLook)
                 .And(CharacterMorphShouldBe_, MasterchefLook)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlookersSeeTheTransformationFinish()
+        {
+            await new Spec("The map sees the transformed player's gear and the animation that ends the transformation")
+                .Given(TheChefCardWearingTheMasterchefSkinIsWorn)
+                .WhenAsync(Transforming)
+                .Then(TheMapIsSentTheCharactersGear)
+                .And(TheMapIsSentTheTransformationFinish)
                 .ExecuteAsync();
         }
 
@@ -218,6 +233,22 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             Assert.AreEqual(morph, Onlookers.Invocations.SelectMany(i => i.Arguments)
                 .SelectMany(a => a is IEnumerable<IPacket> many ? many : a is IPacket one ? new[] { one } : [])
                 .OfType<CModePacket>().Last().Morph);
+
+        private IEnumerable<IPacket> SentToTheMap() => Onlookers.Invocations.SelectMany(i => i.Arguments)
+            .SelectMany(a => a is IEnumerable<IPacket> many ? many : a is IPacket one ? new[] { one } : []);
+
+        private void TheMapIsSentTheCharactersGear() =>
+            PacketAssert.AreEqual(Session.Character.GenerateEq(), SentToTheMap().OfType<EqPacket>().Single());
+
+        private void TheMapIsSentTheTransformationFinish() =>
+            PacketAssert.AreEqual(new GuriPacket
+            {
+                Type = GuriPacketType.CharacterAnimation,
+                Argument = (uint)VisualType.Player,
+                EntityId = Session.Character.CharacterId,
+                Value = 0,
+                SecondValue = 0
+            }, SentToTheMap().OfType<GuriPacket>().Single());
 
         private void CharacterHasSpEquipped()
         {
