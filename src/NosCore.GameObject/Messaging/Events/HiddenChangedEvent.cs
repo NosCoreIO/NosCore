@@ -12,6 +12,8 @@ namespace NosCore.GameObject.Messaging.Events
     // A buff that hides its bearer landed or ended.
     public sealed record HiddenChangedEvent(IAliveEntity Target) : IGameEvent
     {
+        public IAliveEntity? Subject => Target;
+
         public IAliveEntity Target { get => field.Live(); init; } = Target;
     }
 }

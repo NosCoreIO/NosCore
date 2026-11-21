@@ -16,6 +16,8 @@ namespace NosCore.GameObject.Messaging.Events
     // subscribe to this instead.
     public sealed record EntityCapturedEvent(IAliveEntity Victim, IAliveEntity Captor) : IGameEvent
     {
+        public IAliveEntity? Subject => Victim;
+
         // Read when handled, possibly after a map change replaced a player's entity.
         public IAliveEntity Victim { get => field.Live(); init; } = Victim;
 

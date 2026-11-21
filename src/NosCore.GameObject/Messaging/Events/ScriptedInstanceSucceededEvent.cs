@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
 {
@@ -15,6 +16,8 @@ namespace NosCore.GameObject.Messaging.Events
     public sealed record ScriptedInstanceSucceededEvent(PlayerComponentBundle Character, ScriptedInstanceType Type, short InstanceId)
         : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => Character;
+
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
 
         public bool PlayerHasLeft => Character.HasLeft();

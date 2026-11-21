@@ -129,7 +129,23 @@ namespace NosCore.GameObject.Tests.Messaging
             Assert.IsTrue(reward >= 0 && reward < handlers.IndexOf(typeof(OnEntityDiedHandler)));
         }
 
-        public sealed record Probe(string Name, bool PlayerHasLeft) : IGameEvent, IPlayerEvent;
+        [TestMethod]
+        public async Task AnEventRaisedOutsideAnyMapIsHandledOnItsSubjectsMap()
+        {
+            await _dispatcher.RaiseAsync(new Probe("away", PlayerHasLeft: false, _session.Character));
+
+            CollectionAssert.Contains(_handled.Names, "on its map away");
+        }
+
+        [TestMethod]
+        public async Task AnEventWithoutASubjectIsHandledWhereItWasRaised()
+        {
+            await _dispatcher.RaiseAsync(new Probe("nowhere", PlayerHasLeft: false));
+
+            CollectionAssert.DoesNotContain(_handled.Names, "on its map nowhere");
+        }
+
+        public sealed record Probe(string Name, bool PlayerHasLeft, IAliveEntity? Subject = null) : IGameEvent, IPlayerEvent;
 
         public sealed class Handled
         {
@@ -158,7 +174,14 @@ namespace NosCore.GameObject.Tests.Messaging
 
         public sealed class BThirdProbeHandler(Handled handled)
         {
-            public void Handle(Probe probe) => handled.Names.Add("third " + probe.Name);
+            public void Handle(Probe probe)
+            {
+                handled.Names.Add("third " + probe.Name);
+                if (probe.Subject?.MapInstance.Executor.IsCurrent == true)
+                {
+                    handled.Names.Add("on its map " + probe.Name);
+                }
+            }
         }
     }
 }

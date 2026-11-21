@@ -13,6 +13,8 @@ namespace NosCore.GameObject.Messaging.Events
     // wants to react to damage without sitting on the hot path subscribes here.
     public sealed record EntityDamagedEvent(IAliveEntity Attacker, IAliveEntity Target, int Damage, bool Killed) : IGameEvent
     {
+        public IAliveEntity? Subject => Target;
+
         // Read when handled, possibly after a map change replaced a player's entity.
         public IAliveEntity Attacker { get => field.Live(); init; } = Attacker;
 

@@ -4,14 +4,16 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
 {
     public sealed record MapEntityCollectedEvent(PlayerComponentBundle Character, INonPlayableEntity MapObject) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => Character;
+
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
 
         public bool PlayerHasLeft => Character.HasLeft();

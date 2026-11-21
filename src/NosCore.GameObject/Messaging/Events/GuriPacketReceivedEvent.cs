@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.UI;
 
@@ -13,6 +14,8 @@ namespace NosCore.GameObject.Messaging.Events
     // Handle/HandleAsync(GuriPacketReceivedEvent) method runs and filters it itself.
     public sealed record GuriPacketReceivedEvent(ClientSession ClientSession, GuriPacket Packet) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => ClientSession.HasPlayerEntity ? ClientSession.Character : null;
+
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
     }
 }

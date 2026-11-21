@@ -4,8 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.QuestService;
 
@@ -18,6 +18,8 @@ namespace NosCore.GameObject.Messaging.Events
     // subscribe here so the kill / move / item / dialog paths never need to know.
     public sealed record QuestCompletedEvent(PlayerComponentBundle Character, CharacterQuest Quest) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => Character;
+
         // Read when handled, possibly after a map change replaced a player's entity.
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
 

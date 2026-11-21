@@ -6,12 +6,15 @@
 
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
 {
     // A card on a player ran its full time, as opposed to being taken off early.
     public sealed record BuffExpiredEvent(PlayerComponentBundle Character, short CardId) : IGameEvent, IPlayerEvent
     {
+        public IAliveEntity? Subject => Character;
+
         // Read when handled, possibly after a map change replaced a player's entity.
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
 
