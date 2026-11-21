@@ -34,6 +34,7 @@ using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using Item = NosCore.GameObject.Services.ItemGenerationService.Item.Item;
@@ -337,8 +338,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private void NoBarShouldStart() => Assert.IsFalse(_session.LastPackets.OfType<PdelayPacket>().Any());
 
         private void ThePartnerShouldDance() =>
-            Assert.IsTrue(Broadcast().OfType<GuriPacket>()
-                .Any(s => s.Type == GuriPacketType.Dance && s.EntityId == _partner.MateTransportId));
+            Assert.IsTrue(Broadcast().OfType<GuriDancePacket>()
+                .Any(s => s.VisualType == VisualType.Npc && s.VisualId == _partner.MateTransportId));
 
         private void ThePartnerShouldNotBeTransformed()
         {

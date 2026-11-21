@@ -24,8 +24,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         ScriptedInstance? GetNear(short mapId, short positionX, short positionY);
 
-        // A stone the player has cleared is marked done.
-        IEnumerable<WpPacket> GenerateWp(short mapId, IReadOnlySet<short> completedTimeSpaces);
+        // A stone the player has cleared is marked done; one whose level minimum the player has not reached is locked.
+        IEnumerable<WpPacket> GenerateWp(short mapId, byte level, IReadOnlySet<short> completedTimeSpaces);
 
         IEnumerable<GpPacket> GenerateRaidGates(short mapId);
 

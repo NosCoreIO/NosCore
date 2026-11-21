@@ -140,6 +140,18 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
+        public async Task AnOwnerWithoutAnyTeamMateIsSentTheEmptyTeamMark()
+        {
+            var owner = await World.CreateSessionAsync();
+            await PetOutAsync(owner, TestMates.Pet(owner.Character.CharacterId, isTeamMember: false, vnum: Otter));
+
+            await _service.RefreshAsync(owner.Character);
+
+            Assert.AreEqual((-2, (int?)null, (int?)null), Shown(owner));
+            Assert.IsFalse(owner.LastPackets.OfType<PetsrPacket>().Any());
+        }
+
+        [TestMethod]
         public async Task ATeamPetWithoutSkillsOfItsOwnHasNoBar()
         {
             var owner = await World.CreateSessionAsync();

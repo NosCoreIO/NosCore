@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Packets.ServerPackets.Entities;
 
 
 //TODO stop using obsolete
@@ -344,11 +345,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private async Task ShowBoxLevelsAsync(Minigame mg, MinigameType game)
         {
-            await mg.Session.Character.MapInstance.SendPacketAsync(new GuriPacket
+            await mg.Session.Character.MapInstance.SendPacketAsync(new GuriDancePacket
             {
-                Type = GuriPacketType.Dance,
-                Value = 1,
-                EntityId = mg.Session.Character.CharacterId
+                VisualType = VisualType.Player,
+                VisualId = mg.Session.Character.CharacterId
             });
             var level = mg.Session.Character.FinishMinigame(mg.Object.MinilandObjectId,
                 minigameRewards.GetLevel(game, mg.Packet.Point ?? 0), clock.GetCurrentInstant());
@@ -361,11 +361,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private Task BroadcastEffectAsync(Minigame mg)
         {
-            return mg.Session.Character.MapInstance.SendPacketAsync(new GuriPacket
+            return mg.Session.Character.MapInstance.SendPacketAsync(new GuriDancePacket
             {
-                Type = GuriPacketType.Dance,
-                Value = 1,
-                EntityId = mg.Session.Character.CharacterId
+                VisualType = VisualType.Player,
+                VisualId = mg.Session.Character.CharacterId
             });
         }
 
@@ -395,11 +394,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            await mg.Session.Character.MapInstance.SendPacketAsync(new GuriPacket
+            await mg.Session.Character.MapInstance.SendPacketAsync(new GuriDancePacket
             {
-                Type = GuriPacketType.Dance,
-                Value = 1,
-                EntityId = mg.Session.Character.CharacterId
+                VisualType = VisualType.Player,
+                VisualId = mg.Session.Character.CharacterId
             });
             mg.Session.Character.StartMinigame(mg.Object.MinilandObjectId, clock.GetCurrentInstant());
             await mg.Session.SendPacketAsync(new MloStPacket { Game = (short)game });

@@ -1100,6 +1100,9 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] Transform with a card that walks faster (Ninja 902 +1, Chicken 907 +2): `cond` carries the
       class speed plus the card's bonus, and a long walk takes visibly fewer steps; untransform and
       the speed goes back to the class value. A card without a bonus leaves the speed unchanged
+- [ ] With a second client next to you, transform and untransform: on the second client your
+      character plays the same short animation as when an official server shows it, and nothing
+      else changes on screen
 
 ### Specialist card upgrade
 
@@ -2125,6 +2128,8 @@ Have such a pet in the team and a second client on the map.
 - [ ] Cast Sushi Party, send the Otter back to the Miniland (the bar goes away) and take it out again
       before the 70 seconds are over: the bar is back, Sushi Party stays greyed out with its time left
       until 70 seconds after the cast, and Smackeroo is usable meanwhile
+- [ ] With the Otter alone in the team, send it back: the bar goes away the same way as when a
+      partner stays in the team, and logging in with no mate in the team shows no bar either
 - [ ] In the Miniland, Company on a pet with other skills: the bar shows that pet's skills
 - [ ] Let a monster knock the Otter out: the bar goes away, and comes back with the Otter
 - [ ] Catch a monster with no pet out: no pet skill bar appears for it
@@ -3288,10 +3293,15 @@ A level 15 character on NosVille Meadows (map 2) sees time-spaces 1 to 4.
 - [ ] Log out and back in: the stone still shows as done; another character of the account sees it
       open
 - [ ] Fail time-space 1 or walk out of it: its stone stays open
+- [ ] With a level 14 character, look at time-space 6 (level 15) on the minimap of map 3: it is
+      drawn as locked; reach level 15 and change map: it is drawn as open; clear it: it is drawn as
+      done
+- [ ] Open the panel of a stone the character has cleared and of one it has not: compare how the
+      two panels show it
 - [ ] Not verifiable yet: a stone the character may not enter yet. The game keeps time-space 9
       (map 6, level 18) shut until time-space 6 is cleared, even for a character above level 18,
       but no client data names a stone's prerequisites, the refusal a player gets has not been
-      captured, and the minimap state for "may enter" is not in the packet library yet
+      captured, and the hero stones' "may enter" states (9 and 13) are not settled
 
 ### Time-space stone items
 

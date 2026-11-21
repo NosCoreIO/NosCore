@@ -29,7 +29,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 var loserMode = entrance.Definition is { } definition
                     && session.Character.OffersLoserMode(definition.Id);
-                await session.SendPacketAsync(entrance.GenerateRbr(loserMode));
+                var completed = entrance.TimeSpaceId is { } id
+                    && session.Character.CompletedTimeSpaces?.Contains(id) == true;
+                await session.SendPacketAsync(entrance.GenerateRbr(loserMode, completed));
             }
         }
 

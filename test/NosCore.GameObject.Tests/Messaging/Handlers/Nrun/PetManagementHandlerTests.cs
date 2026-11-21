@@ -108,7 +108,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await RunAsync(2, home);
 
             var bar = _session.LastPackets.OfType<PetskiPacket>().Last();
-            Assert.AreEqual((PetSkill, (short)-1, (short)-1), (bar.FirstSkillVNum, bar.SecondSkillVNum, bar.ThirdSkillVNum));
+            Assert.AreEqual((PetSkill, (short?)-1, (short?)-1), (bar.FirstSkillVNum, bar.SecondSkillVNum, bar.ThirdSkillVNum));
         }
 
         [TestMethod]
@@ -121,7 +121,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await RunAsync(4, pet);
 
             var bar = _session.LastPackets.OfType<PetskiPacket>().Last();
-            Assert.AreEqual(((short)-1, (short)-1, (short)-1), (bar.FirstSkillVNum, bar.SecondSkillVNum, bar.ThirdSkillVNum));
+            Assert.AreEqual(((short)-2, (short?)null, (short?)null), (bar.FirstSkillVNum, bar.SecondSkillVNum, bar.ThirdSkillVNum));
         }
 
         [TestMethod]

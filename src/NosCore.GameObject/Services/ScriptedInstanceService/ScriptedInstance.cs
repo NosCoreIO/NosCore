@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        public RbrPacket GenerateRbr(bool loserMode = false)
+        public RbrPacket GenerateRbr(bool loserMode = false, bool completed = false)
         {
             return new RbrPacket
             {
@@ -44,7 +44,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     TsType = IsHeroic ? RbrPacketTsType.HeroMission : RbrPacketTsType.MainMission,
                     TsConditionType = RbrPacketTsConditionType.CanEnterAlone
                 },
-                Unknown = 0,
+                Unknown = (byte)(completed ? 4 : 1),
+                Unknown2 = (byte)(completed ? 15 : 0),
                 MinMaxLevel = new RbrSubPacketMinMaxLevel
                 {
                     MinLevel = EffectiveLevelMinimum,

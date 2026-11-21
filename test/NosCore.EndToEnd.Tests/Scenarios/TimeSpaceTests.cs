@@ -38,7 +38,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 10, 90);
 
             var stone = await bob.ExpectSinceAsync(0, TheStone, "the time-space stone");
-            Assert.AreEqual(WpPortalType.NormalTs, stone.PortalType);
+            Assert.AreEqual(WpPortalType.NormalTsReachable, stone.PortalType);
         }
     }
 }

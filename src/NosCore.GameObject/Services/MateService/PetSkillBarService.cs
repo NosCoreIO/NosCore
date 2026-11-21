@@ -25,6 +25,9 @@ namespace NosCore.GameObject.Services.MateService
     {
         private const int Slots = 3;
 
+        // An owner without any mate in the team gets this alone instead of three empty slots.
+        private const short NoTeam = -2;
+
 
         public IReadOnlyList<SkillDto> Skills(Mate pet) =>
             pet.MateType != MateType.Pet
@@ -39,6 +42,12 @@ namespace NosCore.GameObject.Services.MateService
 
         public async Task RefreshAsync(PlayerComponentBundle owner)
         {
+            if (!owner.Mates.Values.Any(s => s.IsTeamMember))
+            {
+                await owner.SendPacketAsync(new PetskiPacket { FirstSkillVNum = NoTeam });
+                return;
+            }
+
             var pet = owner.Mates.Values.FirstOrDefault(s => s.MateType == MateType.Pet && s.IsTeamMember && s.Entity != null);
             var bar = pet == null ? [] : Skills(pet);
             await owner.SendPacketAsync(bar.GeneratePetski());
