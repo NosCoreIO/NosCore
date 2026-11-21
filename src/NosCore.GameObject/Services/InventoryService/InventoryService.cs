@@ -11,7 +11,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemStorage;
-using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
@@ -230,7 +229,9 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             var sourceInstance = LoadBySlotAndType(sourceSlot, sourceType);
-            if (sourceInstance?.ItemInstance is not (WearableInstance or SpecialistInstance))
+            if (sourceInstance == null
+                || (sourceInstance.ItemInstance is not (WearableInstance or SpecialistInstance)
+                    && !IsMountBetweenBags(sourceInstance, targetType)))
             {
                 logger.LogError(logLanguage[LogLanguageKey.ITEM_CANNOT_CHANGE_POCKET], sourceSlot, sourceType);
                 return null;
@@ -252,6 +253,12 @@ namespace NosCore.GameObject.Services.InventoryService
 
             if (targetSlot.HasValue)
             {
+                if (targetSlot.Value < 0 || targetSlot.Value >= GetMaxSlots(targetType))
+                {
+                    logger.LogError(logLanguage[LogLanguageKey.ITEM_REFUSED_BY_POCKET], sourceInstance.ItemInstance.ItemVNum, targetType);
+                    return null;
+                }
+
                 var targetInstance = LoadBySlotAndType(targetSlot.Value, targetType);
 
                 if (swap && (targetInstance != null))
@@ -304,6 +311,11 @@ namespace NosCore.GameObject.Services.InventoryService
 
             return sourceInstance;
         }
+
+        private static bool IsMountBetweenBags(InventoryItemInstance source, NoscorePocketType targetType) =>
+            source.ItemInstance.Item.Type == NoscorePocketType.Mount
+            && source.Type is NoscorePocketType.Mount or NoscorePocketType.Main
+            && targetType is NoscorePocketType.Mount or NoscorePocketType.Main;
 
         private static bool IsWorn(NoscorePocketType type) => type is NoscorePocketType.Wear
             or NoscorePocketType.FirstPartnerInventory or NoscorePocketType.SecondPartnerInventory
@@ -574,28 +586,21 @@ namespace NosCore.GameObject.Services.InventoryService
             return itemInstance;
         }
 
-        public IReadOnlyList<short> SortPocket(NoscorePocketType pocket, RegionType language)
+        public void SortPocket(NoscorePocketType pocket)
         {
             var pocketItems = this.Select(s => s.Value).Where(i => i.Type == pocket).ToList();
-            var touchedSlots = new SortedSet<short>(pocketItems.Select(i => i.Slot));
             var sorted = (pocket switch
             {
                 NoscorePocketType.Specialist => pocketItems
                     .OrderBy(i => i.ItemInstance.Item.LevelJobMinimum)
                     .ThenBy(i => i.ItemInstance.ItemVNum),
                 NoscorePocketType.Costume => pocketItems.OrderBy(i => i.ItemInstance.ItemVNum),
-                _ => pocketItems
-                    .OrderBy(i => i.ItemInstance.Item.Name[language], StringComparer.InvariantCultureIgnoreCase)
-                    .ThenBy(i => i.ItemInstance.ItemVNum)
-                    .ThenByDescending(i => i.ItemInstance.Amount)
+                _ => BagSortOrder.Sort(pocket, pocketItems)
             }).ToList();
             for (short slot = 0; slot < sorted.Count; slot++)
             {
                 sorted[slot].Slot = slot;
-                touchedSlots.Add(slot);
             }
-
-            return touchedSlots.ToList();
         }
     }
 }

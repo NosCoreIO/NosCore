@@ -34,6 +34,15 @@ public static class InventoryPackets
         };
     }
 
+    public static InvPacket GeneratePocket(this IInventoryService inventory, NoscorePocketType pocket) => new()
+    {
+        Type = pocket.ToPocketType(),
+        IvnSubPackets = inventory.Values.Where(i => i.Type == pocket)
+            .OrderBy(i => i.Slot)
+            .Select(i => i.ItemInstance.GenerateIvnSubPacket(pocket.ToPocketType(), i.Slot))
+            .ToList()
+    };
+
     [Obsolete(
        "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
     public static IEnumerable<IPacket> GenerateInv(this PlayerComponentBundle characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)

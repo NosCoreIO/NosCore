@@ -28,7 +28,7 @@ namespace NosCore.PacketHandlers.Inventory
             var inventory = clientSession.Character.InventoryService;
             foreach (var pocket in SortedPockets)
             {
-                inventory.SortPocket(pocket, clientSession.Account.Language);
+                inventory.SortPocket(pocket);
                 await clientSession.SendPacketAsync(new InvPacket
                 {
                     Type = pocket.ToPocketType(),

@@ -73,6 +73,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short GroundBoxPebbles = 2;
         public const short Bench = 3001;
         public const short PowerSeed = 2026;
+
+        // Kept in the etc pocket like the seeds, but food, so a sort puts it after them.
+        public const short Kebab = 9200;
         public const int ChestSlots = 4;
         public const int Shopkeeper = 1;
         private const short ShopkeeperVNum = 1;
@@ -366,6 +369,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 VNum = PowerSeed, Name = "powerseed", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, Material = MaterialType.SeedOfPower
             });
+            context.Add(new Item { VNum = Kebab, Name = "kebab", Type = NoscorePocketType.Etc, ItemType = ItemType.Food });
             // A weapon that may change hands, unlike what an adventurer starts with.
             context.Add(new Item
             {
@@ -377,7 +381,6 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 VNum = Pebble, Name = "pebble", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, IsDroppable = true
             });
-            // Named, so that a bag sorted by name does not come out in the order of the numbers.
             context.Add(new I18NItem { Key = "seed", RegionType = RegionType.EN, Text = "seed" });
             context.Add(new I18NItem { Key = "pebble", RegionType = RegionType.EN, Text = "pebble" });
             context.Add(new Item

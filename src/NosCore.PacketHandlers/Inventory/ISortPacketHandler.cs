@@ -5,17 +5,14 @@
 //
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -24,28 +21,33 @@ namespace NosCore.PacketHandlers.Inventory
         private static readonly HashSet<PocketType> SortablePockets =
             [PocketType.Equipment, PocketType.Main, PocketType.Etc];
 
-        public override Task ExecuteAsync(ISortPacket packet, ClientSession clientSession)
+        public override async Task ExecuteAsync(ISortPacket packet, ClientSession clientSession)
         {
             if (!SortablePockets.Contains(packet.PocketType))
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            var inventory = clientSession.Character.InventoryService;
-            var slots = inventory.SortPocket(packet.PocketType.ToNoscorePocketType(), clientSession.Account.Language);
-            if (slots.Count == 0)
+            if (packet.Confirmed == null)
             {
-                return Task.CompletedTask;
+                await clientSession.SendPacketAsync(new QnaiPacket
+                {
+                    YesPacket = new ISortPacket { PocketType = packet.PocketType, Confirmed = true },
+                    Question = Game18NConstString.SortInventoryQuestion
+                });
+                return;
             }
 
-            return clientSession.SendPacketAsync(new IvnPacket
+            if (packet.Confirmed == false)
             {
-                Type = packet.PocketType,
-                IvnSubPackets = slots.Select(slot =>
-                    inventory.LoadBySlotAndType(slot, packet.PocketType.ToNoscorePocketType())?.ItemInstance
-                        .GenerateIvnSubPacket(packet.PocketType, slot)
-                    ?? ((IItemInstance?)null).GenerateIvnSubPacket(packet.PocketType, slot)).ToList()
-            });
+                return;
+            }
+
+            var character = clientSession.Character;
+            var pocket = packet.PocketType.ToNoscorePocketType();
+            character.InventoryService.SortPocket(pocket);
+            await clientSession.SendPacketAsync(character.InventoryService.GeneratePocket(pocket));
+            await clientSession.SendPacketsAsync(character.GenerateQuicklist());
         }
     }
 }
