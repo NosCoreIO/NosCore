@@ -436,6 +436,18 @@ an unknown skill, a ground cast) still stop the auto-attack.
       bar in the group window. Their portrait there shows their specialist only while they are
       transformed.
 
+### Lasting buff effects
+
+Cards flagged in Card.dat (fourth STYLE value) keep their effect drawn on the bearer while they run, such as
+Karate Block (card 666, the martial artist skill 1528).
+
+- [ ] Cast Karate Block next to a second character: its effect appears on you on both screens and stays
+      until the buff ends, then goes on both screens.
+- [ ] Cast it again while it runs: the effect starts over instead of doubling.
+- [ ] With it running, take a portal: the effect is drawn on you again on the new map. Have the second
+      character arrive after you: they see it on you as well.
+- [ ] Die with it running: the effect goes with the icon.
+
 ### Buff lines
 
 The line is a white message under the buff icons at the top left, gone after about five

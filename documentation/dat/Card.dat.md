@@ -5,7 +5,7 @@
 	GROUP	{GroupId}	{Level}
 	LAST	{TimeoutBuff}	{TimeoutBuffChance}
 	NAME	{NameI18NKey}
-	STYLE	{Kind}	{BuffType}
+	STYLE	{Kind}	{BuffType}	0	{HasLastingEffect}
 	TIME	{Duration}	{Delay}
 	VNUM	{CardId}
 ```
@@ -42,6 +42,8 @@
 |---:|---|---|---|---|
 | 2 | Parsed | Kind | CardKind | 0 general, 1 magic (freeze, sleep, haste), 2 poison, 3 bleeding, burns and diseases |
 | 3 | Parsed | BuffType | BuffType | Good, neutral or bad |
+| 4 | Unknown |  |  |  |
+| 5 | Parsed | HasLastingEffect | Boolean | The EFFECT stays on the bearer until the card ends |
 
 ## TIME
 

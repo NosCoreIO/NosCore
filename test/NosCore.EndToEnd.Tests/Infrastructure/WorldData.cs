@@ -221,6 +221,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short LightBleeding = 56;
         public const short HeavyBleeding = 57;
 
+        // A skill cast on oneself that puts on a card whose effect stays on its bearer. An adventurer
+        // keeps only skills 200 to 210, so it takes one of those nobody else uses.
+        public const short WingsSkill = 208;
+        public const short WingsSkillCastId = 17;
+        public const short WingsCard = 9300;
+        public const short WingsCardTime = 600;
+
         // The Chef card and the skin that dresses it as a masterchef.
         public const short ChefCard = 4575;
         public const short ChefLook = 38;
@@ -463,6 +470,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 SkillVNum = StopBleedingSkill, Name = "skill207", CastId = StopBleedingSkillCastId, SkillType = 1, TargetType = 1, Cooldown = 6,
                 Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
             });
+            context.Add(new Skill
+            {
+                SkillVNum = WingsSkill, Name = "skill208", CastId = WingsSkillCastId, SkillType = 1, TargetType = 1, Cooldown = 6,
+                Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
+            });
+            context.Add(new Card { CardId = WingsCard, Name = "wings", Level = 1, Duration = WingsCardTime, BuffType = BuffType.Good, HasLastingEffect = true });
+            context.Add(new BCard { SkillVNum = WingsSkill, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = WingsCard });
             context.Add(new Card { CardId = LightBleeding, Name = "lightbleeding", Level = 1, Duration = 600, BuffType = BuffType.Bad });
             context.Add(new Card { CardId = HeavyBleeding, Name = "heavybleeding", Level = 3, Duration = 600, BuffType = BuffType.Bad });
             context.Add(new BCard { SkillVNum = WoundSkill, Type = BCardType.CardType.Buff, SubType = 11, FirstData = 100, SecondData = LightBleeding });

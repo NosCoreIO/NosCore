@@ -239,6 +239,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var titInfoPacket = character.GenerateTitInfo();
                 var accountLanguage = character.AccountLanguage;
                 var invisible = character.Invisible;
+                var arrivedAt = clock.GetCurrentInstant();
                 var authority = character.Authority;
 
                 await session.SendPacketAsync(character.GenerateCInfo(gameLanguageLocalizer));
@@ -308,6 +309,11 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                     if (!otherCharacter.Invisible)
                     {
+                        foreach (var effect in otherCharacter.GenerateLastingEffects(arrivedAt))
+                        {
+                            yield return effect;
+                        }
+
                         foreach (var mate in otherCharacter.Mates.Values.Where(m => m.Entity.HasValue))
                         {
                             yield return mate.GenerateIn(accountLanguage, mate.Entity.GetValueOrDefault().PositionX,
@@ -347,6 +353,10 @@ namespace NosCore.GameObject.Services.MapChangeService
                     if (!invisible)
                     {
                         await newMapInstance.SendPacketAsync(character.GenerateGidx(), new EveryoneBut(channelId));
+                        foreach (var effect in character.GenerateLastingEffects(arrivedAt))
+                        {
+                            await newMapInstance.SendPacketAsync(effect, new EveryoneBut(channelId));
+                        }
                     }
                 }
 
@@ -367,6 +377,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 }
 
                 await session.SendPacketAsync(character.GeneratePinit());
+                await session.SendPacketsAsync(character.GenerateLastingEffects(arrivedAt));
                 if (group is { IsEmpty: false })
                 {
                     await session.SendPacketsAsync(group.GeneratePst());

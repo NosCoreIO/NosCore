@@ -28,6 +28,8 @@ namespace NosCore.Database.Entities
 
         public int EffectId { get; set; }
 
+        public bool HasLastingEffect { get; set; }
+
         public byte Level { get; set; }
 
         [Required]

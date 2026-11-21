@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261121105127_AddWaxHairStyles";
+    public override string LastMigrationId => "20261121130620_AddCardLastingEffect";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -380,6 +380,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<short>("GroupId")
                     .HasColumnType("smallint");
+
+                b.Property<bool>("HasLastingEffect")
+                    .HasColumnType("boolean");
 
                 b.Property<byte>("Kind")
                     .HasColumnType("smallint");
