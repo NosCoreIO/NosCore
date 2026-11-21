@@ -23,6 +23,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
@@ -198,6 +199,40 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .WhenAsync(ASecondPasses)
                 .Then(CharacterShouldHave_SpPointsAnd_AdditionalPoints, 10, 0)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheGaugesPulseFromTheFirstDrainUntilTheFightEnds()
+        {
+            CharacterHasSpEquipped();
+            CharacterIsTransformed();
+            TheCardCostsThreePointsASecond();
+            CharacterHas_SpPointsAnd_AdditionalPoints(100, 0);
+            CharacterAttackedJustNow();
+
+            await ASecondPasses();
+            await ASecondPasses();
+            World.Clock.AdvanceSeconds(16);
+            await ASecondPasses();
+
+            CollectionAssert.AreEqual(new[] { true, false },
+                Session.LastPackets.OfType<ScpIndicatorPacket>().Select(p => p.IsDraining).ToArray());
+        }
+
+        [TestMethod]
+        public async Task TheGaugesStopPulsingWhenTheCharacterFalls()
+        {
+            CharacterHasSpEquipped();
+            CharacterIsTransformed();
+            TheCardCostsThreePointsASecond();
+            CharacterHas_SpPointsAnd_AdditionalPoints(100, 0);
+            CharacterAttackedJustNow();
+            await ASecondPasses();
+
+            CharacterHasFallen();
+            await ASecondPasses();
+
+            Assert.IsFalse(Session.LastPackets.OfType<ScpIndicatorPacket>().Last().IsDraining);
         }
 
         private void CharacterHasFallen()
