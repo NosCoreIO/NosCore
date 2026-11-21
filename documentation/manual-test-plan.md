@@ -4371,7 +4371,9 @@ starting on its own. Put a level 60 character on the last step of chapter 11 nex
 - [ ] Answering Yes starts the chapter with her greeting dialogue
 - [ ] Put the character back on an earlier step of chapter 11, pick "Level 56" and answer Yes:
       "Already completing a main quest." shows and the character stays on its step
-- [ ] Picking "Level 57" asks nothing and does nothing while chapter 56 is not done
+- [ ] Still on chapter 11, picking "Level 57" asks nothing and does nothing
+- [ ] Partway through the "Level 56" chapter, picking "Level 57" asks the question, and Yes shows
+      "Already completing a main quest." and starts nothing
 - [ ] At level 50, picking "Level 56" asks nothing and does nothing
 - [ ] Finishing a chapter's last step does not start the next chapter until it is taken from its NPC
 
