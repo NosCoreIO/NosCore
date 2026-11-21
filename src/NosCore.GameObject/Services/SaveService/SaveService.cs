@@ -59,7 +59,8 @@ namespace NosCore.GameObject.Services.SaveService
                 var account = character.Account;
                 var characterDto = character.CharacterDto;
                 var quicklistEntries = character.QuicklistEntries;
-                var inventoryService = character.InventoryService;
+                // One copy taken under the inventory's lock, so a batch being placed or undone is never half saved.
+                var held = character.InventoryService.Snapshot();
                 var staticBonusList = character.StaticBonusList;
                 var titles = character.Titles;
                 var quests = character.Quests;
@@ -118,10 +119,10 @@ namespace NosCore.GameObject.Services.SaveService
                 var storedItems = (inventoryItemInstanceDao
                         .Where(i => i.CharacterId == characterId) ?? []).ToList();
                 var itemsToDelete = storedItems
-                    .Where(i => inventoryService.Values.All(o => o.Id != i.Id)).ToList();
+                    .Where(i => held.All(o => o.Id != i.Id)).ToList();
                 // Rows that changed place are written again from scratch: updating them in place
                 // breaks the unique (CharacterId, Slot, Type) index as soon as two of them swap.
-                var heldPlaces = inventoryService.Values.ToDictionary(i => i.Id, i => (i.Slot, i.Type));
+                var heldPlaces = held.ToDictionary(i => i.Id, i => (i.Slot, i.Type));
                 var movedItems = storedItems
                     .Where(i => heldPlaces.TryGetValue(i.Id, out var place) && place != (i.Slot, i.Type))
                     .Select(i => i.Id).ToArray();
@@ -138,7 +139,7 @@ namespace NosCore.GameObject.Services.SaveService
                         .Where(i => instancesToDelete.Contains(i.ItemInstanceId))?.ToList() ?? new List<InventoryItemInstanceDto>())
                     .Where(i => !deletedRows.Contains(i.Id))
                     .Select(i => i.ItemInstanceId)
-                    .Concat(inventoryService.Values.Select(i => i.ItemInstanceId))
+                    .Concat(held.Select(i => i.ItemInstanceId))
                     .Where(instancesToDelete.Contains)
                     .ToHashSet();
                 foreach (var shared in stillHeld)
@@ -154,12 +155,12 @@ namespace NosCore.GameObject.Services.SaveService
 
                 // Inventory insert order: parent ItemInstance rows first so the FK on
                 // InventoryItemInstance.ItemInstanceId resolves on insert.
-                if (!await itemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray()))
+                if (!await itemInstanceDao.TryInsertOrUpdateAsync(held.Select(s => s.ItemInstance).ToArray()))
                 {
                     Fail("ItemInstance upsert");
                     return false;
                 }
-                if (!await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray()))
+                if (!await inventoryItemInstanceDao.TryInsertOrUpdateAsync(held.ToArray()))
                 {
                     Fail("InventoryItemInstance upsert");
                     return false;

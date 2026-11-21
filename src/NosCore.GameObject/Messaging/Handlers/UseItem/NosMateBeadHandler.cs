@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     [UsedImplicitly]
     public sealed class NosMateBeadHandler(IDao<MateDto, long> mateDao, IMateService mateService,
         IMinilandService minilandService, INpcMonsterCatalog npcMonsters,
-        IPartnerSkillCatalog partnerSkillCatalog, IRandomProvider random)
+        IPartnerSkillCatalog partnerSkillCatalog, IRandomProvider random, IItemDeliveryService itemDelivery)
     {
         private const byte PartnerSubType = 1;
         private const short NewMateLoyalty = 1000;
@@ -166,7 +166,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             });
             if (row == null)
             {
-                owner.InventoryService.RestoreConsumed(source, 1);
+                await itemDelivery.ReturnConsumedAsync(owner, source, 1);
                 return;
             }
 

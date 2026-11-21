@@ -71,6 +71,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task ItemsJoiningAHeldStackAreAnnouncedInFull()
+        {
+            await new Spec("Items that join a stack already held are announced with the amount the pack gave")
+                .Given(TheCharacterAlreadyHoldsSeeds)
+                .WhenAsync(OpeningThePack)
+                .Then(TheCharacterHolds__, SeedVNum, 13)
+                .And(TheReceivedLineFor_Says_, SeedVNum, 3)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task WithoutRoomForEverythingThePackStays()
         {
             await new Spec("A pack whose items don't all fit gives nothing and stays")
@@ -92,6 +103,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .And(TheCharacterHolds__, PackVNum, 2)
                 .ExecuteAsync();
         }
+
+        private void TheCharacterAlreadyHoldsSeeds() =>
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(World.GenerateItemProvider().Create(SeedVNum, 10), _session.Character.CharacterId));
+
+        private void TheReceivedLineFor_Says_(short vnum, int amount) =>
+            Assert.AreEqual(amount, _session.LastPackets.OfType<SayiPacket>()
+                .Where(p => p.Message == Game18NConstString.ReceivedThisItem && (string)p.Game18NArguments[0] == vnum.ToString())
+                .Sum(p => (short)p.Game18NArguments[1]));
 
         private void ThePackHasAnotherEffect() => _pack.ItemInstance.Item.Effect = ItemEffectType.BoxEffect;
 

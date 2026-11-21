@@ -1377,4 +1377,19 @@
   <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
     <value>The servers will be shut down in {0} minute(s) for maintenance.</value>
   </data>
+  <data name="PARCEL_RETURN_FAILED" xml:space="preserve">
+    <value>Item {ItemVNum}x{Amount} (rarity {Rare}, upgrade {Upgrade}) could not be sent to the parcel box of character {CharacterId}; it is kept as item instance {ItemInstanceId}</value>
+  </data>
+  <data name="DEPOSIT_OUTCOME_UNKNOWN" xml:space="preserve">
+    <value>The warehouse did not confirm the deposit of item {ItemVNum}x{Amount} by character {CharacterId} into slot {Slot}; it is kept as item instance {ItemInstanceId}</value>
+  </data>
+  <data name="PARCEL_NOT_STORED" xml:space="preserve">
+    <value>Item {ItemVNum}x{Amount} for the parcel box of character {CharacterId} could not be stored and is not kept anywhere: {Item} with options {Options}</value>
+  </data>
+  <data name="DEPOSIT_DEBIT_NOT_SAVED" xml:space="preserve">
+    <value>Character {CharacterId} may hold item {ItemVNum}x{Amount} twice: the bag without it could not be saved after an unconfirmed deposit into warehouse slot {Slot}, whose copy is item instance {ItemInstanceId}</value>
+  </data>
+  <data name="PARCEL_CLAIMED_BUT_KEPT" xml:space="preserve">
+    <value>Parcel {MailId} of character {CharacterId} could not be removed after its item {ItemVNum}x{Amount} was taken into the bag and partly used, so it can be claimed again</value>
+  </data>
 </root>

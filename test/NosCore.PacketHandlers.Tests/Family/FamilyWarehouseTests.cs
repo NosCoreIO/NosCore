@@ -176,7 +176,9 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
             return new FamilyWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object), _log.Object, World.Clock);
+                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object,
+                World.Create<ItemDeliveryService>(),
+                NullLogger<WarehouseTransferService>.Instance, World.LogLanguageLocalizer), _log.Object, World.Clock);
         }
 
         private void Store(short vnum, short amount, short slot)

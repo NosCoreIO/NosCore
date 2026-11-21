@@ -147,6 +147,8 @@ namespace NosCore.Tests.Shared
             CharacterSkillDao = Dao<CharacterSkill, CharacterSkillDto, Guid>();
             QuicklistEntryDao = Dao<QuicklistEntry, QuicklistEntryDto, Guid>();
             CompletedTimeSpaceDao = Dao<CompletedTimeSpace, CompletedTimeSpaceDto, Guid>();
+            EquipmentOptionDao = Dao<EquipmentOption, EquipmentOptionDto, Guid>();
+            MailDao = Dao<Mail, MailDto, long>();
 
             Fixture.Inject(ItemList);
             Fixture.UseReal<IItemCatalog, ItemCatalog>();
@@ -158,6 +160,8 @@ namespace NosCore.Tests.Shared
             Fixture.Inject(ShopTypeServices);
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
+            // Its pocket expansions are state, not a dependency to invent.
+            Fixture.Customize<InventoryService>(c => c.OmitAutoProperties());
             Fixture.UseReal<GameObject.Services.BoxService.IBoxRollService, GameObject.Services.BoxService.BoxRollService>();
             Fixture.UseReal<GameObject.Services.ExperienceService.IExperienceBonusService, GameObject.Services.ExperienceService.ExperienceBonusService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
@@ -286,6 +290,8 @@ namespace NosCore.Tests.Shared
         public IDao<CharacterSkillDto, Guid> CharacterSkillDao { get; }
         public IDao<QuicklistEntryDto, Guid> QuicklistEntryDao { get; }
         public IDao<CompletedTimeSpaceDto, Guid> CompletedTimeSpaceDao { get; }
+        public IDao<EquipmentOptionDto, Guid> EquipmentOptionDao { get; }
+        public IDao<MailDto, long> MailDao { get; }
 
         public List<ItemDto> ItemList { get; } = new()
         {

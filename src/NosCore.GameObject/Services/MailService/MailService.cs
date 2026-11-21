@@ -173,6 +173,16 @@ namespace NosCore.GameObject.Services.MailService
                 itemInstance = await itemInstanceDao.TryInsertOrUpdateAsync(itemInstance);
                 mailref.ItemInstanceId = itemInstance?.Id;
             }
+            else if (mailref.ItemInstanceId is { } attachedId)
+            {
+                itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == attachedId);
+                if (itemInstance == null)
+                {
+                    return false;
+                }
+
+                it = itemCatalog.GetItem(itemInstance.ItemVNum);
+            }
 
             var receiver = await pubSubHub.GetWorldSubscriberAsync(channelHub, mailref.ReceiverId);
 
