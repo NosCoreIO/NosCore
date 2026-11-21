@@ -54,6 +54,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         private (bool Stores, bool Throws) _depositFails;
         private bool _depositAttempted;
         private bool _readBackThrows;
+        private bool _insertFailed;
+        private bool _readBackFailed;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -74,15 +76,22 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         {
             var hub = new Mock<IWarehouseHub>();
             hub.Setup(s => s.GetWarehouseItems(null, It.IsAny<long?>(), It.IsAny<WarehouseType>(), It.IsAny<byte?>()))
-                .ReturnsAsync((Guid? _, long? _, WarehouseType type, byte? slot) => _readBackThrows && _depositAttempted
-                    ? throw new TimeoutException()
-                    : _stored.Where(s => s.Type == type && (slot == null || s.Slot == slot))
-                    .Select(s => new WarehouseLink
+                .ReturnsAsync((Guid? _, long? _, WarehouseType type, byte? slot) =>
+                {
+                    if (_readBackThrows && _depositAttempted)
                     {
-                        WarehouseItemId = s.Id,
-                        Slot = s.Slot,
-                        ItemInstance = new ItemInstanceDto { Id = s.ItemInstanceId }
-                    }).ToList());
+                        _readBackFailed = true;
+                        throw new TimeoutException();
+                    }
+
+                    return _stored.Where(s => s.Type == type && (slot == null || s.Slot == slot))
+                        .Select(s => new WarehouseLink
+                        {
+                            WarehouseItemId = s.Id,
+                            Slot = s.Slot,
+                            ItemInstance = new ItemInstanceDto { Id = s.ItemInstanceId }
+                        }).ToList();
+                });
             hub.Setup(s => s.AddWarehouseItemAsync(It.IsAny<WareHouseDepositRequest>()))
                 .ReturnsAsync((WareHouseDepositRequest r) =>
                 {
@@ -137,7 +146,16 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             var instances = new Mock<IDao<IItemInstanceDto?, Guid>>();
             instances.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
-                .ReturnsAsync((IItemInstanceDto? i) => _insertThrows ? throw new TimeoutException() : _instances[i.NotNull().Id] = i.NotNull());
+                .ReturnsAsync((IItemInstanceDto? i) =>
+                {
+                    if (_insertThrows)
+                    {
+                        _insertFailed = true;
+                        throw new TimeoutException();
+                    }
+
+                    return _instances[i.NotNull().Id] = i.NotNull();
+                });
             instances.Setup(s => s.TryDeleteAsync(It.IsAny<Guid>()))
                 .ReturnsAsync((Guid id) => _instances.Remove(id, out var removed) ? removed : null);
             instances.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
@@ -288,6 +306,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             await DepositIgnoringFailureAsync(10, 2);
 
+            Assert.IsTrue(_insertFailed, "the copy's write failed");
             Assert.AreEqual(0, _stored.Count);
             Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1012));
         }
@@ -301,6 +320,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             await DepositIgnoringFailureAsync(10, 2);
 
+            Assert.IsTrue(_depositAttempted, "the warehouse call was made and failed");
             Assert.AreEqual(0, _stored.Count);
             Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1012));
         }
@@ -314,6 +334,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             await DepositIgnoringFailureAsync(10, 2);
 
+            Assert.IsTrue(_depositAttempted, "the warehouse call was made and failed");
             Assert.AreEqual(10, At(WarehouseType.Warehouse, 2).Amount);
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
         }
@@ -328,6 +349,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             await DepositIgnoringFailureAsync(10, 2);
 
+            Assert.IsTrue(_readBackFailed, "the read-back failed");
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
             Assert.AreEqual(10, _instances.Values.Where(i => i.ItemVNum == 1012).Sum(i => i.Amount), "the copy is kept for recovery");
             _saves.Verify(s => s.SaveAsync(_session), Times.Once, "the bag is stored without the deposited amount");
@@ -344,6 +366,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             await DepositIgnoringFailureAsync(10, 2);
 
+            Assert.IsTrue(_readBackFailed, "the read-back failed");
             _log.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((state, _) => $"{state}".Contains("DEPOSIT_DEBIT_NOT_SAVED")),
                 It.IsAny<Exception?>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);

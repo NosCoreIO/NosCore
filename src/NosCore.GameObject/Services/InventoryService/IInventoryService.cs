@@ -44,8 +44,14 @@ namespace NosCore.GameObject.Services.InventoryService
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
         bool TryConsume(InventoryItemInstance source, short amount);
 
-        // Takes every part or none of them.
-        bool TryConsume(IReadOnlyCollection<(InventoryItemInstance Source, short Amount)> parts);
+        // Places the item like AddItemToPocket and says how much went into each stack.
+        List<PlacedStack>? PlaceItem(InventoryItemInstance newItem);
+
+        // Takes back exactly what a placement added, or nothing once any of its stacks has been used.
+        bool TryUndoPlacement(IReadOnlyCollection<PlacedStack> placed);
+
+        // Copies of every entry and its item as they stand at one moment.
+        IReadOnlyList<InventoryItemInstance> Snapshot();
         // Returns the entries that now hold it, which may not be its old slot, and the amount that fits
         // nowhere without going over the stack limit.
         (List<InventoryItemInstance> Restored, short Left) RestoreConsumed(InventoryItemInstance source, short amount);

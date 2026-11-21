@@ -69,8 +69,8 @@ namespace NosCore.PacketHandlers.Parcel
                 var amount = item.Amount;
                 // The parcel is only removed once the item is in the bag with its options stored, so a bag
                 // that fills up meanwhile or a failed write leaves the parcel where it was.
-                var slots = inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                if (slots is not { Count: > 0 })
+                var placed = inventory.PlaceItem(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                if (placed is not { Count: > 0 })
                 {
                     await SendNotEnoughSpaceAsync(clientSession);
                     return;
@@ -89,9 +89,9 @@ namespace NosCore.PacketHandlers.Parcel
                 }
 
                 // A call that threw may still have removed the mail, and then the item is the player's.
-                if (!claimed && (failure == null || await IsStillInTheParcelBoxAsync(getGiftPacket.GiftId, characterId, isCopy)))
+                if (!claimed && (failure == null || await IsStillInTheParcelBoxAsync(getGiftPacket.GiftId, characterId, isCopy, mail.MailDto.MailId)))
                 {
-                    if (await TakeBackAsync(inventory, slots, amount, item, options.Count > 0))
+                    if (await TakeBackAsync(inventory, placed, item, options.Count > 0))
                     {
                         if (failure != null)
                         {
@@ -109,7 +109,7 @@ namespace NosCore.PacketHandlers.Parcel
                     }
                 }
 
-                await clientSession.SendPacketsAsync(slots.Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
+                await clientSession.SendPacketsAsync(placed.Select(p => p.Stack.GeneratePocketChange(p.Stack.Type.ToPocketType(), p.Stack.Slot)));
                 await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Red, Game18NConstString.ParcelReceived,
                     2, item.ItemVNum.ToString(), amount));
 
@@ -125,8 +125,9 @@ namespace NosCore.PacketHandlers.Parcel
             }
         }
 
-        private async Task<bool> IsStillInTheParcelBoxAsync(int giftId, long characterId, bool isCopy) =>
-            (await mailHttpClient.GetMails(giftId, characterId, isCopy)).Any(m => m.MailId == giftId);
+        // The parcel box number of a removed mail can be given to a new one, so the stored mail is compared.
+        private async Task<bool> IsStillInTheParcelBoxAsync(int giftId, long characterId, bool isCopy, long storedMailId) =>
+            (await mailHttpClient.GetMails(giftId, characterId, isCopy)).Any(m => m.MailDto.MailId == storedMailId);
 
         private async Task<bool> StoreOptionsAsync(IItemInstance item, List<EquipmentOptionDto> options)
         {
@@ -140,23 +141,12 @@ namespace NosCore.PacketHandlers.Parcel
                 && await equipmentOptionDao.TryInsertOrUpdateAsync(wearable.EquipmentOptions);
         }
 
-        // The parcel is still there, so what was placed for it comes back out of the bag.
-        // All of it comes back out or none of it: once the player has used part, the claim stands.
-        private async Task<bool> TakeBackAsync(IInventoryService inventory, List<InventoryItemInstance> slots, short amount,
-            IItemInstance item, bool storedOptions)
+        // The parcel is still there, so what was placed for it comes back out of the bag, all of it or, once
+        // the player has used part of it, none.
+        private async Task<bool> TakeBackAsync(IInventoryService inventory, List<PlacedStack> placed, IItemInstance item,
+            bool storedOptions)
         {
-            var parts = new List<(InventoryItemInstance Source, short Amount)>();
-            foreach (var stack in Enumerable.Reverse(slots))
-            {
-                var taken = (short)Math.Min(amount, stack.ItemInstance.Amount);
-                if (taken > 0)
-                {
-                    parts.Add((stack, taken));
-                    amount -= taken;
-                }
-            }
-
-            if (amount > 0 || !inventory.TryConsume(parts))
+            if (!inventory.TryUndoPlacement(placed))
             {
                 return false;
             }

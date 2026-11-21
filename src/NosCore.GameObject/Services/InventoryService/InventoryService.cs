@@ -125,6 +125,56 @@ namespace NosCore.GameObject.Services.InventoryService
             }
         }
 
+        public List<PlacedStack>? PlaceItem(InventoryItemInstance newItem)
+        {
+            lock (_gate)
+            {
+                var placement = Plan(newItem, null, null);
+                if (placement is not { Fits: true })
+                {
+                    return placement == null ? null : [];
+                }
+
+                Commit(placement);
+                return placement.Merges.Select(m => new PlacedStack(m.Stack, (short)(m.Becomes - m.Was), m.Becomes))
+                    .Concat(placement.NewStacks.Select(n => new PlacedStack(n.Entry, n.Amount, n.Amount)))
+                    .ToList();
+            }
+        }
+
+        public bool TryUndoPlacement(IReadOnlyCollection<PlacedStack> placed)
+        {
+            lock (_gate)
+            {
+                // A stack below what the placement left in it has been used since, so the placement stands.
+                if (placed.Any(p => !TryGetValue(p.Stack.ItemInstanceId, out var held) || held.ItemInstance.Amount < p.Amount))
+                {
+                    return false;
+                }
+
+                foreach (var p in placed)
+                {
+                    TryConsume(p.Stack, p.Added);
+                }
+
+                return true;
+            }
+        }
+
+        public IReadOnlyList<InventoryItemInstance> Snapshot()
+        {
+            lock (_gate)
+            {
+                return Values.Select(i => new InventoryItemInstance((IItemInstance)i.ItemInstance.Clone())
+                {
+                    Id = i.Id,
+                    CharacterId = i.CharacterId,
+                    Slot = i.Slot,
+                    Type = i.Type,
+                }).ToList();
+            }
+        }
+
         public List<InventoryItemInstance>? AddItemsToPocket(IReadOnlyCollection<InventoryItemInstance> newItems)
         {
             lock (_gate)
@@ -213,7 +263,7 @@ namespace NosCore.GameObject.Services.InventoryService
             var merges = new List<Merge>();
             if (slot == null && stackable)
             {
-                var stacks = Values.Where(i => i.ItemInstance.ItemVNum.Equals(newItem.ItemInstance.ItemVNum)
+                var stacks = Values.Where(i => i.Type == pocket && i.ItemInstance.ItemVNum.Equals(newItem.ItemInstance.ItemVNum)
                     && (i.ItemInstance.Amount < maxAmount)).ToList();
                 foreach (var stack in stacks)
                 {
@@ -660,27 +710,6 @@ namespace NosCore.GameObject.Services.InventoryService
                 .Sum(i => maxAmount - i.ItemInstance.Amount);
             var overflow = amount - stackRoom;
             return overflow <= 0 ? 0 : (overflow + maxAmount - 1) / maxAmount;
-        }
-
-        public bool TryConsume(IReadOnlyCollection<(InventoryItemInstance Source, short Amount)> parts)
-        {
-            lock (_gate)
-            {
-                var enough = parts.GroupBy(p => p.Source.ItemInstanceId).All(g => g.All(p => p.Amount > 0)
-                    && TryGetValue(g.Key, out var inv) && inv.ItemInstance != null
-                    && inv.ItemInstance.Amount >= g.Sum(p => p.Amount));
-                if (!enough)
-                {
-                    return false;
-                }
-
-                foreach (var (source, amount) in parts)
-                {
-                    TryConsume(source, amount);
-                }
-
-                return true;
-            }
         }
 
         public bool TryConsume(InventoryItemInstance source, short amount)

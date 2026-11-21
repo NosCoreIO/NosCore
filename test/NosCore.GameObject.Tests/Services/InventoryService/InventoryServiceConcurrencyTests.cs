@@ -55,7 +55,6 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             });
             _itemProvider = World.GenerateItemProvider();
             _inventory = World.Create<GameObject.Services.InventoryService.InventoryService>();
-            _testThread = Thread.CurrentThread;
         }
 
         [TestMethod]
@@ -350,7 +349,9 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Assert.IsTrue(_inventory.Values.All(i => i.ItemInstance.Amount <= 999));
         }
 
-        private void WhenReading(Func<bool> trigger, Action otherWrite) =>
+        private void WhenReading(Func<bool> trigger, Action otherWrite)
+        {
+            _testThread = Thread.CurrentThread;
             _hook = () =>
             {
                 if (!trigger())
@@ -371,6 +372,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                     || (_otherWriter.ThreadState & System.Threading.ThreadState.WaitSleepJoin) != 0;
                 return true;
             };
+        }
 
         // The interleaving is only tested when the hook fired and the second writer got to its own checkpoint.
         private void TheOtherWriterRan()

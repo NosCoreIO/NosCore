@@ -97,12 +97,16 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         public async Task ASlotTakenAfterThePlacementLeavesTheWeaponInTheBag()
         {
             var mail = await AWeaponWaitingInTheParcelBoxAsync();
-            // Another writer takes a slot while the parcel is being claimed, after the weapon was placed.
-            var hub = ParcelBox(onDelete: () => Holds(BeadVNum));
+            var inventory = _session.Character.InventoryService;
+            inventory.DeleteFromTypeAndSlot(NoscorePocketType.Equipment, 1);
+            InventoryItemInstance? bead = null;
+            // Another writer takes the other free slot while the parcel is being claimed, after the weapon was placed.
+            var hub = ParcelBox(onDelete: () => bead = Holds(BeadVNum));
 
             await ClaimAsync(hub, mail);
 
             Assert.AreEqual(1, WeaponsInTheBag());
+            Assert.IsTrue(bead != null && inventory.ContainsKey(bead.ItemInstanceId), "the other writer's bead landed");
             Assert.IsFalse(IsInTheParcelBox(mail));
         }
 
@@ -204,6 +208,30 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             await ClaimAsync(hub, mail);
 
             Assert.AreEqual(9, inventory.CountItem(SeedVNum));
+            Assert.IsFalse(IsInTheParcelBox(mail));
+        }
+
+        [TestMethod]
+        public async Task ASeedUsedFromAStackThePlacementJoinedLeavesTheClaimStanding()
+        {
+            var inventory = _session.Character.InventoryService;
+            var seeds = Holds(SeedVNum, 10);
+            Assert.IsTrue(inventory.TryConsume(seeds, 10));
+            while (inventory.CountItemInAnPocket(NoscorePocketType.Main) < inventory.GetMaxSlots(NoscorePocketType.Main))
+            {
+                Holds(OtherMainVNum, 999);
+            }
+
+            await _delivery.ReturnConsumedAsync(_session.Character, seeds, 10);
+            inventory.DeleteFromTypeAndSlot(NoscorePocketType.Main, 0);
+            var held = Holds(SeedVNum, 20);
+            var mail = _parcels.GetMails(_session.Character.CharacterId, false).Values.Single();
+            // The parcel's seeds join the 20 already held; the player then uses one of the 30.
+            var hub = ParcelBox(onDelete: () => inventory.TryConsume(held, 1), deleteThrows: true, failingDeletes: 1);
+
+            await ClaimAsync(hub, mail);
+
+            Assert.AreEqual(29, inventory.CountItem(SeedVNum));
             Assert.IsFalse(IsInTheParcelBox(mail));
         }
 
