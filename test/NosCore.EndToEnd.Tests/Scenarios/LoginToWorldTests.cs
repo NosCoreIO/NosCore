@@ -10,7 +10,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Login;
+using NosCore.Packets.ServerPackets.Map;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Tests.Shared;
@@ -67,6 +69,34 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var at = entry.OfType<AtPacket>().Single();
             Assert.AreEqual((player.CharacterId, WorldData.Town, (short)85, (short)120), (at.CharacterId, at.MapId, at.PositionX, at.PositionY));
             Assert.IsTrue(entry.OfType<StatPacket>().Any(), "the character's HP and MP are sent");
+        }
+
+        [TestMethod]
+        public async Task EnteringTheWorldLeavesNoMapBeforeTheFirstCInfo()
+        {
+            var player = await Harness.AddPlayerAsync("Alice");
+            await using var client = Harness.Client(player);
+
+            var entry = (await client.EnterWorldAsync(player.Slot)).ToList();
+
+            var info = entry.FindIndex(p => p is CInfoPacket);
+            Assert.IsFalse(entry.Take(info).Any(p => p is CMapPacket or MapOutPacket), "no map is left on entering the game");
+            Assert.AreEqual(-1, entry.OfType<CInfoPacket>().First().Unknown3);
+        }
+
+        [TestMethod]
+        public async Task EnteringTheWorldPinsTheNoticeBoardInsteadOfChatLines()
+        {
+            var player = await Harness.AddPlayerAsync("Alice");
+            await using var client = Harness.Client(player);
+
+            var entry = await client.EnterWorldAsync(player.Slot);
+
+            var board = entry.OfType<BnPacket>().ToList();
+            CollectionAssert.AreEqual(new[] { "Powered by NosCore", "GitHub: https://github.com/NosCoreIO/NosCore/" },
+                board.Select(p => p.Message).ToList());
+            CollectionAssert.AreEqual(new byte[] { 0, 1 }, board.Select(p => p.BnNumber).ToList());
+            Assert.IsFalse(entry.OfType<SayPacket>().Any(), "the notice board replaces the chat lines");
         }
 
         [TestMethod]

@@ -25,7 +25,11 @@ namespace NosCore.Core.Configuration
 
         public byte ServerId { get; set; }
 
-        public bool WorldInformation { get; set; }
+#pragma warning disable CA2227 // Collection properties should be read only
+        // The lines of the notice board the client shows on entering the game, at most ten.
+        [MaxLength(10)]
+        public List<string> NoticeBoard { get; set; } = new();
+#pragma warning restore CA2227 // Collection properties should be read only
 
         public bool SceneOnCreate { get; set; }
 

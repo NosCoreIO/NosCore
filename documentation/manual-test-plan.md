@@ -4170,6 +4170,15 @@ Run the WebApi, the master, the login server and two world servers (two channels
 - [ ] On an account with MFA set, log in through the launcher: the launcher asks for the
       code, the game does not ask again, and changing channel does not ask either
 
+### Entering the game
+
+- [ ] Enter the game: the notice board shows the lines of `NoticeBoard` in `world.yml`, with
+      their spaces, and the chat shows no NosCore banner lines
+- [ ] Empty `NoticeBoard`, restart the world server and enter again: no notice board line
+      appears and nothing else is missing
+- [ ] A second client already on the map sees the character appear once, without it
+      disappearing first
+
 ### A character creation that fails
 
 Needs a world server whose starter pack names an item that does not exist: copy
