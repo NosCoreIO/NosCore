@@ -66,7 +66,7 @@ namespace NosCore.Instances.Abstractions
         // Once every one of the rooms has been cleared, as the last of them is, whatever the order.
         protected void OnAllCleared(IRoom[] rooms, Action<RunEvent> step)
         {
-            var handles = rooms.Select(RoomHandle.Of).ToList();
+            var handles = rooms.Select(RoomHandle.Of).Distinct().ToList();
             foreach (var room in handles)
             {
                 room.OnCleared(run =>
