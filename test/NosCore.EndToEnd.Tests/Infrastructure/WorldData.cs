@@ -221,8 +221,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short LightBleeding = 56;
         public const short HeavyBleeding = 57;
 
-        // A skill cast on oneself that puts on a card whose effect stays on its bearer.
-        public const short WingsSkill = 9301;
+        // A skill cast on oneself that puts on a card whose effect stays on its bearer. An adventurer
+        // keeps only skills 200 to 210, so it takes one of those nobody else uses.
+        public const short WingsSkill = 208;
         public const short WingsSkillCastId = 17;
         public const short WingsCard = 9300;
         public const short WingsCardTime = 600;
@@ -471,7 +472,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             });
             context.Add(new Skill
             {
-                SkillVNum = WingsSkill, Name = "skill9301", CastId = WingsSkillCastId, SkillType = 1, TargetType = 1, Cooldown = 6,
+                SkillVNum = WingsSkill, Name = "skill208", CastId = WingsSkillCastId, SkillType = 1, TargetType = 1, Cooldown = 6,
                 Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
             });
             context.Add(new Card { CardId = WingsCard, Name = "wings", Level = 1, Duration = WingsCardTime, BuffType = BuffType.Good, HasLastingEffect = true });
