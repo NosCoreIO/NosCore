@@ -83,6 +83,14 @@ public sealed class FactionEggHandler
         }
 
         character.Faction = faction;
+        foreach (var mate in character.Mates.Values)
+        {
+            if (mate.Entity is { } entity)
+            {
+                entity.Faction = faction;
+            }
+        }
+
         character.CharacterDto.Act4Points = 0;
         character.CharacterDto.Act4Kill = 0;
         character.CharacterDto.Act4Dead = 0;

@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Ecs;
     typeof(SkillCooldownComponent),
     typeof(SkillResetComponent),
     typeof(MateStateComponent),
+    typeof(FactionComponent),
     typeof(HitListComponent)
 )]
 public readonly partial struct MateComponentBundle : INonPlayableEntity

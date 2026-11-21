@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Act4;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
@@ -195,6 +196,39 @@ namespace NosCore.GameObject.Tests.Services.BaseCampService
                 .Then(_CanAttackTheCamp, "angel", false)
                 .And(_CanAttackTheCamp, "demon", true)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PetsFightForTheirOwnersSide()
+        {
+            await new Spec("A pet cannot attack its owner's camp but can attack the other side's")
+                .Given(TheAngelHasA_, AngelFlagVNum)
+                .AndAsync(TheAngelUsesIt)
+                .WhenAsync(BothSidesCallAPet)
+                .Then(_sPetCanAttackTheCamp, "angel", false)
+                .And(_sPetCanAttackTheCamp, "demon", true)
+                .ExecuteAsync();
+        }
+
+        private async Task BothSidesCallAPet()
+        {
+            foreach (var session in new[] { _angel, _demon })
+            {
+                var pet = TestMates.Pet(session.Character.CharacterId);
+                session.Character.Mates[pet.MateTransportId] = pet;
+                await pet.SpawnAsync(session.Character, _glacernon, 5, 5);
+            }
+        }
+
+        private void _sPetCanAttackTheCamp(string who, bool expected)
+        {
+            if ((who == "angel" ? _angel : _demon).Character.Mates.Values.Single().Entity is not { } pet)
+            {
+                Assert.Fail("The pet did not spawn.");
+                return;
+            }
+
+            Assert.AreEqual(expected, GameObject.Services.BattleService.BattleService.CanAttack(pet, Camps().Single()));
         }
 
         private void TheAngelHasA_(short vnum)
