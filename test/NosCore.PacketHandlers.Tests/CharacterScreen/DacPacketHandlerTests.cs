@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class DacPacketHandlerTests
     {
         private TestWorld World;
-        private static readonly Mock<ILogger<DacPacketHandler>> Logger = new();
+        private readonly Mock<ILogger<DacPacketHandler>> Logger = new();
         private DacPacketHandler DacPacketHandler;
         private ClientSession Session;
         private Mock<IAuthHub> AuthHttpClient;
@@ -42,7 +42,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Logger.Invocations.Clear();
             Session = await World.CreateSessionAsync();
             AccountName = Session.Account.Name;
             await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto).OrThrowAsync();

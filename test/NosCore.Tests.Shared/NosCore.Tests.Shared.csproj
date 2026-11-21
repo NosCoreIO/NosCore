@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="GitHubActionsTestLogger" />
     <PackageReference Include="Moq" />
     <PackageReference Include="SpecLight" />
     <PackageReference Include="AutoFixture" />
