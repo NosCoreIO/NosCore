@@ -94,6 +94,16 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         [TestMethod]
+        public async Task WorkHoldingTheMapExclusivelyKeepsItWhenItStepsAway()
+        {
+            await new Spec("Work holding the map exclusively keeps it when it steps away")
+                .Given(TheHandlerStepsAwayFromInsideExclusiveWorkOnItsMap)
+                .WhenAsync(APacketArrives)
+                .Then(NoMapWorkShouldHaveRunMeanwhile)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AHandlerThatMovesItsPlayerCarriesOnOnTheNewMap()
         {
             await new Spec("A handler that moves its player carries on on the new map")
@@ -127,6 +137,18 @@ namespace NosCore.GameObject.Tests.Networking
                     MapWorkRanMeanwhile = await RunsOnAnotherFlowAsync(executor);
                 });
                 HeldItsMapAgain = executor.IsCurrent;
+            };
+        }
+
+        private void TheHandlerStepsAwayFromInsideExclusiveWorkOnItsMap()
+        {
+            OnGbox = async session =>
+            {
+                var executor = session.Character.MapInstance.Executor;
+                await MapExecutor.RunExclusiveAsync(executor, executor, () => MapExecutor.StepAwayAsync(async () =>
+                {
+                    MapWorkRanMeanwhile = await RunsOnAnotherFlowAsync(executor, TimeSpan.FromMilliseconds(500));
+                }));
             };
         }
 
@@ -180,7 +202,10 @@ namespace NosCore.GameObject.Tests.Networking
             session.Character.Gold = gold + 1;
         }
 
-        private static async Task<bool> RunsOnAnotherFlowAsync(MapExecutor executor)
+        private static Task<bool> RunsOnAnotherFlowAsync(MapExecutor executor) =>
+            RunsOnAnotherFlowAsync(executor, TimeSpan.FromSeconds(5));
+
+        private static async Task<bool> RunsOnAnotherFlowAsync(MapExecutor executor, TimeSpan patience)
         {
             Task work;
             using (ExecutionContext.SuppressFlow())
@@ -188,7 +213,7 @@ namespace NosCore.GameObject.Tests.Networking
                 work = Task.Run(() => executor.RunAsync(() => Task.CompletedTask));
             }
 
-            return await Task.WhenAny(work, Task.Delay(TimeSpan.FromSeconds(5))) == work;
+            return await Task.WhenAny(work, Task.Delay(patience)) == work;
         }
 
         private Task FromNetwork(IPacket packet)
@@ -202,6 +227,8 @@ namespace NosCore.GameObject.Tests.Networking
         private void TheGoldShouldHaveGrownByEveryChange() => Assert.AreEqual(GoldBefore + 2 * Changes, Session.Character.Gold);
 
         private void TheMapWorkShouldHaveRunWhileTheHandlerWaited() => Assert.IsTrue(MapWorkRanMeanwhile);
+
+        private void NoMapWorkShouldHaveRunMeanwhile() => Assert.IsFalse(MapWorkRanMeanwhile);
 
         private void TheHandlerShouldHoldItsMapAgainAfterwards() => Assert.IsTrue(HeldItsMapAgain);
 

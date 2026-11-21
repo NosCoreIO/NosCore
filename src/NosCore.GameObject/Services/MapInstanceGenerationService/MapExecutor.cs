@@ -189,13 +189,35 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return scope;
         }
 
+        // Runs work that must keep this map until it ends, even inside a packet handler that
+        // already holds it and could otherwise step away.
+        private async Task KeepAsync(Func<Task> work)
+        {
+            if (!IsCurrent)
+            {
+                await RunAsync(work);
+                return;
+            }
+
+            var scope = new Scope(this, Current.Value, false);
+            Current.Value = scope;
+            try
+            {
+                await work();
+            }
+            finally
+            {
+                scope.End();
+            }
+        }
+
         // Holds two executors at once. They are always taken in the same order, so two flows
         // holding one each and waiting for the other cannot happen.
         public static async Task RunExclusiveAsync(MapExecutor first, MapExecutor second, Func<Task> work)
         {
             if (ReferenceEquals(first, second))
             {
-                await first.RunAsync(work);
+                await first.KeepAsync(work);
                 return;
             }
 
