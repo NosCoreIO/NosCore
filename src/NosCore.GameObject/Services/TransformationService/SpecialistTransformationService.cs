@@ -134,7 +134,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
     {
         var character = session.Character;
         var now = clock.GetCurrentInstant();
-        if (!character.UseSp || character.IsVehicled || now - character.LastAttack > CombatWindow
+        if (!character.UseSp || !character.IsAlive || character.IsVehicled || now - character.LastAttack > CombatWindow
             || character.InventoryService.LoadBySlotAndType(EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
                 is not SpecialistInstance { Item.SpType: > 0 } specialist)
         {

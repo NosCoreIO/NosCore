@@ -35,6 +35,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Services.LandOfDeathService;
 using NosCore.Networking.SessionGroup;
 using System.Collections.Generic;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
@@ -62,6 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private readonly Mock<IScriptedInstanceService> _scriptedInstances = new();
         private BuffService _buffs;
         private readonly Mock<ILowLevelBuffService> _lowLevelBuffs = new();
+        private readonly Mock<IMateRevivalService> _mateRevival = new();
         private readonly List<IPacket> _broadcast = new();
 
         [TestInitialize]
@@ -90,8 +92,33 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 UpgradeMaterials.Catalog(),
                 _landOfDeath.Object,
                 _scriptedInstances.Object,
-                _lowLevelBuffs.Object);
+                _lowLevelBuffs.Object,
+                _mateRevival.Object);
         }
+
+        [TestMethod]
+        public async Task TheTeamRejoinsAPlayerWhoGetsUpOnTheSpot()
+        {
+            await new Spec("The team comes back beside a player who gets up where they fell")
+                .Given(CharacterIsDeadAtLevel_, (byte)10)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(TheTeamShouldRejoin_Times, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheTeamComesAlongWithTheMapChangeToTheSavePoint()
+        {
+            await new Spec("Going back to the save point leaves the team to the map change")
+                .Given(CharacterIsDeadAtLevel_, (byte)10)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.AtSavePoint)
+                .Then(TheTeamShouldRejoin_Times, 0)
+                .ExecuteAsync();
+        }
+
+        private void TheTeamShouldRejoin_Times(int times) =>
+            _mateRevival.Verify(s => s.RejoinOwnerAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<short>(), It.IsAny<short>()),
+                Times.Exactly(times));
 
         [TestMethod]
         public async Task RevivalRequestsInsideAScriptedRunAreIgnored()
@@ -459,7 +486,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 UpgradeMaterials.Catalog(),
                 _landOfDeath.Object,
                 _scriptedInstances.Object,
-                _lowLevelBuffs.Object);
+                _lowLevelBuffs.Object,
+                _mateRevival.Object);
         }
 
         private void TheLowLevelBuffShouldBeRefreshed() =>

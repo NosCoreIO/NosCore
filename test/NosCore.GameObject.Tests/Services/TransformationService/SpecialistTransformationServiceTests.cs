@@ -185,6 +185,26 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task PointsAreKeptOnceTheCharacterHasFallen()
+        {
+            await new Spec("Points are kept once the character has fallen")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardCostsThreePointsASecond)
+                .And(CharacterHas_SpPointsAnd_AdditionalPoints, 10, 0)
+                .And(CharacterAttackedJustNow)
+                .And(CharacterHasFallen)
+                .WhenAsync(ASecondPasses)
+                .Then(CharacterShouldHave_SpPointsAnd_AdditionalPoints, 10, 0)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasFallen()
+        {
+            Session.Character.IsAlive = false;
+        }
+
         private void TheCardCostsThreePointsASecond()
         {
             WornCard().Item.SpType = 3;

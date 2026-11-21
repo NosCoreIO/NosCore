@@ -1672,6 +1672,17 @@ The maximum comes from the parser, so re-run it on an existing database first.
       icon, for you and for a second player watching;
       restore dignity to 100 and change map again: the reputation icon is back
 
+### Getting up after a death
+
+Have a pet with a skill of its own (an Otter, 683) and a partner in the team, and wear a specialist card.
+
+- [ ] Fight transformed, then die: the specialist points in the character window stop going down from
+      the moment you fall
+- [ ] Use the Otter's Sushi Party, die, and choose to continue on the spot: the pet and the partner come
+      back to stand beside you, the pet skill bar is there with Sushi Party still greyed out and counting
+      down, and it is usable again 70 seconds after the cast
+- [ ] Die and choose to go back to the save point: the team arrives with you, as on any map change
+
 ### Dignity restored by quests and time-spaces
 
 Lower dignity first by dying a few times.

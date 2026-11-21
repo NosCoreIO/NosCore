@@ -15,5 +15,8 @@ namespace NosCore.GameObject.Services.MateService
         Task KnockOutAsync(PlayerComponentBundle owner, Mate mate);
 
         Task TickAsync(MapInstance mapInstance);
+
+        // The team comes back beside an owner who gets up where they fell.
+        Task RejoinOwnerAsync(PlayerComponentBundle owner, short x, short y);
     }
 }

@@ -95,6 +95,24 @@ namespace NosCore.GameObject.Services.MateService
             }
         }
 
+        public async Task RejoinOwnerAsync(PlayerComponentBundle owner, short x, short y)
+        {
+            if (owner.MapInstance is not { } mapInstance || owner.IsVehicled)
+            {
+                return;
+            }
+
+            var team = owner.Mates.Values.Where(s => s.IsTeamMember && s.Entity != null).ToList();
+            foreach (var (mate, mateX, mateY) in MatePlacement.Arrange(x, y, mapInstance.Map, team))
+            {
+                await mate.DespawnAsync(mapInstance);
+                await mate.SpawnAsync(owner, mapInstance, mateX, mateY);
+                await owner.SendPacketAsync(mate.GenerateCond());
+            }
+
+            await petSkillBarService.RefreshAsync(owner);
+        }
+
         private async Task ReviveAsync(PlayerComponentBundle owner, Mate mate, MapInstance mapInstance)
         {
             mate.RevivesAt = null;

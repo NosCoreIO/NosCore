@@ -14,6 +14,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
@@ -57,7 +58,8 @@ namespace NosCore.PacketHandlers.Battle
         IItemCatalog itemCatalog,
         ILandOfDeathService landOfDeathService,
         IScriptedInstanceService scriptedInstanceService,
-        ILowLevelBuffService lowLevelBuffService)
+        ILowLevelBuffService lowLevelBuffService,
+        IMateRevivalService mateRevivalService)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedsRequired = 10;
@@ -183,7 +185,7 @@ namespace NosCore.PacketHandlers.Battle
 
             RestoreLife(session, 100);
             await mapChangeService.ChangeMapAsync(session, mapId, x, y);
-            await BroadcastReviveAsync(session, x, y);
+            await BroadcastReviveAsync(session, x, y, inPlace: false);
         }
 
         // False when the fighter could not pay and went back to the save point instead.
@@ -223,11 +225,17 @@ namespace NosCore.PacketHandlers.Battle
             c.IsAlive = true;
         }
 
-        private async Task BroadcastReviveAsync(ClientSession session, short x, short y)
+        private async Task BroadcastReviveAsync(ClientSession session, short x, short y, bool inPlace = true)
         {
             var character = session.Character;
             var mapInstance = character.MapInstance;
             if (mapInstance == null) return;
+
+            // A map change has already brought the team along.
+            if (inPlace)
+            {
+                await mateRevivalService.RejoinOwnerAsync(character, x, y);
+            }
 
             await character.TeleportAsync(x, y);
 
