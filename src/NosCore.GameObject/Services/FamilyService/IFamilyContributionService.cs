@@ -27,6 +27,8 @@ namespace NosCore.GameObject.Services.FamilyService
 
         Task InstantCombatWonAsync(long familyId, long characterId);
 
+        Task GlacernonEnemyDefeatedAsync(long familyId, long characterId);
+
         // Once per family taking part in the run, however many of its members finished it.
         Task RaidWonAsync(long familyId, IReadOnlyCollection<long> characterIds, short raidId, bool isHeroic);
 

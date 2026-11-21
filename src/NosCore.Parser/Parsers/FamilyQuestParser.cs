@@ -79,6 +79,7 @@ namespace NosCore.Parser.Parsers
                 (FamilyQuestKind.Achievement, 2, 1) => FamilyQuestObjective.GlacernonRaidBoss,
                 (FamilyQuestKind.Mission, 1, 5) => FamilyQuestObjective.GlacernonRaidInTenMinutes,
                 (FamilyQuestKind.Mission, 1, 6) => FamilyQuestObjective.GlacernonRaidWithoutLoss,
+                (FamilyQuestKind.Mission, 1, 8) => FamilyQuestObjective.GlacernonEnemy,
                 _ => null
             };
 

@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
@@ -33,7 +34,8 @@ namespace NosCore.GameObject.Services.FactionWarService;
 // within five minutes opens one of the four Glacernon raids to that side for an hour.
 public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegistry,
     IMapInstanceAccessorService mapInstanceAccessorService, INpcMonsterCatalog npcMonsters,
-    IAggroService aggroService, IRandomProvider random) : IFactionWarService, ISingletonService
+    IAggroService aggroService, IRandomProvider random, IFamilyContributionService familyContributionService)
+    : IFactionWarService, ISingletonService
 {
     public const int FullProgress = 10000;
     public const short Mukraju = 556;
@@ -143,6 +145,12 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
         }
 
         await RefreshAsync();
+
+        if (killer.Family is { } family)
+        {
+            await familyContributionService.GlacernonEnemyDefeatedAsync(family.FamilyId, killer.CharacterId);
+        }
+
         return true;
     }
 

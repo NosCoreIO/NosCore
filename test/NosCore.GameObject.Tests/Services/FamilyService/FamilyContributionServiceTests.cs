@@ -161,6 +161,21 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AGlacernonEnemyDefeatedCountsForTheMember()
+        {
+            await new Spec("A member defeating an enemy in Glacernon advances the family's enemy missions once, without a history line")
+                .WhenAsync(TheMemberDefeatsAnEnemyInGlacernon)
+                .Then(TheMemberShouldAdvance_Once, FamilyQuestObjective.GlacernonEnemy)
+                .And(TheHistoryShouldStayEmpty)
+                .ExecuteAsync();
+        }
+
+        private Task TheMemberDefeatsAnEnemyInGlacernon() => _service.GlacernonEnemyDefeatedAsync(FamilyId, CharacterId);
+
+        private void TheMemberShouldAdvance_Once(FamilyQuestObjective objective) =>
+            _hub.Verify(s => s.AdvanceQuestsAsync(FamilyId, CharacterId, objective, 1, null), Times.Once);
+
         private Task TheFamilyBeats_(Act4RaidType raid, bool inTenMinutes, bool withoutLoss) =>
             _service.GlacernonRaidWonAsync(FamilyId, raid, inTenMinutes, withoutLoss);
 

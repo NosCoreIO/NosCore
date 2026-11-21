@@ -17,6 +17,7 @@ namespace NosCore.Data.Enumerations.Family
         GlacernonRaid = 5,
         GlacernonRaidBoss = 6,
         GlacernonRaidInTenMinutes = 7,
-        GlacernonRaidWithoutLoss = 8
+        GlacernonRaidWithoutLoss = 8,
+        GlacernonEnemy = 9
     }
 }

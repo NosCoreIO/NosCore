@@ -3201,6 +3201,11 @@ Open the family window's Missions button and pick "Daily Challenges" in the filt
       member's win does
 - [ ] A raid win writes nothing to the family history: its "Raid" line is for Glacernon family
       raids
+- [ ] `/mnt/project-files/family-glacernon-kills/run.sh <checkout> <outdir>` puts the family at 9 of
+      the 10 kills of "[Daily] Defeat 10 Enemies in Glacernon", with Tester watching and a family
+      member and a demon logged in by bots in the angel citadel. When the member defeats the demon,
+      the mission shows today's date and "(Total: 1)", and the family level bar moves by its 1 000 FXP
+- [ ] A kill between two players of the same faction does not count
 - [ ] Not verifiable yet: Rainbow Battle missions, and the hardcore raid missions and
       achievements, which have no hardcore raid to count them yet
 

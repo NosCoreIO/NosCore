@@ -15,6 +15,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FactionWarService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.ServerPackets.UI;
@@ -35,6 +36,7 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
         private ClientSession _demon;
         private ClientSession _elsewhere;
         private MapInstance _camp;
+        private Mock<IFamilyContributionService> _familyContributions;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -60,6 +62,7 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
             {
                 new() { NpcMonsterVNum = GameObject.Services.FactionWarService.FactionWarService.Mukraju, MaxHp = 1000, Level = 70 },
             });
+            _familyContributions = World.Freeze<Mock<IFamilyContributionService>>();
             _service = World.Create<GameObject.Services.FactionWarService.FactionWarService>();
         }
 
@@ -242,6 +245,27 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
         }
 
         [TestMethod]
+        public async Task AKillCountsTowardsTheKillersFamilyMissions()
+        {
+            await new Spec("An enemy defeated by a family member counts towards that family's Glacernon missions")
+                .Given(TheAngelIsInFamily_, 4L)
+                .WhenAsync(TheAngelKillsTheDemon_Times, 2)
+                .Then(Family_ShouldHaveBeenToldOf_DefeatedEnemies, 4L, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AKillOutsideTheWarCountsForNoFamily()
+        {
+            await new Spec("A kill between two players of one faction counts towards no family mission")
+                .Given(TheAngelIsInFamily_, 4L)
+                .And(TheDemonIsAnAngel)
+                .WhenAsync(TheAngelKillsTheDemon_Times, 1)
+                .Then(Family_ShouldHaveBeenToldOf_DefeatedEnemies, 4L, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public void TheHudCountsDownToTheMonthlyReset()
         {
             World.Clock.Reset(Instant.FromUtc(2026, 11, 30, 23, 0));
@@ -250,6 +274,14 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
             Assert.AreEqual(60, fc.MinutesUntilReset);
             Assert.AreEqual(Act4WarMode.Gathering, fc.Angel?.Mode);
             Assert.AreEqual(Act4WarMode.Gathering, fc.Demon?.Mode);
+        }
+
+        private void TheAngelIsInFamily_(long familyId) => _angel.Character.Family = new Family { FamilyId = familyId };
+
+        private void Family_ShouldHaveBeenToldOf_DefeatedEnemies(long familyId, int kills)
+        {
+            var killer = _angel.Character.CharacterId;
+            _familyContributions.Verify(s => s.GlacernonEnemyDefeatedAsync(familyId, killer), Times.Exactly(kills));
         }
 
         private async Task TheAngelKillsTheDemon_Times(int kills)
