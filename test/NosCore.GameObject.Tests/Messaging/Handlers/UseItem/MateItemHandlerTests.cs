@@ -59,9 +59,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.Level = 30;
             var mateService = new MateServiceImpl(World.MateDao, new NpcMonsterCatalog(new List<NpcMonsterDto>()),
                 new IdService<Mate>(1), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            World.Inject<NosCore.GameObject.Services.MateService.IMateStatsService>(World.Create<MateStatsService>());
             _handler = new MateItemHandler(mateService, World.Create<MateStatsService>(),
-                new NosCore.GameObject.Services.MateService.MateProgressionService(World.Create<MateStatsService>(),
-                    World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>()),
+                World.Create<NosCore.GameObject.Services.MateService.MateProgressionService>(),
                 World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
         }
 

@@ -14,5 +14,8 @@ namespace NosCore.GameObject.Services.MateService
         Task AddExperienceAsync(PlayerComponentBundle owner, long experience);
 
         Task AddExperienceAsync(PlayerComponentBundle owner, Mate mate, long experience);
+
+        /// <summary>Adds the agility a defeated monster gives to the card of the owner's team partner.</summary>
+        Task AddAgilityAsync(PlayerComponentBundle owner, byte monsterLevel);
     }
 }

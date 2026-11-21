@@ -1995,7 +1995,31 @@ partner at 100% agility (`AGILITY=<n>` to change it). Open the Character window'
 - [ ] Send the partner home and double-click a skill: "That is only possible if your partner is
       accompanying you."
 - [ ] Log out and back in: the learned ranks and the agility are kept
-- [ ] Not verifiable yet: agility does not grow, so after one skill the next needs the scene again
+- [ ] With `AGILITY=99`, defeat a monster on Chicken Farm Path while the partner is out: the
+      partner tab shows 100% and "Your partner's agility has reached 100%." appears
+- [ ] Defeat a monster at 40%: agility goes to 42% (a monster less than 15 levels below you) or
+      41% (less than 30 levels below); one 30 or more levels below gives nothing
+
+#### Partner Skill Tickets
+
+`/mnt/project-files/partner-skill-tickets/scene.sh` puts the card on the partner at 40% agility
+with skill 1 at rank B and skill 3 at rank S (`RANK1`, `RANK3`, `AGILITY` change them), a Partner
+Skill Ticket (Single) in Main slot 0 and a Partner Skill Ticket (All) in Main slot 1. Open the
+Character window's partner tab and the bag, double-click a ticket, then click a skill icon on the
+card (dragging the ticket onto the skill does nothing in the client).
+
+- [ ] Single ticket on skill 1: "Do you want to change the chosen skill level?"; Yes turns the
+      skill back to "?", the agility to 100%, uses the ticket and shows "The skill level has been
+      changed."
+- [ ] Single ticket on skill 3 (rank S): "You cannot use it if skill level S has been reached." and
+      the ticket stays
+- [ ] Single ticket on skill 2 (not learned): "The required skill level is insufficient."
+- [ ] All ticket on any skill with skill 3 at S: "Your partner's skill level is S. Do you really
+      want to reset it?"; with `RANK3=0`: "Do you want to change all the skill levels?"
+- [ ] Yes on the All ticket: every skill shows "?", agility 100%, "All skills have been reset."
+- [ ] All ticket with no learned skill (`RANK1=0 RANK3=0`): "This only works with a Specialist
+      Card that has at least one skill."
+- [ ] Transformed partner, or partner sent home: the same refusals as for learning
 
 #### Pet and partner items
 
