@@ -39,6 +39,10 @@ namespace NosCore.Instances.Tests
 
         public int MonstersAlive(int room) => Alive;
 
+        public HashSet<int> Cleared { get; } = [];
+
+        public bool WasCleared(int room) => Cleared.Contains(room);
+
         public int Players { get; set; }
 
         public bool Decided { get; set; }
@@ -60,6 +64,8 @@ namespace NosCore.Instances.Tests
         public void Hunt(int room, short vNum) => Calls.Add($"hunt({room},{vNum})");
 
         public void Dismiss(int room, short vNum) => Calls.Add($"dismiss({room},{vNum})");
+
+        public void Dismiss(int room) => Calls.Add($"dismiss({room})");
 
         public void SetRates(int room, int experience, int drops) => Calls.Add($"rates({room},{experience},{drops})");
 
@@ -95,8 +101,13 @@ namespace NosCore.Instances.Tests
             Calls.Add($"unlockExit({room})");
         }
 
-        public void SummonNpcs(int room, params NpcSpawn[] npcs) =>
+        public List<NpcSpawn> SummonedNpcs { get; } = [];
+
+        public void SummonNpcs(int room, params NpcSpawn[] npcs)
+        {
+            SummonedNpcs.AddRange(npcs);
             Calls.Add($"npcs({room},{string.Join(",", npcs.Select(m => m.VNum))})");
+        }
 
         public void AddClockTime(TimeSpan extra) => Calls.Add($"addClock({extra.TotalSeconds}s)");
 
@@ -127,6 +138,9 @@ namespace NosCore.Instances.Tests
 
         public Spot RandomCell(int room) => new(10, (short)(5 + _randomCells++));
 
+        public Spot RandomCell(int room, Spot around, short radius) =>
+            new((short)(around.X + radius), (short)(around.Y - radius + _randomCells++));
+
         public HashSet<int> ButtonsOn { get; } = [];
 
         public HashSet<(int Room, int Button)> Used { get; } = [];
@@ -147,6 +161,14 @@ namespace NosCore.Instances.Tests
         public void RemoveButton(int room, int button) => Calls.Add($"removebutton({room},{button})");
 
         public void PlaceNpc(int room, short vNum, Spot at) => Calls.Add($"npc({room},{vNum},{at.X},{at.Y})");
+
+        public List<(int Room, short VNum)> Items { get; } = [];
+
+        public void PlaceItem(int room, short vNum, Spot at)
+        {
+            Items.Add((room, vNum));
+            Calls.Add($"item({room},{vNum},{at.X},{at.Y})");
+        }
 
         public void StartClock(TimeSpan limit) => Calls.Add($"clock({limit.TotalMinutes}m)");
 

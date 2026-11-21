@@ -36,6 +36,12 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
             }
         }
 
+        public Task PlaceAsync(MapInstance mapInstance, Spot at, short vNum)
+        {
+            var placed = mapItemGenerationService.Create(mapInstance, itemGenerationService.Create(vNum, 1), at.X, at.Y);
+            return mapInstance.SendPacketAsync(placed.GenerateDrop());
+        }
+
         private (short X, short Y) Landing(MapInstance mapInstance, Spot around)
         {
             for (var attempt = 0; attempt < Attempts; attempt++)

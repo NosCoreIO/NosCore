@@ -3520,6 +3520,88 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client does not draw
       (NosCoreIO/NosCore.ClientLab#34); the guards of `timespace-20` and the
       companion of `timespace-22` follow the player and take orders in the log, which NosCore does not do yet
+- [ ] Not verifiable yet: a monster's hit and HP-threshold steps (`OnHit`, `OnHpBelow` in
+      [instance-scripts.md](instance-scripts.md)), which no shipped script uses yet
+
+### Time-spaces 33, 35, 38, 46 and 628
+
+These five come from the 2026-11-20 log of full runs: "La rencontre" (33, level 43, Fernon Temple 1),
+"L'enquête" (35, level 45), "Secret des Kenkos" (38, level 48), "Le peuple des Catsys" (46, level 56)
+and "L'espion koaren" (628, level 44, the stone on map 63). Point a test stone at each and use a
+character of its level; the texts below are the French ones the log shows.
+
+- [ ] Each of the five can be finished with Mission Clear, and its panel shows the draw, special and
+      bonus items of the log (33: 138, 145, 152 / 220 / 1027 x2, 1087; 35: 102, 115, 128 / 803 /
+      2099 x2, 1087; 38: 1085 x2, 1010 x3 / 2040 x15 / 2127, 1087; 46: 715, 533 / 1033 x8 / 2099 x4,
+      1087; 628: none) and takes 4, 4, 4, 5 and 1 time-space stones
+- [ ] In `timespace-33`, the first crossing (map 4400) holds a lever; pulling it opens the north and
+      south rooms. Its east door stays shut after clearing either one of them and opens, with "A door
+      has opened." and the Quick Mission line, once both are cleared. The second crossing works the same
+- [ ] In `timespace-33`, the hall after the second crossing (map 4411) is empty until its lever is
+      pulled; the lever brings Kenkos and "Une attaque surprise !", and clearing them adds 30 seconds
+- [ ] In `timespace-33`, the room on map 4411 with Korrkoaren shows "Rencontre entre Korrkoaren et
+      Kenko" and talk 6211; closing it brings a Kenko Flailman and an Ugly Spearman, "Tu dois combattre
+      le démon pendant 3 minutes." and a red three-minute clock. Three Ugly Spearmen come with "The
+      enemies are getting reinforcements!" a minute in and every 30 seconds after, and none at the
+      start; when the clock ends both doors open and talk 6212 shows
+- [ ] In `timespace-35`, the crossroads (map 5301) opens its north door only once both side camps
+      (map 5307) are cleared; clearing the west camp shows "Tu as éliminé tous les monstres !" and the
+      east camp "Dégagé !"
+- [ ] In `timespace-35`, the trap room (map 5303) shows "C'est un piège ! Tiens bon !" and a red
+      30 second clock; killing everything early opens nothing, and when the clock ends both doors open
+      and talk 6149 shows
+- [ ] In `timespace-38`, every hall after the gate opens talk 6163 and brings its Kenkos when it is
+      closed; clearing it opens the next hall only, the way back stays shut, and the first four add
+      80 seconds each
+- [ ] In `timespace-46`, the square (map 4812) holds a Kenel; closing talk 6234 brings the monsters
+      with "Une attaque inattendue !", and clearing it opens both doors and shows talk 6235
+- [ ] In `timespace-628`, the lever room (map 4416) brings Kenko Swordsmen when pulled; clearing them
+      opens the west door of the room on map 4403, which leads to a room that holds out for a red
+      200 second clock with Kenkos coming every 30 seconds; when it ends the east door of the room on
+      map 4402 opens too
+- [ ] Not verifiable yet: the regular and old boxes lying in some rooms of these logs (items 1042 and
+      1001), the objective counters the mission window shows (an NPC to protect in 33, 46 and 628,
+      six talks in 38), and the Kenko allies that fight beside the player in 33, none of which the
+      scripts hold
+
+### Time-spaces 34, 36 and 44
+
+From the same log: "La salle du trésor" (34, level 44), "Alliance avec les Kovolts" (36, level 46)
+and "Le cœur de Fernon" (44, level 54). Point a test stone at each and use a character of its level.
+
+- [ ] Each can be finished with Mission Clear, and its panel shows the items of the log (34: 524,
+      1014 x10 / 1011 x50 / 2127, 1087; 36: 713, 526 / 1016 x2 / 2127, 1087; 44: none / 1033 x8 /
+      2003 x2, 1087) and takes 4, 4 and 5 time-space stones
+- [ ] In `timespace-34`, the mission window shows an Artifact (1059) at 0/1 and no exit. The hall
+      next to the start has four open doors; the rooms on map 4213 and 4209 that say "Le portail
+      s'ouvrira une fois que tu auras éliminé tous les monstres." open every door when cleared, with
+      "La sortie est ouverte."
+- [ ] In `timespace-34`, the lever room (map 4207, "Vois-tu le levier au centre ?") opens both its
+      doors when the lever is pulled, even with monsters still standing
+- [ ] In `timespace-34`, the dark trap (map 4211, middle of the bottom row) shows "Le piège des
+      ténèbres ! Tu es piégé pendant 1 minute." and a red one-minute clock; killing the Dark Gargs
+      opens nothing, and when the clock ends its three doors open with "Le portail s'est ouvert."
+      The Artifact lies on its floor: picking it up moves the counter to 1/1 and wins at once
+- [ ] In `timespace-34`, the Large Mimic room east of the centre shows a red two-minute clock;
+      clearing it opens its north and south doors only and adds three minutes with "Tu as gagné 3
+      minutes de temps bonus."
+- [ ] In `timespace-36`, each battle room opens talk 6151, and its Koaren fighters attack the Kenkos
+      on their own while the Kenkos hit back at them; clearing it opens both doors, shows the Quick
+      Mission line and raises the clock (150, 120, 120, 150 and 150 seconds)
+- [ ] In `timespace-36`, letting the Elite Koaren Sword Fighter at the bottom right of the third
+      battle room (map 4210) die brings a Kenko Raider in on the left
+- [ ] In `timespace-36`, the last room (map 4206) opens talk 6154; closing it brings the Kenkos,
+      Kenel and the Koaren warriors fight them, and clearing it opens the exit with talk 6155
+- [ ] In `timespace-44`, the open rooms let the party walk through without killing anything, and
+      the four battle rooms open both doors when cleared and add 180, 200, 150 and 180 seconds
+- [ ] In `timespace-44`, the two rooms that say "Survis au combat contre les monstres pendant 2
+      minutes." show a red two-minute clock with five (map 4306) or six (map 4305) Lanetans
+      every 30 seconds; when the clock ends both doors open and the Lanetans still standing vanish
+- [ ] In `timespace-44`, the last room opens talk 6173; closing it shows "Patrouille ici pendant 2
+      minutes.", four Lanetans come in the first three waves and two Fernon Dryads in each of the
+      four, and when the clock ends the exit opens, talk 6174 shows and the monsters left vanish
+- [ ] Not verifiable yet: whether the time room of 34 really adds the two minutes it announces (the
+      log's clock did not move), and the NPC to protect the mission window of 36 shows
 
 ### Time-space reward chest
 

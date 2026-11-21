@@ -593,4 +593,40 @@
   <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
     <value>Серверы будут отключены через {0} мин. для технического обслуживания.</value>
   </data>
+  <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
+    <value>Портал откроется, когда ты победишь всех монстров.</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IS_OPEN" xml:space="preserve">
+    <value>Выход открыт.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_IN_TWO_MINUTES_FOR_BONUS" xml:space="preserve">
+    <value>Победи всех монстров за 2 минуты, чтобы получить дополнительное время.</value>
+  </data>
+  <data name="TIMESPACE_BONUS_THREE_MINUTES" xml:space="preserve">
+    <value>Ты получаешь 3 минуты дополнительного времени.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_DEMONS_TO_OPEN_EXIT" xml:space="preserve">
+    <value>Победи всех демонов, чтобы открыть выход.</value>
+  </data>
+  <data name="TIMESPACE_EXITS_ALL_AROUND_OPEN" xml:space="preserve">
+    <value>Все выходы вокруг открыты.</value>
+  </data>
+  <data name="TIMESPACE_SEE_LEVER_IN_CENTRE" xml:space="preserve">
+    <value>Видишь рычаг в центре?</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DARK_TRAP_ONE_MINUTE" xml:space="preserve">
+    <value>Ловушка тьмы! Ты в ловушке на 1 минуту.</value>
+  </data>
+  <data name="TIMESPACE_PORTAL_HAS_OPENED" xml:space="preserve">
+    <value>Портал открылся.</value>
+  </data>
+  <data name="TIMESPACE_TIME_ROOM_TWO_MINUTES" xml:space="preserve">
+    <value>Комната времени: ты получаешь 2 минуты дополнительного времени!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_FIGHT_TWO_MINUTES" xml:space="preserve">
+    <value>Продержись в бою с монстрами 2 минуты.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
+    <value>Патрулируй здесь 2 минуты.</value>
+  </data>
 </root>

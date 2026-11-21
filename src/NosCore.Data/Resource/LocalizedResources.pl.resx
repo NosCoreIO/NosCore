@@ -537,4 +537,40 @@
   <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
     <value>Serwery zostaną wyłączone za {0} min z powodu prac konserwacyjnych.</value>
   </data>
+  <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
+    <value>Portal otworzy się, gdy pokonasz wszystkie potwory.</value>
+  </data>
+  <data name="TIMESPACE_EXIT_IS_OPEN" xml:space="preserve">
+    <value>Wyjście jest otwarte.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_IN_TWO_MINUTES_FOR_BONUS" xml:space="preserve">
+    <value>Pokonaj wszystkie potwory w ciągu 2 minut, aby zdobyć dodatkowy czas.</value>
+  </data>
+  <data name="TIMESPACE_BONUS_THREE_MINUTES" xml:space="preserve">
+    <value>Zdobywasz 3 minuty dodatkowego czasu.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ALL_DEMONS_TO_OPEN_EXIT" xml:space="preserve">
+    <value>Pokonaj wszystkie demony, aby otworzyć wyjście.</value>
+  </data>
+  <data name="TIMESPACE_EXITS_ALL_AROUND_OPEN" xml:space="preserve">
+    <value>Wszystkie wyjścia dookoła są otwarte.</value>
+  </data>
+  <data name="TIMESPACE_SEE_LEVER_IN_CENTRE" xml:space="preserve">
+    <value>Widzisz dźwignię na środku?</value>
+  </data>
+  <data name="TIMESPACE_GOAL_DARK_TRAP_ONE_MINUTE" xml:space="preserve">
+    <value>Pułapka ciemności! Jesteś uwięziony na 1 minutę.</value>
+  </data>
+  <data name="TIMESPACE_PORTAL_HAS_OPENED" xml:space="preserve">
+    <value>Portal się otworzył.</value>
+  </data>
+  <data name="TIMESPACE_TIME_ROOM_TWO_MINUTES" xml:space="preserve">
+    <value>Komnata czasu: zdobywasz 2 minuty dodatkowego czasu!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_SURVIVE_FIGHT_TWO_MINUTES" xml:space="preserve">
+    <value>Przetrwaj walkę z potworami przez 2 minuty.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
+    <value>Patroluj tutaj przez 2 minuty.</value>
+  </data>
 </root>

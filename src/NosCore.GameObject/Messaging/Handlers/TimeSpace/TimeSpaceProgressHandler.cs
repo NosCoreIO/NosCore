@@ -24,6 +24,12 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
                     ?? Task.CompletedTask;
             }
 
+            if (evt.Victim is NpcComponentBundle { DeathStep: { } npcDeath, MapInstance: { } fallenMap })
+            {
+                return scriptedInstanceService.GetRun(fallenMap.MapInstanceId)?.NpcFellAsync(fallenMap.MapInstanceId, npcDeath)
+                    ?? Task.CompletedTask;
+            }
+
             if (evt.Victim is not MonsterComponentBundle { MapInstance: { } mapInstance } monster)
             {
                 return Task.CompletedTask;
@@ -33,6 +39,31 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
             return run == null
                 ? Task.CompletedTask
                 : run.MonsterKilledAsync(mapInstance.MapInstanceId, monster.VNum, monster.IsBonus, monster.DeathStep);
+        }
+
+        [UsedImplicitly]
+        public Task Handle(EntityDamagedEvent evt)
+        {
+            if (evt.Killed || evt.Target is not MonsterComponentBundle { MapInstance: { } mapInstance } monster
+                || (monster.HitStep == null && monster.HpThresholds.Count == 0))
+            {
+                return Task.CompletedTask;
+            }
+
+            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.MonsterHitAsync(mapInstance.MapInstanceId, monster)
+                ?? Task.CompletedTask;
+        }
+
+        [UsedImplicitly]
+        public Task Handle(ItemsReceivedEvent evt)
+        {
+            if (evt.PlayerHasLeft || evt.Character.MapInstance is not { } mapInstance)
+            {
+                return Task.CompletedTask;
+            }
+
+            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.ItemCollectedAsync(mapInstance.MapInstanceId, evt.VNum, evt.Amount)
+                ?? Task.CompletedTask;
         }
 
         [UsedImplicitly]

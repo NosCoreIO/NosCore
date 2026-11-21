@@ -17,6 +17,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Messaging.Handlers.TimeSpace;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -46,6 +47,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private TestWorld World;
         private const short Grunt = 58;
         private const short Boss = 59;
+        private const short Villager = 60;
 
         private sealed class Script : InstanceScript
         {
@@ -86,6 +88,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             public override void OnDialogClosed(IInstanceRun run, int room, int dialog) =>
                 Calls.Add($"closed({room},{dialog})");
 
+            public override void OnItemCollected(IInstanceRun run, int room, short vNum) =>
+                Calls.Add($"collected({room},{vNum})");
+
             public override void OnTimeout(IInstanceRun run)
             {
                 Calls.Add("timeout");
@@ -121,7 +126,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _gameEvents.Object, World.Create<TimeSpacePenaltyService>()),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
-                new NpcMonsterCatalog([new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10, IsHostile = true }]),
+                new NpcMonsterCatalog([new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10, IsHostile = true },
+                    new NpcMonsterDto { NpcMonsterVNum = Villager, MaxHp = 10 }]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(), World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
                 NullLogger.Instance, World.LogLanguageLocalizer, World.GameLanguageLocalizer,
                 timeout ?? TimeSpan.FromSeconds(30));
@@ -1137,6 +1143,94 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task DismissingARoomTakesAllItsMonstersAwayAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)), new MonsterSpawn(Grunt, new Spot(2, 1)));
+                    r.Summon(2, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                }
+            });
+            await run.StartAsync();
+
+            run.Dismiss(1);
+            await run.TickAsync();
+
+            Assert.IsFalse(_first.EnumerateMonsters().Any(m => m.IsAlive));
+            Assert.AreEqual(0, run.MonstersAlive(1));
+            Assert.IsTrue(_second.EnumerateMonsters().Single().IsAlive);
+        }
+
+        [TestMethod]
+        public async Task AnAllyIsSetAgainstTheMonstersAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.SummonNpcs(1, new NpcSpawn(Villager, new Spot(2, 2), IsAlly: true), new NpcSpawn(Villager, new Spot(3, 2)))
+            });
+
+            await run.StartAsync();
+
+            var npcs = _first.EnumerateNpcs().OrderBy(n => n.PositionX).ToList();
+            Assert.IsTrue(npcs[0].IsHostile);
+            Assert.IsFalse(npcs[1].IsHostile);
+        }
+
+        [TestMethod]
+        public async Task AnNpcsOwnDeathStepRunsWhenItFallsAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2), IsAlly: true,
+                    OnDeath: d => d.Summon(1, new MonsterSpawn(Grunt, new Spot(7, 1)))))
+            });
+            await run.StartAsync();
+            var deathStep = _first.EnumerateNpcs().Single().DeathStep ?? throw new AssertFailedException("No death step.");
+
+            await run.NpcFellAsync(_first.MapInstanceId, deathStep);
+
+            Assert.AreEqual((short)7, _first.EnumerateMonsters().Single().PositionX);
+            Assert.AreEqual(1, run.MonstersAlive(1));
+        }
+
+        [TestMethod]
+        public async Task APlacedItemLiesOnItsCellForAnyoneAsync()
+        {
+            var run = Run(new Script { Enter = r => r.PlaceItem(2, 1012, new Spot(3, 1)) });
+
+            await run.StartAsync();
+
+            var item = _second.GetMapItemBundles().Single();
+            Assert.AreEqual((short)1012, item.VNum);
+            Assert.AreEqual((short)3, item.PositionX);
+            Assert.AreEqual((short)1, item.PositionY);
+            Assert.IsNull(item.OwnerId);
+        }
+
+        [TestMethod]
+        public async Task PickingUpTheItemToCollectLetsThePartyOutAsync()
+        {
+            var script = new Script(0, new InstanceObjective(ObjectiveKind.CollectItem, 1059, 1))
+            {
+                Enter = r => r.SpawnExit(1, new Spot(3, 3), locked: false),
+                Exit = (r, _) => r.Succeed()
+            };
+            var run = Run(script);
+            await run.StartAsync();
+
+            await run.ItemCollectedAsync(_second.MapInstanceId, 1012, 1);
+            await run.ExitReachedAsync(_first.MapInstanceId);
+            Assert.IsNull(run.EndState);
+
+            await run.ItemCollectedAsync(_second.MapInstanceId, 1059, 1);
+            await run.ExitReachedAsync(_first.MapInstanceId);
+            Assert.AreEqual(EndStateType.Success, run.EndState);
+            CollectionAssert.IsSubsetOf(new[] { "collected(2,1012)", "collected(2,1059)" }, script.Calls);
+        }
+
+        [TestMethod]
         public async Task RatesApplyToTheirRoomOnlyAsync()
         {
             var run = Run(new Script { Enter = r => r.SetRates(1, 3, 2) });
@@ -1282,6 +1376,138 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.IsTrue(_first.EnumerateMonsters().Any(s => s.PositionX == 3));
             Assert.AreEqual(1, run.MonstersAlive(1));
+        }
+
+        [TestMethod]
+        public async Task AMonstersHitStepRunsOnEachHitItSurvivesAsync()
+        {
+            var hits = 0;
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHit: _ => hits++)) });
+            await run.StartAsync();
+            var monster = _first.EnumerateMonsters().Single();
+
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+
+            Assert.AreEqual(2, hits);
+        }
+
+        [TestMethod]
+        public async Task AnHpThresholdRunsOnceAsTheMonsterFallsBelowItAsync()
+        {
+            var crossed = new List<byte>();
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHpBelow:
+                [
+                    new HpThreshold(75, _ => crossed.Add(75)),
+                    new HpThreshold(50, _ => crossed.Add(50))
+                ]))
+            });
+            await run.StartAsync();
+            var monster = _first.EnumerateMonsters().Single();
+
+            monster.Hp = 8;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            monster.Hp = 7;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            monster.Hp = 9;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            monster.Hp = 3;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+
+            CollectionAssert.AreEqual(new byte[] { 75, 50 }, crossed);
+        }
+
+        [TestMethod]
+        public async Task AHitThatCrossesTwoThresholdsRunsBothAsync()
+        {
+            var crossed = new List<byte>();
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHpBelow:
+                [
+                    new HpThreshold(75, _ => crossed.Add(75)),
+                    new HpThreshold(50, _ => crossed.Add(50))
+                ]))
+            });
+            await run.StartAsync();
+            var monster = _first.EnumerateMonsters().Single();
+
+            monster.Hp = 2;
+            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+
+            CollectionAssert.AreEqual(new byte[] { 75, 50 }, crossed);
+        }
+
+        [TestMethod]
+        public async Task AHitStepCanActOnTheRunAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1),
+                    OnHit: h => h.Summon(1, new MonsterSpawn(Grunt, new Spot(3, 1)))))
+            });
+            await run.StartAsync();
+
+            await run.MonsterHitAsync(_first.MapInstanceId, _first.EnumerateMonsters().Single());
+
+            Assert.AreEqual(2, _first.EnumerateMonsters().Count());
+        }
+
+        [TestMethod]
+        public async Task AHitOnAMonsterWithHitStepsReachesItsRunAsync()
+        {
+            var hits = 0;
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHit: _ => hits++)) });
+            await run.StartAsync();
+            var service = World.Freeze<Mock<IScriptedInstanceService>>();
+            service.Setup(s => s.GetRun(_first.MapInstanceId)).Returns(run);
+            var attacker = (await World.CreateSessionAsync()).Character;
+
+            await World.Create<TimeSpaceProgressHandler>()
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 1, false));
+
+            Assert.AreEqual(1, hits);
+        }
+
+        [TestMethod]
+        public async Task AHitOnAMonsterWithoutHitStepsLeavesTheRunAloneAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1))) });
+            await run.StartAsync();
+            var service = World.Freeze<Mock<IScriptedInstanceService>>();
+            var attacker = (await World.CreateSessionAsync()).Character;
+
+            await World.Create<TimeSpaceProgressHandler>()
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 1, false));
+
+            service.Verify(s => s.GetRun(It.IsAny<Guid>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AKillingHitRunsNoHitStepAsync()
+        {
+            var service = World.Freeze<Mock<IScriptedInstanceService>>();
+            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHit: _ => { })) });
+            await run.StartAsync();
+            var attacker = (await World.CreateSessionAsync()).Character;
+
+            await World.Create<TimeSpaceProgressHandler>()
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 10, true));
+
+            service.Verify(s => s.GetRun(It.IsAny<Guid>()), Times.Never);
+        }
+
+        [TestMethod]
+        public void ACellAroundASpotIsWalkableAndWithinReach()
+        {
+            var run = Run(new Script());
+
+            var cells = Enumerable.Range(0, 50).Select(_ => run.RandomCell(1, new Spot(1, 1), 1)).ToList();
+
+            Assert.IsTrue(cells.All(c => c.X is >= 0 and <= 2 && c.Y is >= 0 and <= 2));
+            Assert.AreEqual(new Spot(30, 30), run.RandomCell(1, new Spot(30, 30), 2));
         }
 
         [TestMethod]
