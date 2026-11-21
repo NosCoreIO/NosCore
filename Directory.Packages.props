@@ -43,10 +43,10 @@
     <PackageVersion Include="NosCore.Algorithm" Version="8.3.0" />
     <PackageVersion Include="NosCore.Analyzers" Version="2.6.0" />
     <PackageVersion Include="NosCore.Dao" Version="6.1.1" />
-    <PackageVersion Include="NosCore.Networking" Version="13.0.0" />
-    <PackageVersion Include="NosCore.Packets" Version="58.0.0" />
+    <PackageVersion Include="NosCore.Networking" Version="15.0.0" />
+    <PackageVersion Include="NosCore.Packets" Version="60.0.0" />
     <PackageVersion Include="NosCore.PathFinder" Version="3.0.0" />
-    <PackageVersion Include="NosCore.Shared" Version="7.0.1" />
+    <PackageVersion Include="NosCore.Shared" Version="7.1.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0-rc.3" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="11.0.0-rc.3" />
     <PackageVersion Include="Npgsql.NodaTime" Version="10.0.3" />

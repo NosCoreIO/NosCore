@@ -52,7 +52,7 @@ namespace NosCore.Parser.Parsers
                 // A capture reads the bar's follow-up with the server's guri shape, which puts the cell's Y in
                 // SecondArgument and the NPC in EntityId.
                 if (packet is DelayPacket { Type: DelayPacketType.Button, Packet: GuriPacket { Type: GuriPacketType.MapTeleporter } guri }
-                    && guri is { Argument: var x, SecondArgument: { } y, EntityId: var stoneId } && npcs.TryGetValue((int)stoneId, out var stone))
+                    && guri is { Argument: var x, SecondArgument: { } y, EntityId: { } stoneId } && npcs.TryGetValue((int)stoneId, out var stone))
                 {
                     captured.TryAdd((stone.MapNpcId, null, 0), new TeleporterDto
                     {

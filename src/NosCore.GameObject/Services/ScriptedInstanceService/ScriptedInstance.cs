@@ -45,7 +45,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     TsConditionType = RbrPacketTsConditionType.CanEnterAlone
                 },
                 Unknown = 0,
-                Completed = false,
                 MinMaxLevel = new RbrSubPacketMinMaxLevel
                 {
                     MinLevel = EffectiveLevelMinimum,

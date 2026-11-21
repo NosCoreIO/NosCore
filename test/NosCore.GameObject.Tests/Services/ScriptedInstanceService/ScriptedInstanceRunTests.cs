@@ -1426,13 +1426,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
             var started = _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.RedTimer);
             Assert.AreEqual(1800, started.Parameter);
-            Assert.IsFalse(started.IsDisabled);
+            Assert.AreEqual(EventTimerState.Running, started.State);
 
             run.SetMonsterLocker(1, 1);
             await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
 
             var stopped = _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.RedTimer);
-            Assert.IsTrue(stopped.IsDisabled);
+            Assert.AreEqual(EventTimerState.Stopped, stopped.State);
         }
 
         [TestMethod]

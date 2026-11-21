@@ -367,7 +367,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private void TheSkillBarShouldHold_(short[] skills)
         {
             var bar = _session.LastPackets.OfType<PSkiPacket>().Single();
-            CollectionAssert.AreEqual(skills, new[] { (short)bar.FirstSkill, (short)bar.SecondSkill, (short)bar.ThirdSkill });
+            CollectionAssert.AreEqual(skills, new short?[] { (short)bar.FirstSkill, (short)bar.SecondSkill, (short?)bar.ThirdSkill });
             var scn = _session.LastPackets.OfType<ScnPacket>().Last();
             CollectionAssert.AreEqual(skills, new[] { scn.Skill1Details, scn.Skill2Details, scn.Skill3Details }
                 .Select(s => (short)s.NotNull().SkillId).ToArray());
