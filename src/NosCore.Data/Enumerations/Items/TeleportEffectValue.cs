@@ -10,6 +10,7 @@ namespace NosCore.Data.Enumerations.Items
     {
         WingOfReturn = 0,
         AmuletOfReturn = 1,
-        Miniland = 2
+        Miniland = 2,
+        BaseCamp = 5
     }
 }

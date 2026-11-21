@@ -140,6 +140,55 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
         }
 
         [TestMethod]
+        public async Task MonsterKillsMoveTheKillersSide()
+        {
+            await new Spec("Each monster killed moves the killer's side a twentieth of a percent")
+                .WhenAsync(TheAngelKills_Monsters, 20)
+                .Then(TheAngelSideShouldBeAt_, 100)
+                .And(TheDemonSideShouldBeAt_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheHudOnlyHearsOfWholePercents()
+        {
+            await new Spec("Glacernon is only sent the progress once a monster kill moves the shown percentage")
+                .WhenAsync(TheAngelKills_Monsters, 19)
+                .Then(TheDemonShouldHaveBeenSent_Huds, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheHudShowsEachWholePercentFromMonsters()
+        {
+            await new Spec("The monster kill that completes a percent sends Glacernon the new progress")
+                .WhenAsync(TheAngelKills_Monsters, 20)
+                .Then(TheHudOf_ShouldShowTheAngelsAt_, "demon", (byte)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MonsterKillsCanCallLordMukraju()
+        {
+            await new Spec("Monster kills alone can fill the bar and call Lord Mukraju")
+                .WhenAsync(TheAngelKills_Monsters, 2000)
+                .Then(TheAngelSideShouldBeIn_, Act4WarMode.Guardian)
+                .And(LordMukrajuShouldStandInTheCamp_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANeutralMonsterKillChangesNothing()
+        {
+            await new Spec("A player without a side moves no bar")
+                .Given(TheAngelIsNeutral)
+                .WhenAsync(TheAngelKills_Monsters, 20)
+                .Then(TheAngelSideShouldBeAt_, 0)
+                .And(TheDemonSideShouldBeAt_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AKillIsCountedForBothPlayers()
         {
             await new Spec("The killer scores a kill and two points, the victim a death and loses a point")
@@ -210,6 +259,19 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
                 await _service.RecordKillAsync(_angel.Character, _demon.Character);
             }
         }
+
+        private async Task TheAngelKills_Monsters(int kills)
+        {
+            for (var i = 0; i < kills; i++)
+            {
+                await _service.RecordMonsterKillAsync(_angel.Character);
+            }
+        }
+
+        private void TheAngelIsNeutral() => _angel.Character.Faction = FactionType.Neutral;
+
+        private void TheDemonShouldHaveBeenSent_Huds(int count) =>
+            Assert.AreEqual(count, _demon.LastPackets.OfType<FcPacket>().Count());
 
         private MonsterComponentBundle? Mukraju() => _camp.FindMonster(m =>
             m.VNum == GameObject.Services.FactionWarService.FactionWarService.Mukraju && m.IsAlive);

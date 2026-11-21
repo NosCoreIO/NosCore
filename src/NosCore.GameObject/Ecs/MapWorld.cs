@@ -267,7 +267,8 @@ public class MapWorld : IDisposable
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
             new HitListComponent(new ConcurrentDictionary<Entity, int>()),
             new RespawnComponent(null, respawns),
-            new ScriptedMonsterComponent(false, null)
+            new ScriptedMonsterComponent(false, null),
+            new FactionComponent(default)
         );
         return entity;
     }
@@ -348,6 +349,7 @@ public class MapWorld : IDisposable
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
             new SkillResetComponent(new ConcurrentDictionary<long, Instant>()),
             new MateStateComponent(mate, mate.CharacterId),
+            new FactionComponent(default),
             new HitListComponent(new ConcurrentDictionary<Entity, int>())
         );
     }

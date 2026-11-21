@@ -631,7 +631,7 @@ namespace NosCore.GameObject.Services.BattleService
                     || AreRainbowBattleOpponents(attacker, defender) || AreOpponentsOnPvpMap(attacker, defender) || AreAct4Opponents(attacker, defender);
             }
             if (AreAllies(origin, target)) return false;
-            return true;
+            return !IsOwnSidesBuilding(origin, target);
         }
 
         // Only the two fighters in the ring hit each other, and only once their round has started.
@@ -672,6 +672,16 @@ namespace NosCore.GameObject.Services.BattleService
             origin.IsAlive && !origin.NoAttack && origin is not MateComponentBundle { Mate.Loyalty: <= 0 };
 
         private bool IsStunned(IAliveEntity origin) => buffService.HasEffect(origin, BCardEffect.SpecialAttackNoAttack);
+
+        // A side's base camp stands in Glacernon for its enemies to tear down, not for its own players.
+        private static bool IsOwnSidesBuilding(IAliveEntity origin, IAliveEntity target) =>
+            target is MonsterComponentBundle { Faction: not FactionType.Neutral } building
+            && origin switch
+            {
+                PlayerComponentBundle player => player.Faction == building.Faction,
+                MateComponentBundle mate => mate.Faction == building.Faction,
+                _ => false,
+            };
 
         private static bool AreAllies(IAliveEntity a, IAliveEntity b)
         {

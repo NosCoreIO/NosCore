@@ -289,7 +289,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             short x, short y)
         {
             var handle = mapInstance.EcsWorld.CreateMate((int)mate.MateTransportId, mate, mapInstance, x, y, 2);
-            mate.Entity = new MateComponentBundle(handle, mapInstance.EcsWorld) { Morph = mate.Morph() };
+            mate.Entity = new MateComponentBundle(handle, mapInstance.EcsWorld) { Morph = mate.Morph(), Faction = owner.Faction };
 
             // A hidden owner's pet would put the owner back on screen.
             var spawn = mate.GenerateIn(owner.AccountLanguage, x, y);
