@@ -129,19 +129,19 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         private async Task AMonsterHitsTheCharacterFor_(int damage)
         {
             _session.Character.MapInstance.LastPackets.Clear();
-            await _handler.Handle(new EntityDamagedEvent(_monster, _session.Character, damage, false));
+            await _handler.Handle(new EntityDamagedEvent(_monster, _session.Character, damage, false, 1));
         }
 
         private async Task AMonsterKillsTheCharacter()
         {
             _session.Character.MapInstance.LastPackets.Clear();
-            await _handler.Handle(new EntityDamagedEvent(_monster, _session.Character, 100, true));
+            await _handler.Handle(new EntityDamagedEvent(_monster, _session.Character, 100, true, 0));
         }
 
         private async Task TheCharacterHitsAMonster()
         {
             _session.Character.MapInstance.LastPackets.Clear();
-            await _handler.Handle(new EntityDamagedEvent(_session.Character, _monster, 100, false));
+            await _handler.Handle(new EntityDamagedEvent(_session.Character, _monster, 100, false, 1));
         }
 
         private void IsSittingShouldBe_(bool expected) => Assert.AreEqual(expected, _session.Character.IsSitting);

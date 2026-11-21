@@ -100,9 +100,22 @@ namespace NosCore.Instances.Tests
 
         public void AddClockTime(TimeSpan extra) => Calls.Add($"addClock({extra.TotalSeconds}s)");
 
-        public void StartRoomClock(int room, TimeSpan length) => Calls.Add($"roomClock({room},{length.TotalSeconds}s)");
+        private readonly Dictionary<int, RoomClock> _roomClocks = [];
+        private int _roomClockStarts;
 
-        public void StopRoomClock(int room) => Calls.Add($"stopRoomClock({room})");
+        public void StartRoomClock(int room, TimeSpan length)
+        {
+            _roomClocks[room] = new RoomClock(++_roomClockStarts, Elapsed + length);
+            Calls.Add($"roomClock({room},{length.TotalSeconds}s)");
+        }
+
+        public void StopRoomClock(int room)
+        {
+            _roomClocks.Remove(room);
+            Calls.Add($"stopRoomClock({room})");
+        }
+
+        public RoomClock? RoomClockOf(int room) => _roomClocks.TryGetValue(room, out var clock) ? clock : null;
 
         public List<(int Room, int Dialog)> Dialogs { get; } = [];
 
@@ -126,6 +139,12 @@ namespace NosCore.Instances.Tests
         private short _randomCells;
 
         public Spot RandomCell(int room) => new(10, (short)(5 + _randomCells++));
+
+        private int _cellsAround;
+
+        // Walks the cells of the square's east edge, so each one stays within the radius.
+        public Spot RandomCell(int room, Spot around, short radius) =>
+            new((short)(around.X + radius), (short)(around.Y - radius + _cellsAround++ % (2 * radius + 1)));
 
         public HashSet<int> ButtonsOn { get; } = [];
 

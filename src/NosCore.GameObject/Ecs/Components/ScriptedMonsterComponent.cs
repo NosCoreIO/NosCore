@@ -6,7 +6,10 @@
 
 using NosCore.Instances.Abstractions;
 using System;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Ecs.Components;
 
-public record struct ScriptedMonsterComponent(bool IsBonus, Action<IInstanceRun>? DeathStep);
+// HpThresholds loses each threshold as it is crossed, so a monster healed above one does not run it again.
+public record struct ScriptedMonsterComponent(bool IsBonus, Action<IInstanceRun>? DeathStep, Action<IInstanceRun>? HitStep,
+    IReadOnlyList<HpThreshold> HpThresholds);

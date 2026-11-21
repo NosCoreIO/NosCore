@@ -11,7 +11,8 @@ namespace NosCore.GameObject.Messaging.Events
 {
     // Raised after every landed hit. Aggro, quest trackers and anything else that
     // wants to react to damage without sitting on the hot path subscribes here.
-    public sealed record EntityDamagedEvent(IAliveEntity Attacker, IAliveEntity Target, int Damage, bool Killed) : IGameEvent
+    // HpLeft is the target's HP right after this hit; later hits may have landed by the time it is handled.
+    public sealed record EntityDamagedEvent(IAliveEntity Attacker, IAliveEntity Target, int Damage, bool Killed, int HpLeft) : IGameEvent
     {
         public IAliveEntity? Subject => Target;
 

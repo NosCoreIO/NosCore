@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             var monster = new Mock<INonPlayableEntity>();
             var player = new Mock<IAliveEntity>().Object;
 
-            await handler.Handle(new EntityDamagedEvent(player, monster.Object, 42, false));
+            await handler.Handle(new EntityDamagedEvent(player, monster.Object, 42, false, 1));
 
             aggro.Verify(a => a.AddThreat(monster.Object, player, 42), Times.Once);
         }
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             var attacker = new Mock<IAliveEntity>().Object;
             var victim = new Mock<IAliveEntity>().Object;
 
-            await handler.Handle(new EntityDamagedEvent(attacker, victim, 10, false));
+            await handler.Handle(new EntityDamagedEvent(attacker, victim, 10, false, 1));
 
             aggro.Verify(a => a.AddThreat(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<int>()), Times.Never);
         }
