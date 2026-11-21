@@ -1255,6 +1255,24 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AFallenNpcThatIsNoEscortRunsItsDeathStepAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2), IsAlly: true,
+                    OnDeath: d => d.Summon(1, new MonsterSpawn(Grunt, new Spot(7, 1)))))
+            });
+            await run.StartAsync();
+            World.Freeze<Mock<IScriptedInstanceService>>().Setup(s => s.GetRun(_first.MapInstanceId)).Returns(run);
+            var npc = _first.EnumerateNpcs().Single();
+
+            await World.Create<TimeSpaceProgressHandler>().Handle(new EntityDiedEvent(npc, null));
+
+            Assert.AreEqual((short)7, _first.EnumerateMonsters().Single().PositionX);
+            Assert.IsNull(run.EndState);
+        }
+
+        [TestMethod]
         public async Task APlacedItemLiesOnItsCellForAnyoneAsync()
         {
             var run = Run(new Script { Enter = r => r.PlaceItem(2, 1012, new Spot(3, 1)) });
