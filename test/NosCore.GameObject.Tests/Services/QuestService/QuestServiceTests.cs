@@ -299,6 +299,65 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
                 .Then(CharacterShouldBeOnStep_OfScript_, (short)1, (byte)1)
                 .And(TheOfferResultShouldBe_, false)
+                .And(NoStepShouldBeSent)
+                .And(NoQuestNpcShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TakingAChapterWhileThePreviousOneRunsSaysAMainQuestIsUnderway()
+        {
+            await new Spec("Taking a chapter before the one before it ends tells the player a main quest is already underway")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .And(CharacterIsBackOnStepOneOfChapterOne)
+                .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
+                .Then(ThePlayerShouldBeToldAMainQuestIsUnderway)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChapterBelowItsLevelIsRefusedWithoutAMessage()
+        {
+            await new Spec("A chapter refused for its level says nothing about a main quest")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)60)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
+                .Then(NoMessageShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChapterIsOfferedWhileThePreviousOneRuns()
+        {
+            await new Spec("The NPC asks about its chapter even while the one before it is still running")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .And(CharacterIsBackOnStepOneOfChapterOne)
+                .When(AskingWhetherNpc_OffersChapter_, (short)331, (byte)2)
+                .Then(TheChapterShouldBeOffered_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChapterIsNotOfferedBelowItsLevel()
+        {
+            await new Spec("The NPC does not ask about a chapter the character is too low to take")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)60)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .When(AskingWhetherNpc_OffersChapter_, (short)331, (byte)2)
+                .Then(TheChapterShouldBeOffered_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChapterIsOfferedOnlyByItsNpc()
+        {
+            await new Spec("Another NPC does not ask about the chapter")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .When(AskingWhetherNpc_OffersChapter_, (short)300, (byte)2)
+                .Then(TheChapterShouldBeOffered_, false)
                 .ExecuteAsync();
         }
 
@@ -1175,6 +1234,29 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void NoQuestNpcShouldBeSent()
         {
             Assert.IsFalse(Session.LastPackets.OfType<QnpcPacket>().Any());
+        }
+
+        private bool _offered;
+
+        private void AskingWhetherNpc_OffersChapter_(short npcVNum, byte scriptId)
+        {
+            _offered = Service.CanTakeScriptOffer(Session.Character, npcVNum, scriptId);
+        }
+
+        private void TheChapterShouldBeOffered_(bool expected)
+        {
+            Assert.AreEqual(expected, _offered);
+        }
+
+        private void ThePlayerShouldBeToldAMainQuestIsUnderway()
+        {
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.AlreadyAMainQuest },
+                Session.LastPackets.OfType<MsgiPacket>().Single());
+        }
+
+        private void NoMessageShouldBeSent()
+        {
+            Assert.IsFalse(Session.LastPackets.OfType<MsgiPacket>().Any());
         }
 
         private void TheOfferResultShouldBe_(bool expected)

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -56,23 +57,72 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var client = await OnTheLastStepOfTheFirstChapterAsync("Listener");
             await client.SendAsync(AcknowledgeTheLastStep);
             await client.ExpectAsync<QnpcPacket>();
-            await client.SendAsync(TalkToTheStoryteller);
-            await client.ExpectAsync<NpcReqPacket>(p => p.TargetId == WorldData.Storyteller);
+
+            var answered = await AnswerYesAsync(client);
+
+            PacketAssert.AreEqual(new ScriptPacket { ScriptId = WorldData.NextChapter, ScriptStepId = WorldData.ChapterStep },
+                await client.ExpectSinceAsync<ScriptPacket>(answered));
+            PacketAssert.AreEqual(QuestNpc(-1), await client.ExpectSinceAsync<QnpcPacket>(answered));
+        }
+
+        [TestMethod]
+        public async Task PickingTheChapterAsksBeforeStartingIt()
+        {
+            await using var client = await OnTheLastStepOfTheFirstChapterAsync("Hesitant");
+            await TalkToTheStorytellerAsync(client);
             var mark = client.Mark();
 
             await client.SendAsync(TakeTheNextChapter);
 
-            PacketAssert.AreEqual(new ScriptPacket { ScriptId = WorldData.NextChapter, ScriptStepId = WorldData.ChapterStep },
-                await client.ExpectSinceAsync<ScriptPacket>(mark));
-            PacketAssert.AreEqual(QuestNpc(-1), await client.ExpectSinceAsync<QnpcPacket>(mark));
+            PacketAssert.AreEqual(new QnaiPacket { YesPacket = Confirmed(TakeTheNextChapter), Question = Game18NConstString.CannotAbandonMainQuest },
+                await client.ExpectSinceAsync<QnaiPacket>(mark));
+            Assert.IsTrue(await client.NoneSinceAsync<ScriptPacket>(mark, null, TimeSpan.FromSeconds(1)), "nothing starts before the answer");
         }
 
-        private static async Task<TestClient> OnTheLastStepOfTheFirstChapterAsync(string name)
+        [TestMethod]
+        public async Task TakingTheChapterMidwayThroughThePreviousOneSaysAMainQuestIsUnderway()
+        {
+            await using var client = await OnStepOfTheFirstChapterAsync("Midway", WorldData.FirstChapterOpening);
+
+            var answered = await AnswerYesAsync(client);
+
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.AlreadyAMainQuest },
+                await client.ExpectSinceAsync<MsgiPacket>(answered));
+            Assert.IsTrue(await client.NoneSinceAsync<ScriptPacket>(answered, null, TimeSpan.FromSeconds(1)), "the chapter does not start");
+        }
+
+        private static async Task TalkToTheStorytellerAsync(TestClient client)
+        {
+            var mark = client.Mark();
+            await client.SendAsync(TalkToTheStoryteller);
+            await client.ExpectSinceAsync<NpcReqPacket>(mark, p => p.TargetId == WorldData.Storyteller);
+        }
+
+        private static async Task<int> AnswerYesAsync(TestClient client)
+        {
+            await TalkToTheStorytellerAsync(client);
+            var mark = client.Mark();
+            await client.SendAsync(TakeTheNextChapter);
+            var asked = await client.ExpectSinceAsync<QnaiPacket>(mark);
+            var answered = client.Mark();
+            await client.SendAsync(asked.YesPacket ?? throw new AssertFailedException("the question carries no answer"));
+            return answered;
+        }
+
+        private static NrunPacket Confirmed(NrunPacket pick) => new()
+        {
+            Runner = pick.Runner, Type = pick.Type, VisualType = pick.VisualType, VisualId = pick.VisualId, Unknown4 = 1
+        };
+
+        private static Task<TestClient> OnTheLastStepOfTheFirstChapterAsync(string name) =>
+            OnStepOfTheFirstChapterAsync(name, WorldData.FirstChapterLastStep);
+
+        private static async Task<TestClient> OnStepOfTheFirstChapterAsync(string name, Guid step)
         {
             var player = await Harness.AddPlayerAsync(name, x: WorldData.StorytellerX - 1, y: WorldData.StorytellerY, configure: c =>
             {
                 c.Level = 20;
-                c.CurrentScriptId = WorldData.FirstChapterLastStep;
+                c.CurrentScriptId = step;
             });
             var client = Harness.Client(player);
             var arrival = await client.EnterWorldAsync(player.Slot);
