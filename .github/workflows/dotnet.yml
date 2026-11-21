@@ -14,7 +14,72 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build:
+  # Each lane builds only what its tests need, so the slow end-to-end run starts with the others
+  # instead of after them.
+  tests:
+    name: tests (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - NosCore.Core.Tests
+          - NosCore.Database.Tests
+          - NosCore.GameObject.Tests
+          - NosCore.Instances.Tests
+          - NosCore.PacketHandlers.Tests
+          - NosCore.Parser.Tests
+          - NosCore.Persistence.Tests
+          - NosCore.Tests.Shared
+          - NosCore.WebApi.Tests
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+    - uses: actions/checkout@v7
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 11.0.x
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v6
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+        restore-keys: |
+          nuget-${{ runner.os }}-
+
+    - name: Build
+      run: dotnet build test/${{ matrix.project }}/${{ matrix.project }}.csproj
+
+    - name: Test
+      env:
+        NOSCORE_E2E_REQUIRED: true
+      run: >-
+        dotnet test test/${{ matrix.project }}/${{ matrix.project }}.csproj --no-build
+        --filter TestCategory!=OPTIONAL-TEST --logger GitHubActions
+        /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput="${{ github.workspace }}/coverage/${{ matrix.project }}.opencover.xml"
+
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: coverage
+        flags: ${{ matrix.project }}
+
+  end-to-end:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     services:
@@ -45,46 +110,31 @@ jobs:
           nuget-${{ runner.os }}-
 
     - name: Build
-      run: |
-        dotnet --version
-        dotnet build
-
-    - name: Run Tests with Coverage
-      env:
-        NOSCORE_E2E_REQUIRED: true
-      run: |
-        dotnet test test/NosCore.Core.Tests/NosCore.Core.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        dotnet test test/NosCore.Database.Tests/NosCore.Database.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        dotnet test test/NosCore.Persistence.Tests/NosCore.Persistence.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        dotnet test test/NosCore.GameObject.Tests/NosCore.GameObject.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        dotnet test test/NosCore.PacketHandlers.Tests/NosCore.PacketHandlers.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        dotnet test test/NosCore.Tests.Shared/NosCore.Tests.Shared.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        dotnet test test/NosCore.Parser.Tests/NosCore.Parser.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        dotnet test test/NosCore.WebApi.Tests/NosCore.WebApi.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
+      run: dotnet build
 
     - name: Run end-to-end scenarios
       env:
         NOSCORE_E2E_REQUIRED: true
-      run: dotnet test test/NosCore.EndToEnd.Tests/NosCore.EndToEnd.Tests.csproj --no-build
+      run: dotnet test test/NosCore.EndToEnd.Tests/NosCore.EndToEnd.Tests.csproj --no-build --logger GitHubActions
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+  docker:
+    if: github.ref == 'refs/heads/master'
+    needs: [tests, end-to-end]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+    - uses: actions/checkout@v7
 
     - name: Set up Docker Buildx
-      if: github.ref == 'refs/heads/master'
       uses: docker/setup-buildx-action@v4
 
     - name: Login to DockerHub
-      if: github.ref == 'refs/heads/master'
       uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build, tag, and push image LoginServer
-      if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v7
       with:
         context: .
@@ -98,7 +148,6 @@ jobs:
         cache-to: type=gha,mode=max
 
     - name: Build, tag, and push image MasterServer
-      if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v7
       with:
         context: .
@@ -112,7 +161,6 @@ jobs:
         cache-to: type=gha,mode=max
 
     - name: Build, tag, and push image Parser
-      if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v7
       with:
         context: .
@@ -126,7 +174,6 @@ jobs:
         cache-to: type=gha,mode=max
 
     - name: Build, tag, and push image WorldServer
-      if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v7
       with:
         context: .

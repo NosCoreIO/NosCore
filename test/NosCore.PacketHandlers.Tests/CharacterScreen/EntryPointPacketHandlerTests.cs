@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class EntryPointPacketHandlerTests
     {
         private TestWorld World;
-        private static readonly Mock<ILogger<EntryPointPacketHandler>> Logger = new();
+        private readonly Mock<ILogger<EntryPointPacketHandler>> Logger = new();
         private EntryPointPacketHandler EntryPointPacketHandler;
         private ClientSession Session;
         private Mock<IAuthHub> AuthHttpClient;
@@ -40,7 +40,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Logger.Invocations.Clear();
             Session = await World.CreateSessionAsync();
             AccountName = Session.Account.Name;
             await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto).OrThrowAsync();
