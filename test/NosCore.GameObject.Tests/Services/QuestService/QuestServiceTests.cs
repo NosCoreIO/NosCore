@@ -243,6 +243,29 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task AcknowledgingAStepStartsOnlyTheNextOne()
+        {
+            await new Spec("Acknowledging a step starts the next one without playing the finished one again")
+                .Given(CharacterIsOnTalkStepOneOfScript_, (byte)100)
+                .And(NoPacketWasSentYet)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)1, (byte)100)
+                .Then(OnlyStep_OfScript_ShouldBeStarted, (short)2, (byte)100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AcknowledgingTheLastStepBeforeAnOfferedChapterStartsNothing()
+        {
+            await new Spec("Acknowledging the last step of a chapter does not play it again while the next one waits for its NPC")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .And(NoPacketWasSentYet)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)2, (byte)1)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task TakingAnOfferedChapterStartsItsFirstStep()
         {
             await new Spec("Picking a chapter from the NPC's list starts it")
@@ -1060,6 +1083,19 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 FirstArgument = scriptId,
                 SecondArgument = stepId,
             });
+        }
+
+        private void NoPacketWasSentYet()
+        {
+            Session.LastPackets.Clear();
+        }
+
+        private void OnlyStep_OfScript_ShouldBeStarted(short stepId, byte scriptId)
+        {
+            var started = Session.LastPackets.OfType<NosCore.Packets.ServerPackets.Quest.ScriptPacket>().ToList();
+            Assert.AreEqual(1, started.Count);
+            Assert.AreEqual(scriptId, started[0].ScriptId);
+            Assert.AreEqual(stepId, started[0].ScriptStepId);
         }
 
         private void CharacterHasNoScript()
