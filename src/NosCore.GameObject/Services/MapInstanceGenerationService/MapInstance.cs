@@ -604,6 +604,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private async Task TickLifeAsync()
         {
             var map = new KeyValuePair<string, object?>("map.id", (int)Map.MapId);
+            // Also while asleep, so nobody arriving sees an expired drop. Time-space rooms keep theirs.
+            await GuardAsync(MapInstanceType == MapInstanceType.TimeSpaceInstance ? null : DespawnMapItemsAsync, "map item despawn");
             if (IsSleeping)
             {
                 if (_reportedAwake)
@@ -657,8 +659,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             await GuardAsync(_mateLoyaltyService == null ? null : () => _mateLoyaltyService.TickAsync(this), "mate loyalty");
             await GuardAsync(SendSkillResetsAsync, "cooldown resets");
             await GuardAsync(SendAmbientEffectsAsync, "ambient effects");
-            // Time-space rooms keep their drops past the lifetime.
-            await GuardAsync(MapInstanceType == MapInstanceType.TimeSpaceInstance ? null : DespawnMapItemsAsync, "map item despawn");
             await GuardAsync(SweepPendingRespawnsAsync, "respawns");
         }
 

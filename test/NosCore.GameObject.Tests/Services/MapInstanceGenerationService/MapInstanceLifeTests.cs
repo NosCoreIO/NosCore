@@ -141,6 +141,24 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
             await map.DisposeAsync();
         }
 
+        [TestMethod]
+        public async Task AnItemPastItsLifetimeLeavesAMapNobodyIsOn()
+        {
+            var map = NewMap();
+            var item = DropExpiredItem(map, 41);
+            map.IsSleeping = true;
+            await map.StartLifeAsync();
+
+            for (var waited = 0; map.EcsWorld.IsAlive(item) && waited < 100; waited++)
+            {
+                await Task.Delay(50);
+            }
+
+            Assert.IsTrue(map.IsSleeping);
+            Assert.IsFalse(map.EcsWorld.IsAlive(item));
+            await map.DisposeAsync();
+        }
+
         private Arch.Core.Entity DropExpiredItem(MapInstance map, long visualId) =>
             map.EcsWorld.CreateMapItem(visualId, 1012, 1, map.MapInstanceId, 0, 0, null,
                 World.Clock.GetCurrentInstant() - MapItemDespawnSystem.Lifetime, Guid.NewGuid(), null);
