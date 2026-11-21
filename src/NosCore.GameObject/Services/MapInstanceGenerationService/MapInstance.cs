@@ -152,7 +152,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _heatService = heatService;
             _mateRevivalService = mateRevivalService;
             _mateLoyaltyService = mateLoyaltyService;
-            EcsWorld = new MapWorld(clock);
+            EcsWorld = new MapWorld(clock, Executor);
             Time = time ?? TimeProvider.System;
         }
 

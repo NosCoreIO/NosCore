@@ -36,6 +36,7 @@ namespace NosCore.GameObject.Tests.Networking
         private bool MapWorkRanMeanwhile;
         private bool HeldItsMapAgain;
         private MapInstance? MapAfterwards;
+        private Exception? Refused;
         private Task LeftBehind = Task.CompletedTask;
         private readonly TaskCompletionSource Unblock = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -100,6 +101,25 @@ namespace NosCore.GameObject.Tests.Networking
                 .Given(TheHandlerStepsAwayFromInsideExclusiveWorkOnItsMap)
                 .WhenAsync(APacketArrives)
                 .Then(NoMapWorkShouldHaveRunMeanwhile)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WorkOnAnotherMapCannotWriteThePlayer()
+        {
+            await new Spec("Work on another map cannot write the player")
+                .WhenAsync(TheMinilandsWorkChangesThePlayersGold)
+                .Then(TheWriteShouldHaveBeenRefused)
+                .And(TheGoldShouldBeUnchanged)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WorkOnThePlayersMapCanWriteThePlayer()
+        {
+            await new Spec("Work on the player's map can write the player")
+                .WhenAsync(ThePlayersMapChangesTheirGold)
+                .Then(TheGoldShouldHaveChanged)
                 .ExecuteAsync();
         }
 
@@ -177,6 +197,32 @@ namespace NosCore.GameObject.Tests.Networking
                 HeldItsMapAgain = MapAfterwards.Executor.IsCurrent;
             };
         }
+
+        private async Task TheMinilandsWorkChangesThePlayersGold()
+        {
+            GoldBefore = Session.Character.Gold;
+            Refused = await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => World.GetMap(World.MinilandId).Executor.RunAsync(() =>
+            {
+                Session.Character.Gold = GoldBefore + 1;
+                return Task.CompletedTask;
+            }));
+        }
+
+        private async Task ThePlayersMapChangesTheirGold()
+        {
+            GoldBefore = Session.Character.Gold;
+            await Session.Character.MapInstance.Executor.RunAsync(() =>
+            {
+                Session.Character.Gold = GoldBefore + 1;
+                return Task.CompletedTask;
+            });
+        }
+
+        private void TheWriteShouldHaveBeenRefused() => Assert.IsNotNull(Refused);
+
+        private void TheGoldShouldBeUnchanged() => Assert.AreEqual(GoldBefore, Session.Character.Gold);
+
+        private void TheGoldShouldHaveChanged() => Assert.AreEqual(GoldBefore + 1, Session.Character.Gold);
 
         private Task APacketArrives() => FromNetwork(new GboxPacket { Header = "gbox", Type = BankActionType.DepositGold, Amount = 1 });
 

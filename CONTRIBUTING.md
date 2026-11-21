@@ -30,6 +30,10 @@ rather than adding a lock next to it.
    not inside `RunExclusiveAsync` or other map work, so there hand the job off instead of waiting. A
    map change takes two executors through `RunExclusiveAsync`, in a fixed order. Start a map change
    outside `OnMapAsync`: from inside the later-created of the two maps it throws instead of waiting.
+
+   Debug builds check this: a component write, an added or removed component or a destroyed entity
+   from inside another map's work throws. A test that puts a player on another map moves the entity
+   with `MapChangeService.MovePlayer` rather than setting `MapInstance`.
 2. **State shared between channels is written by the master.** A channel asks through a hub
    (`IBazaarHub`, `IWarehouseHub`, `IFamilyHub`) and the master re-reads the row, checks and writes
    under its lock. A lock in a channel does not stop another channel.

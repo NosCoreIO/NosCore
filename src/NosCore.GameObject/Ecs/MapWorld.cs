@@ -39,11 +39,13 @@ public class MapWorld : IDisposable
     private readonly IClock _clock;
     private readonly long _order = Interlocked.Increment(ref _lastOrder);
     private readonly ConcurrentDictionary<Entity, (ClientSession Session, long At)> _forwards = new();
+    private readonly MapExecutor? _executor;
     private bool _disposed;
 
-    public MapWorld(IClock clock)
+    public MapWorld(IClock clock, MapExecutor? executor = null)
     {
         _clock = clock;
+        _executor = executor;
         lock (WorldTableLock)
         {
             _world = World.Create();
@@ -176,6 +178,7 @@ public class MapWorld : IDisposable
 
     private UpdateOutcome UpdateHere<T, TState>(Entity entity, TState state, Func<T, TState, T> update) where T : struct
     {
+        GuardWrite();
         lock (_sync)
         {
             if (_disposed || !_world.IsAlive(entity))
@@ -216,6 +219,7 @@ public class MapWorld : IDisposable
 
     public void AddComponent<T>(Entity entity, T component) where T : struct
     {
+        GuardWrite();
         lock (_sync)
         {
             ThrowIfDisposed();
@@ -225,6 +229,7 @@ public class MapWorld : IDisposable
 
     public void RemoveComponent<T>(Entity entity) where T : struct
     {
+        GuardWrite();
         lock (_sync)
         {
             ThrowIfDisposed();
@@ -479,6 +484,7 @@ public class MapWorld : IDisposable
     // entity can tell which of them did it.
     public bool DestroyEntity(Entity entity)
     {
+        GuardWrite();
         lock (_sync)
         {
             if (_disposed || !_world.IsAlive(entity))
@@ -488,6 +494,17 @@ public class MapWorld : IDisposable
 
             _world.Destroy(entity);
             return true;
+        }
+    }
+
+    // Work running on one map must reach another map's entities through that map's executor.
+    // Code holding no map at all (setup, the master, a scheduled job) is not checked yet.
+    [System.Diagnostics.Conditional("DEBUG")]
+    private void GuardWrite()
+    {
+        if (_executor != null && !_executor.IsCurrent && MapExecutor.IsInsideAny)
+        {
+            throw new InvalidOperationException("A map's entity was written from another map's work");
         }
     }
 

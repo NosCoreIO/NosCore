@@ -68,8 +68,6 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             World = await TestWorld.CreateAsync();
             Requester = await World.CreateSessionAsync();
             Target = await World.CreateSessionAsync(disconnectHandlers: TargetDisconnectHandlers);
-            Requester.Character.MapInstance = World.GetBaseMap(1);
-            Target.Character.MapInstance = Requester.Character.MapInstance;
             Requester.Character.Gold = 0;
             Target.Character.Gold = 0;
             Requester.Character.BankGold = 0;
