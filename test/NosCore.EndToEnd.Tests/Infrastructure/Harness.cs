@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Database.Entities;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
 {
@@ -47,12 +48,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // A new character on an account of its own, standing where the scenario wants it.
         public static async Task<Player> AddPlayerAsync(string name, short mapId = WorldData.Town, short x = 80, short y = 116,
-            Action<Character>? configure = null)
+            Action<Character>? configure = null, AuthorityType authority = AuthorityType.User)
         {
             _ = Stack;
             await using var context = Database.CreateContext();
             var unique = $"{name}{Interlocked.Increment(ref _players)}";
-            return await WorldData.AddPlayerAsync(context, unique, mapId, x, y, configure);
+            return await WorldData.AddPlayerAsync(context, unique, mapId, x, y, configure, authority);
         }
 
         public static TestClient Client(Player player, string password = WorldData.Password, int channel = 0) =>

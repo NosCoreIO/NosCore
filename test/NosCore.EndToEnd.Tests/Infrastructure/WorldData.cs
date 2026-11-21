@@ -245,6 +245,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const int RaidTeamMinimum = 5;
         public const short RaidMissionId = 9100;
 
+        // The Instant Combat arena, with one standing monster for each wave of the lowest bracket.
+        public const short InstantCombatArena = 2004;
+        private const short InstantCombatWaveVNum = 17;
+
         // Sells a family its warehouse, to families of the second level and above only.
         public const int FamilyManager = 4;
         private const short FamilyManagerVNum = 9;
@@ -674,6 +678,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedArchaeologistAsync(context);
             await SeedGamblerAsync(context);
             await SeedRaidAsync(context);
+            await SeedInstantCombatAsync(context);
             SeedSoundFlower(context);
             await SeedAct4Async(context);
             SeedDignity(context);
@@ -722,6 +727,22 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Token, Slot = 2, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Gem, Slot = 3, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Trinket, Slot = 4, Type = 1 });
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedInstantCombatAsync(NosCoreContext context)
+        {
+            context.Add(OpenMap(InstantCombatArena, 75, 75));
+            context.Add(new NpcMonster { NpcMonsterVNum = InstantCombatWaveVNum, Name = "wavemonster", Level = 1, MaxHp = 100000 });
+            await context.SaveChangesAsync();
+            for (byte wave = 0; wave <= 4; wave++)
+            {
+                context.Add(new InstantCombatMonster
+                {
+                    InstantCombatMonsterId = (short)(wave + 1), LevelMinimum = 1, Wave = wave, NpcMonsterVNum = InstantCombatWaveVNum, Amount = 1
+                });
+            }
+
             await context.SaveChangesAsync();
         }
 
@@ -971,13 +992,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // An account of its own for every character, so that scenarios never meet on one.
         public static async Task<Player> AddPlayerAsync(NosCoreContext context, string name, short mapId, short x, short y,
-            Action<Character>? configure = null)
+            Action<Character>? configure = null, AuthorityType authority = AuthorityType.User)
         {
             var account = new Account
             {
                 Name = name.ToLowerInvariant(),
                 Password = Convert.ToHexString(SHA512.HashData(Encoding.Default.GetBytes(Password))).ToLowerInvariant(),
-                Authority = AuthorityType.User,
+                Authority = authority,
                 Language = RegionType.EN
             };
             context.Add(account);
