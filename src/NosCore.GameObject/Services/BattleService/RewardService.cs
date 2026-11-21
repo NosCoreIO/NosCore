@@ -54,6 +54,7 @@ public sealed class RewardService(
     IMapItemGenerationService mapItemGenerationService,
     INpcCombatCatalog catalog,
     IExperienceProgressionService experienceProgression,
+    IExperienceBonusService experienceBonusService,
     IExperienceShareService experienceShareService,
     ILevelPenaltyService levelPenaltyService,
     IMonsterGoldService monsterGoldService,
@@ -179,14 +180,13 @@ public sealed class RewardService(
 
     private async Task AwardMemberExperienceAsync(PlayerComponentBundle player, NpcMonsterDto mob, double share, double jobShare)
     {
-        var bonuses = ExperienceBonuses(player);
+        var bonus = experienceBonusService.GetBonus(player);
         var rate = player.MapInstance?.XpRate ?? 1;
-        var levelXp = WithBonus((long)(mob.Xp * share
+        var levelXp = bonus.ApplyToExperience((long)(mob.Xp * share
             * levelPenaltyService.GetExperiencePenalty(player.Level, mob.Level)
-            * lowLevelBoostService.GetExperienceBoost(player.Level) * rate), bonuses.Experience);
-        var jobXp = WithBonus((long)(mob.JobXp * jobShare * lowLevelBoostService.GetJobExperienceBoost(player.JobLevel) * rate),
-            bonuses.Experience + bonuses.JobExperience);
-        var heroXp = WithBonus((long)(mob.HeroXp * share), bonuses.HeroExperience);
+            * lowLevelBoostService.GetExperienceBoost(player.Level) * rate));
+        var jobXp = bonus.ApplyToJobExperience((long)(mob.JobXp * jobShare * lowLevelBoostService.GetJobExperienceBoost(player.Level) * rate));
+        var heroXp = bonus.ApplyToHeroExperience((long)(mob.HeroXp * share));
 
         var spXp = 0L;
         if (player.UseSp)
@@ -218,60 +218,8 @@ public sealed class RewardService(
         await mateProgression.AddExperienceAsync(player, levelXp);
         await mateProgression.AddAgilityAsync(player, mob.Level);
 
-        await AwardReputationAsync(player, mob, bonuses.Reputation);
+        await AwardReputationAsync(player, mob, bonus);
         await AwardDignityAsync(player, mob);
-    }
-
-    private static long WithBonus(long amount, int percent) => amount * Math.Max(0, 100 + percent) / 100;
-
-    private ExperienceBonus ExperienceBonuses(PlayerComponentBundle player)
-    {
-        var bonus = new ExperienceBonus();
-        var cards = buffService.GetActiveBuffs(player).SelectMany(b => b.BCards)
-            .Concat(equipmentStatsService.Resolve(player).BCards ?? [])
-            .Concat(player.MedalBCards(itemCatalog, cardCatalog));
-        foreach (var bCard in cards)
-        {
-            var value = BattleStatsProvider.ScaleByLevel(bCard, player.Level);
-            switch (bCard.Effect())
-            {
-                case BCardEffect.ItemExpIncreased:
-                case BCardEffect.IncreaseXpGain:
-                case BCardEffect.NormalAndJobExpIncreased:
-                    bonus.Experience += value;
-                    break;
-                case BCardEffect.ItemExpIncreasedNegated:
-                case BCardEffect.DecreaseXpGain:
-                case BCardEffect.NormalAndJobExpIncreasedNegated:
-                    bonus.Experience -= value;
-                    break;
-                case BCardEffect.IncreaseJXpGain:
-                    bonus.JobExperience += value;
-                    break;
-                case BCardEffect.DecreaseJXpGain:
-                    bonus.JobExperience -= value;
-                    break;
-                case BCardEffect.IncreaseHeroXpReceived:
-                    bonus.HeroExperience += value;
-                    break;
-                case BCardEffect.DecreaseHeroXpReceived:
-                    bonus.HeroExperience -= value;
-                    break;
-                case BCardEffect.IncreaseFameReceived:
-                    bonus.Reputation += value;
-                    break;
-                case BCardEffect.DecreaseFameReceived:
-                    bonus.Reputation -= value;
-                    break;
-            }
-        }
-
-        return bonus;
-    }
-
-    private struct ExperienceBonus
-    {
-        public int Experience, JobExperience, HeroExperience, Reputation;
     }
 
     private bool Rolls(int percent) => percent > 0 && random.Next(0, 100) < percent;
@@ -320,13 +268,13 @@ public sealed class RewardService(
         return percent;
     }
 
-    private static async Task AwardReputationAsync(PlayerComponentBundle player, NpcMonsterDto mob, int bonusPercent)
+    private static async Task AwardReputationAsync(PlayerComponentBundle player, NpcMonsterDto mob, ExperienceBonus bonus)
     {
         if (player.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance || mob.Level < 3)
         {
             return;
         }
-        player.Reputation += WithBonus(mob.Level / 3, bonusPercent);
+        player.Reputation += bonus.ApplyToReputation(mob.Level / 3);
         await player.SendPacketAsync(player.GenerateFd());
     }
 

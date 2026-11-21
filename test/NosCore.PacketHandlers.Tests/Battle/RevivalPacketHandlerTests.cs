@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.Interaction;
 using System;
 using NosCore.GameObject.Ecs;
@@ -73,6 +72,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _session = await World.CreateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(1);
             _mapChangeService = new Mock<IMapChangeService>();
+            World.Inject(new Lazy<IMapChangeService>(_mapChangeService.Object));
             _respawnService = new Mock<IRespawnService>();
             _respawnService.Setup(r => r.ResolveRevivalMapTypeId(It.IsAny<PlayerComponentBundle>())).Returns(RespawnType.ReturnAct1);
             _respawnService.Setup(r => r.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<RespawnType?>()))
@@ -557,9 +557,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             var room = _session.Character.MapInstance.MapInstanceId;
             var script = new RunScript();
             var run = new ScriptedInstanceRun(
-                new TimeSpaceRunHost(
-                    new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChangeService.Object), new Mock<IGameEventDispatcher>().Object, World.Create<TimeSpacePenaltyService>()),
+                World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script }),
                 script,
                 new Dictionary<int, GameObject.Services.MapInstanceGenerationService.MapInstance> { [1] = _session.Character.MapInstance },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),

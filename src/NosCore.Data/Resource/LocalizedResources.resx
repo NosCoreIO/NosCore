@@ -759,6 +759,9 @@
   <data name="SCRIPTED_INSTANCE_TICK_FAILED" xml:space="preserve">
     <value>The tick of {Instance} failed</value>
   </data>
+  <data name="TIME_SPACE_CLEAR_REWARD_FAILED" xml:space="preserve">
+    <value>The clear reward of {Instance} failed for character {CharacterId}</value>
+  </data>
   <data name="QUEST_EXPERIENCE_WITHOUT_MONSTER" xml:space="preserve">
     <value>Quest {QuestId} pays experience per monster but hunts none</value>
   </data>

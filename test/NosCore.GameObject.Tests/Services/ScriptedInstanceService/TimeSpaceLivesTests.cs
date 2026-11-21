@@ -10,7 +10,6 @@ using Moq;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Packets.ServerPackets.Player;
 using NodaTime;
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging;
@@ -65,6 +64,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _instances = World.Freeze<Mock<IScriptedInstanceService>>();
             _mapChange = new Mock<IMapChangeService>();
             _bus = new Mock<IGameEventDispatcher>();
+            World.Inject(new Lazy<IMapChangeService>(_mapChange.Object));
+            World.Inject(_bus.Object);
         }
 
         [TestMethod]
@@ -396,9 +397,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             room.Sessions = _roomSessions.Object;
             var script = new Script(lives);
             _run = new ScriptedInstanceRun(
-                new TimeSpaceRunHost(
-                    new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChange.Object), _bus.Object, World.Create<TimeSpacePenaltyService>()),
+                World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script }),
                 script,
                 new Dictionary<int, MapInstance> { [1] = room },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),

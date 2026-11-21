@@ -14,7 +14,6 @@ using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.Entities;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using Moq;
@@ -179,10 +178,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         private sealed class EmptyScript : NosCore.Instances.Abstractions.InstanceScript;
 
         private GameObject.Services.ScriptedInstanceService.ScriptedInstanceRun Run() =>
-            new(new GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost(
-                    new GameObject.Services.ScriptedInstanceService.ScriptedInstance(),
-                    new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object),
-                    new Mock<IGameEventDispatcher>().Object, World.Create<TimeSpacePenaltyService>()),
+            new(World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance()),
                 new EmptyScript(),
                 new System.Collections.Generic.Dictionary<int, MapInstance>(),
                 new GameObject.Services.BattleService.NpcMonsterCatalog([]),

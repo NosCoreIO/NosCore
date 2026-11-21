@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Items;
@@ -173,9 +172,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
             room.Sessions = new Mock<ISessionGroup>().Object;
             var run = new ScriptedInstanceRun(
-                new TimeSpaceRunHost(
-                    new ScriptedInstance { MapId = 1, Logic = script, StoneVNum = GateVNum },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), new Mock<IGameEventDispatcher>().Object, World.Create<TimeSpacePenaltyService>()),
+                World.CreateTimeSpaceRunHost(new ScriptedInstance { MapId = 1, Logic = script, StoneVNum = GateVNum }),
                 script,
                 new Dictionary<int, MapInstance> { [script.Room] = room },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
@@ -103,6 +102,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
+            World.Inject(_gameEvents.Object);
             _first = Room();
             _second = Room();
         }
@@ -117,9 +117,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
 
         private ScriptedInstanceRun Run(Script script, TimeSpan? timeout = null) =>
-            new(_host ?? new TimeSpaceRunHost(
-                    new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, LevelMinimum = 1, Logic = script },
-                    new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), _gameEvents.Object, World.Create<TimeSpacePenaltyService>()),
+            new(_host ?? World.CreateTimeSpaceRunHost(new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, LevelMinimum = 1, Logic = script }),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new NpcMonsterCatalog([new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10, IsHostile = true }]),
