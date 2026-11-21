@@ -780,8 +780,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var to = _rooms[toRoom].MapInstanceId;
             _pending.Add(() => OnRoom(from, async () =>
             {
-                foreach (var portal in from.Portals.Where(s => s.DestinationMapInstanceId == to).ToList())
+                foreach (var portal in from.Portals.Where(s => s.DestinationMapInstanceId == to && s.Type != PortalType.Open).ToList())
                 {
+                    await from.SendPacketAsync(portal.GenerateRemovalGp());
                     portal.Type = PortalType.Open;
                     await from.SendPacketAsync(portal.GenerateGp());
                 }
@@ -822,6 +823,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 foreach (var portal in mapInstance.Portals.Where(s => s.Type == PortalType.TsEndClosed).ToList())
                 {
+                    await mapInstance.SendPacketAsync(portal.GenerateRemovalGp());
                     portal.Type = PortalType.TsEnd;
                     await mapInstance.SendPacketAsync(portal.GenerateGp());
                 }
