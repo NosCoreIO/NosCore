@@ -4443,9 +4443,11 @@ for example map 134. The war is per channel and starts at 0% on every server sta
 - [ ] Right-click the angel: the info card shows one Act 4 kill and two points; the demon's card
       shows one death. A victim more than ten levels away gives the killer no points
 - [ ] A fall in Glacernon to a monster costs dignity as anywhere else
-
-The faction HUD bar does not draw: the client applies `fc` to a window it only opens on its
-own, so check the bar values in the packet log instead of on screen.
+- [ ] Entering Glacernon opens the faction HUD at the top of the screen with both bars; it
+      stays open while moving between Glacernon maps
+- [ ] Each monster an angel (or the angel's pet) kills on a Glacernon map adds a twentieth of a
+      percent to the angel bar, so twenty kills move the HUD to 1%; a neutral character's kills
+      move nothing, nor do kills inside a Glacernon raid
 
 ### Glacernon loot
 
@@ -4456,6 +4458,22 @@ Two characters on a Glacernon hunting map such as 132, both hitting the same mon
 - [ ] A character who missed every hit gets nothing
 - [ ] With a full bag the drop arrives by parcel instead
 - [ ] The same monster on a normal map still drops its items and gold on the ground
+
+### Base camps
+
+An angel with an Angel Base Flag (1446) and Base Flag Teleport Scrolls (2311), a demon with a
+Demon Base Flag (1447), both in Glacernon.
+
+- [ ] Outside Glacernon the flag says "Can only be used Glacernon." and stays in the bag
+- [ ] The angel using the demon flag: "Only you can use your camp's flag."
+- [ ] The angel uses the angel flag: the Angel Base Camp appears on the angel's cell, the flag
+      is used up and everyone in Glacernon reads "A new Angel Base Camp has been built!"
+- [ ] The angel cannot attack the camp; the demon can, and once it falls the angel's scroll says
+      "There is no base camp present."
+- [ ] A second angel flag asks "The base camp has already been built. Will you rebuild it after
+      removing the previous one?"; Yes removes the old camp and builds the new one
+- [ ] Before the camp has stood 30 minutes the scroll says "There is no base camp present.";
+      afterwards it shows the five-second bar, uses up one scroll and puts the angel beside the camp
 
 ### Sealed Vessel
 

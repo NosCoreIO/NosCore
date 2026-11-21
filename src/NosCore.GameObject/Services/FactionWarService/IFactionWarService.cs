@@ -33,6 +33,9 @@ public interface IFactionWarService
     // Returns false when the two players are not enemies, so the kill counts for nothing.
     Task<bool> RecordKillAsync(PlayerComponentBundle killer, PlayerComponentBundle victim);
 
+    // Returns false when the killer has no side to move.
+    Task<bool> RecordMonsterKillAsync(PlayerComponentBundle killer);
+
     // True when the monster was a side's Lord Mukraju, whose death opens that side's raid.
     Task<bool> GuardianDiedAsync(MonsterComponentBundle monster);
 

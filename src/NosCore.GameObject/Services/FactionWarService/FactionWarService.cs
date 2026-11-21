@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.FactionWarService;
 
 // Each channel runs its own war. Every enemy player killed on Act 4 moves the killer's side one
-// percent closer to its raid. At 100% Lord Mukraju appears in that side's camp, and killing him
+// percent closer to its raid, every monster a twentieth of that. At 100% Lord Mukraju appears in that side's camp, and killing him
 // within five minutes opens one of the four Glacernon raids to that side for an hour.
 public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegistry,
     IMapInstanceAccessorService mapInstanceAccessorService, INpcMonsterCatalog npcMonsters,
@@ -44,6 +44,8 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
     public static readonly Duration RaidTime = Duration.FromHours(1);
 
     private const int ProgressPerKill = 100;
+    // No packet trace shows the bar moving after a monster kill, so this weight is a guess.
+    private const int ProgressPerMonsterKill = 5;
     private const int PointsPerKill = 2;
     private const int PointsLostPerDeath = 1;
     private const int PointsLevelRange = 10;
@@ -118,21 +120,7 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
             return false;
         }
 
-        Side? guardianCalled = null;
-        lock (_lock)
-        {
-            if (SideOf(killer.Faction) is { Mode: Act4WarMode.Gathering } side)
-            {
-                side.Progress = Math.Min(FullProgress, side.Progress + ProgressPerKill);
-                if (side.Progress == FullProgress)
-                {
-                    side.Progress = 0;
-                    side.Mode = Act4WarMode.Guardian;
-                    side.EndsAt = clock.GetCurrentInstant() + GuardianTime;
-                    guardianCalled = side;
-                }
-            }
-        }
+        var guardianCalled = AddProgress(killer.Faction, ProgressPerKill, out _);
 
         killer.CharacterDto.Act4Kill++;
         victim.CharacterDto.Act4Dead++;
@@ -156,6 +144,53 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
 
         await RefreshAsync();
         return true;
+    }
+
+    public async Task<bool> RecordMonsterKillAsync(PlayerComponentBundle killer)
+    {
+        if (killer.Faction == FactionType.Neutral)
+        {
+            return false;
+        }
+
+        var guardianCalled = AddProgress(killer.Faction, ProgressPerMonsterKill, out var percentageChanged);
+        if (guardianCalled != null)
+        {
+            await SummonGuardianAsync(guardianCalled);
+        }
+
+        if (percentageChanged)
+        {
+            await RefreshAsync();
+        }
+
+        return true;
+    }
+
+    // Returns the side whose bar just filled, so its guardian can be summoned outside the lock.
+    private Side? AddProgress(FactionType faction, int amount, out bool percentageChanged)
+    {
+        percentageChanged = false;
+        lock (_lock)
+        {
+            if (SideOf(faction) is not { Mode: Act4WarMode.Gathering } side)
+            {
+                return null;
+            }
+
+            var before = side.Progress / 100;
+            side.Progress = Math.Min(FullProgress, side.Progress + amount);
+            percentageChanged = side.Progress / 100 != before;
+            if (side.Progress != FullProgress)
+            {
+                return null;
+            }
+
+            side.Progress = 0;
+            side.Mode = Act4WarMode.Guardian;
+            side.EndsAt = clock.GetCurrentInstant() + GuardianTime;
+            return side;
+        }
     }
 
     public async Task<bool> GuardianDiedAsync(MonsterComponentBundle monster)

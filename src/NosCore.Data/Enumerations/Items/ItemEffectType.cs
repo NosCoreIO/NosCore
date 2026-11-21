@@ -140,6 +140,10 @@ namespace NosCore.Data.Enumerations.Items
         // Applies the item's own effects to its user, such as a bandage stopping bleedings.
         Bandage = 1027,
 
+        // Builds the side's base camp where its user stands; EffectValue is the camp's monster.
+        AngelBaseFlag = 1028,
+        DemonBaseFlag = 1029,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }
