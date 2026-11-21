@@ -265,34 +265,64 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public async Task InstantCombatBringsItsWavesInOverTime()
+        public async Task InstantCombatRunsItsFifteenMinutesFromTheFirstWave()
         {
             var script = await LoadAsync("instant-combat");
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
-            foreach (var (_, step) in run.Scheduled.OrderBy(s => s.At))
+            var timeline = new List<string>();
+            foreach (var (at, step) in run.Scheduled.OrderBy(s => s.At))
             {
+                var before = run.Calls.Count;
                 step(run);
+                timeline.AddRange(run.Calls.Skip(before).Select(call => $"{at.TotalSeconds} {call}"));
             }
 
-            CollectionAssert.AreEqual(new[] { "wave(1,0)", "wave(1,1)", "wave(1,2)", "wave(1,3)", "wave(1,4)" },
-                run.Calls.Where(c => c.StartsWith("wave")).ToList());
-            CollectionAssert.AreEqual(new[] { "drop(1,0)", "drop(1,1)", "drop(1,2)", "drop(1,3)", "drop(1,4)" },
-                run.Calls.Where(c => c.StartsWith("drop")).ToList());
-            Assert.AreEqual("fail", run.Calls[^1]);
+            CollectionAssert.AreEqual(new[]
+            {
+                "14 message(MonstersAreApproaching)",
+                "21 message(MonstersAreApproaching)",
+                "24 wave(1,0)",
+                "24 message(MonsterHaveAppeared)",
+                "144 message(MonsterWillAppearsInSeconds,40)",
+                "154 drop(1,0)",
+                "169 message(MonstersAreApproaching)",
+                "184 wave(1,1)",
+                "204 message(BattleEndInMinutes,12)",
+                "294 message(MonsterWillAppearsInSeconds,40)",
+                "304 drop(1,1)",
+                "319 message(MonstersAreApproaching)",
+                "324 message(BattleEndInMinutes,10)",
+                "334 wave(1,2)",
+                "444 message(MonsterWillAppearsInSeconds,40)",
+                "454 drop(1,2)",
+                "469 message(MonstersAreApproaching)",
+                "484 wave(1,3)",
+                "594 message(MonsterWillAppearsInSeconds,40)",
+                "604 drop(1,3)",
+                "619 message(MonstersAreApproaching)",
+                "624 message(BattleEndInMinutes,5)",
+                "634 wave(1,4)",
+                "684 message(BattleEndInMinutes,4)",
+                "744 message(BattleEndInMinutes,3)",
+                "804 message(BattleEndInMinutes,2)",
+                "864 message(BattleEndInMinutes,1)",
+                "894 message(InstantCombatThirtySecondsRemaining)",
+                "924 fail",
+            }, timeline);
         }
 
         [TestMethod]
         public async Task InstantCombatIsWonOnceTheLastWaveIsOutAndEveryMonsterIsDead()
         {
             var script = await LoadAsync("instant-combat");
-            var run = new RecordingRun { Elapsed = TimeSpan.FromSeconds(729) };
+            var run = new RecordingRun { Elapsed = TimeSpan.FromSeconds(633) };
 
             script.OnMonsterKilled(run, 1, 333);
             Assert.AreEqual(0, run.Calls.Count);
 
-            run.Elapsed = TimeSpan.FromSeconds(730);
+            run.Elapsed = TimeSpan.FromSeconds(634);
             run.Alive = 1;
             script.OnMonsterKilled(run, 1, 333);
             Assert.AreEqual(0, run.Calls.Count);

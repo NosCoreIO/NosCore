@@ -694,7 +694,7 @@
     <value>{Services} NPC services imported for {ShopTypes} shop types</value>
   </data>
   <data name="INSTANT_COMBAT_PARSED" xml:space="preserve">
-    <value>{Monsters} Instant Combat monster lines and {Drops} drop lines imported</value>
+    <value>{Monsters} Instant Combat monster lines and {Drops} prize lines imported</value>
   </data>
   <data name="BOX_CONTENTS_PARSED" xml:space="preserve">
     <value>{Boxes} boxes and packs get their {Rolls} items</value>

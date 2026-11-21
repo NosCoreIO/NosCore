@@ -245,9 +245,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const int RaidTeamMinimum = 5;
         public const short RaidMissionId = 9100;
 
-        // The Instant Combat arena, with one standing monster for each wave of the lowest bracket.
+        // The Instant Combat arena, with one standing monster for each wave of the lowest bracket and a
+        // prize of two after the first wave.
         public const short InstantCombatArena = 2004;
-        private const short InstantCombatWaveVNum = 17;
+        public const short InstantCombatWaveVNum = 17;
+        public const short InstantCombatPrize = 9600;
+        public const short InstantCombatPrizeAmount = 2;
 
         // Sells a family its warehouse, to families of the second level and above only.
         public const int FamilyManager = 4;
@@ -742,6 +745,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                     InstantCombatMonsterId = (short)(wave + 1), LevelMinimum = 1, Wave = wave, NpcMonsterVNum = InstantCombatWaveVNum, Amount = 1
                 });
             }
+
+            context.Add(new Item { VNum = InstantCombatPrize, Name = "icprize", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
+            context.Add(new InstantCombatDrop
+            {
+                InstantCombatDropId = 9600, LevelMinimum = 1, Wave = 0, ItemVNum = InstantCombatPrize, Amount = InstantCombatPrizeAmount
+            });
 
             await context.SaveChangesAsync();
         }

@@ -18,15 +18,16 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.FamilyService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
-using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
@@ -49,7 +50,6 @@ namespace NosCore.GameObject.Services.InstantCombatService
         IScriptedInstanceService scriptedInstanceService,
         ISessionRegistry sessionRegistry,
         IItemGenerationService itemGenerationService,
-        IMapItemGenerationService mapItemGenerationService,
         IRandomProvider random,
         IInstantCombatRewardService rewardService,
         IFamilyContributionService familyContributionService,
@@ -71,7 +71,15 @@ namespace NosCore.GameObject.Services.InstantCombatService
         // The client formats the delay line with the first two arguments and puts it before the message.
         private const byte DelayThenMessage = 10;
 
+        // The client shows the message followed by the text of the const string in the first argument.
+        private const byte MessageThenReason = 11;
+
         private static readonly TimeSpan SignUpTime = TimeSpan.FromSeconds(30);
+
+        // Who has not answered yet is shown the start again this often until the sign-up closes.
+        private static readonly TimeSpan SignUpReminder = TimeSpan.FromSeconds(7);
+
+        private const byte InstantCombatSignUpClosed = 4;
 
         private int _running;
         private IInstanceScript? _script;
@@ -149,7 +157,8 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 }
             }
 
-            await BroadcastAsync(new MsgiPacket { Message = Game18NConstString.InstantCombatStarted });
+            var signUpOpened = time.GetUtcNow();
+            await sessionRegistry.BroadcastPacketAsync(Started);
             _signUpOpen = true;
             await sessionRegistry.BroadcastPacketAsync(new QnamliPacket
             {
@@ -157,7 +166,16 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 YesPacket = new NosCore.Packets.ClientPackets.UI.GuriPacket { Type = GuriPacketType.EventInWaiting },
                 Question = Game18NConstString.JoinInstantCombatQuestion,
             });
-            await Task.Delay(SignUpTime, time);
+            for (var reminder = signUpOpened + SignUpReminder; reminder < signUpOpened + SignUpTime; reminder += SignUpReminder)
+            {
+                await DelayUntilAsync(reminder);
+                foreach (var session in sessionRegistry.GetSessions(s => s.HasPlayerEntity && !s.Character.IsWaitingForEvent))
+                {
+                    await session.SendPacketAsync(Started);
+                }
+            }
+
+            await DelayUntilAsync(signUpOpened + SignUpTime);
             _signUpOpen = false;
 
             var players = sessionRegistry.GetSessions(s => s.HasPlayerEntity).ToList();
@@ -168,7 +186,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
             {
                 if (!session.Character.IsWaitingForEvent)
                 {
-                    await session.SendPacketAsync(new EsfPacket());
+                    await session.SendPacketAsync(new EsfPacket { Value = InstantCombatSignUpClosed });
                 }
 
                 session.Character.IsWaitingForEvent = false;
@@ -197,17 +215,51 @@ namespace NosCore.GameObject.Services.InstantCombatService
             .Where(m => m.LevelMinimum == levelMinimum && m.Wave == wave)
             .Select(m => new WaveMonster(m.NpcMonsterVNum, m.Amount, m.IsMoving));
 
-        private async Task DropWaveAsync(MapInstance room, byte levelMinimum, byte wave)
+        public async Task GiveWavePrizeAsync(MapInstance room, byte levelMinimum, byte wave)
         {
-            foreach (var line in drops.Where(d => d.LevelMinimum == levelMinimum && d.Wave == wave))
+            var prize = drops.Where(d => d.LevelMinimum == levelMinimum && d.Wave == wave).ToList();
+            foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(room.MapInstanceId)
+                         .Where(s => s.HasPlayerEntity).ToList())
             {
-                for (var i = 0; i < line.Piles; i++)
+                var character = session.Character;
+                foreach (var line in prize)
                 {
-                    var (x, y) = RandomCell(room);
                     var item = itemGenerationService.Create(line.ItemVNum, line.Amount);
-                    var dropped = mapItemGenerationService.Create(room, item, x, y);
-                    await room.SendPacketAsync(dropped.GenerateDrop());
+                    if (character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId)) is not { Count: > 0 } added)
+                    {
+                        await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
+                        continue;
+                    }
+
+                    foreach (var slot in added)
+                    {
+                        await session.SendPacketAsync(slot.GeneratePocketChange(slot.Type.ToPocketType(), slot.Slot));
+                    }
+
+                    await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                        2, line.ItemVNum.ToString(), line.Amount));
                 }
+            }
+        }
+
+        private async Task TimedOutAsync(ScriptedInstanceRun run)
+        {
+            foreach (var session in run.Players().ToList())
+            {
+                await session.SendPacketAsync(new EventPacket
+                {
+                    Type = EventPacketType.ClearTimeSpaceUI,
+                    Parameter = -1,
+                    SecondParameter = -1,
+                });
+                await ReturnAsync(session);
+                await session.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.InstantCombatOver,
+                    ArgumentType = MessageThenReason,
+                    Game18NArguments = { (int)Game18NConstString.TimeLimitExceeded },
+                });
             }
         }
 
@@ -229,10 +281,14 @@ namespace NosCore.GameObject.Services.InstantCombatService
 
             public IEnumerable<WaveMonster> WaveMonsters(byte wave) => service.WaveMonsters(levelMinimum, wave);
 
-            public Task DropWaveAsync(MapInstance room, byte wave) => service.DropWaveAsync(room, levelMinimum, wave);
+            public Task DropWaveAsync(MapInstance room, byte wave) => service.GiveWavePrizeAsync(room, levelMinimum, wave);
 
-            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) =>
-                state == EndStateType.Success ? service.RewardSurvivorsAsync(run) : Task.CompletedTask;
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) => state switch
+            {
+                EndStateType.Success => service.RewardSurvivorsAsync(run),
+                EndStateType.Fail => service.TimedOutAsync(run),
+                _ => Task.CompletedTask,
+            };
 
             public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
         }
@@ -266,11 +322,20 @@ namespace NosCore.GameObject.Services.InstantCombatService
             return mapInstance.Map.RandomWalkableCell(random, 100) ?? (0, 0);
         }
 
-        private static MsgiPacket Message(Game18NConstString message) => new() { Message = message };
+        private static MsgiPacket Started => new() { Type = MessageType.Notification, Message = Game18NConstString.InstantCombatStarted };
+
+        private async Task DelayUntilAsync(DateTimeOffset due)
+        {
+            var left = due - time.GetUtcNow();
+            if (left > TimeSpan.Zero)
+            {
+                await Task.Delay(left, time);
+            }
+        }
 
         private async Task AnnounceAsync(Game18NConstString delay, int amount)
         {
-            foreach (var type in new[] { MessageType.Default, MessageType.Notification })
+            foreach (var type in new[] { MessageType.Notification, MessageType.Default })
             {
                 await sessionRegistry.BroadcastPacketAsync(new MsgiPacket
                 {
@@ -280,19 +345,6 @@ namespace NosCore.GameObject.Services.InstantCombatService
                     Game18NArguments = { (int)delay, amount },
                 });
             }
-        }
-
-        private async Task BroadcastAsync(MsgiPacket message)
-        {
-            message.Type = MessageType.Default;
-            await sessionRegistry.BroadcastPacketAsync(message);
-            await sessionRegistry.BroadcastPacketAsync(new MsgiPacket
-            {
-                Type = MessageType.Notification,
-                Message = message.Message,
-                ArgumentType = message.ArgumentType,
-                Game18NArguments = message.Game18NArguments,
-            });
         }
     }
 }

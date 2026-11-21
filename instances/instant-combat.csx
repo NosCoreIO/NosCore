@@ -1,16 +1,23 @@
-// Each wave lands 160 s after the previous one, what it leaves behind is scattered 130 s
-// after it lands, and the fight can be won once the last wave is out.
+// The fight lasts 15 minutes from the first wave. Each wave's prize goes into every bag 30 s before
+// the next wave lands, and the fight can be won once the last wave is out.
 public class InstantCombat : InstanceScript
 {
-    private const byte LastWave = 4;
-    private static readonly TimeSpan Arrival = TimeSpan.FromSeconds(10);
-    private static readonly TimeSpan FirstWave = TimeSpan.FromSeconds(10);
-    private static readonly TimeSpan WaveInterval = TimeSpan.FromSeconds(160);
-    private static readonly TimeSpan DropDelay = TimeSpan.FromSeconds(130);
-    private static readonly TimeSpan WarningBeforeWave = TimeSpan.FromSeconds(10);
-    private static readonly TimeSpan WinnableFrom = TimeSpan.FromSeconds(720);
-    private static readonly TimeSpan ThirtySecondsLeft = TimeSpan.FromSeconds(870);
-    private static readonly TimeSpan Length = TimeSpan.FromSeconds(900);
+    private static readonly TimeSpan[] Waves =
+    [
+        TimeSpan.FromSeconds(24),
+        TimeSpan.FromSeconds(184),
+        TimeSpan.FromSeconds(334),
+        TimeSpan.FromSeconds(484),
+        TimeSpan.FromSeconds(634),
+    ];
+
+    private static readonly TimeSpan[] FirstWaveWarnings = [TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(3)];
+    private const int NextWaveCountdownSeconds = 40;
+    private static readonly TimeSpan ApproachWarning = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan PrizeBeforeNextWave = TimeSpan.FromSeconds(30);
+    private static readonly int[] MinutesLeftAnnounced = [12, 10, 5, 4, 3, 2, 1];
+    private static readonly TimeSpan ThirtySecondsLeft = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan Length = TimeSpan.FromMinutes(15);
 
     private readonly int _arena;
 
@@ -23,34 +30,46 @@ public class InstantCombat : InstanceScript
 
     public override void OnFirstEnter(IInstanceRun run)
     {
-        for (byte wave = 0; wave <= LastWave; wave++)
+        for (byte wave = 0; wave < Waves.Length; wave++)
         {
             var current = wave;
-            var lands = Arrival + FirstWave + WaveInterval * wave;
-            run.At(lands - WarningBeforeWave, r => r.Message(Game18NConstString.MonstersAreApproaching));
-            run.At(lands, r =>
+            var lands = Waves[wave];
+            if (wave == 0)
             {
-                r.SummonWave(_arena, current);
-                r.Message(Game18NConstString.MonsterHaveAppeared);
-            });
-            run.At(lands + DropDelay, r => r.DropWave(_arena, current));
+                foreach (var warning in FirstWaveWarnings)
+                {
+                    run.At(lands - warning, r => r.Message(Game18NConstString.MonstersAreApproaching));
+                }
+
+                run.At(lands, r =>
+                {
+                    r.SummonWave(_arena, current);
+                    r.Message(Game18NConstString.MonsterHaveAppeared);
+                });
+            }
+            else
+            {
+                run.At(lands - TimeSpan.FromSeconds(NextWaveCountdownSeconds),
+                    r => r.Message(Game18NConstString.MonsterWillAppearsInSeconds, NextWaveCountdownSeconds));
+                run.At(lands - ApproachWarning, r => r.Message(Game18NConstString.MonstersAreApproaching));
+                run.At(lands, r => r.SummonWave(_arena, current));
+                run.At(lands - PrizeBeforeNextWave, r => r.DropWave(_arena, (byte)(current - 1)));
+            }
         }
 
-        run.At(Arrival + WinnableFrom, TryWin);
-        run.At(Arrival + ThirtySecondsLeft, r => r.Message(Game18NConstString.InstantCombatThirtySecondsRemaining));
-        run.At(Arrival + Length, r =>
+        var end = Waves[0] + Length;
+        foreach (var minutes in MinutesLeftAnnounced)
         {
-            r.Message(Game18NConstString.InstantCombatElapsed);
-            r.Message(Game18NConstString.ReturnToStartingPositionTenSeconds);
-            r.Fail();
-        });
+            run.At(end - TimeSpan.FromMinutes(minutes), r => r.Message(Game18NConstString.BattleEndInMinutes, minutes));
+        }
+
+        run.At(end - ThirtySecondsLeft, r => r.Message(Game18NConstString.InstantCombatThirtySecondsRemaining));
+        run.At(end, r => r.Fail());
     }
 
-    public override void OnMonsterKilled(IInstanceRun run, int room, short vNum) => TryWin(run);
-
-    private void TryWin(IInstanceRun run)
+    public override void OnMonsterKilled(IInstanceRun run, int room, short vNum)
     {
-        if (run.Elapsed < Arrival + WinnableFrom || run.MonstersAlive(_arena) > 0)
+        if (run.Elapsed < Waves[^1] || run.MonstersAlive(_arena) > 0)
         {
             return;
         }

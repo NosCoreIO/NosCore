@@ -49,7 +49,7 @@ namespace NosCore.Instances.Abstractions
         // Brings in the monsters the instance's own data lists for that wave, scattered over the room.
         void SummonWave(int room, byte wave);
 
-        // Scatters the items the instance's own data lists for that wave over the room.
+        // Puts the items the instance's own data lists for that wave into the bag of each player in the room.
         void DropWave(int room, byte wave);
 
         // Scatters each pile around the spot, the way a boss throws its loot when it falls.
