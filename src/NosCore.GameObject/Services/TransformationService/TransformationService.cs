@@ -6,6 +6,7 @@
 
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.EquipmentService;
 using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
@@ -148,11 +149,15 @@ namespace NosCore.GameObject.Services.TransformationService
 
             await mapInstance.SendPacketAsync(cModePacket);
             await session.SendPacketAsync(levPacket);
+            await mapInstance.SendPacketAsync(session.Character.GenerateEq());
             await mapInstance.SendPacketAsync(effPacket);
-            await mapInstance.SendPacketAsync(new GuriDancePacket
+            await mapInstance.SendPacketAsync(new GuriPacket
             {
-                VisualType = VisualType.Player,
-                VisualId = characterId2
+                Type = GuriPacketType.CharacterAnimation,
+                Argument = (uint)VisualType.Player,
+                EntityId = characterId2,
+                Value = 0,
+                SecondValue = 0
             });
             await session.SendPacketAsync(spPointPacket);
             await session.SendPacketAsync(condPacket);
