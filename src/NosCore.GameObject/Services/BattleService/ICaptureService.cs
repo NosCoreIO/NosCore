@@ -18,9 +18,9 @@ namespace NosCore.GameObject.Services.BattleService
         bool IsCaptureSkill(SkillInfo skill);
 
         // Evaluates guards, rolls the capture rate, and on success inserts a Mate and
-        // despawns the monster. No-op (and returns early) if `skill` is not a capture
-        // skill or the target isn't a monster. Never throws for business-rule violations
-        // — guard failures just skip the capture so the rest of the pipeline can react.
-        Task TryCaptureAsync(IAliveEntity caster, IAliveEntity target, SkillInfo skill);
+        // despawns the monster. False when the target cannot be captured at all (not a
+        // monster, out of reach): the attempt then costs nothing. A refusal for the
+        // monster's level or health is still an attempt and returns true.
+        Task<bool> TryCaptureAsync(IAliveEntity caster, IAliveEntity target, SkillInfo skill);
     }
 }

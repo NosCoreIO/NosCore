@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             new List<BCardDto>
             {
                 new() { Type = BCardEffect.CaptureCaptureAnimal.Type(), SubType = BCardEffect.CaptureCaptureAnimal.SubType() }
-            });
+            }, CastAnimation: -1);
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -85,7 +85,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _session.LastPackets.Clear();
         }
 
-        private Task Catching() => _service.TryCaptureAsync(_session.Character, _monster, Capture);
+        private bool _counted;
+
+        private async Task Catching() => _counted = await _service.TryCaptureAsync(_session.Character, _monster, Capture);
 
         private Mate? Caught => _session.Character.Mates.Values.SingleOrDefault(s => s.VNum == 333);
 
@@ -200,6 +202,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .WhenAsync(Catching)
                 .Then(NothingIsCaught)
                 .And(TheCastIsCancelled)
+                .And(TheAttemptCostsNothing)
                 .ExecuteAsync();
         }
 
@@ -224,31 +227,74 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private void ThePetIsCaught() => Assert.IsNotNull(Caught);
 
         private void TheCastIsCancelled() =>
-            Assert.AreEqual(CancelPacketType.CancelCast, _session.LastPackets.OfType<CancelPacket>().Single().Type);
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 16, Unknow = -1 },
+                _session.LastPackets.OfType<CancelPacket>().Single());
+
+        private void TheAttemptCostsNothing()
+        {
+            Assert.IsFalse(_counted);
+            Assert.IsFalse(_session.Character.MapInstance.LastPackets.OfType<CtPacket>().Any());
+        }
 
         [TestMethod]
-        public async Task ARefusedCaptureReleasesTheClient()
+        public async Task ARefusedCaptureEndsTheCastWithTheSkill()
         {
             _monster.Hp = 60;
 
             await Catching();
 
+            Assert.IsTrue(_counted, "a refusal for the monster's health still costs the attempt");
             var sent = _session.LastPackets.ToList();
             var cancel = sent.OfType<CancelPacket>().Single();
-            Assert.AreEqual(CancelPacketType.CancelCast, cancel.Type);
-            Assert.AreEqual(16, cancel.TargetId, "the recording's refusal names the skill's cast id");
-            Assert.AreEqual(-1, cancel.Unknow);
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 209, Unknow = -1 }, cancel);
             Assert.IsTrue(sent.IndexOf(cancel) > sent.FindIndex(p => p is MsgiPacket), "the reason comes first");
         }
 
         [TestMethod]
-        public async Task CapturingSomethingThatIsNotAMonsterReleasesTheClient()
+        public async Task ARefusedCaptureStillPlaysTheCast()
+        {
+            _monster.Hp = 60;
+
+            await Catching();
+
+            PacketAssert.AreEqual(new CtPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.VisualId,
+                TargetVisualType = VisualType.Monster,
+                TargetId = _monster.VisualId,
+                CastAnimationId = -1,
+                CastEffect = -1,
+                SkillId = 209
+            }, _session.Character.MapInstance.LastPackets.OfType<CtPacket>().Single());
+        }
+
+        [TestMethod]
+        public async Task CapturingSomethingThatIsNotAMonsterCostsNothing()
         {
             var other = await World.CreateSessionAsync();
 
-            await _service.TryCaptureAsync(_session.Character, other.Character, Capture);
+            Assert.IsFalse(await _service.TryCaptureAsync(_session.Character, other.Character, Capture));
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 16, Unknow = -1 },
+                _session.LastPackets.OfType<CancelPacket>().Single());
+        }
 
-            Assert.AreEqual(CancelPacketType.CancelCast, _session.LastPackets.OfType<CancelPacket>().Single().Type);
+        [TestMethod]
+        public async Task TheQuestHearsOfTheCaptureRightAfterTheSuccessMessage()
+        {
+            var events = new Mock<IGameEventDispatcher>();
+            var sentWhenRaised = -1;
+            events.Setup(e => e.RaiseAsync(It.IsAny<NosCore.GameObject.Messaging.Events.EntityCapturedEvent>()))
+                .Callback(() => sentWhenRaised = _session.LastPackets.Count)
+                .Returns(Task.CompletedTask);
+            var service = new CaptureService(World.MateDao, _mateService, events.Object, World.Clock, _random.Object,
+                World.DistanceCalculator, World.Create<NosCore.GameObject.Services.MateService.PartnerSkillCatalog>());
+
+            await service.TryCaptureAsync(_session.Character, _monster, Capture);
+
+            var sent = _session.LastPackets.ToList();
+            Assert.AreEqual(sent.FindIndex(p => p is MsgiPacket) + 1, sentWhenRaised,
+                "the quest progress follows the success message, before the pet panel");
         }
 
         [TestMethod]
