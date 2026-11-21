@@ -6,18 +6,18 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Quicklist;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.BDD;
 using SpecLight;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Inventory
 {
@@ -34,35 +34,48 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         [TestMethod]
-        public async Task SortingShouldPackThePocketAndRefreshEveryTouchedSlot()
+        public async Task TheSortIsAskedBeforeItIsDone()
         {
-            await new Spec("Sorting should pack the pocket and refresh every touched slot")
+            await new Spec("The sort is asked before it is done")
                 .Given(MainPocketHasAnItemInItsLastSlot)
                 .WhenAsync(Sorting_, PocketType.Main)
-                .Then(ItemShouldBeInSlot_, 0)
-                .And(OneIvnShouldListSlots_, "0 1")
-                .And(Slot0ShouldBeSentWithTheItem)
-                .And(Slot1ShouldBeSentEmpty)
+                .Then(TheSortOf_ShouldBeAsked, PocketType.Main)
+                .And(ItemShouldBeInSlot_, 1)
+                .And(NoPocketShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task SortingThePocketOfWornItemsShouldDoNothing()
+        public async Task AnsweringYesSortsAndSendsThePocketAndTheQuicklist()
         {
-            await new Spec("Sorting the pocket of worn items should do nothing")
+            await new Spec("Answering yes sorts and sends the whole pocket and the quicklist")
                 .Given(MainPocketHasAnItemInItsLastSlot)
-                .WhenAsync(Sorting_, (PocketType)NoscorePocketType.Wear)
+                .WhenAsync(Answering_For_, true, PocketType.Main)
+                .Then(ItemShouldBeInSlot_, 0)
+                .And(ThePocketShouldBeSentWithTheItemInSlot0)
+                .And(TheQuicklistShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnsweringNoLeavesThePocket()
+        {
+            await new Spec("Answering no leaves the pocket as it was")
+                .Given(MainPocketHasAnItemInItsLastSlot)
+                .WhenAsync(Answering_For_, false, PocketType.Main)
                 .Then(ItemShouldBeInSlot_, 1)
                 .And(NoPacketShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task SortingAnEmptyPocketShouldSendNothing()
+        public async Task ThePocketOfWornItemsIsNotSorted()
         {
-            await new Spec("Sorting an empty pocket should send nothing")
-                .WhenAsync(Sorting_, PocketType.Etc)
-                .Then(NoPacketShouldBeSent)
+            await new Spec("The pocket of worn items is neither asked nor sorted")
+                .Given(MainPocketHasAnItemInItsLastSlot)
+                .WhenAsync(Answering_For_, true, PocketType.Wear)
+                .Then(ItemShouldBeInSlot_, 1)
+                .And(NoPacketShouldBeSent)
                 .ExecuteAsync();
         }
 
@@ -79,29 +92,34 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await Handler.ExecuteAsync(new ISortPacket { PocketType = pocket }, Session);
         }
 
+        private async Task Answering_For_(bool answer, PocketType pocket)
+        {
+            Session.LastPackets.Clear();
+            await Handler.ExecuteAsync(new ISortPacket { PocketType = pocket, Confirmed = answer }, Session);
+        }
+
+        private void TheSortOf_ShouldBeAsked(PocketType pocket) =>
+            PacketAssert.AreEqual(new QnaiPacket
+            {
+                YesPacket = new ISortPacket { PocketType = pocket, Confirmed = true },
+                Question = Game18NConstString.SortInventoryQuestion
+            }, Session.LastPackets.OfType<QnaiPacket>().Single());
+
         private void ItemShouldBeInSlot_(int slot) =>
             Assert.AreEqual((short)1012,
                 Session.Character.InventoryService.LoadBySlotAndType((short)slot, NoscorePocketType.Main)?.ItemInstance.ItemVNum);
 
-        private void OneIvnShouldListSlots_(string slots)
-        {
-            var ivn = Session.LastPackets.OfType<IvnPacket>().Single();
-            Assert.AreEqual(PocketType.Main, ivn.Type);
-            Assert.AreEqual(slots, string.Join(" ", ivn.IvnSubPackets.NotNull().Select(s => s.Slot)));
-        }
+        private void NoPocketShouldBeSent() =>
+            Assert.IsFalse(Session.LastPackets.Any(p => p is InvPacket or IvnPacket));
 
-        private void Slot0ShouldBeSentWithTheItem()
-        {
-            var item = Session.LastPackets.OfType<IvnPacket>().Single().IvnSubPackets.NotNull().Single(s => s.Slot == 0);
-            Assert.AreEqual((short)1012, item.VNum);
-            Assert.AreEqual((short)7, item.RareAmount);
-        }
+        private void ThePocketShouldBeSentWithTheItemInSlot0() =>
+            PacketAssert.AreEqual(new InvPacket
+            {
+                Type = PocketType.Main,
+                IvnSubPackets = [new IvnSubPacket { Slot = 0, VNum = 1012, RareAmount = 7, UpgradeDesign = 0, SecondUpgrade = null, Unknown5 = null, Unknown6 = null }]
+            }, Session.LastPackets.OfType<InvPacket>().Single());
 
-        private void Slot1ShouldBeSentEmpty()
-        {
-            var ivn = Session.LastPackets.OfType<IvnPacket>().Single();
-            var empty = ((IItemInstance?)null).GenerateIvnSubPacket(PocketType.Main, 1);
-            Assert.AreEqual(empty.VNum, ivn.IvnSubPackets.NotNull().Single(s => s.Slot == 1).VNum);
-        }
+        private void TheQuicklistShouldBeSent() =>
+            CollectionAssert.AreEqual(new long[] { 0, 1 }, Session.LastPackets.OfType<QSlotPacket>().Select(p => p.Slot).ToArray());
     }
 }

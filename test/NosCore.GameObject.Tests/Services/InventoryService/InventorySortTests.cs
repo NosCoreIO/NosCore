@@ -4,203 +4,237 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Algorithm.RarityPointService;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.Configuration;
-using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Items;
-using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
-using NosCore.Shared.Enumerations;
-using NosCore.Tests.Shared;
-using SpecLight;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.Enumerations;
+using NosCore.Tests.Shared;
+using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.InventoryService
 {
     [TestClass]
     public class InventorySortTests
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService ItemProvider;
-        private IInventoryService Inventory;
-        private IReadOnlyList<short> TouchedSlots;
-        private List<ItemDto> Items;
+        private TestWorld World;
+        private ClientSession Session;
+        private IItemGenerationService ItemProvider;
+        private IInventoryService Inventory => Session.Character.InventoryService;
+        private readonly List<Guid> Added = [];
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Items = new List<ItemDto>
-            {
-                MainItem(1002, "Small Health Potion", "Petite potion de soin"),
-                MainItem(1004, "Large Health Potion", "Grande potion de soin"),
-                MainItem(1011, "Huge Recovery Potion", "Enorme potion de recuperation"),
-                MainItem(1012, "Seed of Power", "Graine de puissance"),
-                MainItem(1013, "seed of power", "graine de puissance"),
-                new Item { Type = NoscorePocketType.Etc, VNum = 2024, Name = Name("Biscuits", "Biscuits") },
-                Specialist(901, 30, "Warrior"),
-                Specialist(902, 20, "Ninja"),
-                Specialist(903, 20, "Assassin"),
-                new Item { Type = NoscorePocketType.Costume, VNum = 4201, Name = Name("Bunny Ears", "Oreilles de lapin") },
-                new Item { Type = NoscorePocketType.Costume, VNum = 4075, Name = Name("Wedding Dress", "Robe de mariee") },
-            };
-            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(new ItemCatalog(Items),
-                NullLoggerFactory.Instance, TestLocalizers.Log, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
-            Inventory = new GameObject.Services.InventoryService.InventoryService(new ItemCatalog(Items),
-                Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 48, MaxItemAmount = 999 }),
-                NullLogger<GameObject.Services.InventoryService.InventoryService>.Instance, TestLocalizers.Log);
+            World = await TestWorld.CreateAsync();
+            World.WorldConfiguration.Value.BackpackSize = 48;
+            World.ItemList.AddRange(
+            [
+                Bag(NoscorePocketType.Main, ItemType.Main, 1034),
+                Bag(NoscorePocketType.Main, ItemType.Main, 1031),
+                Bag(NoscorePocketType.Main, ItemType.Upgrade, 1023),
+                Bag(NoscorePocketType.Main, ItemType.Upgrade, 1021),
+                Bag(NoscorePocketType.Mount, ItemType.Special, 9276),
+                Bag(NoscorePocketType.Main, ItemType.Potion, 1011),
+                Bag(NoscorePocketType.Main, ItemType.Potion, 1002),
+                Bag(NoscorePocketType.Etc, ItemType.Sell, 2094),
+                Bag(NoscorePocketType.Etc, ItemType.Sell, 2010),
+                Bag(NoscorePocketType.Etc, ItemType.Food, 2306),
+                Bag(NoscorePocketType.Etc, ItemType.Ammo, 2083),
+                Gear(ItemType.Weapon, EquipmentType.MainWeapon, 13, 5),
+                Gear(ItemType.Weapon, EquipmentType.SecondaryWeapon, 12, 10),
+                Gear(ItemType.Fashion, EquipmentType.Hat, 20, 221),
+                Gear(ItemType.Fashion, EquipmentType.Hat, 20, 216),
+                Gear(ItemType.Armor, EquipmentType.Armor, 3, 13),
+                Gear(ItemType.Fashion, EquipmentType.Mask, 20, 224),
+                Gear(ItemType.Fashion, EquipmentType.Boots, 51, 714),
+                Gear(ItemType.Fashion, EquipmentType.Boots, 45, 4998),
+                Gear(ItemType.Fashion, EquipmentType.Boots, 43, 321),
+                Gear(ItemType.Jewelery, EquipmentType.Fairy, 0, 803),
+                Gear(ItemType.Jewelery, EquipmentType.Fairy, 0, 274),
+                Gear(ItemType.Jewelery, EquipmentType.Amulet, 10, 182),
+                Gear(ItemType.Jewelery, EquipmentType.Amulet, 1, 347),
+                new Item { Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, VNum = 901, LevelJobMinimum = 30 },
+                new Item { Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, VNum = 902, LevelJobMinimum = 20 },
+            ]);
+            World.Inject<IItemCatalog>(new ItemCatalog(World.ItemList));
+            Session = await World.CreateSessionAsync();
+            ItemProvider = World.GenerateItemProvider();
         }
 
         [TestMethod]
-        public void SortingShouldOrderByNameFromTheFirstSlot()
+        public void TheMainPocketGoesByKindThenHighestNumberFirst()
         {
-            new Spec("Sorting should order by name from the first slot")
-                .Given(MainPocketIsScattered)
-                .When(SortingMainPocketIn_, RegionType.EN)
-                .Then(MainPocketShouldRead_, "1011 1004 1012 1002")
-                .And(TouchedSlotsShouldBe_, "0 1 2 3 5 9")
+            new Spec("The main pocket goes by kind of item, then highest number first")
+                .Given(TheMainPocketIsScattered)
+                .When(Sorting_, NoscorePocketType.Main)
+                .Then(_ShouldRead_, NoscorePocketType.Main, "1034 1031 1023 1021 9276 1011 1002")
                 .Execute();
         }
 
         [TestMethod]
-        public void SortingShouldUseTheAccountLanguage()
+        public void TheEtcPocketGoesByKindThenHighestNumberFirst()
         {
-            new Spec("Sorting should use the account language")
-                .Given(MainPocketIsScattered)
-                .When(SortingMainPocketIn_, RegionType.FR)
-                .Then(MainPocketShouldRead_, "1011 1012 1004 1002")
+            new Spec("The etc pocket goes by kind of item, then highest number first")
+                .Given(TheEtcPocketIsScattered)
+                .When(Sorting_, NoscorePocketType.Etc)
+                .Then(_ShouldRead_, NoscorePocketType.Etc, "2094 2010 2306 2083")
                 .Execute();
         }
 
         [TestMethod]
-        public void SameNamesShouldGoByVnumThenLargestStackFirst()
+        public void StacksOfOneItemKeepTheirOrder()
         {
-            new Spec("Same names should go by vnum then largest stack first")
-                .Given(StacksSharingAName)
-                .When(SortingMainPocketIn_, RegionType.EN)
-                .Then(MainPocketShouldRead_, "1012x9 1012x5 1013x1")
+            new Spec("Stacks of one item keep the order they were in")
+                .Given(TwoStacksOfOnePotion)
+                .When(Sorting_, NoscorePocketType.Main)
+                .Then(_ShouldRead_, NoscorePocketType.Main, "1011x110 1011x10")
                 .Execute();
         }
 
         [TestMethod]
-        public void SortingShouldLeaveOtherPocketsAlone()
+        public void EquipmentGoesBySlotThenHighestLevelThenHighestNumber()
         {
-            new Spec("Sorting should leave other pockets alone")
-                .Given(MainPocketIsScattered)
-                .And(EtcItemInSlot_, 4)
-                .When(SortingMainPocketIn_, RegionType.EN)
-                .Then(EtcItemShouldStayInSlot_, 4)
+            new Spec("Equipment goes by slot, then highest level, then highest number")
+                .Given(TheEquipmentPocketIsScattered)
+                .When(Sorting_, NoscorePocketType.Equipment)
+                .Then(_ShouldRead_, NoscorePocketType.Equipment, "5 10 221 216 13 224 714 4998 321 803 274 182 347")
                 .Execute();
         }
 
         [TestMethod]
-        public void SortingAnEmptyPocketShouldTouchNothing()
+        public void SortingLeavesTheOtherPocketsAlone()
         {
-            new Spec("Sorting an empty pocket should touch nothing")
-                .When(SortingMainPocketIn_, RegionType.EN)
-                .Then(TouchedSlotsShouldBe_, "")
+            new Spec("Sorting leaves the other pockets alone")
+                .Given(TheMainPocketIsScattered)
+                .And(TheEtcPocketIsScattered)
+                .When(Sorting_, NoscorePocketType.Main)
+                .Then(_ShouldRead_, NoscorePocketType.Etc, "2083@1 2010@4 2306@6 2094@9")
                 .Execute();
         }
 
         [TestMethod]
-        public void SpecialistsShouldGoByJobLevelRequirementThenVnum()
+        public void SpecialistsStillGoByJobLevelRequirement()
         {
-            new Spec("Specialists should go by job level requirement then vnum")
+            new Spec("Specialist cards still go by job level requirement")
                 .Given(SpecialistsAreScattered)
-                .When(Sorting_PocketIn_, NoscorePocketType.Specialist, RegionType.EN)
-                .Then(_PocketShouldRead_, NoscorePocketType.Specialist, "902 903 901")
+                .When(Sorting_, NoscorePocketType.Specialist)
+                .Then(_ShouldRead_, NoscorePocketType.Specialist, "902 901")
                 .Execute();
         }
 
         [TestMethod]
-        public void CostumesShouldGoByVnum()
+        public async Task SortingWhileItemsArriveLosesAndCopiesNothing()
         {
-            new Spec("Costumes should go by vnum")
-                .Given(CostumesAreScattered)
-                .When(Sorting_PocketIn_, NoscorePocketType.Costume, RegionType.EN)
-                .Then(_PocketShouldRead_, NoscorePocketType.Costume, "4075 4201")
-                .Execute();
+            await new Spec("Sorting while items arrive loses and copies nothing")
+                .Given(TheEquipmentPocketIsScattered)
+                .WhenAsync(SortingWhileOtherItemsArrive)
+                .Then(EveryItemIsHeldOnce)
+                .ExecuteAsync();
         }
 
-        private static Item Specialist(short vnum, byte jobLevel, string name) =>
-            new()
-            {
-                Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, VNum = vnum,
-                LevelJobMinimum = jobLevel, Name = Name(name, name)
-            };
+        private static Item Bag(NoscorePocketType pocket, ItemType type, short vnum) =>
+            new() { Type = pocket, ItemType = type, VNum = vnum };
 
-        private static Item MainItem(short vnum, string english, string french) =>
-            new() { Type = NoscorePocketType.Main, VNum = vnum, Name = Name(english, french) };
+        private static Item Gear(ItemType type, EquipmentType slot, byte level, short vnum) =>
+            new() { Type = NoscorePocketType.Equipment, ItemType = type, EquipmentSlot = slot, LevelMinimum = level, VNum = vnum };
 
-        private static I18NString Name(string english, string french) =>
-            new() { [RegionType.EN] = english, [RegionType.FR] = french };
-
-        private void Add(short vnum, short amount, NoscorePocketType pocket, short slot)
+        private void Add(short vnum, short amount, NoscorePocketType pocket, short? slot)
         {
-            var instance = ItemProvider.Create(vnum, amount);
-            // The test mapping drops I18N names; the world server's keeps them.
-            instance.Item.Name = Items.Single(i => i.VNum == vnum).Name;
-            Inventory.AddItemToPocket(InventoryItemInstance.Create(instance, 0), pocket, slot);
+            var item = InventoryItemInstance.Create(ItemProvider.Create(vnum, amount), Session.Character.CharacterId);
+            Inventory.AddItemToPocket(item, pocket, slot);
+            Added.Add(item.ItemInstanceId);
         }
 
-        private void MainPocketIsScattered()
+        private void TheMainPocketIsScattered()
         {
             Add(1002, 1, NoscorePocketType.Main, 0);
-            Add(1012, 1, NoscorePocketType.Main, 3);
-            Add(1011, 1, NoscorePocketType.Main, 5);
-            Add(1004, 1, NoscorePocketType.Main, 9);
+            Add(9276, 1, NoscorePocketType.Main, 2);
+            Add(1031, 60, NoscorePocketType.Main, 3);
+            Add(1021, 9, NoscorePocketType.Main, 7);
+            Add(1034, 2, NoscorePocketType.Main, 11);
+            Add(1011, 110, NoscorePocketType.Main, 12);
+            Add(1023, 19, NoscorePocketType.Main, 20);
         }
 
-        private void StacksSharingAName()
+        private void TheEtcPocketIsScattered()
         {
-            Add(1013, 1, NoscorePocketType.Main, 0);
-            Add(1012, 5, NoscorePocketType.Main, 1);
-            Add(1012, 9, NoscorePocketType.Main, 2);
+            Add(2083, 15, NoscorePocketType.Etc, 1);
+            Add(2010, 8, NoscorePocketType.Etc, 4);
+            Add(2306, 10, NoscorePocketType.Etc, 6);
+            Add(2094, 7, NoscorePocketType.Etc, 9);
+        }
+
+        private void TwoStacksOfOnePotion()
+        {
+            Add(1011, 110, NoscorePocketType.Main, 2);
+            Add(1011, 10, NoscorePocketType.Main, 7);
+        }
+
+        private void TheEquipmentPocketIsScattered()
+        {
+            short slot = 0;
+            foreach (var vnum in new short[] { 347, 321, 13, 803, 216, 714, 182, 10, 224, 4998, 274, 221, 5 })
+            {
+                Add(vnum, 1, NoscorePocketType.Equipment, slot);
+                slot += 2;
+            }
         }
 
         private void SpecialistsAreScattered()
         {
             Add(901, 1, NoscorePocketType.Specialist, 1);
-            Add(903, 1, NoscorePocketType.Specialist, 4);
-            Add(902, 1, NoscorePocketType.Specialist, 7);
+            Add(902, 1, NoscorePocketType.Specialist, 4);
         }
 
-        private void CostumesAreScattered()
+        private void Sorting_(NoscorePocketType pocket) => Inventory.SortPocket(pocket);
+
+        private async Task SortingWhileOtherItemsArrive()
         {
-            Add(4201, 1, NoscorePocketType.Costume, 2);
-            Add(4075, 1, NoscorePocketType.Costume, 5);
+            var arriving = Enumerable.Range(0, 20).Select(_ => Task.Run(() =>
+            {
+                var item = InventoryItemInstance.Create(ItemProvider.Create(5, 1), Session.Character.CharacterId);
+                if (Inventory.AddItemToPocket(item, NoscorePocketType.Equipment)?.Contains(item) == true)
+                {
+                    lock (Added)
+                    {
+                        Added.Add(item.ItemInstanceId);
+                    }
+                }
+            }));
+            var sorting = Enumerable.Range(0, 20)
+                .Select(_ => Task.Run(() => Inventory.SortPocket(NoscorePocketType.Equipment)));
+            await Task.WhenAll(arriving.Concat(sorting));
         }
 
-        private void EtcItemInSlot_(int slot) => Add(2024, 1, NoscorePocketType.Etc, (short)slot);
-
-        private void SortingMainPocketIn_(RegionType language) =>
-            TouchedSlots = Inventory.SortPocket(NoscorePocketType.Main, language);
-
-        private void Sorting_PocketIn_(NoscorePocketType pocket, RegionType language) =>
-            TouchedSlots = Inventory.SortPocket(pocket, language);
-
-        private void MainPocketShouldRead_(string expected) => _PocketShouldRead_(NoscorePocketType.Main, expected);
-
-        private void _PocketShouldRead_(NoscorePocketType type, string expected)
+        private void EveryItemIsHeldOnce()
         {
-            var pocket = Inventory.Values.Where(i => i.Type == type).OrderBy(i => i.Slot).ToList();
-            CollectionAssert.AreEqual(Enumerable.Range(0, pocket.Count).Select(s => (short)s).ToList(),
-                pocket.Select(i => i.Slot).ToList());
+            CollectionAssert.AreEquivalent(Added, Inventory.Values.Select(i => i.ItemInstanceId).ToList());
+            Assert.AreEqual(Added.Count, Inventory.Values.Select(i => i.ItemInstanceId).Distinct().Count());
+        }
+
+        private void _ShouldRead_(NoscorePocketType pocket, string expected)
+        {
+            var items = Inventory.Values.Where(i => i.Type == pocket).OrderBy(i => i.Slot).ToList();
+            var showsSlots = expected.Contains('@');
+            if (!showsSlots)
+            {
+                CollectionAssert.AreEqual(Enumerable.Range(0, items.Count).Select(s => (short)s).ToList(),
+                    items.Select(i => i.Slot).ToList(), "the pocket is packed from its first slot");
+            }
+
             var showsAmounts = expected.Contains('x');
-            Assert.AreEqual(expected, string.Join(" ", pocket.Select(i => showsAmounts
-                ? $"{i.ItemInstance.ItemVNum}x{i.ItemInstance.Amount}"
+            Assert.AreEqual(expected, string.Join(" ", items.Select(i =>
+                showsSlots ? $"{i.ItemInstance.ItemVNum}@{i.Slot}"
+                : showsAmounts ? $"{i.ItemInstance.ItemVNum}x{i.ItemInstance.Amount}"
                 : i.ItemInstance.ItemVNum.ToString())));
         }
-
-        private void TouchedSlotsShouldBe_(string expected) =>
-            Assert.AreEqual(expected, string.Join(" ", TouchedSlots));
-
-        private void EtcItemShouldStayInSlot_(int slot) =>
-            Assert.AreEqual((short)slot, Inventory.Values.Single(i => i.Type == NoscorePocketType.Etc).Slot);
     }
 }

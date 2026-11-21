@@ -7,7 +7,6 @@
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemStorage;
-using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 
@@ -43,6 +42,6 @@ namespace NosCore.GameObject.Services.InventoryService
         bool TryConsume(InventoryItemInstance source, short amount);
         void RestoreConsumed(InventoryItemInstance source, short amount);
 
-        IReadOnlyList<short> SortPocket(NoscorePocketType pocket, RegionType language);
+        void SortPocket(NoscorePocketType pocket);
     }
 }

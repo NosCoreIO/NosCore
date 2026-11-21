@@ -23,6 +23,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
@@ -303,25 +304,54 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
-        public async Task SortingAPocketPacksItFromTheFirstSlotInNameOrder()
+        public async Task SortingAPocketIsAskedThenPacksItByKindThenHighestNumberFirst()
         {
             var player = await Harness.AddPlayerAsync("Alice");
-            await Harness.GiveAsync(player, WorldData.Seed, 5, slot: 9);
+            await Harness.GiveAsync(player, WorldData.Kebab, 4, slot: 1);
             await Harness.GiveAsync(player, WorldData.Pebble, 3, slot: 5);
+            await Harness.GiveAsync(player, WorldData.PowerSeed, 2, slot: 7);
+            await Harness.GiveAsync(player, WorldData.Seed, 5, slot: 9);
             await using (var alice = await EnterAsync(player))
             {
                 await alice.SendAsync(new ISortPacket { PocketType = PocketType.Etc });
 
-                var sorted = await alice.ExpectAsync<IvnPacket>();
-                var slots = sorted.IvnSubPackets ?? [];
-                Assert.AreEqual(PocketType.Etc, sorted.Type);
-                Same([(0, WorldData.Pebble, 3), (1, WorldData.Seed, 5)], slots.Take(2).Select(slot => ((int)slot.Slot, (int)slot.VNum, (int)slot.RareAmount)).ToArray());
-                Same([5, 9], slots.Skip(2).Select(slot => (int)slot.Slot).ToArray(), "the slots they left are sent as well");
-                Assert.IsTrue(slots.Skip(2).All(IsEmpty), "and are empty");
+                var asked = await alice.ExpectAsync<QnaiPacket>(p => p.Question == Game18NConstString.SortInventoryQuestion, "the sort question");
+                PacketAssert.AreEqual(new ISortPacket { PocketType = PocketType.Etc, Confirmed = true }, asked.YesPacket as ISortPacket);
+                var answered = alice.Mark();
+                await alice.SendAsync(asked.YesPacket ?? throw new AssertFailedException("the question carries no answer"));
+
+                var sorted = await alice.ExpectSinceAsync<InvPacket>(answered, p => p.Type == PocketType.Etc, "the sorted pocket");
+                Same([(0, WorldData.PowerSeed, 2), (1, WorldData.Pebble, 3), (2, WorldData.Seed, 5), (3, WorldData.Kebab, 4)],
+                    (sorted.IvnSubPackets ?? []).Select(slot => ((int)slot.Slot, (int)slot.VNum, (int)slot.RareAmount)).ToArray());
+                await alice.ExpectSinceAsync<QSlotPacket>(answered, p => p.Slot == 1, "the quicklist after it");
             }
 
             await using var back = await Harness.ComeBackAsync(player);
-            Same([(0, WorldData.Pebble, 3), (1, WorldData.Seed, 5)], Listed(back, PocketType.Etc));
+            Same([(0, WorldData.PowerSeed, 2), (1, WorldData.Pebble, 3), (2, WorldData.Seed, 5), (3, WorldData.Kebab, 4)],
+                Listed(back, PocketType.Etc));
+        }
+
+        [TestMethod]
+        public async Task AMountMovedFromItsPocketToTheBagStaysThere()
+        {
+            var player = await Harness.AddPlayerAsync("Alice");
+            await Harness.GiveAsync(player, WorldData.Steed, 1, slot: 2, pocket: NoscorePocketType.Mount);
+            await using (var alice = await EnterAsync(player))
+            {
+                var moved = alice.Mark();
+
+                await alice.SendAsync(new Mve2Packet
+                {
+                    InventoryType = PocketType.Mount, Slot = 2, DestinationInventoryType = PocketType.Main, DestinationSlot = 5
+                });
+
+                await alice.ExpectSinceAsync(moved, EmptySlot(PocketType.Mount, 2), "the emptied mount slot");
+                await alice.ExpectSinceAsync(moved, Slot(PocketType.Main, 5, WorldData.Steed, 1), "the mount in the bag");
+            }
+
+            await using var back = await Harness.ComeBackAsync(player);
+            Same([(5, WorldData.Steed, 1)], Listed(back, PocketType.Main));
+            Same(Array.Empty<(int, int, int)>(), Listed(back, PocketType.Mount));
         }
 
         [TestMethod]

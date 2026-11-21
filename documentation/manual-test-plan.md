@@ -1797,13 +1797,22 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
 
 ### Inventory sort
 
-- [ ] Scatter a few different items over the MAIN tab with gaps between them, press the sort
-      button at the top of the inventory and confirm: they move to the first slots, in
-      alphabetical order of their names, with no gaps
-- [ ] The same on the EQUIP and ETC tabs; the other tabs are not touched
-- [ ] Two stacks of the same item stay two stacks, the larger first
+- [ ] Scatter a few different items over the MAIN tab with gaps between them and press the sort
+      button at the top of the inventory: a window asks "Are you sure you want to sort your
+      inventory?". Answer no: nothing moves
+- [ ] Press it again and answer yes: the items move to the first slots with no gaps, grouped by
+      kind (seeds and stones, then cellons and gems, then scrolls and crafting parts, then
+      special items such as a mount kept in the bag, then potions), and within a kind the
+      highest item number first
+- [ ] The same on the ETC tab (materials, then food, then snacks, then other consumables, then
+      ammunition). The other tabs are not touched
+- [ ] On the EQUIP tab, gear goes by slot: main weapons, secondary weapons, hats, armour,
+      masks, gloves, boots, necklaces, bracelets, fairies, amulets; within a slot the highest
+      level requirement first, then the highest item number
+- [ ] Two stacks of the same item stay two stacks, in the order they were in
+- [ ] The quick bar is still drawn after the sort. An item on it points at the same bag slot as
+      before, which now holds whatever the sort put there
 - [ ] Relog: the sorted order is still there
-- [ ] On an account in another language, the order follows that language's names
 - [ ] With a personal shop or an exchange open, sorting does nothing
 - [ ] Leave gaps between the cards in the card inventory and between the costumes in the
       costume inventory, then open them from the ADDITIONAL tab: the cards close up in order
@@ -1815,6 +1824,13 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
       relog: both stay in their new slots and you stand where you left
 - [ ] Put on a weapon while another is worn: the old one goes back to the bag. Relog: the new
       one is still worn and the old one is still in the bag
+
+### Moving a mount out of the mount inventory
+
+- [ ] Open the mount inventory from the ADDITIONAL tab and drag a mount onto an empty slot of
+      the MAIN tab: it leaves the mount inventory and shows in that slot. Relog: it is still there
+- [ ] Drag it back onto the mount inventory: it returns there
+- [ ] Drag a mount onto the ETC tab, or a potion onto the mount inventory: nothing moves
 
 ### Moving into the card and costume inventories
 
