@@ -131,7 +131,12 @@ namespace NosCore.GameObject.Services.WarehouseService
                         // Giving it back could leave it in both places; the copy is kept and named instead.
                         logger.LogError(e, logLanguage[LogLanguageKey.DEPOSIT_OUTCOME_UNKNOWN], stored.ItemVNum, amount,
                             session.Character.CharacterId, warehouseSlot, stored.Id);
-                        await saveService.SaveAsync(session);
+                        if (!await saveService.SaveAsync(session))
+                        {
+                            logger.LogError(logLanguage[LogLanguageKey.DEPOSIT_DEBIT_NOT_SAVED], session.Character.CharacterId,
+                                stored.ItemVNum, amount, warehouseSlot, stored.Id);
+                        }
+
                         throw;
                 }
             }

@@ -4,8 +4,10 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
@@ -19,15 +21,18 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Parcel
 {
     public class PclPacketHandler(IMailHub mailHttpClient, IItemGenerationService itemProvider,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<EquipmentOptionDto, Guid> equipmentOptionDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<EquipmentOptionDto, Guid> equipmentOptionDao,
+            ILogger<PclPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<PclPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PclPacket getGiftPacket, ClientSession clientSession)
@@ -71,11 +76,37 @@ namespace NosCore.PacketHandlers.Parcel
                     return;
                 }
 
-                if (!await StoreOptionsAsync(item, options)
-                    || !await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, characterId, isCopy))
+                var claimed = false;
+                Exception? failure = null;
+                try
                 {
-                    await TakeBackAsync(inventory, slots, amount, item, options.Count > 0);
-                    return;
+                    claimed = await StoreOptionsAsync(item, options)
+                        && await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, characterId, isCopy);
+                }
+                catch (Exception e)
+                {
+                    failure = e;
+                }
+
+                // A call that threw may still have removed the mail, and then the item is the player's.
+                if (!claimed && (failure == null || await IsStillInTheParcelBoxAsync(getGiftPacket.GiftId, characterId, isCopy)))
+                {
+                    if (await TakeBackAsync(inventory, slots, amount, item, options.Count > 0))
+                    {
+                        if (failure != null)
+                        {
+                            ExceptionDispatchInfo.Throw(failure);
+                        }
+
+                        return;
+                    }
+
+                    // Part of it was used meanwhile, so the claim stands and the parcel has to go.
+                    if (!await TryRemoveMailAsync(getGiftPacket.GiftId, characterId, isCopy))
+                    {
+                        logger.LogError(failure, logLanguage[LogLanguageKey.PARCEL_CLAIMED_BUT_KEPT], getGiftPacket.GiftId,
+                            characterId, item.ItemVNum, amount);
+                    }
                 }
 
                 await clientSession.SendPacketsAsync(slots.Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
@@ -94,6 +125,9 @@ namespace NosCore.PacketHandlers.Parcel
             }
         }
 
+        private async Task<bool> IsStillInTheParcelBoxAsync(int giftId, long characterId, bool isCopy) =>
+            (await mailHttpClient.GetMails(giftId, characterId, isCopy)).Any(m => m.MailId == giftId);
+
         private async Task<bool> StoreOptionsAsync(IItemInstance item, List<EquipmentOptionDto> options)
         {
             if (options.Count == 0 || item is not WearableInstance wearable)
@@ -107,7 +141,8 @@ namespace NosCore.PacketHandlers.Parcel
         }
 
         // The parcel is still there, so what was placed for it comes back out of the bag.
-        private async Task TakeBackAsync(IInventoryService inventory, List<InventoryItemInstance> slots, short amount,
+        // True when all of it came back out; what the player already moved or used cannot.
+        private async Task<bool> TakeBackAsync(IInventoryService inventory, List<InventoryItemInstance> slots, short amount,
             IItemInstance item, bool storedOptions)
         {
             foreach (var stack in Enumerable.Reverse(slots))
@@ -119,9 +154,28 @@ namespace NosCore.PacketHandlers.Parcel
                 }
             }
 
+            if (amount > 0)
+            {
+                return false;
+            }
+
             if (storedOptions)
             {
                 _ = await itemInstanceDao.TryDeleteAsync(item.Id);
+            }
+
+            return true;
+        }
+
+        private async Task<bool> TryRemoveMailAsync(int giftId, long characterId, bool isCopy)
+        {
+            try
+            {
+                return await mailHttpClient.DeleteMailAsync(giftId, characterId, isCopy);
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 

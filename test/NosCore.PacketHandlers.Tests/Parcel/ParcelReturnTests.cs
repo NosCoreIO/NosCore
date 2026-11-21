@@ -5,8 +5,10 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NosCore.Core;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -90,7 +92,101 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         }
 
         [TestMethod]
-        public async Task AParcelTakenWhileTheBagFillsUpIsNeverLost()
+        public async Task ASlotTakenAfterThePlacementLeavesTheWeaponInTheBag()
+        {
+            var mail = await AWeaponWaitingInTheParcelBoxAsync();
+            // Another writer takes a slot while the parcel is being claimed, after the weapon was placed.
+            var hub = ParcelBox(onDelete: () => Holds(BeadVNum));
+
+            await ClaimAsync(hub, mail);
+
+            Assert.AreEqual(1, WeaponsInTheBag());
+            Assert.IsFalse(IsInTheParcelBox(mail));
+        }
+
+        [TestMethod]
+        public async Task ASlotTakenBeforeThePlacementLeavesTheParcelWhereItIs()
+        {
+            var mail = await AWeaponWaitingInTheParcelBoxAsync();
+            var hub = ParcelBox(onRead: () => Holds(BeadVNum));
+
+            await ClaimAsync(hub, mail);
+
+            Assert.AreEqual(0, WeaponsInTheBag());
+            Assert.IsTrue(IsInTheParcelBox(mail));
+        }
+
+        [TestMethod]
+        public async Task OptionsThatCannotBeWrittenLeaveTheParcelWhereItIs()
+        {
+            var mail = await AWeaponWaitingInTheParcelBoxAsync();
+            var options = World.Freeze<Mock<IDao<EquipmentOptionDto, Guid>>>();
+            options.Setup(o => o.Where(It.IsAny<System.Linq.Expressions.Expression<Func<EquipmentOptionDto, bool>>>()))
+                .Returns([new EquipmentOptionDto { Id = Guid.NewGuid(), Type = 3, Level = 2, Value = 40 }]);
+            options.Setup(o => o.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<EquipmentOptionDto>>()))
+                .ThrowsAsync(new TimeoutException());
+
+            await Assert.ThrowsExactlyAsync<TimeoutException>(() => ClaimAsync(ParcelBox(), mail));
+
+            Assert.AreEqual(0, WeaponsInTheBag());
+            Assert.IsTrue(IsInTheParcelBox(mail));
+        }
+
+        [TestMethod]
+        public async Task ARemovalThatFailsLeavesTheParcelWhereItIs()
+        {
+            var mail = await AWeaponWaitingInTheParcelBoxAsync();
+            var hub = ParcelBox(deleteThrows: true);
+
+            await Assert.ThrowsExactlyAsync<TimeoutException>(() => ClaimAsync(hub, mail));
+
+            Assert.AreEqual(0, WeaponsInTheBag());
+            Assert.IsTrue(IsInTheParcelBox(mail));
+        }
+
+        [TestMethod]
+        public async Task ARemovalThatThrowsAfterRemovingLeavesTheWeaponInTheBag()
+        {
+            var mail = await AWeaponWaitingInTheParcelBoxAsync();
+            var hub = ParcelBox(deleteThrows: true, deleteRemoves: true);
+
+            await ClaimAsync(hub, mail);
+
+            Assert.AreEqual(1, WeaponsInTheBag());
+            Assert.IsFalse(IsInTheParcelBox(mail));
+        }
+
+        [TestMethod]
+        public async Task AWeaponUsedBeforeAFailedClaimCouldBeUndoneStillTakesTheParcelAway()
+        {
+            var mail = await AWeaponWaitingInTheParcelBoxAsync();
+            var hub = ParcelBox(onDelete: UseTheWeapon, deleteThrows: true, failingDeletes: 1);
+
+            await ClaimAsync(hub, mail);
+
+            Assert.AreEqual(0, WeaponsInTheBag() + (IsInTheParcelBox(mail) ? 1 : 0), "the used weapon is not in the parcel box too");
+        }
+
+        [TestMethod]
+        public async Task AParcelThatCannotBeRemovedAfterItsWeaponWasUsedIsLogged()
+        {
+            var mail = await AWeaponWaitingInTheParcelBoxAsync();
+            var logger = World.Freeze<Mock<ILogger<PclPacketHandler>>>();
+            var hub = ParcelBox(onDelete: UseTheWeapon, deleteThrows: true);
+
+            await ClaimAsync(hub, mail);
+
+            logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => $"{state}".Contains("PARCEL_CLAIMED_BUT_KEPT")),
+                It.IsAny<Exception?>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
+        }
+
+        // The player sells or wears the weapon while the claim is still waiting on the parcel box.
+        private void UseTheWeapon() =>
+            _session.Character.InventoryService.DeleteById(_session.Character.InventoryService.Values
+                .Single(i => i.ItemInstance.ItemVNum == WeaponVNum).ItemInstanceId);
+
+        private async Task<MailData> AWeaponWaitingInTheParcelBoxAsync()
         {
             var inventory = _session.Character.InventoryService;
             var weapon = Holds(WeaponVNum);
@@ -102,25 +198,44 @@ namespace NosCore.PacketHandlers.Tests.Parcel
 
             await _delivery.ReturnConsumedAsync(_session.Character, weapon, 1);
             inventory.DeleteFromTypeAndSlot(NoscorePocketType.Equipment, 0);
-            var mail = _parcels.GetMails(_session.Character.CharacterId, false).Values.Single();
-            var mails = new Mock<IMailHub>();
-            mails.Setup(m => m.GetMails(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()))
-                .ReturnsAsync(new List<MailData> { mail });
-            mails.Setup(m => m.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()))
+            return _parcels.GetMails(_session.Character.CharacterId, false).Values.Single();
+        }
+
+        // The real parcel box, with a hook on its reads and a scripted removal.
+        private IMailHub ParcelBox(Action? onRead = null, Action? onDelete = null, bool deleteThrows = false,
+            bool deleteRemoves = false, int failingDeletes = int.MaxValue)
+        {
+            var hub = new Mock<IMailHub>();
+            hub.Setup(m => m.GetMails(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()))
                 .ReturnsAsync((long id, long character, bool copy) =>
                 {
-                    // Another writer takes the free slot while the parcel is being claimed.
-                    Holds(BeadVNum);
-                    return _parcels.RemoveMail(character, copy, id, out _);
+                    onRead?.Invoke();
+                    onRead = null;
+                    return _parcels.GetMails(character, copy).Values.Where(m => m.MailId == id).ToList();
                 });
-            World.Inject(mails.Object);
-
-            await World.Create<PclPacketHandler>().ExecuteAsync(new PclPacket { Type = 4, GiftId = (int)mail.MailId }, _session);
-
-            var received = inventory.Values.Any(i => i.ItemInstance.ItemVNum == WeaponVNum);
-            var stillInTheParcelBox = _parcels.GetMails(_session.Character.CharacterId, false).Count == 1;
-            Assert.IsTrue(received || stillInTheParcelBox, "the weapon is either in the bag or still in the parcel box");
+            hub.Setup(m => m.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()))
+                .ReturnsAsync((long id, long character, bool copy) =>
+                {
+                    onDelete?.Invoke();
+                    onDelete = null;
+                    var fails = deleteThrows && failingDeletes-- > 0;
+                    var removed = (!fails || deleteRemoves) && _parcels.RemoveMail(character, copy, id, out _);
+                    return fails ? throw new TimeoutException() : removed;
+                });
+            return hub.Object;
         }
+
+        private Task ClaimAsync(IMailHub hub, MailData mail)
+        {
+            World.Inject(hub);
+            return World.Create<PclPacketHandler>().ExecuteAsync(new PclPacket { Type = 4, GiftId = (int)mail.MailId }, _session);
+        }
+
+        private int WeaponsInTheBag() =>
+            _session.Character.InventoryService.Values.Count(i => i.ItemInstance.ItemVNum == WeaponVNum);
+
+        private bool IsInTheParcelBox(MailData mail) =>
+            _parcels.GetMails(_session.Character.CharacterId, false).ContainsKey(mail.MailId);
 
         private async Task<InventoryItemInstance> ReturnedToAFullBagAndTakenOutAsync(InventoryItemInstance source)
         {

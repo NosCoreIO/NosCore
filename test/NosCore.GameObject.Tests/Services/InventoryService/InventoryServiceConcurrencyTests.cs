@@ -36,6 +36,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         private Func<bool>? _hook;
         private Thread? _testThread;
         private Thread? _otherWriter;
+        private bool _reachedCheckpoint;
         private const short OtherMainItem = 9015;
         private TestWorld World;
         private IItemGenerationService _itemProvider;
@@ -69,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             var reward = Entry(1012, 5);
 
             var result = _inventory.AddItemToPocket(reward);
-            _otherWriter?.Join();
+            Assert.IsNull(_otherWriter, "no read falls between the merge and the placement any more");
 
             Assert.IsNotNull(result, "the caller is told what was added");
             CollectionAssert.AreEquivalent(new[] { held, reward }, result);
@@ -88,7 +89,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             var reward = Entry(1012, 5);
 
             var result = _inventory.AddItemToPocket(reward);
-            _otherWriter?.Join();
+            TheOtherWriterRan();
 
             CollectionAssert.AreEquivalent(new[] { held, reward }, result);
             Assert.AreEqual(1003, _inventory.CountItem(1012));
@@ -109,7 +110,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             });
 
             _inventory.AddItemToPocket(Entry(1012, 5));
-            _otherWriter?.Join();
+            TheOtherWriterRan();
 
             Assert.AreEqual(1003, givenAway + _inventory.CountItem(1012));
         }
@@ -123,7 +124,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             WhenReading(() => true, () => otherConsumed = _inventory.TryConsume(entry, 1));
 
             var consumed = _inventory.TryConsume(entry, 1);
-            _otherWriter?.Join();
+            TheOtherWriterRan();
 
             Assert.IsTrue(consumed ^ otherConsumed, "exactly one of them gets it");
             Assert.AreEqual(0, amount);
@@ -138,7 +139,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             WhenReading(() => true, () => _inventory.RemoveItemAmountFromInventory(1, entry.ItemInstanceId));
 
             _inventory.RemoveItemAmountFromInventory(1, entry.ItemInstanceId);
-            _otherWriter?.Join();
+            TheOtherWriterRan();
 
             Assert.AreEqual(0, amount);
             Assert.IsFalse(_inventory.ContainsKey(entry.ItemInstanceId));
@@ -153,7 +154,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             WhenReading(() => true, () => otherResult = _inventory.AddItemToPocket(otherWriter, NoscorePocketType.Main, 1));
 
             _inventory.TryMoveItem(NoscorePocketType.Main, 0, 10, 1, out _, out _);
-            _otherWriter?.Join();
+            TheOtherWriterRan();
 
             Assert.AreEqual(1, moved.Slot);
             Assert.IsNull(otherResult);
@@ -227,7 +228,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             });
 
             _inventory.AddItemToPocket(Entry(1012, 5));
-            _otherWriter?.Join();
+            TheOtherWriterRan();
 
             Assert.AreEqual(1003, givenAway + _inventory.CountItem(1012));
         }
@@ -241,7 +242,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             WhenReading(() => held.ItemInstance.Amount == 999, () => counted = _inventory.CountItem(1012));
 
             var result = _inventory.AddItemsToPocket([Entry(1012, 5), Entry(1014, 1)]);
-            _otherWriter?.Join();
+            TheOtherWriterRan();
 
             Assert.IsNull(result);
             Assert.AreEqual(998, counted, "the count never shows a batch that is later undone");
@@ -366,8 +367,18 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                     Thread.Yield();
                 }
 
+                _reachedCheckpoint = !_otherWriter.IsAlive
+                    || (_otherWriter.ThreadState & System.Threading.ThreadState.WaitSleepJoin) != 0;
                 return true;
             };
+
+        // The interleaving is only tested when the hook fired and the second writer got to its own checkpoint.
+        private void TheOtherWriterRan()
+        {
+            Assert.IsNotNull(_otherWriter, "the hook never started the second writer");
+            Assert.IsTrue(_reachedCheckpoint, "the second writer neither finished nor blocked in time");
+            _otherWriter.Join();
+        }
 
         private void RunHook()
         {

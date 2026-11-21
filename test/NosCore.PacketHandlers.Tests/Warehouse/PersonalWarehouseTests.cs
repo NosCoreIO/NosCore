@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs.Extensions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -45,6 +46,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         private IItemGenerationService _items;
         private readonly Dictionary<Guid, IItemInstanceDto> _instances = new();
         private readonly List<(Guid Id, WarehouseType Type, short Slot, Guid ItemInstanceId)> _stored = new();
+        private readonly Mock<ILogger<WarehouseTransferService>> _log = new();
+        private ItemDeliveryService? _delivery;
         private Action? _duringDeposit;
         private bool _refuseDeposits;
         private bool _insertThrows;
@@ -140,10 +143,13 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             instances.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
-            return new PersonalWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object,
-                World.Create<ItemDeliveryService>(),
-                NullLogger<WarehouseTransferService>.Instance, World.LogLanguageLocalizer));
+            World.Inject<IItemDeliveryService>(_delivery ??= World.Create<ItemDeliveryService>());
+            World.Inject(hub.Object);
+            World.Inject(instances.Object);
+            World.Inject(_items);
+            World.Inject(_saves.Object);
+            World.Inject(_log.Object);
+            return new PersonalWarehouseService(World.Create<WarehouseTransferService>());
         }
 
         private void OwnsAMinilandWarehouse()
@@ -325,6 +331,22 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
             Assert.AreEqual(10, _instances.Values.Where(i => i.ItemVNum == 1012).Sum(i => i.Amount), "the copy is kept for recovery");
             _saves.Verify(s => s.SaveAsync(_session), Times.Once, "the bag is stored without the deposited amount");
+        }
+
+        [TestMethod]
+        public async Task AnUnconfirmedDepositWhoseBagCannotBeSavedIsLogged()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+            _depositFails = (Stores: false, Throws: true);
+            _readBackThrows = true;
+            _saves.Setup(s => s.SaveAsync(_session)).ReturnsAsync(false);
+
+            await DepositIgnoringFailureAsync(10, 2);
+
+            _log.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((state, _) => $"{state}".Contains("DEPOSIT_DEBIT_NOT_SAVED")),
+                It.IsAny<Exception?>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
         }
 
         private async Task DepositIgnoringFailureAsync(short amount, short newSlot)
