@@ -27,6 +27,7 @@ using NosCore.GameObject.Services.WarehouseService;
 using NosCore.PacketHandlers.Warehouse;
 using NosCore.Packets.ClientPackets.Warehouse;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Tests.Shared;
 using System;
@@ -57,6 +58,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         private bool _insertFailed;
         private bool _readBackFailed;
 
+        private const short QuestItem = 1216;
+
         [TestInitialize]
         public async Task SetupAsync()
         {
@@ -65,6 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             _items = new ItemGenerationService(new ItemCatalog(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Main, VNum = 1012 },
+                new Item { Type = NoscorePocketType.Main, VNum = QuestItem, ItemType = ItemType.Quest1 },
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon },
                 new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 21, IsWarehouse = true }
             }), NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService(), new NosCore.GameObject.Services.BattleService.RandomProvider());
@@ -215,6 +219,20 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             var stash = _session.LastPackets.OfType<StashAllPacket>().Single();
             Assert.AreEqual(21, stash.WarehouseSize);
             Assert.AreEqual(3, stash.Items.NotNull().Single().Slot);
+        }
+
+        [TestMethod]
+        public async Task AQuestItemStaysInTheBagAndTheWarehouseSaysWhy()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(QuestItem, 1);
+
+            await DepositAsync(1, 0);
+
+            Assert.AreEqual(0, _stored.Count);
+            Assert.AreEqual(1, _session.Character.InventoryService.CountItem(QuestItem));
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.CannotStoreInWarehouse },
+                _session.LastPackets.OfType<MsgiPacket>().Single());
         }
 
         [TestMethod]
