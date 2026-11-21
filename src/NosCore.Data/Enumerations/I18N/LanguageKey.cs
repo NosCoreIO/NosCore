@@ -272,6 +272,7 @@ namespace NosCore.Data.Enumerations.I18N
         PARCEL_NOT_STORED,
         DEPOSIT_DEBIT_NOT_SAVED,
         PARCEL_CLAIMED_BUT_KEPT,
+        PACKET_IN_FLIGHT_ON_CHANNEL_CHANGE,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

@@ -51,6 +51,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         private readonly AsyncLock _handlingPacketLock = new();
         private long? _subscribedSessionId;
+        private Task? _accountRelease;
         private readonly ILogger<ClientSession> _logger = logger;
         private PlayerSlot? _player;
         private int _changingMap;
@@ -121,6 +122,10 @@ namespace NosCore.GameObject.Networking.ClientSession
         public int FailedMfaAttempts { get; set; }
 
         public bool IsClosing { get; private set; }
+
+        // Once saved and handed to another channel, that channel owns the character: nothing this
+        // session does afterwards is handled or written.
+        public bool IsHandedOver { get; private set; }
 
         public ushort? LastKeepAliveIdentity { get; set; }
 
@@ -370,6 +375,34 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     sessionRegistry.Unregister(Channel.Id);
                 }
+                await ReleaseAccountAsync();
+
+                packetLock?.Dispose();
+                _disconnected.TrySetResult();
+                _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
+            }
+        }
+
+        // The destination channel claims the account as soon as the client reaches it, so the
+        // claim has to be gone before the client is told where to go.
+        public Task HandOverAsync()
+        {
+            IsHandedOver = true;
+            IsClosing = true;
+            return ReleaseAccountAsync();
+        }
+
+        // Runs once; a caller arriving while it runs waits for the same release.
+        private Task ReleaseAccountAsync()
+        {
+            var pending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            return Interlocked.CompareExchange(ref _accountRelease, pending.Task, null) ?? ReleaseAccountOnceAsync(pending);
+        }
+
+        private async Task ReleaseAccountOnceAsync(TaskCompletionSource done)
+        {
+            try
+            {
                 if (_account is { } account)
                 {
                     try { await authHub.UnregisterSessionIpAsync(account.Name); }
@@ -381,10 +414,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                     try { await pubSubHub.UnsubscribeAsync(subscribedSessionId); }
                     catch (Exception ex) { CountDisconnectFailure(); _logger.LogWarning(ex, logLanguage[LogLanguageKey.ACCOUNT_CLAIM_RELEASE_FAILED], subscribedSessionId); }
                 }
-
-                packetLock?.Dispose();
-                _disconnected.TrySetResult();
-                _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
+            }
+            finally
+            {
+                done.TrySetResult();
             }
         }
 

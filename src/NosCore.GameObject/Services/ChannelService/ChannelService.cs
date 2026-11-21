@@ -4,11 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -16,13 +18,17 @@ using NosCore.GameObject.Services.SaveService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
+using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ChannelService
 {
     public class ChannelService(IAuthHub authHttpClient, IChannelHub channelHttpClient, ISaveService saveService,
-            IOptions<WorldConfiguration> worldConfiguration)
+            IOptions<WorldConfiguration> worldConfiguration, ILogger<ChannelService> logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IChannelService
     {
         public async Task MoveChannelAsync(ClientSession clientSession, int channelId)
@@ -86,25 +92,68 @@ namespace NosCore.GameObject.Services.ChannelService
         // would arrive as they were before and stays on this channel instead.
         private async Task<bool> MoveAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode)
         {
-            if (!await saveService.SaveAsync(clientSession))
+            using (await HoldPacketsAsync(clientSession))
             {
-                return false;
+                if (!await saveService.SaveAsync(clientSession))
+                {
+                    return false;
+                }
+
+                try
+                {
+                    await clientSession.HandOverAsync();
+                    await authHttpClient.SetAwaitingChannelChangeAsync(clientSession.Account.Name, server.Id, clientSession.MfaValidated);
+                    await clientSession.SendPacketAsync(new MzPacket(server.DisplayHost ?? server.Host)
+                    {
+                        Port = server.DisplayPort ?? server.Port,
+                        CharacterSlot = clientSession.Character.Slot
+                    });
+
+                    await clientSession.SendPacketAsync(new ItPacket
+                    {
+                        Mode = mode
+                    });
+                }
+                finally
+                {
+                    await clientSession.DisconnectAsync();
+                }
+
+                return true;
+            }
+        }
+
+        // Nothing written after the hand-over is saved, so a packet of the player's must not run
+        // between the save and it. Map work must not wait on the packet lock, and a handler holding
+        // it may be waiting on the work that moves the player, so the wait is bounded as on a
+        // disconnect.
+        private ValueTask<ClientSession.PacketLockScope> HoldPacketsAsync(ClientSession clientSession)
+        {
+            if (clientSession.HoldsPacketLock || MapExecutor.IsInsideAny)
+            {
+                return ValueTask.FromResult(default(ClientSession.PacketLockScope));
             }
 
-            await clientSession.SendPacketAsync(new MzPacket(server.DisplayHost ?? server.Host)
-            {
-                Port = server.DisplayPort ?? server.Port,
-                CharacterSlot = clientSession.Character.Slot
-            });
+            // Taken here rather than in the awaiting method, so the hold is recorded in the mover's flow.
+            var timeout = new CancellationTokenSource(ClientSession.DisconnectLockTimeout);
+            return WaitForPacketsAsync(clientSession, clientSession.AcquirePacketLockAsync(timeout.Token), timeout);
+        }
 
-            await clientSession.SendPacketAsync(new ItPacket
+        private async ValueTask<ClientSession.PacketLockScope> WaitForPacketsAsync(ClientSession clientSession,
+            ValueTask<ClientSession.PacketLockScope> acquiring, CancellationTokenSource timeout)
+        {
+            using (timeout)
             {
-                Mode = mode
-            });
-
-            await authHttpClient.SetAwaitingChannelChangeAsync(clientSession.Account.Name, server.Id, clientSession.MfaValidated);
-            await clientSession.DisconnectAsync();
-            return true;
+                try
+                {
+                    return await acquiring;
+                }
+                catch (OperationCanceledException)
+                {
+                    logger.LogWarning(logLanguage[LogLanguageKey.PACKET_IN_FLIGHT_ON_CHANNEL_CHANGE], clientSession.SessionId);
+                    return default;
+                }
+            }
         }
     }
 }

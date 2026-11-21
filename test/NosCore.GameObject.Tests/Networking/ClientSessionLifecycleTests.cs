@@ -171,6 +171,82 @@ namespace NosCore.GameObject.Tests.Networking
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AHandedOverSessionReleasesItsAccountOnce()
+        {
+            await new Spec("A handed-over session releases its account once")
+                .GivenAsync(TheSessionClaimedItsAccount)
+                .AndAsync(TheSessionIsHandedToAnotherChannel)
+                .WhenAsync(TheSessionDisconnects)
+                .Then(OnlyTheClaimedIdShouldBeUnsubscribed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AHandedOverSessionIsNotSavedAgainOnDisconnect()
+        {
+            await new Spec("A handed-over session is not saved again on disconnect")
+                .Given(TheDisconnectRunsTheSaveHandler)
+                .AndAsync(TheSessionIsHandedToAnotherChannel)
+                .WhenAsync(TheSessionDisconnects)
+                .Then(TheDisconnectSaveShouldNotHaveRun)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PacketArrivingAfterTheHandOverIsSkipped()
+        {
+            await new Spec("Packet arriving after the hand-over is skipped")
+                .GivenAsync(TheSessionIsHandedToAnotherChannel)
+                .WhenAsync(APulseArrivesFromTheNetwork)
+                .Then(TheQueuedPulseShouldNotHaveRun)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AReleaseStartedElsewhereIsWaitedFor()
+        {
+            await new Spec("A release started elsewhere is waited for")
+                .GivenAsync(TheSessionClaimedItsAccount)
+                .And(TheMasterIsSlowToUnsubscribe)
+                .And(TheSessionStartsDisconnecting)
+                .WhenAsync(TheSessionIsHandedOverMeanwhile)
+                .Then(TheHandOverShouldStillBeWaiting)
+                .AndAsync(TheMasterUnsubscribes)
+                .And(OnlyTheClaimedIdShouldBeUnsubscribed)
+                .ExecuteAsync();
+        }
+
+        private readonly TaskCompletionSource<bool> Unsubscribed = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource UnsubscribeAsked = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private Task HandOverTask;
+
+        private void TheMasterIsSlowToUnsubscribe() =>
+            World.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
+                .Callback(() => UnsubscribeAsked.TrySetResult())
+                .Returns(Unsubscribed.Task);
+
+        private async Task TheSessionIsHandedOverMeanwhile()
+        {
+            await UnsubscribeAsked.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            HandOverTask = Session.HandOverAsync();
+        }
+
+        private void TheHandOverShouldStillBeWaiting()
+        {
+            World.PubSubHub.Verify(h => h.UnsubscribeAsync(ClaimedSessionId), Times.Once);
+            Assert.IsFalse(HandOverTask.IsCompleted);
+        }
+
+        private async Task TheMasterUnsubscribes()
+        {
+            Unsubscribed.SetResult(true);
+            await HandOverTask.WaitAsync(TimeSpan.FromSeconds(5));
+            await DisconnectTask.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private Task TheSessionIsHandedToAnotherChannel() => Session.HandOverAsync();
+
         private async Task TheSessionClaimedItsAccount()
         {
             Assert.IsTrue(await Session.ClaimAccountAsync(Session.Account));
