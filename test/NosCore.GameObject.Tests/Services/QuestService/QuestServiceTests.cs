@@ -254,14 +254,14 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
-        public async Task AcknowledgingTheLastStepBeforeAnOfferedChapterStartsNothing()
+        public async Task AcknowledgingTheLastStepBeforeAnOfferedChapterPlaysNoStep()
         {
             await new Spec("Acknowledging the last step of a chapter does not play it again while the next one waits for its NPC")
                 .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
                 .And(CharacterIsOnTheLastStepOfChapterOne)
                 .And(NoPacketWasSentYet)
                 .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)2, (byte)1)
-                .Then(NoPacketShouldBeSent)
+                .Then(NoStepShouldBeSent)
                 .ExecuteAsync();
         }
 
