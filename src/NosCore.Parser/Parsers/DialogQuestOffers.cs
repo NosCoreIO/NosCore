@@ -31,6 +31,19 @@ namespace NosCore.Parser.Parsers
             [NrunRunnerType.GetQuestChristmasDestroyFiends] = [6325],
             [NrunRunnerType.GetQuestAmoraStory] = [6326],
             [NrunRunnerType.GetDailyQuestEasterEvaEnergy2] = [7550],
+            [NrunRunnerType.GetDailyQuestChristmasEvaEnergyHugeSnowman] = [5936],
+            [NrunRunnerType.GetQuestFreshLiverPlease] = [6002],
+            [NrunRunnerType.GetQuestFoxysVerdict] = [6003],
+            [NrunRunnerType.GetQuestFoxHunt] = [6004],
+            [NrunRunnerType.GetQuestDefeatLordMelonoth] = [7163],
+            [NrunRunnerType.GetDailyQuestReturnOfTheMelonLord] = [7724],
+            [NrunRunnerType.GetDailyQuestLabOnAlert] = [7725],
+            [NrunRunnerType.GetQuestThePathToTheLostCatacombs] = [7547],
+            [NrunRunnerType.GetQuestEasterNotEnoughIngredients] = [7551],
+            [NrunRunnerType.GetQuestCauseForTheArrival] = [6500],
+            // The only Valentine's quest line, and the one that reports back to Amora.
+            [NrunRunnerType.GetQuestAmoraValentinesDay] = [6360],
+            [NrunRunnerType.GetQuestTheCursed13] = [6369],
         };
 
         // Buttons whose argument picks the quest: the quest at that index. The score quest buttons

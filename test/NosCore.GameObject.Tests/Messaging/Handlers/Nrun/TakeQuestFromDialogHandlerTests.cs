@@ -32,6 +32,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [
             new() { QuestId = 6864, QuestType = QuestType.WinRaid, LevelMin = 20, LevelMax = 99 },
             new() { QuestId = 5007, QuestType = QuestType.Hunt, LevelMin = 80, LevelMax = 99, RequiredQuestId = 5006 },
+            new() { QuestId = 6807, QuestType = QuestType.Dialog1, LevelMin = 80, LevelMax = 99 },
+            new() { QuestId = 6332, QuestType = QuestType.Dialog1, LevelMin = 80, LevelMax = 99 },
+            new() { QuestId = 6839, QuestType = QuestType.Dialog1, LevelMin = 80, LevelMax = 99 },
+            new() { QuestId = 7090, QuestType = QuestType.Dialog1, LevelMin = 80, LevelMax = 99 },
         ];
 
         [TestInitialize]
@@ -48,6 +52,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = QuestGiverDialog, Runner = NrunRunnerType.GetXQuest, Argument = 1 },
                 new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = QuestGiverDialog, Runner = NrunRunnerType.GetXSPQuest, Argument = 6864 },
                 new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = QuestGiverDialog, Runner = NrunRunnerType.GetXSPQuest, Argument = 5007 },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = QuestGiverDialog, Runner = NrunRunnerType.GetQuestTheMerlingsCurse, Argument = 6807 },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = QuestGiverDialog, Runner = NrunRunnerType.GetQuestASpecialEnergy, Argument = 6332 },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = QuestGiverDialog, Runner = NrunRunnerType.GetQuestTheTalkingMouse, Argument = 6839 },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = QuestGiverDialog, Runner = NrunRunnerType.GetQuestACuriousRabbit, Argument = 7090 },
             });
             World.UseReal<INpcTalkButtonCatalog, NpcTalkButtonCatalog>();
             QuestGiver = NpcWithDialog(1, QuestGiverDialog);
@@ -110,6 +118,40 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 .HandleAsync(Session, NpcWithDialog(2, 12), new NrunPacket { Runner = NrunRunnerType.GetXSPQuest, Type = 6864 });
 
             QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task TheMerlingsCurseButtonHandsOutTheQuestItNames()
+        {
+            await World.Create<MerlingsCurseQuestHandler>()
+                .HandleAsync(Session, QuestGiver, new NrunPacket { Runner = NrunRunnerType.GetQuestTheMerlingsCurse, Type = 6807 });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), QuestActionType.Achieve, 6807), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task TheMerlingsCurseButtonRefusesAnotherQuestsId()
+        {
+            await World.Create<MerlingsCurseQuestHandler>()
+                .HandleAsync(Session, QuestGiver, new NrunPacket { Runner = NrunRunnerType.GetQuestTheMerlingsCurse, Type = 6839 });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task TheSpecialistStoryButtonsHandOutTheQuestTheyName()
+        {
+            await World.Create<SpecialEnergyQuestHandler>()
+                .HandleAsync(Session, QuestGiver, new NrunPacket { Runner = NrunRunnerType.GetQuestASpecialEnergy, Type = 6332 });
+            await World.Create<TalkingMouseQuestHandler>()
+                .HandleAsync(Session, QuestGiver, new NrunPacket { Runner = NrunRunnerType.GetQuestTheTalkingMouse, Type = 6839 });
+            await World.Create<CuriousRabbitQuestHandler>()
+                .HandleAsync(Session, QuestGiver, new NrunPacket { Runner = NrunRunnerType.GetQuestACuriousRabbit, Type = 7090 });
+
+            foreach (short questId in new short[] { 6332, 6839, 7090 })
+            {
+                QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), QuestActionType.Achieve, questId), Times.Once);
+            }
         }
 
         [TestMethod]
