@@ -48,22 +48,12 @@ namespace NosCore.GameObject.Services.QuestService
                 await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
             }
 
-            var previousScript = character.Script;
             if (packet != null)
             {
                 if (!await CheckScriptStateAsync(packet, character))
                 {
                     return;
                 }
-            }
-
-            if (previousScript != null)
-            {
-                await character.SendPacketAsync(new ScriptPacket
-                {
-                    ScriptId = previousScript.ScriptId,
-                    ScriptStepId = previousScript.ScriptStepId
-                });
             }
 
             var orderedScripts = scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
