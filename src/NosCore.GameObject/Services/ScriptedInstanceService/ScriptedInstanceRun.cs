@@ -274,12 +274,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _cleared.Add(room);
         }
 
+        // The counters are taken as they stand now, so a step that ends the run on this advance still
+        // shows the last one before the ending.
         private void Advance(ObjectiveKind kind, short vNum, int amount = 1)
         {
             _objectiveProgress[(kind, vNum)] = _objectiveProgress.GetValueOrDefault((kind, vNum)) + amount;
-            if (_script.Definition.Objectives.Any(o => o.Kind == kind && o.VNum == vNum))
+            if (_script.Definition.Objectives.Any(o => o.Kind == kind && o.VNum == vNum)
+                && EndState == null && GenerateMissionInfo() is { } missionInfo)
             {
-                _pending.Add(BroadcastMissionInfoAsync);
+                _pending.Add(() => BroadcastAsync(missionInfo));
             }
         }
 
@@ -718,7 +721,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         return;
                     }
 
-                    var (hp, mp, npcMonster) = (npc.Hp, npc.Mp, npc.NpcMonster);
+                    var (hp, mp, npcMonster, isHostile) = (npc.Hp, npc.Mp, npc.NpcMonster, npc.IsHostile);
                     left.RemoveNpc(npc);
                     await left.SendPacketAsync(new OutPacket { VisualType = VisualType.Npc, VisualId = npcId });
                     _pending.Add(() => OnRoom(arrival, () =>
@@ -726,6 +729,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         var moved = arrival.SummonNpc(npcMonster, leader.PositionX, leader.PositionY);
                         moved.Hp = hp;
                         moved.Mp = mp;
+                        moved.IsHostile = isHostile;
                         moved.IsEscort = true;
                         moved.LeaderId = leader.CharacterId;
                         _escorts[index] = (arrival, (int)moved.VisualId);

@@ -101,6 +101,9 @@ namespace NosCore.Instances.Abstractions
         }
 
         // Takes the room's living monsters off the map without anyone killing them.
+        // Until the room's clock is stopped or runs out.
+        public bool IsClockRunning => Run.RoomClockEnd(_room.Key) is { } end && Run.Elapsed < end;
+
         public RoomEvent DismissMonsters()
         {
             Run.Dismiss(_room.Key);

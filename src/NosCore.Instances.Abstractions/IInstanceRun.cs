@@ -25,7 +25,8 @@ namespace NosCore.Instances.Abstractions
         IReadOnlyList<HpThreshold>? OnHpBelow = null);
 
     // An escort joins the first player who comes near it, walks where that player's client sends it and goes
-    // with them from room to room. The run fails if it falls. An ally fights the monsters around it.
+    // with them from room to room. The run fails if it falls, and that failure takes the place of its OnDeath.
+    // An ally fights the monsters around it.
     public readonly record struct NpcSpawn(short VNum, Spot At, bool IsEscort = false, bool IsAlly = false,
         Action<IInstanceRun>? OnDeath = null);
 

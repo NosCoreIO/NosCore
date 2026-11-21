@@ -181,17 +181,18 @@ namespace NosCore.Instances.Abstractions
                 var wave = new RoomWave(interval, times ?? int.MaxValue, step, end);
                 if (from == TimeSpan.Zero)
                 {
-                    Wave(run, startedAt, wave, 1);
+                    Wave(run, startedAt, wave, 0);
                 }
                 else
                 {
-                    run.At(startedAt + from, first => Wave(first, startedAt + from, wave, 1));
+                    run.At(startedAt + from, first => Wave(first, startedAt + from, wave, 0));
                 }
             }
         }
 
         // A wave that comes due as the clock runs out, or is only reached after it has, does not run.
-        private void Wave(IInstanceRun run, TimeSpan at, RoomWave wave, int call)
+        // An interval that finds the room empty calls nothing, so it does not count towards Times.
+        private void Wave(IInstanceRun run, TimeSpan at, RoomWave wave, int calls)
         {
             if (run.RoomClockEnd(Key) != wave.End || run.Elapsed >= wave.End)
             {
@@ -201,11 +202,12 @@ namespace NosCore.Instances.Abstractions
             if (run.PlayersIn(Key) > 0)
             {
                 wave.Step(new RoomEvent(run, this));
+                calls++;
             }
 
-            if (call < wave.Times)
+            if (calls < wave.Times)
             {
-                run.At(at + wave.Interval, next => Wave(next, at + wave.Interval, wave, call + 1));
+                run.At(at + wave.Interval, next => Wave(next, at + wave.Interval, wave, calls));
             }
         }
 

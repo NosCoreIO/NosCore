@@ -156,6 +156,31 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        [DataRow(119, true)]
+        [DataRow(121, false)]
+        public async Task TheMimicRoomGivesItsBonusOnlyWithinItsTwoMinutes(int clearedAfter, bool bonus)
+        {
+            var script = await LoadAsync("timespace-34");
+            var run = new RecordingRun { Players = 1 };
+            script.OnFirstEnter(run);
+            const int bonusRoom = 9;
+
+            script.OnRoomEntered(run, bonusRoom);
+            foreach (var (at, step) in run.Scheduled.Where(s => s.At <= TimeSpan.FromSeconds(clearedAfter)).OrderBy(s => s.At).ToList())
+            {
+                run.Scheduled.Remove((at, step));
+                run.Elapsed = at;
+                step(run);
+            }
+
+            run.Elapsed = TimeSpan.FromSeconds(clearedAfter);
+            script.OnRoomCleared(run, bonusRoom);
+
+            Assert.AreEqual(bonus, run.Calls.Contains("addClock(180s)"));
+            Assert.IsTrue(run.Unlocked.Any(p => p.From == bonusRoom));
+        }
+
+        [TestMethod]
         public async Task TheKovoltsFightBesideThePlayer()
         {
             var script = await LoadAsync("timespace-36");
