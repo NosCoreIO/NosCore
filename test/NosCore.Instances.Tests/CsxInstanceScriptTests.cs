@@ -100,21 +100,22 @@ namespace NosCore.Instances.Tests
 
         public void AddClockTime(TimeSpan extra) => Calls.Add($"addClock({extra.TotalSeconds}s)");
 
-        private readonly Dictionary<int, TimeSpan> _roomClockEnds = [];
+        private readonly Dictionary<int, RoomClock> _roomClocks = [];
+        private int _roomClockStarts;
 
         public void StartRoomClock(int room, TimeSpan length)
         {
-            _roomClockEnds[room] = Elapsed + length;
+            _roomClocks[room] = new RoomClock(++_roomClockStarts, Elapsed + length);
             Calls.Add($"roomClock({room},{length.TotalSeconds}s)");
         }
 
         public void StopRoomClock(int room)
         {
-            _roomClockEnds.Remove(room);
+            _roomClocks.Remove(room);
             Calls.Add($"stopRoomClock({room})");
         }
 
-        public TimeSpan? RoomClockEnd(int room) => _roomClockEnds.TryGetValue(room, out var end) ? end : null;
+        public RoomClock? RoomClockOf(int room) => _roomClocks.TryGetValue(room, out var clock) ? clock : null;
 
         public List<(int Room, int Dialog)> Dialogs { get; } = [];
 

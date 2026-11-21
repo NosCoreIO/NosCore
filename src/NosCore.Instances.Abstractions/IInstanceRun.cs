@@ -13,6 +13,10 @@ namespace NosCore.Instances.Abstractions
 {
     public readonly record struct Spot(short X, short Y);
 
+    // Start counts the clocks started in that room, so a clock started again is told apart from the one it
+    // replaced even when both end at the same Elapsed.
+    public readonly record struct RoomClock(int Start, TimeSpan End);
+
     // Runs once, the first time the monster's HP falls below Percent of its maximum.
     public readonly record struct HpThreshold(byte Percent, Action<IInstanceRun> Step);
 
@@ -134,8 +138,8 @@ namespace NosCore.Instances.Abstractions
 
         void StopRoomClock(int room);
 
-        // When the room's clock runs out, as an Elapsed; null while the room has none.
-        TimeSpan? RoomClockEnd(int room);
+        // The room's running clock; null while the room has none.
+        RoomClock? RoomClockOf(int room);
 
         // Opens that NPC dialog for the players in the room.
         void Dialog(int room, int dialog);

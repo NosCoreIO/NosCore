@@ -262,7 +262,49 @@ namespace NosCore.Instances.Tests
             CollectionAssert.AreEqual(new[] { 30d, 40d }, ran);
             Assert.AreEqual(1, _run.Calls.Count(c => c == "message(ADoorHasOpened)"));
             CollectionAssert.AreEqual(new[] { "stopRoomClock(1)" }, _run.Calls.Where(c => c.StartsWith("stopRoomClock")).ToList());
-            Assert.IsNull(_run.RoomClockEnd(1));
+            Assert.IsNull(_run.RoomClockOf(1));
+        }
+
+        [TestMethod]
+        public void AClockStartedAsTheRoomsClockRunsOutKeepsRunning()
+        {
+            var restarts = 0;
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(30)))
+                .OnClockOut(r =>
+                {
+                    if (restarts++ == 0)
+                    {
+                        r.StartRoomClock(TimeSpan.FromSeconds(30));
+                    }
+                });
+
+            Script.OnDialogClosed(_run, 1, 6000);
+            var first = _run.Scheduled.Single();
+            _run.Scheduled.Remove(first);
+            _run.Elapsed = first.At;
+            first.Step(_run);
+
+            Assert.AreEqual((TimeSpan?)TimeSpan.FromSeconds(60), _run.RoomClockOf(1)?.End);
+            CollectionAssert.AreEqual(new[] { 60d }, RunTimers(_run));
+            Assert.AreEqual(1, _run.Calls.Count(c => c == "stopRoomClock(1)"));
+            Assert.IsNull(_run.RoomClockOf(1));
+        }
+
+        [TestMethod]
+        public void AClockReplacedByOneEndingAtTheSameTimeRunsNoMoreWaves()
+        {
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(30)))
+                .OnDialogClosed(6001, r => r.StartRoomClock(TimeSpan.FromSeconds(20)))
+                .Every(TimeSpan.FromSeconds(10), r => r.Say(Game18NConstString.EnemiesReinforcements));
+            _run.Players = 1;
+
+            Script.OnDialogClosed(_run, 1, 6000);
+            _run.Elapsed = TimeSpan.FromSeconds(10);
+            Script.OnDialogClosed(_run, 1, 6001);
+            RunTimers(_run);
+
+            Assert.AreEqual(3, _run.Calls.Count(c => c == "message(EnemiesReinforcements)"));
+            Assert.AreEqual(1, _run.Calls.Count(c => c == "stopRoomClock(1)"));
         }
 
         [TestMethod]

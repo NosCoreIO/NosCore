@@ -129,33 +129,37 @@ namespace NosCore.Instances.Abstractions
         private void SummonAll(IInstanceRun run, IReadOnlyList<MonsterSpec> specs) =>
             run.Summon(Key, specs.SelectMany(spec => spec.Spawns(run, this)).ToArray());
 
-        // The run keeps when the room's clock ends, so the waves and the end of a clock that was stopped or
-        // started again find another end there and do nothing.
+        // The run numbers the clocks it starts in a room, so the waves and the end of a clock that was
+        // stopped or started again find another one running and do nothing, and a clock started by
+        // OnClockOut is not taken down by the end of the clock it follows.
         internal void StartClock(IInstanceRun run, TimeSpan length)
         {
             var startedAt = run.Elapsed;
             run.StartRoomClock(Key, length);
-            var end = run.RoomClockEnd(Key) ?? startedAt + length;
-            run.At(end, over =>
+            var clock = run.RoomClockOf(Key) ?? new RoomClock(0, startedAt + length);
+            run.At(clock.End, over =>
             {
-                if (over.RoomClockEnd(Key) != end)
+                if (over.RoomClockOf(Key) != clock)
                 {
                     return;
                 }
 
                 _clockOut?.Invoke(new RoomEvent(over, this));
-                over.StopRoomClock(Key);
+                if (over.RoomClockOf(Key) == clock)
+                {
+                    over.StopRoomClock(Key);
+                }
             });
             foreach (var (interval, step) in _waves)
             {
-                Wave(run, startedAt, interval, step, end);
+                Wave(run, startedAt, interval, step, clock);
             }
         }
 
         // A wave that comes due as the clock runs out, or is only reached after it has, does not run.
-        private void Wave(IInstanceRun run, TimeSpan at, TimeSpan interval, Action<RoomEvent> step, TimeSpan end)
+        private void Wave(IInstanceRun run, TimeSpan at, TimeSpan interval, Action<RoomEvent> step, RoomClock clock)
         {
-            if (run.RoomClockEnd(Key) != end || run.Elapsed >= end)
+            if (run.RoomClockOf(Key) != clock || run.Elapsed >= clock.End)
             {
                 return;
             }
@@ -165,7 +169,7 @@ namespace NosCore.Instances.Abstractions
                 step(new RoomEvent(run, this));
             }
 
-            run.At(at + interval, next => Wave(next, at + interval, interval, step, end));
+            run.At(at + interval, next => Wave(next, at + interval, interval, step, clock));
         }
     }
 
