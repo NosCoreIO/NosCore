@@ -36,7 +36,6 @@ namespace NosCore.Parser.Parsers
                 LevelMinimum = d.LevelMinimum,
                 Wave = d.Wave,
                 ItemVNum = d.ItemVNum,
-                Piles = d.Piles,
                 Amount = d.Amount,
             }).ToList();
 

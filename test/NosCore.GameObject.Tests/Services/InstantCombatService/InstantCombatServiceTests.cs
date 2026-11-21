@@ -15,6 +15,11 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InstantCombatService;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using InstantCombat = NosCore.GameObject.Services.InstantCombatService.InstantCombatService;
@@ -168,6 +173,111 @@ namespace NosCore.GameObject.Tests.Services.InstantCombatService
         {
             Assert.IsTrue(_failing.TryStart(false));
             await TheRunEndsAsync();
+        }
+    
+
+        private const short PrizeVNum = 1015;
+        private ClientSession _joiner;
+        private ClientSession _absent;
+
+        [TestMethod]
+        public async Task AWavesPrizeGoesStraightIntoEveryPlayersBag()
+        {
+            await new Spec("A wave's prize goes into the bag of each player in the room, with nothing left on the map")
+                .GivenAsync(TwoPlayersInTheRoom)
+                .And(TheBracketsFirstWaveGives_Of_, (short)5, PrizeVNum)
+                .WhenAsync(TheFirstWavesPrizeIsHandedOut)
+                .Then(EachPlayerShouldHold_, 5)
+                .And(EachPlayerShouldBeToldOfThePrize)
+                .And(NothingShouldLieOnTheMap)
+                .ExecuteAsync();
+        }
+
+        private async Task TwoPlayersInTheRoom()
+        {
+            _joiner = await World.CreateSessionAsync();
+            _absent = await World.CreateSessionAsync();
+        }
+
+        private void TheBracketsFirstWaveGives_Of_(short amount, short vnum) => World.Inject(new List<InstantCombatDropDto>
+        {
+            new() { InstantCombatDropId = 1, LevelMinimum = 1, Wave = 0, ItemVNum = vnum, Amount = amount },
+            new() { InstantCombatDropId = 2, LevelMinimum = 1, Wave = 1, ItemVNum = vnum, Amount = 7 },
+            new() { InstantCombatDropId = 3, LevelMinimum = 40, Wave = 0, ItemVNum = vnum, Amount = 9 },
+        });
+
+        private Task TheFirstWavesPrizeIsHandedOut() =>
+            World.Create<InstantCombat>().GiveWavePrizeAsync(World.GetBaseMap(TestWorld.TestMapId), 1, 0);
+
+        private void EachPlayerShouldHold_(int amount)
+        {
+            Assert.AreEqual(amount, _joiner.Character.InventoryService.CountItem(PrizeVNum));
+            Assert.AreEqual(amount, _absent.Character.InventoryService.CountItem(PrizeVNum));
+        }
+
+        private void EachPlayerShouldBeToldOfThePrize()
+        {
+            foreach (var session in new[] { _joiner, _absent })
+            {
+                PacketAssert.AreEqual(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Green,
+                    Message = Game18NConstString.ReceivedThisItem,
+                    ArgumentType = 2,
+                    Game18NArguments = { PrizeVNum.ToString(), (short)5 },
+                }, session.LastPackets.OfType<SayiPacket>().Single());
+            }
+        }
+
+        private void NothingShouldLieOnTheMap() =>
+            Assert.AreEqual(0, World.GetBaseMap(TestWorld.TestMapId).MapItemCount);
+
+        [TestMethod]
+        public async Task WhoeverHasNotSignedUpIsRemindedAndThenToldTheSignUpIsOver()
+        {
+            await new Spec("The start is shown again every seven seconds to whoever has not signed up, and the sign-up closes on them alone")
+                .GivenAsync(TwoPlayersInTheRoom)
+                .And(TheEventHasAScriptAndABracket)
+                .WhenAsync(OneSignsUpAndTheOtherWaitsSevenSeconds)
+                .Then(OnlyTheOtherShouldSeeTheStartAgain)
+                .AndAsync(OnlyTheOtherShouldBeToldTheSignUpIsOver)
+                .ExecuteAsync();
+        }
+
+        private static int Starts(ClientSession session) => session.LastPackets.OfType<MsgiPacket>()
+            .Count(p => p is { Type: MessageType.Notification, Message: Game18NConstString.InstantCombatStarted });
+
+        private static async Task UntilAsync(Func<bool> condition)
+        {
+            for (var i = 0; i < 300 && !condition(); i++)
+            {
+                await Task.Delay(10);
+            }
+
+            Assert.IsTrue(condition());
+        }
+
+        private async Task OneSignsUpAndTheOtherWaitsSevenSeconds()
+        {
+            _service = World.Create<InstantCombat>();
+            Assert.IsTrue(_service.TryStart(false));
+            await UntilAsync(() => _absent.LastPackets.OfType<QnamliPacket>().Any());
+            _service.SignUp(_joiner);
+            await Task.Delay(50);
+            World.Clock.AdvanceSeconds(7);
+            await UntilAsync(() => Starts(_absent) == 2);
+        }
+
+        private void OnlyTheOtherShouldSeeTheStartAgain() => Assert.AreEqual(1, Starts(_joiner));
+
+        private async Task OnlyTheOtherShouldBeToldTheSignUpIsOver()
+        {
+            World.Clock.AdvanceSeconds(30);
+            await UntilAsync(() => !_service.IsRunning);
+            PacketAssert.AreEqual(new EsfPacket { Value = 4 }, _absent.LastPackets.OfType<EsfPacket>().Single());
+            Assert.IsFalse(_joiner.LastPackets.OfType<EsfPacket>().Any());
         }
     }
 }

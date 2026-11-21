@@ -3691,23 +3691,41 @@ countdown starts at :55). Use two characters on a base map.
 
 - [ ] The countdown says "In 5 minute(s) Instant Combat will begin.", then 1 minute, 30 seconds
       and 10 seconds, in the chat and as a notice, in the client's language
-- [ ] "An Instant Combat has started" shows and the join question appears as an icon; a second
-      `$Event InstantCombat` answers that the event is already running
+- [ ] "An Instant Combat has started" shows as a notice only (not in the chat) and the join
+      question appears as an icon; a second `$Event InstantCombat` answers that the event is
+      already running
 - [ ] Clicking the icon opens the question without a "Corrupted packet received: guri" line in
       the world log; closing it with No leaves the character out of the fight
+- [ ] The character that has not answered sees "An Instant Combat has started" again about every
+      7 seconds while the sign-up is open; the one that said yes does not
 - [ ] After 30 seconds whoever said yes is moved to the Instant Combat map; whoever did not has
       the question removed
 - [ ] Characters of level 45 and 85 land in different rooms, each fighting its own bracket's
       monsters
-- [ ] "A horde of monsters is slowly approaching" comes 10 seconds before each wave and
-      "Monsters have appeared" with it; five waves, the last one with a boss
-- [ ] Gold piles and items appear around the map before the next wave
+- [ ] About 10 and 3 seconds before the first wave "A horde of monsters is slowly approaching..."
+      shows, and the first wave comes with "Woah! Monsters have appeared!" about 24 seconds after
+      arriving
+- [ ] Each later wave is announced by "The monsters will appear in 40 seconds." and by "A horde of
+      monsters is slowly approaching..." 15 seconds before it lands, without "Monsters have
+      appeared!"; the second wave lands 160 seconds after the first, the others 150 seconds
+      apart, five in all, the last one with a boss
+- [ ] 30 seconds before each of the four later waves, every character in the room receives the
+      previous wave's prize straight in the bag, with a "You received ..." line per item; nothing
+      is dropped on the map and no gold is given. At level 70 to 79 the prizes are 5 Large
+      Recovery Potions and an Attack Potion, 5 Large Recovery Potions and a Defence Potion,
+      10 Large Recovery Potions with one of each, then 10 Huge Recovery Potions, a Half Moon
+      Crystal and 3 Energy Potions
+- [ ] "The battle ends in 12 minutes" shows 3 minutes after the first wave, then 10, 5, 4, 3,
+      2 and 1, and "Instant Combat will end in 30 seconds" half a minute
+      before the end; no timer bar is shown
 - [ ] Killed monsters do not come back
 - [ ] Dying sends the character back where they came from with 1 HP, without the revive question
-- [ ] Clearing the last wave once 12 minutes have passed shows "You have won the Instant Combat",
+- [ ] Clearing the last wave once it is out shows "You have won the Instant Combat",
       and gives level x 50 reputation, level x 1000 gold and level x 100 SP points
 - [ ] Ten seconds later everyone is back where they came from
-- [ ] Not clearing it in 15 minutes shows "Instant Combat time has elapsed" and gives nothing
+- [ ] Not clearing it within 15 minutes of the first wave sends everyone straight back to where
+      they signed up, then shows "Instant Combat is over." with "Time limit exceeded!", and
+      gives nothing more
 - [ ] The fight's timing comes from `instances/instant-combat.csx`: changing a wave's time there
       and restarting the world server moves that wave
 - [ ] Leaving the room as its last player closes it; a new Instant Combat still starts afterwards
