@@ -313,6 +313,17 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void ARoomListedTwiceForAllClearedRunsTheStepOnce()
+        {
+            _script.WhenAllCleared([_first, _second, _second], r => r.Say(Game18NConstString.ADoorHasOpened));
+
+            TheFirstRoomIsCleared();
+            TheSecondRoomIsCleared();
+
+            CollectionAssert.AreEqual(new[] { "message(ADoorHasOpened)" }, _run.Calls);
+        }
+
+        [TestMethod]
         public void ASecondPortalToTheSameRoomIsRefused()
         {
             _first.Portal(new Spot(17, 9), _second, new Spot(0, 9));
