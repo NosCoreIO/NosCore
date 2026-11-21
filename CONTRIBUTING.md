@@ -10,16 +10,26 @@ rather than adding a lock next to it.
 | What it serializes | How | Where it lives |
 |---|---|---|
 | The packets of one session | `AsyncLock _handlingPacketLock` | `ClientSession` |
-| Everything that changes one map: the life-loop tick, hits, vitals, entering and leaving | `MapExecutor`, reached with `entity.OnMapAsync(...)` | `MapInstance` |
+| Everything that changes one map: the life-loop tick, the packet handlers of the players on it, hits, vitals, entering and leaving | `MapExecutor`, taken by the packet strategy or reached with `entity.OnMapAsync(...)` | `MapInstance` |
 | Rows several channels share: bazaar listings, warehouses, family rows | the master server is their only writer, and takes a lock around each change | the master-side service (`BazaarService`, `WarehouseService`, `FamilyRecordService`) |
 
 ### Rules
 
-1. **Work on a map goes through its executor.** Code reached from a packet handler that changes what
-   other players on the map see or fight with runs inside `OnMapAsync`. Work running on an executor
-   must not wait on another executor or on a session's packet lock; a map change takes two executors
-   through `RunExclusiveAsync`, in a fixed order. Start a map change outside
-   `OnMapAsync`: from inside the later-created of the two maps it throws instead of waiting.
+1. **Work on a map goes through its executor.** The packet handlers of a player in the world already
+   run on that player's map: the session's packet lock is taken first and the map's executor second.
+   A handler gives the map back while it waits on the master, and one that moves its own player
+   carries on on the new map, so re-read state read before either. A handler moving another player does
+   not wait: the move runs in the background, which takes that player's packet lock. A packet the server dispatches itself
+   (`HandlePacketsAsync` without `isFromNetwork`) does not take the lock, so dispatch it only from
+   code that already holds it, such as another handler. Work that is not a packet handler (hosted
+   services, scheduled jobs) goes through `OnMapAsync`.
+
+   Work running on an executor never waits on another executor or on a session's packet lock. To
+   reach an entity on another map, a handler first gives its own map back with
+   `MapExecutor.StepAwayAsync`; that only lets go when `MapExecutor.CanStepAway` is true, which it is
+   not inside `RunExclusiveAsync` or other map work, so there hand the job off instead of waiting. A
+   map change takes two executors through `RunExclusiveAsync`, in a fixed order. Start a map change
+   outside `OnMapAsync`: from inside the later-created of the two maps it throws instead of waiting.
 2. **State shared between channels is written by the master.** A channel asks through a hub
    (`IBazaarHub`, `IWarehouseHub`, `IFamilyHub`) and the master re-reads the row, checks and writes
    under its lock. A lock in a channel does not stop another channel.
@@ -30,7 +40,8 @@ rather than adding a lock next to it.
    `lock(obj)`: async code can't `await` inside it.
 5. **Don't hold a channel-side lock across a call to the master or to another server.** The
    master-side locks in the table are the exception: holding them across the read and the write is
-   their purpose.
+   their purpose. A packet handler's map is given back during every master request by
+   `MessageBusExtensions`; other map work still holds it.
 6. **Don't acquire two locks at once** unless the order is documented at both call sites.
 
 If a new feature needs cross-cutting coordination (e.g. "all map instances must agree on X"), prefer an event handled by the code that owns the state — not adding a lock that spans subsystems.
