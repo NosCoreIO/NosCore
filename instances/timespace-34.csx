@@ -143,11 +143,14 @@ public class TimeSpace34 : TimeSpaceScript
         bonusRoom.OnEnter(r => r
                 .Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_IN_TWO_MINUTES_FOR_BONUS)
                 .StartRoomClock(TimeSpan.FromSeconds(120)))
-            .OnCleared(r => r
-                .Unlock(bonusRoomNorth, bonusRoomSouth)
-                .Say(Game18NConstString.ADoorHasOpened)
-                .AddTime(TimeSpan.FromMinutes(3))
-                .Say(LanguageKey.TIMESPACE_BONUS_THREE_MINUTES));
+            .OnCleared(r =>
+            {
+                r.Unlock(bonusRoomNorth, bonusRoomSouth).Say(Game18NConstString.ADoorHasOpened);
+                if (r.IsClockRunning)
+                {
+                    r.AddTime(TimeSpan.FromMinutes(3)).Say(LanguageKey.TIMESPACE_BONUS_THREE_MINUTES);
+                }
+            });
 
         vampieRoom.Portal(new(14, 1), bonusRoom, new(14, 28), locked: false);
         vampieRoom.Portal(new(28, 15), eastWing, new(1, 15), locked: false);

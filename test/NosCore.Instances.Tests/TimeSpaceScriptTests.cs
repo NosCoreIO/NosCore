@@ -368,6 +368,26 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void AWaveIntervalThatFindsTheRoomEmptyDoesNotCountTowardsItsTimes()
+        {
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(30)))
+                .Every(TimeSpan.FromSeconds(5), r => r.Say(Game18NConstString.EnemiesReinforcements),
+                    from: TimeSpan.FromSeconds(5), times: 2);
+
+            Script.OnDialogClosed(_run, 1, 6000);
+            while (_run.Scheduled.Count > 0)
+            {
+                var next = _run.Scheduled.OrderBy(s => s.At).First();
+                _run.Scheduled.Remove(next);
+                _run.Elapsed = next.At;
+                _run.Players = next.At >= TimeSpan.FromSeconds(10) ? 1 : 0;
+                next.Step(_run);
+            }
+
+            Assert.AreEqual(2, _run.Calls.Count(c => c == "message(EnemiesReinforcements)"));
+        }
+
+        [TestMethod]
         public void ASecondPortalToTheSameRoomIsRefused()
         {
             _first.Portal(new Spot(17, 9), _second, new Spot(0, 9));

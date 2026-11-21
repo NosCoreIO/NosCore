@@ -104,6 +104,9 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        // Until the room's clock is stopped or runs out.
+        public bool IsClockRunning => Run.RoomClockOf(_room.Key) is { } clock && Run.Elapsed < clock.End;
+
         // Takes the clock down before it runs out, so its waves and OnClockOut steps do not come.
         public RoomEvent StopRoomClock()
         {

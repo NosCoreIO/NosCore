@@ -3725,8 +3725,7 @@ and "Le cœur de Fernon" (44, level 54). Point a test stone at each and use a ch
 - [ ] Each can be finished with Mission Clear, and its panel shows the items of the log (34: 524,
       1014 x10 / 1011 x50 / 2127, 1087; 36: 713, 526 / 1016 x2 / 2127, 1087; 44: none / 1033 x8 /
       2003 x2, 1087) and takes 4, 4 and 5 time-space stones
-- [ ] In `timespace-34`, the mission window shows an Artifact (1059) at 0/1 and no exit. The hall
-      next to the start has four open doors; the rooms on map 4213 and 4209 that say "Le portail
+- [ ] In `timespace-34`, the hall next to the start has four open doors; the rooms on map 4213 and 4209 that say "Le portail
       s'ouvrira une fois que tu auras éliminé tous les monstres." open every door when cleared, with
       "La sortie est ouverte."
 - [ ] In `timespace-34`, the lever room (map 4207, "Vois-tu le levier au centre ?") opens both its
@@ -3734,10 +3733,11 @@ and "Le cœur de Fernon" (44, level 54). Point a test stone at each and use a ch
 - [ ] In `timespace-34`, the dark trap (map 4211, middle of the bottom row) shows "Le piège des
       ténèbres ! Tu es piégé pendant 1 minute." and a red one-minute clock; killing the Dark Gargs
       opens nothing, and when the clock ends its three doors open with "Le portail s'est ouvert."
-      The Artifact lies on its floor: picking it up moves the counter to 1/1 and wins at once
+      The Artifact (1059) lies on its floor: picking it up wins at once with Mission Clear
 - [ ] In `timespace-34`, the Large Mimic room east of the centre shows a red two-minute clock;
-      clearing it opens its north and south doors only and adds three minutes with "Tu as gagné 3
-      minutes de temps bonus."
+      clearing it within the two minutes opens its north and south doors only and adds three minutes
+      with "Tu as gagné 3 minutes de temps bonus."; clearing it after the clock has run out opens the
+      same doors and adds nothing
 - [ ] In `timespace-36`, each battle room opens talk 6151, and its Koaren fighters attack the Kenkos
       on their own while the Kenkos hit back at them; clearing it opens both doors, shows the Quick
       Mission line and raises the clock (150, 120, 120, 150 and 150 seconds)
@@ -3753,8 +3753,11 @@ and "Le cœur de Fernon" (44, level 54). Point a test stone at each and use a ch
 - [ ] In `timespace-44`, the last room opens talk 6173; closing it shows "Patrouille ici pendant 2
       minutes.", four Lanetans come in the first three waves and two Fernon Dryads in each of the
       four, and when the clock ends the exit opens, talk 6174 shows and the monsters left vanish
+- [ ] Not verifiable yet: the mission window (`minfo`), which this client does not draw
+      (NosCoreIO/NosCore.ClientLab#34): the Artifact (1059) of 34 at 0/1 with no exit and its move to 1/1
+      on pick-up, and the NPC to protect of 36
 - [ ] Not verifiable yet: whether the time room of 34 really adds the two minutes it announces (the
-      log's clock did not move), and the NPC to protect the mission window of 36 shows
+      log's clock did not move)
 
 ### Time-space reward chest
 

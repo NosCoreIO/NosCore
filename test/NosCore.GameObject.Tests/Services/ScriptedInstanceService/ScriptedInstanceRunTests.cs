@@ -1782,6 +1782,22 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AnAlliedEscortStaysAnAllyInTheNextRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SummonNpcs(1, new NpcSpawn(Villager, new Spot(2, 2), IsEscort: true, IsAlly: true)) });
+            var session = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(session, _first.MapInstanceId);
+            _first.EnumerateNpcs().Single().LeaderId = session.Character.CharacterId;
+
+            session.Character.MapInstance = _second;
+            session.Character.PositionX = 1;
+            session.Character.PositionY = 0;
+            await run.EnteredAsync(session, _second.MapInstanceId);
+
+            Assert.IsTrue(_second.EnumerateNpcs().Single().IsHostile);
+        }
+
+        [TestMethod]
         public async Task ALedEscortFollowsItsLeaderIntoTheNextRoomAsync()
         {
             var run = Run(new Script { Enter = r => r.SummonNpcs(1, new NpcSpawn(Grunt, new Spot(2, 2), IsEscort: true)) });

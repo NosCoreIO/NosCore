@@ -51,6 +51,16 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 _withExit = withExit;
             }
 
+            public bool WonByPickUp { get; init; }
+
+            public override void OnItemCollected(IInstanceRun run, int room, short vNum)
+            {
+                if (WonByPickUp)
+                {
+                    run.Succeed();
+                }
+            }
+
             public override void OnFirstEnter(IInstanceRun run)
             {
                 run.StartClock(TimeSpan.FromSeconds(60));
@@ -125,6 +135,21 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task APickUpThatWinsTheRunStillShowsTheItemCollected()
+        {
+            await new Spec("Picking up the item that wins the run shows it collected before the run ends")
+                .Given(ATimeSpaceWith_LivesWonByPickingUpTheArtifact, (byte)2)
+                .AndAsync(ThePlayerEnters)
+                .WhenAsync(TheArtifactIsPickedUp)
+                .Then(TheRunShouldBeShown_, new MinfoPacket
+                {
+                    CollectItem = new MinfoObjectiveSubPacket { Vnum = Artifact, Current = 1, Total = 1 },
+                    MaxLives = 2
+                })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AKillThatCountsForNothingLeavesTheWindowAlone()
         {
             await new Spec("Killing a monster no objective counts sends no new window")
@@ -160,9 +185,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WithObjective(ObjectiveKind.CollectItem, Artifact, 1)
                 .Build(), false);
 
+        private void ATimeSpaceWith_LivesWonByPickingUpTheArtifact(byte lives) =>
+            ATimeSpace(InstanceDefinitionBuilder.Named(1, "timespace", "timespace").WithLives(lives)
+                .WithObjective(ObjectiveKind.CollectItem, Artifact, 1)
+                .Build(), false, wonByPickUp: true);
+
         private Task TheArtifactIsPickedUp() => _run.ItemCollectedAsync(_room.MapInstanceId, Artifact, 1);
 
-        private void ATimeSpace(ScriptedInstanceDefinition definition, bool withExit)
+        private void ATimeSpace(ScriptedInstanceDefinition definition, bool withExit, bool wonByPickUp = false)
         {
             _room = World.MapInstanceGeneratorService.CreateMapInstance(
                 new GameObject.Map.Map
@@ -172,7 +202,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
             _room.Sessions = _roomSessions.Object;
-            var script = new Script(definition, withExit);
+            var script = new Script(definition, withExit) { WonByPickUp = wonByPickUp };
             _run = new ScriptedInstanceRun(
                 World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script }),
                 script,
