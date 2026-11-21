@@ -320,7 +320,8 @@ public class MapWorld : IDisposable
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
             new HitListComponent(new ConcurrentDictionary<Entity, int>()),
             new RespawnComponent(null, true),
-            new EscortComponent(false, 0)
+            new EscortComponent(false, 0),
+            new ScriptedNpcComponent(null)
         );
         return entity;
     }

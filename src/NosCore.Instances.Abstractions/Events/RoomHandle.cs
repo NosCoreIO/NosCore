@@ -14,7 +14,8 @@ namespace NosCore.Instances.Abstractions
     internal sealed class RoomHandle(TimeSpaceScript script, int key) : IRoom
     {
         private readonly Dictionary<int, Action<RoomEvent>> _dialogsClosed = [];
-        private readonly List<(TimeSpan Interval, TimeSpan From, Action<RoomEvent> Step)> _waves = [];
+        private readonly Dictionary<short, Action<RoomEvent>> _itemsCollected = [];
+        private readonly List<(TimeSpan Interval, TimeSpan From, int? Times, Action<RoomEvent> Step)> _waves = [];
         private readonly List<ButtonHandle> _buttons = [];
         private readonly HashSet<PortalHandle> _portals = [];
         private Action<RoomEvent>? _entered;
@@ -37,8 +38,15 @@ namespace NosCore.Instances.Abstractions
 
         public IRoom Spawn(params INpc[] npcs)
         {
-            var spawns = npcs.Select(npc => NpcSpec.Of(npc).Spawn()).ToArray();
+            var spawns = npcs.Select(npc => NpcSpec.Of(npc).Spawn(this)).ToArray();
             script.Setup(run => run.SummonNpcs(Key, spawns));
+            return this;
+        }
+
+        public IRoom Spawn(params IItem[] items)
+        {
+            var specs = items.Select(ItemSpec.Of).ToList();
+            script.Setup(run => specs.ForEach(item => run.PlaceItem(Key, item.VNum, item.Cell)));
             return this;
         }
 
@@ -106,17 +114,28 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
-        public IRoom Every(TimeSpan interval, Action<RoomEvent> step, TimeSpan from = default)
+        public IRoom Every(TimeSpan interval, Action<RoomEvent> step, TimeSpan from = default, int? times = null)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(interval, TimeSpan.Zero);
             ArgumentOutOfRangeException.ThrowIfLessThan(from, TimeSpan.Zero);
-            _waves.Add((interval, from, step));
+            if (times is { } limit)
+            {
+                ArgumentOutOfRangeException.ThrowIfLessThan(limit, 1, nameof(times));
+            }
+
+            _waves.Add((interval, from, times, step));
             return this;
         }
 
         public IRoom OnClockOut(Action<RoomEvent> step)
         {
             _clockOut += step;
+            return this;
+        }
+
+        public IRoom OnItemCollected(short vNum, Action<RoomEvent> step)
+        {
+            _itemsCollected[vNum] = _itemsCollected.GetValueOrDefault(vNum) + step;
             return this;
         }
 
@@ -132,6 +151,9 @@ namespace NosCore.Instances.Abstractions
 
         internal void DialogClosed(IInstanceRun run, int dialog) =>
             _dialogsClosed.GetValueOrDefault(dialog)?.Invoke(new RoomEvent(run, this));
+
+        internal void ItemCollected(IInstanceRun run, short vNum) =>
+            _itemsCollected.GetValueOrDefault(vNum)?.Invoke(new RoomEvent(run, this));
 
         internal void ButtonUsed(IInstanceRun run, int button)
         {
@@ -169,34 +191,40 @@ namespace NosCore.Instances.Abstractions
                     over.StopRoomClock(Key);
                 }
             });
-            foreach (var (interval, from, step) in _waves)
+            foreach (var (interval, from, times, step) in _waves)
             {
+                var wave = new RoomWave(interval, times ?? int.MaxValue, step, clock);
                 if (from == TimeSpan.Zero)
                 {
-                    Wave(run, startedAt, interval, step, clock);
+                    Wave(run, startedAt, wave, 1);
                 }
                 else
                 {
-                    run.At(startedAt + from, first => Wave(first, startedAt + from, interval, step, clock));
+                    run.At(startedAt + from, first => Wave(first, startedAt + from, wave, 1));
                 }
             }
         }
 
         // A wave that comes due as the clock runs out, or is only reached after it has, does not run.
-        private void Wave(IInstanceRun run, TimeSpan at, TimeSpan interval, Action<RoomEvent> step, RoomClock clock)
+        private void Wave(IInstanceRun run, TimeSpan at, RoomWave wave, int call)
         {
-            if (run.RoomClockOf(Key) != clock || run.Elapsed >= clock.End)
+            if (run.RoomClockOf(Key) != wave.Clock || run.Elapsed >= wave.Clock.End)
             {
                 return;
             }
 
             if (run.PlayersIn(Key) > 0)
             {
-                step(new RoomEvent(run, this));
+                wave.Step(new RoomEvent(run, this));
             }
 
-            run.At(at + interval, next => Wave(next, at + interval, interval, step, clock));
+            if (call < wave.Times)
+            {
+                run.At(at + wave.Interval, next => Wave(next, at + wave.Interval, wave, call + 1));
+            }
         }
+
+        private sealed record RoomWave(TimeSpan Interval, int Times, Action<RoomEvent> Step, RoomClock Clock);
     }
 
     internal sealed record PortalHandle(int From, int To) : IPortal

@@ -15,5 +15,8 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
     {
         // Lays each pile on a free cell around the spot, for anyone to pick up.
         Task ThrowAsync(MapInstance mapInstance, Spot around, IEnumerable<ItemPile> piles);
+
+        // Lays one item on exactly that cell.
+        Task PlaceAsync(MapInstance mapInstance, Spot at, short vNum);
     }
 }

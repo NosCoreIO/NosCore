@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
     {
         private const short Boss = 109;
         private const short Seal = 1048;
+        private const short Artifact = 1059;
 
         private TestWorld World;
         private ClientSession _session;
@@ -109,6 +110,21 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task PickingUpTheItemToCollectMovesItsCounter()
+        {
+            await new Spec("Picking up the item a time-space asks for shows it collected to the run")
+                .Given(ATimeSpaceWith_LivesCollectingTheArtifact, (byte)2)
+                .AndAsync(ThePlayerEnters)
+                .WhenAsync(TheArtifactIsPickedUp)
+                .Then(TheRunShouldBeShown_, new MinfoPacket
+                {
+                    CollectItem = new MinfoObjectiveSubPacket { Vnum = Artifact, Current = 1, Total = 1 },
+                    MaxLives = 2
+                })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AKillThatCountsForNothingLeavesTheWindowAlone()
         {
             await new Spec("Killing a monster no objective counts sends no new window")
@@ -138,6 +154,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WithObjective(ObjectiveKind.KillMonster, Boss, 1)
                 .WithObjective(ObjectiveKind.UseObject, Seal, 2)
                 .Build(), false);
+
+        private void ATimeSpaceWith_LivesCollectingTheArtifact(byte lives) =>
+            ATimeSpace(InstanceDefinitionBuilder.Named(1, "timespace", "timespace").WithLives(lives)
+                .WithObjective(ObjectiveKind.CollectItem, Artifact, 1)
+                .Build(), false);
+
+        private Task TheArtifactIsPickedUp() => _run.ItemCollectedAsync(_room.MapInstanceId, Artifact, 1);
 
         private void ATimeSpace(ScriptedInstanceDefinition definition, bool withExit)
         {
