@@ -16,6 +16,7 @@ using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Groups;
@@ -318,6 +319,22 @@ namespace NosCore.GameObject.Ecs.Extensions
                 MateComponentBundle mate => mate.World.TryGetComponent<BuffStateComponent>(mate.Entity)?.ActiveBuffs,
                 _ => null,
             };
+
+        // A client that starts seeing the entity draws the effects of the cards it already bears.
+        public static IEnumerable<BfePacket> GenerateLastingEffects(this IAliveEntity aliveEntity, Instant now) =>
+            aliveEntity.BuffState()?.Values
+                .Where(b => b.HasLastingEffect && b.ExpiresAt > now)
+                .Select(b => aliveEntity.GenerateBfe(b.CardId, b.ExpiresAt - now))
+                .ToList() ?? [];
+
+        // No time left ends the effect.
+        public static BfePacket GenerateBfe(this IAliveEntity aliveEntity, short cardId, Duration remaining) => new()
+        {
+            VisualType = aliveEntity.VisualType,
+            VisualId = aliveEntity.VisualId,
+            CardId = cardId,
+            RemainingTime = (short)Math.Clamp((long)remaining.TotalMilliseconds / 100, 0, short.MaxValue),
+        };
 
         // Permanent buffs (a fairy booster) have no icon on another player's bars.
         public static List<PstBuffSubPacket?>? ShownBuffs(this IAliveEntity aliveEntity) =>

@@ -29,6 +29,8 @@ public sealed record BuffInstance(
     // The periodic BCards have fired for every step up to this instant.
     public Instant PulsedUntil { get; init; } = StartedAt;
 
+    public bool HasLastingEffect { get; init; }
+
     // Kept apart from Caster: the amounts that scale with it are still due after the caster is gone.
     public byte? CasterLevel { get; init; }
 

@@ -57,6 +57,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             BCards: bCards)
         {
             CasterLevel = caster?.Level,
+            HasLastingEffect = card.HasLastingEffect,
         };
 
         await CleanseAsync(target, bCards);
@@ -83,6 +84,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 },
                 BuffLevel = level,
             });
+
+            // Ending the effect first starts it over on a card applied again.
+            if (card.HasLastingEffect)
+            {
+                await target.MapInstance.SendPacketAsync(target.GenerateBfe(card.CardId, Duration.Zero));
+                await target.MapInstance.SendPacketAsync(target.GenerateBfe(card.CardId, Duration.FromMilliseconds(durationMs)));
+            }
         }
 
         if (!alreadyRunning)
@@ -329,21 +337,24 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             ? player.SendPacketAsync(player.GenerateSayi(SayColorType.WhiteTimeout, message, CardArgument, buff.CardId.ToString()))
             : Task.CompletedTask;
 
-    private static Task SendIconPacketRemovalAsync(IAliveEntity target, BuffInstance buff)
+    private static async Task SendIconPacketRemovalAsync(IAliveEntity target, BuffInstance buff)
     {
         if (buff.Static)
         {
-            return target is PlayerComponentBundle character
-                ? character.SendPacketAsync(new VbPacket { CardId = buff.CardId, IsActivated = false, RemainingTime = -1 })
-                : Task.CompletedTask;
+            if (target is PlayerComponentBundle character)
+            {
+                await character.SendPacketAsync(new VbPacket { CardId = buff.CardId, IsActivated = false, RemainingTime = -1 });
+            }
+
+            return;
         }
 
         if (target.MapInstance == null || buff.FromSkill)
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        return target.MapInstance.SendPacketAsync(new BfPacket
+        await target.MapInstance.SendPacketAsync(new BfPacket
         {
             VisualType = target.VisualType,
             VisualId = target.VisualId,
@@ -355,6 +366,10 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             },
             BuffLevel = buff.CasterLevel ?? 0,
         });
+        if (buff.HasLastingEffect)
+        {
+            await target.MapInstance.SendPacketAsync(target.GenerateBfe(buff.CardId, Duration.Zero));
+        }
     }
 
     public IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target)
