@@ -79,7 +79,10 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 |---|---|
 | `Spawn(monsters…)`, `Spawn(npcs…)` | What the room holds from the start |
 | `Portal(at, to, arrival, locked)` | A one-way portal, kept as a handle to unlock later; one per pair of rooms |
-| `Lever(at)` | A lever, with `OnUse(step)` |
+| `Lever(at)` | A lever, with `OnUse(step)`; `Lever(at, off, on)` draws it with other vnums, such as a button |
+| `Sculpture(at, off, on)` | A sculpture, moved without a word, with `OnUse(step)` |
+| `KeyAnywhere(vnum)` | A key on a walkable cell picked anew for each run, taken by whoever uses it |
+| `ClearedAfter(kills, vnum)` | The room counts as cleared once that many of its monsters of that vnum fall |
 | `Exit(at, locked)` | The way out, at most one per room, with `OnReached(step)`; reaching it wins the run |
 | `OnEnter(step)` | The first time anyone enters |
 | `OnCleared(step)` | When its last monster falls |
@@ -102,7 +105,8 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `OnHit(step)` | On each hit it survives |
 | `OnHpBelow(percent, step)` | Once, on the hit that takes its HP below that share of its maximum |
 
-A monster needs one of `At`, `Anywhere` or `Around`. `Npc(vnum).At(x, y)` places an NPC.
+A monster needs one of `At`, `Anywhere` or `Around`. `Npc(vnum).At(x, y)` places an NPC, and
+`.Escort()` makes it follow the first player who reaches it; the run fails if it falls.
 
 ## Steps
 
@@ -119,6 +123,14 @@ or its exit act in that room; `After` and `OnTimeout` steps reach a room with `r
 | `Dialog(id)` | Opens that NPC dialog for the players in the room |
 | `Objective(key)` | The room's line in the mission panel until it is cleared |
 | `StartRoomClock(length)` | The room's red clock, which drives `Every` and `OnClockOut` |
+| `StopRoomClock()` | Takes the room's clock down early, so its waves and `OnClockOut` steps do not come |
+| `SayToRoom(message)` | A line for the players standing in the room only |
+| `Spawn(npcs…)` | Brings NPCs into the room |
+| `Dismiss(vnums…)` | Takes the living monsters of those vnums out of the room |
+| `After(delay, step)` | That long after this event, in the same room |
+| `IfAnyoneInside(step)` | Only while someone stands in the room |
+| `In(room)` | The same verbs, acting in another room |
+| `ClockScale` | How many times longer the run's clock is: 2 in Loser Mode, for a line that names the time added |
 
 A room held for a minute while waves come through it, from `instances/timespace-18.csx`:
 

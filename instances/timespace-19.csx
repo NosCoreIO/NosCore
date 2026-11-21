@@ -1,222 +1,103 @@
-public class TimeSpace19 : InstanceScript
+public class TimeSpace19 : TimeSpaceScript
 {
-    private readonly int _room1;
-    private readonly int _room2;
-    private readonly int _room3;
-    private readonly int _room4;
-    private readonly int _room5;
-
-    public TimeSpace19()
+    public TimeSpace19() : base(19, "The Black Knight")
     {
-        Definition = InstanceDefinitionBuilder.Named(19, "The Black Knight", "The Black Knight")
-            .ForLevels(29, 99)
-            .StartingAt(9, 10)
-            .Requiring(1012, 2)
-            .WithLives(3)
-            .WithDraw(136, 1)
-            .WithDraw(143, 1)
-            .WithDraw(150, 1)
-            .WithSpecialReward(2129, 4)
-            .WithReward(2131, 1)
-            .WithReward(1087, 1)
-            .WithRoom(4202, out _room1, 0, 8)
-            .WithRoom(4205, out _room2, 1, 8)
-            .WithRoom(4205, out _room3, 2, 8)
-            .WithRoom(4205, out _room4, 3, 8)
-            .WithRoom(4205, out _room5, 4, 8)
-            .Build();
-    }
+        Levels(29, 99);
+        Start(9, 10);
+        Requires(1012, 2);
+        Lives(3);
+        Clock(TimeSpan.FromSeconds(130));
+        Draw(136, 1);
+        Draw(143, 1);
+        Draw(150, 1);
+        Special(2129, 4);
+        Reward(2131, 1);
+        Reward(1087, 1);
 
-    public override void OnFirstEnter(IInstanceRun r)
-    {
-        r.StartClock(TimeSpan.FromSeconds(130));
-        r.SpawnPortal(_room1, new(28, 15), _room2, new(1, 15), locked: false);
-        r.SpawnPortal(_room2, new(28, 15), _room3, new(1, 15));
-        r.SpawnPortal(_room2, new(1, 15), _room1, new(28, 15));
-        r.SpawnPortal(_room3, new(28, 15), _room4, new(1, 15));
-        r.SpawnPortal(_room3, new(1, 15), _room2, new(28, 15));
-        r.SpawnPortal(_room4, new(28, 15), _room5, new(1, 15));
-        r.SpawnPortal(_room4, new(1, 15), _room3, new(28, 15));
-        r.Summon(_room4,
-            new MonsterSpawn(140, new(18, 17)),
-            new MonsterSpawn(100, new(15, 16)),
-            new MonsterSpawn(141, new(16, 8)),
-            new MonsterSpawn(66, new(13, 17)));
-        r.SpawnExit(_room5, new(28, 15), locked: false);
-        r.SpawnPortal(_room5, new(1, 15), _room4, new(28, 15), locked: false);
-        r.SummonNpcs(_room5, new NpcSpawn(318, new(14, 13)));
-    }
+        var entrance = Room(4202, 0, 8);
+        var firstStand = Room(4205, 1, 8);
+        var secondStand = Room(4205, 2, 8);
+        var thirdStand = Room(4205, 3, 8);
+        var knight = Room(4205, 4, 8);
 
-    public override void OnRoomEntered(IInstanceRun r, int room)
-    {
-        if (room == _room1)
-        {
-            r.Message(Game18NConstString.MissionStartWhenEnterFirstRoom);
-        }
-        else if (room == _room2)
-        {
-            r.Message(Game18NConstString.EnemiesReinforcements);
-            r.Dialog(_room2, 6101);
-        }
-        else if (room == _room3)
-        {
-            r.Message(Game18NConstString.EnemiesReinforcements);
-            r.Dialog(_room3, 6102);
-        }
-        else if (room == _room4)
-        {
-            r.StartRoomClock(_room4, TimeSpan.FromSeconds(120));
-            r.Message(Game18NConstString.EnemiesReinforcements);
-            r.Objective(_room4, LanguageKey.TIMESPACE_GOAL_SURVIVE_TWO_MINUTES);
-            r.Summon(_room4,
-                new MonsterSpawn(66, new(12, 11)),
-                new MonsterSpawn(141, new(13, 22)),
-                new MonsterSpawn(100, new(15, 13)),
-                new MonsterSpawn(140, new(16, 21)),
-                new MonsterSpawn(140, new(17, 8)),
-                new MonsterSpawn(140, new(19, 12)));
-            r.At(r.Elapsed + TimeSpan.FromSeconds(30), r =>
-            {
-                r.Summon(_room4,
-                    new MonsterSpawn(66, new(12, 11)),
-                    new MonsterSpawn(141, new(13, 22)),
-                    new MonsterSpawn(100, new(15, 13)),
-                    new MonsterSpawn(140, new(16, 21)),
-                    new MonsterSpawn(140, new(17, 8)),
-                    new MonsterSpawn(140, new(19, 12)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(60), r =>
-            {
-                r.Summon(_room4,
-                    new MonsterSpawn(66, new(12, 11)),
-                    new MonsterSpawn(141, new(13, 22)),
-                    new MonsterSpawn(100, new(15, 13)),
-                    new MonsterSpawn(140, new(16, 21)),
-                    new MonsterSpawn(140, new(17, 8)),
-                    new MonsterSpawn(140, new(19, 12)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(90), r =>
-            {
-                r.Summon(_room4,
-                    new MonsterSpawn(66, new(12, 11)),
-                    new MonsterSpawn(141, new(13, 22)),
-                    new MonsterSpawn(100, new(15, 13)),
-                    new MonsterSpawn(140, new(16, 21)),
-                    new MonsterSpawn(140, new(17, 8)),
-                    new MonsterSpawn(140, new(19, 12)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(120), r =>
-            {
-                r.Dismiss(_room4, 66);
-                r.Dismiss(_room4, 100);
-                r.Dismiss(_room4, 140);
-                r.Dismiss(_room4, 141);
-                r.UnlockPortal(_room4, _room5);
-                r.AddClockTime(TimeSpan.FromSeconds(10));
-                r.Message(Game18NConstString.ADoorHasOpened);
-                r.Message(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED);
-                r.StopRoomClock(_room4);
-            });
-        }
-        else if (room == _room5)
-        {
-            r.Dialog(_room5, 6103);
-        }
-    }
+        entrance.Portal(new(28, 15), firstStand, new(1, 15), locked: false);
+        entrance.OnEnter(r => r.Say(Game18NConstString.MissionStartWhenEnterFirstRoom));
 
-    public override void OnDialogClosed(IInstanceRun r, int room, int dialog)
-    {
-        if (room == _room2 && dialog == 6101)
-        {
-            r.Summon(_room2,
-                new MonsterSpawn(12, new(12, 9)),
-                new MonsterSpawn(12, new(11, 14)));
-            r.Objective(_room2, LanguageKey.TIMESPACE_GOAL_SURVIVE_TWO_MINUTES);
-            r.StartRoomClock(_room2, TimeSpan.FromSeconds(120));
-            r.Summon(_room2,
-                new MonsterSpawn(4, new(13, 6)),
-                new MonsterSpawn(140, new(14, 9)),
-                new MonsterSpawn(4, new(14, 22)),
-                new MonsterSpawn(140, new(15, 18)),
-                new MonsterSpawn(99, new(19, 18)));
-            r.At(r.Elapsed + TimeSpan.FromSeconds(30), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(4, new(13, 6)),
-                    new MonsterSpawn(140, new(14, 9)),
-                    new MonsterSpawn(4, new(14, 22)),
-                    new MonsterSpawn(140, new(15, 18)),
-                    new MonsterSpawn(99, new(19, 18)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(60), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(4, new(13, 6)),
-                    new MonsterSpawn(140, new(14, 9)),
-                    new MonsterSpawn(4, new(14, 22)),
-                    new MonsterSpawn(140, new(15, 18)),
-                    new MonsterSpawn(99, new(19, 18)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(90), r =>
-            {
-                r.Summon(_room2,
-                    new MonsterSpawn(4, new(13, 6)),
-                    new MonsterSpawn(140, new(14, 9)),
-                    new MonsterSpawn(4, new(14, 22)),
-                    new MonsterSpawn(140, new(15, 18)),
-                    new MonsterSpawn(99, new(19, 18)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(120), r =>
-            {
-                r.Dismiss(_room2, 4);
-                r.Dismiss(_room2, 12);
-                r.Dismiss(_room2, 99);
-                r.Dismiss(_room2, 140);
-                r.UnlockPortal(_room2, _room3);
-                r.AddClockTime(TimeSpan.FromSeconds(70));
-                r.Message(Game18NConstString.ADoorHasOpened);
-                r.Message(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED);
-                r.StopRoomClock(_room2);
-            });
-        }
-        else if (room == _room3 && dialog == 6102)
-        {
-            r.Summon(_room3,
-                new MonsterSpawn(140, new(17, 7)),
-                new MonsterSpawn(13, new(11, 9)));
-            r.Objective(_room3, LanguageKey.TIMESPACE_GOAL_SURVIVE_ONE_MINUTE);
-            r.StartRoomClock(_room3, TimeSpan.FromSeconds(60));
-            r.Summon(_room3,
-                new MonsterSpawn(141, new(12, 18)),
-                new MonsterSpawn(13, new(16, 12)),
-                new MonsterSpawn(140, new(16, 17)),
-                new MonsterSpawn(66, new(19, 14)),
-                new MonsterSpawn(66, new(19, 20)));
-            r.At(r.Elapsed + TimeSpan.FromSeconds(30), r =>
-            {
-                r.Summon(_room3,
-                    new MonsterSpawn(141, new(12, 18)),
-                    new MonsterSpawn(13, new(16, 12)),
-                    new MonsterSpawn(140, new(16, 17)),
-                    new MonsterSpawn(66, new(19, 14)),
-                    new MonsterSpawn(66, new(19, 20)));
-            });
-            r.At(r.Elapsed + TimeSpan.FromSeconds(60), r =>
-            {
-                r.Dismiss(_room3, 13);
-                r.Dismiss(_room3, 66);
-                r.Dismiss(_room3, 140);
-                r.Dismiss(_room3, 141);
-                r.UnlockPortal(_room3, _room4);
-                r.AddClockTime(TimeSpan.FromSeconds(120));
-                r.Message(Game18NConstString.ADoorHasOpened);
-                r.Message(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED);
-                r.StopRoomClock(_room3);
-            });
-        }
-    }
+        var firstToSecond = firstStand.Portal(new(28, 15), secondStand, new(1, 15));
+        firstStand.Portal(new(1, 15), entrance, new(28, 15));
+        firstStand.OnEnter(r => r.Dialog(6101))
+            .OnDialogClosed(6101, r => r
+                .Spawn(Monster(12).At(12, 9), Monster(12).At(11, 14))
+                .Objective(LanguageKey.TIMESPACE_GOAL_SURVIVE_TWO_MINUTES)
+                .StartRoomClock(TimeSpan.FromSeconds(120)))
+            .Every(TimeSpan.FromSeconds(30), r => r
+                .Spawn(
+                    Monster(4).At(13, 6),
+                    Monster(140).At(14, 9),
+                    Monster(4).At(14, 22),
+                    Monster(140).At(15, 18),
+                    Monster(99).At(19, 18))
+                .Say(Game18NConstString.EnemiesReinforcements))
+            .OnClockOut(r => r
+                .Dismiss(4, 12, 99, 140)
+                .Unlock(firstToSecond)
+                .AddTime(TimeSpan.FromSeconds(70))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED));
 
-    public override void OnExitReached(IInstanceRun r, int room) => r.Succeed();
+        var secondToThird = secondStand.Portal(new(28, 15), thirdStand, new(1, 15));
+        secondStand.Portal(new(1, 15), firstStand, new(28, 15));
+        secondStand.OnEnter(r => r
+                .Objective(LanguageKey.TIMESPACE_GOAL_SURVIVE_ONE_MINUTE)
+                .Dialog(6102)
+                .Spawn(Monster(140).At(17, 7), Monster(13).At(11, 9))
+                .StartRoomClock(TimeSpan.FromSeconds(60)))
+            .Every(TimeSpan.FromSeconds(30), r => r
+                .Spawn(
+                    Monster(141).At(12, 18),
+                    Monster(13).At(16, 12),
+                    Monster(140).At(16, 17),
+                    Monster(66).At(19, 14),
+                    Monster(66).At(19, 20))
+                .Say(Game18NConstString.EnemiesReinforcements))
+            .OnClockOut(r => r
+                .Dismiss(13, 66, 140, 141)
+                .Unlock(secondToThird)
+                .AddTime(TimeSpan.FromSeconds(120))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED));
+
+        var thirdToKnight = thirdStand.Portal(new(28, 15), knight, new(1, 15));
+        thirdStand.Portal(new(1, 15), secondStand, new(28, 15));
+        thirdStand.Spawn(
+            Monster(140).At(18, 17),
+            Monster(100).At(15, 16),
+            Monster(141).At(16, 8),
+            Monster(66).At(13, 17));
+        thirdStand.OnEnter(r => r
+                .Objective(LanguageKey.TIMESPACE_GOAL_SURVIVE_TWO_MINUTES)
+                .StartRoomClock(TimeSpan.FromSeconds(120)))
+            .Every(TimeSpan.FromSeconds(30), r => r
+                .Spawn(
+                    Monster(66).At(12, 11),
+                    Monster(141).At(13, 22),
+                    Monster(100).At(15, 13),
+                    Monster(140).At(16, 21),
+                    Monster(140).At(17, 8),
+                    Monster(140).At(19, 12))
+                .Say(Game18NConstString.EnemiesReinforcements))
+            .OnClockOut(r => r
+                .Dismiss(66, 100, 140, 141)
+                .Unlock(thirdToKnight)
+                .AddTime(TimeSpan.FromSeconds(10))
+                .Say(Game18NConstString.ADoorHasOpened)
+                .Say(LanguageKey.TIMESPACE_MONSTERS_GONE_EXIT_OPENED));
+
+        knight.Exit(new(28, 15), locked: false);
+        knight.Portal(new(1, 15), thirdStand, new(28, 15), locked: false);
+        knight.Spawn(Npc(318).At(14, 13));
+        knight.OnEnter(r => r.Dialog(6103));
+    }
 }
 
 return new TimeSpace19();

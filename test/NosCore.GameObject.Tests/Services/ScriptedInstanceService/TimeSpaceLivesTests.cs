@@ -57,6 +57,15 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             public override void OnFirstEnter(IInstanceRun run) => run.StartClock(TimeSpan.FromSeconds(60));
         }
 
+        private sealed class KeyScript : TimeSpaceScript
+        {
+            public KeyScript() : base(1, "timespace")
+            {
+                Lives(1);
+                Room(2004, 0, 0).KeyAnywhere(1057);
+            }
+        }
+
         [TestInitialize]
         public async Task SetupAsync()
         {
@@ -365,6 +374,26 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AKeyPlacedAnywhereLiesOnAWalkableCellOfTheRoom()
+        {
+            await new Spec("A key placed anywhere in a room whose only walkable cell is (2, 3) lies on that cell")
+                .GivenAsync(ATimeSpaceRunOf_, (IInstanceScript)new KeyScript())
+                .And(OnlyCell_2_3IsWalkable)
+                .WhenAsync(TheRunHasStarted)
+                .Then(TheKeyShouldLieAt_, 2, 3)
+                .ExecuteAsync();
+        }
+
+        private void TheKeyShouldLieAt_(int x, int y)
+        {
+            var key = _session.Character.MapInstance.Buttons[1];
+            Assert.AreEqual(ButtonKind.Key, key.Kind);
+            Assert.AreEqual((short)x, key.PositionX);
+            Assert.AreEqual((short)y, key.PositionY);
+            Assert.IsTrue(_session.Character.MapInstance.Map.IsWalkable(key.PositionX, key.PositionY));
+        }
+
         private void OnlyCell_2_3IsWalkable()
         {
             var data = _session.Character.MapInstance.Map.Data;
@@ -384,7 +413,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.IsTrue(_session.Character.MapInstance.Map.IsWalkable(cell.X, cell.Y));
         }
 
-        private Task ATimeSpaceWith_Lives(byte lives)
+        private Task ATimeSpaceWith_Lives(byte lives) => ATimeSpaceRunOf_(new Script(lives));
+
+        private Task ATimeSpaceRunOf_(IInstanceScript script)
         {
             var room = World.MapInstanceGeneratorService.CreateMapInstance(
                 new GameObject.Map.Map
@@ -394,7 +425,6 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
             room.Sessions = _roomSessions.Object;
-            var script = new Script(lives);
             _run = new ScriptedInstanceRun(
                 new TimeSpaceRunHost(
                     new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },

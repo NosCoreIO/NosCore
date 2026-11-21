@@ -1,0 +1,336 @@
+//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
+//
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Instances.Abstractions;
+using NosCore.Instances.Scripting;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace NosCore.Instances.Tests
+{
+    // Each test holds a shipped time-space to what its packet captures show.
+    [TestClass]
+    public class TimeSpaceCaptureTests
+    {
+        private static readonly string Folder = Path.Combine(AppContext.BaseDirectory, "instances");
+
+        private IInstanceScript _script = null!;
+        private readonly RecordingRun _run = new() { Players = 1 };
+
+        private async Task LoadAsync(string name)
+        {
+            _script = await new CsxInstanceScriptLoader(Folder).LoadAsync(name)
+                ?? throw new AssertFailedException($"{name}.csx did not load.");
+            _script.OnFirstEnter(_run);
+        }
+
+        private int Room(short vNum, byte x, byte y) =>
+            _script.Definition.Rooms.Single(r => r.VNum == vNum && r.IndexX == x && r.IndexY == y).Key;
+
+        private void RunTimers()
+        {
+            while (_run.Scheduled.Count > 0)
+            {
+                var next = _run.Scheduled.OrderBy(s => s.At).First();
+                _run.Scheduled.Remove(next);
+                _run.Elapsed = next.At;
+                next.Step(_run);
+            }
+        }
+
+        private List<string> CallsSince(int count) => _run.Calls.Skip(count).ToList();
+
+        private void Fall(short vNum, short x, short y)
+        {
+            var monster = _run.Summoned.First(m => m.VNum == vNum && m.At == new Spot(x, y));
+            monster.OnDeath?.Invoke(_run);
+        }
+
+        [TestMethod]
+        public async Task TheMonsterHuntBringsAWaveEvery30SecondsForThreeMinutes()
+        {
+            await LoadAsync("timespace-27");
+            var hunt = Room(2101, 2, 9);
+            Assert.IsFalse(_run.Calls.Any(c => c.StartsWith($"summon({hunt},", StringComparison.Ordinal)));
+
+            _script.OnRoomEntered(_run, hunt);
+            RunTimers();
+
+            CollectionAssert.Contains(_run.Calls, $"roomClock({hunt},180s)");
+            Assert.AreEqual(6, _run.Calls.Count(c => c.StartsWith($"summon({hunt},", StringComparison.Ordinal)));
+            Assert.AreEqual(46, _run.Calls.Where(c => c.StartsWith($"summon({hunt},", StringComparison.Ordinal))
+                .Sum(c => c.Split(',').Length - 1));
+            CollectionAssert.Contains(_run.Calls, $"message({hunt},QuickMissionComplete)");
+            CollectionAssert.Contains(_run.Calls, "addClock(300s)");
+        }
+
+        [TestMethod]
+        public async Task TheMonsterHuntGivesNoTimeWhenNobodyIsThereAsItEnds()
+        {
+            await LoadAsync("timespace-27");
+            var hunt = Room(2101, 2, 9);
+            _script.OnRoomEntered(_run, hunt);
+            _run.Players = 0;
+
+            RunTimers();
+
+            CollectionAssert.DoesNotContain(_run.Calls, "addClock(300s)");
+        }
+
+        [TestMethod]
+        public async Task TheKovoltHeroSculptureCallsMonstersAndTheDoorOpensOnceTheyFall()
+        {
+            await LoadAsync("timespace-23");
+            var hall = Room(4003, 9, 3);
+            var lastStand = Room(4003, 9, 4);
+            var before = _run.Calls.Count;
+
+            _script.OnButtonUsed(_run, hall, 1);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                "message(ObjectHasBeenMoved)",
+                $"summon({hall},121,121,121,121,121,121,121,121,121)",
+                $"objective({hall},TIMESPACE_GOAL_KILL_ALL_ENEMIES)"
+            }, CallsSince(before));
+
+            Fall(121, 8, 9);
+            Fall(121, 7, 6);
+            _script.OnRoomCleared(_run, hall);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"summon({hall},121,121)",
+                $"summon({hall},121,121)",
+                $"unlock({hall}->{lastStand})",
+                "message(ADoorHasOpened)",
+                "message(QuickMissionComplete)"
+            }, CallsSince(before + 3));
+        }
+
+        [TestMethod]
+        public async Task BecomingAWarriorYardEndsWithThreeThornwalkers()
+        {
+            await LoadAsync("timespace-17");
+            var yard = Room(4211, 2, 9);
+            var before = _run.Calls.Count;
+
+            Fall(58, 14, 8);
+            Fall(58, 6, 14);
+            Fall(66, 20, 17);
+
+            CollectionAssert.AreEqual(new[] { $"summon({yard},58)", $"summon({yard},66)", $"summon({yard},66,66)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheDemonBattleCornerHoldsTwoSwordsmenThatEachCallASpearman()
+        {
+            await LoadAsync("timespace-26");
+            var corner = Room(5207, 3, 9);
+            CollectionAssert.Contains(_run.Calls, $"summon({corner},145,145)");
+            var before = _run.Calls.Count;
+
+            Fall(145, 8, 13);
+            Fall(145, 10, 10);
+
+            CollectionAssert.AreEqual(new[] { $"summon({corner},148)", $"summon({corner},148)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheStrangeButtonSummonsItsMonsters()
+        {
+            await LoadAsync("timespace-10");
+            var buttonRoom = Room(4109, 4, 11);
+            Assert.IsFalse(_run.Calls.Any(c => c.StartsWith($"summon({buttonRoom},", StringComparison.Ordinal)));
+            var before = _run.Calls.Count;
+
+            _script.OnButtonUsed(_run, buttonRoom, 1);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"summon({buttonRoom},136,136,19)",
+                $"objective({buttonRoom},TIMESPACE_GOAL_BUTTON_SUMMONED_ENEMIES)",
+                "message(NewGoal)"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheBlackKnightSecondStandStartsAsItIsEntered()
+        {
+            await LoadAsync("timespace-19");
+            var secondStand = Room(4205, 2, 8);
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, secondStand);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"objective({secondStand},TIMESPACE_GOAL_SURVIVE_ONE_MINUTE)",
+                $"dialog({secondStand},6102)",
+                $"summon({secondStand},140,13)",
+                $"roomClock({secondStand},60s)",
+                $"summon({secondStand},141,13,140,66,66)",
+                "message(EnemiesReinforcements)"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task HiddenSchemesRoomsHoldTheirKnightsBeforeTheTalk()
+        {
+            await LoadAsync("timespace-18");
+
+            CollectionAssert.Contains(_run.Calls, $"summon({Room(4102, 1, 10)},{string.Join(",", Enumerable.Repeat(338, 17))})");
+            CollectionAssert.Contains(_run.Calls, $"summon({Room(4102, 1, 11)},{string.Join(",", Enumerable.Repeat(338, 15))})");
+        }
+
+        [TestMethod]
+        public async Task TheKovoltRiotGalleryMinerCallsAnotherAsItFalls()
+        {
+            await LoadAsync("timespace-09");
+            var gallery = Room(4005, 7, 5);
+            var before = _run.Calls.Count;
+
+            Fall(108, 1, 9);
+
+            CollectionAssert.AreEqual(new[] { $"summon({gallery},108)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheTutorialTimedRoomClockStartsOnEntryAndStopsWhenCleared()
+        {
+            await LoadAsync("timespace-00");
+            var timed = Room(4101, 3, 7);
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, timed);
+            _script.OnRoomCleared(_run, timed);
+
+            var calls = CallsSince(before);
+            CollectionAssert.AreEqual(new[] { $"dialog({timed},8010)", $"roomClock({timed},120s)" }, calls.Take(2).ToList());
+            Assert.AreEqual($"stopRoomClock({timed})", calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task TheStrikeCentreFirstFloorHoldsItsMinersBeforeTheTalk()
+        {
+            await LoadAsync("timespace-15");
+            var floor1 = Room(4012, 4, 11);
+            CollectionAssert.Contains(_run.Calls, $"summon({floor1},109,111,109,108)");
+            CollectionAssert.Contains(_run.Calls, $"summon({Room(4012, 4, 8)},108,105,111,105,111,111,108)");
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, floor1);
+            _script.OnDialogClosed(_run, floor1, 6190);
+
+            CollectionAssert.AreEqual(new[] { $"objective({floor1},TIMESPACE_GOAL_KILL_ALL_ENEMIES)", $"dialog({floor1},6190)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheStrikeCentreLeavesTheCalledMinersToTheChiefsThatCallThem()
+        {
+            await LoadAsync("timespace-15");
+            var floor5 = Room(4012, 4, 7);
+            var before = _run.Calls.Count;
+
+            _script.OnDialogClosed(_run, floor5, 6190);
+
+            CollectionAssert.AreEqual(new[] { $"summon({floor5},111,105,111,111,111,108)", $"objective({floor5},TIMESPACE_GOAL_KILL_ALL_ENEMIES)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheMonsterArmyFifthLeverRoomHoldsItsMonstersBeforeTheTalk()
+        {
+            await LoadAsync("timespace-16");
+            var fifthLever = Room(4212, 3, 10);
+            CollectionAssert.Contains(_run.Calls, $"summon({fifthLever},58,58,271)");
+            var before = _run.Calls.Count;
+
+            _script.OnDialogClosed(_run, fifthLever, 6079);
+
+            Assert.AreEqual(0, CallsSince(before).Count);
+        }
+
+        [TestMethod]
+        public async Task ANewCompanionNamesANewGoalAfterEachTalk()
+        {
+            await LoadAsync("timespace-22");
+            var firstFight = Room(5203, 5, 9);
+            var guardPost = Room(5203, 5, 7);
+            var before = _run.Calls.Count;
+
+            _script.OnDialogClosed(_run, firstFight, 6114);
+            _script.OnRoomCleared(_run, guardPost);
+            _script.OnDialogClosed(_run, guardPost, 6116);
+
+            var calls = CallsSince(before);
+            Assert.AreEqual("message(NewGoal)", calls[1]);
+            Assert.AreEqual("message(NewGoal)", calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task ANewCompanionExitRoomOpensItsWayAndTalksOnEntry()
+        {
+            await LoadAsync("timespace-22");
+            var way = Room(5203, 7, 9);
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, way);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"unlockExit({way})", "message(ADoorHasOpened)", $"dialog({way},6118)", "message(NewGoal)"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task NastyImpsLeverRoomOpensItsWayBackOnEntry()
+        {
+            await LoadAsync("timespace-08");
+            var leverRoom = Room(4106, 3, 10);
+            var thirdNest = Room(4103, 2, 10);
+            CollectionAssert.Contains(_run.Calls, $"portal({leverRoom}->{thirdNest},locked)");
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, leverRoom);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"unlock({leverRoom}->{thirdNest})", "message(ADoorHasOpened)", $"dialog({leverRoom},6044)"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheLabyrinthKeyLiesOnACellPickedForEachRun()
+        {
+            await LoadAsync("timespace-06");
+            var keyRoom = Room(4100, 2, 9);
+
+            CollectionAssert.AreEqual(new[] { keyRoom }, _run.RandomCellRooms);
+            CollectionAssert.Contains(_run.Calls, $"button({keyRoom},1,10,5,1057,1057,False)");
+        }
+
+        [TestMethod]
+        public async Task TheStruggleForFernonLeavesTheCalledMinersToTheChiefsThatCallThem()
+        {
+            await LoadAsync("timespace-24");
+            var battlefield = Room(2100, 1, 8);
+            _script.OnDialogClosed(_run, battlefield, 6119);
+            var before = _run.Calls.Count;
+
+            RunTimers();
+
+            var waves = CallsSince(before).Where(c => c.StartsWith($"summon({battlefield},", StringComparison.Ordinal)).ToList();
+            Assert.AreEqual(7, waves.Count);
+            Assert.IsFalse(waves.Any(w => w.Contains(",106", StringComparison.Ordinal) || w.Contains(",107", StringComparison.Ordinal)
+                || w.Contains(",109", StringComparison.Ordinal)));
+            Assert.AreEqual(7, CallsSince(before).Count(c => c == $"message({battlefield},EnemiesReinforcements)"));
+        }
+    }
+}

@@ -3468,7 +3468,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] Fail a time-space twice, clear a different one, then open the first stone again: Loser Mode
       is no longer offered
 - [ ] In `timespace-06`, the exit room holds only its lever on entry and shows no talk; pulling the
-      lever shows talk 6028, "The lever has been pulled." and "Watch out, enemies!" and brings the
+      lever shows talk 6028, "The lever has been pulled." and "Look out, enemies!" and brings the
       monster in, and the exit stays shut until it is dead
 - [ ] In every time-space, a room whose opening talk leads to a fight shows no monster, no objective
       and no red room clock while the talk is up; closing it with End Dialogue brings the monsters in,
@@ -3505,7 +3505,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-01`, clearing the third and fourth rooms shows "You have defeated all the monsters!" across
       the top of the screen, and entering the room on map 4104 shows "The exit is near!"; with the account
       language set to French the same lines read "Tu as éliminé tous les monstres !" and "La sortie est proche !"
-- [ ] In `timespace-01`, entering the third room shows "Watch out, enemies!" in the time-space panel; the line
+- [ ] In `timespace-01`, entering the third room shows "Look out, enemies!" in the time-space panel; the line
       goes blank once the room is cleared, and walking back into a room that still has monsters shows its
       line again. In French it reads "Attention, des ennemis !"
 - [ ] Each of `timespace-14` to `timespace-32` can be finished with Mission Clear
@@ -3518,6 +3518,46 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] In `timespace-32`, each hunting room shows its red clock and "The enemies are getting
       reinforcements!" every 30 seconds. Its other messages reach only the players in that room: a
       second character waiting in the hub sees none of them
+- [ ] In `timespace-27`, the first hunting room (map 2101) is empty as you walk in, then shows a
+      180 second red clock and "The enemies are getting reinforcements!" with a few monsters at once
+      and every 30 seconds after, six waves in all on different cells each run. Staying inside
+      until its clock ends shows "You have successfully completed the Quick Mission." and puts 300 seconds on the time-space
+      clock; leaving before then adds nothing. The held room (map 2101, lower) also says
+      "The enemies are getting reinforcements!" with each of its six waves
+- [ ] In `timespace-23`, moving the sculpture of the room on map 4003 (west of the mines) shows
+      "The object has been moved.", brings nine Koaren Warriors and "Defeat all the enemies!"; the south door
+      only opens with "A door has opened." once they and the four that follow are dead
+- [ ] In `timespace-17`, in the yard (map 4211) the Fire Vampie that comes when the third one falls
+      brings a Tired Thornwalker when it dies, and that Thornwalker brings two more
+- [ ] In `timespace-26`, the corner room (map 5207) holds two Rookie Kenko Swordsmen as you walk in,
+      and each brings a Rookie Kenko Spearman as it falls
+- [ ] In `timespace-10`, the room with the strange button (map 4109, east) is empty until the
+      button is pressed; pressing it brings three monsters, "That button summoned enemies!"
+      and "New mission goal!"
+- [ ] In `timespace-19`, the second room's red clock, its objective and its monsters come as you
+      walk in, before its talk is closed; every wave in the three rooms comes with "The enemies are
+      getting reinforcements!"
+- [ ] In `timespace-18`, the two rooms on map 4102 already hold their Knights as you walk in,
+      before their talk is closed
+- [ ] In `timespace-09`, the Weak Expy Miner of the gallery (map 4005, middle) brings another as it falls
+- [ ] In `timespace-15`, the first and fourth strike floors (map 4012) already hold their miners and show
+      "Defeat all the enemies!" as you walk in; on every floor the groups of two Happy Miners and a Weak
+      Expy Miner come only when a Tired Chief Miner calls them, never all at once with the floor's talk
+- [ ] In `timespace-16`, the last lever room (map 4212) already holds its two Fire Vampies and its Dark Gargs
+      as you walk in
+- [ ] In `timespace-22`, closing each talk shows "New mission goal!"; walking into the last room opens its exit with
+      "A door has opened.", talk 6118 and "New mission goal!"
+- [ ] In `timespace-08`, walking into the lever room (map 4106, east) opens its way back with "A door has
+      opened." before its talk
+- [ ] With the client in English, the time-space lines of time-spaces 0 to 10 read as the game writes
+      them, e.g. "You're under attack!", "Look out, enemies!", "The entrance to the maze..."
+- [ ] In `timespace-06`, the key of the room on map 4100 (middle of the maze) lies on a different cell on
+      each run, anywhere in the room away from its doors
+- [ ] In `timespace-24`, the battlefield (map 2100) says "The enemies are getting reinforcements!" with
+      each of its eight waves; the groups of two Miners and an Expy Miner, or of two Angry Miners and a
+      Strong Expy Miner, only come between the waves, when a Chief Miner or a Nervous Chief Miner calls them
+- [ ] In `timespace-00`, the red clock of the room with the timed fight starts as you walk in,
+      not when its talk is closed
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client does not draw
       (NosCoreIO/NosCore.ClientLab#34); the guards of `timespace-20` and the
       companion of `timespace-22` follow the player and take orders in the log, which NosCore does not do yet

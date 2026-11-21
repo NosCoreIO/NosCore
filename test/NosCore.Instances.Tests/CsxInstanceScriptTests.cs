@@ -95,8 +95,13 @@ namespace NosCore.Instances.Tests
             Calls.Add($"unlockExit({room})");
         }
 
-        public void SummonNpcs(int room, params NpcSpawn[] npcs) =>
+        public List<NpcSpawn> Npcs { get; } = [];
+
+        public void SummonNpcs(int room, params NpcSpawn[] npcs)
+        {
+            Npcs.AddRange(npcs);
             Calls.Add($"npcs({room},{string.Join(",", npcs.Select(m => m.VNum))})");
+        }
 
         public void AddClockTime(TimeSpan extra) => Calls.Add($"addClock({extra.TotalSeconds}s)");
 
@@ -137,7 +142,13 @@ namespace NosCore.Instances.Tests
 
         private short _randomCells;
 
-        public Spot RandomCell(int room) => new(10, (short)(5 + _randomCells++));
+        public List<int> RandomCellRooms { get; } = [];
+
+        public Spot RandomCell(int room)
+        {
+            RandomCellRooms.Add(room);
+            return new(10, (short)(5 + _randomCells++));
+        }
 
         private int _cellsAround;
 

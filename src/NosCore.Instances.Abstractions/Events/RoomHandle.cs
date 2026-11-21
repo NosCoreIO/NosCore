@@ -13,9 +13,6 @@ namespace NosCore.Instances.Abstractions
     // Holds only what the script declared, which every run shares; a run's own state stays in the run.
     internal sealed class RoomHandle(TimeSpaceScript script, int key) : IRoom
     {
-        private const short LeverOff = 1000;
-        private const short LeverOn = 1045;
-
         private readonly Dictionary<int, Action<RoomEvent>> _dialogsClosed = [];
         private readonly List<(TimeSpan Interval, Action<RoomEvent> Step)> _waves = [];
         private readonly List<ButtonHandle> _buttons = [];
@@ -56,12 +53,26 @@ namespace NosCore.Instances.Abstractions
             return portal;
         }
 
-        public IButton Lever(Spot at)
+        public IButton Lever(Spot at, short offVNum = 1000, short onVNum = 1045) => Button(at, offVNum, onVNum, ButtonKind.Lever);
+
+        public IButton Sculpture(Spot at, short offVNum, short onVNum) => Button(at, offVNum, onVNum, ButtonKind.Sculpture);
+
+        public IButton KeyAnywhere(short vNum) => Button(run => run.RandomCell(Key), vNum, vNum, ButtonKind.Key);
+
+        private ButtonHandle Button(Spot at, short offVNum, short onVNum, ButtonKind kind) => Button(_ => at, offVNum, onVNum, kind);
+
+        private ButtonHandle Button(Func<IInstanceRun, Spot> at, short offVNum, short onVNum, ButtonKind kind)
         {
             var button = new ButtonHandle(_buttons.Count + 1);
             _buttons.Add(button);
-            script.Setup(run => run.PlaceButton(Key, button.Id, at, LeverOff, LeverOn));
+            script.Setup(run => run.PlaceButton(Key, button.Id, at(run), offVNum, onVNum, kind: kind));
             return button;
+        }
+
+        public IRoom ClearedAfter(short kills, short vNum)
+        {
+            script.Setup(run => run.SetMonsterLocker(Key, kills, vNum));
+            return this;
         }
 
         public IExit Exit(Spot at, bool locked = true)
