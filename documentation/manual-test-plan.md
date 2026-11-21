@@ -2517,8 +2517,8 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 
 - [ ] Open the High Scores NPC's dialog, pick Low-level Score Quest and then "Level 1 - 10 Score Quest"
       at level 1 to 10: "Challenge it! Time-Space Stone Score!" (quest 900) appears in the quest window.
-- [ ] Pick a band above your level: "Your level is too low"; one below it: "Your level is too high".
-      Nothing is added.
+- [ ] At level 1 to 10, pick the "Level 11 - 20" band: "Your level is too low". At level 11 to 20,
+      pick the "Level 1 - 10" band: "Your level is too high". Nothing is added either time.
 - [ ] Pick the same band again after taking it: nothing new is handed out.
 - [ ] Run the parser again first, so the dialog buttons are stored. Then open the dialog of an NPC that
       offers no score quest (a shopkeeper next to you) and send `n_run 3002 0` naming that NPC, and
