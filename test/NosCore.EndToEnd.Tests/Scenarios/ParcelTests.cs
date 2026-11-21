@@ -18,13 +18,17 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
     [TestClass]
     public class ParcelTests
     {
+        private const int BagSlots = 48;
+
         private static PstClientPacket Note(string receiver, string title, string text) => new()
         {
             ActionType = PostActionType.Send,
@@ -204,6 +208,30 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.ExpectSinceAsync(taken, Parcel(ParcelPacketType.Received, id), "the parcel taken");
             Assert.IsFalse((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the parcel is no longer stored");
             await bob.ExpectSinceAsync(taken, ThreeSeeds, "the three in the bag");
+        }
+
+        [TestMethod]
+        public async Task AParcelThatDoesNotFitInTheBagSaysTheBagIsFull()
+        {
+            var master = await GameMasterAsync();
+            var receiver = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            for (short slot = 0; slot < BagSlots; slot++)
+            {
+                await Harness.GiveAsync(receiver, WorldData.Pebble, 1, slot);
+            }
+
+            await using var gm = await EnterAsync(master);
+            await using var bob = await EnterAsync(receiver);
+            var id = await GiftAsync(gm, bob, receiver, 3);
+            var taken = bob.Mark();
+
+            await bob.SendAsync(Take(id));
+
+            PacketAssert.AreEqual(new InfoiPacket { Message = Game18NConstString.FullInventory },
+                await bob.ExpectSinceAsync<InfoiPacket>(taken, null, "the full bag window"));
+            await bob.ExpectSinceAsync(taken, Parcel(ParcelPacketType.NotEnoughSpace, id), "the parcel left where it is");
+            Assert.IsTrue(await bob.NoneSinceAsync<MsgiPacket>(taken, null, TimeSpan.Zero), "no line across the screen");
+            Assert.IsTrue((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the parcel is still stored");
         }
 
         [TestMethod]

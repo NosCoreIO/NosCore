@@ -2340,8 +2340,8 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
       taking each one puts exactly that item in the inventory and removes only that parcel
 - [ ] Take a parcel's item with the inventory window open: the item appears in its slot at once,
       without a relog
-- [ ] With the main inventory full, take a parcel: "Not enough space" shows, the parcel stays in
-      the list, and taking it again after freeing a slot delivers it
+- [ ] With the main inventory full, take a parcel: the "Your inventory is full!" window opens,
+      the parcel stays in the list, and taking it again after freeing a slot delivers it
 - [ ] Send a note to a character that is online: the note icon lights up for them at once, the
       note is in their received box, and the sender has it in the sent box
 - [ ] Send a note to a character that is offline: it is in their box when they next log in
