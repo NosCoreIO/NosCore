@@ -146,7 +146,32 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         };
 
         // The score shows the base values; the rate, low-level boost and bonuses apply only to what is gained.
-        private Task AwardExperienceAsync(PlayerComponentBundle character, int experience, int jobExperience, int rate)
+        // Experience changes on the player's map, as a kill's does, so the two never write over each other.
+        // A player who moved while waiting for a map is followed to the next one.
+        private async Task AwardExperienceAsync(PlayerComponentBundle character, int experience, int jobExperience, int rate)
+        {
+            while (character.MapInstance is { } map)
+            {
+                var awarded = await map.Executor.RunAsync(async () =>
+                {
+                    if (character.MapInstance != map)
+                    {
+                        return false;
+                    }
+
+                    await AddExperienceAsync(character, experience, jobExperience, rate);
+                    return true;
+                });
+                if (awarded)
+                {
+                    return;
+                }
+            }
+
+            await AddExperienceAsync(character, experience, jobExperience, rate);
+        }
+
+        private Task AddExperienceAsync(PlayerComponentBundle character, int experience, int jobExperience, int rate)
         {
             var bonus = experienceBonusService.GetBonus(character);
             return experienceProgression.AddExperienceAsync(character,

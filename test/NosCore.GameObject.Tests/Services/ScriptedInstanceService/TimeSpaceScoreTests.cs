@@ -303,6 +303,36 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AKillAwardedWhileTheClearIsRewardedKeepsBothExperiences()
+        {
+            await ATimeSpaceThatSucceeds();
+            await _MonstersAreKilled(2);
+            var before = _session.Character.LevelXp;
+            long whileHeld = -1;
+            var exit = Task.CompletedTask;
+
+            await _room.Executor.RunAsync(async () =>
+            {
+                using (System.Threading.ExecutionContext.SuppressFlow())
+                {
+                    exit = Task.Run(TheExitIsReached);
+                }
+
+                await Task.Delay(300);
+                whileHeld = _session.Character.LevelXp;
+                _session.Character.LevelXp += 100;
+            });
+            await exit.WaitAsync(TimeSpan.FromSeconds(5));
+            for (var i = 0; i < 100 && _session.Character.LevelXp == before + 100; i++)
+            {
+                await Task.Delay(50);
+            }
+
+            Assert.AreEqual(before, whileHeld);
+            Assert.IsTrue(_session.Character.LevelXp > before + 100);
+        }
+
+        [TestMethod]
         public async Task AFailedRunAwardsNoExperience()
         {
             await new Spec("A failed run awards no experience")
@@ -384,7 +414,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             _second = await World.CreateSessionAsync();
             _second.Character.Level = LevelMinimum;
-            _second.Character.MapInstance = _room;
+            GameObject.Services.MapChangeService.MapChangeService.MovePlayer(_second, _second.Character.MapInstance, _room, null, null);
             World.SessionRegistry.UpdateCharacter(_second.Channel?.Id ?? string.Empty, _second.Character.CharacterId, _room.MapInstanceId);
             await _run.EnteredAsync(_second, _room.MapInstanceId);
         }
@@ -462,7 +492,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance,
                 World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
-            _session.Character.MapInstance = _room;
+            GameObject.Services.MapChangeService.MapChangeService.MovePlayer(_session, _session.Character.MapInstance, _room, null, null);
             World.SessionRegistry.UpdateCharacter(_session.Channel?.Id ?? string.Empty, _session.Character.CharacterId, _room.MapInstanceId);
             await _run.EnteredAsync(_session, _room.MapInstanceId);
         }
