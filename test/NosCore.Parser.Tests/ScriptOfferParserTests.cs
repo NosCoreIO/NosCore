@@ -62,12 +62,23 @@ namespace NosCore.Parser.Tests
         public void Cleanup() => Directory.Delete(_folder, true);
 
         [TestMethod]
-        public async Task StoryChaptersAreReadWithTheDialogThatListsThem()
+        public async Task StoryChaptersAreReadWithTheDialogThatListsThemAndTheNpcsMap()
         {
             await _parser.InsertScriptOffersAsync(_folder);
 
-            Assert.AreEqual("2:331:1:19:42 13:394:12:57:52", string.Join(" ", _saved.OrderBy(o => o.ScriptId)
-                .Select(o => $"{o.ScriptId}:{o.NpcVNum}:{o.RequiredScriptId}:{o.LevelMinimum}:{o.DialogId}")));
+            Assert.AreEqual("2:331:1:19:42:1 13:394:12:57:52:88", string.Join(" ", _saved.OrderBy(o => o.ScriptId)
+                .Select(o => $"{o.ScriptId}:{o.NpcVNum}:{o.RequiredScriptId}:{o.LevelMinimum}:{o.DialogId}:{o.MapId}")));
+        }
+
+        [TestMethod]
+        public async Task AStoryChapterRowWithoutAMapIsReadWithMapZero()
+        {
+            File.WriteAllText(Path.Combine(_folder, "qstnpc.dat"), "331\t0\t2\t1\t19");
+
+            await _parser.InsertScriptOffersAsync(_folder);
+
+            Assert.AreEqual("2:331:1:19:42:0", string.Join(" ", _saved
+                .Select(o => $"{o.ScriptId}:{o.NpcVNum}:{o.RequiredScriptId}:{o.LevelMinimum}:{o.DialogId}:{o.MapId}")));
         }
     }
 }
