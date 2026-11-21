@@ -13,6 +13,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
@@ -1306,8 +1307,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
             var monster = _first.EnumerateMonsters().Single();
 
-            await run.MonsterHitAsync(_first.MapInstanceId, monster);
-            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            await HitAsync(run, monster, 9);
+            await HitAsync(run, monster, 8);
 
             Assert.AreEqual(2, hits);
         }
@@ -1327,14 +1328,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.StartAsync();
             var monster = _first.EnumerateMonsters().Single();
 
-            monster.Hp = 8;
-            await run.MonsterHitAsync(_first.MapInstanceId, monster);
-            monster.Hp = 7;
-            await run.MonsterHitAsync(_first.MapInstanceId, monster);
-            monster.Hp = 9;
-            await run.MonsterHitAsync(_first.MapInstanceId, monster);
-            monster.Hp = 3;
-            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            await HitAsync(run, monster, 8);
+            await HitAsync(run, monster, 7);
+            await HitAsync(run, monster, 9);
+            await HitAsync(run, monster, 3);
 
             CollectionAssert.AreEqual(new byte[] { 75, 50 }, crossed);
         }
@@ -1352,12 +1349,32 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 ]))
             });
             await run.StartAsync();
-            var monster = _first.EnumerateMonsters().Single();
 
-            monster.Hp = 2;
-            await run.MonsterHitAsync(_first.MapInstanceId, monster);
+            await HitAsync(run, _first.EnumerateMonsters().Single(), 2);
 
             CollectionAssert.AreEqual(new byte[] { 75, 50 }, crossed);
+        }
+
+        [TestMethod]
+        public async Task AThresholdAHitCrossedRunsThoughALaterHitKilledTheMonsterFirstAsync()
+        {
+            var crossed = new List<byte>();
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHpBelow:
+                [
+                    new HpThreshold(75, _ => crossed.Add(75)),
+                    new HpThreshold(50, _ => crossed.Add(50))
+                ]))
+            });
+            await run.StartAsync();
+            var monster = _first.EnumerateMonsters().Single();
+            monster.Hp = 0;
+            monster.IsAlive = false;
+
+            await HitAsync(run, monster, 6);
+
+            CollectionAssert.AreEqual(new byte[] { 75 }, crossed);
         }
 
         [TestMethod]
@@ -1370,25 +1387,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             });
             await run.StartAsync();
 
-            await run.MonsterHitAsync(_first.MapInstanceId, _first.EnumerateMonsters().Single());
+            await HitAsync(run, _first.EnumerateMonsters().Single(), 9);
 
             Assert.AreEqual(2, _first.EnumerateMonsters().Count());
-        }
-
-        [TestMethod]
-        public async Task AHitOnAMonsterWithHitStepsReachesItsRunAsync()
-        {
-            var hits = 0;
-            var run = Run(new Script { Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), OnHit: _ => hits++)) });
-            await run.StartAsync();
-            var service = World.Freeze<Mock<IScriptedInstanceService>>();
-            service.Setup(s => s.GetRun(_first.MapInstanceId)).Returns(run);
-            var attacker = (await World.CreateSessionAsync()).Character;
-
-            await World.Create<TimeSpaceProgressHandler>()
-                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 1, false));
-
-            Assert.AreEqual(1, hits);
         }
 
         [TestMethod]
@@ -1400,7 +1401,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var attacker = (await World.CreateSessionAsync()).Character;
 
             await World.Create<TimeSpaceProgressHandler>()
-                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 1, false));
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 1, false, 9));
 
             service.Verify(s => s.GetRun(It.IsAny<Guid>()), Times.Never);
         }
@@ -1414,9 +1415,24 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var attacker = (await World.CreateSessionAsync()).Character;
 
             await World.Create<TimeSpaceProgressHandler>()
-                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 10, true));
+                .Handle(new EntityDamagedEvent(attacker, _first.EnumerateMonsters().Single(), 10, true, 0));
 
             service.Verify(s => s.GetRun(It.IsAny<Guid>()), Times.Never);
+        }
+
+        private Mock<IScriptedInstanceService>? _runs;
+
+        private async Task HitAsync(ScriptedInstanceRun run, MonsterComponentBundle monster, int hpLeft)
+        {
+            if (_runs == null)
+            {
+                _runs = World.Freeze<Mock<IScriptedInstanceService>>();
+                _runs.Setup(s => s.GetRun(_first.MapInstanceId)).Returns(run);
+            }
+
+            var attacker = (await World.CreateSessionAsync()).Character;
+            await World.Create<TimeSpaceProgressHandler>()
+                .Handle(new EntityDamagedEvent(attacker, monster, 1, false, hpLeft));
         }
 
         [TestMethod]

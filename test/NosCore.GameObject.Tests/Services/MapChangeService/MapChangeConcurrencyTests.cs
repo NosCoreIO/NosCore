@@ -137,7 +137,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         public async Task AnEventPublishedBeforeAMapChangeSeesThePlayerAfterIt()
         {
             _session.Character.Hp = 42;
-            var damaged = new EntityDamagedEvent(_session.Character, _session.Character, 1, false);
+            var damaged = new EntityDamagedEvent(_session.Character, _session.Character, 1, false, 1);
 
             await ChangeMapAsync(_first);
 

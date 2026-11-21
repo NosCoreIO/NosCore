@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
@@ -42,17 +43,26 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
                 : run.MonsterKilledAsync(mapInstance.MapInstanceId, monster.VNum, monster.IsBonus, monster.DeathStep);
         }
 
+        // The thresholds a hit crossed are taken from the HP that hit left, so a later hit that has
+        // already landed, or killed the monster, cannot hide them.
         [UsedImplicitly]
         public Task Handle(EntityDamagedEvent evt)
         {
             if (evt.Killed || evt.Target is not MonsterComponentBundle { MapInstance: { } mapInstance } monster
-                || (monster.HitStep == null && monster.HpThresholds.Count == 0))
+                || (monster.HitStep == null && monster.HpThresholds.Count == 0)
+                || scriptedInstanceService.GetRun(mapInstance.MapInstanceId) is not { } run)
             {
                 return Task.CompletedTask;
             }
 
-            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.MonsterHitAsync(mapInstance.MapInstanceId, monster)
-                ?? Task.CompletedTask;
+            var thresholds = monster.HpThresholds;
+            var crossed = thresholds.Where(t => (long)evt.HpLeft * 100 < (long)t.Percent * monster.MaxHp).ToList();
+            if (crossed.Count > 0)
+            {
+                monster.HpThresholds = thresholds.Except(crossed).ToList();
+            }
+
+            return run.MonsterHitAsync(mapInstance.MapInstanceId, monster.HitStep, crossed.Select(t => t.Step).ToList());
         }
 
         [UsedImplicitly]
