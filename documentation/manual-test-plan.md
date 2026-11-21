@@ -2686,6 +2686,8 @@ warehouse (3005) placed in the miniland; `mates.sh` adds a pet and a partner out
       leave the bag and the counter reads 1/21. Move them to another slot, then drag them back
       into the bag
 - [ ] Equipment from the Miniland pocket cannot be dropped in, and nothing moves while trading
+- [ ] Drag a quest item (a Black Diamond Key, `$CreateItem 1216`) into the warehouse: "You cannot
+      store quest items in the warehouse." appears and the key stays in the bag
 - [ ] With the pet basket bought, the pet in the party panel has a small icon; clicking it asks
       "Would you like to open the warehouse?" and Confirm opens the same 21-slot warehouse
       anywhere

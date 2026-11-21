@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
@@ -13,6 +14,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Mates;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Warehouse;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,10 +56,26 @@ namespace NosCore.GameObject.Services.WarehouseService
             transfer.GetItemAsync(session.Character.CharacterId, warehouseType, warehouseSlot);
 
         public Task DepositAsync(ClientSession session, WarehouseType warehouseType, PocketType pocket, short slot,
-            short amount, short warehouseSlot) =>
-            !CanUse(session, warehouseType) || pocket is PocketType.Miniland
-                ? Task.CompletedTask
-                : transfer.DepositAsync(session, Slots(session, warehouseType), pocket, slot, amount, warehouseSlot, _ => true);
+            short amount, short warehouseSlot)
+        {
+            if (!CanUse(session, warehouseType) || pocket is PocketType.Miniland)
+            {
+                return Task.CompletedTask;
+            }
+
+            if (warehouseType == WarehouseType.Warehouse
+                && session.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)pocket)?.ItemInstance?.Item.ItemType
+                    is ItemType.Quest1 or ItemType.Quest2)
+            {
+                return session.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.CannotStoreInWarehouse
+                });
+            }
+
+            return transfer.DepositAsync(session, Slots(session, warehouseType), pocket, slot, amount, warehouseSlot, _ => true);
+        }
 
         public Task WithdrawAsync(ClientSession session, WarehouseType warehouseType, short warehouseSlot, short amount) =>
             !CanUse(session, warehouseType)

@@ -175,6 +175,22 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task AQuestItemIsRefusedByTheWarehouseAndStaysInTheBag()
+        {
+            var player = await OwnerAsync(5);
+            await Harness.GiveAsync(player, WorldData.QuestItem, 1, pocket: NoscorePocketType.Main);
+            await using var alice = await EnterWithWarehouseOpenAsync(player);
+            var deposited = alice.Mark();
+
+            await alice.SendAsync(Deposit(0, 1, 0, PocketType.Main));
+
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.CannotStoreInWarehouse },
+                await alice.ExpectSinceAsync<MsgiPacket>(deposited, null, "the refusal"));
+            Assert.IsTrue(await alice.NoneSinceAsync<IPacket>(deposited, MovesAnything, TimeSpan.FromSeconds(1)), "nothing moves");
+            Assert.AreEqual(0, (await StoredInWarehouseAsync(player.CharacterId)).Length, "nothing is stored");
+        }
+
+        [TestMethod]
         public async Task AWholeStackDepositedEmptiesItsBagSlot()
         {
             var player = await OwnerAsync(5);

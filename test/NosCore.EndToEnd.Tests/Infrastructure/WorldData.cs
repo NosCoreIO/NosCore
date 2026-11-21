@@ -205,6 +205,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         // Worth something, yet neither sold to a shop nor handed to another player.
         public const short Keepsake = 2029;
 
+        // A quest item, which the warehouse refuses.
+        public const short QuestItem = 9702;
+
         // Teaches one skill nobody starts with, on the market.
         public const int Teacher = 9700;
         private const short TeacherVNum = 9701;
@@ -760,6 +763,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Token, Slot = 2, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Gem, Slot = 3, Type = 0 });
             context.Add(new ShopItem { ShopId = shelves.ShopId, ItemVNum = Trinket, Slot = 4, Type = 1 });
+            await context.SaveChangesAsync();
+
+            context.Add(new Item { VNum = QuestItem, Name = "questitem", Type = NoscorePocketType.Main, ItemType = ItemType.Quest1 });
             await context.SaveChangesAsync();
 
             context.Add(new NpcMonster { NpcMonsterVNum = TeacherVNum, Name = "teacher", Level = 1, MaxHp = 100 });
