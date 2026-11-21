@@ -7,12 +7,16 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.QuestService.Handlers;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Quest;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
@@ -284,6 +288,85 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)300)
                 .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)1)
                 .And(TheOfferResultShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnAcknowledgedStepIsNotSentBack()
+        {
+            await new Spec("Acknowledging a step sends only the next one, so the client does not play the step again")
+                .Given(CharacterIsOnTalkStepOneOfScript_, (byte)100)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)1, (byte)100)
+                .Then(TheOnlyStepSentShouldBe_OfScript_, (short)2, (byte)100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastStepOfAChapterIsNotSentBack()
+        {
+            await new Spec("Acknowledging a chapter's last step names the next chapter's NPC once and sends no step")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)2, (byte)1)
+                .Then(NoStepShouldBeSent)
+                .And(TheQuestNpcShouldBeSentOnce)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task FinishingAChapterPointsAtTheNpcThatOffersTheNextOne()
+        {
+            await new Spec("Finishing a chapter names the NPC, map and level of the next one and says how to find it")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)2, (byte)1)
+                .Then(TheQuestNpcShouldBe_OnMap_AtLevel_, (short)331, (short)1, (short)19)
+                .And(ThePlayerShouldBeToldToSearchForNewQuests)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChapterAboveTheCharactersLevelIsStillPointedAt()
+        {
+            await new Spec("The next chapter is named with the level it opens at even before the character reaches it")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)60)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)2, (byte)1)
+                .Then(TheQuestNpcShouldBe_OnMap_AtLevel_, (short)331, (short)1, (short)60)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TakingAnOfferedChapterClearsTheNpcItPointedAt()
+        {
+            await new Spec("Once the chapter is taken its NPC is no longer named, while its map and level stay")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
+                .Then(TheQuestNpcShouldBe_OnMap_AtLevel_, (short)-1, (short)1, (short)19)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AStepThatIsNotTheLastPointsAtNoNpc()
+        {
+            await new Spec("Moving on inside a chapter names no NPC")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterIsOnTheLastStepOfChapterOne)
+                .And(CharacterIsBackOnStepOneOfChapterOne)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)1, (byte)1)
+                .Then(NoQuestNpcShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACharacterWithoutAStoryIsNotPointedAtALaterChapter()
+        {
+            await new Spec("A chapter that needs another one first is not named to a character that has not played it")
+                .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
+                .And(CharacterHasNoScript)
+                .WhenAsync(TheScriptRuns)
+                .Then(NoQuestNpcShouldBeSent)
                 .ExecuteAsync();
         }
 
@@ -996,7 +1079,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         {
             ScriptOffers.Add(new ScriptOfferDto
             {
-                ScriptId = scriptId, NpcVNum = npcVNum, RequiredScriptId = (byte)(scriptId - 1), LevelMinimum = levelMinimum, DialogId = 42
+                ScriptId = scriptId, NpcVNum = npcVNum, RequiredScriptId = (byte)(scriptId - 1), LevelMinimum = levelMinimum, DialogId = 42,
+                MapId = 1
             });
             Scripts.Add(new ScriptDto { Id = Guid.NewGuid(), ScriptId = scriptId, ScriptStepId = 10, StepType = "talk" });
         }
@@ -1017,6 +1101,44 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private async Task TakingChapter_FromNpc_(byte scriptId, short npcVNum)
         {
             _offerResult = await Service.TakeScriptOfferAsync(Session.Character, npcVNum, scriptId);
+        }
+
+        private Task TheScriptRuns() => Service.RunScriptAsync(Session.Character);
+
+        private void TheQuestNpcShouldBe_OnMap_AtLevel_(short npcVNum, short mapId, short level)
+        {
+            var groups = new List<QnpcSubPacket> { new() { Unknown0 = npcVNum, Unknown1 = mapId, Unknown2 = level } };
+            groups.AddRange(Enumerable.Range(0, 9).Select(_ => new QnpcSubPacket()));
+            PacketAssert.AreEqual(new QnpcPacket { SubPackets = groups }, Session.LastPackets.OfType<QnpcPacket>().Last());
+        }
+
+        private void ThePlayerShouldBeToldToSearchForNewQuests()
+        {
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.ClickButtonToSearachNewQuests },
+                Session.LastPackets.OfType<MsgiPacket>().Last());
+            PacketAssert.AreEqual(Session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ClickButtonToSearachNewQuests),
+                Session.LastPackets.OfType<SayiPacket>().Last());
+        }
+
+        private void TheOnlyStepSentShouldBe_OfScript_(short stepId, byte scriptId)
+        {
+            PacketAssert.AreEqual(new ScriptPacket { ScriptId = scriptId, ScriptStepId = stepId },
+                Session.LastPackets.OfType<ScriptPacket>().Single());
+        }
+
+        private void NoStepShouldBeSent()
+        {
+            Assert.IsFalse(Session.LastPackets.OfType<ScriptPacket>().Any());
+        }
+
+        private void TheQuestNpcShouldBeSentOnce()
+        {
+            Assert.AreEqual(1, Session.LastPackets.OfType<QnpcPacket>().Count());
+        }
+
+        private void NoQuestNpcShouldBeSent()
+        {
+            Assert.IsFalse(Session.LastPackets.OfType<QnpcPacket>().Any());
         }
 
         private void TheOfferResultShouldBe_(bool expected)

@@ -48,7 +48,6 @@ namespace NosCore.GameObject.Services.QuestService
                 await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
             }
 
-            var previousScript = character.Script;
             if (packet != null)
             {
                 if (!await CheckScriptStateAsync(packet, character))
@@ -57,24 +56,37 @@ namespace NosCore.GameObject.Services.QuestService
                 }
             }
 
-            if (previousScript != null)
-            {
-                await character.SendPacketAsync(new ScriptPacket
-                {
-                    ScriptId = previousScript.ScriptId,
-                    ScriptStepId = previousScript.ScriptStepId
-                });
-            }
-
             var orderedScripts = scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
             var nextScript = orderedScripts.FirstOrDefault(s => (s.ScriptId == (character.Script?.ScriptId ?? 0)) && (s.ScriptStepId > (character.Script?.ScriptStepId ?? 0))) ??
                 orderedScripts.FirstOrDefault(s => s.ScriptId > (character.Script?.ScriptId ?? 0));
-            if (nextScript == null || (nextScript.ScriptId != character.Script?.ScriptId && scriptOffers.Any(o => o.ScriptId == nextScript.ScriptId)))
+            if (nextScript == null)
             {
                 return;
             }
 
+            if (nextScript.ScriptId != character.Script?.ScriptId
+                && scriptOffers.FirstOrDefault(o => o.ScriptId == nextScript.ScriptId) is { } offer)
+            {
+                if (offer.RequiredScriptId == character.Script?.ScriptId)
+                {
+                    await PointAtOfferAsync(character, offer);
+                }
+
+                return;
+            }
+
             await StartScriptStepAsync(character, nextScript);
+        }
+
+        private async Task PointAtOfferAsync(PlayerComponentBundle character, ScriptOfferDto offer)
+        {
+            await character.SendPacketAsync(offer.GenerateQnpcPacket(taken: false));
+            await character.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.ClickButtonToSearachNewQuests
+            });
+            await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ClickButtonToSearachNewQuests));
         }
 
         public async Task<bool> TakeScriptOfferAsync(PlayerComponentBundle character, short npcVNum, byte scriptId)
@@ -94,6 +106,7 @@ namespace NosCore.GameObject.Services.QuestService
             }
 
             await StartScriptStepAsync(character, firstStep);
+            await character.SendPacketAsync(offer.GenerateQnpcPacket(taken: true));
             return true;
         }
 

@@ -15,6 +15,9 @@ namespace NosCore.GameObject.Services.QuestService;
 
 public static class QuestPackets
 {
+    // The client ignores a qnpc line with fewer groups than this.
+    private const int QnpcGroups = 10;
+
     public static QstlistPacket GenerateQuestPacket(this PlayerComponentBundle visualEntity, CharacterQuest? taken = null)
     {
         return new QstlistPacket(visualEntity.Quests.Values
@@ -30,4 +33,15 @@ public static class QuestPackets
         NodaTime.Instant now) =>
         Enumerable.Range(0, SqstPacket.BlockOf(quests.Select(q => (int)q.QuestId).DefaultIfEmpty().Max()) + 1)
             .Select(block => visualEntity.GenerateCompletedQuests((byte)block, now));
+
+    // A group is the NPC's vnum, its map and the chapter's level, which the client's "search for new
+    // quests" button reads back as a chat line. A taken chapter keeps its map and level under vnum -1.
+    public static QnpcPacket GenerateQnpcPacket(this ScriptOfferDto offer, bool taken) => new()
+    {
+        SubPackets =
+        [
+            new QnpcSubPacket { Unknown0 = taken ? (short)-1 : offer.NpcVNum, Unknown1 = offer.MapId, Unknown2 = offer.LevelMinimum },
+            .. Enumerable.Range(1, QnpcGroups - 1).Select(_ => new QnpcSubPacket()),
+        ],
+    };
 }

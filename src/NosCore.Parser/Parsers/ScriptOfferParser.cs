@@ -19,8 +19,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // qstnpc.dat rows are {npcVNum} {kind} {id} {requiredId} {levelMin} [{?}]; kind 0 offers a story
-    // chapter of tutorial.dat. The NPC's chapter list is the npctalk.dat dialog holding its
+    // qstnpc.dat rows are {npcVNum} {kind} {id} {requiredId} {levelMin} [{mapId}]; kind 0 offers a story
+    // chapter of tutorial.dat, and its map is the one the NPC stands on. The NPC's chapter list is the npctalk.dat dialog holding its
     // "n_run 3001 {scriptId}" buttons.
     public class ScriptOfferParser(IDao<ScriptOfferDto, byte> scriptOfferDao, ILogger<ScriptOfferParser> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
@@ -35,7 +35,7 @@ namespace NosCore.Parser.Parsers
             var offers = new List<ScriptOfferDto>();
             foreach (var split in await ReadRowsAsync(folder + _fileQstNpcDat))
             {
-                if (split.Length < 5 || split[1] != StoryChapter
+                if (split.Length < 6 || split[1] != StoryChapter
                     || !byte.TryParse(split[2], out var scriptId)
                     || !listDialogs.TryGetValue(scriptId, out var dialogId))
                 {
@@ -48,6 +48,7 @@ namespace NosCore.Parser.Parsers
                     NpcVNum = Convert.ToInt16(split[0]),
                     RequiredScriptId = Convert.ToByte(split[3]),
                     LevelMinimum = Convert.ToByte(split[4]),
+                    MapId = Convert.ToInt16(split[5]),
                     DialogId = dialogId,
                 });
             }

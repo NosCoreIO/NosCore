@@ -27,6 +27,9 @@ namespace NosCore.Database.Entities
 
         public byte LevelMinimum { get; set; }
 
+        /// <summary>The map the offering NPC stands on.</summary>
+        public short MapId { get; set; }
+
         /// <summary>The NPC dialog whose buttons list the chapters.</summary>
         public short DialogId { get; set; }
     }

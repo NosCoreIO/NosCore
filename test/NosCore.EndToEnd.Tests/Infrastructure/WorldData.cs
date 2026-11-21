@@ -304,6 +304,20 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short EventAmulet = 4006;
         public const int EventAmuletUses = 3;
 
+        // Hands out the second of two story chapters from level 19, once the first is played to its
+        // end. The first is offered too, so a character with no story is not started on it. Story
+        // chapter ids are bytes.
+        public const int Storyteller = 9150;
+        public const short StorytellerVNum = 9150;
+        private const short StorytellerDialog = 9150;
+        public const short StorytellerX = 110;
+        public const short StorytellerY = 140;
+        public const byte FirstChapter = 91;
+        public const byte NextChapter = 92;
+        public const byte NextChapterLevel = 19;
+        public const short ChapterStep = 10;
+        public static readonly Guid FirstChapterLastStep = new("9150a91c-0000-4000-8000-000000009150");
+
         public static async Task SeedAsync(NosCoreContext context)
         {
             context.Add(OpenMap(Town, 200, 200));
@@ -686,6 +700,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedAct4Async(context);
             SeedDignity(context);
             SeedPreyQuest(context);
+            await SeedStorytellerAsync(context);
             await context.SaveChangesAsync();
         }
 
@@ -879,6 +894,30 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 QuestLineId = PreyQuest, Title = "preyquest", Desc = "preyquest"
             });
             context.Add(new QuestObjective { QuestObjectiveId = Guid.NewGuid(), QuestId = PreyQuest, FirstData = PreyVNum, SecondData = 1 });
+        }
+
+        private static async Task SeedStorytellerAsync(NosCoreContext context)
+        {
+            context.Add(new NpcTalk { DialogId = StorytellerDialog, Name = "storyteller" });
+            context.Add(new NpcMonster { NpcMonsterVNum = StorytellerVNum, Name = "storyteller", Level = 1, MaxHp = 100 });
+            context.Add(new Script { Id = FirstChapterLastStep, ScriptId = FirstChapter, ScriptStepId = ChapterStep, StepType = "target" });
+            context.Add(new Script { Id = Guid.NewGuid(), ScriptId = NextChapter, ScriptStepId = ChapterStep, StepType = "talk" });
+            context.Add(new ScriptOffer
+            {
+                ScriptId = FirstChapter, NpcVNum = StorytellerVNum, RequiredScriptId = FirstChapter - 1, LevelMinimum = 1,
+                MapId = Town, DialogId = StorytellerDialog
+            });
+            context.Add(new ScriptOffer
+            {
+                ScriptId = NextChapter, NpcVNum = StorytellerVNum, RequiredScriptId = FirstChapter, LevelMinimum = NextChapterLevel,
+                MapId = Town, DialogId = StorytellerDialog
+            });
+            await context.SaveChangesAsync();
+            context.Add(new MapNpc
+            {
+                MapNpcId = Storyteller, MapId = Town, MapX = StorytellerX, MapY = StorytellerY, VNum = StorytellerVNum,
+                Dialog = StorytellerDialog
+            });
         }
 
         private static async Task SeedFamilyManagerAsync(NosCoreContext context)
