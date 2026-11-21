@@ -1087,6 +1087,9 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       in the client's language, and the character does not transform
 - [ ] With points, transform: the five-second bar runs and the character transforms when it
       ends, not before
+- [ ] Transform beside a second client: on the second screen the character takes the card's
+      look with its weapon drawn and plays the same end-of-transformation animation as on your
+      own screen
 - [ ] Wear a specialist card whose instance carries attack and defence, hit a monster, then
       transform and hit it again: the transformed hits are larger by about the card's attack
 - [ ] Untransform: the hits go back to the untransformed size
