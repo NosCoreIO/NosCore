@@ -3581,6 +3581,8 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
 - [ ] Not verifiable yet: the mission objectives window (`minfo`), which this client does not draw
       (NosCoreIO/NosCore.ClientLab#34); the guards of `timespace-20` and the
       companion of `timespace-22` follow the player and take orders in the log, which NosCore does not do yet
+- [ ] Not verifiable yet: a monster's hit and HP-threshold steps (`OnHit`, `OnHpBelow` in
+      [instance-scripts.md](instance-scripts.md)), which no shipped script uses yet
 
 ### Time-space reward chest
 
