@@ -945,6 +945,30 @@
   <data name="TIMESPACE_GOAL_SURVIVE_KOARENS" xml:space="preserve">
     <value>Tente de survivre 1 minute à l'attaque des Koarens.</value>
   </data>
+  <data name="TIMESPACE_VIOLENT_KENKO_HIDE" xml:space="preserve">
+    <value>Un frappeur kenko violent ! Cache-toi !</value>
+  </data>
+  <data name="TIMESPACE_KORRKOAREN_MEETS_KENKO" xml:space="preserve">
+    <value>Rencontre entre Korrkoaren et Kenko</value>
+  </data>
+  <data name="TIMESPACE_GOAL_FIGHT_DEMON_THREE_MINUTES" xml:space="preserve">
+    <value>Tu dois combattre le démon pendant 3 minutes.</value>
+  </data>
+  <data name="TIMESPACE_SOMEONE_WATCHING" xml:space="preserve">
+    <value>Quelqu'un nous observe ?</value>
+  </data>
+  <data name="TIMESPACE_ELIMINATE_ALL_ENEMIES_QUESTION" xml:space="preserve">
+    <value>Éliminer tous les ennemis ?</value>
+  </data>
+  <data name="TIMESPACE_ALL_CLEAR" xml:space="preserve">
+    <value>Dégagé !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_TRAP_HOLD_ON" xml:space="preserve">
+    <value>C'est un piège ! Tiens bon !</value>
+  </data>
+  <data name="TIMESPACE_GOAL_UNEXPECTED_ATTACK" xml:space="preserve">
+    <value>Une attaque inattendue !</value>
+  </data>
   <data name="TIMESPACE_DEMONS_CRUSH_KOVOLTS" xml:space="preserve">
     <value>Les démons infligent aux Kovolts une défaite cuisante !</value>
   </data>
