@@ -38,6 +38,8 @@ namespace NosCore.PacketHandlers.Tests.Parcel
     {
         private const short WeaponVNum = 9901;
         private const short BeadVNum = 9902;
+        private const short SeedVNum = 1012;
+        private const short OtherMainVNum = 1013;
         private TestWorld World;
         private ClientSession _session;
         private ParcelRegistry _parcels;
@@ -181,6 +183,30 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 It.IsAny<Exception?>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
         }
 
+        [TestMethod]
+        public async Task ASeedUsedBeforeAFailedClaimCouldBeUndoneLeavesTheRestWithThePlayer()
+        {
+            var inventory = _session.Character.InventoryService;
+            var seeds = Holds(SeedVNum, 10);
+            Assert.IsTrue(inventory.TryConsume(seeds, 10));
+            while (inventory.CountItemInAnPocket(NoscorePocketType.Main) < inventory.GetMaxSlots(NoscorePocketType.Main))
+            {
+                Holds(OtherMainVNum, 999);
+            }
+
+            await _delivery.ReturnConsumedAsync(_session.Character, seeds, 10);
+            inventory.DeleteFromTypeAndSlot(NoscorePocketType.Main, 0);
+            var mail = _parcels.GetMails(_session.Character.CharacterId, false).Values.Single();
+            // The player uses one seed while the claim is still waiting on the parcel box.
+            var hub = ParcelBox(onDelete: () => inventory.TryConsume(inventory.Values.Single(i => i.ItemInstance.ItemVNum == SeedVNum), 1),
+                deleteThrows: true, failingDeletes: 1);
+
+            await ClaimAsync(hub, mail);
+
+            Assert.AreEqual(9, inventory.CountItem(SeedVNum));
+            Assert.IsFalse(IsInTheParcelBox(mail));
+        }
+
         // The player sells or wears the weapon while the claim is still waiting on the parcel box.
         private void UseTheWeapon() =>
             _session.Character.InventoryService.DeleteById(_session.Character.InventoryService.Values
@@ -253,9 +279,9 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             return inventory.LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull();
         }
 
-        private InventoryItemInstance Holds(short vnum)
+        private InventoryItemInstance Holds(short vnum, short amount = 1)
         {
-            var entry = InventoryItemInstance.Create(World.GenerateItemProvider().Create(vnum, 1), _session.Character.CharacterId);
+            var entry = InventoryItemInstance.Create(World.GenerateItemProvider().Create(vnum, amount), _session.Character.CharacterId);
             _session.Character.InventoryService.AddItemToPocket(entry);
             return entry;
         }

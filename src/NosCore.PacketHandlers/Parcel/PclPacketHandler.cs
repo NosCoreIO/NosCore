@@ -141,20 +141,22 @@ namespace NosCore.PacketHandlers.Parcel
         }
 
         // The parcel is still there, so what was placed for it comes back out of the bag.
-        // True when all of it came back out; what the player already moved or used cannot.
+        // All of it comes back out or none of it: once the player has used part, the claim stands.
         private async Task<bool> TakeBackAsync(IInventoryService inventory, List<InventoryItemInstance> slots, short amount,
             IItemInstance item, bool storedOptions)
         {
+            var parts = new List<(InventoryItemInstance Source, short Amount)>();
             foreach (var stack in Enumerable.Reverse(slots))
             {
                 var taken = (short)Math.Min(amount, stack.ItemInstance.Amount);
-                if (taken > 0 && inventory.TryConsume(stack, taken))
+                if (taken > 0)
                 {
+                    parts.Add((stack, taken));
                     amount -= taken;
                 }
             }
 
-            if (amount > 0)
+            if (amount > 0 || !inventory.TryConsume(parts))
             {
                 return false;
             }

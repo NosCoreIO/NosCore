@@ -662,6 +662,27 @@ namespace NosCore.GameObject.Services.InventoryService
             return overflow <= 0 ? 0 : (overflow + maxAmount - 1) / maxAmount;
         }
 
+        public bool TryConsume(IReadOnlyCollection<(InventoryItemInstance Source, short Amount)> parts)
+        {
+            lock (_gate)
+            {
+                var enough = parts.GroupBy(p => p.Source.ItemInstanceId).All(g => g.All(p => p.Amount > 0)
+                    && TryGetValue(g.Key, out var inv) && inv.ItemInstance != null
+                    && inv.ItemInstance.Amount >= g.Sum(p => p.Amount));
+                if (!enough)
+                {
+                    return false;
+                }
+
+                foreach (var (source, amount) in parts)
+                {
+                    TryConsume(source, amount);
+                }
+
+                return true;
+            }
+        }
+
         public bool TryConsume(InventoryItemInstance source, short amount)
         {
             lock (_gate)

@@ -43,6 +43,9 @@ namespace NosCore.GameObject.Services.InventoryService
 
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
         bool TryConsume(InventoryItemInstance source, short amount);
+
+        // Takes every part or none of them.
+        bool TryConsume(IReadOnlyCollection<(InventoryItemInstance Source, short Amount)> parts);
         // Returns the entries that now hold it, which may not be its old slot, and the amount that fits
         // nowhere without going over the stack limit.
         (List<InventoryItemInstance> Restored, short Left) RestoreConsumed(InventoryItemInstance source, short amount);
