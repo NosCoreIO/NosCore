@@ -28,6 +28,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Npcs;
+using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -442,6 +443,50 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
 
             Assert.AreEqual(PortalType.Open, portal.Type);
+        }
+
+        [TestMethod]
+        public async Task AnUnlockedPortalIsTakenOffBeforeItIsShownOpenAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.SetMonsterLocker(1, 1);
+                    r.SpawnPortal(1, new Spot(3, 3), 2, new Spot(1, 1));
+                },
+                Cleared = (r, room) => r.UnlockPortal(room, 2)
+            });
+
+            await run.StartAsync();
+            _first.LastPackets.Clear();
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            var lines = _first.LastPackets.OfType<GpPacket>().ToList();
+            Assert.HasCount(2, lines);
+            Assert.AreEqual((PortalType.Closed, true), (lines[0].PortalType, lines[0].IsDisabled));
+            Assert.AreEqual((PortalType.Open, false), (lines[1].PortalType, lines[1].IsDisabled));
+            Assert.AreEqual(lines[0].PortalId, lines[1].PortalId);
+        }
+
+        [TestMethod]
+        public async Task UnlockingAnOpenPortalSendsNothingAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.SetMonsterLocker(1, 1);
+                    r.SpawnPortal(1, new Spot(3, 3), 2, new Spot(1, 1), locked: false);
+                },
+                Cleared = (r, room) => r.UnlockPortal(room, 2)
+            });
+
+            await run.StartAsync();
+            _first.LastPackets.Clear();
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            Assert.IsFalse(_first.LastPackets.OfType<GpPacket>().Any());
         }
 
         [TestMethod]
@@ -1366,6 +1411,26 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.ExitReachedAsync(_first.MapInstanceId);
             Assert.AreEqual(EndStateType.Success, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task AnUnlockedExitIsTakenOffBeforeItIsShownOpenAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.SpawnExit(1, new Spot(3, 3)),
+                Cleared = (r, room) => r.UnlockExit(room)
+            });
+            await run.StartAsync();
+            run.SetMonsterLocker(1, 1);
+            _first.LastPackets.Clear();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            var lines = _first.LastPackets.OfType<GpPacket>().ToList();
+            Assert.HasCount(2, lines);
+            Assert.AreEqual((PortalType.TsEndClosed, true), (lines[0].PortalType, lines[0].IsDisabled));
+            Assert.AreEqual((PortalType.TsEnd, false), (lines[1].PortalType, lines[1].IsDisabled));
         }
 
         [TestMethod]

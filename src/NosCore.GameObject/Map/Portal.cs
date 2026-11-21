@@ -27,5 +27,14 @@ namespace NosCore.GameObject.Map
                 IsDisabled = IsDisabled
             };
         }
+
+        // The client draws a portal again on each gp line without taking the previous drawing down, so a portal that
+        // changes state is taken off first.
+        public GpPacket GenerateRemovalGp()
+        {
+            var gp = GenerateGp();
+            gp.IsDisabled = true;
+            return gp;
+        }
     }
 }
