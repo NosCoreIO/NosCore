@@ -218,6 +218,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         {
             CollectionAssert.AreEquivalent(Added, Inventory.Values.Select(i => i.ItemInstanceId).ToList());
             Assert.AreEqual(Added.Count, Inventory.Values.Select(i => i.ItemInstanceId).Distinct().Count());
+            Assert.AreEqual(Added.Count, Inventory.Values.Select(i => (i.Type, i.Slot)).Distinct().Count(), "no two items share a slot");
         }
 
         private void _ShouldRead_(NoscorePocketType pocket, string expected)
