@@ -53,12 +53,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var released = monsters[random.Next(0, monsters.Count)];
             await session.SendPacketAsync(inventoryItem.GeneratePocketChange(inventoryItem.Type.ToPocketType(), inventoryItem.Slot));
-            await character.OnMapAsync(async () =>
-            {
-                var map = character.MapInstance;
-                var monster = map.SpawnMonster(released, character.PositionX, character.PositionY, true, released.IsHostile);
-                await map.SendPacketAsync(monster.GenerateIn());
-            });
+            var map = character.MapInstance;
+            var monster = map.SpawnMonster(released, character.PositionX, character.PositionY, true, released.IsHostile);
+            await map.SendPacketAsync(monster.GenerateIn());
         }
     }
 }

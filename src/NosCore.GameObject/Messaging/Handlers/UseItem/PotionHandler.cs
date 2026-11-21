@@ -46,42 +46,32 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             var itemInstance = evt.InventoryItem;
-            InventoryItemInstance? left = null;
             var refilledMates = new List<Services.MateService.Mate>();
-            var drunk = await session.Character.OnMapAsync(() =>
-            {
-                var character = session.Character;
-                var restoresHp = (item.Hp > 0 || item.RestoresAllHp) && character.Hp < character.MaxHp;
-                var restoresMp = (item.Mp > 0 || item.RestoresAllMp) && character.Mp < character.MaxMp;
-                if (!character.IsAlive || (!restoresHp && !restoresMp) || !potionCooldown.IsReady(character))
-                {
-                    return Task.FromResult(false);
-                }
-
-                potionCooldown.Start(character);
-                left = character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-                character.Hp = item.RestoresAllHp ? character.MaxHp : Math.Min(character.MaxHp, character.Hp + recoveryBonus.Boost(character, item.Hp));
-                character.Mp = item.RestoresAllMp ? character.MaxMp : Math.Min(character.MaxMp, character.Mp + recoveryBonus.Boost(character, item.Mp));
-                if (fullRestore)
-                {
-                    foreach (var mate in character.Mates.Values.Where(m => m.IsTeamMember))
-                    {
-                        if (mate.Entity is not { Hp: > 0 } entity)
-                        {
-                            continue;
-                        }
-
-                        entity.Hp = item.RestoresAllHp ? entity.MaxHp : entity.Hp;
-                        entity.Mp = item.RestoresAllMp ? entity.MaxMp : entity.Mp;
-                        refilledMates.Add(mate);
-                    }
-                }
-
-                return Task.FromResult(true);
-            });
-            if (!drunk)
+            var character = session.Character;
+            var restoresHp = (item.Hp > 0 || item.RestoresAllHp) && character.Hp < character.MaxHp;
+            var restoresMp = (item.Mp > 0 || item.RestoresAllMp) && character.Mp < character.MaxMp;
+            if (!character.IsAlive || (!restoresHp && !restoresMp) || !potionCooldown.IsReady(character))
             {
                 return;
+            }
+
+            potionCooldown.Start(character);
+            var left = character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+            character.Hp = item.RestoresAllHp ? character.MaxHp : Math.Min(character.MaxHp, character.Hp + recoveryBonus.Boost(character, item.Hp));
+            character.Mp = item.RestoresAllMp ? character.MaxMp : Math.Min(character.MaxMp, character.Mp + recoveryBonus.Boost(character, item.Mp));
+            if (fullRestore)
+            {
+                foreach (var mate in character.Mates.Values.Where(m => m.IsTeamMember))
+                {
+                    if (mate.Entity is not { Hp: > 0 } entity)
+                    {
+                        continue;
+                    }
+
+                    entity.Hp = item.RestoresAllHp ? entity.MaxHp : entity.Hp;
+                    entity.Mp = item.RestoresAllMp ? entity.MaxMp : entity.Mp;
+                    refilledMates.Add(mate);
+                }
             }
 
             await session.SendPacketAsync(left.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));

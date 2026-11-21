@@ -57,13 +57,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             if (evt.Victim.VisualType != VisualType.Player) return;
             if (evt.Victim is not PlayerComponentBundle player) return;
 
-            await player.OnMapAsync(() =>
-            {
-                player.IsAlive = false;
-                player.Hp = 0;
-                player.Mp = 0;
-                return Task.CompletedTask;
-            });
+            player.IsAlive = false;
+            player.Hp = 0;
+            player.Mp = 0;
 
             if (player.MapInstance?.MapInstanceType == MapInstanceType.InstantCombatInstance)
             {
