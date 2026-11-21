@@ -16,6 +16,7 @@
 | LevelMin | Byte |  |  |
 | NextQuestId | Nullable`1 |  |  |
 | OfferedBy | Nullable`1 |  |  |
+| OfferOption | Nullable`1 |  |  |
 | QuestId | Int16 |  |  |
 | QuestObjective | ICollection`1 |  |  |
 | QuestQuestReward | ICollection`1 |  |  |
