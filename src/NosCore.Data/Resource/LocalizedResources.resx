@@ -576,6 +576,12 @@
   <data name="NPCTALKS_PARSED" xml:space="preserve">
     <value>{0} NPC Talks Parsed!</value>
   </data>
+  <data name="NPC_TALK_BUTTONS_PARSED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons Parsed!</value>
+  </data>
+  <data name="NPC_TALK_BUTTONS_LOADED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons loaded.</value>
+  </data>
   <data name="WALK_CHECKSUM_INVALID" xml:space="preserve">
     <value>Invalid walk checksum.</value>
   </data>
@@ -758,6 +764,9 @@
   </data>
   <data name="SCRIPTED_INSTANCE_TICK_FAILED" xml:space="preserve">
     <value>The tick of {Instance} failed</value>
+  </data>
+  <data name="TIME_SPACE_CLEAR_REWARD_FAILED" xml:space="preserve">
+    <value>The clear reward of {Instance} failed for character {CharacterId}</value>
   </data>
   <data name="QUEST_EXPERIENCE_WITHOUT_MONSTER" xml:space="preserve">
     <value>Quest {QuestId} pays experience per monster but hunts none</value>

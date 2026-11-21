@@ -10,7 +10,6 @@ using Moq;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Packets.ServerPackets.Player;
 using NodaTime;
-using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging;
@@ -23,7 +22,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking.SessionGroup;
-using NosCore.Packets.ClientPackets.Instance;
+using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -65,6 +64,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _instances = World.Freeze<Mock<IScriptedInstanceService>>();
             _mapChange = new Mock<IMapChangeService>();
             _bus = new Mock<IGameEventDispatcher>();
+            World.Inject(new Lazy<IMapChangeService>(_mapChange.Object));
+            World.Inject(_bus.Object);
         }
 
         [TestMethod]
@@ -232,8 +233,19 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
                 .AndAsync(TheRunHasStarted)
                 .WhenAsync(TheClockRunsOut)
-                .Then(TheScoreShouldBeEmpty)
+                .Then(TheFailedScoreShouldShow_, EndStateType.Timeout)
                 .And(EachPlayerShouldHave_FailedAttempt, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARunOutOfLivesScoresNothingAndShowsTheLivesAreSpent()
+        {
+            await new Spec("When the last life is used the score is all zeros and names the lives as spent")
+                .GivenAsync(ATimeSpaceWith_Lives, (byte)1)
+                .AndAsync(TheRunHasStarted)
+                .WhenAsync(ThePlayerDies)
+                .Then(TheFailedScoreShouldShow_, EndStateType.LivesExhausted)
                 .ExecuteAsync();
         }
 
@@ -385,9 +397,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             room.Sessions = _roomSessions.Object;
             var script = new Script(lives);
             _run = new ScriptedInstanceRun(
-                new TimeSpaceRunHost(
-                    new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script },
-                    new Lazy<IMapChangeService>(_mapChange.Object), _bus.Object, World.Create<TimeSpacePenaltyService>()),
+                World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script }),
                 script,
                 new Dictionary<int, MapInstance> { [1] = room },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog([]),
@@ -490,10 +500,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             return World.Create<TimeSpaceFailedHandler>().Handle(new TimeSpaceFailedEvent(_session.Character, 1));
         }
 
-        private void TheScoreShouldBeEmpty()
+        private void TheFailedScoreShouldShow_(EndStateType state)
         {
             var broadcast = _roomSessions.Invocations.SelectMany(call => call.Arguments.OfType<IPacket[]>()).SelectMany(packets => packets);
-            PacketAssert.AreEqual(new ScorePacket { EndState = EndStateType.Timeout }, broadcast.OfType<ScorePacket>().Single());
+            PacketAssert.AreEqual(new ScoreFailedPacket { EndState = state }, broadcast.OfType<ScoreFailedPacket>().Single());
         }
 
         private void EachPlayerShouldHave_FailedAttempt(int count)

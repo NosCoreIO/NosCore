@@ -15,9 +15,11 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
@@ -26,6 +28,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     public class DialogQuestOfferHandlerTests
     {
         private const NrunRunnerType Engineer = NrunRunnerType.GetDailyQuestAkamurMerchantMilitaryEngineerEliminateMonsters;
+        private const short EngineerDialog = 300;
+        private const short EngineerQuestDialog = 301;
+        private const short DiggerDialog = 9700;
+        private const short FoxHuntDialog = 9701;
+        private const short FroxDialog = 9702;
+        private const short OtherDialog = 1;
 
         private TestWorld World;
         private ClientSession Session;
@@ -38,6 +46,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             new() { QuestId = 5906, IsDaily = true, LevelMin = 85, LevelMax = 99, OfferedBy = Engineer },
             new() { QuestId = 5514, IsDaily = true, LevelMin = 81, LevelMax = 99,
                 OfferedBy = NrunRunnerType.GetDailyQuestSerizardIceFlowerOil },
+            new() { QuestId = 6036, LevelMin = 20, LevelMax = 99, OfferedBy = NrunRunnerType.GetQuestGingsengDagger },
+            new() { QuestId = 6004, LevelMin = 20, LevelMax = 99, OfferedBy = NrunRunnerType.GetQuestFoxHunt },
+            new() { QuestId = 7724, IsDaily = true, LevelMin = 65, LevelMax = 99, RequiredQuestId = 7163,
+                OfferedBy = NrunRunnerType.GetDailyQuestReturnOfTheMelonLord },
         ];
 
         [TestInitialize]
@@ -49,11 +61,29 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             Random = World.Freeze<Mock<IRandomProvider>>();
             Random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns((int min, int max) => max - 1);
             World.Inject(Quests);
+            World.Inject(new List<NpcTalkButtonDto>
+            {
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = EngineerDialog, NextDialogId = EngineerQuestDialog },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = EngineerQuestDialog, Runner = Engineer },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = DiggerDialog, Runner = NrunRunnerType.GetQuestGingsengDagger },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = FoxHuntDialog, Runner = NrunRunnerType.GetQuestFoxHunt },
+                new() { NpcTalkButtonId = Guid.NewGuid(), DialogId = FroxDialog, Runner = NrunRunnerType.GetDailyQuestReturnOfTheMelonLord },
+            });
+            World.UseReal<INpcTalkButtonCatalog, NpcTalkButtonCatalog>();
             Session.Character.Level = 90;
         }
 
-        private Task AskAsync() => World.Create<BurningSwordMonstersDailyQuestHandler>()
-            .HandleAsync(Session, null, new NrunPacket { Runner = Engineer });
+        private NpcComponentBundle NpcWithDialog(int npcId, short dialog)
+        {
+            var map = World.GetBaseMap(TestWorld.TestMapId);
+            return new NpcComponentBundle(map.EcsWorld.CreateNpc(npcId, new NpcMonsterDto { NpcMonsterVNum = 1, MaxHp = 10 }, map,
+                1, 1, 0, 1, 1, false, false, dialog, 0, 0, null), map.EcsWorld);
+        }
+
+        private Task AskAsync() => AskAsync(NpcWithDialog(1, EngineerDialog));
+
+        private Task AskAsync(NpcComponentBundle npc) => World.Create<BurningSwordMonstersDailyQuestHandler>()
+            .HandleAsync(Session, npc, new NrunPacket { Runner = Engineer, VisualType = VisualType.Npc, VisualId = npc.VisualId });
 
         private void Holds(short questId, Instant? completedOn) =>
             Session.Character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
@@ -115,6 +145,66 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await AskAsync();
 
             Offered(5906);
+        }
+
+        [TestMethod]
+        public async Task AStoryButtonHandsOutItsOneQuest()
+        {
+            await World.Create<GinsengDiggerQuestHandler>()
+                .HandleAsync(Session, NpcWithDialog(2, DiggerDialog), new NrunPacket { Runner = NrunRunnerType.GetQuestGingsengDagger });
+
+            Offered(6036);
+        }
+
+        [TestMethod]
+        public async Task AnNpcWhoseDialogDoesNotOfferTheButtonHandsOutNothing()
+        {
+            await World.Create<GinsengDiggerQuestHandler>()
+                .HandleAsync(Session, NpcWithDialog(3, OtherDialog), new NrunPacket { Runner = NrunRunnerType.GetQuestGingsengDagger });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AnotherNpcsDailyButtonHandsOutNothing()
+        {
+            await AskAsync(NpcWithDialog(4, DiggerDialog));
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AnAcceptButtonSentWithoutArgumentHandsOutItsQuest()
+        {
+            await World.Create<FoxHuntQuestHandler>()
+                .HandleAsync(Session, NpcWithDialog(5, FoxHuntDialog), new NrunPacket { Runner = NrunRunnerType.GetQuestFoxHunt, Type = 0 });
+
+            Offered(6004);
+        }
+
+        [TestMethod]
+        public async Task ADailyQuestWaitsForTheQuestBeforeIt()
+        {
+            await World.Create<ReturnOfTheMelonLordDailyQuestHandler>()
+                .HandleAsync(Session, NpcWithDialog(6, FroxDialog), new NrunPacket { Runner = NrunRunnerType.GetDailyQuestReturnOfTheMelonLord });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task ADailyQuestIsHandedOutOnceTheQuestBeforeItIsDone()
+        {
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
+            {
+                QuestId = 7163,
+                CompletedOn = World.Clock.GetCurrentInstant() - Duration.FromDays(3),
+                Quest = new GameObject.Services.QuestService.Quest { QuestId = 7163, QuestObjectives = [] },
+            });
+
+            await World.Create<ReturnOfTheMelonLordDailyQuestHandler>()
+                .HandleAsync(Session, NpcWithDialog(6, FroxDialog), new NrunPacket { Runner = NrunRunnerType.GetDailyQuestReturnOfTheMelonLord });
+
+            Offered(7724);
         }
 
         [TestMethod]

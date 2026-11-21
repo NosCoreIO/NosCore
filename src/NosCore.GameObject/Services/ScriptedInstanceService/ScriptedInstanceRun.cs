@@ -66,7 +66,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly IGameLanguageLocalizer _gameLanguage;
 
-        private readonly SemaphoreSlim _gate = new(1, 1);
+        private static readonly AsyncLocal<ScriptedInstanceRun?> Running = new();
+        private readonly Lock _queueLock = new();
+        private Task _queue = Task.CompletedTask;
         private readonly List<Func<Task>> _pending = [];
         private readonly Dictionary<int, short> _lockers = [];
         private readonly Dictionary<int, short> _lockerVNums = [];
@@ -85,6 +87,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
         private readonly Dictionary<int, long> _newestArrival = [];
         private readonly List<(MapInstance Room, int NpcId)> _escorts = [];
+        private readonly ConcurrentDictionary<(Guid Room, long NpcId), byte> _livingNpcs = new();
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
         private int _nextPortalId;
@@ -148,6 +151,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public int MonstersKilled { get; private set; }
 
         public int NpcsSummoned { get; private set; }
+
+        public int NpcsLost { get; private set; }
 
         // Each kill scores; a run of bonus kills scores more the longer it lasts.
         public int Points { get; private set; }
@@ -592,6 +597,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         npc.IsEscort = true;
                         _escorts.Add((mapInstance, (int)npc.VisualId));
                     }
+                    else
+                    {
+                        _livingNpcs.TryAdd((mapInstance.MapInstanceId, npc.VisualId), 0);
+                    }
 
                     return mapInstance.SendPacketAsync(npc.GenerateIn());
                 }));
@@ -676,6 +685,19 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
         }
 
+        public Task NpcFellAsync(Guid mapInstanceId, long npcId)
+        {
+            return RunAsync(() =>
+            {
+                if (_livingNpcs.TryRemove((mapInstanceId, npcId), out _))
+                {
+                    NpcsLost++;
+                }
+
+                return Task.CompletedTask;
+            });
+        }
+
         public void Hunt(int room, short vNum)
         {
             if (_npcMonsters.GetNpcMonster(vNum) is not { } npcMonster)
@@ -684,6 +706,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
+            MonstersSummoned++;
             var mapInstance = _rooms[room];
             var preyId = _newestArrival.TryGetValue(room, out var characterId) ? characterId : (long?)null;
             _pending.Add(() => OnRoom(mapInstance, () =>
@@ -1021,6 +1044,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         // Loser Mode runs on a longer clock, and the time a script adds or takes scales with it.
         public int ClockScale { get; set; } = 1;
+
+        public bool IsLoserMode { get; set; }
 
         public void StartClock(TimeSpan limit)
         {
@@ -1497,36 +1522,72 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Task OnRoom(MapInstance room, Func<Task> action) =>
             room.Executor.RunAsync(() => _abandoned ? Task.CompletedTask : action());
 
-        // Triggers and the work they ask for run one at a time and in order. The work is
-        // carried out once the script has returned, so a script never sees the run half-applied.
-        private async Task RunAsync(Func<Task> trigger)
+        // Triggers and the work they ask for run one at a time, in the order they were raised. The work
+        // is carried out once the script has returned, so a script never sees the run half-applied.
+        private Task RunAsync(Func<Task> trigger)
         {
-            await _gate.WaitAsync();
-            try
+            if (Running.Value != this)
             {
-                try
+                if (!MapExecutor.IsInsideAny)
                 {
-                    await trigger();
-                }
-                catch (ScriptAbandonedException)
-                {
-                    _pending.Clear();
-                    Abandon();
-                }
-                catch (Exception exception)
-                {
-                    _pending.Clear();
-                    _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_FAILED], Name);
-                    NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
-                    return;
+                    return Enqueue(trigger);
                 }
 
-                await ApplyPendingAsync();
+                // A packet handler gives its map back while it waits for its trigger's turn.
+                if (MapExecutor.CanStepAway)
+                {
+                    return MapExecutor.StepAwayAsync(() => Enqueue(trigger));
+                }
             }
-            finally
+
+            // Work on a map's executor, or one of this run's own triggers, may be what a trigger ahead in
+            // the queue is waiting for, so it queues the trigger without waiting for it or lending it its hold.
+            if (!ExecutionContext.IsFlowSuppressed())
             {
-                _gate.Release();
+                using (ExecutionContext.SuppressFlow())
+                {
+                    Enqueue(trigger);
+                }
             }
+            else
+            {
+                Enqueue(trigger);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task Enqueue(Func<Task> trigger)
+        {
+            lock (_queueLock)
+            {
+                _queue = _queue.ContinueWith(_ => RunTriggerAsync(trigger), CancellationToken.None,
+                    TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+                return _queue;
+            }
+        }
+
+        private async Task RunTriggerAsync(Func<Task> trigger)
+        {
+            Running.Value = this;
+            try
+            {
+                await trigger();
+            }
+            catch (ScriptAbandonedException)
+            {
+                _pending.Clear();
+                Abandon();
+            }
+            catch (Exception exception)
+            {
+                _pending.Clear();
+                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_FAILED], Name);
+                NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "scripted_instance"));
+                return;
+            }
+
+            await ApplyPendingAsync();
         }
 
         private async Task ApplyPendingAsync()

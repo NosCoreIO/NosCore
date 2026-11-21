@@ -109,13 +109,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 character.JobLevel = 25;
             }
 
-            // Level 10 still earns the low-level boost of twice the experience.
+            // Level 10 earns the low-level boost: twice the experience and three times the job experience.
             await _service.DistributeAsync(_monster, _first.Character, Damage(30, 70));
 
             _experience.Verify(e => e.AddExperienceAsync(
-                It.Is<PlayerComponentBundle>(p => p.VisualId == firstId), 600, 30, 0, 0, It.IsAny<int>()), Times.Once);
+                It.Is<PlayerComponentBundle>(p => p.VisualId == firstId), 600, 90, 0, 0, It.IsAny<int>()), Times.Once);
             _experience.Verify(e => e.AddExperienceAsync(
-                It.Is<PlayerComponentBundle>(p => p.VisualId == secondId), 1400, 70, 0, 0, It.IsAny<int>()), Times.Once);
+                It.Is<PlayerComponentBundle>(p => p.VisualId == secondId), 1400, 210, 0, 0, It.IsAny<int>()), Times.Once);
         }
 
         [TestMethod]

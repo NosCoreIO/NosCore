@@ -159,6 +159,7 @@ namespace NosCore.Tests.Shared
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
             Fixture.UseReal<GameObject.Services.BoxService.IBoxRollService, GameObject.Services.BoxService.BoxRollService>();
+            Fixture.UseReal<GameObject.Services.ExperienceService.IExperienceBonusService, GameObject.Services.ExperienceService.ExperienceBonusService>();
             Fixture.UseReal<INpcDialogService, NpcDialogService>();
             Fixture.UseReal<GameObject.Services.CharacterService.ICharacterLoadService, GameObject.Services.CharacterService.CharacterLoadService>();
             Fixture.UseReal<GameObject.Services.MateService.IPartnerSkillCatalog, GameObject.Services.MateService.PartnerSkillCatalog>();
@@ -319,6 +320,13 @@ namespace NosCore.Tests.Shared
         public IItemGenerationService GenerateItemProvider() => Create<ItemGenerationService>();
 
         public NpcDialogService NpcDialogService => Create<NpcDialogService>();
+
+        public GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost CreateTimeSpaceRunHost(
+            GameObject.Services.ScriptedInstanceService.ScriptedInstance entrance)
+        {
+            Inject(entrance);
+            return Create<GameObject.Services.ScriptedInstanceService.TimeSpaceRunHost>();
+        }
 
         public const byte UpgraderShopType = 3;
 

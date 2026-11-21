@@ -42,6 +42,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
@@ -370,6 +371,10 @@ public static class PlayerBundleExtensions
     {
         return new GoldPacket { Gold = player.Gold };
     }
+
+    public static bool HasDoneRequiredQuest(this PlayerComponentBundle player, QuestDto quest) =>
+        quest.RequiredQuestId is not { } required
+        || player.Quests.Values.Any(q => q.QuestId == required && q.CompletedOn != null);
 
     public static bool HasBankVip(this PlayerComponentBundle player) =>
         player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.CuarryBankVip);

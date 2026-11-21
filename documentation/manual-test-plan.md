@@ -42,6 +42,8 @@ even when its packets are covered here.
 | NPC shops: buying and its refusals, a full bag, selling, what cannot be sold, reputation prices | `NpcShopTests` |
 | Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
 | Specialist skins: the skin used up, the look another player sees on transforming, the skin kept after relogging | `SpecialistSkinTests` |
+| Score quests: a band's button hands out its quest, a band above the character's level is refused, the button sent to an NPC whose dialog has none is refused | `ScoreQuestTests` |
+| Dialog buttons naming their quest: the Merling's Curse button hands out the quest it names | `NamedQuestButtonTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
@@ -835,8 +837,10 @@ cooldown once.
 
 - [ ] At level 5 and job level 5, kill a Baby Dander (60 XP, 120 job XP): `lev` shows 180
       XP and 360 job XP, three times the monster's values
-- [ ] At level 15, the kill gives twice the experience; at level 20 and job level 21, the
-      plain amount
+- [ ] At level 15 and job level 25, the kill gives twice the experience and twice the job
+      experience: the job experience boost follows the character's level, not its job level
+- [ ] At level 19 and job level 3, the kill gives the plain experience and twice the job
+      experience; at level 21, the plain amount of both
 - [ ] In a group of two at the same level, each member gets 75 % of the kill; in a group of
       three, 70 %
 
@@ -2436,6 +2440,50 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 - [ ] Fortune-Teller Nuki's Accept Quest (level 60+) and Malcolm Mix's daily (level 20+) hand out one
       of their quests the same way.
 
+### Quests from NPC dialog buttons
+
+- [ ] Open the High Scores NPC's dialog, pick Low-level Score Quest and then "Level 1 - 10 Score Quest"
+      at level 1 to 10: "Challenge it! Time-Space Stone Score!" (quest 900) appears in the quest window.
+- [ ] Pick a band above your level: "Your level is too low"; one below it: "Your level is too high".
+      Nothing is added.
+- [ ] Pick the same band again after taking it: nothing new is handed out.
+- [ ] Run the parser again first, so the dialog buttons are stored. Then open the dialog of an NPC that
+      offers no score quest (a shopkeeper next to you) and send `n_run 3002 0` naming that NPC, and
+      `n_run 201` naming it too: no quest is handed out, and the world log shows nothing at error level.
+- [ ] Open Raphael's dialog and send `n_run 3006 <id>` with a quest id that none of his buttons names:
+      nothing is handed out.
+- [ ] Not verifiable yet: completing a score quest. Nothing records a time-space score against the
+      quest's required score, so a taken score quest stays open until it is given up.
+- [ ] At level 55+, Soraya Style's "Remove Princess Sakura's Seal!": "Use Princess Sakura's Seal!" is
+      handed out. At level 45+, the Jajamaru miner's "Accept Jajamaru Quest" hands out the Jajamaru Quest.
+- [ ] Raphael's "Ginseng Digger" (level 20+), Crusader Graham's "Sure, I'll help." in NosVille
+      (level 85+), Amora's "I'm on it. I'll be back soon." (level 70+), Santa Claus's "Okay, I'll
+      destroy those fiends." and Eva Energy's "Just a moment..." each put their one quest in the quest
+      window: Ginseng Digger, Suspicious Person, Amora's Story, "Defeat the winter monsters." and
+      "Gathering Ingredients for the Cake (Easter Event)". Pressing the button again after taking it adds
+      nothing.
+- [ ] At level 20+, Flake the Snow Fairy's "(I'm going to try to talk to her.)" hands out nothing: The
+      Viking Family (quest 5970) follows quest 5969 in quest.dat, and quest.dat holds no quest 5969, so
+      no character can have done it.
+- [ ] At level 80+, Fisherman Wade's "Greetings. Is there a problem?", the Talking Mouse's "What
+      powers?", Pet Trainer Lucy's "Oh, and what brings you here? (Accept)" and Soraya Style's "A
+      Special Energy" hand out The Merling's Curse, The Talking Mouse, A Curious Rabbit and A Special
+      Energy.
+- [ ] At level 20+, Mr Park's First Son's "Okay, I'll bring you some." and "Yes, I'll vanquish that
+      nine-tailed fox creature.", and Mr Park's Second Son's "Okay, I'll hunt them down." hand out Fresh
+      Liver Please!, Foxy's Verdict and Fox Hunt. Each is given once.
+- [ ] At level 20+, Eva Energy's Daily Quest "Alright! I'll return when I've defeated the snowman!"
+      hands out "Daily Quest (Eva Energy)"; once it is done, pressing it again the same day shows the
+      once-per-day message and adds nothing, and the next day hands it out again.
+- [ ] At level 65+, Doctor Frox's two daily quest buttons do nothing until "Defeat Lord Melonoth (Event
+      Quest)" has handed out and you have finished Revenge of the Melon Lord. After that, "All right.
+      I'll take care of it. (Accept)" hands out Lab on Alert or Return of the Melon Lord, once a day each.
+- [ ] Professor Macavity's "Nothing is free. *purr*" (level 30+), Soraya Style's Easter "Okay, great!"
+      (level 20+), Merchant Ben's "Cause for the Arrival (Main Quest Act 7)" (level 80+), Amora's "Yes,
+      of course." on her Valentine's Day page (level 70+) and Mary's "Of course I'll stop the ritual!"
+      (level 20+) hand out The Path to the Lost Catacombs, Not Enough Ingredients! (Easter Event), Cause
+      for the Arrival, Let Your Love Show! and The Cursed 13.
+
 ### Forming a party
 
 - [ ] A invites B and B confirms: both see the other in the party panel and "In party" under
@@ -3373,7 +3421,8 @@ dropping their `MaxHp` makes the run quick.
       first room?". Yes moves you to the second room, where a single Weak Devil Vampire waits, and
       the clock appears at ten minutes and starts counting down
 - [ ] Killing it shows Mission Clear with the monsters killed, the rooms explored and
-      the "Perfect" stamp when every summoned monster died
+      the "Perfect" stamp on the monsters when every summoned monster died (the full list is
+      under "Time-space score")
 - [ ] At the same moment the banner at the top reads "[1 Level ] Time-Space Stone complete",
       with the stone's minimum level and no raw placeholder
 - [ ] About ten seconds later you are back beside the stone on the open world, and the clock
@@ -3385,8 +3434,8 @@ dropping their `MaxHp` makes the run quick.
       be attempted in Loser Mode.", and its stone window now offers Loser Mode. Clear it once and
       the offer is gone. Log out and back in after two failures instead: the offer is gone too
 - [ ] Fail it a third and a fourth time: the same line says 3, then 4, and the offer stays
-- [ ] Not verifiable yet: what a Loser Mode run changes besides its doubled clock (score, rewards,
-      monsters). No packet trace shows a run entered through the Loser Mode button
+- [ ] Not verifiable yet: what a Loser Mode run changes besides its doubled clock and its score
+      (rewards, monsters). Only the score line of a Loser Mode clear has been traced
 - [ ] Log out inside a room and log back in: you appear on the open-world map you entered
       from, not in a room, and the world log shows the run's rooms being removed and no
       failed disconnect step
@@ -3577,8 +3626,45 @@ the way, then again with a level 60 character.
 - [ ] Let the clock run out with the level 10 character: no penalty line appears
 - [ ] In a party of a level 1 and a level 10 character, only the level 10 one sees the line and
       the reduced points
-- [ ] Not verifiable yet: which total the client shows as the reduced points. The score packet's
-      fields do not match the client yet (#3468)
+- [ ] The points on the score window are the reduced ones, before the client adds its own bonuses
+
+### Time-space score
+
+Run `timespace-01` ("The Time-Space", level 5, seven rooms, two draw items, guards 320 in rooms 3
+and 4) with a level 5 character that has never cleared it.
+
+- [ ] Clear it killing every monster, walking into all seven rooms and keeping both guards alive:
+      Mission Clear shows the points, 15 experience per monster killed (3 × the minimum level 5)
+      and the kills × 21 / 4 rounded down as job experience, 0 gold, the monsters killed, 7 rooms,
+      2 NPCs left, and a "Perfect" stamp on monsters, rooms and NPCs. The reward draw offers two
+      draws
+- [ ] Right after the window opens, `lev` grows by three times the window's experience and three
+      times its job experience: the low-level boost of a level 5 character, at a rate of 1 and with
+      no experience bonus
+- [ ] Clear it again at level 15 with Tart Hapendam's Martial Arts (buff 684, "increases
+      experience points earned by 100%") active: the window shows the same values for the same
+      kills, and `lev` grows by four times both (twice for the level, twice for the buff)
+- [ ] Remove buff 684 and every other experience bonus (gear, medal, other buffs), then clear it
+      at level 60: the window shows 0 points but the full experience and job experience, and `lev`
+      grows by exactly those values
+- [ ] Let the clock run out: `lev` does not move
+- [ ] Lure monsters onto a guard until it dies, then clear the run: the window shows 1 NPC left
+      and no "Perfect" stamp on the NPCs. If the monsters never attack the guard, note that this
+      check could not be run
+- [ ] Skip a room or leave a monster alive: that category has no "Perfect" stamp
+- [ ] Clear it a second time and compare the window with the first clear's: the server now marks
+      the run as cleared before, so note what the client shows differently
+- [ ] Fail it twice, enter through the Loser Mode button and clear it: the window shows no draw
+      and the run is marked as a Loser Mode clear
+- [ ] In a party where only one member has cleared it before, each member's window reflects their
+      own clear and their own level penalty
+- [ ] Let the clock run out: the failure window opens ("Failed because time ran out.") and the
+      server sent `score 1`. Lose the last life instead: the failure window opens for that end too,
+      from `score 3`
+- [ ] Do the same in `timespace-sample`: running out of time sends `score 1`, not `score 2`
+- [ ] Not verifiable yet: the last field of the score line. Every traced run of a level 76 or 98
+      character carries 15 and every one of a level 6 to 20 character carries 1; NosCore sends 1 up
+      to level 20 and 15 above. Where it changes between 21 and 75 is not known
 
 ### Raids
 

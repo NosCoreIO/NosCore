@@ -522,6 +522,12 @@
   <data name="SCRIPT_OFFERS_LOADED" xml:space="preserve">
     <value>{0} ScriptOffers Loaded!</value>
   </data>
+  <data name="NPC_TALK_BUTTONS_PARSED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons Parsed!</value>
+  </data>
+  <data name="NPC_TALK_BUTTONS_LOADED" xml:space="preserve">
+    <value>{0} NPC Talk Buttons loaded.</value>
+  </data>
   <data name="CHATTER_LINES_PARSED" xml:space="preserve">
     <value>{0} ChatterLines Parsed!</value>
   </data>

@@ -192,6 +192,54 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)5936, NrunRunnerType.GetDailyQuestChristmasEvaEnergyHugeSnowman)]
+        [DataRow((short)6002, NrunRunnerType.GetQuestFreshLiverPlease)]
+        [DataRow((short)6003, NrunRunnerType.GetQuestFoxysVerdict)]
+        [DataRow((short)6004, NrunRunnerType.GetQuestFoxHunt)]
+        [DataRow((short)7163, NrunRunnerType.GetQuestDefeatLordMelonoth)]
+        [DataRow((short)7724, NrunRunnerType.GetDailyQuestReturnOfTheMelonLord)]
+        [DataRow((short)7725, NrunRunnerType.GetDailyQuestLabOnAlert)]
+        [DataRow((short)7547, NrunRunnerType.GetQuestThePathToTheLostCatacombs)]
+        [DataRow((short)7551, NrunRunnerType.GetQuestEasterNotEnoughIngredients)]
+        [DataRow((short)6500, NrunRunnerType.GetQuestCauseForTheArrival)]
+        [DataRow((short)6360, NrunRunnerType.GetQuestAmoraValentinesDay)]
+        [DataRow((short)6369, NrunRunnerType.GetQuestTheCursed13)]
+        public async Task QuestParser_AStoryOrEventQuestKnowsTheButtonThatAcceptsIt(short questId, NrunRunnerType button)
+        {
+            CreateTestFile(CreateQuestData(questId: questId, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(button, _savedQuests.Single().OfferedBy);
+            Assert.IsNull(_savedQuests.Single().OfferOption);
+        }
+
+        [TestMethod]
+        public async Task QuestParser_AScoreQuestKnowsTheButtonOfItsLevelRange()
+        {
+            CreateTestFile(CreateQuestData(questId: 903, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(NrunRunnerType.GetQuestHigherTimeSpaceScore, _savedQuests.Single().OfferedBy);
+            Assert.AreEqual((short)3, _savedQuests.Single().OfferOption);
+        }
+
+        [TestMethod]
+        public async Task QuestParser_AQuestOfAButtonWithoutArgumentHasNoOption()
+        {
+            CreateTestFile(CreateQuestData(questId: 6036, questLineId: -1));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(NrunRunnerType.GetQuestGingsengDagger, _savedQuests.Single().OfferedBy);
+            Assert.IsNull(_savedQuests.Single().OfferOption);
+        }
+
+        [TestMethod]
         public async Task QuestParser_AQuestNoDialogButtonHandsOutHasNoButton()
         {
             CreateTestFile(CreateQuestData(questId: 100, questLineId: -1));
