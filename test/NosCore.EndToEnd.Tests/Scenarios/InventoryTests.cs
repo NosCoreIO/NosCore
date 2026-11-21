@@ -423,6 +423,32 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task PuttingOnGearAnswersInTheGameOrderWithoutAnEffect()
+        {
+            var player = await Harness.AddPlayerAsync("Alice");
+            await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.Blade, Amount = 1, Rare = 5, Upgrade = 7 },
+                NoscorePocketType.Equipment);
+            await using var alice = await EnterAsync(player);
+            var worn = alice.Mark();
+
+            await alice.SendAsync(new WearPacket { InventorySlot = 0, PartnerSlot = 0 });
+
+            await alice.ExpectSinceAsync<EqPacket>(worn, p => p.VisualId == alice.CharacterId, "Alice's look");
+            var answer = alice.Since(worn)
+                .Where(p => p is CondPacket or PairyPacket or ScPacket or EquipPacket or IvnPacket or EqPacket)
+                .Select(p => p.GetType())
+                .ToList();
+            CollectionAssert.AreEqual(new[]
+            {
+                typeof(CondPacket), typeof(PairyPacket), typeof(ScPacket), typeof(CondPacket),
+                typeof(EquipPacket), typeof(IvnPacket), typeof(EqPacket),
+            }, answer);
+            PacketAssert.AreEqual(new PairyPacket { VisualType = VisualType.Player, VisualId = alice.CharacterId },
+                alice.Since<PairyPacket>(worn).Single());
+            Assert.IsTrue(await alice.NoneSinceAsync<EffectPacket>(worn, null, TimeSpan.FromSeconds(1)), "no effect plays on the wearer");
+        }
+
+        [TestMethod]
         public async Task AWeaponTakenOffGoesBackToTheBagAndBystandersSeeTheEmptyHand()
         {
             var player = await Harness.AddPlayerAsync("Alice");
