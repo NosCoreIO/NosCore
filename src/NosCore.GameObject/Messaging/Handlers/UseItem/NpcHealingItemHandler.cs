@@ -32,33 +32,29 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var healed = await character.OnMapAsync(() =>
+            var restored = new List<(NpcComponentBundle Npc, int Hp)>();
+            foreach (var npc in map.EnumerateNpcs())
             {
-                var restored = new List<(NpcComponentBundle Npc, int Hp)>();
-                foreach (var npc in map.EnumerateNpcs())
+                if (Math.Abs(npc.PositionX - character.PositionX) > item.HealsNpcsWithin
+                    || Math.Abs(npc.PositionY - character.PositionY) > item.HealsNpcsWithin)
                 {
-                    if (Math.Abs(npc.PositionX - character.PositionX) > item.HealsNpcsWithin
-                        || Math.Abs(npc.PositionY - character.PositionY) > item.HealsNpcsWithin)
-                    {
-                        continue;
-                    }
-
-                    var hp = npc.RestoreHp(item.EffectValue);
-                    if (hp > 0)
-                    {
-                        restored.Add((npc, hp));
-                    }
+                    continue;
                 }
 
-                return Task.FromResult(restored);
-            });
-            if (healed.Count == 0)
+                var hp = npc.RestoreHp(item.EffectValue);
+                if (hp > 0)
+                {
+                    restored.Add((npc, hp));
+                }
+            }
+
+            if (restored.Count == 0)
             {
                 return;
             }
 
             await character.UseUpOneAsync(evt.InventoryItem);
-            foreach (var (npc, hp) in healed)
+            foreach (var (npc, hp) in restored)
             {
                 await map.SendPacketAsync(new RcPacket
                 {
