@@ -16,6 +16,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Parcel;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System;
@@ -86,6 +87,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 .And(InventoryIsFull)
                 .WhenAsync(ReceivingGift)
                 .Then(NoSpaceParcelPacketShouldBeSent)
+                .And(TheFullInventoryWindowShouldBeShown)
                 .ExecuteAsync();
         }
 
@@ -203,10 +205,15 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             Assert.IsTrue(packet?.Type == ParcelPacketType.Received);
         }
 
-        private void NoSpaceParcelPacketShouldBeSent()
+        private void NoSpaceParcelPacketShouldBeSent() =>
+            PacketAssert.AreEqual(new ParcelPacket { Type = ParcelPacketType.NotEnoughSpace, Box = MailBoxType.Received, Id = 1 },
+                Session.LastPackets.OfType<ParcelPacket>().Single());
+
+        private void TheFullInventoryWindowShouldBeShown()
         {
-            var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
-            Assert.IsTrue(packet?.Type == ParcelPacketType.NotEnoughSpace);
+            PacketAssert.AreEqual(new InfoiPacket { Message = Game18NConstString.FullInventory },
+                Session.LastPackets.OfType<InfoiPacket>().Single());
+            Assert.IsFalse(Session.LastPackets.OfType<MsgiPacket>().Any());
         }
     }
 }

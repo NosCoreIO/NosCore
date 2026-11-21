@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Parcel
                 var placed = inventory.PlaceItem(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
                 if (placed is not { Count: > 0 })
                 {
-                    await SendNotEnoughSpaceAsync(clientSession);
+                    await SendNotEnoughSpaceAsync(clientSession, getGiftPacket.GiftId);
                     return;
                 }
 
@@ -171,13 +171,12 @@ namespace NosCore.PacketHandlers.Parcel
             }
         }
 
-        private static async Task SendNotEnoughSpaceAsync(ClientSession clientSession)
+        private static async Task SendNotEnoughSpaceAsync(ClientSession clientSession, int giftId)
         {
-            await clientSession.SendPacketAsync(new ParcelPacket { Type = ParcelPacketType.NotEnoughSpace, Box = MailBoxType.Received, Id = 0 });
-            await clientSession.SendPacketAsync(new MsgiPacket
+            await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FullInventory });
+            await clientSession.SendPacketAsync(new ParcelPacket
             {
-                Type = MessageType.Default,
-                Message = Game18NConstString.NotEnoughSpace
+                Type = ParcelPacketType.NotEnoughSpace, Box = MailBoxType.Received, Id = (short)giftId
             });
         }
     }
