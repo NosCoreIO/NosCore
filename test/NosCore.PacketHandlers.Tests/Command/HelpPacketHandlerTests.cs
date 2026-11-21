@@ -6,9 +6,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Command;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -88,8 +90,13 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void ShouldReceiveHelpHeader()
         {
-            var sayPackets = Session.LastPackets.OfType<SayPacket>().ToList();
-            Assert.IsTrue(sayPackets.Any(p => p.Message != null && p.Message.Contains("Help command")));
+            PacketAssert.AreEqual(new SayPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = Session.Character.CharacterId,
+                Type = SayColorType.Red,
+                Message = World.GameLanguageLocalizer[LanguageKey.HELP_COMMAND_HEADER, Session.Account.Language]
+            }, Session.LastPackets.OfType<SayPacket>().First());
         }
 
         private void ShouldReceiveMultipleSayPackets()

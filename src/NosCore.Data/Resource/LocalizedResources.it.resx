@@ -654,5 +654,8 @@
   <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
     <value>Pattuglia qui per 2 minuti.</value>
   </data>
+  <data name="HELP_COMMAND_HEADER" xml:space="preserve">
+    <value>-------------Guida ai comandi-------------</value>
+  </data>
 </root>
 

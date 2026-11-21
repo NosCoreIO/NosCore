@@ -635,4 +635,7 @@
   <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
     <value>Патрулируй здесь 2 минуты.</value>
   </data>
+  <data name="HELP_COMMAND_HEADER" xml:space="preserve">
+    <value>-------------Справка по командам-------------</value>
+  </data>
 </root>

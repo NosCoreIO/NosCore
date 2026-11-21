@@ -5,7 +5,9 @@
 //
 
 using NosCore.Core.Extensions;
+using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -16,12 +18,12 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class HelpPacketHandler : PacketHandler<HelpPacket>, IWorldPacketHandler
+    public class HelpPacketHandler(IGameLanguageLocalizer gameLanguageLocalizer) : PacketHandler<HelpPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(HelpPacket helpPacket, ClientSession session)
         {
-            await session.SendPacketAsync(session.Character.GenerateSay("-------------Help command-------------",
-                SayColorType.Red));
+            await session.SendPacketAsync(session.Character.GenerateSay(
+                gameLanguageLocalizer[LanguageKey.HELP_COMMAND_HEADER, session.Account.Language], SayColorType.Red));
             var classes = helpPacket.GetType().Assembly.GetTypes().Where(t =>
                     typeof(ICommandPacket).IsAssignableFrom(t)
                     && (t.GetCustomAttribute<CommandPacketHeaderAttribute>()?.Authority <= session.Account.Authority))
