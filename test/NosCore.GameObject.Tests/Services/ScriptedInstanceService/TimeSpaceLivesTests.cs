@@ -394,7 +394,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance,
                 World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
-            _session.Character.MapInstance = room;
+            GameObject.Services.MapChangeService.MapChangeService.MovePlayer(_session, _session.Character.MapInstance, room, null, null);
             World.SessionRegistry.UpdateCharacter(_session.Channel?.Id ?? string.Empty, _session.Character.CharacterId, room.MapInstanceId);
             _instances.Setup(s => s.GetRun(room.MapInstanceId)).Returns(_run);
             return Task.CompletedTask;

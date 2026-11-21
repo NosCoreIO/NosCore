@@ -381,7 +381,8 @@ namespace NosCore.GameObject.Services.MapChangeService
             }
         }
 
-        private static bool MovePlayer(ClientSession session, MapInstance from, MapInstance to, int? mapX, int? mapY)
+        // Moves the player's entity into the other map's world, with nothing shown or announced.
+        public static bool MovePlayer(ClientSession session, MapInstance from, MapInstance to, int? mapX, int? mapY)
         {
             var moved = false;
             MapWorld.Exclusive(from.EcsWorld, to.EcsWorld, () =>
