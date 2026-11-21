@@ -64,7 +64,7 @@ namespace NosCore.Instances.Abstractions
             return this with { HpSteps = [.. HpSteps, (percent, step)] };
         }
 
-        // Each copy is placed on its own, so copies sent Anywhere land on different cells.
+        // Each copy is placed on its own: copies sent Anywhere or Around draw their cells independently and may share one.
         internal IEnumerable<MonsterSpawn> Spawns(IInstanceRun run, RoomHandle room)
         {
             var death = Bind(Death, room);

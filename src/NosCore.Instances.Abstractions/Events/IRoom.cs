@@ -15,7 +15,8 @@ namespace NosCore.Instances.Abstractions
 
         IRoom Spawn(params INpc[] npcs);
 
-        // A one-way portal; the way back is a portal of the other room.
+        // A one-way portal; the way back is a portal of the other room. The run tells portals apart by the
+        // rooms they join, so a room has at most one portal to each other room.
         IPortal Portal(Spot at, IRoom to, Spot arrival, bool locked = true);
 
         IButton Lever(Spot at);
@@ -62,6 +63,7 @@ namespace NosCore.Instances.Abstractions
 
         IMonster Around(short x, short y, short radius);
 
+        // Each copy is placed on its own, so copies sent Anywhere or Around may share a cell.
         IMonster Count(int copies);
 
         IMonster Bonus();

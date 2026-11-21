@@ -19,6 +19,7 @@ namespace NosCore.Instances.Abstractions
         private readonly Dictionary<int, Action<RoomEvent>> _dialogsClosed = [];
         private readonly List<(TimeSpan Interval, Action<RoomEvent> Step)> _waves = [];
         private readonly List<ButtonHandle> _buttons = [];
+        private readonly HashSet<PortalHandle> _portals = [];
         private Action<RoomEvent>? _entered;
         private Action<RoomEvent>? _cleared;
         private Action<RoomEvent>? _clockOut;
@@ -46,6 +47,11 @@ namespace NosCore.Instances.Abstractions
         public IPortal Portal(Spot at, IRoom to, Spot arrival, bool locked = true)
         {
             var portal = new PortalHandle(Key, Of(to).Key);
+            if (!_portals.Add(portal))
+            {
+                throw new InvalidOperationException($"Room {Key} already has a portal to room {portal.To}.");
+            }
+
             script.Setup(run => run.SpawnPortal(portal.From, at, portal.To, arrival, locked));
             return portal;
         }
@@ -123,27 +129,33 @@ namespace NosCore.Instances.Abstractions
         private void SummonAll(IInstanceRun run, IReadOnlyList<MonsterSpec> specs) =>
             run.Summon(Key, specs.SelectMany(spec => spec.Spawns(run, this)).ToArray());
 
+        // The run keeps when the room's clock ends, so the waves and the end of a clock that was stopped or
+        // started again find another end there and do nothing.
         internal void StartClock(IInstanceRun run, TimeSpan length)
         {
-            run.StartRoomClock(Key, length);
-            var clock = new RoomClock();
             var startedAt = run.Elapsed;
-            run.At(startedAt + length, over =>
+            run.StartRoomClock(Key, length);
+            var end = run.RoomClockEnd(Key) ?? startedAt + length;
+            run.At(end, over =>
             {
-                clock.Running = false;
+                if (over.RoomClockEnd(Key) != end)
+                {
+                    return;
+                }
+
                 _clockOut?.Invoke(new RoomEvent(over, this));
                 over.StopRoomClock(Key);
             });
             foreach (var (interval, step) in _waves)
             {
-                Wave(run, startedAt, interval, step, clock);
+                Wave(run, startedAt, interval, step, end);
             }
         }
 
-        // A wave due as the clock runs out was scheduled after the clock's end, so it finds the clock stopped.
-        private void Wave(IInstanceRun run, TimeSpan at, TimeSpan interval, Action<RoomEvent> step, RoomClock clock)
+        // A wave that comes due as the clock runs out, or is only reached after it has, does not run.
+        private void Wave(IInstanceRun run, TimeSpan at, TimeSpan interval, Action<RoomEvent> step, TimeSpan end)
         {
-            if (!clock.Running)
+            if (run.RoomClockEnd(Key) != end || run.Elapsed >= end)
             {
                 return;
             }
@@ -153,13 +165,7 @@ namespace NosCore.Instances.Abstractions
                 step(new RoomEvent(run, this));
             }
 
-            run.At(at + interval, next => Wave(next, at + interval, interval, step, clock));
-        }
-
-        // Created when a run starts the clock and held only by the steps that run schedules, so each run has its own.
-        private sealed class RoomClock
-        {
-            public bool Running { get; set; } = true;
+            run.At(at + interval, next => Wave(next, at + interval, interval, step, end));
         }
     }
 

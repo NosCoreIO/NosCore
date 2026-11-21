@@ -134,6 +134,9 @@ namespace NosCore.Instances.Abstractions
 
         void StopRoomClock(int room);
 
+        // When the room's clock runs out, as an Elapsed; null while the room has none.
+        TimeSpan? RoomClockEnd(int room);
+
         // Opens that NPC dialog for the players in the room.
         void Dialog(int room, int dialog);
 

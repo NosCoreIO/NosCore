@@ -78,7 +78,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | On a room | Meaning |
 |---|---|
 | `Spawn(monsters…)`, `Spawn(npcs…)` | What the room holds from the start |
-| `Portal(at, to, arrival, locked)` | A one-way portal, kept as a handle to unlock later |
+| `Portal(at, to, arrival, locked)` | A one-way portal, kept as a handle to unlock later; one per pair of rooms |
 | `Lever(at)` | A lever, with `OnUse(step)` |
 | `Exit(at, locked)` | The way out, at most one per room, with `OnReached(step)`; reaching it wins the run |
 | `OnEnter(step)` | The first time anyone enters |
@@ -96,7 +96,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `At(x, y)` | A fixed cell |
 | `Anywhere()` | A walkable cell picked on each spawn, away from the doors |
 | `Around(x, y, radius)` | A walkable cell picked on each spawn, within radius of the cell |
-| `Count(n)` | That many copies, each placed on its own |
+| `Count(n)` | That many copies, each placed on its own, so two may share a cell |
 | `Bonus()` | Flashes while alive and counts towards the combo |
 | `OnDeath(step)` | When this monster falls |
 | `OnHit(step)` | On each hit it survives |

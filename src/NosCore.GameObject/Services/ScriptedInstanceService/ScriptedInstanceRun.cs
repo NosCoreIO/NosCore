@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<int, short> _lockerVNums = [];
         private readonly HashSet<int> _visited = [];
         private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
-        private readonly HashSet<int> _timedRooms = [];
+        private readonly Dictionary<int, TimeSpan> _roomClockEnds = [];
         private readonly HashSet<long> _showingObjective = [];
         private readonly HashSet<long> _shownRoomMap = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
@@ -235,31 +235,25 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         }
 
         // Only a monster summoned with hit or HP steps is reported, so a script that asked for none is never called.
-        public Task MonsterHitAsync(Guid mapInstanceId, MonsterComponentBundle monster)
+        // The hit was survived, so its steps run even if a later hit has killed the monster since.
+        public Task MonsterHitAsync(Guid mapInstanceId, Action<IInstanceRun>? hitStep,
+            IReadOnlyList<Action<IInstanceRun>> crossedThresholds)
         {
             return RunAsync(async () =>
             {
-                if (RoomOf(mapInstanceId) == null || EndState != null || _abandoned || !monster.IsAlive)
+                if (RoomOf(mapInstanceId) == null || EndState != null || _abandoned)
                 {
                     return;
                 }
 
-                if (monster.HitStep is { } hit)
+                if (hitStep != null)
                 {
-                    await CallScriptAsync(hit);
+                    await CallScriptAsync(hitStep);
                 }
 
-                var thresholds = monster.HpThresholds;
-                var crossed = thresholds.Where(t => (long)monster.Hp * 100 < (long)t.Percent * monster.MaxHp).ToList();
-                if (crossed.Count == 0)
+                foreach (var step in crossedThresholds)
                 {
-                    return;
-                }
-
-                monster.HpThresholds = thresholds.Except(crossed).ToList();
-                foreach (var threshold in crossed)
-                {
-                    await CallScriptAsync(threshold.Step);
+                    await CallScriptAsync(step);
                 }
             });
         }
@@ -267,7 +261,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Task RoomClearedAsync(int room)
         {
             // A room on its own clock is not over when one wave dies, so its objective stays up.
-            if (!_timedRooms.Contains(room) && _roomObjectives.Remove(room))
+            if (!_roomClockEnds.ContainsKey(room) && _roomObjectives.Remove(room))
             {
                 foreach (var session in SessionsIn(room))
                 {
@@ -1232,7 +1226,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StartRoomClock(int room, TimeSpan length)
         {
-            _timedRooms.Add(room);
+            _roomClockEnds[room] = Elapsed + length;
             var mapInstance = _rooms[room];
             var deciseconds = (int)(length.TotalMilliseconds / 100);
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
@@ -1245,7 +1239,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void StopRoomClock(int room)
         {
-            _timedRooms.Remove(room);
+            _roomClockEnds.Remove(room);
             var mapInstance = _rooms[room];
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
             {
@@ -1255,6 +1249,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 SecondParameter = -1
             }));
         }
+
+        public TimeSpan? RoomClockEnd(int room) => _roomClockEnds.TryGetValue(room, out var end) ? end : null;
 
         public void Dialog(int room, int dialog)
         {
@@ -1757,6 +1753,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void StartRoomClock(int room, TimeSpan length) => Do(() => run.StartRoomClock(room, length));
 
             public void StopRoomClock(int room) => Do(() => run.StopRoomClock(room));
+
+            public TimeSpan? RoomClockEnd(int room) => run.RoomClockEnd(room);
 
             public void Dialog(int room, int dialog) => Do(() => run.Dialog(room, dialog));
 

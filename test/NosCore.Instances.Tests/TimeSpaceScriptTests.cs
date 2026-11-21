@@ -248,9 +248,54 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public void AnywhereGivesEachCopyItsOwnCell()
+        public void ARestartedRoomClockIsNotEndedByTheClockItReplaced()
         {
-            new Spec("Copies sent anywhere each get a cell of their own")
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(30)))
+                .OnDialogClosed(6001, r => r.StartRoomClock(TimeSpan.FromSeconds(30)))
+                .OnClockOut(r => r.Say(Game18NConstString.ADoorHasOpened));
+
+            Script.OnDialogClosed(_run, 1, 6000);
+            _run.Elapsed = TimeSpan.FromSeconds(10);
+            Script.OnDialogClosed(_run, 1, 6001);
+            var ran = RunTimers(_run);
+
+            CollectionAssert.AreEqual(new[] { 30d, 40d }, ran);
+            Assert.AreEqual(1, _run.Calls.Count(c => c == "message(ADoorHasOpened)"));
+            CollectionAssert.AreEqual(new[] { "stopRoomClock(1)" }, _run.Calls.Where(c => c.StartsWith("stopRoomClock")).ToList());
+            Assert.IsNull(_run.RoomClockEnd(1));
+        }
+
+        [TestMethod]
+        public void AWaveFirstReachedAfterTheClockRanOutDoesNotRun()
+        {
+            _first.OnDialogClosed(6000, r => r.StartRoomClock(TimeSpan.FromSeconds(3)))
+                .Every(TimeSpan.FromSeconds(1), r => r.Say(Game18NConstString.EnemiesReinforcements))
+                .OnClockOut(r => r.Say(Game18NConstString.ADoorHasOpened));
+            _run.Players = 1;
+
+            Script.OnDialogClosed(_run, 1, 6000);
+            _run.Elapsed = TimeSpan.FromSeconds(4);
+            foreach (var (_, step) in _run.Scheduled.OrderBy(s => s.At).ToList())
+            {
+                step(_run);
+            }
+
+            Assert.AreEqual(1, _run.Calls.Count(c => c == "message(EnemiesReinforcements)"));
+            Assert.AreEqual("stopRoomClock(1)", _run.Calls[^1]);
+        }
+
+        [TestMethod]
+        public void ASecondPortalToTheSameRoomIsRefused()
+        {
+            _first.Portal(new Spot(17, 9), _second, new Spot(0, 9));
+
+            Assert.ThrowsExactly<InvalidOperationException>(() => _first.Portal(new Spot(9, 17), _second, new Spot(9, 0)));
+        }
+
+        [TestMethod]
+        public void AnywherePlacesEachCopyOnItsOwn()
+        {
+            new Spec("Copies sent anywhere each get a cell drawn for them")
                 .Given(TheFirstRoomHolds_GruntsAnywhere, 3)
                 .When(TheRunStarts)
                 .Then(TheMonstersShouldStandAt_, new[] { new Spot(10, 5), new Spot(10, 6), new Spot(10, 7) })

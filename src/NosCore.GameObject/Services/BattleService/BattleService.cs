@@ -413,7 +413,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await BroadcastTargetInfoAsync(target);
-            await gameEvents.RaiseAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed));
+            await gameEvents.RaiseAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed, outcome.HpLeft));
 
             if (outcome.Killed)
             {
