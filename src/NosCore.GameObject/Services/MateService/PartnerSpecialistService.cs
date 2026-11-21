@@ -9,18 +9,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Algorithm.PartnerAgilityService;
 using NosCore.Algorithm.PartnerSkillRankService;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Networking;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Mates;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -33,11 +37,11 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.MateService
 {
     public sealed class PartnerSpecialistService(IClock clock, IPartnerSkillCatalog partnerSkillCatalog, IBattleService battleService,
-            IHeuristic distanceCalculator, IPartnerSkillRankService partnerSkillRankService, IRandomProvider random)
+            IHeuristic distanceCalculator, IPartnerSkillRankService partnerSkillRankService,
+            IPartnerAgilityService partnerAgilityService, IRandomProvider random)
         : IPartnerSpecialistService, ISingletonService
     {
         private const short CooldownSeconds = 30;
-        private const byte FullAgility = 100;
         private const short TransformDelayMilliseconds = 5000;
         private const int TransformEffect = 196;
 
@@ -187,7 +191,7 @@ namespace NosCore.GameObject.Services.MateService
                 return;
             }
 
-            if (card.Agility < FullAgility)
+            if (card.Agility < partnerAgilityService.MaxAgility)
             {
                 await SayAsync(owner, Game18NConstString.PartnerNeedAgility);
                 return;
@@ -197,6 +201,92 @@ namespace NosCore.GameObject.Services.MateService
             card.Agility = 0;
             await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkillCatalog));
             await SayAsync(owner, Game18NConstString.YourPartnerNowHasSkill);
+        }
+
+        public async Task UseSkillTicketAsync(PlayerComponentBundle owner, InventoryItemInstance ticket, UseItemPacket packet)
+        {
+            var resetsAll = ticket.ItemInstance.Item.Effect == ItemEffectType.PartnerSkillTicketAll;
+            if (packet.TargetType is not { } petSlot || packet.TargetSlot is not { } skillSlot
+                || owner.Mates.Values.FirstOrDefault(s => s.MateType == MateType.Partner && s.PetSlot == (byte)petSlot) is not { } partner)
+            {
+                return;
+            }
+
+            if (!partner.IsTeamMember)
+            {
+                await SayAsync(owner, Game18NConstString.PartnerMustAccompanying);
+                return;
+            }
+
+            if (partner.Specialist(owner.InventoryService) is not { } card)
+            {
+                await SayAsync(owner, Game18NConstString.EquipPartnerWithSpecialist);
+                return;
+            }
+
+            if (partner.SpecialistMorph != null)
+            {
+                await SayAsync(owner, Game18NConstString.CancelPartnerSpecialist);
+                return;
+            }
+
+            var slots = Enumerable.Range(0, partnerSkillCatalog.CardSkills(card).Count).ToList();
+            if (skillSlot < 0 || skillSlot >= slots.Count)
+            {
+                return;
+            }
+
+            var learned = slots.Where(slot => card.PartnerSkillRank(slot) != SpPartnerRank.NotIdentifiedYet).ToList();
+            if (resetsAll && learned.Count == 0)
+            {
+                await SayAsync(owner, Game18NConstString.SpecialistMustHasOneSkill);
+                return;
+            }
+
+            if (!resetsAll && !learned.Contains(skillSlot))
+            {
+                await SayAsync(owner, Game18NConstString.SkillLevelInsufficient);
+                return;
+            }
+
+            var hasRankS = (resetsAll ? learned : [skillSlot]).Any(slot => card.PartnerSkillRank(slot) == SpPartnerRank.S);
+            if (!resetsAll && hasRankS)
+            {
+                await SayAsync(owner, Game18NConstString.CannotUseIfSkillLevelReached);
+                return;
+            }
+
+            if (packet.Mode == 0)
+            {
+                await owner.SendPacketAsync(new QnaiPacket
+                {
+                    YesPacket = new UseItemPacket
+                    {
+                        VisualType = owner.VisualType,
+                        VisualId = owner.VisualId,
+                        Type = ticket.Type.ToPocketType(),
+                        Slot = ticket.Slot,
+                        Mode = 1,
+                        Parameter = packet.Parameter,
+                        TargetType = petSlot,
+                        TargetSlot = skillSlot
+                    },
+                    Question = !resetsAll ? Game18NConstString.AskChangeSkillLevelChosen
+                        : hasRankS ? Game18NConstString.PartnersSResetItQuestion
+                        : Game18NConstString.WantToChangeAllSkillLevels
+                });
+                return;
+            }
+
+            foreach (var slot in resetsAll ? learned : [skillSlot])
+            {
+                card.SetPartnerSkillRank(slot, SpPartnerRank.NotIdentifiedYet);
+            }
+
+            card.Agility = partnerAgilityService.MaxAgility;
+            await owner.UseUpOneAsync(ticket);
+            await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkillCatalog));
+            await SayAsync(owner, resetsAll ? Game18NConstString.AllSkillReset : Game18NConstString.SkillLevelChanged);
         }
 
         private SpPartnerRank RollRank()

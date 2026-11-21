@@ -144,6 +144,11 @@ namespace NosCore.Data.Enumerations.Items
         AngelBaseFlag = 1028,
         DemonBaseFlag = 1029,
 
+        // Used on a skill in the partner window: puts that skill back to unlearned, or every skill for the
+        // second, and refills the card's agility.
+        PartnerSkillTicket = 1030,
+        PartnerSkillTicketAll = 1031,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

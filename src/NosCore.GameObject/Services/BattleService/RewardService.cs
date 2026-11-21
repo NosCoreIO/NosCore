@@ -216,6 +216,7 @@ public sealed class RewardService(
 
         await experienceProgression.AddExperienceAsync(player, levelXp, jobXp, heroXp, spXp, fairyXp);
         await mateProgression.AddExperienceAsync(player, levelXp);
+        await mateProgression.AddAgilityAsync(player, mob.Level);
 
         await AwardReputationAsync(player, mob, bonuses.Reputation);
         await AwardDignityAsync(player, mob);

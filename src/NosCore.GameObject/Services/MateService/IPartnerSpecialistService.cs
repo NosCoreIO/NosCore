@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Packets.ClientPackets.Inventory;
 
 namespace NosCore.GameObject.Services.MateService
 {
@@ -30,6 +32,12 @@ namespace NosCore.GameObject.Services.MateService
 
         /// <summary>Gives the skill in a slot of a partner's card a rank, once the card's agility is full.</summary>
         Task LearnSkillAsync(PlayerComponentBundle owner, byte petSlot, byte skillSlot);
+
+        /// <summary>
+        /// Puts a learned skill of a partner's card back to unlearned, or every skill for the ticket that resets all,
+        /// and refills the card's agility. Asks first, then acts on the confirmed use.
+        /// </summary>
+        Task UseSkillTicketAsync(PlayerComponentBundle owner, InventoryItemInstance ticket, UseItemPacket packet);
 
         /// <summary>Casts the skill in a slot of a transformed partner's skill bar.</summary>
         Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target);

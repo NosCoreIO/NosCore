@@ -802,6 +802,8 @@ namespace NosCore.Parser.Parsers
                 2087 or 2128 => ItemEffectType.Bandage,
                 1446 => ItemEffectType.AngelBaseFlag,
                 1447 => ItemEffectType.DemonBaseFlag,
+                5931 or 9109 => ItemEffectType.PartnerSkillTicket,
+                5932 or 9110 => ItemEffectType.PartnerSkillTicketAll,
                 _ when item.ItemType == ItemType.Event && item.EffectValue > 1 => ItemEffectType.PlayEffect,
                 _ => item.Effect,
             };
