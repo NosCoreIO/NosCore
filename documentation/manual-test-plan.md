@@ -2093,8 +2093,9 @@ Have such a pet in the team and a second client on the map.
 - [ ] Use Sushi Party, then take a portal within its 70 seconds: on the new map its slot is still greyed
       out with the time left counting down, pressing it does nothing, and it is usable again 70 seconds
       after the cast; a slot that was ready stays usable
-- [ ] Send the Otter back to the Miniland: the bar goes away; take it out again: the bar is back,
-      its ready slots are usable and a slot still on cooldown shows its remaining time
+- [ ] Cast Sushi Party, send the Otter back to the Miniland (the bar goes away) and take it out again
+      before the 70 seconds are over: the bar is back, Sushi Party stays greyed out with its time left
+      until 70 seconds after the cast, and Smackeroo is usable meanwhile
 - [ ] In the Miniland, Company on a pet with other skills: the bar shows that pet's skills
 - [ ] Let a monster knock the Otter out: the bar goes away, and comes back with the Otter
 - [ ] Catch a monster with no pet out: no pet skill bar appears for it
