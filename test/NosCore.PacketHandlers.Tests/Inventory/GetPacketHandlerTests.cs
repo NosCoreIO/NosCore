@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Networking.ClientSession;
@@ -139,6 +140,47 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         [TestMethod]
+        public async Task TheOwnerWindowStillHoldsWhileTheDropLies()
+        {
+            await new Spec("A stranger still cannot take a drop during its owner window once the map has swept its old items")
+                .GivenAsync(AnotherCharacterOwnsTheDrop)
+                .And(AnItemOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .And(_SecondsPass, 10)
+                .And(TheMapSweepsItsOldItems)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHolds_Items, 0)
+                .And(TheCharacterIsToldItCannotPickThatUp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnyoneTakesADropBetweenTheOwnerWindowAndItsLifetime()
+        {
+            await new Spec("Anyone may take a drop after its owner window and before its lifetime runs out")
+                .GivenAsync(AnotherCharacterOwnsTheDrop)
+                .And(AnItemOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .And(_SecondsPass, 179)
+                .And(TheMapSweepsItsOldItems)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHolds_Items, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ADropPastItsLifetimeIsGone()
+        {
+            await new Spec("A drop that has lain for its whole lifetime is gone and cannot be picked up")
+                .GivenAsync(AnotherCharacterOwnsTheDrop)
+                .And(AnItemOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .And(_SecondsPass, 180)
+                .And(TheMapSweepsItsOldItems)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHolds_Items, 0)
+                .And(TheItemIsNoLongerOnTheMap)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task SharedGoldIsNotSplit()
         {
             await new Spec("Gold a group member picks up is not split with the party")
@@ -216,6 +258,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         private void _SecondsPass(int seconds) => World.Clock.AdvanceSeconds(seconds);
+
+        private void TheMapSweepsItsOldItems() =>
+            new MapItemDespawnSystem().TakeExpired(Session.Character.MapInstance.EcsWorld, World.Clock.GetCurrentInstant(), []);
 
         private async Task TheCharacterPicksItUp()
         {

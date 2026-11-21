@@ -19,10 +19,13 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
@@ -39,14 +42,15 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
             World = await TestWorld.CreateAsync();
         }
 
-        private MapInstance NewMap(IBuffService? buffs = null, IRegenerationService? regeneration = null) =>
+        private MapInstance NewMap(IBuffService? buffs = null, IRegenerationService? regeneration = null,
+            MapInstanceType type = MapInstanceType.NormalInstance) =>
             new(new GameObject.Map.Map
                 {
                     MapId = 0,
                     NameI18NKey = "testMap",
                     Data = new byte[] { 2, 0, 2, 0, 0, 0, 0, 0 },
                 },
-                Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
+                Guid.NewGuid(), false, type, World.MapItemProvider.NotNull(),
                 NullLogger<MapInstance>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object, World.Clock, World.MapChangeService,
                 World.SessionGroupFactory, World.SessionRegistry,
                 World.DistanceCalculator, new NosCore.GameObject.Services.BattleService.RandomProvider(), buffService: buffs, regenerationService: regeneration);
@@ -108,6 +112,75 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
             Assert.AreEqual(1, monster.PositionX);
             Assert.IsNull(monster.RespawnAt);
             await map.DisposeAsync();
+        }
+
+        [TestMethod]
+        public async Task AnItemPastItsLifetimeLeavesTheMap()
+        {
+            var map = NewMap();
+            var item = DropExpiredItem(map, 41);
+
+            await RunOneTickAsync(map);
+
+            Assert.IsFalse(map.EcsWorld.IsAlive(item));
+            PacketAssert.AreEqual(new OutPacket { VisualType = VisualType.Object, VisualId = 41 },
+                map.LastPackets.OfType<OutPacket>().Single());
+            await map.DisposeAsync();
+        }
+
+        [TestMethod]
+        public async Task ATimeSpaceRoomKeepsItsDropsPastTheLifetime()
+        {
+            var map = NewMap(type: MapInstanceType.TimeSpaceInstance);
+            var item = DropExpiredItem(map, 41);
+
+            await RunOneTickAsync(map);
+
+            Assert.IsTrue(map.EcsWorld.IsAlive(item));
+            Assert.IsFalse(map.LastPackets.OfType<OutPacket>().Any());
+            await map.DisposeAsync();
+        }
+
+        [TestMethod]
+        public async Task AnItemPastItsLifetimeLeavesAMapNobodyIsOn()
+        {
+            var map = NewMap();
+            var item = DropExpiredItem(map, 41);
+            map.IsSleeping = true;
+            await map.StartLifeAsync();
+
+            for (var waited = 0; map.EcsWorld.IsAlive(item) && waited < 100; waited++)
+            {
+                await Task.Delay(50);
+            }
+
+            Assert.IsTrue(map.IsSleeping);
+            Assert.IsFalse(map.EcsWorld.IsAlive(item));
+            await map.DisposeAsync();
+        }
+
+        private Arch.Core.Entity DropExpiredItem(MapInstance map, long visualId) =>
+            map.EcsWorld.CreateMapItem(visualId, 1012, 1, map.MapInstanceId, 0, 0, null,
+                World.Clock.GetCurrentInstant() - MapItemDespawnSystem.Lifetime, Guid.NewGuid(), null);
+
+        // A dead monster due now comes back on the first tick, after the item step of that tick.
+        private async Task RunOneTickAsync(MapInstance map)
+        {
+            map.LoadMonsters(new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1 } },
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } }));
+            var monster = map.GetMonsterById(1).NotNull();
+            monster.Hp = 0;
+            monster.IsAlive = false;
+            monster.RespawnAt = World.Clock.GetCurrentInstant();
+            map.IsSleeping = false;
+            await map.StartLifeAsync();
+
+            for (var waited = 0; !monster.IsAlive && waited < 100; waited++)
+            {
+                await Task.Delay(50);
+            }
+
+            Assert.IsTrue(monster.IsAlive, "the map never ticked");
         }
 
         [TestMethod]

@@ -396,6 +396,28 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task ADropLeavesTheMapOnceItHasLainForThreeMinutes()
+        {
+            const int ClockedChannel = 1;
+            var dropper = await Harness.AddPlayerAsync("Alice");
+            await Harness.GiveAsync(dropper, WorldData.Seed, 5);
+            await using var alice = Harness.Client(dropper, channel: ClockedChannel);
+            await alice.EnterWorldAsync(dropper.Slot);
+            await alice.SendAsync(new PutPacket { PocketType = PocketType.Etc, Slot = 0, Amount = 5 });
+            var drop = await alice.ExpectAsync(SeedsDropped, "the drop");
+            var leaving = new OutPacket { VisualType = VisualType.Object, VisualId = drop.VisualId };
+            Func<OutPacket, bool> theDropLeaves = p => p.VisualType == VisualType.Object && p.VisualId == drop.VisualId;
+
+            var early = alice.Mark();
+            await Harness.Stack.AdvanceClockAsync(ClockedChannel, TimeSpan.FromSeconds(170));
+            Assert.IsTrue(await alice.NoneSinceAsync(early, theDropLeaves, TimeSpan.FromSeconds(2)), "the drop is still there before three minutes");
+
+            var late = alice.Mark();
+            await Harness.Stack.AdvanceClockAsync(ClockedChannel, TimeSpan.FromSeconds(11));
+            PacketAssert.AreEqual(leaving, await alice.ExpectSinceAsync(late, theDropLeaves, "the drop leaving"));
+        }
+
+        [TestMethod]
         public async Task AWeaponPutOnLeavesTheBagAndIsShownToBystanders()
         {
             var player = await Harness.AddPlayerAsync("Alice");

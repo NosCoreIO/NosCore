@@ -848,6 +848,16 @@ cooldown once.
 - [ ] Wearing amulet 4361 ("Increases Gold earned by 40%") and costume hat 4259 (+20%), a
       level 30 monster's gold goes above the 359 it can drop without them, up to 574
 
+### Items left on the ground
+
+- [ ] Drop an item from the bag in NosVille and leave it: it is still there after 2 minutes 50
+      seconds and gone a few seconds after 3 minutes, for you and for a second character
+      watching
+- [ ] Kill a monster and leave its drop: it vanishes 3 minutes after it fell; another
+      character can still not pick it up during the first 30 seconds, then can
+- [ ] In a time-space room, leave a monster's drop for more than 3 minutes: it stays until
+      picked up
+
 ### Aggro and chasing
 
 - [ ] Walk toward a hostile monster: it notices you inside its notice range and comes for you
