@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-            if (character.HasBankVip())
+            if (character.HasBankVip)
             {
                 return;
             }
