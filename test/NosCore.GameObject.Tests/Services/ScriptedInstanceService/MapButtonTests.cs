@@ -10,6 +10,7 @@ using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -134,6 +135,58 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task PressingAButtonAgainDuringItsBarSaysItIsInUse()
+        {
+            await new Spec("Pressing a button again while its bar runs says it is in use and starts no second bar")
+                .GivenAsync(ARunWithA_Button, false)
+                .AndAsync(ThePlayerPressesTheButton)
+                .WhenAsync(ThePlayerPressesTheButtonAgain)
+                .Then(ThePlayerShouldBeTold_, Game18NConstString.ThisObjectIsAlreadyInUse)
+                .And(NoBarShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PressingAButtonOnceItsBarHasRunStartsItAgain()
+        {
+            await new Spec("Pressing a button once its bar has run without being finished starts the bar again")
+                .GivenAsync(ARunWithA_Button, false)
+                .AndAsync(ThePlayerPressesTheButton)
+                .And(TwoSecondsPass)
+                .WhenAsync(ThePlayerPressesTheButtonAgain)
+                .Then(ThePullBarShouldBeSent)
+                .And(ThePlayerShouldNotBeTold_, Game18NConstString.ThisObjectIsAlreadyInUse)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task FinishingABrokenBarSaysTheObjectWasNotUsed()
+        {
+            await new Spec("A git for a bar that was broken says the object has not been used and pulls nothing")
+                .GivenAsync(ARunWithA_Button, false)
+                .AndAsync(ThePlayerPressesTheButton)
+                .And(TheBarIsBroken)
+                .And(TwoSecondsPass)
+                .WhenAsync(ThePlayerFinishesTheBar)
+                .Then(ThePlayerShouldBeTold_, Game18NConstString.ThisObjectHasNotBeenUsedYet)
+                .And(TheButtonShouldBeDrawnAs_, OffVNum)
+                .And(TheScriptShouldHaveSeen_Pulls, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TakingAKeyStartsTheBoxBar()
+        {
+            await new Spec("A key is taken with the bar a box is opened with, and pressing it again restarts that bar")
+                .GivenAsync(ARunWithA_, ButtonKind.Key)
+                .AndAsync(ThePlayerPressesTheButton)
+                .WhenAsync(ThePlayerPressesTheButtonAgain)
+                .Then(TheKeyBarShouldBeSent)
+                .And(ThePlayerShouldNotBeTold_, Game18NConstString.ThisObjectIsAlreadyInUse)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ASingleUseButtonCannotBePulledTwice()
         {
             await new Spec("A button that does not toggle stays on once pulled")
@@ -250,6 +303,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await _service.PressAsync(_session.Character, Button);
         }
 
+        private async Task ThePlayerPressesTheButtonAgain()
+        {
+            _session.LastPackets.Clear();
+            await _service.PressAsync(_session.Character, Button);
+        }
+
+        private void TheBarIsBroken() => _session.Character.CancelDelay();
+
         private void TwoSecondsPass() => World.Clock.Advance(Duration.FromMilliseconds(MapButtonService.PullDelay));
 
         private Task ThePlayerFinishesTheBar() => _service.UseAsync(_session.Character, Button);
@@ -274,6 +335,27 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(MapButtonService.PullDelay, bar.Delay);
             Assert.AreEqual(DelayPacketType.Button, bar.Type);
             Assert.AreEqual(Button, ((GitPacket?)bar.Packet)?.ButtonId);
+        }
+
+        private void TheKeyBarShouldBeSent()
+        {
+            PacketAssert.AreEqual(new DelayPacket
+            {
+                Delay = MapButtonService.PullDelay,
+                Type = DelayPacketType.OpeningBox,
+                Packet = new GitPacket { ButtonId = Button }
+            }, _session.LastPackets.OfType<DelayPacket>().Single());
+        }
+
+        private void ThePlayerShouldBeTold_(Game18NConstString message)
+        {
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = message },
+                _session.LastPackets.OfType<MsgiPacket>().Single());
+        }
+
+        private void ThePlayerShouldNotBeTold_(Game18NConstString message)
+        {
+            Assert.IsFalse(_session.LastPackets.OfType<MsgiPacket>().Any(packet => packet.Message == message));
         }
 
         private void NoBarShouldBeSent()

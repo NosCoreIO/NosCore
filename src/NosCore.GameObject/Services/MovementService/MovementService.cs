@@ -124,7 +124,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
             character.PositionX, character.PositionY,
             character.MapX, character.MapY);
 
-        character.CancelDelay();
+        await character.CancelDelayByMovingAsync(clock.GetCurrentInstant());
 
         await character.MapInstance.SendPacketAsync(character.GenerateMove(),
             new EveryoneBut(session.ConnectedChannel.Id));

@@ -34,27 +34,45 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return true;
             }
 
+            var now = clock.GetCurrentInstant();
+            if (button.BarType == DelayPacketType.Button && character.PendingDelayType == DelayPacketType.Button
+                && ReferenceEquals(character.PendingDelayTarget, button) && now < character.PendingDelayReadyAt)
+            {
+                await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.ThisObjectIsAlreadyInUse });
+                return true;
+            }
+
             await character.StartDelayAsync(new DelayPacket
             {
                 Delay = PullDelay,
-                Type = DelayPacketType.Button,
+                Type = button.BarType,
                 Packet = new GitPacket { ButtonId = button.MapButtonId }
-            }, button, clock.GetCurrentInstant());
+            }, button, now);
             return true;
         }
 
-        public Task UseAsync(PlayerComponentBundle character, int buttonId)
+        public async Task UseAsync(PlayerComponentBundle character, int buttonId)
         {
             var mapInstance = character.MapInstance;
-            if (!mapInstance.Buttons.TryGetValue(buttonId, out var button)
-                || !InReach(character, button)
-                || !character.TryCompleteDelay(DelayPacketType.Button, button, clock.GetCurrentInstant()))
+            if (!mapInstance.Buttons.TryGetValue(buttonId, out var button) || !InReach(character, button))
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            return scriptedInstanceService.GetRun(mapInstance.MapInstanceId)?.UseButtonAsync(mapInstance.MapInstanceId, buttonId, character.VisualId)
-                ?? Task.CompletedTask;
+            if (!character.TryCompleteDelay(button.BarType, button, clock.GetCurrentInstant()))
+            {
+                if (button.BarType == DelayPacketType.Button && (!button.IsOn || button.Toggles))
+                {
+                    await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.ThisObjectHasNotBeenUsedYet });
+                }
+
+                return;
+            }
+
+            if (scriptedInstanceService.GetRun(mapInstance.MapInstanceId) is { } run)
+            {
+                await run.UseButtonAsync(mapInstance.MapInstanceId, buttonId, character.VisualId);
+            }
         }
 
         private bool InReach(PlayerComponentBundle character, MapButton button)
