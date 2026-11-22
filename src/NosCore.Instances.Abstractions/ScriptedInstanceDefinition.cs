@@ -65,6 +65,11 @@ namespace NosCore.Instances.Abstractions
 
         public long Gold { get; init; }
 
+        // Gold on top of Gold for each monster the run killed.
+        public int GoldPerKill { get; init; }
+
+        public long GoldFor(int monstersKilled) => Gold + (long)GoldPerKill * monstersKilled;
+
         public int Reputation { get; init; }
 
         public int FamilyExperience { get; init; }

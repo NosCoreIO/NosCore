@@ -37,6 +37,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public void GoldPerKillAddsToTheFixedGoldForEachKill()
+        {
+            var definition = InstanceDefinitionBuilder.Named(1, "Gold", "Gold")
+                .WithGold(100)
+                .WithGoldPerKill(60)
+                .Build();
+
+            Assert.AreEqual(100, definition.GoldFor(0));
+            Assert.AreEqual(100 + 60 * 77, definition.GoldFor(77));
+        }
+
+        [TestMethod]
         public void AnInstanceThatGivesNothingIsStillAnInstance()
         {
             var definition = InstanceDefinitionBuilder.Named(1, "Empty", "Empty")

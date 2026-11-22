@@ -69,6 +69,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `Clock(length)` | The run's clock, started as the first player enters |
 | `Objective(kind, vnum, n)` | A goal in the mission window; the exit stays shut until every one is met |
 | `Reward`, `Draw`, `Special` | The reward chest |
+| `GoldPerKill(n)`, `Reputation(n)` | The chest's gold for each monster the run killed, also shown on the score, and the reputation it pays |
 | `Room(map, x, y)` | A room, at its place on the mission map |
 | `After(elapsed, step)` | A step that long after the run started |
 | `OnAllCleared(rooms, step)` | Once every one of the rooms has been cleared, as the last of them is |

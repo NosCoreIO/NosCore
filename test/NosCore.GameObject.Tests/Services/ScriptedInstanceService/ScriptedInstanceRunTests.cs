@@ -2086,5 +2086,21 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var score = session.LastPackets.OfType<ScorePacket>().Single();
             Assert.AreEqual(4, score.Points);
         }
+
+        [TestMethod]
+        public async Task TheScoreCarriesTheGoldEarnedPerKillAsync()
+        {
+            var run = Run(new Script(new ScriptedInstanceDefinition { GoldPerKill = 60 })
+            {
+                Enter = r => r.SetMonsterLocker(1, 1),
+                Cleared = (r, _) => r.Succeed()
+            });
+            var session = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            Assert.AreEqual(60, session.LastPackets.OfType<ScorePacket>().Single().Gold);
+        }
     }
 }

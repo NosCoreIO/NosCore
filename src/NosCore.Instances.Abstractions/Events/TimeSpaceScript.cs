@@ -47,6 +47,11 @@ namespace NosCore.Instances.Abstractions
 
         protected void Special(short vNum, short amount) => _builder.WithSpecialReward(vNum, amount);
 
+        // The chest's gold for each monster the run killed, and the reputation it pays.
+        protected void GoldPerKill(int gold) => _builder.WithGoldPerKill(gold);
+
+        protected void Reputation(int reputation) => _builder.WithReputation(reputation);
+
         // Its place on the mission map.
         protected IRoom Room(short mapVNum, byte x, byte y)
         {
