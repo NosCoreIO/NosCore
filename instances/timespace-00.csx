@@ -3,7 +3,7 @@ public class TimeSpace0 : TimeSpaceScript
     public TimeSpace0() : base(0, "Time-Space Tutorial")
     {
         Levels(1, 99);
-        Start(11, 10);
+        Start(11, 11);
         Lives(2);
         Clock(TimeSpan.FromSeconds(300));
         Draw(2023, 1);

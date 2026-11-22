@@ -9,7 +9,7 @@ public class TimeSpace12 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(12, "Monster Fight", "Monster Fight")
             .ForLevels(22, 99)
-            .StartingAt(10, 13)
+            .StartingAt(11, 11)
             .Requiring(1012, 2)
             .WithLives(2)
             .WithDraw(2034, 2)

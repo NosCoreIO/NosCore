@@ -92,8 +92,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             await character.TakeRequiredItemsAsync(entrance);
 
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
-            await mapChangeService.ChangeMapInstanceAsync(session, firstRoom,
-                definition.StartX, definition.StartY);
+            var start = run.StartCell();
+            await mapChangeService.ChangeMapInstanceAsync(session, firstRoom, start.X, start.Y);
         }
 
         public Task EnterWithStoneAsync(ClientSession session, InventoryItemInstance stone)

@@ -19,7 +19,7 @@ public class TimeSpace20 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(20, "Guards in Danger", "Guards in Danger")
             .ForLevels(30, 99)
-            .StartingAt(11, 13)
+            .StartingAt(11, 11)
             .Requiring(1012, 3)
             .WithLives(3)
             .WithDraw(2047, 3)

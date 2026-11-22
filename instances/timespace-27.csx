@@ -3,7 +3,7 @@ public class TimeSpace27 : TimeSpaceScript
     public TimeSpace27() : base(27, "Chasse aux monstres : 1er volet")
     {
         Levels(37, 99);
-        Start(7, 8);
+        Start(11, 11);
         Requires(1012, 3);
         Lives(3);
         Clock(TimeSpan.FromSeconds(720));

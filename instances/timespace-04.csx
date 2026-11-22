@@ -15,7 +15,7 @@ public class TimeSpace4 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(4, "The Defence of NosVille", "The Defence of NosVille")
             .ForLevels(12, 99)
-            .StartingAt(12, 9)
+            .StartingAt(11, 11)
             .Requiring(1012, 1)
             .WithLives(3)
             .WithDraw(2024, 1)

@@ -10,7 +10,7 @@ public class TimeSpace29 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(29, "La trahison", "La trahison")
             .ForLevels(39, 99)
-            .StartingAt(9, 13)
+            .StartingAt(11, 11)
             .Requiring(1012, 3)
             .WithLives(3)
             .WithDraw(2047, 5)

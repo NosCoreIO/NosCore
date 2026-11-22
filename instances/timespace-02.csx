@@ -14,7 +14,7 @@ public class TimeSpace2 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(2, "The Trap", "The Trap")
             .ForLevels(8, 99)
-            .StartingAt(10, 9)
+            .StartingAt(11, 11)
             .WithLives(3)
             .WithDraw(14, 1)
             .WithDraw(1002, 2)

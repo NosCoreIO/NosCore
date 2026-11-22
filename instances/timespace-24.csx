@@ -3,7 +3,7 @@ public class TimeSpace24 : TimeSpaceScript
     public TimeSpace24() : base(24, "La lutte pour Fernon")
     {
         Levels(34, 99);
-        Start(15, 9);
+        Start(11, 11);
         Requires(1012, 3);
         Lives(2);
         Clock(TimeSpan.FromSeconds(400));

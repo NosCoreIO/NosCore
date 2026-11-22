@@ -16,7 +16,7 @@ public class TimeSpace7 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(7, "The Demon Sculpture", "The Demon Sculpture")
             .ForLevels(16, 99)
-            .StartingAt(10, 10)
+            .StartingAt(11, 11)
             .Requiring(1012, 1)
             .WithLives(2)
             .WithObjective(ObjectiveKind.UseObject, 1055, 2)

@@ -3,7 +3,7 @@ public class TimeSpace22 : TimeSpaceScript
     public TimeSpace22() : base(22, "A New Companion")
     {
         Levels(32, 99);
-        Start(8, 10);
+        Start(9, 10);
         Requires(1012, 3);
         Lives(3);
         Clock(TimeSpan.FromSeconds(300));

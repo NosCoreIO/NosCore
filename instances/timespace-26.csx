@@ -3,7 +3,7 @@ public class TimeSpace26 : TimeSpaceScript
     public TimeSpace26() : base(26, "La bataille des d�mons")
     {
         Levels(36, 99);
-        Start(6, 10);
+        Start(9, 10);
         Requires(1012, 3);
         Lives(2);
         Clock(TimeSpan.FromSeconds(230));

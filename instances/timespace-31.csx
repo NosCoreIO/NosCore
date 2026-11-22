@@ -12,7 +12,7 @@ public class TimeSpace31 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(31, "Deux h�ros des Koarens", "Deux h�ros des Koarens")
             .ForLevels(41, 99)
-            .StartingAt(13, 12)
+            .StartingAt(11, 11)
             .Requiring(1012, 4)
             .WithLives(2)
             .WithDraw(712, 1)

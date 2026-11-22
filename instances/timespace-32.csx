@@ -10,7 +10,7 @@ public class TimeSpace32 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(32, "Un lieu sinistre pour la chasse aux monstres", "Un lieu sinistre pour la chasse aux monstres")
             .ForLevels(42, 99)
-            .StartingAt(13, 12)
+            .StartingAt(11, 11)
             .Requiring(1012, 4)
             .WithLives(3)
             .WithDraw(704, 1)

@@ -3,7 +3,7 @@ public class TimeSpace19 : TimeSpaceScript
     public TimeSpace19() : base(19, "The Black Knight")
     {
         Levels(29, 99);
-        Start(9, 10);
+        Start(11, 11);
         Requires(1012, 2);
         Lives(3);
         Clock(TimeSpan.FromSeconds(130));

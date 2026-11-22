@@ -19,7 +19,7 @@ public class TimeSpace3 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(3, "A Difficult Decision", "A Difficult Decision")
             .ForLevels(10, 99)
-            .StartingAt(9, 11)
+            .StartingAt(11, 11)
             .Requiring(1012, 1)
             .WithLives(3)
             .WithDraw(205, 1)

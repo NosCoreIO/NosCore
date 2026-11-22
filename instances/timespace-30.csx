@@ -22,7 +22,7 @@ public class TimeSpace30 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(30, "La poursuite", "La poursuite")
             .ForLevels(40, 99)
-            .StartingAt(11, 9)
+            .StartingAt(11, 11)
             .Requiring(1012, 4)
             .WithLives(1)
             .WithDraw(74, 1)

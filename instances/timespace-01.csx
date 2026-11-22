@@ -12,7 +12,7 @@ public class TimeSpace1 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(1, "The Time-Space", "The Time-Space")
             .ForLevels(5, 99)
-            .StartingAt(15, 12)
+            .StartingAt(11, 11)
             .WithLives(2)
             .WithDraw(2015, 2)
             .WithDraw(2023, 10)

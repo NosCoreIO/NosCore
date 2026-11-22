@@ -11,7 +11,7 @@ public class TimeSpace5 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(5, "An Invincible Enemy", "An Invincible Enemy")
             .ForLevels(14, 99)
-            .StartingAt(8, 15)
+            .StartingAt(11, 11)
             .Requiring(1012, 1)
             .WithLives(3)
             .WithDraw(11, 1)

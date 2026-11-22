@@ -23,7 +23,7 @@ public class TimeSpace520 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(520, "Dust King's Bone", "Dust King's Bone")
             .ForLevels(36, 99)
-            .StartingAt(28, 15)
+            .StartingAt(11, 11)
             .WithLives(1)
             .WithObjective(ObjectiveKind.KillMonster, 74, 1)
             .WithObjective(ObjectiveKind.UseObject, 1048, 3)
