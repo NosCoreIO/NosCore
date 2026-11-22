@@ -25,6 +25,7 @@ using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Mates;
@@ -50,6 +51,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private const short Grunt = 58;
         private const short Boss = 59;
         private const short Villager = 60;
+        private const short LevelSixMonster = 54;
+        private const short LevelNineMonster = 96;
+        private const short LevelTenMonster = 129;
+        private const short LevelTwentySevenMonster = 72;
+        private const short LevelThirtyThreeMonster = 65;
 
         private sealed class Script : InstanceScript
         {
@@ -134,7 +140,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new NpcMonsterCatalog([new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10, IsHostile = true },
-                    new NpcMonsterDto { NpcMonsterVNum = Villager, MaxHp = 10 }]),
+                    new NpcMonsterDto { NpcMonsterVNum = Villager, MaxHp = 10 },
+                    new NpcMonsterDto { NpcMonsterVNum = LevelSixMonster, MaxHp = 10, IsHostile = true, Level = 6 },
+                    new NpcMonsterDto { NpcMonsterVNum = LevelNineMonster, MaxHp = 10, IsHostile = true, Level = 9 },
+                    new NpcMonsterDto { NpcMonsterVNum = LevelTenMonster, MaxHp = 10, IsHostile = true, Level = 10 },
+                    new NpcMonsterDto { NpcMonsterVNum = LevelTwentySevenMonster, MaxHp = 10, IsHostile = true, Level = 27 },
+                    new NpcMonsterDto { NpcMonsterVNum = LevelThirtyThreeMonster, MaxHp = 10, IsHostile = true, Level = 33 }]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(), World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(),
                 NullLogger.Instance, World.LogLanguageLocalizer, World.GameLanguageLocalizer,
                 timeout ?? TimeSpan.FromSeconds(30));
@@ -1496,20 +1507,88 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(0, _first.EnumerateMonsters().Count());
         }
 
+        // A level 10 character killing five marked monsters of levels 6 to 10 in a row, as in a packet trace.
         [TestMethod]
-        public async Task BonusKillsInARowScoreMoreThanOthersAsync()
+        public async Task MarkedKillsInARowScoreFiveMoreEachAsync()
         {
             var run = Run(new Script());
             await run.StartAsync();
 
-            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
-            Assert.AreEqual(4, run.Points);
-            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true);
-            Assert.AreEqual(15, run.Points);
-            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true);
-            Assert.AreEqual(33, run.Points);
-            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
-            Assert.AreEqual(37, run.Points);
+            var scores = new List<int>();
+            foreach (var vNum in new[] { LevelSixMonster, LevelSixMonster, LevelNineMonster, LevelNineMonster, LevelTenMonster })
+            {
+                await run.MonsterKilledAsync(_first.MapInstanceId, vNum, isBonus: true, killerLevel: 10);
+                scores.Add(run.Score);
+            }
+
+            CollectionAssert.AreEqual(new[] { 6, 17, 34, 56, 84 }, scores);
+        }
+
+        // A level 98 character killing level 33 monsters, only some of them marked, as in a packet trace.
+        [TestMethod]
+        public async Task AnUnmarkedKillScoresOneAndEndsTheChainAsync()
+        {
+            var run = Run(new Script());
+            await run.StartAsync();
+
+            var scores = new List<int>();
+            foreach (var marked in new[] { true, false, false, true, false, true })
+            {
+                await run.MonsterKilledAsync(_first.MapInstanceId, LevelThirtyThreeMonster, marked, killerLevel: 98);
+                scores.Add(run.Score);
+            }
+
+            CollectionAssert.AreEqual(new[] { 6, 7, 8, 14, 15, 21 }, scores);
+        }
+
+        // A level 17 character killing a level 27 monster, as in a packet trace.
+        [TestMethod]
+        public async Task AMonsterFarAboveItsKillerScoresFourAsync()
+        {
+            var run = Run(new Script());
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTwentySevenMonster, isBonus: true, killerLevel: 17);
+            Assert.AreEqual(9, run.Score);
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTwentySevenMonster, killerLevel: 17);
+            Assert.AreEqual(13, run.Score);
+        }
+
+        [TestMethod]
+        public async Task AKillNobodyIsCreditedWithScoresNothingAsync()
+        {
+            var run = Run(new Script());
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true);
+
+            Assert.AreEqual(0, run.Score);
+        }
+
+        [TestMethod]
+        public async Task ThePlayersSeeTheScoreOnEntryAfterAKillAndAfterAClearedRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1) });
+            var session = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true, killerLevel: 10);
+
+            CollectionAssert.AreEqual(new[] { 0, 8, 58 }, session.LastPackets.OfType<RnscPacket>().Select(p => p.Score).ToList());
+        }
+
+        [TestMethod]
+        public async Task AHostWithoutAScoreSendsNoneAsync()
+        {
+            _host = new Host();
+            var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1) });
+            var session = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true, killerLevel: 10);
+
+            Assert.AreEqual(0, run.Score);
+            Assert.IsFalse(session.LastPackets.OfType<RnscPacket>().Any());
         }
 
         [TestMethod]
@@ -1527,6 +1606,42 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(826, monsters[0].Effect);
             Assert.IsFalse(monsters[1].IsBonus);
             Assert.AreEqual(0, monsters[1].Effect);
+        }
+
+        [TestMethod]
+        public async Task KillingTheMarkedMonsterMarksAnotherOfItsRoomAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), IsBonus: true), new MonsterSpawn(Grunt, new Spot(2, 1)))
+            });
+            await run.StartAsync();
+            var marked = _first.EnumerateMonsters().Single(m => m.IsBonus);
+            marked.IsAlive = false;
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true, killerLevel: 1);
+
+            var next = _first.EnumerateMonsters().Single(m => m.PositionX == 2);
+            Assert.IsTrue(next.IsBonus);
+            Assert.AreEqual(826, next.Effect);
+        }
+
+        [TestMethod]
+        public async Task WithNoMonsterLeftTheMarkGoesToTheNextOneSummonedAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), IsBonus: true,
+                    OnDeath: d => d.Summon(1, new MonsterSpawn(Grunt, new Spot(3, 1)))))
+            });
+            await run.StartAsync();
+            _first.EnumerateMonsters().Single().IsAlive = false;
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true, killerLevel: 1);
+
+            var summoned = _first.EnumerateMonsters().Single(m => m.PositionX == 3);
+            Assert.IsTrue(summoned.IsBonus);
+            Assert.AreEqual(826, summoned.Effect);
         }
 
         [TestMethod]
@@ -2123,17 +2238,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
-        public async Task TheScoreCarriesThePointsAsync()
+        public async Task TheScoreCarriesTheRunningScoreAsync()
         {
             var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1), Cleared = (r, _) => r.Succeed() });
             var session = await PlayerInFirstRoomAsync();
             session.Character.Level = 1;
             await run.EnteredAsync(session, _first.MapInstanceId);
 
-            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, killerLevel: 1);
 
             var score = session.LastPackets.OfType<ScorePacket>().Single();
-            Assert.AreEqual(4, score.Points);
+            Assert.AreEqual(52, score.Points);
         }
     }
 }

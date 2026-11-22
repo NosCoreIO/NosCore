@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using NosCore.Algorithm.LowLevelBoostService;
 using NosCore.Algorithm.TimeSpaceExperienceService;
 using NosCore.Algorithm.TimeSpacePenaltyService;
+using NosCore.Algorithm.TimeSpaceScoreService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -34,7 +35,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public sealed class TimeSpaceRunHost(ScriptedInstance entrance, Lazy<IMapChangeService> mapChangeService,
         IGameEventDispatcher gameEvents, ITimeSpacePenaltyService timeSpacePenaltyService,
-        ITimeSpaceExperienceService timeSpaceExperienceService, ILowLevelBoostService lowLevelBoostService,
+        ITimeSpaceExperienceService timeSpaceExperienceService, ITimeSpaceScoreService timeSpaceScoreService,
+        ILowLevelBoostService lowLevelBoostService,
         IExperienceBonusService experienceBonusService, IExperienceProgressionService experienceProgression,
         ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IInstanceRunHost
@@ -54,6 +56,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public bool DrawsRoomMap => true;
 
         public bool AsksToStart => true;
+
+        public bool ShowsScore => true;
+
+        public int KillPoints(byte monsterLevel, byte killerLevel, int chain) =>
+            timeSpaceScoreService.GetKillPoints(monsterLevel, killerLevel, chain);
+
+        public int RoomClearedPoints => 50;
 
         public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
 
@@ -104,7 +113,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
             }
 
-            await character.SendPacketAsync(Score(run, character, run.Points * (100 - penalty) / 100, experience, jobExperience));
+            await character.SendPacketAsync(Score(run, character, run.Score * (100 - penalty) / 100, experience, jobExperience));
         }
 
         private Task TakeStoneAsync(PlayerComponentBundle character) =>

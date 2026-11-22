@@ -12,6 +12,7 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -79,7 +80,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public async Task AnOverLevelledCharacterLosesTwoPercentPerLevel()
         {
-            await new Spec("A character nine levels above the minimum is told of an 18% penalty and scores 82 of 100 points")
+            await new Spec("A character nine levels above the minimum is told of an 18% penalty and scores 82 of the 100 points of 25 kills one level above their killer")
                 .Given(ACharacterOfLevel_, (byte)19)
                 .And(ATimeSpaceThatSucceeds)
                 .AndAsync(_MonstersAreKilled, 25)
@@ -167,7 +168,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     }),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _room },
-                new NpcMonsterCatalog([]),
+                new NpcMonsterCatalog([new NpcMonsterDto { NpcMonsterVNum = Grunt, Level = LevelMinimum + 1 }]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
                 World.Create<GameObject.Services.MapItemGenerationService.ItemThrowService>(), NullLogger.Instance,
                 World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
@@ -179,7 +180,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             for (var i = 0; i < count; i++)
             {
-                await _run.MonsterKilledAsync(_room.MapInstanceId, Grunt);
+                await _run.MonsterKilledAsync(_room.MapInstanceId, Grunt, killerLevel: LevelMinimum);
             }
         }
 

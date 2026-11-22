@@ -36,7 +36,8 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
             var run = scriptedInstanceService.GetRun(mapInstance.MapInstanceId);
             return run == null
                 ? Task.CompletedTask
-                : run.MonsterKilledAsync(mapInstance.MapInstanceId, monster.VNum, monster.IsBonus, monster.DeathStep);
+                : run.MonsterKilledAsync(mapInstance.MapInstanceId, monster.VNum, monster.IsBonus, monster.DeathStep,
+                    evt.Killer?.Level);
         }
 
         // Every NPC that falls counts as lost. An escort's fall fails the run, which takes the place of its
