@@ -273,6 +273,9 @@ namespace NosCore.Data.Enumerations.I18N
         DEPOSIT_DEBIT_NOT_SAVED,
         PARCEL_CLAIMED_BUT_KEPT,
         PACKET_IN_FLIGHT_ON_CHANNEL_CHANGE,
+        EXCHANGE_ITEM_NOT_RETURNED,
+        EXCHANGE_GOLD_NOT_RETURNED,
+        EXCHANGE_BANK_GOLD_NOT_RETURNED,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

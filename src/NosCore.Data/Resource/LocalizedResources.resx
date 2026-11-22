@@ -1416,6 +1416,15 @@
   <data name="PARCEL_NOT_STORED" xml:space="preserve">
     <value>Item {ItemVNum}x{Amount} for the parcel box of character {CharacterId} could not be stored and is not kept anywhere: {Item} with options {Options}</value>
   </data>
+  <data name="EXCHANGE_ITEM_NOT_RETURNED" xml:space="preserve">
+    <value>A failed exchange left item {ItemVNum}x{Amount} with character {ReceiverId}, who used part of it before the exchange was undone; character {GiverId} does not get it back</value>
+  </data>
+  <data name="EXCHANGE_GOLD_NOT_RETURNED" xml:space="preserve">
+    <value>A failed exchange could only take {Returned} of the {Amount} gold back from character {ReceiverId} for character {GiverId}; the rest was spent before the exchange was undone</value>
+  </data>
+  <data name="EXCHANGE_BANK_GOLD_NOT_RETURNED" xml:space="preserve">
+    <value>A failed exchange could only take {Returned} of the {Amount} bank gold back from character {ReceiverId} for character {GiverId}; the rest was spent before the exchange was undone</value>
+  </data>
   <data name="DEPOSIT_DEBIT_NOT_SAVED" xml:space="preserve">
     <value>Character {CharacterId} may hold item {ItemVNum}x{Amount} twice: the bag without it could not be saved after an unconfirmed deposit into warehouse slot {Slot}, whose copy is item instance {ItemInstanceId}</value>
   </data>
