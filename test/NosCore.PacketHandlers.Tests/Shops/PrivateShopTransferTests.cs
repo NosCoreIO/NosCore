@@ -180,6 +180,18 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         [TestMethod]
+        public async Task AWeaponTheOwnerGivesUpWhileItsSaleIsWrittenIsNotSoldAsWell()
+        {
+            await new Spec("A weapon the owner gives up while its sale is written is not sold as well")
+                .GivenAsync(TheOwnerOpensAShopWithAWeaponWithAnOptionOfValue_, 7)
+                .WhenAsync(TheBuyerBuysTheWeaponWhileTheOwnerGivesItUp)
+                .Then(TheBuyerShouldHoldNoWeapon)
+                .And(TheBuyerShouldHave_Gold, 10_000L)
+                .And(TheOwnerShouldHave_Gold, 0L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task BuyingPartOfAStackLeavesTheRestWithTheOwner()
         {
             await new Spec("Buying part of a stack leaves the rest with the owner")
@@ -306,6 +318,17 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             var options = new Mock<IShellOptionService>();
             options.Setup(o => o.CopyAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(false);
+            return _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), 0, 1, World.WorldConfiguration,
+                _items, World.Create<DignityService>(), options.Object, _itemInstanceDao);
+        }
+
+        private Task TheBuyerBuysTheWeaponWhileTheOwnerGivesItUp()
+        {
+            var options = new Mock<IShellOptionService>();
+            options.Setup(o => o.CopyAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+                .Callback(() => Assert.IsTrue(_owner.Character.InventoryService.TryConsume(
+                    _owner.Character.InventoryService[_weaponId], 1)))
+                .ReturnsAsync(true);
             return _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), 0, 1, World.WorldConfiguration,
                 _items, World.Create<DignityService>(), options.Object, _itemInstanceDao);
         }
