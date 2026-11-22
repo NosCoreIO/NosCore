@@ -100,6 +100,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             }
         }
 
+        private sealed class TalkingGruntScript : TimeSpaceScript
+        {
+            public TalkingGruntScript() : base(1, "timespace") =>
+                Room(2004, 0, 0).Spawn(Monster(Grunt).At(1, 1).Talk(6028));
+        }
+
         private MapInstance _first;
         private MapInstance _second;
         private IInstanceRunHost? _host;
@@ -123,7 +129,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
 
-        private ScriptedInstanceRun Run(Script script, TimeSpan? timeout = null) =>
+        private ScriptedInstanceRun Run(IInstanceScript script, TimeSpan? timeout = null) =>
             new(_host ?? World.CreateTimeSpaceRunHost(new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, LevelMinimum = 1, Logic = script }),
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
@@ -1015,6 +1021,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             var monster = _first.EnumerateMonsters().Single();
             Assert.AreEqual((short)6028, monster.Dialog);
+            Assert.AreEqual((short)6028, _first.LastPackets.OfType<InPacket>().Single().InNonPlayerSubPacket.NotNull().Dialog);
+        }
+
+        [TestMethod]
+        public async Task AMonsterGivenATalkByAScriptShowsItAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var run = Run(new TalkingGruntScript());
+
+            await run.StartAsync();
+
+            Assert.AreEqual((short)6028, _first.EnumerateMonsters().Single().Dialog);
             Assert.AreEqual((short)6028, _first.LastPackets.OfType<InPacket>().Single().InNonPlayerSubPacket.NotNull().Dialog);
         }
 

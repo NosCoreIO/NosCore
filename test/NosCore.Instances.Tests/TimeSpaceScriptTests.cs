@@ -439,6 +439,23 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void ATalkStaysWithTheMonsterItIsGivenTo()
+        {
+            var grunt = Declared.Mob(Grunt).At(1, 1);
+            _first.Spawn(grunt, grunt.Talk(6028).Count(2));
+
+            Script.OnFirstEnter(_run);
+
+            CollectionAssert.AreEqual(new short[] { 0, 6028, 6028 }, _run.Summoned.Select(s => s.Dialog).ToArray());
+        }
+
+        [TestMethod]
+        public void ATalkWithoutAnIdIsRefused()
+        {
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => Declared.Mob(Grunt).Talk(0));
+        }
+
+        [TestMethod]
         public void AMonsterWithoutAPlaceIsRefused()
         {
             Assert.ThrowsExactly<InvalidOperationException>(() => _first.Spawn(Declared.Mob(Grunt)));

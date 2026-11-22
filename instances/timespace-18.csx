@@ -144,7 +144,7 @@ public class TimeSpace18 : TimeSpaceScript
         descent.Portal(new(14, 28), barracks, new(14, 1), locked: false);
         descent.OnEnter(r => r.Dialog(6098));
         descent.Spawn(
-            Monster(338).At(14, 12),
+            Monster(338).At(14, 12).Talk(6098),
             Monster(338).At(9, 23).Bonus(),
             Monster(338).At(9, 21),
             Monster(338).At(9, 19),
@@ -167,7 +167,7 @@ public class TimeSpace18 : TimeSpaceScript
         barracks.Spawn(
             Monster(338).At(18, 21),
             Monster(338).At(18, 18),
-            Monster(338).At(17, 15),
+            Monster(338).At(17, 15).Talk(6099),
             Monster(338).At(12, 17).Bonus(),
             Monster(338).At(15, 15),
             Monster(338).At(13, 20),

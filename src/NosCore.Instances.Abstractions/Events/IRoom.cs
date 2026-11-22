@@ -85,6 +85,9 @@ namespace NosCore.Instances.Abstractions
 
         IMonster Bonus();
 
+        // Clicking it opens that talk, until the room's own talk of that id is closed.
+        IMonster Talk(short dialog);
+
         IMonster OnDeath(Action<RoomEvent> step);
 
         // Each hit it survives; a hit that kills it runs OnDeath instead.

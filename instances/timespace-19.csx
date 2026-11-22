@@ -50,7 +50,7 @@ public class TimeSpace19 : TimeSpaceScript
         secondStand.OnEnter(r => r
                 .Objective(LanguageKey.TIMESPACE_GOAL_SURVIVE_ONE_MINUTE)
                 .Dialog(6102)
-                .Spawn(Monster(140).At(17, 7), Monster(13).At(11, 9))
+                .Spawn(Monster(140).At(17, 7), Monster(13).At(11, 9).Talk(6102))
                 .StartRoomClock(TimeSpan.FromSeconds(60)))
             .Every(TimeSpan.FromSeconds(30), r => r
                 .Spawn(
