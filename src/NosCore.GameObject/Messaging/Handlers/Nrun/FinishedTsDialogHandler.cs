@@ -16,47 +16,22 @@ using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
-    internal static class TsDialogAdvance
+    // The client closes a time-space talk with any of these runners, depending on the talk.
+    internal static class TsDialogClose
     {
-        public static Task AdvanceAsync(IQuestService questService, ClientSession session)
+        public static async Task CloseAsync(IQuestService questService, IScriptedInstanceService scriptedInstanceService,
+            ClientSession session)
         {
-            var script = session.Character.Script;
-            if (script == null)
+            if (session.Character.Script is { } script)
             {
-                return Task.CompletedTask;
+                await questService.RunScriptAsync(session.Character, new ScriptClientPacket
+                {
+                    Type = QuestActionType.Dialog,
+                    FirstArgument = script.ScriptId,
+                    SecondArgument = script.ScriptStepId,
+                });
             }
-            return questService.RunScriptAsync(session.Character, new ScriptClientPacket
-            {
-                Type = QuestActionType.Dialog,
-                FirstArgument = script.ScriptId,
-                SecondArgument = script.ScriptStepId,
-            });
-        }
-    }
 
-    [UsedImplicitly]
-    public sealed class FinishedTsDialogHandler(IQuestService questService) : INrunEventHandler
-    {
-        public NrunRunnerType Runner => NrunRunnerType.FinishedTSDialog;
-
-        public bool RequiresNpc => false;
-
-        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
-            TsDialogAdvance.AdvanceAsync(questService, session);
-    }
-
-    // Sent when the player closes a dialog a time-space opened.
-    [UsedImplicitly]
-    public sealed class FinishedTsDialog2Handler(IQuestService questService, IScriptedInstanceService scriptedInstanceService)
-        : INrunEventHandler
-    {
-        public NrunRunnerType Runner => NrunRunnerType.FinishedTSDialog2;
-
-        public bool RequiresNpc => false;
-
-        public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
-        {
-            await TsDialogAdvance.AdvanceAsync(questService, session);
             if (scriptedInstanceService.GetRun(session.Character.MapInstance.MapInstanceId) is { } run)
             {
                 await run.DialogClosedAsync(session.Character.CharacterId);
@@ -65,24 +40,50 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     }
 
     [UsedImplicitly]
-    public sealed class FinishedTsHandler(IQuestService questService) : INrunEventHandler
+    public sealed class FinishedTsDialogHandler(IQuestService questService, IScriptedInstanceService scriptedInstanceService)
+        : INrunEventHandler
+    {
+        public NrunRunnerType Runner => NrunRunnerType.FinishedTSDialog;
+
+        public bool RequiresNpc => false;
+
+        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
+            TsDialogClose.CloseAsync(questService, scriptedInstanceService, session);
+    }
+
+    [UsedImplicitly]
+    public sealed class FinishedTsDialog2Handler(IQuestService questService, IScriptedInstanceService scriptedInstanceService)
+        : INrunEventHandler
+    {
+        public NrunRunnerType Runner => NrunRunnerType.FinishedTSDialog2;
+
+        public bool RequiresNpc => false;
+
+        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
+            TsDialogClose.CloseAsync(questService, scriptedInstanceService, session);
+    }
+
+    [UsedImplicitly]
+    public sealed class FinishedTsHandler(IQuestService questService, IScriptedInstanceService scriptedInstanceService)
+        : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.FinishedTs;
 
         public bool RequiresNpc => false;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
-            TsDialogAdvance.AdvanceAsync(questService, session);
+            TsDialogClose.CloseAsync(questService, scriptedInstanceService, session);
     }
 
     [UsedImplicitly]
-    public sealed class FinishedTs2Handler(IQuestService questService) : INrunEventHandler
+    public sealed class FinishedTs2Handler(IQuestService questService, IScriptedInstanceService scriptedInstanceService)
+        : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.FinishedTS2;
 
         public bool RequiresNpc => false;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
-            TsDialogAdvance.AdvanceAsync(questService, session);
+            TsDialogClose.CloseAsync(questService, scriptedInstanceService, session);
     }
 }
