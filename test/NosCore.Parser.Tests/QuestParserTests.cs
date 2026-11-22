@@ -99,14 +99,15 @@ namespace NosCore.Parser.Tests
             short? targetMap = null,
             int? startDialogId = null,
             int? endDialogId = null,
-            short? nextQuestId = null)
+            short? nextQuestId = null,
+            string interim = "0\t0")
         {
             return $"BEGIN\r\n" +
                    $"VNUM\t{questId}\t{questType}\t{(autoFinish ? "1" : "0")}\t{questLineId}\t{requiredQuestId?.ToString() ?? "-1"}\t{(isSecondary ? "1" : "-1")}\r\n" +
                    $"LEVEL\t{levelMin}\t{levelMax}\r\n" +
                    $"TITLE\t{title}\r\n" +
                    $"DESC\t{desc}\r\n" +
-                   $"TALK\t{startDialogId?.ToString() ?? "-1"}\t{endDialogId?.ToString() ?? "-1"}\t0\t0\r\n" +
+                   $"TALK\t{startDialogId?.ToString() ?? "-1"}\t{endDialogId?.ToString() ?? "-1"}\t{interim}\r\n" +
                    $"TARGET\t{targetX?.ToString() ?? "-1"}\t{targetY?.ToString() ?? "-1"}\t{targetMap?.ToString() ?? "-1"}\r\n" +
                    $"DATA\t-1\t-1\t-1\t-1\r\n" +
                    $"PRIZE\t-1\t-1\t-1\t-1\r\n" +
@@ -128,6 +129,36 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual("FirstQuest", _savedQuests[0].TitleI18NKey);
             Assert.AreEqual(10, _savedQuests[0].LevelMin);
             Assert.AreEqual(50, _savedQuests[0].LevelMax);
+        }
+
+        [TestMethod]
+        [DataRow("932\t6317", (short)932, 6317)]
+        [DataRow("0\t0", null, null)]
+        [DataRow("-1\t-1", null, null)]
+        public async Task QuestParser_ReadsTheNpcAndDialogOfAHeldQuestsInterimTalk(string interim, short? npc, int? dialog)
+        {
+            CreateTestFile(CreateQuestData(questId: 2001, interim: interim));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(npc, _savedQuests.Single().InterimNpcVNum);
+            Assert.AreEqual(dialog, _savedQuests.Single().InterimDialogId);
+        }
+
+        [TestMethod]
+        public async Task QuestParser_TheLastPyjamaQuestPaysThePyjamaCard()
+        {
+            _questRewardDaoMock.Setup(x => x.LoadAll()).Returns(new List<QuestRewardDto>
+            {
+                new() { QuestRewardId = -2007, RewardType = QuestRewardType.WearItem, Data = 900, Amount = 1 },
+            });
+            CreateTestFile(CreateQuestData(questId: 2007, questType: 12));
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(-2007, _savedQuestRewards.Single(r => r.QuestId == 2007).QuestRewardId);
         }
 
         [TestMethod]

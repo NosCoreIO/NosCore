@@ -257,7 +257,26 @@ namespace NosCore.GameObject.Services.QuestService
         private async Task<bool> QPayAsync(PlayerComponentBundle character, short questId)
         {
             var charQuest = character.Quests.Values.FirstOrDefault(q => q.QuestId == questId && q.CompletedOn == null);
-            if (charQuest == null || !charQuest.AreObjectivesComplete())
+            return charQuest != null && await PayAsync(character, charQuest);
+        }
+
+        public async Task ClaimQuestAsync(PlayerComponentBundle character, int slot)
+        {
+            var claimed = character.Quests.Values.FirstOrDefault(q => q.Slot == slot && q.CompletedOn == null
+                && q.ObjectivesCompletedOn != null && !HasQPayStep(q.QuestId));
+            if (claimed == null)
+            {
+                await RunCurrentScriptStepAsync(character, QuestActionType.Validate);
+                return;
+            }
+
+            await PayAsync(character, claimed);
+        }
+
+        private async Task<bool> PayAsync(PlayerComponentBundle character, CharacterQuest charQuest)
+        {
+            var questId = charQuest.QuestId;
+            if (!charQuest.AreObjectivesComplete())
             {
                 return false;
             }
@@ -289,6 +308,9 @@ namespace NosCore.GameObject.Services.QuestService
             await gameEvents.RaiseAsync(new QuestCompletedEvent(character, charQuest));
             return true;
         }
+
+        private bool HasQPayStep(short questId) => scripts.Any(s =>
+            string.Equals(s.StepType, "q_pay", System.StringComparison.OrdinalIgnoreCase) && s.Argument1 == questId);
 
         private async Task<bool> TimeAsync(short delay)
         {
@@ -474,10 +496,8 @@ namespace NosCore.GameObject.Services.QuestService
 
             quest.ObjectivesCompletedOn ??= clock.GetCurrentInstant();
 
-            var hasQPayStep = scripts.Any(s =>
-                string.Equals(s.StepType, "q_pay", System.StringComparison.OrdinalIgnoreCase)
-                && s.Argument1 == quest.QuestId);
-            if (!hasQPayStep)
+            var waitsForClaim = HasQPayStep(quest.QuestId) || questRewardService.HasRewards(quest.QuestId);
+            if (!waitsForClaim)
             {
                 quest.CompletedOn ??= clock.GetCurrentInstant();
             }
@@ -497,7 +517,7 @@ namespace NosCore.GameObject.Services.QuestService
                 await RunScriptAsync(character);
             }
 
-            if (!hasQPayStep)
+            if (!waitsForClaim)
             {
                 await questRewardService.GiveAsync(character, quest);
                 await gameEvents.RaiseAsync(new QuestCompletedEvent(character, quest));

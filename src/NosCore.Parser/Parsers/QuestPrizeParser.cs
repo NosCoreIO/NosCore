@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
@@ -49,6 +50,15 @@ namespace NosCore.Parser.Parsers
             await questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).OrThrowAsync();
             _logger.LogInformation(logLanguage[LogLanguageKey.QUEST_PRIZES_PARSED], questRewardDtos.Count);
         }
+
+        public Task ImportUnlistedQuestPrizesAsync() =>
+            questRewardDtoDao.TryInsertOrUpdateAsync(UnlistedQuestPrizes.All.Select(p => new QuestRewardDto
+            {
+                QuestRewardId = p.QuestRewardId,
+                RewardType = p.RewardType,
+                Data = p.ItemVNum,
+                Amount = 1,
+            }).ToList()).OrThrowAsync();
 
         private static QuestRewardType RewardType(Dictionary<string, string[][]> chunk) =>
             (QuestRewardType)Convert.ToInt16(chunk["VNUM"][0][2]);

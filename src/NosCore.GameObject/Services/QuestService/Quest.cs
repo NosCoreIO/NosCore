@@ -19,8 +19,6 @@ namespace NosCore.GameObject.Services.QuestService
 
         public ConcurrentDictionary<System.Guid, int> ObjectiveProgress { get; } = new();
 
-        public NodaTime.Instant? ObjectivesCompletedOn { get; set; }
-
         private int _completionClaimed;
 
         // Two events for one character can run on different threads, and only the first may complete the quest.

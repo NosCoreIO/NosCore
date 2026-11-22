@@ -21,6 +21,7 @@ using NosCore.Packets.ServerPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
@@ -68,8 +69,15 @@ namespace NosCore.PacketHandlers.Shops
                         }
 
                         npcDialogService.Open(character, found, NpcDialogWindow.Conversation);
-                        await found.AnswerRequestAsync(clientSession);
+                        var open = character.Quests.Values.Where(q => q.ObjectivesCompletedOn == null).ToList();
                         await gameEvents.RaiseAsync(new NpcTalkedEvent(character, found));
+                        // A talk that meets a quest's objectives answers with the quest instead of the dialog.
+                        if (open.Any(q => q.ObjectivesCompletedOn != null))
+                        {
+                            return;
+                        }
+
+                        await found.AnswerRequestAsync(clientSession);
                         return;
                     }
                     break;

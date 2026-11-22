@@ -19,8 +19,8 @@ namespace NosCore.PacketHandlers.Quest
         {
             return qtPacket.Type switch
             {
-                QuestActionType.Validate or QuestActionType.Achieve =>
-                    questProvider.RunCurrentScriptStepAsync(session.Character, qtPacket.Type),
+                QuestActionType.Validate => questProvider.ClaimQuestAsync(session.Character, qtPacket.Data),
+                QuestActionType.Achieve => questProvider.RunCurrentScriptStepAsync(session.Character, qtPacket.Type),
                 QuestActionType.GiveUp => questProvider.GiveUpQuestAsync(session.Character, qtPacket.Data),
                 _ => Task.CompletedTask,
             };

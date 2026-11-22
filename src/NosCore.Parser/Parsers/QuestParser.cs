@@ -27,7 +27,7 @@ namespace NosCore.Parser.Parsers
     //LEVEL   {LevelMin}	{LevelMax}
     //TITLE   {Title}
     //DESC    {Desc}
-    //TALK    {StartDialogId}	{EndDialogId}	0	0
+    //TALK    {StartDialogId}	{EndDialogId}	{InterimNpcVNum}	{InterimDialogId}
     //TARGET  {TargetX}    {TargetY}	{TargetMap}
     //DATA	  {FirstData}    {SecondData}	{ThirdData}     {FourthData}
     //PRIZE	  {firstPrizeVNUM}	{secondPrizeVNUM}	{thirdPrizeVNUM}	{fourthPrizeVNUM}
@@ -64,6 +64,8 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.TargetMap, chunk => chunk["TARGET"][0][3] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][3]))
                 .Field(x => x.StartDialogId, chunk => chunk["TALK"][0][1] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][1]))
                 .Field(x => x.EndDialogId, chunk => chunk["TALK"][0][2] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][2]))
+                .Field(x => x.InterimNpcVNum, chunk => Convert.ToInt16(chunk["TALK"][0][3]) is > 0 and var npc ? npc : null)
+                .Field(x => x.InterimDialogId, chunk => Convert.ToInt32(chunk["TALK"][0][4]) is > 0 and var dialog ? dialog : null)
                 .Field(x => x.NextQuestId, chunk => chunk["LINK"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["LINK"][0][1]))
                 .Field(x => x.QuestQuestReward, chunk => ImportQuestQuestRewards(chunk))
                 .Field(x => x.QuestObjective, chunk => ImportQuestObjectives(chunk));
@@ -143,10 +145,12 @@ namespace NosCore.Parser.Parsers
 
         private List<QuestQuestRewardDto> ImportQuestQuestRewards(Dictionary<string, string[][]> chunk)
         {
+            var questId = Convert.ToInt16(chunk["VNUM"][0][1]);
+            var prizes = Enumerable.Range(1, 4).Select(i => Convert.ToInt16(chunk["PRIZE"][0][i]))
+                .Concat(UnlistedQuestPrizes.All.Where(p => p.QuestId == questId).Select(p => p.QuestRewardId));
             var currentRewards = new List<QuestQuestRewardDto>();
-            for (var i = 1; i < 5; i++)
+            foreach (var prize in prizes)
             {
-                var prize = Convert.ToInt16(chunk["PRIZE"][0][i]);
                 if ((prize == -1) || (_questRewards?.ContainsKey(prize) == false))
                 {
                     continue;
@@ -155,7 +159,7 @@ namespace NosCore.Parser.Parsers
                 currentRewards.Add(new QuestQuestRewardDto
                 {
                     Id = Guid.NewGuid(),
-                    QuestId = Convert.ToInt16(chunk["VNUM"][0][1]),
+                    QuestId = questId,
                     QuestRewardId = prize,
                 });
             }

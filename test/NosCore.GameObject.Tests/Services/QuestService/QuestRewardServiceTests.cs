@@ -299,6 +299,25 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task ASpecialistCardSaysACardWasReceived()
+        {
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.WearItem, Data = 912, Amount = 1 });
+
+            await GiveAsync();
+
+            Assert.AreEqual(1, Character.InventoryService.CountItem(912));
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = Character.CharacterId,
+                Type = SayColorType.Red,
+                Message = Game18NConstString.ReceivedSpecialistCard,
+            }, Session.LastPackets.OfType<SayiPacket>().Single());
+            Assert.AreEqual(QuestRewardType.WearItem, Window.Reward1Type);
+            Assert.AreEqual(912, Window.Reward1Data);
+        }
+
+        [TestMethod]
         public async Task QuestGoldPrintsOnlyTheRewardLine()
         {
             Prize(new QuestRewardDto { RewardType = QuestRewardType.Gold, Amount = 2500 });

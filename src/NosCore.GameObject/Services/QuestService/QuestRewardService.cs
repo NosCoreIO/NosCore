@@ -18,6 +18,7 @@ using NosCore.Algorithm.MonsterGoldService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -46,6 +47,8 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
     private const int WindowSlots = 4;
     private const byte ItemArgument = 2;
     private const byte NumberArgument = 4;
+
+    public bool HasRewards(short questId) => RewardsOf(questId).Any();
 
     public bool HasRoomFor(PlayerComponentBundle character, short questId) =>
         RewardsOf(questId).Where(r => ItemCandidates(r).Count > 0)
@@ -225,8 +228,11 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         return (type, 0, (int)gold);
     }
 
-    private static SayiPacket? ChatLine(PlayerComponentBundle character, (QuestRewardType Type, int Data, int Amount) slot) => slot.Type switch
+    private SayiPacket? ChatLine(PlayerComponentBundle character, (QuestRewardType Type, int Data, int Amount) slot) => slot.Type switch
     {
+        QuestRewardType.EtcMainItem or QuestRewardType.WearItem or QuestRewardType.ClassItem or QuestRewardType.ConsecutiveItem
+            when itemCatalog.GetItem((short)slot.Data) is { ItemType: ItemType.Specialist } =>
+            character.GenerateSayi(SayColorType.Red, Game18NConstString.ReceivedSpecialistCard),
         QuestRewardType.Gold or QuestRewardType.GoldPerMonster or QuestRewardType.GoldPerKill =>
             character.GenerateSayi(SayColorType.Yellow, Game18NConstString.QuestRewardGold, NumberArgument, (long)slot.Amount),
         QuestRewardType.Experience or QuestRewardType.ExperiencePerMonster or QuestRewardType.ExperiencePerKill =>

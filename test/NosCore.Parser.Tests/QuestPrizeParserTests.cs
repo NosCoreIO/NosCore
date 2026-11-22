@@ -60,6 +60,16 @@ namespace NosCore.Parser.Tests
             $"VNUM\t{id}\t{rewardType}\r\nDATA\t{dataLine}\r\nEND\r\n";
 
         [TestMethod]
+        public async Task QuestPrizeParser_StoresThePyjamaCardThatQstprizeDoesNotList()
+        {
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportUnlistedQuestPrizesAsync();
+
+            var card = _saved.Single(r => r.QuestRewardId == -2007);
+            Assert.AreEqual((QuestRewardType.WearItem, 900, 1), (card.RewardType, card.Data, card.Amount));
+        }
+
+        [TestMethod]
         public async Task QuestPrizeParser_GoldRewardParsesAmountFromFirstDataField()
         {
             WriteFile(Entry(100, (short)QuestRewardType.Gold, "500\t-1\t-1\t-1\t-1"));
