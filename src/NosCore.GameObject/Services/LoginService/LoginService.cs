@@ -102,6 +102,10 @@ namespace NosCore.GameObject.Services.LoginService
                         if (connectedAccount.Any(x => x.Name == acc.Name))
                         {
                             connectedAccount = await TakeOverAsync(acc.Name);
+                            // The closed session saved the account on its way out; writing back the copy
+                            // read before it would undo that save.
+                            var accountId = acc.AccountId;
+                            acc = await accountDao.FirstOrDefaultAsync(s => s.AccountId == accountId) ?? acc;
                         }
 
                         if (connectedAccount.Any(x => x.Name == acc.Name))

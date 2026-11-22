@@ -170,6 +170,18 @@ namespace NosCore.PacketHandlers.Tests.Login
         }
 
         [TestMethod]
+        public async Task LoginKeepsWhatTheClosedSessionSavedOnItsAccount()
+        {
+            await new Spec("Login keeps what the closed session saved on its account")
+                .Given(AccountIsConnectedUntilItsSessionIsAskedToClose)
+                .And(ClosingTheSessionBanks_Gold, 3000L)
+                .WhenAsync(LoggingInWhileTimePassesAsync)
+                .Then(ShouldReceiveNsTestPacket)
+                .AndAsync(TheStoredBankShouldHold_Gold, 3000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task LoginOnAFreeAccountClosesNoSession()
         {
             await new Spec("Login on a free account closes no session")
@@ -244,6 +256,24 @@ namespace NosCore.PacketHandlers.Tests.Login
             PubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(() => closed
                 ? new List<Subscriber>()
                 : new List<Subscriber> { new() { Name = Session.Account.Name } });
+        }
+
+        private void ClosingTheSessionBanks_Gold(long gold)
+        {
+            PubSubHub.Setup(s => s.DisconnectAccountAsync(Session.Account.Name)).Returns(async () =>
+            {
+                var stored = (await World.AccountDao.FirstOrDefaultAsync(a => a.AccountId == Session.Account.AccountId)).NotNull();
+                stored.BankMoney = gold;
+                await World.AccountDao.TryInsertOrUpdateAsync(stored).OrThrowAsync();
+                PubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+                return true;
+            });
+        }
+
+        private async Task TheStoredBankShouldHold_Gold(long gold)
+        {
+            var stored = await World.AccountDao.FirstOrDefaultAsync(a => a.AccountId == Session.Account.AccountId);
+            Assert.AreEqual(gold, stored.NotNull().BankMoney);
         }
 
         private void NoServerIsAvailable()
