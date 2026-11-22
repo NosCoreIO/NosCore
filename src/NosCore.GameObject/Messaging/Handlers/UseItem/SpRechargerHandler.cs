@@ -49,10 +49,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     await buffService.RemoveBadAsync(character, item.RemovesDebuffsUpToLevel);
                 }
 
-                if (item.RestoresPercent > 0)
-                {
-                    await character.HealAsync(character.MaxHp * item.RestoresPercent / 100, character.MaxMp * item.RestoresPercent / 100);
-                }
+                await character.HealAsync(item.RestoresAllHp ? character.MaxHp : character.MaxHp * item.RestoresPercent / 100,
+                    item.RestoresAllMp ? character.MaxMp : character.MaxMp * item.RestoresPercent / 100);
             }
             else
             {

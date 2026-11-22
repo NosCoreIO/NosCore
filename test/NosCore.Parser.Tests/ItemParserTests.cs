@@ -944,6 +944,7 @@ namespace NosCore.Parser.Tests
             var content = string.Join("\n#========================================================\n",
                 CreateItemData(vnum: 5904, indexType: 1, indexSubType: 4, data: string.Format(data, 4)),
                 CreateItemData(vnum: 1120, indexType: 1, indexSubType: 4, data: string.Format(data, 3)),
+                CreateItemData(vnum: 1119, indexType: 1, indexSubType: 4, data: string.Format(data, 2)),
                 CreateItemData(vnum: 1118, indexType: 1, indexSubType: 4, data: string.Format(data, 1)));
             CreateTestFile(content);
 
@@ -957,7 +958,12 @@ namespace NosCore.Parser.Tests
             var large = _savedItems.Single(i => i.VNum == 1120);
             Assert.AreEqual(180000, large.EffectValue);
             Assert.AreEqual(byte.MaxValue, large.RemovesDebuffsUpToLevel);
-            Assert.AreEqual(0, _savedItems.Single(i => i.VNum == 1118).RemovesDebuffsUpToLevel);
+            Assert.AreEqual((true, true), (large.RestoresAllHp, large.RestoresAllMp));
+            var medium = _savedItems.Single(i => i.VNum == 1119);
+            Assert.AreEqual((true, true, (byte)0), (medium.RestoresAllHp, medium.RestoresAllMp, medium.RemovesDebuffsUpToLevel));
+            var small = _savedItems.Single(i => i.VNum == 1118);
+            Assert.AreEqual((true, false, (byte)0), (small.RestoresAllHp, small.RestoresAllMp, small.RemovesDebuffsUpToLevel));
+            Assert.AreEqual((false, false), (dinner.RestoresAllHp, dinner.RestoresAllMp));
         }
 
         [TestMethod]

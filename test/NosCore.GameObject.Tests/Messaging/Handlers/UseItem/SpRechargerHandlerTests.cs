@@ -133,6 +133,46 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task ASmallSpecialPotionFillsTheHpBarOnly()
+        {
+            RechargerInInventoryWith_EffectAndValue_(ItemEffectType.PremiumSpRecharger, 30_000);
+            _recharger.ItemInstance.Item.RestoresAllHp = true;
+            var character = _session.Character;
+            character.SpAdditionPoint = 0;
+            character.Hp = 1;
+            character.Mp = 1;
+
+            await UsingTheRecharger();
+
+            character = _session.Character;
+            Assert.AreEqual(30_000, character.SpAdditionPoint);
+            Assert.AreEqual(character.MaxHp, character.Hp);
+            Assert.AreEqual(1, character.Mp);
+        }
+
+        [TestMethod]
+        public async Task ALargeSpecialPotionFillsBothBarsAndRemovesEveryDebuff()
+        {
+            RechargerInInventoryWith_EffectAndValue_(ItemEffectType.PremiumSpRecharger, 180_000);
+            _recharger.ItemInstance.Item.RestoresAllHp = true;
+            _recharger.ItemInstance.Item.RestoresAllMp = true;
+            _recharger.ItemInstance.Item.RemovesDebuffsUpToLevel = byte.MaxValue;
+            var character = _session.Character;
+            character.SpAdditionPoint = 0;
+            character.Hp = 1;
+            character.Mp = 1;
+            await _buffs.ApplyAsync(character, new CardDto { CardId = HighDebuff, Level = 4, BuffType = BuffType.Bad, Duration = 600 }, new List<BCardDto>(), null);
+
+            await UsingTheRecharger();
+
+            character = _session.Character;
+            Assert.AreEqual(MaxAdditionalSp, character.SpAdditionPoint);
+            Assert.AreEqual(character.MaxHp, character.Hp);
+            Assert.AreEqual(character.MaxMp, character.Mp);
+            Assert.IsFalse(_buffs.HasBuff(character, HighDebuff));
+        }
+
+        [TestMethod]
         public async Task APlainRechargerLeavesHpAndDebuffsAlone()
         {
             RechargerInInventoryWith_EffectAndValue_(ItemEffectType.PremiumSpRecharger, 30_000);

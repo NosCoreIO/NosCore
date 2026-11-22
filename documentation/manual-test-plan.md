@@ -684,9 +684,12 @@ restart the world server:
       both bars gain a fifth of their maximum, the healed number floats over you, the debuff icon
       goes away, and the SP points bar gains 100
 - [ ] A debuff above level 3 stays after Fafnir's Fried Dinner
-- [ ] Drink a Large Special Potion (1120) with any debuff on you: every debuff icon goes away and
-      the SP points bar gains 180 000
-- [ ] A Small Special Potion (1118) only adds SP points
+- [ ] Drink a Large Special Potion (1120) with HP and MP low and any debuff on you: both bars
+      fill, the healed number floats over you, every debuff icon goes away and the SP points bar
+      gains 180 000
+- [ ] A Medium Special Potion (1119) fills both bars, leaves the debuffs on and adds 70 000 SP points
+- [ ] A Small Special Potion (1118) fills the HP bar, leaves the MP bar where it was and adds
+      30 000 SP points
 - [ ] With the SP points bar full, each of them shows "Cannot be used as it exceeds the capacity."
       and stays in the bag
 

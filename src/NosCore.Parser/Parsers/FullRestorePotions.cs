@@ -7,8 +7,7 @@ using System.Collections.Generic;
 
 namespace NosCore.Parser.Parsers
 {
-    // Potions that restore the whole bar. Item.dat gives them no Hp or Mp amount; the English
-    // descriptions say "Restores 100%".
+    // Items that restore the whole bar on use. Item.dat gives them no Hp or Mp amount.
     public static class FullRestorePotions
     {
         public static readonly IReadOnlyDictionary<short, FullRestore> All = new Dictionary<short, FullRestore>
@@ -24,6 +23,12 @@ namespace NosCore.Parser.Parsers
             [13584] = new(Hp: true, Mp: false),
             [13585] = new(Hp: false, Mp: true),
             [13797] = new(Hp: true, Mp: true),
+            [1118] = new(Hp: true, Mp: false),
+            [9014] = new(Hp: true, Mp: false),
+            [1119] = new(Hp: true, Mp: true),
+            [9015] = new(Hp: true, Mp: true),
+            [1120] = new(Hp: true, Mp: true),
+            [9016] = new(Hp: true, Mp: true),
         };
     }
 
