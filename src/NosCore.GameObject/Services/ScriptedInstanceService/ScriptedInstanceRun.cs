@@ -293,13 +293,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
-            var wasOpen = EndState == null;
-            await CallScriptAsync(run => _script.OnRoomCleared(run, room));
-            _cleared.Add(room);
-            if (wasOpen)
+            // Added before the script hears of the clear, so a clear that ends the run is shown before its score.
+            if (EndState == null)
             {
                 AddToScore(_host.RoomClearedPoints);
             }
+
+            await CallScriptAsync(run => _script.OnRoomCleared(run, room));
+            _cleared.Add(room);
         }
 
         // The counters are taken as they stand now, so a step that ends the run on this advance still

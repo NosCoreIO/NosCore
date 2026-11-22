@@ -30,6 +30,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Shared.Enumerations;
@@ -60,6 +61,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private TestWorld World;
         private ClientSession _session;
+        private EndingWatcher _watcher;
         private MapInstance _room;
         private ScriptedInstanceRun _run;
         private readonly Mock<IGameEventDispatcher> _gameEvents = new();
@@ -71,11 +73,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             private readonly bool _succeeds;
             private readonly bool _hunts;
+            private readonly bool _succeedsOnClear;
 
-            public Script(bool succeeds, bool hunts)
+            public Script(bool succeeds, bool hunts, bool succeedsOnClear = false)
             {
                 _succeeds = succeeds;
                 _hunts = hunts;
+                _succeedsOnClear = succeedsOnClear;
                 Definition = new ScriptedInstanceDefinition
                 {
                     Id = TimeSpaceId,
@@ -91,6 +95,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 if (_hunts)
                 {
                     run.Hunt(1, Grunt);
+                }
+            }
+
+            public override void OnRoomCleared(IInstanceRun run, int room)
+            {
+                if (_succeedsOnClear)
+                {
+                    run.Succeed();
                 }
             }
 
@@ -191,6 +203,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     ClearType = TimeSpaceClearType.LoserMode,
                     Unknown = 1
                 })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastRoomsClearIsShownBeforeTheMissionClear()
+        {
+            await new Spec("When clearing the last room ends the run, its points are shown and counted before the Mission Clear")
+                .GivenAsync(ATimeSpaceThatSucceedsWhenItsRoomIsCleared)
+                .WhenAsync(_MonstersAreKilled, 2)
+                .Then(TheRunningScoreShownWhenTheRunEndedShouldBe, 2 * KillPoints + RoomClearedPoints)
+                .And(TheScorePointsShouldBe, 2 * KillPoints + RoomClearedPoints)
                 .ExecuteAsync();
         }
 
@@ -471,7 +494,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private Task ATimeSpaceThatFails() => ATimeSpaceAsync(false);
 
-        private async Task ATimeSpaceAsync(bool succeeds, bool hunts = false, short? stone = null)
+        private Task ATimeSpaceThatSucceedsWhenItsRoomIsCleared() => ATimeSpaceAsync(false, succeedsOnClear: true);
+
+        private async Task ATimeSpaceAsync(bool succeeds, bool hunts = false, short? stone = null, bool succeedsOnClear = false)
         {
             _room = World.MapInstanceGeneratorService.CreateMapInstance(
                 new GameObject.Map.Map
@@ -480,12 +505,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     NameI18NKey = "instanceRoom",
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
-            var script = new Script(succeeds, hunts);
+            var script = new Script(succeeds, hunts, succeedsOnClear);
+            var timeSpace = World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance
+                {
+                    ScriptedInstanceId = 1, MapId = 1, LevelMinimum = LevelMinimum, Logic = script, StoneVNum = stone
+                });
+            _watcher = new EndingWatcher(timeSpace, _room);
             _run = new ScriptedInstanceRun(
-                World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance
-                    {
-                        ScriptedInstanceId = 1, MapId = 1, LevelMinimum = LevelMinimum, Logic = script, StoneVNum = stone
-                    }),
+                succeedsOnClear ? _watcher : timeSpace,
                 script,
                 new Dictionary<int, MapInstance> { [1] = _room },
                 new NpcMonsterCatalog(
@@ -520,6 +547,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private void TheScoreShouldBe(ScorePacket expected) =>
             PacketAssert.AreEqual(expected, _session.LastPackets.OfType<ScorePacket>().Single());
+
+        private void TheScorePointsShouldBe(int points) =>
+            Assert.AreEqual(points, _session.LastPackets.OfType<ScorePacket>().Single().Points);
+
+        private void TheRunningScoreShownWhenTheRunEndedShouldBe(int score) =>
+            Assert.AreEqual(score, _watcher.ScoreShownAtTheEnd?.Score);
 
         private void TheScoreShouldShow_Experience_AndJobExperience(int experience, int jobExperience)
         {
@@ -561,5 +594,43 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private void TheClearShouldBeRecorded() =>
             Assert.IsTrue(_session.Character.CompletedTimeSpaces?.Contains(TimeSpaceId));
+
+        // The time-space host, noting the last running score its room had been sent when the run's ending reached it.
+        private sealed class EndingWatcher(TimeSpaceRunHost host, MapInstance room) : IInstanceRunHost
+        {
+            public RnscPacket? ScoreShownAtTheEnd { get; private set; }
+
+            public string Name => host.Name;
+
+            public int? LivesLeft => host.LivesLeft;
+
+            public bool DrawsRoomMap => host.DrawsRoomMap;
+
+            public bool AsksToStart => host.AsksToStart;
+
+            public bool ShowsScore => host.ShowsScore;
+
+            public int KillPoints(byte monsterLevel, byte killerLevel, int chain) =>
+                host.KillPoints(monsterLevel, killerLevel, chain);
+
+            public int RoomClearedPoints => host.RoomClearedPoints;
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => host.WaveMonsters(wave);
+
+            public Task DropWaveAsync(MapInstance mapInstance, byte wave) => host.DropWaveAsync(mapInstance, wave);
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state)
+            {
+                ScoreShownAtTheEnd = room.LastPackets.OfType<RnscPacket>().LastOrDefault();
+                return host.EndedAsync(run, state);
+            }
+
+            public Task ReturnAsync(ClientSession session) => host.ReturnAsync(session);
+
+            public Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) => host.PlayerDownAsync(run, player);
+
+            public Task RevivalAnsweredAsync(ScriptedInstanceRun run, PlayerComponentBundle player) =>
+                host.RevivalAnsweredAsync(run, player);
+        }
     }
 }
