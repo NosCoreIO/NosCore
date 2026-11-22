@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -29,14 +30,13 @@ public interface IOnyxDragonService
 
 public sealed class OnyxDragonService(INpcMonsterCatalog npcMonsters) : IOnyxDragonService, ISingletonService
 {
-    private const short OnyxDragonVNum = 2371;
     private const short Offset = 2;
     private static readonly TimeSpan StrikeDelay = TimeSpan.FromMilliseconds(350);
 
     public Task StrikeAsync(IAliveEntity attacker, IAliveEntity target, SkillInfo skill, int damage)
     {
         if (attacker.MapInstance is not { } map
-            || npcMonsters.GetNpcMonster(OnyxDragonVNum) is not { } onyx)
+            || npcMonsters.GetNpcMonster(MonsterRole.OnyxDragon) is not { } onyx)
         {
             return Task.CompletedTask;
         }

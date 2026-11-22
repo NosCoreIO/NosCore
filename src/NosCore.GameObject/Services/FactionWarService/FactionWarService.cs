@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -38,7 +39,6 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
     : IFactionWarService, ISingletonService
 {
     public const int FullProgress = 10000;
-    public const short Mukraju = 556;
     public const short RaidGateMapId = 134;
     public const short RaidGateX = 139;
     public const short RaidGateY = 99;
@@ -269,7 +269,7 @@ public sealed class FactionWarService(IClock clock, ISessionRegistry sessionRegi
     private async Task SummonGuardianAsync(Side side)
     {
         if (mapInstanceAccessorService.GetBaseMapById(side.CampMapId) is not { } camp
-            || npcMonsters.GetNpcMonster(Mukraju) is not { } mukraju)
+            || npcMonsters.GetNpcMonster(MonsterRole.FactionGuardian) is not { } mukraju)
         {
             return;
         }

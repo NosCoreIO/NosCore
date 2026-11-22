@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NodaTime;
+using NosCore.Data.Enumerations.Battle;
 using Moq;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
@@ -60,7 +61,7 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
             maps.Setup(m => m.GetMapInstance(glacernon.MapInstanceId)).Returns(glacernon);
             World.Inject(new List<NpcMonsterDto>
             {
-                new() { NpcMonsterVNum = GameObject.Services.FactionWarService.FactionWarService.Mukraju, MaxHp = 1000, Level = 70 },
+                new() { NpcMonsterVNum = 556, Role = MonsterRole.FactionGuardian, MaxHp = 1000, Level = 70 },
             });
             _familyContributions = World.Freeze<Mock<IFamilyContributionService>>();
             _service = World.Create<GameObject.Services.FactionWarService.FactionWarService>();
@@ -306,7 +307,7 @@ namespace NosCore.GameObject.Tests.Services.FactionWarService
             Assert.AreEqual(count, _demon.LastPackets.OfType<FcPacket>().Count());
 
         private MonsterComponentBundle? Mukraju() => _camp.FindMonster(m =>
-            m.VNum == GameObject.Services.FactionWarService.FactionWarService.Mukraju && m.IsAlive);
+            m.NpcMonster.Role == MonsterRole.FactionGuardian && m.IsAlive);
 
         private async Task LordMukrajuIsKilled()
         {

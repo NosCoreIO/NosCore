@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.FactionWarService;
@@ -17,7 +18,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Act4
     {
         [UsedImplicitly]
         public Task Handle(EntityDiedEvent evt) =>
-            evt.Victim is MonsterComponentBundle { VNum: FactionWarService.Mukraju, MapInstance.IsAct4: true } monster
+            evt.Victim is MonsterComponentBundle { NpcMonster.Role: MonsterRole.FactionGuardian, MapInstance.IsAct4: true } monster
                 ? factionWarService.GuardianDiedAsync(monster)
                 : Task.CompletedTask;
     }

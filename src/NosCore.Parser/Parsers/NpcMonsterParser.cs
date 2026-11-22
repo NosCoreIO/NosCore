@@ -5,6 +5,7 @@
 //
 
 using NosCore.Core.Dao;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
@@ -284,12 +285,24 @@ namespace NosCore.Parser.Parsers
                 .Doc("ITEM", 2, "drop1Vnum", "First drop vnum; 20 groups of 3 (cols 2..61) repeat the vnum/chance/amount triple.");
         }
 
+        private static MonsterRole Role(short vnum) => vnum switch
+        {
+            2371 => MonsterRole.OnyxDragon,
+            556 => MonsterRole.FactionGuardian,
+            _ => MonsterRole.None,
+        };
+
         public async Task InsertNpcMonstersAsync(string folder)
         {
             _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
             _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
             var parser = BuildParser(folder).Build(_loggerFactory, _logLanguage);
             var monsters = (await parser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
+            foreach (var monster in monsters)
+            {
+                monster.Role = Role(monster.NpcMonsterVNum);
+            }
+
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters).OrThrowAsync();
             var monsterVNums = monsters.Select(s => s.NpcMonsterVNum).ToHashSet();
             await _bCardDao.TryDeleteAsync(_bCardDao.Where(s => s.NpcMonsterVNum != null && monsterVNums.Contains(s.NpcMonsterVNum.Value))?.Select(s => s.BCardId).ToList() ?? []).OrThrowAsync();
