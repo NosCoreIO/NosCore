@@ -1904,6 +1904,8 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
 - [ ] Right-click a weapon and an armour with shell options in the EQUIP tab, one of them taken
       from the parcel box: the info window lists every option with its rank letter and value,
       and the client raises no error
+- [ ] Right-click an armour whose options include a normal, a bonus and a PvP rank: each line
+      shows the rank letter and colour that a weapon option of the same rank shows
 - [ ] From the ADDITIONAL tab, right-click a card in the card inventory (the specialist window
       opens) and a costume in the costume inventory
 - [ ] Open a partner's page (P) and right-click its card and its weapon

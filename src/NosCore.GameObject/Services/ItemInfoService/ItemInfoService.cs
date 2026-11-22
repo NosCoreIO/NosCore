@@ -316,11 +316,14 @@ public sealed class ItemInfoService(
         };
     }
 
-    private List<EInfoShellOptionSubPacket> LoadShellOptions(WearableInstance piece) =>
-        equipmentOptionDao.Where(o => o.WearableInstanceId == piece.Id)?
+    private List<EInfoShellOptionSubPacket> LoadShellOptions(WearableInstance piece)
+    {
+        var isArmor = piece.Item.EquipmentSlot == EquipmentType.Armor;
+        return equipmentOptionDao.Where(o => o.WearableInstanceId == piece.Id)?
             .OrderBy(o => o.Level)
-            .Select(o => new EInfoShellOptionSubPacket { Level = o.Level, Type = o.Type, Value = o.Value })
+            .Select(o => new EInfoShellOptionSubPacket { Level = o.Level, Type = o.Type, Value = o.Value, IsArmor = isArmor })
             .ToList() ?? [];
+    }
 
     private EInfoJewelryPacket GenerateJewelryInfo(WearableInstance jewel)
     {

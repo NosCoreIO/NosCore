@@ -522,6 +522,46 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         }
 
         [TestMethod]
+        public void AnArmourWithShellOptionsMatchesTheTracedInfo()
+        {
+            var armour = Wearable(new Item
+            {
+                VNum = 4635, ItemType = ItemType.Armor, EquipmentSlot = EquipmentType.Armor, LevelMinimum = 65,
+                CloseDefence = 596, DistanceDefence = 669, MagicDefence = 667, DefenceDodge = 641, Price = 1400000
+            });
+            armour.Rare = 7;
+            armour.CloseDefence = 102;
+            armour.DistanceDefence = 74;
+            armour.MagicDefence = 34;
+            armour.DefenceDodge = 22;
+            var options = new (byte Level, byte Type, int Value)[]
+            {
+                (1, 2, 39), (1, 18, 48), (2, 24, 7), (2, 10, 29), (3, 19, 82),
+                (3, 1, 188), (4, 4, 19), (7, 31, 83), (12, 33, 31), (12, 37, 15),
+            };
+            foreach (var (level, type, value) in options)
+            {
+                _options.Add(new EquipmentOptionDto { WearableInstanceId = armour.Id, Level = level, Type = type, Value = value });
+            }
+
+            PacketAssert.AreEqual(new EInfoArmorPacket
+            {
+                ItemVNum = 4635,
+                Rare = 7,
+                LevelMinimum = 65,
+                CloseDefence = 698,
+                DistanceDefence = 743,
+                MagicDefence = 701,
+                DefenceDodge = 663,
+                Price = 1400000,
+                ShellOptionCount = 10,
+                ShellOptions = options
+                    .Select(o => new EInfoShellOptionSubPacket { Level = o.Level, Type = o.Type, Value = o.Value, IsArmor = true })
+                    .ToList(),
+            }, Info<EInfoArmorPacket>(armour));
+        }
+
+        [TestMethod]
         public void AShellShowsItsLevelRarityAndOptions()
         {
             var shell = Wearable(new Item
