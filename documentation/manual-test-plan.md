@@ -1664,6 +1664,24 @@ Needs a database the parser has filled since the map type was added.
       invitation window closes
 - [ ] The same two checks in the individual arena (2006) and in the Land of Death
 
+### Miniland signposts
+
+Two clients, A and B, in NosVille. A has a Small or Large Signpost (1084, 1085).
+
+- [ ] A uses the signpost: a sign stands where A stood, labelled "A's [Miniland]", and one
+      signpost is gone from A's bag; B sees the same sign
+- [ ] B clicks the sign: B arrives in A's Miniland, with A's introduction across the screen
+- [ ] A uses a second signpost while the first is up: "You've already set up a signpost. Time
+      remaining: N seconds" in the centre, with N counting down between tries, and the item stays
+- [ ] A uses a signpost outside NosVille: "Signposts can only be set up in NosVille." and the item
+      stays
+- [ ] A locks the Miniland, B clicks the sign: "The Miniland is locked." and B stays in NosVille;
+      set to private, a B who is not A's friend gets "The Miniland is private."
+- [ ] B leaves NosVille half an hour after the sign went up and comes back: the sign's bar is about
+      half full
+- [ ] An hour after it went up the sign falls and disappears, and A can put up another
+- [ ] A logs out: the sign disappears for B
+
 ### Respawn point
 
 - [ ] Talk to a village NPC whose dialog has "Set Respawn Point" and press it: a question asks

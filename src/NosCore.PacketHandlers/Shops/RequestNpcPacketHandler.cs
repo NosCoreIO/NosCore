@@ -13,6 +13,7 @@ using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapTeleporterService;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -26,7 +27,7 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class RequestNpcPacketHandler(ILogger<RequestNpcPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
             IGameEventDispatcher gameEvents, INpcDialogService npcDialogService, IRainbowBattleService rainbowBattleService,
-            IMapTeleporterService mapTeleporterService)
+            IMapTeleporterService mapTeleporterService, IMinilandSignpostService signpostService)
         : PacketHandler<RequestNpcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
@@ -60,7 +61,8 @@ namespace NosCore.PacketHandlers.Shops
                             return;
                         }
 
-                        if (await mapTeleporterService.StartAsync(character, found))
+                        if (await signpostService.VisitAsync(clientSession, found)
+                            || await mapTeleporterService.StartAsync(character, found))
                         {
                             return;
                         }

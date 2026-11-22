@@ -101,6 +101,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly List<(Entity Entity, VisualType VisualType)> _dueBuffs = new();
         private readonly MapItemDespawnSystem _mapItemDespawnSystem = new();
         private readonly List<long> _despawnedItems = new();
+        private readonly SignpostSystem _signpostSystem = new();
+        private readonly List<Entity> _expiredSignposts = new();
 
         public MapWorld EcsWorld { get; }
 
@@ -606,6 +608,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var map = new KeyValuePair<string, object?>("map.id", (int)Map.MapId);
             // Also while asleep, so nobody arriving sees an expired drop. Time-space rooms keep theirs.
             await GuardAsync(MapInstanceType == MapInstanceType.TimeSpaceInstance ? null : DespawnMapItemsAsync, "map item despawn");
+            await GuardAsync(TakeDownExpiredSignpostsAsync, "signposts");
             if (IsSleeping)
             {
                 if (_reportedAwake)
@@ -747,6 +750,16 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             foreach (var effect in _dueEffects)
             {
                 await this.SendPacketAsync(effect);
+            }
+        }
+
+        private async Task TakeDownExpiredSignpostsAsync()
+        {
+            _expiredSignposts.Clear();
+            _signpostSystem.TakeExpired(EcsWorld, _clock.GetCurrentInstant(), _expiredSignposts);
+            foreach (var entity in _expiredSignposts)
+            {
+                await new NpcComponentBundle(entity, EcsWorld).TakeDownAsync();
             }
         }
 

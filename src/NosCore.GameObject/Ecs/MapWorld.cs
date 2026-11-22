@@ -321,7 +321,8 @@ public class MapWorld : IDisposable
             new HitListComponent(new ConcurrentDictionary<Entity, int>()),
             new RespawnComponent(null, true),
             new EscortComponent(false, 0),
-            new ScriptedNpcComponent(null)
+            new ScriptedNpcComponent(null),
+            new SignpostComponent(0, null, Instant.MinValue)
         );
         return entity;
     }

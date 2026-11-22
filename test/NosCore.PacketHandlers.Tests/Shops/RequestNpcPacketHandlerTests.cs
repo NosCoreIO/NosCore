@@ -17,7 +17,10 @@ using NosCore.GameObject.Services.FamilyService;
 using NosCore.Algorithm.DignityService;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -44,11 +47,13 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private RequestNpcPacketHandler _requestNpcPacketHandler;
         private ClientSession _session;
         private readonly Mock<IGameEventDispatcher> GameEvents = new();
+        private readonly MinilandRegistry _minilands = new();
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
+            World.Inject<IMinilandRegistry>(_minilands);
             // Register ShoppingPacketHandler so the shop-no-dialog branch can dispatch
             // a ShoppingPacket through HandlePacketsAsync and we can observe the n_inv.
             var shoppingHandler = World.Create<ShoppingPacketHandler>();
@@ -58,8 +63,42 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 World.LogLanguageLocalizer,
                 World.SessionRegistry,
                 GameEvents.Object, World.NpcDialogService, new Mock<IRainbowBattleService>().Object,
-                World.Create<NosCore.GameObject.Services.MapTeleporterService.MapTeleporterService>());
+                World.Create<NosCore.GameObject.Services.MapTeleporterService.MapTeleporterService>(),
+                World.Create<MinilandSignpostService>());
         }
+
+        [TestMethod]
+        public async Task TalkingToASignpostSendsTheCharacterIntoItsOwnersMiniland()
+        {
+            await new Spec("req_npc on a signpost sends the character into its owner's Miniland and opens no dialog")
+                .Given(ASignpostOfAnOpenMinilandStandsBesideTheCharacter)
+                .WhenAsync(TheCharacterTalksToTheSignpost)
+                .Then(TheCharacterShouldBeInTheMiniland)
+                .And(NoDialogShouldBeRecorded)
+                .ExecuteAsync();
+        }
+
+        private const long SignpostOwnerId = 999;
+        private int _signpostId;
+
+        private void ASignpostOfAnOpenMinilandStandsBesideTheCharacter()
+        {
+            _minilands.Register(SignpostOwnerId, new NosCore.GameObject.Services.MinilandService.Miniland
+            {
+                OwnerId = SignpostOwnerId, MapInstanceId = World.MinilandId, State = MinilandState.Open
+            });
+            var map = _session.Character.MapInstance;
+            var signpost = map.PlaceNpc(new NpcMonsterDto { NpcMonsterVNum = 921, MaxHp = 18000 },
+                _session.Character.PositionX, _session.Character.PositionY);
+            signpost.World.SetComponent(signpost.Entity, new SignpostComponent(SignpostOwnerId, "Owner",
+                World.Clock.GetCurrentInstant() + SignpostSystem.Lifetime));
+            _signpostId = (int)signpost.VisualId;
+        }
+
+        private Task TheCharacterTalksToTheSignpost() =>
+            _requestNpcPacketHandler.ExecuteAsync(new RequestNpcPacket { Type = VisualType.Npc, TargetId = _signpostId }, _session);
+
+        private void TheCharacterShouldBeInTheMiniland() => Assert.AreEqual(World.MinilandId, _session.Character.MapInstanceId);
 
         [TestMethod]
         public async Task RequestNpcWithNonExistentNpcShouldNotThrow()
