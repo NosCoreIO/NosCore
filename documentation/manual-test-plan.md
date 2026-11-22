@@ -1980,6 +1980,8 @@ under half health first.
 - [ ] Use a pet pick-up training item on a pet, then drop an item beside it: the pet collects
       the item into your inventory and the drop disappears for everyone on the map
 - [ ] A pet that was never trained leaves drops where they are
+- [ ] With the bag full, let a trained pet reach a drop: "Your inventory is full!" shows and the
+      item stays on the ground
 - [ ] Take a Golden Gloopy Cake (709) out in the team: its blessing icon shows on your buff
       bar, a beam plays from the pet to you, and the blessing comes back each time it runs out
       while the pet stays out
@@ -2037,7 +2039,8 @@ in the Equipment bag; a second player on the map watches the partner.
 - [ ] Press the partner's transform button: a five-second bar runs and the partner dances. Walking
       during the bar cancels it
 - [ ] When the bar ends the partner takes the card's look, for you and for the watcher, with the
-      transformation effect; its speed is unchanged
+      transformation effect; its speed is unchanged. With a packet logger, the partner's
+      `eff 2 <partner> 196` is followed by `guri 6 2 <partner> 10 0`
 - [ ] Press the button again: the partner turns back at once, "Duration of transformation side
       effects: 30 seconds" shows in red and the button greys out
 - [ ] Press it within the 30 seconds: "Cannot transform because of transformation side effects"

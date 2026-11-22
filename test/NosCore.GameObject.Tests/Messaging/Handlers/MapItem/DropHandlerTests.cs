@@ -14,7 +14,12 @@ using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.Data.Enumerations;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -33,6 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private MapItemComponentBundle _drop;
         private short _droppedVNum;
         private short _droppedAmount;
+        private Mate _pet;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -66,6 +72,54 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
                 .And(TheClientShouldBeShownSlot_With_, 1, 3)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task APetThatCannotFitTheItemSaysTheBagIsFull()
+        {
+            await new Spec("A pet picking up for a full bag says the inventory is full and is refused the item")
+                .Given(ADropOf_Of_, 3, PickedItem)
+                .And(TheBagIsFull)
+                .WhenAsync(ThePetPicksItUp)
+                .Then(TheOwnerShouldBeToldTheInventoryIsFullAndThePetRefused)
+                .And(TheDropShouldStayOnTheMap)
+                .ExecuteAsync();
+        }
+
+        private void TheBagIsFull()
+        {
+            for (short slot = 0; slot < World.WorldConfiguration.Value.BackpackSize; slot++)
+            {
+                _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                    World.GenerateItemProvider().Create(PickedItem, 999), _session.Character.CharacterId),
+                    NoscorePocketType.Main, slot);
+            }
+        }
+
+        private Task ThePetPicksItUp()
+        {
+            _pet = TestMates.Pet(_session.Character.CharacterId);
+            _session.LastPackets.Clear();
+            return World.Create<DropHandler>().Handle(new MapItemPickedUpEvent(
+                _session, _drop.VisualId, _droppedVNum, _droppedAmount, _drop.ItemInstance,
+                new GetPacket { PickerType = VisualType.Npc, PickerId = _pet.MateTransportId, VisualId = _drop.VisualId }));
+        }
+
+        private void TheOwnerShouldBeToldTheInventoryIsFullAndThePetRefused()
+        {
+            var sent = _session.LastPackets.ToList();
+            Assert.AreEqual(2, sent.Count);
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.FullInventory },
+                sent[0] as MsgiPacket);
+            PacketAssert.AreEqual(new GuriPacket
+            {
+                Type = GuriPacketType.MatePickUpRefused,
+                Argument = (uint)VisualType.Npc,
+                EntityId = _pet.MateTransportId
+            }, sent[1] as GuriPacket);
+        }
+
+        private void TheDropShouldStayOnTheMap() =>
+            Assert.IsNotNull(_session.Character.MapInstance.TryGetMapItem(_drop.VisualId));
 
         private void TheCharacterHolds_Of_(int amount, short vNum) =>
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(

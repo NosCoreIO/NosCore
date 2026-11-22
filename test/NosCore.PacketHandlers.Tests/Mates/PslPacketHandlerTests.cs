@@ -132,14 +132,14 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestMethod]
         public async Task ThePartnerTransformsWhenTheBarRunsOut()
         {
-            await new Spec("Once the bar has run, psl 1 transforms the partner into its specialist")
+            await new Spec("Once the bar has run, psl 1 transforms the partner into its specialist with its effect and animation")
                 .GivenAsync(APartnerIsOut)
                 .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
                 .AndAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
                 .And(_MillisecondsPass, 5000)
                 .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Wear)
                 .Then(ThePartnerShouldLookLike_, SpecialistMorph)
-                .And(TheTransformationEffectShouldPlay)
+                .And(TheTransformationEffectAndAnimationShouldPlay)
                 .ExecuteAsync();
         }
 
@@ -386,9 +386,20 @@ namespace NosCore.PacketHandlers.Tests.Mates
             Assert.IsFalse(_session.LastPackets.OfType<PSkiPacket>().Any());
         }
 
-        private void TheTransformationEffectShouldPlay() =>
-            Assert.IsTrue(Broadcast().OfType<EffectPacket>()
-                .Any(s => s.VisualEntityId == _partner.MateTransportId && s.Id == 196));
+        private void TheTransformationEffectAndAnimationShouldPlay()
+        {
+            var broadcast = Broadcast().ToList();
+            var effect = broadcast.FindIndex(p => p is EffectPacket s && s.VisualEntityId == _partner.MateTransportId && s.Id == 196);
+            Assert.AreNotEqual(-1, effect);
+            PacketAssert.AreEqual(new GuriPacket
+            {
+                Type = GuriPacketType.CharacterAnimation,
+                Argument = (uint)VisualType.Npc,
+                EntityId = _partner.MateTransportId,
+                Value = 10,
+                SecondValue = 0
+            }, broadcast.ElementAtOrDefault(effect + 1) as GuriPacket);
+        }
 
         private void TheCooldownShouldBeShownFor_Seconds(int seconds)
         {
