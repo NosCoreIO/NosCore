@@ -19,6 +19,8 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MailService;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System;
@@ -38,14 +40,19 @@ namespace NosCore.GameObject.Tests.Services.MailService
         private const long SenderId = 1;
         private const long ReceiverId = 2;
         private const short Seed = 1012;
+        private const short Part = 2038;
+        private const short Armor = 1;
         private const int MailCount = 10;
 
         private readonly List<ItemDto> _items = new()
         {
-            new Item { VNum = Seed, Type = NoscorePocketType.Main, ItemType = ItemType.Main }
+            new Item { VNum = Seed, Type = NoscorePocketType.Main, ItemType = ItemType.Main },
+            new Item { VNum = Part, Type = NoscorePocketType.Etc, ItemType = ItemType.Part },
+            new Item { VNum = Armor, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor }
         };
 
         private readonly List<MailDto> _storedMails = new();
+        private readonly List<IItemInstanceDto?> _storedItems = new();
         private Mock<IDao<CharacterDto, long>> _characters;
         private Mock<IDao<MailDto, long>> _mails;
         private Mock<IDao<IItemInstanceDto?, Guid>> _itemInstances;
@@ -82,7 +89,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
                     return null;
                 });
             _itemInstances.Setup(s => s.Where(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .Returns(new List<IItemInstanceDto?>());
+                .Returns<Expression<Func<IItemInstanceDto?, bool>>>(predicate => _storedItems.AsQueryable().Where(predicate).ToList());
 
             _mails = new Mock<IDao<MailDto, long>>();
             _mails.Setup(s => s.LoadAll()).Returns(() => _storedMails);
@@ -113,6 +120,47 @@ namespace NosCore.GameObject.Tests.Services.MailService
                 .When(TheRegistryIsStarted)
                 .Then(TheStoredMailShouldBeListed)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AStoredParcelIsListedWithItsItemsPocket()
+        {
+            await new Spec("A stored parcel's listing ends with the pocket its item goes to, not the item's type")
+                .Given(AParcelOf_IsStored, Part)
+                .And(AParcelOf_IsStored, Armor)
+                .When(TheRegistryIsStarted)
+                .Then(TheParcelOf_ShouldBeListedFor_, Part, PocketType.Etc)
+                .And(TheParcelOf_ShouldBeListedFor_, Armor, PocketType.Equipment)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASentParcelIsListedWithItsItemsPocket()
+        {
+            await new Spec("A parcel sent while the registry runs is listed with the pocket its item goes to")
+                .Given(TheRegistryIsStarted)
+                .WhenAsync(SeveralGiftsAreSentAtOnce)
+                .Then(TheParcelOf_ShouldBeListedFor_, Seed, PocketType.Main)
+                .ExecuteAsync();
+        }
+
+        private void AParcelOf_IsStored(short vnum)
+        {
+            var item = new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = vnum, Amount = 1 };
+            _storedItems.Add(item);
+            _storedMails.Add(new MailDto
+            {
+                MailId = _storedMails.Count + 1, SenderId = SenderId, ReceiverId = ReceiverId, Title = "gift",
+                ItemInstanceId = item.Id
+            });
+        }
+
+        private void TheParcelOf_ShouldBeListedFor_(short vnum, PocketType pocket)
+        {
+            var parcel = (ParcelPacket)_registry.GetMails(ReceiverId, false).Values
+                .First(s => s.ItemInstance?.ItemVNum == vnum)
+                .GeneratePost(MailBoxType.Received);
+            Assert.AreEqual((short)pocket, parcel.ParcelAttachment.NotNull().ItemType);
         }
 
         private void AMailIsStored()

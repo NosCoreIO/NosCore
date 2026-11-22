@@ -534,14 +534,18 @@ namespace NosCore.GameObject.Services.TalentArenaService
         private async Task RewardAsync(PlayerComponentBundle player, short vnum, short amount)
         {
             var item = itemGenerationService.Create(vnum, amount);
-            var added = player.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, player.CharacterId))?.FirstOrDefault();
-            if (added == null)
+            var added = player.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, player.CharacterId));
+            if (added is not { Count: > 0 })
             {
                 await player.SendPacketAsync(player.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
                 return;
             }
 
-            await player.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
+            foreach (var slot in added)
+            {
+                await player.SendPacketAsync(slot.GeneratePocketChange(slot.Type.ToPocketType(), slot.Slot));
+            }
+
             await player.SendPacketAsync(player.GenerateSayi(SayColorType.Green, Game18NConstString.RewardFromArenaTalents,
                 2, vnum.ToString(), amount));
         }

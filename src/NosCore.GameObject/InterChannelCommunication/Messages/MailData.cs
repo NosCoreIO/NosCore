@@ -22,7 +22,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
         public long MailId { get; set; }
         public MailDto MailDto { get; set; } = new();
         public ItemInstanceDto? ItemInstance { get; set; }
-        public short ItemType { get; set; }
+        public PocketType Pocket { get; set; }
 
         public MailBoxType BoxOf(string? characterName) =>
             !MailDto.IsSenderCopy && ReceiverName == characterName ? MailBoxType.Received : MailBoxType.Sent;
@@ -79,7 +79,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
                         Title = MailDto.Title,
                         AttachmentVNum = ItemInstance.ItemVNum,
                         AttachmentAmount = ItemInstance.Amount,
-                        ItemType = ItemType
+                        ItemType = (short)Pocket
                     }
                 };
             }

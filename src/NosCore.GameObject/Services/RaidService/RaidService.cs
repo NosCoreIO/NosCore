@@ -460,8 +460,8 @@ namespace NosCore.GameObject.Services.RaidService
             foreach (var gift in raid.Definition?.GiftItems ?? [])
             {
                 var item = itemProvider.Create(gift.VNum, gift.Amount, 0, 0, gift.Design);
-                var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId))?.FirstOrDefault();
-                if (added == null)
+                var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId));
+                if (added is not { Count: > 0 })
                 {
                     logger.LogWarning(logLanguage[LogLanguageKey.RAID_REWARD_NO_ROOM],
                         raid.ScriptedInstanceId, gift.VNum, character.CharacterId);
@@ -469,7 +469,11 @@ namespace NosCore.GameObject.Services.RaidService
                     continue;
                 }
 
-                await member.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
+                foreach (var slot in added)
+                {
+                    await member.SendPacketAsync(slot.GeneratePocketChange(slot.Type.ToPocketType(), slot.Slot));
+                }
+
                 await member.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                     2, gift.VNum.ToString(), gift.Amount));
             }

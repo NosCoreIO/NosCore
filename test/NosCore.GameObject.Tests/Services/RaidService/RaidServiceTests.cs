@@ -20,6 +20,7 @@ using NosCore.Instances.Abstractions;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Helpers;
 using NosCore.Tests.Shared;
@@ -39,6 +40,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         private const short Seal = 1012;
         private const short Box = 1013;
         private const short Boss = 282;
+        private const short BoxesWon = 2;
 
         private sealed class Raid : InstanceScript
         {
@@ -48,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .Requiring(Seal, 1)
                 .StartingAt(1, 1)
                 .WithRoom(TestWorld.TestMapId, out _)
-                .WithReward(Box, 1)
+                .WithReward(Box, BoxesWon)
                 .Build();
 
             public override void OnFirstEnter(IInstanceRun run) => run.StartClock(TimeSpan.FromMinutes(40));
@@ -347,6 +349,18 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         }
 
         [TestMethod]
+        public async Task ARewardSplitOverTwoStacksShowsBothSlots()
+        {
+            await new Spec("A reward that tops up a stack and spills into a new slot shows both slots")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .And(Player_Holds_Boxes, 1, 998)
+                .WhenAsync(TheBossDiesAsync)
+                .Then(Player_IsShownSlot_With_, 1, 0, 999)
+                .And(Player_IsShownSlot_With_, 1, 1, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AFallenMemberStandsUpTwentySecondsLater()
         {
             await new Spec("A member who falls for the first time is revived with full HP twenty seconds later")
@@ -626,8 +640,22 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         {
             foreach (var player in _players.Take(2))
             {
-                Assert.AreEqual(1, player.Character.InventoryService.CountItem(Box));
+                Assert.AreEqual(BoxesWon, player.Character.InventoryService.CountItem(Box));
             }
+        }
+
+        private void Player_Holds_Boxes(int player, int amount)
+        {
+            var character = _players[player].Character;
+            character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                World.GenerateItemProvider().Create(Box, (short)amount), character.CharacterId));
+        }
+
+        private void Player_IsShownSlot_With_(int player, int slot, int amount)
+        {
+            var shown = _players[player].LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets ?? [])
+                .OfType<IvnSubPacket>().Last(i => i.Slot == slot && i.VNum == Box);
+            Assert.AreEqual(amount, shown.RareAmount);
         }
 
         private void NobodyHasTheBox() =>

@@ -27,6 +27,7 @@ using NosCore.GameObject.Services.WarehouseService;
 using NosCore.PacketHandlers.Warehouse;
 using NosCore.Packets.ClientPackets.Warehouse;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Tests.Shared;
@@ -285,6 +286,20 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             Assert.AreEqual(6, _session.Character.InventoryService.CountItem(1012));
             Assert.AreEqual(2, _session.LastPackets.OfType<StashClientPacket>().Single().Items.NotNull().Single().Slot);
             _saves.Verify(s => s.SaveAsync(_session), Times.Once, "the bag is stored with the deposit");
+        }
+
+        [TestMethod]
+        public async Task ADepositShowsTheWarehouseSlotBeforeTheBag()
+        {
+            OwnsAMinilandWarehouse();
+            Holds(1012, 10);
+
+            await DepositAsync(4, 2);
+
+            var sent = _session.LastPackets.Where(p => p is StashClientPacket or IvnPacket).ToList();
+            Assert.AreEqual(2, sent.Count);
+            Assert.AreEqual(2, (sent[0] as StashClientPacket).NotNull().Items.NotNull().Single().Slot);
+            Assert.AreEqual(6, (sent[1] as IvnPacket).NotNull().IvnSubPackets.NotNull().OfType<IvnSubPacket>().Single().RareAmount);
         }
 
         [TestMethod]

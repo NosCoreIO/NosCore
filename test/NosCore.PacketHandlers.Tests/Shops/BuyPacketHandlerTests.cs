@@ -24,6 +24,10 @@ using NosCore.GameObject.Services.SkillService;
 using SpecLight;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Shop;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Shops
@@ -97,6 +101,18 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .And(TheShopWindowWasOpenedAtTheNpc)
                 .WhenAsync(BuyingFromTheNpc)
                 .Then(GoldShouldBe_, 900L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnNpcPurchaseShowsTheGoldThenTheItemThenTheConfirmation()
+        {
+            await new Spec("An NPC shop purchase updates the gold first, then the bag, then confirms the trade")
+                .Given(AShopNpcStandsAt_, (short)2, (short)2)
+                .And(CharacterHasGold_, 1_000L)
+                .And(TheShopWindowWasOpenedAtTheNpc)
+                .WhenAsync(BuyingFromTheNpc)
+                .Then(ThePurchaseShouldBeShownInOrder)
                 .ExecuteAsync();
         }
 
@@ -259,6 +275,16 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void NoSkillShouldBeTaught() =>
             SkillService.Verify(s => s.BuyAsync(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>(), It.IsAny<SkillDto>()), Times.Never);
+
+        private void ThePurchaseShouldBeShownInOrder()
+        {
+            var sent = Session.LastPackets.Where(p => p is GoldPacket or IvnPacket or SMemoiPacket).ToList();
+            Assert.AreEqual(3, sent.Count);
+            Assert.AreEqual(900, (sent[0] as GoldPacket).NotNull().Gold);
+            Assert.AreEqual((short)1012, (sent[1] as IvnPacket).NotNull().IvnSubPackets.NotNull().OfType<IvnSubPacket>().Single().VNum);
+            PacketAssert.AreEqual(new SMemoiPacket { Type = SMemoType.SuccessNpc, Message = Game18NConstString.TradeSuccessfull },
+                sent[2] as SMemoiPacket);
+        }
 
         private void GoldShouldBe_(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
 
