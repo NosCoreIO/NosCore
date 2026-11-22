@@ -739,6 +739,8 @@ namespace NosCore.Parser.Parsers
                 var x when x == 5519 || x == 4099 || x == 4100 => (int)UpgradePacketType.UpgradeSpPirate,
                 // The production coupon's description gives its 500 points. The durability coupon's
                 // 300 matches the client's refusal below 300 missing points, not a stated amount.
+                // The Kenko Bead the Suction Funnel's description promises.
+                1173 => 1174,
                 1269 => 300,
                 1271 => 500,
                 1904 => 5,

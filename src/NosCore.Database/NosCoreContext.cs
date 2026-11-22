@@ -100,6 +100,7 @@ namespace NosCore.Database
         public virtual DbSet<ItemSummon>? ItemSummon { get; set; }
 
         public virtual DbSet<CostumeMorph>? CostumeMorph { get; set; }
+        public virtual DbSet<ItemTargetMonster>? ItemTargetMonster { get; set; }
 
         public virtual DbSet<ShopTypeService>? ShopTypeService { get; set; }
 
@@ -615,6 +616,18 @@ namespace NosCore.Database
                 .HasOne(e => e.Item)
                 .WithMany()
                 .HasForeignKey(e => e.ItemVNum)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ItemTargetMonster>()
+                .HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemVNum)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ItemTargetMonster>()
+                .HasOne(e => e.NpcMonster)
+                .WithMany()
+                .HasForeignKey(e => e.NpcMonsterVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<FamilyUpgrade>()
