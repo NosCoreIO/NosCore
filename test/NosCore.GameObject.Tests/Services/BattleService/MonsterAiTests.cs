@@ -49,6 +49,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<IRandomProvider> _random;
         private Mock<INpcCombatCatalog> _catalog;
         private MonsterAi _ai;
+        private BuffService _buffs;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -66,6 +67,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _random = new Mock<IRandomProvider>();
             _catalog = new Mock<INpcCombatCatalog>();
             _catalog.Setup(c => c.GetNpcBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
+            _buffs = World.Create<BuffService>();
             _ai = new MonsterAi(
                 _battle.Object,
                 _aggro,
@@ -77,7 +79,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _chatter.Object,
                 World.Clock,
                 new NosCore.GameObject.Services.SkillService.SkillCatalog([]),
-                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+                _buffs, NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         [TestMethod]
@@ -94,7 +96,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<IMonsterChatterService>().Object,
                 new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
                 new NosCore.GameObject.Services.SkillService.SkillCatalog([]),
-                new Mock<ILogger<MonsterAi>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+                new Mock<IBuffService>().Object, new Mock<ILogger<MonsterAi>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
 
             Assert.IsNotNull(ai);
             Assert.IsInstanceOfType(ai, typeof(IMonsterAi));
@@ -233,7 +235,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 World.Create<GameObject.Services.PathfindingService.PathfindingService>(), World.SessionRegistry,
                 World.DistanceCalculator, catalog.Object, new Mock<IRandomProvider>().Object, _chatter.Object, World.Clock,
                 new NosCore.GameObject.Services.SkillService.SkillCatalog([]),
-                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+                _buffs, NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var monster = SpawnMonster(4, 1);
             PlacePlayer(4, 2);
             _session.Character.Invisible = true;
@@ -498,7 +500,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var ai = new MonsterAi(_battle.Object, _aggro, pathfinding.Object, World.SessionRegistry,
                 World.DistanceCalculator, new Mock<INpcCombatCatalog>().Object,
                 new Mock<IRandomProvider>().Object, _chatter.Object, World.Clock, new NosCore.GameObject.Services.SkillService.SkillCatalog([]),
-                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+                _buffs, NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var monster = SpawnMonster(4, 1);
             PlacePlayer(4, 5);
 
@@ -610,7 +612,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 World.Create<GameObject.Services.PathfindingService.PathfindingService>(), World.SessionRegistry,
                 World.DistanceCalculator, catalog.Object, random.Object, _chatter.Object, World.Clock,
                 new NosCore.GameObject.Services.SkillService.SkillCatalog([new SkillDto { SkillVNum = 50, CastId = 3, Range = 2, Cooldown = 100, CastTime = 10 }]),
-                NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+                _buffs, NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
             var cast = new TaskCompletionSource<bool>();
             _battle.Setup(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.Is<HitArguments>(a => a.SkillId == 3)))
                 .Returns(cast.Task);
@@ -631,6 +633,73 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             cast.SetResult(true);
             await ai.TickAsync(monster);
             Assert.AreNotEqual((short)1, monster.PositionY);
+        }
+
+        [TestMethod]
+        public async Task AMonsterRunningAwayStepsAwayFromItsTargetInsteadOfAttacking()
+        {
+            var monster = SpawnMonster(5, 4);
+            PlacePlayer(4, 4);
+            await RunAwayAsync(monster);
+
+            Assert.IsTrue(await _ai.TickAsync(monster));
+
+            SwingsAtThePlayer(Times.Never());
+            Assert.AreEqual(((short)7, (short)1), (monster.PositionX, monster.PositionY), "Speed / 2 = 3 cells, each the farthest from the player");
+            Assert.IsTrue(_map.Map.IsWalkable(monster.PositionX, monster.PositionY));
+            Assert.AreEqual(_session.Character.VisualId, _aggro.Current(monster).TargetVisualId);
+        }
+
+        [TestMethod]
+        public async Task AMonsterRunningAwayGoesAroundAWallRatherThanThroughIt()
+        {
+            var monster = SpawnMonster(4, 2);
+            PlacePlayer(5, 2);
+            await RunAwayAsync(monster);
+
+            await _ai.TickAsync(monster);
+
+            Assert.IsTrue(_map.Map.IsWalkable(monster.PositionX, monster.PositionY));
+            Assert.IsTrue(World.DistanceCalculator.GetDistance((monster.PositionX, monster.PositionY), (5, 2)) > 1);
+            SwingsAtThePlayer(Times.Never());
+        }
+
+        [TestMethod]
+        public async Task ACorneredMonsterStaysWithoutAttacking()
+        {
+            var monster = SpawnMonster(0, 0);
+            PlacePlayer(1, 1);
+            await RunAwayAsync(monster);
+
+            await _ai.TickAsync(monster);
+
+            Assert.AreEqual(((short)0, (short)0), (monster.PositionX, monster.PositionY));
+            SwingsAtThePlayer(Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AMonsterAttacksAgainOnceItStopsRunningAway()
+        {
+            var monster = SpawnMonster(5, 4);
+            PlacePlayer(4, 4);
+            await RunAwayAsync(monster);
+            await _ai.TickAsync(monster);
+
+            World.Clock.Advance(Duration.FromSeconds(3));
+            PlacePlayer((short)(monster.PositionX - 1), monster.PositionY);
+            await _ai.TickAsync(monster);
+
+            SwingsAtThePlayer(Times.Once());
+        }
+
+        // Puppet Mastery (F), the 2-second card Death Cage and Cursed Hands put on what they hit.
+        private async Task RunAwayAsync(MonsterComponentBundle monster)
+        {
+            _aggro.AddThreat(monster, _session.Character, 5);
+            await _buffs.ApplyAsync(monster, new CardDto { CardId = 2336, Duration = 20 }, new[]
+            {
+                new BCardDto { Type = BCardEffect.SpecialActionsRunAway.Type(), SubType = BCardEffect.SpecialActionsRunAway.SubType() }
+            }, _session.Character);
         }
 
         private static GameObject.Map.Map TestMap()

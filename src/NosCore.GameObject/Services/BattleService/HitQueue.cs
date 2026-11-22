@@ -311,8 +311,9 @@ public sealed class HitQueue(
     /// edge of the map, and from there they cannot get out - the client and the server would
     /// disagree about where they are.
     ///
-    /// Subtypes 41 "Run Away!" and 51 "Hide" are declared by no skill in the file and are not
-    /// written here: there is nothing to check them against.
+    /// Subtypes 41 "Run Away!" and 51 "Hide" are not written here: no skill carries them on its
+    /// hit. Buffs carry them, and they act for as long as the buff lasts - running away in
+    /// <see cref="MonsterAi" />, hiding through the buff service.
     /// </remarks>
     private async Task ApplySpecialActionsAsync(IReadOnlyList<BCardDto> bCards, IAliveEntity origin,
         IAliveEntity target, int resistance, bool isPvp)

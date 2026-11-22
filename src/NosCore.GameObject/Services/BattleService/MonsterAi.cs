@@ -44,6 +44,8 @@ namespace NosCore.GameObject.Services.BattleService;
 //      stamp the cooldown once the hit was accepted.
 //   3. Otherwise step toward the target along a cached JPS path, stopping beside it.
 //      Stationary entities (CanWalk=false) never chase but still attack.
+// An entity under a Run Away buff (type 40 subtype 41) neither attacks nor chases while it
+// lasts: it keeps its aggro target and steps away from it instead.
 // A target that leaves, dies or hides hands the aggro to the next one in the hit list who is
 // still there. Once the aggro leash expires (aggroService.Current returns HasTarget=false)
 // the entity paths back to FirstX/FirstY.
@@ -61,6 +63,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     private readonly ILogger<MonsterAi> logger;
     private readonly ILogLanguageLocalizer<LogLanguageKey> logLanguage;
     private readonly ISkillCatalog skillCatalog;
+    private readonly IBuffService buffService;
 
     public MonsterAi(
         IBattleService battleService,
@@ -73,6 +76,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IMonsterChatterService chatter,
         IClock clock,
         ISkillCatalog skillCatalog,
+        IBuffService buffService,
         ILogger<MonsterAi> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
@@ -86,6 +90,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         this.chatter = chatter;
         this.clock = clock;
         this.skillCatalog = skillCatalog;
+        this.buffService = buffService;
         this.logger = logger;
         this.logLanguage = logLanguage;
     }
@@ -125,6 +130,12 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         if (target == null)
         {
             return await TryReturnHomeAsync(entity);
+        }
+
+        if (buffService.HasEffect(entity, BCardEffect.SpecialActionsRunAway))
+        {
+            await RunAwayAsync(entity, target);
+            return true;
         }
 
         if (random.Next(0, ChatterOdds) == 0)
@@ -537,6 +548,53 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         await map.SendPacketAsync(entity.GenerateMove(entity.PositionX, entity.PositionY));
         return true;
     }
+
+    // Speed / 2 cells per tick like a chase, each one the walkable neighbour that puts the most
+    // distance between the entity and what it runs from. A cornered entity stays where it is.
+    private async Task RunAwayAsync(INonPlayableEntity entity, IAliveEntity from)
+    {
+        entity.ChasePath = null;
+        var map = entity.MapInstance;
+        if (map == null || entity.Speed == 0 || !entity.NpcMonster.CanWalk) return;
+
+        var x = entity.PositionX;
+        var y = entity.PositionY;
+        var distance = DistanceFrom(from, x, y);
+        for (var step = 0; step < Math.Max(1, entity.Speed / 2); step++)
+        {
+            var moved = false;
+            var (bestX, bestY) = (x, y);
+            for (var dx = -1; dx <= 1; dx++)
+            {
+                for (var dy = -1; dy <= 1; dy++)
+                {
+                    var nx = (short)(x + dx);
+                    var ny = (short)(y + dy);
+                    if ((dx == 0 && dy == 0) || !map.Map.IsWalkable(nx, ny)) continue;
+                    // A diagonal step may not cut the corner of a blocked cell.
+                    if (dx != 0 && dy != 0 && (!map.Map.IsWalkable(nx, y) || !map.Map.IsWalkable(x, ny))) continue;
+
+                    var d = DistanceFrom(from, nx, ny);
+                    if (d <= distance) continue;
+                    distance = d;
+                    (bestX, bestY) = (nx, ny);
+                    moved = true;
+                }
+            }
+
+            if (!moved) break;
+            (x, y) = (bestX, bestY);
+        }
+
+        if (x == entity.PositionX && y == entity.PositionY) return;
+
+        entity.PositionX = x;
+        entity.PositionY = y;
+        await map.SendPacketAsync(entity.GenerateMove(x, y));
+    }
+
+    private double DistanceFrom(IAliveEntity from, short x, short y) =>
+        distanceCalculator.GetDistance((x, y), (from.PositionX, from.PositionY));
 
     private static HitArguments Arguments(ChosenSkill skill) =>
         new() { SkillId = skill.CastId, Skill = skill.Skill, BasicAttack = skill.Skill == null };
