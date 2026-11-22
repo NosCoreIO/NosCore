@@ -118,6 +118,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(SuPacketHitMode.Miss, dodged.HitMode);
         }
 
+        [TestMethod]
+        public void ADefenderThatCannotDodgeIsAlwaysHit()
+        {
+            var result = _calculator.Calculate(Attacker(), Defender() with { CannotDodge = true }, Melee);
+
+            Assert.AreNotEqual(SuPacketHitMode.Miss, result.HitMode);
+        }
+
+        [TestMethod]
+        public void NeverReceivingCriticalsBeatsACertainCritical()
+        {
+            var attacker = Attacker(guaranteedHit: 100) with { CriticalChance = 100, CriticalRate = 100 };
+
+            Assert.AreEqual(SuPacketHitMode.CriticalAttack, _calculator.Calculate(attacker, Defender(), Melee).HitMode);
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, _calculator.Calculate(attacker,
+                Defender() with { CriticalReceivedChanceOverride = 0 }, Melee).HitMode);
+        }
+
+        [TestMethod]
+        public void AlwaysInflictingCriticalsIgnoresTheCriticalChance()
+        {
+            var random = new Mock<IRandomProvider>();
+            random.Setup(r => r.NextDouble()).Returns(0.99);
+            var calculator = new DamageCalculator(random.Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService());
+            var wideOpen = new CombatStats { Level = 1 };
+
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, calculator.Calculate(Attacker(), wideOpen, Melee).HitMode);
+            Assert.AreEqual(SuPacketHitMode.CriticalAttack, calculator.Calculate(
+                Attacker() with { CriticalChanceOverride = 100 }, wideOpen, Melee).HitMode);
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, calculator.Calculate(
+                Attacker() with { CriticalChanceOverride = 100 }, wideOpen with { CriticalReceivedChanceOverride = 0 }, Melee).HitMode);
+        }
+
         // The order is ours and not the file's, so it gets a test rather than a comment alone:
         // with both at 100 the attacker's guarantee wins.
         [TestMethod]

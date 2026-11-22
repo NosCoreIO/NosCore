@@ -103,7 +103,13 @@ public readonly record struct CombatStats(
     // Type 38 subtype 3: percent added to the final damage of this entity's critical hits.
     int FinalCriticalDamagePercent = 0,
     // Type 38 subtype 4: percent added to the final damage of critical hits this entity takes.
-    int FinalCriticalDamageTakenPercent = 0);
+    int FinalCriticalDamageTakenPercent = 0,
+    // Type 2 subtype 5: every melee or ranged hit on this entity lands.
+    bool CannotDodge = false,
+    // Type 6: the critical chance of this entity's hits, and of hits it takes, replaced outright;
+    // 0 is "never" and outweighs the other side's override.
+    int? CriticalChanceOverride = null,
+    int? CriticalReceivedChanceOverride = null);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
 public readonly record struct ChanceDamage(int Chance, int Percent);
