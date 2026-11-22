@@ -3492,6 +3492,31 @@ same trust as the server's own code, so only the operator should be able to writ
 - [ ] Entering with Seeds of Power: the chat shows "You have used Nx Seed of Power." in yellow, N
       being what the stone asks for
 - [ ] A `Script` naming a missing or broken file opens no panel, and the world log says why
+- [ ] START says "You have used 2 Seed of Power" in the chat for a stone asking two seeds
+
+#### Joining a party member inside
+
+Two characters in a party, both able to enter time-space 16 (Sunny Meadows, two Seeds of Power
+each). The leader enters it and stays in the first room.
+
+- [ ] The member walks onto the same stone: instead of the panel, "Do you want to join your party
+      members?" asks Yes or No
+- [ ] No opens the usual panel; START from it opens a run of the member's own
+- [ ] Yes takes two of the member's own Seeds of Power, says so in the chat and puts the member in
+      the leader's first room at the start coordinates, the room map showing the first room
+- [ ] The member walks onto the first room's way out before the leader starts: "Cannot move
+      before mission start." shows and the member does not move; no start question is asked
+- [ ] The leader takes the way out and answers Yes: the leader alone gets the opening talk, the
+      member's clock starts running, and the member can now go through the doors alone
+- [ ] The leader leaves the time-space before starting: the member's way out asks the start
+      question instead
+- [ ] A member outside the party, or a party member standing on another time-space's stone, gets
+      the usual panel
+- [ ] Yes without two Seeds of Power says which item is missing and leaves the member where they
+      stand
+
+A clock waiting for the start is not drawn, for the member as for the leader, though the traces
+draw it held (`evnt 1 -1`).
 
 #### Cleared stones
 

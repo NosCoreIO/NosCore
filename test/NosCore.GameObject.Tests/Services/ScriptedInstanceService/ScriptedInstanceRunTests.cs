@@ -922,6 +922,55 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AJoinedPlayerCannotLeaveTheFirstRoomBeforeTheStartAsync()
+        {
+            var opener = await PlayerInFirstRoomAsync();
+            var joined = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms));
+            await run.EnteredAsync(opener, _first.MapInstanceId);
+            await run.EnteredAsync(joined, _first.MapInstanceId);
+            joined.LastPackets.Clear();
+
+            Assert.IsTrue(await run.AskToStartAsync(joined), "the way out is held");
+            Assert.IsFalse(await run.ConfirmStartAsync(joined), "only the opener starts the run");
+
+            PacketAssert.AreEqual(joined.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CannotMoveBeforeStart),
+                joined.LastPackets.OfType<SayiPacket>().Single());
+            Assert.IsFalse(joined.LastPackets.OfType<DlgiPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task AJoinedPlayerMovesFreelyOnceTheOpenerStartsAsync()
+        {
+            var opener = await PlayerInFirstRoomAsync();
+            var joined = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.EnteredAsync(opener, _first.MapInstanceId);
+            await run.EnteredAsync(joined, _first.MapInstanceId);
+
+            Assert.IsTrue(await run.ConfirmStartAsync(opener));
+
+            Assert.IsFalse(await run.AskToStartAsync(joined), "nothing holds the way out any more");
+            Assert.IsTrue(_first.LastPackets.OfType<EventPacket>().Any(p => p.Type == EventPacketType.TSTimer),
+                "the running clock reaches the players still in the first room");
+        }
+
+        [TestMethod]
+        public async Task OnceTheOpenerHasLeftAJoinedPlayerIsAskedToStartAsync()
+        {
+            var opener = await PlayerInFirstRoomAsync();
+            var joined = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms));
+            await run.EnteredAsync(opener, _first.MapInstanceId);
+            await run.EnteredAsync(joined, _first.MapInstanceId);
+            Move(opener, World.GetBaseMap(0));
+
+            Assert.IsTrue(await run.AskToStartAsync(joined));
+
+            Assert.AreEqual(Game18NConstString.WantEnterFirstRoom, joined.LastPackets.OfType<DlgiPacket>().Single().Question);
+        }
+
+        [TestMethod]
         public async Task APacketHandlerOnTheRoomGetsTheStartQuestionsAnswerAsync()
         {
             var session = await PlayerInFirstRoomAsync();

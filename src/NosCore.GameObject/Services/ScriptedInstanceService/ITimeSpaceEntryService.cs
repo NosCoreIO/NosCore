@@ -12,9 +12,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public interface ITimeSpaceEntryService
     {
-        Task ShowAsync(ClientSession session, ScriptedInstance entrance);
+        // While a party member is in a run of this time-space, asks whether to join them instead,
+        // unless the player has just said no.
+        Task ShowAsync(ClientSession session, ScriptedInstance entrance, bool offerToJoin = true);
 
         Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false);
+
+        Task JoinAsync(ClientSession session, ScriptedInstance entrance, long memberId);
 
         Task EnterWithStoneAsync(ClientSession session, InventoryItemInstance stone);
     }
