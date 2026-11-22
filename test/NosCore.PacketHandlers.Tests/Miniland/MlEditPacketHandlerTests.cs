@@ -222,7 +222,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         private void MinilandShouldBeLocked()
         {
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandLocked);
+            Assert.AreEqual(Game18NConstString.MinilandLocked, lastpacket?.Message);
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
             Assert.AreEqual(MinilandState.Lock, miniland.State);
         }
@@ -230,7 +230,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         private void MinilandShouldBeOpen()
         {
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandPublic);
+            Assert.AreEqual(Game18NConstString.MinilandPublic, lastpacket?.Message);
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
             Assert.AreEqual(MinilandState.Open, miniland.State);
         }
@@ -238,7 +238,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         private void MinilandShouldBePrivate()
         {
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandPrivate);
+            Assert.AreEqual(Game18NConstString.MinilandPrivate, lastpacket?.Message);
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
             Assert.AreEqual(MinilandState.Private, miniland.State);
         }

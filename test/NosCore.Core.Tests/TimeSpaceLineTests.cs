@@ -16,7 +16,7 @@ namespace NosCore.Core.Tests
     [TestClass]
     public class TimeSpaceLineTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(LanguageKey.TIMESPACE_ALL_LOCKED_DOORS_OPENED, "All locked doors have opened.")]
         [DataRow(LanguageKey.TIMESPACE_ALL_MONSTERS_DEFEATED, "You've defeated all the monsters!")]
         [DataRow(LanguageKey.TIMESPACE_CAN_YOU_SEE_THE_EXIT, "Can you see whether we're getting closer to the exit?")]

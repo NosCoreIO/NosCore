@@ -95,7 +95,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             VerifyInflicted(_defender, _defender, 5, 101);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(BCardEffect.SecondSpCardCastBuffOnAttacker)]
         [DataRow(BCardEffect.SecondSpCardChanceCausingXBuffOnAttacker)]
         public async Task ADefenderBuffCanInflictACardOnTheAttacker(BCardEffect effect)

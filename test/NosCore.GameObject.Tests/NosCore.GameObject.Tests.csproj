@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net11.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <NoWarn>MSTEST0001;MSTEST0037;MSTEST0044;MSTEST0017;NU1701</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -194,7 +194,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(baseDamage * 2, halved.Damage);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(20, 0, 120)]
         [DataRow(0, -25, 75)]
         [DataRow(20, -25, 95)]

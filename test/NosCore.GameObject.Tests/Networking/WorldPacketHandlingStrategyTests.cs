@@ -176,7 +176,7 @@ namespace NosCore.GameObject.Tests.Networking
                 .ExecuteAsync();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(nameof(GboxPacket))]
         [DataRow(nameof(RemovePacket))]
         [DataRow(nameof(SortOpenPacket))]
@@ -194,7 +194,7 @@ namespace NosCore.GameObject.Tests.Networking
                 .ExecuteAsync();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(nameof(GboxPacket))]
         [DataRow(nameof(RemovePacket))]
         [DataRow(nameof(SortOpenPacket))]
@@ -212,7 +212,7 @@ namespace NosCore.GameObject.Tests.Networking
                 .ExecuteAsync();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(nameof(GboxPacket))]
         [DataRow(nameof(RemovePacket))]
         [DataRow(nameof(SortOpenPacket))]
@@ -231,7 +231,7 @@ namespace NosCore.GameObject.Tests.Networking
                 .ExecuteAsync();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(nameof(UseItemPacket))]
         [DataRow(nameof(GboxPacket))]
         [DataRow(nameof(UseSkillPacket))]
@@ -244,7 +244,7 @@ namespace NosCore.GameObject.Tests.Networking
                 .ExecuteAsync();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(nameof(ClientSayPacket))]
         [DataRow(nameof(PulsePacket))]
         [DataRow(nameof(RevivalPacket))]

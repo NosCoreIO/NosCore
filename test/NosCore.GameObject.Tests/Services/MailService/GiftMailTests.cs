@@ -118,7 +118,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             Assert.AreEqual(0, _savedMails.Count);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(Seed, (short)5, (sbyte)3, (byte)4, (short)5, (sbyte)0, (byte)0, DisplayName = "A stackable keeps its amount and loses rarity and upgrade")]
         [DataRow(Seed, (short)0, (sbyte)0, (byte)0, (short)1, (sbyte)0, (byte)0, DisplayName = "An amount of zero becomes one")]
         [DataRow(Sword, (short)5, (sbyte)7, (byte)10, (short)1, (sbyte)7, (byte)10, DisplayName = "A weapon is a single item with its rarity and upgrade")]
