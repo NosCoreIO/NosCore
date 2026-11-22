@@ -432,8 +432,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await OwnerAsync(5);
             await using var alice = await EnterWithWarehouseOpenAsync(player);
+            var deposited = alice.Mark();
             await alice.SendAsync(Deposit(0, 2, 0));
-            await alice.ExpectAsync(Stored(0, 2), "the two in the warehouse");
+            await alice.ExpectSinceAsync(deposited, Stored(0, 2), "the two in the warehouse");
+            await alice.ExpectSinceAsync(deposited, Bag(0, 3), "the three left in the bag");
             var asked = alice.Mark();
 
             await alice.SendAsync(Deposit(0, 3, 0));
@@ -447,8 +449,10 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await OwnerAsync(5);
             await using var alice = await EnterWithWarehouseOpenAsync(player);
+            var deposited = alice.Mark();
             await alice.SendAsync(Deposit(0, 3, 0));
-            await alice.ExpectAsync(Stored(0, 3), "the three in the warehouse");
+            await alice.ExpectSinceAsync(deposited, Stored(0, 3), "the three in the warehouse");
+            await alice.ExpectSinceAsync(deposited, Bag(0, 2), "the two left in the bag");
             var asked = alice.Mark();
 
             await alice.SendAsync(Withdraw(0, 4));
