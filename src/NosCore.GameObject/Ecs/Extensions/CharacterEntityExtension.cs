@@ -440,30 +440,24 @@ namespace NosCore.GameObject.Ecs.Extensions
                         }
                     }
 
-                    buyer.Gold -= cost;
-                    var wholeStack = live.ItemInstance.Amount == amount;
-                    if (wholeStack)
+                    // The owner's bag can change while the copy is written, so the amount is taken only if still held.
+                    if (!owner.InventoryService.TryConsume(live, amount))
                     {
-                        owner.InventoryService.Remove(live.ItemInstanceId);
-                    }
-                    else
-                    {
-                        live.ItemInstance.Amount -= amount;
+                        if (persisted != null && itemInstanceDao != null)
+                        {
+                            _ = await itemInstanceDao.TryDeleteAsync(persisted.Id);
+                        }
+
+                        return;
                     }
 
+                    buyer.Gold -= cost;
+                    var wholeStack = !owner.InventoryService.ContainsKey(live.ItemInstanceId);
                     delivered = buyer.InventoryService.AddItemToPocket(
                         InventoryItemInstance.Create(copy, buyer.CharacterId));
                     if (delivered is not { Count: > 0 })
                     {
-                        if (wholeStack)
-                        {
-                            owner.InventoryService[live.ItemInstanceId] = live;
-                        }
-                        else
-                        {
-                            live.ItemInstance.Amount += amount;
-                        }
-
+                        owner.InventoryService.RestoreConsumed(live, amount);
                         buyer.Gold += cost;
                         if (persisted != null && itemInstanceDao != null)
                         {
