@@ -42,7 +42,7 @@
     <PackageVersion Include="NodaTime.Testing" Version="3.3.7" />
     <PackageVersion Include="NosCore.Algorithm" Version="8.4.0" />
     <PackageVersion Include="NosCore.Analyzers" Version="2.6.0" />
-    <PackageVersion Include="NosCore.Dao" Version="6.1.1" />
+    <PackageVersion Include="NosCore.Dao" Version="6.2.0" />
     <PackageVersion Include="NosCore.Networking" Version="15.0.0" />
     <PackageVersion Include="NosCore.Packets" Version="61.0.0" />
     <PackageVersion Include="NosCore.PathFinder" Version="3.0.0" />
