@@ -7,6 +7,7 @@
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
@@ -16,16 +17,16 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class GroupTalkPacketHandler : PacketHandler<GroupTalkPacket>, IWorldPacketHandler
+    public class GroupTalkPacketHandler(IPenaltyService penaltyService) : PacketHandler<GroupTalkPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.Group.Count == 1)
+            if (clientSession.Character.Group.Count == 1 || await penaltyService.RefuseMutedSpeakerAsync(clientSession))
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            return clientSession.Character.Group.SendPacketAsync(
+            await clientSession.Character.Group.SendPacketAsync(
                 clientSession.Character.GenerateSpk(new SpeakPacket
                 { Message = groupTalkPacket.Message, SpeakType = SpeakType.Group }));
         }

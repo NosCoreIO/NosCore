@@ -23,13 +23,10 @@ namespace NosCore.PacketHandlers.Chat
         public override async Task ExecuteAsync(ClientSayPacket clientSayPacket, ClientSession session)
         {
             var character = session.Character;
-            var muteLeft = await penaltyService.GetMuteLeftAsync(session.Account.AccountId);
-            if (muteLeft is { } left)
+            if (await penaltyService.RefuseMutedSpeakerAsync(session))
             {
                 await character.MapInstance.SendPacketAsync(
                     character.GenerateSayi(SayColorType.BubbleOnly, Game18NConstString.IAmUnderPenalty));
-                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Red,
-                    Game18NConstString.RemainingPunishment, 4, (long)Math.Ceiling(left.TotalMinutes)));
                 return;
             }
 
