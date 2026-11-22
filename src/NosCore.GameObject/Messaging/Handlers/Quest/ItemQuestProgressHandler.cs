@@ -31,6 +31,10 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             AdvanceAsync(evt.Character, (h, q) => h.OnItemsReceivedAsync(evt.Character, q, evt.VNum));
 
         [UsedImplicitly]
+        public Task Handle(PartyItemPickedUpEvent evt) =>
+            AdvanceAsync(evt.Character, (h, q) => h.OnPartyItemPickedUpAsync(evt.Character, q, evt.VNum));
+
+        [UsedImplicitly]
         public Task Handle(ItemProducedEvent evt) =>
             AdvanceAsync(evt.Character, (h, q) => h.OnItemProducedAsync(evt.Character, q, evt.VNum, evt.Amount));
 

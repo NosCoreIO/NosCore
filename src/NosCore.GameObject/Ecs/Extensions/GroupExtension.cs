@@ -35,5 +35,20 @@ namespace NosCore.GameObject.Ecs.Extensions
                     : group.MembersInJoiningOrder.Select(s => s.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
             };
         }
+
+        // A player without a party stands for themselves wherever they are; a party counts only the
+        // members on the given map.
+        public static List<PlayerComponentBundle> PartyOn(this PlayerComponentBundle player, MapWorld world)
+        {
+            if (player.Group.Count <= 1)
+            {
+                return [player];
+            }
+
+            return player.Group.MembersInJoiningOrder
+                .OfType<PlayerComponentBundle>()
+                .Where(s => s.World == world && s.World.IsAlive(s.Handle))
+                .ToList();
+        }
     }
 }

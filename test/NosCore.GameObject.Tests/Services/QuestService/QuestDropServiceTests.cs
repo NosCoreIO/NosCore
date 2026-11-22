@@ -11,9 +11,12 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Group;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.Enumerations;
@@ -37,7 +40,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Session = await World.CreateSessionAsync();
         }
 
-        private CharacterQuest Collect(short monster, int amount, int chance, QuestType type = QuestType.Collect)
+        private CharacterQuest Collect(short monster, int amount, int chance, QuestType type = QuestType.Collect,
+            ClientSession? collector = null)
         {
             var quest = new CharacterQuest
             {
@@ -48,12 +52,22 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     QuestObjectives = [new QuestObjectiveDto { QuestObjectiveId = Guid.NewGuid(), QuestId = 1600, FirstData = monster, SecondData = QuestItem, ThirdData = amount, FourthData = chance }],
                 },
             };
-            Session.Character.Quests.TryAdd(Guid.NewGuid(), quest);
+            (collector ?? Session).Character.Quests.TryAdd(Guid.NewGuid(), quest);
             return quest;
         }
 
-        private System.Collections.Generic.IReadOnlyList<short> Roll(byte? timeSpaceId = null) =>
-            World.Create<QuestDropService>().RollDrops(Session.Character, Monster, 1, timeSpaceId);
+        private List<short> Roll(byte? timeSpaceId = null) =>
+            World.Create<QuestDropService>().RollDrops([Session.Character], Monster, 1, timeSpaceId)
+                .Select(d => d.VNum).ToList();
+
+        private async Task<ClientSession> APartyMemberAsync()
+        {
+            var member = await World.CreateSessionAsync();
+            var party = new Group(GroupType.Group, World.SessionGroupFactory);
+            Session.Character.JoinGroup(party);
+            member.Character.JoinGroup(party);
+            return member;
+        }
 
         [TestMethod]
         public void TheNamedMonsterDropsTheItemOfAnActiveCollectQuest()
@@ -164,6 +178,44 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 InventoryItemInstance.Create(World.GenerateItemProvider().Create(QuestItem, 2), Session.Character.CharacterId));
 
             Assert.AreEqual(0, Roll(timeSpaceId: 3).Count);
+        }
+
+        [TestMethod]
+        public async Task ARaidCollectItemFallsOnceForAPartyCollectingIt()
+        {
+            var member = await APartyMemberAsync();
+            Collect(MonsterVNum, 2, chance: 2, QuestType.CollectInRaid);
+            Collect(MonsterVNum, 5, chance: 5, QuestType.CollectInRaid, member);
+
+            var drops = World.Create<QuestDropService>().RollDrops([Session.Character, member.Character], Monster, 1, null);
+
+            Assert.AreEqual(1, drops.Count);
+            Assert.AreEqual(Session.Character.CharacterId, drops[0].Collector.CharacterId);
+        }
+
+        [TestMethod]
+        public async Task AMemberWhoseRaidCounterIsFullLeavesTheDropToTheNext()
+        {
+            var member = await APartyMemberAsync();
+            var full = Collect(MonsterVNum, 2, chance: 2, QuestType.CollectInRaid);
+            full.ObjectiveProgress[full.Quest.QuestObjectives[0].QuestObjectiveId] = 2;
+            Collect(MonsterVNum, 5, chance: 5, QuestType.CollectInRaid, member);
+
+            var drops = World.Create<QuestDropService>().RollDrops([Session.Character, member.Character], Monster, 1, null);
+
+            Assert.AreEqual(member.Character.CharacterId, drops.Single().Collector.CharacterId);
+        }
+
+        [TestMethod]
+        public async Task AnItemCollectedInTheBagFallsForEachMemberCollectingIt()
+        {
+            var member = await APartyMemberAsync();
+            Collect(MonsterVNum, 2, chance: 10000);
+            Collect(MonsterVNum, 2, chance: 10000, collector: member);
+
+            var drops = World.Create<QuestDropService>().RollDrops([Session.Character, member.Character], Monster, 1, null);
+
+            Assert.AreEqual(2, drops.Count);
         }
     }
 }

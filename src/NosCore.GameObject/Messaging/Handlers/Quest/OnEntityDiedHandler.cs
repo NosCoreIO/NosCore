@@ -11,6 +11,7 @@ using Arch.Core;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.QuestService;
@@ -23,10 +24,9 @@ using System.Collections.Generic;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
-    // Bumps kill-count quests (Hunt / NumberOfKill) for each character that
-    // contributed damage to the dead NPC. Runs off the same EntityDiedEvent
-    // the reward distributor uses so the quest logic never has to be called
-    // from BattleService or RewardService directly. It runs after the rewards for the kill.
+    // Bumps kill-count quests (Hunt / NumberOfKill) for each character that contributed damage to the
+    // dead NPC and for their party members on its map, whether they hit it or not. It runs after the
+    // rewards for the kill.
     [UsedImplicitly]
     [GameEventOrder(1)]
     public sealed class OnEntityDiedHandler(IQuestService questService, ILogger<OnEntityDiedHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
@@ -40,13 +40,15 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             }
 
             var mob = npc.NpcMonster;
+            var counted = new HashSet<long>();
             // Process contributors independently so one failure doesn't abort the rest.
-            foreach (var (handle, _) in evt.HitSnapshot)
+            foreach (var character in Credited(evt))
             {
-                if (!TryFindCharacter(evt.Victim, handle, out var character))
+                if (!counted.Add(character.CharacterId))
                 {
                     continue;
                 }
+
                 try
                 {
                     await questService.OnMonsterKilledAsync(character, mob);
@@ -57,6 +59,20 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                     NosCoreMetrics.Failures.Add(1, new KeyValuePair<string, object?>("boundary", "game_event"));
                 }
             }
+        }
+
+        private static List<PlayerComponentBundle> Credited(EntityDiedEvent evt)
+        {
+            var credited = new List<PlayerComponentBundle>();
+            foreach (var (handle, _) in evt.HitSnapshot)
+            {
+                if (TryFindCharacter(evt.Victim, handle, out var character))
+                {
+                    credited.AddRange(character.PartyOn(character.World));
+                }
+            }
+
+            return credited;
         }
 
         private static bool TryFindCharacter(IAliveEntity victim, Entity handle, out PlayerComponentBundle character)

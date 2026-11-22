@@ -24,6 +24,7 @@ using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.QuestService.Handlers;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -119,6 +120,51 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                 .WhenAsync(TheCharacterReceives_, QuestItem)
                 .Then(TheQuestWindowShouldRead_Of_, 1, 5)
                 .And(TheQuestShouldNotBeCompleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARaidItemPickedUpCallsOutTheCount()
+        {
+            await new Spec("Each raid collect item picked up is called out with the count it brings the objective to")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.CollectInRaid, 5, QuestItem)
+                .WhenAsync(TheCharacterReceives_, QuestItem)
+                .Then(TheChatShouldSay_Collected_, QuestItem, "1/5")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARaidItemAPartyMemberPicksUpCounts()
+        {
+            await new Spec("A raid collect item a party member picks up counts towards the character's objective")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.CollectInRaid, 50, QuestItem)
+                .And(TheObjectiveAlreadyReads_, 28)
+                .WhenAsync(APartyMemberPicksUp_, QuestItem)
+                .Then(TheObjectiveShouldRead_, 29)
+                .And(TheQuestWindowShouldRead_Of_, 29, 50)
+                .And(TheChatShouldSay_Collected_, QuestItem, "29/50")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARaidItemAPartyMemberPicksUpLeavesAFullObjectiveAlone()
+        {
+            await new Spec("A party member's pickup does not push a full raid collect objective past its amount")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.CollectInRaid, 5, QuestItem)
+                .And(TheObjectiveAlreadyReads_, 5)
+                .WhenAsync(APartyMemberPicksUp_, QuestItem)
+                .Then(TheObjectiveShouldRead_, 5)
+                .And(TheQuestShouldNotBeCompleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnItemAPartyMemberPicksUpDoesNotFillTheCharactersBag()
+        {
+            await new Spec("A collect quest counted from the bag ignores what a party member picks up")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.Collect, 5, QuestItem)
+                .WhenAsync(APartyMemberPicksUp_, QuestItem)
+                .Then(TheObjectiveShouldRead_, 0)
                 .ExecuteAsync();
         }
 
@@ -455,6 +501,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
 
         private Task TheCharacterReceives_(short vNum) =>
             _handler.Handle(new ItemsReceivedEvent(_session.Character, vNum, 1));
+
+        private Task APartyMemberPicksUp_(short vNum) =>
+            _handler.Handle(new PartyItemPickedUpEvent(_session.Character, vNum));
+
+        private void TheChatShouldSay_Collected_(short vNum, string count)
+        {
+            var said = _session.LastPackets.OfType<Sayi2Packet>().Last(p => p.Message == Game18NConstString.Collected);
+            Assert.AreEqual(vNum.ToString(), said.Game18NArguments[0]?.ToString());
+            Assert.AreEqual(count, said.Game18NArguments[1]?.ToString());
+        }
 
         private Task TheCharacterProduces_Of_(int amount, short vNum) =>
             _handler.Handle(new ItemProducedEvent(_session.Character, vNum, (short)amount));

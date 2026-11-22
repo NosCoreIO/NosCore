@@ -21,4 +21,7 @@ public interface IItemQuestTypeHandler : IQuestTypeHandler
     Task<ItemQuestProgress> OnItemWornAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum);
 
     Task<ItemQuestProgress> OnNpcDialogRequestedAsync(PlayerComponentBundle character, CharacterQuest quest, short npcVNum);
+
+    // Another member of the character's party picked the item up on the character's map.
+    Task<ItemQuestProgress> OnPartyItemPickedUpAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum);
 }

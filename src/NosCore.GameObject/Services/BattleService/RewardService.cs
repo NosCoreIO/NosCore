@@ -148,7 +148,7 @@ public sealed class RewardService(
                 continue;
             }
 
-            parties[key] = (MembersOnMap(player, victim), damage);
+            parties[key] = (player.PartyOn(victim.MapInstance.EcsWorld), damage);
         }
 
         foreach (var (members, damage) in parties.Values.Where(p => p.Members.Count > 0))
@@ -162,20 +162,6 @@ public sealed class RewardService(
                     share * experienceShareService.GetJobExperienceShare(groupSize));
             }
         }
-    }
-
-    private static List<PlayerComponentBundle> MembersOnMap(PlayerComponentBundle player, IAliveEntity victim)
-    {
-        if (player.Group.Count <= 1)
-        {
-            return [player];
-        }
-
-        return player.Group.Values
-            .Select(s => s.Item2)
-            .OfType<PlayerComponentBundle>()
-            .Where(s => s.World == victim.MapInstance.EcsWorld && s.World.IsAlive(s.Handle))
-            .ToList();
     }
 
     private async Task AwardMemberExperienceAsync(PlayerComponentBundle player, NpcMonsterDto mob, double share, double jobShare)
@@ -344,31 +330,28 @@ public sealed class RewardService(
         }
     }
 
-    // A quest item drops for each attacker still collecting it, and only they may pick it up.
+    // A quest item drops for each attacker still collecting it, and for each member of their party on the
+    // map, and only the one it fell for may pick it up.
     private async Task SpawnQuestDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
         var timeSpaceId = scriptedInstanceService.GetRun(mapInstance.MapInstanceId) is { Host: TimeSpaceRunHost host }
             ? host.Entrance.Definition?.Id
             : null;
-        foreach (var handle in hitSnapshot.Keys)
+        var collectors = Attackers(victim, hitSnapshot)
+            .SelectMany(attacker => attacker.PartyOn(mapInstance.EcsWorld).Prepend(attacker))
+            .DistinctBy(player => player.CharacterId)
+            .ToList();
+        foreach (var (vNum, collector) in questDropService.RollDrops(collectors, mob, mapInstance.DropRate, timeSpaceId))
         {
-            if (!TryFindPlayer(victim, handle, out var player))
+            try
             {
-                continue;
+                var dropped = mapItemGenerationService.Create(mapInstance, itemGenerationService.Create(vNum, 1),
+                    victim.PositionX, victim.PositionY, collector.CharacterId);
+                await mapInstance.SendPacketAsync(dropped.GenerateDrop());
             }
-
-            foreach (var vNum in questDropService.RollDrops(player, mob, mapInstance.DropRate, timeSpaceId))
+            catch (System.Exception ex)
             {
-                try
-                {
-                    var dropped = mapItemGenerationService.Create(mapInstance, itemGenerationService.Create(vNum, 1),
-                        victim.PositionX, victim.PositionY, player.CharacterId);
-                    await mapInstance.SendPacketAsync(dropped.GenerateDrop());
-                }
-                catch (System.Exception ex)
-                {
-                    logger.LogWarning(ex, logLanguage[LogLanguageKey.DROP_SPAWN_FAILED], vNum, mob.NpcMonsterVNum);
-                }
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.DROP_SPAWN_FAILED], vNum, mob.NpcMonsterVNum);
             }
         }
     }

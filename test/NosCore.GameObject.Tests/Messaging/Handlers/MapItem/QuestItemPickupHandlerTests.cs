@@ -9,12 +9,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -30,6 +33,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private ClientSession _session;
         private Mock<IGameEventDispatcher> _gameEvents;
         private long _visualId;
+        private ClientSession _here;
+        private ClientSession _elsewhere;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -48,6 +53,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
                 .Then(TheItemShouldBeGoneFromTheMap)
                 .And(TheReceivedItemShouldBeRaised_Times, 1)
                 .And(TheBagShouldNotHoldIt)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARaidQuestItemCountsForThePartyMembersOnTheMap()
+        {
+            await new Spec("A raid collect quest item picked up is passed on to each party member on the map, not to the picker or a member elsewhere")
+                .Given(A_MapItemLiesNextToTheCharacter, ItemEffectType.RaidCollectQuestItem)
+                .AndAsync(TheCharacterIsInAPartyWithOneMemberHereAndOneElsewhere)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(ThePartyPickupShouldReachOnlyTheMemberOnTheMap)
                 .ExecuteAsync();
         }
 
@@ -71,6 +87,26 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
             _visualId = World.MapItemProvider.NotNull().Create(_session.Character.MapInstance,
                 World.GenerateItemProvider().Create(Feather, 1), _session.Character.PositionX, _session.Character.PositionY,
                 _session.Character.CharacterId).VisualId;
+        }
+
+        private async Task TheCharacterIsInAPartyWithOneMemberHereAndOneElsewhere()
+        {
+            _here = await World.CreateSessionAsync();
+            _elsewhere = await World.CreateSessionAsync();
+            await World.MapChangeService.ChangeMapInstanceAsync(_elsewhere, World.GetBaseMap(TestWorld.ShopMapId).MapInstanceId, 1, 1);
+            var party = new Group(GroupType.Group, World.SessionGroupFactory);
+            foreach (var member in new[] { _session, _here, _elsewhere })
+            {
+                member.Character.JoinGroup(party);
+            }
+        }
+
+        private void ThePartyPickupShouldReachOnlyTheMemberOnTheMap()
+        {
+            var here = _here.Character.VisualId;
+            _gameEvents.Verify(b => b.RaiseAsync(It.Is<PartyItemPickedUpEvent>(e => e.VNum == Feather
+                && e.Character.VisualId == here)), Times.Once);
+            _gameEvents.Verify(b => b.RaiseAsync(It.IsAny<PartyItemPickedUpEvent>()), Times.Once);
         }
 
         private Task TheCharacterPicksItUp()

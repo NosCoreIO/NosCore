@@ -9,6 +9,7 @@ using System.Linq;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.QuestService;
@@ -19,25 +20,32 @@ public sealed class QuestDropService(INpcCombatCatalog catalog, IRandomProvider 
     // always drop, but rows of 25 items at 100 make for long hunts, so the scale is doubtful.
     private const int ChanceScale = 10000;
 
-    public IReadOnlyList<short> RollDrops(PlayerComponentBundle character, NpcMonsterDto mob, int dropRate, short? timeSpaceId)
+    public IReadOnlyList<(short VNum, PlayerComponentBundle Collector)> RollDrops(IReadOnlyList<PlayerComponentBundle> collectors,
+        NpcMonsterDto mob, int dropRate, short? timeSpaceId)
     {
-        var drops = new List<short>();
+        var drops = new List<(short, PlayerComponentBundle)>();
         var ownDrops = catalog.GetDrops(mob.NpcMonsterVNum).Select(d => (int)d.VNum).ToHashSet();
-        foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null
-                     && q.Quest.QuestType is QuestType.Collect or QuestType.CollectInRaid or QuestType.CollectInTs))
+        var rolledForParty = new HashSet<(Group Party, int VNum)>();
+        foreach (var character in collectors)
         {
-            var type = quest.Quest.QuestType;
-            foreach (var objective in quest.Quest.QuestObjectives.Where(o => DropsFrom(type, o, mob, timeSpaceId)))
+            foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null
+                         && q.Quest.QuestType is QuestType.Collect or QuestType.CollectInRaid or QuestType.CollectInTs))
             {
-                if (objective.ItemVNum(type) is not { } vNum
-                    || ownDrops.Contains(vNum)
-                    || Held(character, quest, objective, vNum) >= objective.RequiredAmount(type)
-                    || !Rolls(type, objective, dropRate))
+                var type = quest.Quest.QuestType;
+                foreach (var objective in quest.Quest.QuestObjectives.Where(o => DropsFrom(type, o, mob, timeSpaceId)))
                 {
-                    continue;
-                }
+                    // A raid collect item counts for every member of the party that picks it up, so it falls once per party.
+                    if (objective.ItemVNum(type) is not { } vNum
+                        || ownDrops.Contains(vNum)
+                        || Held(character, quest, objective, vNum) >= objective.RequiredAmount(type)
+                        || (type == QuestType.CollectInRaid && !rolledForParty.Add((character.Group, vNum)))
+                        || !Rolls(type, objective, dropRate))
+                    {
+                        continue;
+                    }
 
-                drops.Add((short)vNum);
+                    drops.Add(((short)vNum, character));
+                }
             }
         }
 
