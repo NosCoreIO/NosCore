@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Services.QuestService
 {
@@ -46,6 +47,12 @@ namespace NosCore.GameObject.Services.QuestService
             if (character.CurrentScriptId == null && worldConfiguration.Value.SceneOnCreate)
             {
                 await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
+            }
+
+            if (packet is { Type: QuestActionType.Achieve, FirstArgument: { } run, SecondArgument: null })
+            {
+                await OfferRunTeleportAsync(character, run);
+                return;
             }
 
             if (packet != null)
@@ -76,6 +83,24 @@ namespace NosCore.GameObject.Services.QuestService
             }
 
             await StartScriptStepAsync(character, nextScript);
+        }
+
+        // The client reports each run step it plays as "script 1 <run>"; only a run with a destination is answered.
+        private async Task OfferRunTeleportAsync(PlayerComponentBundle character, short run)
+        {
+            if (character.Script is not { StepType: "run", TeleportMapId: { } mapId, TeleportX: { } x, TeleportY: { } y } step
+                || step.Argument1 != run)
+            {
+                return;
+            }
+
+            character.OfferedScriptTeleport = step;
+            await character.SendPacketAsync(new DlgiPacket
+            {
+                YesPacket = new ClientGuriPacket { Type = GuriPacketType.ScriptTeleport, Argument = mapId, VisualId = x, Data = y },
+                NoPacket = new ClientGuriPacket { Type = GuriPacketType.ScriptTeleportDeclined, IsWrittenWithoutHash = true },
+                Question = Game18NConstString.TeleportNow
+            });
         }
 
         private async Task PointAtOfferAsync(PlayerComponentBundle character, ScriptOfferDto offer)
@@ -224,7 +249,7 @@ namespace NosCore.GameObject.Services.QuestService
                 "opendual" => true,
                 "move" => true,
                 "target" => true,
-                "run" => true,  //todo handle
+                "run" => true,
                 _ => false,
             };
         }

@@ -48,6 +48,9 @@ namespace NosCore.Parser.Parsers
                     var stepId = Convert.ToInt16(split[0]);
                     var canParse = short.TryParse(split[2], out var argument1);
                     var stringArgument = !canParse ? split[2] : null;
+                    var teleport = split[1] == "run" && canParse && ScriptRunTeleports.All.TryGetValue(argument1, out var destination)
+                        ? destination
+                        : ((short MapId, short X, short Y)?)null;
                     scripts.Add(new ScriptDto()
                     {
                         Id = stored.TryGetValue((scriptId, stepId), out var id) ? id : Guid.NewGuid(),
@@ -57,6 +60,9 @@ namespace NosCore.Parser.Parsers
                         Argument1 = canParse ? argument1 : (short?)null,
                         Argument2 = split.Length > 3 && short.TryParse(split[3], out var argument2) ? argument2 : (short?)null,
                         Argument3 = split.Length > 4 && short.TryParse(split[4], out var argument3) ? argument3 : (short?)null,
+                        TeleportMapId = teleport?.MapId,
+                        TeleportX = teleport?.X,
+                        TeleportY = teleport?.Y,
                         ScriptId = scriptId
                     });
                 }

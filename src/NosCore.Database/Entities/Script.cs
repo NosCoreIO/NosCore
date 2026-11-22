@@ -36,5 +36,12 @@ namespace NosCore.Database.Entities
         public short? Argument2 { get; set; }
 
         public short? Argument3 { get; set; }
+
+        // Where a run step's teleport question takes the player once accepted.
+        public short? TeleportMapId { get; set; }
+
+        public short? TeleportX { get; set; }
+
+        public short? TeleportY { get; set; }
     }
 }

@@ -32,5 +32,7 @@ public record struct PlayerStateComponent(
     string? Biography = null,
     // Failed attempts per time-space since login.
     ImmutableDictionary<short, short>? TimeSpaceFailures = null,
-    ImmutableHashSet<short>? CompletedTimeSpaces = null
+    ImmutableHashSet<short>? CompletedTimeSpaces = null,
+    // The run step whose teleport question is open, until the player answers it.
+    ScriptDto? OfferedScriptTeleport = null
 );
