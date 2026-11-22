@@ -404,10 +404,10 @@ public static class PlayerBundleExtensions
         player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.CuarryBankVip);
 
     public static BankRankType GetBankRank(this PlayerComponentBundle player, IBankService bankService) =>
-        player.HasBankVip() ? BankRankType.Vip : bankService.GetRank(ReputationLevels.FromReputation(player.Reputation));
+        player.HasBankVip() ? BankRankType.Vip : bankService.GetRank(player.ReputIcon);
 
     public static long GetBankWithdrawalFee(this PlayerComponentBundle player, IBankService bankService) =>
-        player.HasBankVip() ? 0 : bankService.GetWithdrawalFee(ReputationLevels.FromReputation(player.Reputation));
+        player.HasBankVip() ? 0 : bankService.GetWithdrawalFee(player.ReputIcon);
 
     public static LevPacket GenerateLev(this PlayerComponentBundle player,
         IExperienceService experienceService,
@@ -474,7 +474,7 @@ public static class PlayerBundleExtensions
     // The client is sent a gain in the same colour as a loss.
     public static async Task GainDignityAsync(this PlayerComponentBundle player, short amount)
     {
-        if (DignityLevels.Maximum is not { } maximum)
+        if (player.Ladders.MaxDignity is not { } maximum)
         {
             return;
         }
@@ -493,7 +493,7 @@ public static class PlayerBundleExtensions
     // Unlike a gain, a restore is not announced; only the bar moves.
     public static async Task RestoreDignityAsync(this PlayerComponentBundle player)
     {
-        if (DignityLevels.Maximum is not { } maximum)
+        if (player.Ladders.MaxDignity is not { } maximum)
         {
             return;
         }
@@ -607,7 +607,7 @@ public static class PlayerBundleExtensions
     // untouched, and the negated dignity icon once it drops into a penalty band.
     private static ExtendedReputationType GetIcon(PlayerComponentBundle player)
     {
-        var dignity = DignityLevels.FromDignity(player.Dignity);
+        var dignity = player.DignityIcon;
         return dignity == DignityType.Default
             ? (ExtendedReputationType)player.ReputIcon
             : (ExtendedReputationType)(-(int)dignity);

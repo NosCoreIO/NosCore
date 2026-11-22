@@ -184,11 +184,6 @@ namespace NosCore.WorldServer
                 .As<IInstanceScriptLoader>()
                 .SingleInstance();
 
-            containerBuilder.RegisterType<NosCore.GameObject.Ecs.LadderInitializer>()
-                .AsSelf()
-                .SingleInstance()
-                .AutoActivate();
-
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();

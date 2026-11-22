@@ -75,10 +75,10 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
 
     public string? Prefix => null;
 
-    public ReputationType ReputIcon => ReputationLevels.FromReputation(Reputation);
-    public DignityType DignityIcon => DignityLevels.FromDignity(Dignity);
+    public ReputationType ReputIcon => Ladders.FromReputation(Reputation);
+    public DignityType DignityIcon => Ladders.FromDignity(Dignity);
 
-    public int ReputIconValue => (int)ReputationLevels.FromReputation(Reputation);
+    public int ReputIconValue => (int)ReputIcon;
 
     public StaticBonusDto? BazaarMedal => StaticBonusList.FirstOrDefault(s =>
         s.StaticBonusType is StaticBonusType.BazaarMedalGold or StaticBonusType.BazaarMedalSilver);

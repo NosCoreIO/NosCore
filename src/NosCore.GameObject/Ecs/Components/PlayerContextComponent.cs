@@ -13,4 +13,5 @@ namespace NosCore.GameObject.Ecs.Components;
 public record struct PlayerContextComponent(
     MapInstance MapInstance,
     Group Group,
-    Shop? Shop);
+    Shop? Shop,
+    LadderCatalog Ladders);

@@ -52,7 +52,8 @@ namespace NosCore.GameObject.Services.CharacterService
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IItemCatalog itemCatalog, IHpService hpService, IMpService mpService, ISpeedService speedService,
             IVitalityService vitalityService, ISessionGroupFactory sessionGroupFactory,
-            IMateService mateService, IFamilyService familyService, IStaticBuffService staticBuffService)
+            IMateService mateService, IFamilyService familyService, IStaticBuffService staticBuffService,
+            LadderCatalog ladders)
         : ICharacterLoadService
     {
         public async Task<PlayerComponentBundle> LoadAsync(ClientSession session, CharacterDto character)
@@ -97,7 +98,7 @@ namespace NosCore.GameObject.Services.CharacterService
 
             var group = new Group(GroupType.Group, sessionGroupFactory);
             world.AddComponent(playerEntity, new PlayerNetworkComponent(session, session.Channel));
-            world.AddComponent(playerEntity, new PlayerContextComponent(mapInstance, group, null));
+            world.AddComponent(playerEntity, new PlayerContextComponent(mapInstance, group, null, ladders));
             world.AddComponent(playerEntity, new PlayerInventoryComponent(
                 inventoryService,
                 new ConcurrentDictionary<short, CharacterSkill>(),

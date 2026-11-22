@@ -51,15 +51,14 @@ namespace NosCore.GameObject.Tests
             (long.MaxValue, ReputationType.RedElite)
         };
 
-        [TestInitialize]
-        public void LoadLadder() => ReputationLevels.Load(ClientLadders.ReputationLevels());
+        private readonly LadderCatalog _ladders = new(ClientLadders.ReputationLevels(), []);
 
         [TestMethod]
         public void TheLastValueOfEachBandDrawsThatBandsIcon()
         {
             foreach ((long top, ReputationType icon) in Bands)
             {
-                Assert.AreEqual(icon, ReputationLevels.FromReputation(top),
+                Assert.AreEqual(icon, _ladders.FromReputation(top),
                     $"reputation {top} is the last value of the {icon} band");
             }
         }
@@ -71,7 +70,7 @@ namespace NosCore.GameObject.Tests
             foreach ((long top, ReputationType icon) in Bands)
             {
                 long first = previousTop + 1;
-                Assert.AreEqual(icon, ReputationLevels.FromReputation(first),
+                Assert.AreEqual(icon, _ladders.FromReputation(first),
                     $"reputation {first} is the first value of the {icon} band");
                 previousTop = top;
             }
@@ -87,8 +86,8 @@ namespace NosCore.GameObject.Tests
                 Assert.AreNotEqual(Bands[i - 1].Icon, Bands[i].Icon,
                     "two neighbouring bands must not draw the same icon");
                 Assert.AreNotEqual(
-                    ReputationLevels.FromReputation(Bands[i - 1].Top),
-                    ReputationLevels.FromReputation(Bands[i - 1].Top + 1),
+                    _ladders.FromReputation(Bands[i - 1].Top),
+                    _ladders.FromReputation(Bands[i - 1].Top + 1),
                     $"crossing {Bands[i - 1].Top} must change the icon");
             }
         }
@@ -101,8 +100,8 @@ namespace NosCore.GameObject.Tests
             // The client's first band is icon 1, not 0 and not 16: the enum's numbering IS the
             // icon the client draws, and the old thirteen-tier ladder in PlayerBundleExtensions
             // started at 16 for no reason anyone recorded.
-            Assert.AreEqual(1, (int)ReputationLevels.FromReputation(0));
-            Assert.AreEqual(27, (int)ReputationLevels.FromReputation(long.MaxValue));
+            Assert.AreEqual(1, (int)_ladders.FromReputation(0));
+            Assert.AreEqual(27, (int)_ladders.FromReputation(long.MaxValue));
         }
 
         [TestMethod]
@@ -110,22 +109,22 @@ namespace NosCore.GameObject.Tests
         {
             // Reputation can go negative in play. It must not fall off the bottom of the switch
             // into something that is not an icon at all.
-            Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(-1));
-            Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(long.MinValue));
+            Assert.AreEqual(ReputationType.GreenBeginner, _ladders.FromReputation(-1));
+            Assert.AreEqual(ReputationType.GreenBeginner, _ladders.FromReputation(long.MinValue));
         }
 
         [TestMethod]
         public void TheLadderIsWhateverWasImported()
         {
-            ReputationLevels.Load(new List<ReputationLevelDto>
+            var ladders = new LadderCatalog(new List<ReputationLevelDto>
             {
                 new() { ReputationLevelId = (byte)ReputationType.GreenBeginner, MinReputation = 0, MaxReputation = 9 },
                 new() { ReputationLevelId = (byte)ReputationType.BlueBeginner, MinReputation = 10, MaxReputation = null }
-            });
+            }, []);
 
-            Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(9));
-            Assert.AreEqual(ReputationType.BlueBeginner, ReputationLevels.FromReputation(10));
-            Assert.AreEqual(ReputationType.BlueBeginner, ReputationLevels.FromReputation(long.MaxValue));
+            Assert.AreEqual(ReputationType.GreenBeginner, ladders.FromReputation(9));
+            Assert.AreEqual(ReputationType.BlueBeginner, ladders.FromReputation(10));
+            Assert.AreEqual(ReputationType.BlueBeginner, ladders.FromReputation(long.MaxValue));
         }
     }
 }

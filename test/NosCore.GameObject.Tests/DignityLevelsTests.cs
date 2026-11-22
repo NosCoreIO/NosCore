@@ -27,15 +27,14 @@ namespace NosCore.GameObject.Tests
             (-100, DignityType.Dubious)
         };
 
-        [TestInitialize]
-        public void LoadLadder() => DignityLevels.Load(ClientLadders.DignityLevels());
+        private readonly LadderCatalog _ladders = new([], ClientLadders.DignityLevels());
 
         [TestMethod]
         public void TheHighestValueOfEachBandDrawsThatBandsIcon()
         {
             foreach ((short top, DignityType icon) in Bands)
             {
-                Assert.AreEqual(icon, DignityLevels.FromDignity(top),
+                Assert.AreEqual(icon, _ladders.FromDignity(top),
                     $"dignity {top} is the highest value of the {icon} band");
             }
         }
@@ -45,11 +44,11 @@ namespace NosCore.GameObject.Tests
         {
             for (var i = 0; i < Bands.Length - 1; i++)
             {
-                Assert.AreEqual(Bands[i + 1].Icon, DignityLevels.FromDignity((short)(Bands[i].Top + 1)),
+                Assert.AreEqual(Bands[i + 1].Icon, _ladders.FromDignity((short)(Bands[i].Top + 1)),
                     $"dignity {Bands[i].Top + 1} sits one above the {Bands[i].Icon} band");
             }
 
-            Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity((short)(Bands[^1].Top + 1)));
+            Assert.AreEqual(DignityType.Default, _ladders.FromDignity((short)(Bands[^1].Top + 1)));
         }
 
         [TestMethod]
@@ -57,7 +56,7 @@ namespace NosCore.GameObject.Tests
         {
             foreach ((short top, DignityType icon) in Bands)
             {
-                Assert.AreNotEqual(icon, DignityLevels.FromDignity((short)(top + 1)),
+                Assert.AreNotEqual(icon, _ladders.FromDignity((short)(top + 1)),
                     $"crossing {top} must change the icon");
             }
         }
@@ -65,51 +64,51 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void UntouchedDignityIsDefault()
         {
-            Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity(0));
-            Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity(100));
+            Assert.AreEqual(DignityType.Default, _ladders.FromDignity(0));
+            Assert.AreEqual(DignityType.Default, _ladders.FromDignity(100));
 
             // The client declares no band between -1 and -99, so Default has to carry them.
-            Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity(-1));
-            Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity(-99));
+            Assert.AreEqual(DignityType.Default, _ladders.FromDignity(-1));
+            Assert.AreEqual(DignityType.Default, _ladders.FromDignity(-99));
         }
 
         [TestMethod]
         public void DignityBelowTheLastBandStillDrawsTheWorstIcon()
         {
-            Assert.AreEqual(DignityType.Failed, DignityLevels.FromDignity(-1000));
-            Assert.AreEqual(DignityType.Failed, DignityLevels.FromDignity(short.MinValue));
+            Assert.AreEqual(DignityType.Failed, _ladders.FromDignity(-1000));
+            Assert.AreEqual(DignityType.Failed, _ladders.FromDignity(short.MinValue));
         }
 
         [TestMethod]
         public void TheMaximumIsTheCeilingOfTheDefaultBand()
         {
-            Assert.AreEqual((short)100, DignityLevels.Maximum);
+            Assert.AreEqual((short)100, _ladders.MaxDignity);
         }
 
         [TestMethod]
         public void ALadderWithoutADefaultCeilingHasNoMaximum()
         {
-            DignityLevels.Load(new List<DignityLevelDto>
+            var ladders = new LadderCatalog([], new List<DignityLevelDto>
             {
                 new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = null },
                 new() { DignityLevelId = (byte)DignityType.Dubious, MaxDignity = -5 }
             });
 
-            Assert.IsNull(DignityLevels.Maximum);
+            Assert.IsNull(ladders.MaxDignity);
         }
 
         [TestMethod]
         public void TheLadderIsWhateverWasImported()
         {
-            DignityLevels.Load(new List<DignityLevelDto>
+            var ladders = new LadderCatalog([], new List<DignityLevelDto>
             {
                 new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = null },
                 new() { DignityLevelId = (byte)DignityType.Dubious, MaxDignity = -5 }
             });
 
-            Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity(-4));
-            Assert.AreEqual(DignityType.Dubious, DignityLevels.FromDignity(-5));
-            Assert.AreEqual(DignityType.Dubious, DignityLevels.FromDignity(short.MinValue));
+            Assert.AreEqual(DignityType.Default, ladders.FromDignity(-4));
+            Assert.AreEqual(DignityType.Dubious, ladders.FromDignity(-5));
+            Assert.AreEqual(DignityType.Dubious, ladders.FromDignity(short.MinValue));
         }
     }
 }

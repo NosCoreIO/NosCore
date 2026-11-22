@@ -42,7 +42,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            DignityLevels.Load(ClientLadders.DignityLevels());
             _session = await World.CreateSessionAsync();
             _handler = World.Create<DignityItemHandler>();
         }
@@ -147,7 +146,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.InventoryService[_dignityItem.ItemInstanceId] = _dignityItem;
         }
 
-        private void TheLadderHasNoMaximum() => DignityLevels.Load(new List<DignityLevelDto>
+        private void TheLadderHasNoMaximum() => _session.Character.Ladders = new LadderCatalog([], new List<DignityLevelDto>
         {
             new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = null }
         });
