@@ -41,11 +41,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             var mapInstance = session.Character.MapInstance;
             if (!session.Character.InventoryService.HasRoomFor(item))
             {
-                await session.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
+                await RefuseAsync(evt);
                 return;
             }
 
@@ -79,12 +75,33 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             }
             else
             {
-                await session.SendPacketAsync(new MsgiPacket
+                await RefuseAsync(evt);
+            }
+        }
+
+        private static async Task RefuseAsync(MapItemPickedUpEvent evt)
+        {
+            if (evt.Packet.PickerType != VisualType.Npc)
+            {
+                await evt.ClientSession.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.NotEnoughSpace
                 });
+                return;
             }
+
+            await evt.ClientSession.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.FullInventory
+            });
+            await evt.ClientSession.SendPacketAsync(new GuriPacket
+            {
+                Type = GuriPacketType.MatePickUpRefused,
+                Argument = (uint)VisualType.Npc,
+                EntityId = evt.Packet.PickerId
+            });
         }
     }
 }

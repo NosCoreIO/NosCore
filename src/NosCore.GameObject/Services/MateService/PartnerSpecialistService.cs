@@ -44,6 +44,7 @@ namespace NosCore.GameObject.Services.MateService
         private const short CooldownSeconds = 30;
         private const short TransformDelayMilliseconds = 5000;
         private const int TransformEffect = 196;
+        private const uint TransformAnimation = 10;
 
         public IReadOnlyList<SkillDto> Skills(PlayerComponentBundle owner, Mate partner) =>
             partner.SpecialistMorph != null && partner.Specialist(owner.InventoryService) is { } specialist
@@ -116,6 +117,14 @@ namespace NosCore.GameObject.Services.MateService
             entity.Morph = partner.Morph();
             await RefreshAsync(owner, partner, entity);
             await SendAsync(owner, entity.GenerateEff(TransformEffect));
+            await SendAsync(owner, new GuriPacket
+            {
+                Type = GuriPacketType.CharacterAnimation,
+                Argument = (uint)VisualType.Npc,
+                EntityId = entity.VisualId,
+                Value = TransformAnimation,
+                SecondValue = 0
+            });
         }
 
         public async Task UntransformAsync(PlayerComponentBundle owner, Mate partner)
