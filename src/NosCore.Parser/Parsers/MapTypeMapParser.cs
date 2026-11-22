@@ -16,7 +16,7 @@ namespace NosCore.Parser.Parsers
 {
     public class MapTypeMapParser(IDao<MapTypeMapDto, short> mapTypeMapDao, IDao<MapDto, short> mapDao)
     {
-        internal Task InsertMapTypeMapsAsync()
+        public Task InsertMapTypeMapsAsync()
         {
             var maptypemaps = new List<MapTypeMapDto>();
             var mapTypeId = MapTypeType.Act1;
