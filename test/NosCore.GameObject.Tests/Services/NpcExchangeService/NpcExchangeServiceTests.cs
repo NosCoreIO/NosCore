@@ -5,6 +5,7 @@
 //
 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +14,12 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -34,11 +37,15 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
         private const short Claw = 2522;
         private const short SwordsmanCard = 4500;
         private const short ArcherCard = 4501;
+        private const short YellowPumpkinSweet = 2322;
+        private const short HalloweenCostumeScroll = 1915;
+        private const short ExchangeDialog = 464;
 
         private TestWorld World;
         private ClientSession _session;
         private IItemGenerationService _itemProvider;
         private GameObject.Services.NpcExchangeService.NpcExchangeService _service;
+        private NpcComponentBundle _npc;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -54,6 +61,8 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new Item { VNum = Claw, Type = NoscorePocketType.Etc },
                 new Item { VNum = SwordsmanCard, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, Class = 2 },
                 new Item { VNum = ArcherCard, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, Class = 4 },
+                new Item { VNum = YellowPumpkinSweet, Type = NoscorePocketType.Main },
+                new Item { VNum = HalloweenCostumeScroll, Type = NoscorePocketType.Main },
             };
             World.Inject(items);
             World.Inject<IItemCatalog>(World.Create<ItemCatalog>());
@@ -65,6 +74,7 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new() { NpcExchangeId = 2, Runner = NrunRunnerType.ExchangeForSP5, ItemVNum = SwordsmanCard, Amount = 1 },
                 new() { NpcExchangeId = 3, Runner = NrunRunnerType.ExchangeForSP5, ItemVNum = ArcherCard, Amount = 1 },
                 new() { NpcExchangeId = 4, Runner = NrunRunnerType.ExchangeForSP6, ItemVNum = Seal, Amount = 1 },
+                new() { NpcExchangeId = 5, Runner = NrunRunnerType.ExchangeForHalloweenCostumeScroll, ItemVNum = HalloweenCostumeScroll, Amount = 1 },
             });
             World.Inject(new List<NpcExchangeMaterialDto>
             {
@@ -72,7 +82,15 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new() { NpcExchangeMaterialId = 2, NpcExchangeId = 1, ItemVNum = RightHalf, Amount = 1 },
                 new() { NpcExchangeMaterialId = 3, NpcExchangeId = 2, ItemVNum = Claw, Amount = 50 },
                 new() { NpcExchangeMaterialId = 4, NpcExchangeId = 3, ItemVNum = Claw, Amount = 50 },
+                new() { NpcExchangeMaterialId = 5, NpcExchangeId = 5, ItemVNum = YellowPumpkinSweet, Amount = 10 },
             });
+            World.Inject(new[]
+            {
+                NrunRunnerType.ExchangeForGrenigasRaidSeal, NrunRunnerType.ExchangeForSP5, NrunRunnerType.ExchangeForSP6,
+                NrunRunnerType.ExchangeForHalloweenCostumeScroll,
+            }.Select(runner => new NpcTalkButtonDto { NpcTalkButtonId = Guid.NewGuid(), DialogId = ExchangeDialog, Runner = runner }).ToList());
+            World.UseReal<INpcTalkButtonCatalog, NpcTalkButtonCatalog>();
+            _npc = NpcWithDialog(1, ExchangeDialog);
             _service = World.Create<GameObject.Services.NpcExchangeService.NpcExchangeService>();
         }
 
@@ -148,6 +166,47 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TenYellowPumpkinSweetsBuyAHalloweenCostumeScroll()
+        {
+            await new Spec("Ten sweets are taken and one event costume scroll given")
+                .Given(TheCharacterHas__, YellowPumpkinSweet, (short)12)
+                .WhenAsync(Exchanging_, NrunRunnerType.ExchangeForHalloweenCostumeScroll)
+                .Then(TheCharacterShouldHave__, YellowPumpkinSweet, 2)
+                .And(TheCharacterShouldHave__, HalloweenCostumeScroll, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TooFewSweetsAreRefusedWithTheClientsMessage()
+        {
+            await new Spec("Nine sweets are kept and the player is told materials are missing")
+                .Given(TheCharacterHas__, YellowPumpkinSweet, (short)9)
+                .WhenAsync(Exchanging_, NrunRunnerType.ExchangeForHalloweenCostumeScroll)
+                .Then(TheCharacterShouldHave__, YellowPumpkinSweet, 9)
+                .And(TheCharacterShouldHave__, HalloweenCostumeScroll, 0)
+                .And(RawMaterialsMissingShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnNpcWhoseDialogDoesNotOfferTheExchangeTradesNothing()
+        {
+            await new Spec("Another NPC's dialog has no sweets exchange, so the sweets are kept")
+                .Given(TheCharacterHas__, YellowPumpkinSweet, (short)10)
+                .WhenAsync(ExchangingWithAnotherNpc_, NrunRunnerType.ExchangeForHalloweenCostumeScroll)
+                .Then(TheCharacterShouldHave__, YellowPumpkinSweet, 10)
+                .And(TheCharacterShouldHave__, HalloweenCostumeScroll, 0)
+                .ExecuteAsync();
+        }
+
+        private NpcComponentBundle NpcWithDialog(int npcId, short dialog)
+        {
+            var map = World.GetBaseMap(TestWorld.TestMapId);
+            return new NpcComponentBundle(map.EcsWorld.CreateNpc(npcId, new NpcMonsterDto { NpcMonsterVNum = 1, MaxHp = 10 }, map,
+                1, 1, 0, 1, 1, false, false, dialog, 0, 0, null), map.EcsWorld);
+        }
+
         private void TheBackpackHas_Slots(int slots) => World.WorldConfiguration.Value.BackpackSize = (byte)slots;
 
         private void TheCharacterIsA_(CharacterClassType characterClass) => _session.Character.Class = characterClass;
@@ -156,7 +215,10 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
             _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(_itemProvider.Create(vnum, amount), _session.Character.CharacterId));
 
-        private Task Exchanging_(NrunRunnerType runner) => _service.ExchangeAsync(_session, runner);
+        private Task Exchanging_(NrunRunnerType runner) => _service.ExchangeAsync(_session, _npc, runner);
+
+        private Task ExchangingWithAnotherNpc_(NrunRunnerType runner) =>
+            _service.ExchangeAsync(_session, NpcWithDialog(2, 12), runner);
 
         private void TheCharacterShouldHave__(short vnum, int amount) =>
             Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(vnum));

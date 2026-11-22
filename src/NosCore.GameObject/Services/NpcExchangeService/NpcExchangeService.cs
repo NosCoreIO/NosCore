@@ -9,12 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
@@ -23,13 +25,18 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.NpcExchangeService
 {
     public class NpcExchangeService(List<NpcExchangeDto> exchanges, List<NpcExchangeMaterialDto> materials,
-            IItemCatalog itemCatalog, IItemGenerationService itemProvider)
+            IItemCatalog itemCatalog, IItemGenerationService itemProvider, INpcTalkButtonCatalog npcTalkButtons)
         : INpcExchangeService, ISingletonService
     {
         private readonly ILookup<short, NpcExchangeMaterialDto> _materials = materials.ToLookup(s => s.NpcExchangeId);
 
-        public async Task ExchangeAsync(ClientSession session, NrunRunnerType runner)
+        public async Task ExchangeAsync(ClientSession session, NpcComponentBundle npc, NrunRunnerType runner)
         {
+            if (!npcTalkButtons.Offers(npc, runner))
+            {
+                return;
+            }
+
             var character = session.Character;
             var exchange = exchanges.FirstOrDefault(s => s.Runner == runner
                 && itemCatalog.GetItem(s.ItemVNum) is { } item && item.FitsClass(character.Class));
