@@ -90,6 +90,11 @@ should give the same NPCs.
       keepers all stand on the map, and the minimap shows them
 - [ ] The shops, skill shops and teleporters of the NPCs above still open and work
 
+### Specialist card time-space stones
+
+- [ ] An NPC whose dialog has a button to a specialist card's time-space stone (2107-2109, 2111,
+      2112) takes the player to that stone, and stepping on it opens the time-space card
+
 ### Quests after an import
 
 Run the parser twice on the same database, or once on a database an older parser filled
