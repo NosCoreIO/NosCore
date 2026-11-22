@@ -3432,6 +3432,33 @@ negative going north.
 - [ ] 521: killing the Powerless Dust King in (1,-8) wins the run
 - [ ] Not verifiable yet: entering from the quest's own stone, which nothing places yet
 
+### Pyjama time-space
+
+`timespace-518` ("What Adventure Awaits?", level 27, quest 2006) is the Yellow Soulstone's
+time-space, on the same 21 rooms as `timespace-34`. Nothing places its stone yet, so add a test
+stone with `Script` set to `timespace-518` and use a level 27+ character. The texts below are
+the French ones of the log, and rooms are named by their minimap position from the first room,
+x to the east and y positive going south.
+
+- [ ] The mission window shows one heart and the exit as its goal, and the clock starts at ten
+      minutes
+- [ ] (2,-1) and (5,-1) say "Le portail s'ouvrira une fois que tu auras éliminé tous les
+      monstres." and open every door when cleared, with "La sortie est ouverte."
+- [ ] (4,0) shows a red two-minute clock; clearing it within the two minutes opens its north and
+      south doors only and adds three minutes with "Tu as gagné 3 minutes de temps bonus."
+- [ ] (5,2) says "Élimine tous les ennemis !"; clearing it opens only its north door, adds two
+      minutes and shows the Quick Mission line. Its west door never opens
+- [ ] (4,2) holds the exit, open from the start: walking onto it wins with Mission Clear without
+      going through the dark trap or the lever room
+- [ ] The dark trap (3,2) shows "Le piège des ténèbres ! Tu es piégé pendant 1 minute." and a red
+      one-minute clock; killing the Dark Gargs opens nothing, and when the clock ends its three
+      doors open with "Le portail s'est ouvert."
+- [ ] The lever room (1,2), "Vois-tu le levier au centre ?", opens both its doors when the lever
+      is pulled
+- [ ] Not verifiable yet: entering from the Yellow Soulstone (NPC 932), and the gold and
+      reputation of the log's clear, which come from a stone entrance this time-space does not
+      have yet
+
 ### Escorts in a time-space
 
 A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`; Guards in
