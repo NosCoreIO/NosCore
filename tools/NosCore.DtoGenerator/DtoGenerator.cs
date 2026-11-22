@@ -22,6 +22,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,27 +30,22 @@ using System.Text;
 namespace NosCore.DtoGenerator
 {
     [Generator]
-    public class DtoGenerator : ISourceGenerator
+    public class DtoGenerator : IIncrementalGenerator
     {
-        public void Initialize(GeneratorInitializationContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            //uncomment line to debug generator
-//#if DEBUG
-//            if (!Debugger.IsAttached)
-//            {
-//                Debugger.Launch();
-//            }
-//#endif
+            var input = context.CompilationProvider.Combine(context.AdditionalTextsProvider.Collect());
+            context.RegisterSourceOutput(input, (spc, pair) => Execute(spc, pair.Left, pair.Right));
         }
 
-        public void Execute(GeneratorExecutionContext context)
+        private static void Execute(SourceProductionContext context, Compilation sourceCompilation, ImmutableArray<AdditionalText> additionalFiles)
         {
-            var path = Path.GetDirectoryName(context.AdditionalFiles.First(f => f.Path.EndsWith(".csproj")).Path);
+            var path = Path.GetDirectoryName(additionalFiles.First(f => f.Path.EndsWith(".csproj")).Path);
             var files = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
-            var options = (context.Compilation as CSharpCompilation)?.SyntaxTrees.FirstOrDefault()?.Options as CSharpParseOptions
+            var options = (sourceCompilation as CSharpCompilation)?.SyntaxTrees.FirstOrDefault()?.Options as CSharpParseOptions
                 ?? new CSharpParseOptions(LanguageVersion.Preview);
             var trees = files.Select(f => CSharpSyntaxTree.ParseText(File.ReadAllText(f), options)).ToList();
-            var compilation = context.Compilation.AddSyntaxTrees(trees);
+            var compilation = sourceCompilation.AddSyntaxTrees(trees);
             foreach (var ns in trees)
             {
                 var semanticModel = compilation.GetSemanticModel(ns);
