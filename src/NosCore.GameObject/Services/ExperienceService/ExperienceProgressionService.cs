@@ -225,7 +225,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                     if (player.Family is { } family)
                     {
                         await familyContributionService.CharacterLevelledUpAsync(family.FamilyId, player.CharacterId, player.Name, previousLevel, player.Level,
-                            player.HasFamilyExperienceBooster());
+                            player.HasFamilyExperienceBooster);
                     }
                 }
 

@@ -10,6 +10,9 @@ using System.Linq;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Ecs;
 
@@ -82,6 +85,26 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
 
     public StaticBonusDto? BazaarMedal => StaticBonusList.FirstOrDefault(s =>
         s.StaticBonusType is StaticBonusType.BazaarMedalGold or StaticBonusType.BazaarMedalSilver);
+
+    public bool HasBankVip => StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.CuarryBankVip);
+
+    public bool HasFamilyExperienceBooster =>
+        StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.FamilyExperienceBooster);
+
+    public short VisibleTitle => Titles.FirstOrDefault(s => s.Visible)?.TitleType ?? 0;
+
+    // A mount replaces the sprite just as a specialist card does.
+    public short ShownMorph => UseSp || IsVehicled ? Morph : (short)0;
+
+    // A worn wig is drawn in its own colour instead of the hair's.
+    public HairColorType ShownHairColor
+    {
+        get
+        {
+            var hat = InventoryService.LoadBySlotAndType(EquipmentType.Hat, NoscorePocketType.Wear);
+            return hat?.ItemInstance.Item.IsColored == true ? (HairColorType)hat.ItemInstance.Design : HairColor;
+        }
+    }
 
     public Task SendPacketAsync(IPacket? packet)
     {

@@ -45,7 +45,7 @@ public static class EquipmentPackets
             Visibility = (byte)(player.Authority < AuthorityType.GameMaster ? 0 : 2),
             Gender = player.Gender,
             HairStyle = player.HairStyle,
-            Haircolor = player.ShownHairColor(),
+            Haircolor = player.ShownHairColor,
             ClassType = player.Class,
             EqSubPacket = player.GetEquipmentSubPacket(),
             WeaponUpgradeRarePacket = player.GetWeaponUpgradeRareSubPacket(),

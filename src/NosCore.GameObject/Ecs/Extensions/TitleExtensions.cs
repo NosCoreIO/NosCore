@@ -50,9 +50,6 @@ public static class TitleExtensions
         return true;
     }
 
-    public static short VisibleTitle(this PlayerComponentBundle player) =>
-        player.Titles.FirstOrDefault(s => s.Visible)?.TitleType ?? 0;
-
     public static TitleInfoPacket GenerateTitInfo(this PlayerComponentBundle player)
     {
         var effectiveTitle = player.Titles.FirstOrDefault(s => s.Active)?.TitleType;
@@ -61,7 +58,7 @@ public static class TitleExtensions
             VisualId = player.VisualId,
             EffectiveTitle = effectiveTitle ?? 0,
             VisualType = VisualType.Player,
-            VisibleTitle = player.VisibleTitle()
+            VisibleTitle = player.VisibleTitle
         };
     }
 

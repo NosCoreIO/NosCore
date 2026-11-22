@@ -122,11 +122,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private void TheCharacterShouldHaveOneBonus()
         {
             Assert.AreEqual(1, _session.Character.StaticBonusList.Count);
-            Assert.IsTrue(_session.Character.HasFamilyExperienceBooster());
+            Assert.IsTrue(_session.Character.HasFamilyExperienceBooster);
         }
 
         private void TheCharacterShouldHaveNoBonus() =>
-            Assert.IsFalse(_session.Character.HasFamilyExperienceBooster());
+            Assert.IsFalse(_session.Character.HasFamilyExperienceBooster);
 
         private void TheBoosterShouldBeUsedUp() =>
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(BoosterVNum));

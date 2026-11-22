@@ -334,7 +334,7 @@ public static class PlayerBundleExtensions
                 Authority = player.Authority >= AuthorityType.Administrator ? AuthorityType.Administrator : AuthorityType.User,
                 Gender = player.Gender,
                 HairStyle = player.HairStyle,
-                HairColor = player.ShownHairColor(),
+                HairColor = player.ShownHairColor,
                 Class = player.Class,
                 Equipment = player.GetEquipmentSubPacket(),
                 InAliveSubPacket = new InAliveSubPacket
@@ -349,7 +349,7 @@ public static class PlayerBundleExtensions
                 FairyBooster = false,
                 FairyMorph = (byte)(fairy?.Item.Morph ?? 0),
                 ShowInEffect = false,
-                Morph = player.ShownMorph(),
+                Morph = player.ShownMorph,
                 WeaponUpgradeRareSubPacket = player.GetWeaponUpgradeRareSubPacket(),
                 ArmorUpgradeRareSubPacket = player.GetArmorUpgradeRareSubPacket(),
                 FamilySubPacket = player.Family is { } family
@@ -373,7 +373,7 @@ public static class PlayerBundleExtensions
                 Compliment = (short)(player.Authority >= AuthorityType.Moderator ? 500 : player.Compliment),
                 Size = player.Size,
                 HeroLevel = player.HeroLevel,
-                Title = player.VisibleTitle()
+                Title = player.VisibleTitle
             }
         };
     }
@@ -400,14 +400,11 @@ public static class PlayerBundleExtensions
         quest.RequiredQuestId is not { } required
         || player.Quests.Values.Any(q => q.QuestId == required && q.CompletedOn != null);
 
-    public static bool HasBankVip(this PlayerComponentBundle player) =>
-        player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.CuarryBankVip);
-
     public static BankRankType GetBankRank(this PlayerComponentBundle player, IBankService bankService) =>
-        player.HasBankVip() ? BankRankType.Vip : bankService.GetRank(player.ReputIcon);
+        player.HasBankVip ? BankRankType.Vip : bankService.GetRank(player.ReputIcon);
 
     public static long GetBankWithdrawalFee(this PlayerComponentBundle player, IBankService bankService) =>
-        player.HasBankVip() ? 0 : bankService.GetWithdrawalFee(player.ReputIcon);
+        player.HasBankVip ? 0 : bankService.GetWithdrawalFee(player.ReputIcon);
 
     public static LevPacket GenerateLev(this PlayerComponentBundle player,
         IExperienceService experienceService,
@@ -586,11 +583,11 @@ public static class PlayerBundleExtensions
             Authority = player.Authority,
             Gender = player.Gender,
             HairStyle = player.HairStyle,
-            HairColor = player.ShownHairColor(),
+            HairColor = player.ShownHairColor,
             Class = player.Class,
             Icon = GetIcon(player),
             Compliment = (short)(player.Authority == AuthorityType.Moderator ? 500 : player.Compliment),
-            Morph = player.ShownMorph(),
+            Morph = player.ShownMorph,
             Invisible = false,
             FamilyLevel = player.Family?.FamilyLevel ?? 0,
             MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
@@ -598,10 +595,6 @@ public static class PlayerBundleExtensions
             Unknown3 = -1
         };
     }
-
-    // A mount replaces the sprite just as a specialist card does.
-    public static short ShownMorph(this PlayerComponentBundle player) =>
-        player.UseSp || player.IsVehicled ? player.Morph : (short)0;
 
     // The icon slot carries one of the two ladders: the reputation icon while dignity is
     // untouched, and the negated dignity icon once it drops into a penalty band.
@@ -611,13 +604,6 @@ public static class PlayerBundleExtensions
         return dignity == DignityType.Default
             ? (ExtendedReputationType)player.ReputIcon
             : (ExtendedReputationType)(-(int)dignity);
-    }
-
-    // A worn wig is drawn in its own colour instead of the hair's.
-    public static HairColorType ShownHairColor(this PlayerComponentBundle player)
-    {
-        var hat = player.InventoryService.LoadBySlotAndType(EquipmentType.Hat, NoscorePocketType.Wear);
-        return hat?.ItemInstance.Item.IsColored == true ? (HairColorType)hat.ItemInstance.Design : player.HairColor;
     }
 
     // The character window shows what combat uses, worn gear and active effects included. Combat
@@ -670,9 +656,6 @@ public static class PlayerBundleExtensions
             IconType = iconType
         };
     }
-
-    public static bool HasFamilyExperienceBooster(this PlayerComponentBundle player) =>
-        player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.FamilyExperienceBooster);
 
     public static void LoadExpensions(this PlayerComponentBundle player)
     {
