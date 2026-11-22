@@ -92,8 +92,19 @@ namespace NosCore.GameObject.Services.ChannelService
         // would arrive as they were before and stays on this channel instead.
         private async Task<bool> MoveAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode)
         {
-            using (await HoldPacketsAsync(clientSession))
+            if (await HoldPacketsAsync(clientSession) is not { } packets)
             {
+                return false;
+            }
+
+            using (packets)
+            {
+                // A move or a disconnect that held the lock first has already taken the session away.
+                if (clientSession.IsClosing)
+                {
+                    return true;
+                }
+
                 if (!await saveService.SaveAsync(clientSession))
                 {
                     return false;
@@ -126,12 +137,12 @@ namespace NosCore.GameObject.Services.ChannelService
         // Nothing written after the hand-over is saved, so a packet of the player's must not run
         // between the save and it. Map work must not wait on the packet lock, and a handler holding
         // it may be waiting on the work that moves the player, so the wait is bounded as on a
-        // disconnect.
-        private ValueTask<ClientSession.PacketLockScope> HoldPacketsAsync(ClientSession clientSession)
+        // disconnect; null when it runs out, and the player then stays.
+        private ValueTask<ClientSession.PacketLockScope?> HoldPacketsAsync(ClientSession clientSession)
         {
             if (clientSession.HoldsPacketLock || MapExecutor.IsInsideAny)
             {
-                return ValueTask.FromResult(default(ClientSession.PacketLockScope));
+                return ValueTask.FromResult<ClientSession.PacketLockScope?>(default(ClientSession.PacketLockScope));
             }
 
             // Taken here rather than in the awaiting method, so the hold is recorded in the mover's flow.
@@ -139,7 +150,7 @@ namespace NosCore.GameObject.Services.ChannelService
             return WaitForPacketsAsync(clientSession, clientSession.AcquirePacketLockAsync(timeout.Token), timeout);
         }
 
-        private async ValueTask<ClientSession.PacketLockScope> WaitForPacketsAsync(ClientSession clientSession,
+        private async ValueTask<ClientSession.PacketLockScope?> WaitForPacketsAsync(ClientSession clientSession,
             ValueTask<ClientSession.PacketLockScope> acquiring, CancellationTokenSource timeout)
         {
             using (timeout)
@@ -151,7 +162,7 @@ namespace NosCore.GameObject.Services.ChannelService
                 catch (OperationCanceledException)
                 {
                     logger.LogWarning(logLanguage[LogLanguageKey.PACKET_IN_FLIGHT_ON_CHANNEL_CHANGE], clientSession.SessionId);
-                    return default;
+                    return null;
                 }
             }
         }

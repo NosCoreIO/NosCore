@@ -1462,6 +1462,6 @@
     <value>-------------Help command-------------</value>
   </data>
   <data name="PACKET_IN_FLIGHT_ON_CHANNEL_CHANGE" xml:space="preserve">
-    <value>Session {SessionId} still had a packet in flight when it was handed to another channel</value>
+    <value>Session {SessionId} still had a packet in flight, so it stays on this channel instead of moving to another</value>
   </data>
 </root>

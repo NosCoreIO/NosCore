@@ -274,6 +274,70 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task APacketStillRunningKeepsThePlayerOnThisChannel()
+        {
+            await new Spec("A packet still running when the wait runs out keeps the player on this channel")
+                .Given(BothKindsOfChannelRun)
+                .And(ThePlayerStandsInPortAlveus)
+                .AndAsync(APacketOfThePlayersKeepsRunning)
+                .WhenAsync(TheShipSailsWhileItRuns)
+                .Then(ThePlayerShouldHaveStayed)
+                .And(TheCharacterShouldStillStandInPortAlveus)
+                .And(CharacterShouldNotBeSaved)
+                .And(TheSessionShouldStillBeOpen)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASessionAlreadyHandedOverIsNotMovedAgain()
+        {
+            await new Spec("A session already handed over is not moved again")
+                .Given(BothKindsOfChannelRun)
+                .AndAsync(SailingToTheAngelCitadel)
+                .WhenAsync(SailingToTheAngelCitadel)
+                .Then(ThePlayerShouldHaveMoved)
+                .And(CharacterShouldBeSaved)
+                .And(TheClientShouldShowTheCrossing)
+                .ExecuteAsync();
+        }
+
+        private readonly TaskCompletionSource PacketDone = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        // Taken on a flow of its own, so the move does not see the hold as its own.
+        private async Task APacketOfThePlayersKeepsRunning()
+        {
+            var held = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _ = Task.Run(async () =>
+            {
+                using (await Session.AcquirePacketLockAsync())
+                {
+                    held.SetResult();
+                    await PacketDone.Task;
+                }
+            });
+            await held.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private async Task TheShipSailsWhileItRuns()
+        {
+            try
+            {
+                await Task.Run(SailingToTheAngelCitadel).WaitAsync(ClientSession.DisconnectLockTimeout + TimeSpan.FromSeconds(10));
+            }
+            finally
+            {
+                PacketDone.TrySetResult();
+            }
+        }
+
+        private void TheSessionShouldStillBeOpen()
+        {
+            Assert.IsFalse(Session.IsClosing);
+            Assert.IsFalse(Session.IsHandedOver);
+            AuthHub.Verify(s => s.SetAwaitingChannelChangeAsync(It.IsAny<string>(), It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
+        }
+
         private readonly TaskCompletionSource SaveStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly TaskCompletionSource<bool> SaveDone = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private bool SaveSucceeds = true;
