@@ -15,6 +15,10 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,6 +92,28 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await _session.Character.TakeRequiredItemsAsync(entrance);
 
             Assert.AreEqual(3, Held());
+        }
+
+        [TestMethod]
+        public async Task EnteringSaysWhatItUsedBeforeTheBagChanges()
+        {
+            Give(5);
+            _session.LastPackets.Clear();
+
+            await _session.Character.TakeRequiredItemsAsync(Needing(2));
+
+            var sent = _session.LastPackets.ToList();
+            var said = sent.OfType<SayiPacket>().Single();
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.YouHaveUsed,
+                ArgumentType = 2,
+                Game18NArguments = { SeedVnum, 2 }
+            }, said);
+            Assert.IsTrue(sent.IndexOf(said) < sent.FindIndex(p => p is IvnPacket));
         }
     }
 }

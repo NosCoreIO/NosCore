@@ -48,6 +48,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 X = WorldData.SampleTimeSpaceX, Y = WorldData.SampleTimeSpaceY, StartPress = true
             });
+            var waiting = await tim.ExpectSinceAsync<EventPacket>(entering, p => p.Type == EventPacketType.TSTimer,
+                "the lobby's clock");
+            PacketAssert.AreEqual(new EventPacket
+            {
+                Type = EventPacketType.TSTimer, State = EventTimerState.Waiting,
+                Parameter = waiting.SecondParameter, SecondParameter = waiting.SecondParameter
+            }, waiting);
             var monsters = new List<InPacket>();
             while (monsters.Count < 3)
             {
@@ -68,10 +75,12 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await WalkToAsync(tim, x, y, WayOutX - 1, WayOutY);
             var asking = tim.Mark();
             await tim.SendAsync(new PreqPacket());
-            await tim.ExpectSinceAsync<DlgiPacket>(asking, description: "the question whether to start");
+            var question = await tim.ExpectSinceAsync<DlgiPacket>(asking, description: "the question whether to start");
+            Assert.IsTrue(question.NoPacket is RStartPacket { IsWrittenWithoutHash: true }, "No answers with a bare rstart");
             var starting = tim.Mark();
             await tim.SendAsync(new RStartPacket { Type = RStartPacketType.TimeSpaceInstanceEntry });
-            await tim.ExpectSinceAsync<EventPacket>(starting, p => p.Type == EventPacketType.TSTimer, "the clock started");
+            await tim.ExpectSinceAsync<EventPacket>(starting,
+                p => p.Type == EventPacketType.TSTimer && p.State == EventTimerState.Running, "the clock started");
 
             var running = tim.Mark();
             await Harness.Stack.AdvanceClockAsync(OwnClock, TimeSpan.FromMinutes(11));

@@ -427,7 +427,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
-                if (_clockEndsAt != null && EndState == null && !AwaitsStart)
+                if (_clockEndsAt != null && EndState == null)
                 {
                     var clockPacket = GenerateClock();
                     _pending.Add(() => session.SendPacketAsync(clockPacket));
@@ -1200,7 +1200,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 _pending.Add(() => session.SendPacketAsync(new DlgiPacket
                 {
                     YesPacket = new RStartPacket { Type = RStartPacketType.TimeSpaceInstanceEntry },
-                    NoPacket = new RStartPacket(),
+                    NoPacket = new RStartPacket { IsWrittenWithoutHash = true },
                     Question = Game18NConstString.WantEnterFirstRoom
                 }));
                 return Task.CompletedTask;
@@ -1287,14 +1287,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             BroadcastClock();
         }
 
-        // A clock waiting for the start is not drawn: the client would count it down by itself.
         private void BroadcastClock()
         {
-            if (AwaitsStart)
-            {
-                return;
-            }
-
             var packet = GenerateClock();
             _pending.Add(() => BroadcastAsync(packet));
         }
@@ -1570,6 +1564,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return new EventPacket
             {
                 Type = EventPacketType.TSTimer,
+                // The client keeps a waiting clock off screen, so it cannot count down before the start.
+                State = AwaitsStart ? EventTimerState.Waiting : EventTimerState.Running,
                 Parameter = (int)(remaining / 100),
                 SecondParameter = (int)(_clockLimit.TotalMilliseconds / 100)
             };
