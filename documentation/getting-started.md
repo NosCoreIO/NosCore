@@ -43,15 +43,19 @@ dotnet NosCore.ParserInputGenerator.Launcher.dll
 The result is `NosCore.ParserInputGenerator/build/net11.0/output/parser`: the `.dat` files, one `_code_<language>_*.txt` per
 language, and a `map` folder.
 
-The parser also needs a file the client does not contain: **`packet.txt`**, a capture of what a
-server sends, one packet per line. Portals, monster and NPC positions, shops and teleporters
-exist only in those packets, so the file has to be recorded while playing on a server that
-already has them: walk through the maps you want filled and open the shops you want stocked.
-The Packet Logger in
-[NosCore.DeveloperTools](https://github.com/NosCoreIO/NosCore.DeveloperTools) attaches to the
-running client and writes the lines. Put the file in the same `parser` folder. Without it the
-parser warns and the maps get no monsters, NPCs, portals or shops; with a short one the maps
-that were not visited are empty.
+The parser also needs a file the client does not contain: **`packet.txt`**, a record of what a
+server sends. Portals, monster and NPC positions, shops and teleporters exist only in those
+packets, so the file has to be recorded while playing on a server that already has them: walk
+through the maps you want filled and open the shops you want stocked.
+
+The parser reads exactly one such file, named `packet.txt`, in the plain format: one packet per
+line, starting with its header (`in 3 ...`, `at ...`), with no timestamp, direction or session
+marker in front of it. The recording player's id may be written as `MyIdPlayer`. Several recordings
+can be joined into the one file; the parser recognises the same NPC or monster seen again under a
+new id. Lines it cannot read are counted and skipped, so a capture in another layout fills nothing.
+
+Put the file in the same `parser` folder. Without it the parser warns and the maps get no
+monsters, NPCs, portals or shops; with a short one the maps that were not visited are empty.
 
 ## 2. Build
 
@@ -92,7 +96,8 @@ Without `--folder` the parser asks for the folder and for each import in turn.
 
 ## 4. Start the servers
 
-Each in its own terminal, from `build/net11.0`, in this order:
+Each in its own terminal, from `build/net11.0`, in this order. This is the normal way to run
+NosCore; no configuration file needs editing first:
 
 ```bash
 dotnet NosCore.MasterServer.dll

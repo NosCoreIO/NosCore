@@ -11,7 +11,7 @@
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"/></a>
 </p>
 
-A NosTale server written in C# on .NET 11: master, login and world servers on PostgreSQL, with the game data read
+A NosTale server written in C# on .NET 11: master, login and world servers on PostgreSQL through Entity Framework Core 11, with the game data read
 from the client's own files.
 
 ## Getting started
@@ -35,6 +35,8 @@ dotnet NosCore.LoginServer.dll
 dotnet NosCore.WorldServer.dll
 ```
 
+The parser input folder holds the client's unpacked data files and a single `packet.txt` in the plain
+one-packet-per-line format; [getting-started.md](documentation/getting-started.md#1-get-the-game-data) explains both.
 The parser creates the database, applies the migrations and imports the game data. Run it again after pulling: it is
 safe to run on a database it already filled. On Windows, `scripts\` has a `.cmd` for each step, and
 `docker-compose.yml` runs the same servers in containers. If you would rather have the servers, the Act 4 channel included, in one terminal,
