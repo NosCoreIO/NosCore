@@ -1865,6 +1865,9 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
       time), a card holder with and without a card (the stored card's level, points and
       upgrade), a fairy bead with and without a fairy (the fairy's element rate), a weapon or
       wing skin, and a partner card (its three skills)
+- [ ] Right-click a weapon and an armour with shell options in the EQUIP tab, one of them taken
+      from the parcel box: the info window lists every option with its rank letter and value,
+      and the client raises no error
 - [ ] From the ADDITIONAL tab, right-click a card in the card inventory (the specialist window
       opens) and a costume in the costume inventory
 - [ ] Open a partner's page (P) and right-click its card and its weapon
