@@ -3375,6 +3375,8 @@ same trust as the server's own code, so only the operator should be able to writ
       they had
 - [ ] With the items, START moves you into the first room at its start coordinates
 - [ ] The required items leave the inventory, across stacks if split, and no more than asked
+- [ ] Entering with Seeds of Power: the chat shows "You have used Nx Seed of Power." in yellow, N
+      being what the stone asks for
 - [ ] A `Script` naming a missing or broken file opens no panel, and the world log says why
 
 #### Cleared stones
@@ -3533,8 +3535,8 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Enter any time-space with more than one room and stand in the first room: no clock is
       drawn. Walk onto the way out: instead of moving, a box asks
       "Do you want to enter the first room?" with Yes and No
-- [ ] Answer No: you stay where you are and still no clock is drawn. Walk onto the way out
-      again: the same question comes back
+- [ ] Answer No: the box closes, you stay where you are and still no clock is drawn. Walk onto
+      the way out again: the same question comes back
 - [ ] Answer Yes: you go through to the next room, the first room stays marked as found on the
       Mission Map, and the clock appears at its full time and starts counting down. Walking back into the
       first room and out again asks nothing

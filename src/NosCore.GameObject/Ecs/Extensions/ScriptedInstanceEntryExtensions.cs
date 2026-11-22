@@ -24,6 +24,8 @@ public static class ScriptedInstanceEntryExtensions
     {
         foreach (var item in entrance.Definition?.RequiredItems ?? [])
         {
+            await player.SendPacketAsync(player.GenerateSayi(SayColorType.Yellow, Game18NConstString.YouHaveUsed, 2,
+                item.VNum, item.Amount));
             await player.SendPacketsAsync(player.InventoryService.RemoveItemAmountByVNum(item.VNum, item.Amount));
         }
     }

@@ -900,12 +900,14 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.IsTrue(await run.AskToStartAsync(session));
 
+            var question = session.LastPackets.OfType<DlgiPacket>().Single();
             PacketAssert.AreEqual(new DlgiPacket
             {
                 YesPacket = new RStartPacket { Type = RStartPacketType.TimeSpaceInstanceEntry },
                 NoPacket = new RStartPacket(),
                 Question = Game18NConstString.WantEnterFirstRoom
-            }, session.LastPackets.OfType<DlgiPacket>().Single());
+            }, question);
+            Assert.IsTrue(question.NoPacket is RStartPacket { IsWrittenWithoutHash: true }, "the client answers No with a bare rstart");
         }
 
         [TestMethod]
@@ -965,7 +967,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
-        public async Task TheClockIsOnlyDrawnOnceTheStartIsConfirmedAsync()
+        public async Task TheLobbyClockWaitsAtItsFullTimeUntilTheStartIsConfirmedAsync()
         {
             var session = await PlayerInFirstRoomAsync();
             var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
@@ -973,13 +975,42 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             World.Clock.AdvanceSeconds(20);
             await run.TickAsync();
 
-            Assert.IsFalse(session.LastPackets.Concat(_first.LastPackets).OfType<EventPacket>().Any(p => p.Type == EventPacketType.TSTimer),
-                "a drawn clock would be counted down by the client while the run waits");
+            var clocks = session.LastPackets.Concat(_first.LastPackets).OfType<EventPacket>()
+                .Where(p => p.Type == EventPacketType.TSTimer).ToList();
+            Assert.IsTrue(clocks.Count > 0);
+            foreach (var clock in clocks)
+            {
+                PacketAssert.AreEqual(new EventPacket
+                {
+                    Type = EventPacketType.TSTimer, State = EventTimerState.Waiting, Parameter = 600, SecondParameter = 600
+                }, clock);
+            }
 
+            _first.LastPackets.Clear();
             await run.ConfirmStartAsync(session);
 
-            PacketAssert.AreEqual(new EventPacket { Type = EventPacketType.TSTimer, Parameter = 600, SecondParameter = 600 },
-                _first.LastPackets.OfType<EventPacket>().Single(p => p.Type == EventPacketType.TSTimer));
+            PacketAssert.AreEqual(new EventPacket
+            {
+                Type = EventPacketType.TSTimer, State = EventTimerState.Running, Parameter = 600, SecondParameter = 600
+            }, _first.LastPackets.OfType<EventPacket>().Single(p => p.Type == EventPacketType.TSTimer));
+        }
+
+        [TestMethod]
+        public async Task APlayerJoiningTheLobbySeesTheWaitingClockAsync()
+        {
+            var first = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.EnteredAsync(first, _first.MapInstanceId);
+            World.Clock.AdvanceSeconds(20);
+            var later = await PlayerInFirstRoomAsync();
+            later.LastPackets.Clear();
+
+            await run.EnteredAsync(later, _first.MapInstanceId);
+
+            PacketAssert.AreEqual(new EventPacket
+            {
+                Type = EventPacketType.TSTimer, State = EventTimerState.Waiting, Parameter = 600, SecondParameter = 600
+            }, later.LastPackets.OfType<EventPacket>().Single(p => p.Type == EventPacketType.TSTimer));
         }
 
         [TestMethod]
