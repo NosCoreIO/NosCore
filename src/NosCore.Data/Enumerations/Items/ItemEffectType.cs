@@ -67,6 +67,8 @@ namespace NosCore.Data.Enumerations.Items
         ApplySkinPartner = 305,
         // Morph is the look the skin gives a specialist card; EffectValue is the morph of the card it fits.
         SpecialistSkin = 306,
+        // A special item's EffectValue is the NPC it puts up where its user stands, to cook at for a while.
+        CookingStation = 550,
         ChangeSpecialistWings = 650,
         ChangeFaction = 570,
         ChangeGender = 651,

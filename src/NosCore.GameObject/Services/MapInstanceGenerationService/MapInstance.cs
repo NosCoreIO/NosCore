@@ -94,6 +94,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly SkillResetSystem _skillResetSystem = new();
         private readonly AmbientEffectSystem _ambientEffectSystem = new();
         private readonly List<EffectPacket> _dueEffects = new();
+        private readonly NpcExpirySystem _npcExpirySystem = new();
+        private readonly List<Entity> _expiredNpcs = new();
         private readonly RegenerationSystem _regenerationSystem = new();
         private readonly List<Entity> _dueRegeneration = new();
         private readonly List<(Entity Entity, long CastId)> _readySkills = new();
@@ -606,6 +608,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private async Task TickLifeAsync()
         {
             var map = new KeyValuePair<string, object?>("map.id", (int)Map.MapId);
+            await GuardAsync(TakeDownExpiredNpcsAsync, "npc expiry");
             // Also while asleep, so nobody arriving sees an expired drop. Time-space rooms keep theirs.
             await GuardAsync(MapInstanceType == MapInstanceType.TimeSpaceInstance ? null : DespawnMapItemsAsync, "map item despawn");
             await GuardAsync(TakeDownExpiredSignpostsAsync, "signposts");
@@ -760,6 +763,21 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             foreach (var entity in _expiredSignposts)
             {
                 await new NpcComponentBundle(entity, EcsWorld).TakeDownAsync();
+            }
+        }
+
+        private async Task TakeDownExpiredNpcsAsync()
+        {
+            _expiredNpcs.Clear();
+            _npcExpirySystem.TakeExpired(EcsWorld, _clock.GetCurrentInstant(), _expiredNpcs);
+            foreach (var entity in _expiredNpcs)
+            {
+                var npc = new NpcComponentBundle(entity, EcsWorld);
+                var visualId = npc.VisualId;
+                if (RemoveNpc(npc))
+                {
+                    await this.SendPacketAsync(new OutPacket { VisualType = VisualType.Npc, VisualId = visualId });
+                }
             }
         }
 
