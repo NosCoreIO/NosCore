@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.Data.Enumerations.I18N;
@@ -69,28 +70,14 @@ namespace NosCore.GameObject.Services.ChannelService
                 map.Map.MapId, mapX, mapY);
         }
 
-        public async Task<bool> MoveToMapAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode,
-            short mapId, short mapX, short mapY)
-        {
-            var character = clientSession.Character;
-            var (previousMapId, previousMapX, previousMapY) = (character.MapId, character.MapX, character.MapY);
-            character.MapId = mapId;
-            character.MapX = mapX;
-            character.MapY = mapY;
-            if (await MoveAsync(clientSession, server, mode))
-            {
-                return true;
-            }
-
-            character.MapId = previousMapId;
-            character.MapX = previousMapX;
-            character.MapY = previousMapY;
-            return false;
-        }
+        public Task<bool> MoveToMapAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode,
+            short mapId, short mapX, short mapY) =>
+            MoveAsync(clientSession, server, mode, (mapId, mapX, mapY));
 
         // The destination loads the player from the database, so without a stored save the player
         // would arrive as they were before and stays on this channel instead.
-        private async Task<bool> MoveAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode)
+        private async Task<bool> MoveAsync(ClientSession clientSession, ChannelInfo server, ItModeType mode,
+            (short MapId, short MapX, short MapY)? destination = null)
         {
             if (await HoldPacketsAsync(clientSession) is not { } packets)
             {
@@ -105,8 +92,23 @@ namespace NosCore.GameObject.Services.ChannelService
                     return true;
                 }
 
+                var character = clientSession.Character;
+                var previous = (character.MapId, character.MapX, character.MapY);
+                // Written only once the packets are held, so none of the player's sees it before the save.
+                if (destination is { } to)
+                {
+                    character.MapId = to.MapId;
+                    character.MapX = to.MapX;
+                    character.MapY = to.MapY;
+                }
+
                 if (!await saveService.SaveAsync(clientSession))
                 {
+                    if (destination is { } written)
+                    {
+                        Restore(character, written, previous);
+                    }
+
                     return false;
                 }
 
@@ -131,6 +133,26 @@ namespace NosCore.GameObject.Services.ChannelService
                 }
 
                 return true;
+            }
+        }
+
+        // A field another path has written since holds the newer value, and is kept.
+        private static void Restore(PlayerComponentBundle character, (short MapId, short MapX, short MapY) written,
+            (short MapId, short MapX, short MapY) previous)
+        {
+            if (character.MapId == written.MapId)
+            {
+                character.MapId = previous.MapId;
+            }
+
+            if (character.MapX == written.MapX)
+            {
+                character.MapX = previous.MapX;
+            }
+
+            if (character.MapY == written.MapY)
+            {
+                character.MapY = previous.MapY;
             }
         }
 

@@ -302,6 +302,58 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ASuccessfulMoveSavesTheDestination()
+        {
+            await new Spec("A successful move saves the destination")
+                .Given(BothKindsOfChannelRun)
+                .And(ThePlayerStandsInPortAlveus)
+                .And(TheSavedPlaceIsRecorded)
+                .WhenAsync(SailingToTheAngelCitadel)
+                .Then(ThePlayerShouldHaveMoved)
+                .And(TheAngelCitadelShouldHaveBeenSaved)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMapWrittenDuringAFailedSaveIsNotUndone()
+        {
+            await new Spec("A map written during a failed save is not undone")
+                .Given(BothKindsOfChannelRun)
+                .And(ThePlayerStandsInPortAlveus)
+                .And(TheSaveFailsAfterAnotherPathMovesThePlayerToMap_, (short)1)
+                .WhenAsync(SailingToTheAngelCitadel)
+                .Then(ThePlayerShouldHaveStayed)
+                .And(TheCharacterShouldStandOnMap_AtTheOldSpot, (short)1)
+                .ExecuteAsync();
+        }
+
+        private (short MapId, short MapX, short MapY)? SavedPlace;
+
+        private void TheSavedPlaceIsRecorded()
+        {
+            SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
+                .Callback(() => SavedPlace = (Session.Character.MapId, Session.Character.MapX, Session.Character.MapY))
+                .ReturnsAsync(true);
+        }
+
+        private void TheAngelCitadelShouldHaveBeenSaved() =>
+            Assert.AreEqual(((short)130, (short)12, (short)38), SavedPlace);
+
+        private void TheSaveFailsAfterAnotherPathMovesThePlayerToMap_(short mapId)
+        {
+            SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
+                .Callback(() => Session.Character.MapId = mapId)
+                .ReturnsAsync(false);
+        }
+
+        private void TheCharacterShouldStandOnMap_AtTheOldSpot(short mapId)
+        {
+            Assert.AreEqual(mapId, Session.Character.MapId);
+            Assert.AreEqual((short)50, Session.Character.MapX);
+            Assert.AreEqual((short)42, Session.Character.MapY);
+        }
+
         private readonly TaskCompletionSource PacketDone = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         // Taken on a flow of its own, so the move does not see the hold as its own.
