@@ -42,8 +42,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 return true;
             }
 
-            await mailHub.SendMailAsync(GiftHelper.GenerateMailRequest(clock, player, player.CharacterId, null,
-                item.ItemVNum, amount, (sbyte)item.Rare, item.Upgrade, false, null, null));
+            await SendToParcelBoxAsync(player, item, amount);
             return false;
         }
 

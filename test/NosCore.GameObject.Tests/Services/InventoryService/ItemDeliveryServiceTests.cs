@@ -158,6 +158,34 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 It.IsAny<Exception?>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
         }
 
+        [TestMethod]
+        public async Task ARewardThatDoesNotFitReachesTheParcelBoxAsTheItemGenerated()
+        {
+            var inventory = _session.Character.InventoryService;
+            while (inventory.CountItemInAnPocket(NoscorePocketType.Equipment) < inventory.GetMaxSlots(NoscorePocketType.Equipment))
+            {
+                Holds(1, 1);
+            }
+
+            await _delivery.DeliverAsync(_session.Character, World.GenerateItemProvider().Create(1, 1, 0, 0, 3));
+
+            var parcel = await ParcelAsync();
+            Assert.AreEqual((short)1, parcel.ItemVNum);
+            Assert.AreEqual((short)3, parcel.Design);
+        }
+
+        [TestMethod]
+        public async Task ARewardWhoseParcelIsRefusedIsKeptAndLogged()
+        {
+            _mail.Setup(m => m.SendMailAsync(It.IsAny<MailRequest>())).ReturnsAsync(false);
+            FillMain();
+
+            await _delivery.DeliverAsync(_session.Character, World.GenerateItemProvider().Create(1012, 5));
+
+            Assert.AreEqual(1, Kept(1012));
+            ErrorWasLogged();
+        }
+
         private InventoryItemInstance ConsumedFromAFullBag(short vnum, short amount)
         {
             var source = Holds(vnum, amount);
