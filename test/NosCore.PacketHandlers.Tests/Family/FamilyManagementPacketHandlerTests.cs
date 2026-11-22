@@ -145,6 +145,33 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
+        public async Task PassingTheHeadByNameRefreshesBothTags()
+        {
+            _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7 });
+            ChangeReturns(FamilyAuthorityChange.Changed);
+
+            await World.Create<FamilyHeadPacketHandler>()
+                .ExecuteAsync(new FamilyHeadPacket { CharacterName = "Buddy" }, _head);
+
+            _familyService.Verify(s => s.ChangeAuthorityAsync(_family, _headId, 7, FamilyAuthority.Head), Times.Once);
+            Assert.AreEqual(Game18NConstString.FamilyHeadChanged, LastInfo(_head));
+            CollectionAssert.AreEquivalent(new[] { 7L, _headId }, ((FamilyChangedData)_published.Single()).CharacterIds);
+        }
+
+        [TestMethod]
+        public async Task OnlyADeputyCanBeMadeHead()
+        {
+            _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7 });
+            ChangeReturns(FamilyAuthorityChange.OnlyAssistantCanBecomeHead);
+
+            await World.Create<FamilyHeadPacketHandler>()
+                .ExecuteAsync(new FamilyHeadPacket { CharacterName = "Buddy" }, _head);
+
+            Assert.AreEqual(Game18NConstString.OnlyFamilyDeputyCanBecomeHEad, LastInfo(_head));
+            Assert.AreEqual(0, _published.Count);
+        }
+
+        [TestMethod]
         public async Task AnUnknownNameIsNotFound()
         {
             await World.Create<FamilyKeeperPacketHandler>()
