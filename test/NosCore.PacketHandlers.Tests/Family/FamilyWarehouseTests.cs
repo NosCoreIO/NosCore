@@ -22,6 +22,7 @@ using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.GameObject.Services.WarehouseService;
 using NosCore.PacketHandlers.Warehouse;
 using NosCore.Packets.ClientPackets.Families;
@@ -184,7 +185,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             return new FamilyWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
                 new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object,
-                World.Create<ItemDeliveryService>(),
+                World.Create<ItemDeliveryService>(), World.Create<ShellOptionService>(),
                 NullLogger<WarehouseTransferService>.Instance, World.LogLanguageLocalizer), _log.Object, World.Clock);
         }
 
