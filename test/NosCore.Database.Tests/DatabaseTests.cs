@@ -6,6 +6,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Dto;
 using SpecLight;
 using System;
 using System.Collections.ObjectModel;
@@ -57,6 +58,45 @@ namespace NosCore.Database.Tests
             new Spec("All nullable foreign keys should be associated to nullable entity")
                 .Then(NullableForeignKeysShouldHaveNullableNavigationProperties)
                 .Execute();
+        }
+
+        [TestMethod]
+        public void EveryDtoKeepsItsEntitysKeyType()
+        {
+            new Spec("Every DTO declares its key with the type of its entity's key, so an upsert can hand it the key a row was given")
+                .Then(DtoKeysShouldHaveTheirEntitysKeyType)
+                .Execute();
+        }
+
+        private void DtoKeysShouldHaveTheirEntitysKeyType()
+        {
+            using var ctx = new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                Guid.NewGuid().ToString()).Options);
+            var dtos = typeof(IDto).Assembly.GetTypes().Where(t => t.Name.EndsWith("Dto"))
+                .GroupBy(t => t.Name).ToDictionary(g => g.Key, g => g.First());
+            var mismatches = new StringBuilder();
+            var compared = 0;
+            foreach (var entityType in ctx.Model.GetEntityTypes())
+            {
+                if (!dtos.TryGetValue($"{entityType.ClrType.Name}Dto", out var dto))
+                {
+                    continue;
+                }
+
+                foreach (var key in entityType.FindPrimaryKey()?.Properties ?? [])
+                {
+                    var dtoKey = dto.GetProperty(key.Name);
+                    compared++;
+                    if (dtoKey?.PropertyType != key.ClrType)
+                    {
+                        mismatches.AppendLine(
+                            $"{dto.Name}.{key.Name} is {dtoKey?.PropertyType.Name ?? "missing"} but {entityType.ClrType.Name}.{key.Name} is {key.ClrType.Name}");
+                    }
+                }
+            }
+
+            Assert.IsGreaterThan(0, compared);
+            Assert.AreEqual(string.Empty, mismatches.ToString());
         }
 
         private void NullableForeignKeysShouldHaveNullableNavigationProperties()
