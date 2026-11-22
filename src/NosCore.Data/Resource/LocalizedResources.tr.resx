@@ -627,4 +627,7 @@
   <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
     <value>Burada 2 dakika devriye gez.</value>
   </data>
+  <data name="HELP_COMMAND_HEADER" xml:space="preserve">
+    <value>-------------Komut yardımı-------------</value>
+  </data>
 </root>

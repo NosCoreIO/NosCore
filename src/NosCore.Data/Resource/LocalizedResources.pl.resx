@@ -579,4 +579,7 @@
   <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
     <value>Patroluj tutaj przez 2 minuty.</value>
   </data>
+  <data name="HELP_COMMAND_HEADER" xml:space="preserve">
+    <value>-------------Pomoc dotycząca komend-------------</value>
+  </data>
 </root>
