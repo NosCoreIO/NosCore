@@ -3440,8 +3440,7 @@ stone with `Script` set to `timespace-518` and use a level 27+ character. The te
 the French ones of the log, and rooms are named by their minimap position from the first room,
 x to the east and y positive going south.
 
-- [ ] The mission window shows one heart and the exit as its goal, and the clock starts at ten
-      minutes
+- [ ] Once the start is confirmed and the second room entered, the clock shows ten minutes
 - [ ] (2,-1) and (5,-1) say "Le portail s'ouvrira une fois que tu auras éliminé tous les
       monstres." and open every door when cleared, with "La sortie est ouverte."
 - [ ] (4,0) shows a red two-minute clock; clearing it within the two minutes opens its north and
@@ -3455,9 +3454,9 @@ x to the east and y positive going south.
       doors open with "Le portail s'est ouvert."
 - [ ] The lever room (1,2), "Vois-tu le levier au centre ?", opens both its doors when the lever
       is pulled
-- [ ] Not verifiable yet: entering from the Yellow Soulstone (NPC 932), and the gold and
-      reputation of the log's clear, which come from a stone entrance this time-space does not
-      have yet
+- [ ] Not verifiable yet: entering from the Yellow Soulstone (NPC 932); the gold and reputation
+      of the log's clear, which come from a stone entrance this time-space does not have yet; and
+      the mission window's one heart and exit goal, since `minfo` freezes this client
 
 ### Escorts in a time-space
 
