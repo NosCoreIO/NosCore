@@ -5,6 +5,7 @@
 //
 
 using NosCore.Core.Dao;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Interaction;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private IDao<InventoryItemInstanceDto, Guid> InventoryItemInstanceDao;
         private IDao<StaticBuffDto, long> StaticBuffDao;
         private IDao<RespawnDto, long> RespawnDao;
+        private IDao<StaticBonusDto, long> StaticBonusDao;
         private BuffService Buffs;
         private StaticBuffService StaticBuffs;
 
@@ -68,6 +70,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             var itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<ItemInstance, IItemInstanceDto?, Guid>>.Instance, contextBuilder);
             var inventoryItemInstanceDao = new Dao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto, Guid>(NullLogger<Dao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto, Guid>>.Instance, contextBuilder);
             var staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(NullLogger<Dao<StaticBonus, StaticBonusDto, long>>.Instance, contextBuilder);
+            StaticBonusDao = staticBonusDao;
             var quicklistEntriesDao = new Dao<QuicklistEntry, QuicklistEntryDto, Guid>(NullLogger<Dao<QuicklistEntry, QuicklistEntryDto, Guid>>.Instance, contextBuilder);
             var titleDao = new Dao<Title, TitleDto, Guid>(NullLogger<Dao<Title, TitleDto, Guid>>.Instance, contextBuilder);
             var characterQuestDao = new Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>(NullLogger<Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>>.Instance, contextBuilder);
@@ -197,6 +200,27 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             var characterId = Session.Character.CharacterId;
             var own = RespawnDao.Where(r => r.CharacterId == characterId).NotNull().Single();
             Assert.AreEqual((short)2550, own.MapId);
+        }
+
+        [TestMethod]
+        public async Task ANewStaticBonusKeepsItsRowAcrossSaves()
+        {
+            var bonus = new StaticBonusDto
+            {
+                CharacterId = Session.Character.CharacterId,
+                DateEnd = World.Clock.GetCurrentInstant().Plus(NodaTime.Duration.FromDays(30)),
+                StaticBonusType = StaticBonusType.MedalOfErenia,
+            };
+            Session.Character.StaticBonusList.Add(bonus);
+            var characterId = Session.Character.CharacterId;
+
+            Assert.IsTrue(await Service.SaveAsync(Session));
+            var first = StaticBonusDao.Where(s => s.CharacterId == characterId).NotNull().Single();
+            Assert.IsTrue(await Service.SaveAsync(Session));
+            var second = StaticBonusDao.Where(s => s.CharacterId == characterId).NotNull().Single();
+
+            Assert.AreEqual(first.StaticBonusId, bonus.StaticBonusId);
+            Assert.AreEqual(first.StaticBonusId, second.StaticBonusId);
         }
 
         private async Task<NosCore.GameObject.Services.MateService.Mate> OwnedPetAsync()
