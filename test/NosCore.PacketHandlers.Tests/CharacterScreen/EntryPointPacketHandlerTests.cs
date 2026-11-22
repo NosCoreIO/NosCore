@@ -21,6 +21,10 @@ using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
+using System.Linq;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Character;
+using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.CharacterScreen
@@ -35,6 +39,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private Mock<IAuthHub> AuthHttpClient;
         private Mock<IPubSubHub> PubSubHub;
         private string AccountName;
+        private long CharacterId;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -42,6 +47,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
             AccountName = Session.Account.Name;
+            CharacterId = Session.Character.CharacterId;
             await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto).OrThrowAsync();
             Session.ClearPlayerEntity();
             Session.Account = null;
@@ -195,6 +201,40 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .WhenAsync(ConnectingWithValidPassword)
                 .ThenAsync(CharacterListShouldBeSent)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheCharacterListCarriesEachMatesSkinAndMonster()
+        {
+            await new Spec("The character list names each NosMate by its skin and monster, then pads the pet list with -1")
+                .GivenAsync(AccountIsAlreadyInitialized)
+                .AndAsync(TheCharacterOwnsAMateOf_, (short)333)
+                .AndAsync(TheCharacterOwnsAMateOf_, (short)9)
+                .WhenAsync(ConnectingWithValidPassword)
+                .Then(ThePetListShouldBe_, new short?[] { 0, 333, 0, 9 })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACharacterWithoutMatesListsNoPets()
+        {
+            await new Spec("A character without NosMates gets a pet list of -1 only")
+                .GivenAsync(AccountIsAlreadyInitialized)
+                .WhenAsync(ConnectingWithValidPassword)
+                .Then(ThePetListShouldBe_, new short?[0])
+                .ExecuteAsync();
+        }
+
+        private async Task TheCharacterOwnsAMateOf_(short vnum) =>
+            await World.MateDao.TryInsertOrUpdateAsync(new MateDto
+            {
+                CharacterId = CharacterId, VNum = vnum, MateType = MateType.Pet, Level = 1, Name = "mate"
+            }).OrThrowAsync();
+
+        private void ThePetListShouldBe_(short?[] mates)
+        {
+            var expected = mates.Concat(Enumerable.Repeat<short?>(-1, 26 - mates.Length)).ToList();
+            CollectionAssert.AreEqual(expected, Session.LastPackets.OfType<ClistPacket>().Single().Pets);
         }
 
         private void AccountIsAlreadyConnected()
