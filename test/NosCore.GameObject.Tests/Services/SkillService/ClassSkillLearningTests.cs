@@ -14,7 +14,14 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Quicklist;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
@@ -140,6 +147,54 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             CollectionAssert.DoesNotContain(learned, (short)222);   // above the job level
             CollectionAssert.DoesNotContain(learned, (short)200);   // and nothing from class 0
         }
+
+        [TestMethod]
+        public async Task AJobLevelThatTeachesASkillSaysSoBeforeTheListAndRedrawsTheBar()
+        {
+            _session.Character.Class = CharacterClassType.Swordsman;
+            _session.Character.JobLevel = 10;
+            _session.LastPackets.Clear();
+
+            await _service.LearnClassSkillsAsync(_session.Character, announce: true);
+
+            var sent = _session.LastPackets.Where(IsAboutLearning).OfType<IPacket>().ToList();
+            CollectionAssert.AreEqual(new[]
+            {
+                typeof(SayiPacket), typeof(MsgiPacket), typeof(SkiPacket), typeof(QSlotPacket), typeof(QSlotPacket)
+            }, sent.Select(p => p.GetType()).ToList());
+            PacketAssert.AreEqual(_session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.SkillLearned), sent[0] as SayiPacket);
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned }, sent[1] as MsgiPacket);
+        }
+
+        [TestMethod]
+        public async Task AJobLevelThatTeachesNothingSaysNothing()
+        {
+            _session.Character.Class = CharacterClassType.Swordsman;
+            _session.Character.JobLevel = 10;
+            await _service.LearnClassSkillsAsync(_session.Character, announce: true);
+            _session.LastPackets.Clear();
+
+            await _service.LearnClassSkillsAsync(_session.Character, announce: true);
+
+            Assert.IsFalse(_session.LastPackets.Any(IsAboutLearning));
+        }
+
+        [TestMethod]
+        public async Task AClassChangeLearnsWithoutAnnouncingIt()
+        {
+            _session.Character.Class = CharacterClassType.Swordsman;
+            _session.Character.JobLevel = 1;
+            _session.LastPackets.Clear();
+
+            await _service.LearnClassSkillsAsync(_session.Character);
+
+            Assert.IsTrue(_session.LastPackets.OfType<SkiPacket>().Any());
+            Assert.IsFalse(_session.LastPackets.Any(p => p is SayiPacket or MsgiPacket or QSlotPacket));
+        }
+
+        private static bool IsAboutLearning(IPacket? packet) => packet is SkiPacket or QSlotPacket
+            || packet is SayiPacket { Message: Game18NConstString.SkillLearned }
+            || packet is MsgiPacket { Message: Game18NConstString.SkillLearned };
 
         // The in-memory dictionary is keyed by skill number and collapses duplicates, so counting
         // it proves nothing: the rows are what piled up. This watches the store.

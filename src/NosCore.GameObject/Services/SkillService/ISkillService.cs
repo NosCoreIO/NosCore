@@ -14,7 +14,12 @@ namespace NosCore.GameObject.Services.SkillService
         /// <summary>Removes the specialist skills and sends the class list back.</summary>
         Task UnloadSpecialistSkillsAsync(PlayerComponentBundle character);
 
-        Task<bool> LearnClassSkillsAsync(PlayerComponentBundle character);
+        /// <summary>
+        /// Teaches every class skill the job level allows. With <paramref name="announce"/>, as on a
+        /// job level-up, a newly learnt skill is told in the chat and across the screen and the
+        /// quick bar is redrawn.
+        /// </summary>
+        Task<bool> LearnClassSkillsAsync(PlayerComponentBundle character, bool announce = false);
 
         /// <summary>
         /// Deletes the skills the character cannot learn right now - wrong class, or a job level

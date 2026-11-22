@@ -155,7 +155,7 @@ namespace NosCore.GameObject.Services.SkillService
             }
         }
 
-        public async Task<bool> LearnClassSkillsAsync(PlayerComponentBundle character)
+        public async Task<bool> LearnClassSkillsAsync(PlayerComponentBundle character, bool announce = false)
         {
             var classByte = (byte)character.Class;
             var learned = false;
@@ -200,7 +200,18 @@ namespace NosCore.GameObject.Services.SkillService
                 return false;
             }
 
+            if (announce)
+            {
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.SkillLearned));
+                await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
+            }
+
             await SendSkillListAsync(character, useSpecialist: false);
+            if (announce)
+            {
+                await character.SendPacketsAsync(character.GenerateQuicklist());
+            }
+
             return true;
         }
 

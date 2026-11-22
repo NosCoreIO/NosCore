@@ -27,6 +27,7 @@ even when its packets are covered here.
 | Two channels: the channel list, players apart, a whisper across, one account on one channel | `ChannelTests` |
 | Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival, a main-weapon card marking what it hits | `CombatTests` |
 | Families: founding and its conditions, chat on one channel and across two, inviting, leaving, disbanding, dismissing, the notice, the shout, deputies | `FamilyTests`, `FamilyManagementTests` |
+| Job level: a level that teaches a skill, told in the chat and across the screen before the skill list and the quick bar | `JobLevelTests` |
 | Family experience: a member reaching level 30, the history lines, the level-up at the bar, what members on both channels are sent, a purchase the new level allows | `FamilyExperienceTests` |
 | NosBazaar: listing and its tax, finding, buying, taking back, packages, a changed price, its limits | `BazaarTests` |
 | Parcels: a gift taken from its parcel, taken once, thrown away | `ParcelTests` |
@@ -908,6 +909,10 @@ As an archer wearing the Scout card (`$CreateItem 4498`), transformed:
       experience; at level 21, the plain amount of both
 - [ ] In a group of two at the same level, each member gets 75 % of the kill; in a group of
       three, 70 %
+- [ ] As a Swordsman at job level 8 (`$ChangeClass`, `$SetJobLevel 8`), kill monsters until job
+      level 9: "You've learned a new skill" is written in yellow in the chat and across the screen,
+      Taunting Shot (230) appears under Skill Info and the quick bar is redrawn
+- [ ] A job level that teaches nothing new says nothing about skills
 
 ### Gold from kills
 
