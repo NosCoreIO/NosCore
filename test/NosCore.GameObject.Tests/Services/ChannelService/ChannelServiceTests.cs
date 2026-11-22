@@ -328,6 +328,56 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AStepTakenWhileTheMoveWaitsForThePacketsIsNotUndone()
+        {
+            await new Spec("A step taken while the move waits for the packets is not undone")
+                .Given(BothKindsOfChannelRun)
+                .And(ThePlayerStandsInPortAlveus)
+                .And(TheSaveFails)
+                .AndAsync(APacketOfThePlayersKeepsRunning)
+                .WhenAsync(TheShipSailsAndWaitsForThePacket)
+                .And(ThePlayerStepsToAnotherSpotInPortAlveus)
+                .AndAsync(ThePacketFinishes)
+                .Then(TheDestinationShouldNotHaveBeenWrittenDuringTheWait)
+                .And(ThePlayerShouldHaveStayed)
+                .And(TheCharacterShouldStandOnTheNewSpotInPortAlveus)
+                .ExecuteAsync();
+        }
+
+        private (short MapId, short MapX, short MapY) PlaceDuringTheWait;
+
+        // Called on this flow, the move runs up to the packet lock before handing back its task.
+        private async Task TheShipSailsAndWaitsForThePacket()
+        {
+            var act4 = (await ChannelHub.Object.GetCommunicationChannels()).Single(c => c.IsAct4);
+            Sailing = Service.MoveToMapAsync(Session, act4, ItModeType.ShipToAct4, 130, 12, 38);
+            Assert.IsFalse(Sailing.IsCompleted);
+            PlaceDuringTheWait = (Session.Character.MapId, Session.Character.MapX, Session.Character.MapY);
+        }
+
+        private void ThePlayerStepsToAnotherSpotInPortAlveus()
+        {
+            Session.Character.MapX = 60;
+            Session.Character.MapY = 55;
+        }
+
+        private async Task ThePacketFinishes()
+        {
+            PacketDone.SetResult();
+            Moved = await Sailing.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private void TheDestinationShouldNotHaveBeenWrittenDuringTheWait() =>
+            Assert.AreEqual(((short)145, (short)50, (short)42), PlaceDuringTheWait);
+
+        private void TheCharacterShouldStandOnTheNewSpotInPortAlveus()
+        {
+            Assert.AreEqual((short)145, Session.Character.MapId);
+            Assert.AreEqual((short)60, Session.Character.MapX);
+            Assert.AreEqual((short)55, Session.Character.MapY);
+        }
+
         private (short MapId, short MapX, short MapY)? SavedPlace;
 
         private void TheSavedPlaceIsRecorded()
