@@ -2061,6 +2061,10 @@ under half health first.
       bar, a beam plays from the pet to you, and the blessing comes back each time it runs out
       while the pet stays out
 - [ ] Send that pet back home: the blessing is not renewed once it runs out
+- [ ] Open the page of a Golden Gloopy Cake (709) that was never trained: its attack and defence
+      show no upgrade level (+0), although the creature itself has a defence upgrade of 1
+- [ ] Set a pet's `"Attack"` and `"Defence"` to 3 and 2 in the `"Mate"` table and log in: its page
+      shows attack +3 and defence +2
 
 Managing NosMates. Double-click one of your own NosMates to get Company / Stay / Send back
 under its target bar. `/mnt/project-files/pets-partners/reset-mates.sh` sets up a pet and a
