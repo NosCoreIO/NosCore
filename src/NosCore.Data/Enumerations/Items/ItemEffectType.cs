@@ -16,6 +16,8 @@ namespace NosCore.Data.Enumerations.Items
         Speaker = 15,
         // EffectValue is how many minutes the bubble stays up.
         SpeechBubble = 16,
+        // EffectValue is the card the item puts on its user.
+        ApplyCard = 20,
         // EffectValue is how many colours a wig can be dyed.
         WigDye = 30,
         MarriageProposal = 34,

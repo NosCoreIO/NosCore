@@ -154,6 +154,20 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_ZombieAntibioticsApplyTheCardTheirDataNames()
+        {
+            CreateTestFile(CreateItemData(vnum: 2178, indexType: 2, indexSubType: 4, data: "20\t0\t105\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var antibiotics = _savedItems.Single();
+            Assert.AreEqual(ItemType.Magical, antibiotics.ItemType);
+            Assert.AreEqual(ItemEffectType.ApplyCard, antibiotics.Effect);
+            Assert.AreEqual(105, antibiotics.EffectValue);
+        }
+
+        [TestMethod]
         [DataRow(1, 1500, 0)]
         [DataRow(2, 0, 1500)]
         [DataRow(3, 1500, 1500)]
