@@ -8,7 +8,9 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.MiniMap;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
@@ -39,6 +41,20 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var stone = await bob.ExpectSinceAsync(0, TheStone, "the time-space stone");
             Assert.AreEqual(WpPortalType.NormalTsReachable, stone.PortalType);
+        }
+
+        [TestMethod]
+        public async Task SteppingOntoAStoneOpensItsCard()
+        {
+            await using var carol = await Harness.EnterAsync("Carol", WorldData.Meadow, WorldData.SampleTimeSpaceX,
+                (short)(WorldData.SampleTimeSpaceY + 1));
+            await carol.WalkAsync(WorldData.SampleTimeSpaceX, WorldData.SampleTimeSpaceY);
+            var stepping = carol.Mark();
+
+            await carol.SendAsync(new WreqPacket());
+
+            var card = await carol.ExpectSinceAsync<RbrPacket>(stepping, description: "the time-space card");
+            Assert.IsFalse(card.LoserMode);
         }
     }
 }
