@@ -13,10 +13,13 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -39,6 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private IItemGenerationService ItemProvider;
         private UseItemPacketHandler Handler;
         private InlineGameEvents<ItemUsedEvent> GameEvents;
+        private Mock<IBuffService> Buffs;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -61,7 +65,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             World.Inject(rollDao.Object);
             var boxHandler = World.Create<BoxEffectHandler>();
             GameEvents = new InlineGameEvents<ItemUsedEvent>(evt => boxHandler.Handle(evt));
-            Handler = new UseItemPacketHandler(GameEvents.Object);
+            Buffs = new Mock<IBuffService>();
+            Handler = new UseItemPacketHandler(GameEvents.Object, Buffs.Object);
         }
 
         [TestMethod]
@@ -75,6 +80,23 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AnEffectThatForbidsItemsKeepsTheBoxClosed()
+        {
+            await new Spec("An effect that forbids items keeps the box closed")
+                .Given(TheCharacterHoldsOneBox)
+                .And(TheCharacterCarriesAnEffectThatForbidsItems)
+                .WhenAsync(TheBoxIsUsed)
+                .Then(TheCharacterHolds__, RewardVNum, 0)
+                .And(TheCharacterHolds__, BoxVNum, 1)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterCarriesAnEffectThatForbidsItems() =>
+            Buffs.Setup(b => b.HasEffect(It.IsAny<IAliveEntity>(), BCardEffect.TimeCircleSkillsItemCannotBeUsed)).Returns(true);
+
+        private Task TheBoxIsUsed() => Handler.ExecuteAsync(UseOfSlotZero(), Session);
+
         private void TheCharacterHoldsOneBox()
         {
             var box = ItemProvider.Create(BoxVNum, 1);
@@ -85,16 +107,18 @@ namespace NosCore.PacketHandlers.Tests.Inventory
 
         private async Task TheSameUseIsSentTwiceConcurrently()
         {
-            var packet = new UseItemPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = Session.Character.CharacterId,
-                Type = PocketType.Main,
-                Slot = 0,
-                Mode = 1,
-            };
+            var packet = UseOfSlotZero();
             await Task.WhenAll(Handler.ExecuteAsync(packet, Session), Handler.ExecuteAsync(packet, Session));
         }
+
+        private UseItemPacket UseOfSlotZero() => new()
+        {
+            VisualType = VisualType.Player,
+            VisualId = Session.Character.CharacterId,
+            Type = PocketType.Main,
+            Slot = 0,
+            Mode = 1,
+        };
 
         private void TheCharacterHolds__(short vnum, int amount) =>
             Assert.AreEqual(amount, Session.Character.InventoryService.CountItem(vnum));
