@@ -1566,7 +1566,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
-        public async Task ThePlayersSeeTheScoreOnEntryAfterAKillAndAfterAClearedRoomAsync()
+        public async Task APlayerSeesTheScoreOnEntryAndTheRoomsAfterAKillAndAClearedRoomAsync()
         {
             var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1) });
             var session = await PlayerInFirstRoomAsync();
@@ -1574,7 +1574,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true, killerLevel: 10);
 
-            CollectionAssert.AreEqual(new[] { 0, 8, 58 }, session.LastPackets.OfType<RnscPacket>().Select(p => p.Score).ToList());
+            CollectionAssert.AreEqual(new[] { 0 }, session.LastPackets.OfType<RnscPacket>().Select(p => p.Score).ToList());
+            CollectionAssert.AreEqual(new[] { 8, 58 }, _first.LastPackets.OfType<RnscPacket>().Select(p => p.Score).ToList());
         }
 
         [TestMethod]
@@ -1589,6 +1590,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.AreEqual(0, run.Score);
             Assert.IsFalse(session.LastPackets.OfType<RnscPacket>().Any());
+            Assert.IsFalse(_first.LastPackets.OfType<RnscPacket>().Any());
         }
 
         [TestMethod]
@@ -1635,9 +1637,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     OnDeath: d => d.Summon(1, new MonsterSpawn(Grunt, new Spot(3, 1)))))
             });
             await run.StartAsync();
-            _first.EnumerateMonsters().Single().IsAlive = false;
+            var marked = _first.EnumerateMonsters().Single();
+            marked.IsAlive = false;
 
-            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true, killerLevel: 1);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true, marked.DeathStep, killerLevel: 1);
 
             var summoned = _first.EnumerateMonsters().Single(m => m.PositionX == 3);
             Assert.IsTrue(summoned.IsBonus);
