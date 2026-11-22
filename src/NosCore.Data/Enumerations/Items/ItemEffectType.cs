@@ -84,6 +84,8 @@ namespace NosCore.Data.Enumerations.Items
         RarityIncreaseAmulet = 796,
         // The champion gear counterpart of RarityIncreaseAmulet.
         HeroicRarityIncreaseAmulet = 797,
+        // The champion gear counterpart of BlueAmulet: protection without the chance bonus.
+        HeroicProtectionAmulet = 798,
         // Rolls only among the sets the opener can wear; an opener no set fits rolls among them all.
         FamilyExperienceBooster = 825,
         ClassBox = 827,

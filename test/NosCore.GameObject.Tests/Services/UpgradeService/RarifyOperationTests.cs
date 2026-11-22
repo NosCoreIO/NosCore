@@ -428,6 +428,67 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
+        public async Task AChampionProtectionAmuletKeepsChampionGearAndIsGoneAfterItsOnlyUse()
+        {
+            await new Spec("A failed champion gamble with Weakened Fernon's Cursed Amulet worn keeps the item and spends the amulet")
+                .Given(ChampionWearableAtRarity_, (sbyte)5)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.HeroicProtectionAmulet, 1)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.90)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)5)
+                .And(TheResultShouldSay_, Game18NConstString.ItemSurvivedWithProtection)
+                .And(NoAmuletShouldBeWorn)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChampionProtectionAmuletCanReachRareEight()
+        {
+            await new Spec("A champion item gambled with Weakened Fernon's Cursed Amulet worn can land on rare 8")
+                .Given(ChampionWearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.HeroicProtectionAmulet, 1)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.0120)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)8)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChampionProtectionAmuletDoesNotWidenTheBands()
+        {
+            await new Spec("A roll just past the rare 1 band fails with Weakened Fernon's Cursed Amulet worn")
+                .Given(ChampionWearableAtRarity_, (sbyte)3)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.HeroicProtectionAmulet, 1)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.52)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)3)
+                .And(TheResultShouldSay_, Game18NConstString.ItemSurvivedWithProtection)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AChampionProtectionAmuletRefusesOrdinaryGear()
+        {
+            await new Spec("An ordinary item cannot be gambled while wearing Weakened Fernon's Cursed Amulet")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(AmuletWith_UsesIsWorn_, ItemEffectType.HeroicProtectionAmulet, 1)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(TheRefusalShouldBe_, Game18NConstString.YouAreWearingAnIncorrectAmulet)
+                .And(GoldShouldBe_, 100_000L)
+                .And(TheAmuletShouldHave_UsesLeft, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AnEventAmuletRefusesAnItemThatIsNotBound()
         {
             await new Spec("An item that is not bound cannot be gambled while wearing an event Blessing Amulet")

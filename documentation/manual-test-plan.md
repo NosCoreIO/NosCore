@@ -1299,6 +1299,10 @@ It gives Teoman's copy on Chicken Farm Path the gambling shop (shop type 4).
       incorrect amulet." and no gold is taken
 - [ ] Do the same with the random Champion Blessing Amulet (`SWORD=4958 AMULET=4262`): the bands,
       the protection, rare 8 and the three uses match 4264. Its shell options are kept, not re-rolled
+- [ ] Wear Weakened Fernon's Cursed Amulet (`SWORD=4958 AMULET=4574 USES=1`) and gamble the champion
+      sword: a failure keeps it with "The item survived thanks to the protection spell.", and after
+      that single gamble the chat says "CAUTION: The amulet's protection has expired." and the amulet
+      slot is empty. An ordinary sword is refused with "You are wearing an incorrect amulet."
 - [ ] Wear an event amulet (`AMULET=8541`, then 8542, 8543 and 8544 with `SWORD=4958` for the last
       two) and gamble a sword that is not bound: "Can only be used on items that are bound to your
       character." appears, the Bet window closes, and no gold, Cella or amulet use is taken

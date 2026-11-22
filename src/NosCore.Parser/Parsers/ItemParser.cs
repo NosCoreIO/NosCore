@@ -719,6 +719,7 @@ namespace NosCore.Parser.Parsers
                 var x when x == 282 || x == 283 || x == 284 || x == 4264 || x == 4262 || x == 4194 || x == 1248 || x == 9022
                     || x == 8541 || x == 8542 || x == 8543 || x == 8544 => 3,
                 498 or 499 => 2,
+                4574 => 1,
                 var x when x == 287 || x == 1246 || x == 9020 || x == 5062 || x == 9068 => 1,
                 var x when x == 4240 || x == 1247 || x == 9021 => 2,
                 var x when x == 4106 || x == 1249 || x == 9023 => 4,
@@ -766,6 +767,7 @@ namespace NosCore.Parser.Parsers
                 4261 or 4263 => ItemEffectType.HeroicRarityIncreaseAmulet,
                 4264 or 8544 => ItemEffectType.Heroic,
                 4262 or 8543 => ItemEffectType.RandomHeroic,
+                4574 => ItemEffectType.HeroicProtectionAmulet,
                 var x when x == 287 || x == 4240 || x == 4194 || x == 4106 => ItemEffectType.Undefined,
                 var x when item.ItemType == ItemType.Box && item.ItemSubType == 3 => ItemEffectType.BoxEffect,
                 var x when x == 1246 || x == 9020 || x == 1247 || x == 9021 || x == 1248 || x == 9022 || x == 1249 || x == 9023 => ItemEffectType.BuffPotions,
