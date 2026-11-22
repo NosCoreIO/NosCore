@@ -66,6 +66,61 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ASkillRemovesEveryGoodEffectUpToItsLevel()
+        {
+            await _buffs.InflictCardsAsync(_session.Character, null, [Effect(BCardEffect.LightAndShadowRemoveGoodEffects, 3)]);
+
+            CollectionAssert.AreEqual(new short[] { 1, 2, 4 }, Active());
+        }
+
+        [TestMethod]
+        public async Task RemovingGoodEffectsLeavesTheStaticBuffs()
+        {
+            await _buffs.ApplyPermanentAsync(_session.Character, Card(20, BuffType.Good, 1), []);
+
+            await _buffs.InflictCardsAsync(_session.Character, null, [Effect(BCardEffect.LightAndShadowRemoveGoodEffects, 3)]);
+
+            CollectionAssert.AreEqual(new short[] { 1, 2, 4, 20 }, Active());
+        }
+
+        [TestMethod]
+        public async Task ACleanseCastOnOthersLeavesItsCasterAlone()
+        {
+            await _buffs.InflictCasterCardsAsync(_session.Character, [Effect(BCardEffect.LightAndShadowRemoveBadEffects, 4)]);
+
+            CollectionAssert.AreEqual(new short[] { 1, 2, 3, 4 }, Active());
+        }
+
+        [TestMethod]
+        public async Task ACleanseTheSkillGivesItsCasterLandsOnlyOnTheCaster()
+        {
+            var forTheCaster = Effect(BCardEffect.LightAndShadowRemoveBadEffects, 4);
+            forTheCaster.AppliesToCaster = true;
+
+            await _buffs.InflictCardsAsync(_session.Character, null, [forTheCaster]);
+            CollectionAssert.AreEqual(new short[] { 1, 2, 3, 4 }, Active());
+
+            await _buffs.InflictCasterCardsAsync(_session.Character, [forTheCaster]);
+            CollectionAssert.AreEqual(new short[] { 2, 3, 4 }, Active());
+        }
+
+        [TestMethod]
+        public async Task ACleanseOnItsCasterRollsOnce()
+        {
+            var forTheCaster = Effect(BCardEffect.SpecialisationBuffResistanceRemoveBadEffects, 50, 5);
+            forTheCaster.AppliesToCaster = true;
+            var rolls = 0;
+            World.Freeze<Mock<IRandomProvider>>().Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(() => rolls++ == 0 ? 99 : 0);
+            var buffs = World.Create<BuffService>();
+
+            await buffs.InflictCardsAsync(_session.Character, _session.Character, [forTheCaster]);
+            await buffs.InflictCasterCardsAsync(_session.Character, [forTheCaster]);
+
+            Assert.AreEqual(1, rolls);
+            CollectionAssert.AreEqual(new short[] { 1, 2, 3, 4 }, Active());
+        }
+
+        [TestMethod]
         public async Task ACardThatRemovesBadEffectsDoesSoWhenItLands()
         {
             await ApplyAsync(Card(10, BuffType.Good, 1), Effect(BCardEffect.SpecialisationBuffResistanceRemoveBadEffects, 100, 5));
