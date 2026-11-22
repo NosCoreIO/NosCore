@@ -97,6 +97,9 @@ namespace NosCore.Instances.Abstractions
 
         void UnlockPortal(int fromRoom, int toRoom);
 
+        // Shuts an open portal again, so nobody can walk through it until it is unlocked.
+        void LockPortal(int fromRoom, int toRoom);
+
         // An unlock takes effect once the current trigger returns, so it does not show here before then.
         bool IsPortalOpen(int fromRoom, int toRoom);
 
@@ -129,6 +132,9 @@ namespace NosCore.Instances.Abstractions
         void RemoveButton(int room, int button);
 
         bool IsButtonOn(int room, int button);
+
+        // How many times a button has been switched on, counting the use the current trigger answers.
+        int TimesSwitchedOn(int room, int button);
 
         // An NPC that stands where it is put for the rest of the run, such as a Rainbow Crystal.
         void PlaceNpc(int room, short vNum, Spot at);

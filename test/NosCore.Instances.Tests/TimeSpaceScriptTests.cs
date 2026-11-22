@@ -116,6 +116,25 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void ASwitchShutsItsDoorAgainAndAddsTimeOnlyTheFirstTime()
+        {
+            new Spec("A switch opens its door when switched on, shuts it when switched off, and adds time once")
+                .Given(TheFirstRoomHasASwitchToTheSecond)
+                .And(TheRunStarts)
+                .When(TheSwitchOfTheFirstRoomIsUsed)
+                .And(TheSwitchOfTheFirstRoomIsUsed)
+                .And(TheSwitchOfTheFirstRoomIsUsed)
+                .Then(TheCallsShouldEndWith_, new[]
+                {
+                    "unlock(1->2)", "message(ADoorHasOpened)", "addClock(80s)",
+                    "lock(1->2)", "message(DoorIsLocked)",
+                    "unlock(1->2)", "message(ADoorHasOpened)"
+                })
+                .And(TheCallsShouldInclude_, "button(1,1,5,15,1051,1052,True)")
+                .Execute();
+        }
+
+        [TestMethod]
         public void AMonstersDeathRunsInTheRoomItFellIn()
         {
             new Spec("A monster's death brings the next one into the room it stood in")
@@ -646,6 +665,15 @@ namespace NosCore.Instances.Tests
             _first.Lever(new Spot(3, 3)).OnUse(r => r.Say(Game18NConstString.NewGoal));
         }
 
+        private void TheFirstRoomHasASwitchToTheSecond()
+        {
+            var door = _first.Portal(new Spot(1, 15), _second, new Spot(28, 15));
+            _first.Switch(new Spot(5, 15), 1051, 1052)
+                .OnSwitchedOn(r => r.Unlock(door).Say(Game18NConstString.ADoorHasOpened))
+                .OnFirstSwitchedOn(r => r.AddTime(TimeSpan.FromSeconds(80)))
+                .OnSwitchedOff(r => r.Lock(door).Say(Game18NConstString.DoorIsLocked));
+        }
+
         private void TheSecondRoomHoldsAGruntWhoseDeathBringsTheBoss() =>
             _second.Spawn(Declared.Mob(Grunt).At(1, 1).OnDeath(r => r.Spawn(Declared.Mob(Boss).At(5, 5))));
 
@@ -742,6 +770,17 @@ namespace NosCore.Instances.Tests
         }
 
         private void Button_OfTheFirstRoomIsUsed(int button) => Script.OnButtonUsed(_run, 1, button);
+
+        private void TheSwitchOfTheFirstRoomIsUsed()
+        {
+            if (!_run.Used.Remove((1, 1)))
+            {
+                _run.Used.Add((1, 1));
+                _run.SwitchedOn[(1, 1)] = _run.SwitchedOn.GetValueOrDefault((1, 1)) + 1;
+            }
+
+            Script.OnButtonUsed(_run, 1, 1);
+        }
 
         private void Monster_Falls(int index) => _run.Summoned[index].OnDeath?.Invoke(_run);
 

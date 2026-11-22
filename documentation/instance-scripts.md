@@ -82,6 +82,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `Spawn(monsters…)`, `Spawn(npcs…)`, `Spawn(items…)` | What the room holds from the start |
 | `Portal(at, to, arrival, locked)` | A one-way portal, kept as a handle to unlock later; one per pair of rooms |
 | `Lever(at)` | A lever, with `OnUse(step)`; `Lever(at, off, on)` draws it with other vnums, such as a button |
+| `Switch(at, off, on)` | A lever each use switches back and forth, with `OnSwitchedOn(step)`, `OnFirstSwitchedOn(step)` (after `OnSwitchedOn`, the first time only) and `OnSwitchedOff(step)` |
 | `Sculpture(at, off, on)` | A sculpture, moved without a word, with `OnUse(step)` |
 | `KeyAnywhere(vnum)` | A key on a walkable cell picked anew for each run, taken by whoever uses it |
 | `ClearedAfter(kills, vnum)` | The room counts as cleared once that many of its monsters of that vnum fall |
@@ -126,6 +127,7 @@ or its exit act in that room; `After` and `OnTimeout` steps reach a room with `r
 |---|---|
 | `Say(message)` | A line for everyone in the run: a `Game18NConstString` first, a `LanguageKey` when the client has no text |
 | `Unlock(portals…)`, `Unlock(exit)` | Opens them |
+| `Lock(portals…)` | Shuts them again |
 | `AddTime(length)` | More time on the run's clock, doubled in Loser Mode |
 | `Succeed()`, `Fail()` | Ends the run |
 | `Spawn(monsters…)` | Brings monsters into the room |

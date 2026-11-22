@@ -16,7 +16,7 @@ namespace NosCore.Instances.Abstractions
         private readonly Dictionary<int, Action<RoomEvent>> _dialogsClosed = [];
         private readonly Dictionary<short, Action<RoomEvent>> _itemsCollected = [];
         private readonly List<(TimeSpan Interval, TimeSpan From, int? Times, Action<RoomEvent> Step)> _waves = [];
-        private readonly List<ButtonHandle> _buttons = [];
+        private readonly List<Action<IInstanceRun>> _buttons = [];
         private readonly HashSet<PortalHandle> _portals = [];
         private Action<RoomEvent>? _entered;
         private Action<RoomEvent>? _cleared;
@@ -64,6 +64,14 @@ namespace NosCore.Instances.Abstractions
 
         public IButton Lever(Spot at, short offVNum = 1000, short onVNum = 1045) => Button(at, offVNum, onVNum, ButtonKind.Lever);
 
+        public ISwitch Switch(Spot at, short offVNum, short onVNum)
+        {
+            var handle = new SwitchHandle(_buttons.Count + 1);
+            _buttons.Add(run => handle.Used(run, this));
+            script.Setup(run => run.PlaceButton(Key, handle.Id, at, offVNum, onVNum, toggles: true));
+            return handle;
+        }
+
         public IButton Sculpture(Spot at, short offVNum, short onVNum) => Button(at, offVNum, onVNum, ButtonKind.Sculpture);
 
         public IButton KeyAnywhere(short vNum) => Button(run => run.RandomCell(Key), vNum, vNum, ButtonKind.Key);
@@ -73,7 +81,7 @@ namespace NosCore.Instances.Abstractions
         private ButtonHandle Button(Func<IInstanceRun, Spot> at, short offVNum, short onVNum, ButtonKind kind)
         {
             var button = new ButtonHandle(_buttons.Count + 1);
-            _buttons.Add(button);
+            _buttons.Add(run => button.Used(new RoomEvent(run, this)));
             script.Setup(run => run.PlaceButton(Key, button.Id, at(run), offVNum, onVNum, kind: kind));
             return button;
         }
@@ -159,7 +167,7 @@ namespace NosCore.Instances.Abstractions
         {
             if (button >= 1 && button <= _buttons.Count)
             {
-                _buttons[button - 1].Used(new RoomEvent(run, this));
+                _buttons[button - 1](run);
             }
         }
 
@@ -248,6 +256,49 @@ namespace NosCore.Instances.Abstractions
         }
 
         internal void Used(RoomEvent room) => _used?.Invoke(room);
+    }
+
+    internal sealed class SwitchHandle(int id) : ISwitch
+    {
+        private Action<RoomEvent>? _switchedOn;
+        private Action<RoomEvent>? _firstSwitchedOn;
+        private Action<RoomEvent>? _switchedOff;
+
+        public int Id => id;
+
+        public ISwitch OnSwitchedOn(Action<RoomEvent> step)
+        {
+            _switchedOn += step;
+            return this;
+        }
+
+        public ISwitch OnFirstSwitchedOn(Action<RoomEvent> step)
+        {
+            _firstSwitchedOn += step;
+            return this;
+        }
+
+        public ISwitch OnSwitchedOff(Action<RoomEvent> step)
+        {
+            _switchedOff += step;
+            return this;
+        }
+
+        internal void Used(IInstanceRun run, RoomHandle room)
+        {
+            var used = new RoomEvent(run, room);
+            if (!run.IsButtonOn(room.Key, id))
+            {
+                _switchedOff?.Invoke(used);
+                return;
+            }
+
+            _switchedOn?.Invoke(used);
+            if (run.TimesSwitchedOn(room.Key, id) == 1)
+            {
+                _firstSwitchedOn?.Invoke(used);
+            }
+        }
     }
 
     internal sealed class ExitHandle(RoomHandle room) : IExit

@@ -37,6 +37,8 @@ namespace NosCore.GameObject.Map
         // A key is taken with the bar a box is opened with.
         public DelayPacketType BarType => Kind == ButtonKind.Key ? DelayPacketType.OpeningBox : DelayPacketType.Button;
 
+        public int TimesSwitchedOn { get; set; }
+
         public InPacket GenerateIn()
         {
             return new InPacket

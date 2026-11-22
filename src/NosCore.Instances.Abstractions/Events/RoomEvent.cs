@@ -45,6 +45,17 @@ namespace NosCore.Instances.Abstractions
             return (TSelf)this;
         }
 
+        public TSelf Lock(params IPortal[] portals)
+        {
+            foreach (var portal in portals)
+            {
+                var (from, to) = PortalHandle.Of(portal);
+                Run.LockPortal(from, to);
+            }
+
+            return (TSelf)this;
+        }
+
         public TSelf Unlock(IExit exit)
         {
             Run.UnlockExit(ExitHandle.Of(exit).Room.Key);

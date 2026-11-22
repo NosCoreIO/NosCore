@@ -86,7 +86,17 @@ namespace NosCore.Instances.Tests
         public void UnlockPortal(int fromRoom, int toRoom)
         {
             Unlocked.Add((fromRoom, toRoom));
+            Relocked.Remove((fromRoom, toRoom));
             Calls.Add($"unlock({fromRoom}->{toRoom})");
+        }
+
+        public HashSet<(int From, int To)> Relocked { get; } = [];
+
+        public void LockPortal(int fromRoom, int toRoom)
+        {
+            Unlocked.Remove((fromRoom, toRoom));
+            Relocked.Add((fromRoom, toRoom));
+            Calls.Add($"lock({fromRoom}->{toRoom})");
         }
 
         public void SpawnExit(int room, Spot at, bool locked = true)
@@ -169,8 +179,14 @@ namespace NosCore.Instances.Tests
 
         public bool IsButtonOn(int room, int button) => ButtonsOn.Contains(button) || Used.Contains((room, button));
 
+        public Dictionary<(int Room, int Button), int> SwitchedOn { get; } = [];
+
+        public int TimesSwitchedOn(int room, int button) =>
+            SwitchedOn.TryGetValue((room, button), out var times) ? times : IsButtonOn(room, button) ? 1 : 0;
+
         public bool IsPortalOpen(int fromRoom, int toRoom) =>
-            Unlocked.Contains((fromRoom, toRoom)) || Portals.Any(p => p.From == fromRoom && p.To == toRoom && !p.Locked);
+            !Relocked.Contains((fromRoom, toRoom))
+            && (Unlocked.Contains((fromRoom, toRoom)) || Portals.Any(p => p.From == fromRoom && p.To == toRoom && !p.Locked));
 
         public List<(int Room, int Button)> Buttons { get; } = [];
 
