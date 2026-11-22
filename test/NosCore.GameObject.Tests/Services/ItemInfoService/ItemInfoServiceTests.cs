@@ -475,6 +475,53 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         }
 
         [TestMethod]
+        public void AWeaponWithShellOptionsMatchesTheTracedInfo()
+        {
+            var dagger = Wearable(new Item
+            {
+                VNum = 4466, ItemType = ItemType.Weapon, EquipmentSlot = EquipmentType.SecondaryWeapon, Class = 4,
+                LevelMinimum = 10, DamageMinimum = 495, DamageMaximum = 560, HitRate = 480, CriticalLuckRate = 18,
+                MaximumAmmo = 100, Price = 10000
+            });
+            dagger.Rare = 4;
+            dagger.DamageMinimum = 56;
+            dagger.DamageMaximum = 56;
+            dagger.HitRate = 26;
+            dagger.CriticalRate = 330;
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = dagger.Id, Level = 1, Type = 1, Value = 85 });
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = dagger.Id, Level = 1, Type = 17, Value = 100 });
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = dagger.Id, Level = 2, Type = 13, Value = 9 });
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = dagger.Id, Level = 2, Type = 4, Value = 3 });
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = dagger.Id, Level = 6, Type = 33, Value = 7 });
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = dagger.Id, Level = 10, Type = 38, Value = 3 });
+
+            PacketAssert.AreEqual(new EInfoWeaponPacket
+            {
+                Type = EInfoPacketType.WeaponDefault,
+                ItemVNum = 4466,
+                Rare = 4,
+                LevelMinimum = 10,
+                DamageMinimum = 551,
+                DamageMaximum = 616,
+                HitRate = 506,
+                CriticalLuckRate = 18,
+                CriticalRate = 330,
+                MaximumAmmo = 100,
+                Price = 10000,
+                ShellOptionCount = 6,
+                ShellOptions =
+                [
+                    new EInfoShellOptionSubPacket { Level = 1, Type = 1, Value = 85 },
+                    new EInfoShellOptionSubPacket { Level = 1, Type = 17, Value = 100 },
+                    new EInfoShellOptionSubPacket { Level = 2, Type = 13, Value = 9 },
+                    new EInfoShellOptionSubPacket { Level = 2, Type = 4, Value = 3 },
+                    new EInfoShellOptionSubPacket { Level = 6, Type = 33, Value = 7 },
+                    new EInfoShellOptionSubPacket { Level = 10, Type = 38, Value = 3 },
+                ],
+            }, Info<EInfoWeaponPacket>(dagger));
+        }
+
+        [TestMethod]
         public void AShellShowsItsLevelRarityAndOptions()
         {
             var shell = Wearable(new Item
