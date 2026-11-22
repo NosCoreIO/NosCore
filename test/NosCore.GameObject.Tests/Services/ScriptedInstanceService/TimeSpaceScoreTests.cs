@@ -54,6 +54,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private const long Gold = 7462;
         private const short Stone = 1184;
 
+        // Each kill is of a monster one level above its killer; killing every monster of the room clears it.
+        private const int KillPoints = 4;
+        private const int RoomClearedPoints = 50;
+
         private TestWorld World;
         private ClientSession _session;
         private MapInstance _room;
@@ -124,7 +128,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WhenAsync(TheExitIsReached)
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
-                    Points = 8,
+                    Points = 2 * KillPoints + RoomClearedPoints,
                     Experience = 60,
                     JobExperience = 10,
                     Gold = (int)Gold,
@@ -150,7 +154,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WhenAsync(TheExitIsReached)
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
-                    Points = 8,
+                    Points = 2 * KillPoints + RoomClearedPoints,
                     Experience = 60,
                     JobExperience = 10,
                     Gold = (int)Gold,
@@ -175,7 +179,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WhenAsync(TheExitIsReached)
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
-                    Points = 8,
+                    Points = 2 * KillPoints + RoomClearedPoints,
                     Experience = 60,
                     JobExperience = 10,
                     Gold = (int)Gold,
@@ -200,7 +204,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WhenAsync(TheExitIsReached)
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
-                    Points = 4,
+                    Points = KillPoints,
                     Experience = 30,
                     JobExperience = 5,
                     Gold = (int)Gold,
@@ -224,7 +228,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WhenAsync(TheExitIsReached)
                 .Then(TheScoreShouldBe, new ScorePacket
                 {
-                    Points = 8,
+                    Points = 2 * KillPoints + RoomClearedPoints,
                     Experience = 60,
                     JobExperience = 10,
                     Gold = (int)Gold,
@@ -486,7 +490,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 new Dictionary<int, MapInstance> { [1] = _room },
                 new NpcMonsterCatalog(
                 [
-                    new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10, IsHostile = true },
+                    new NpcMonsterDto { NpcMonsterVNum = Grunt, MaxHp = 10, IsHostile = true, Level = LevelMinimum + 1 },
                     new NpcMonsterDto { NpcMonsterVNum = Villager, MaxHp = 10 }
                 ]),
                 new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
@@ -501,7 +505,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             for (var i = 0; i < count; i++)
             {
-                await _run.MonsterKilledAsync(_room.MapInstanceId, Grunt);
+                await _run.MonsterKilledAsync(_room.MapInstanceId, Grunt, killerLevel: LevelMinimum);
             }
         }
 

@@ -17,6 +17,7 @@ using NosCore.Data.StaticEntities;
 using NodaTime;
 using NosCore.Algorithm.LowLevelBoostService;
 using NosCore.Algorithm.TimeSpaceExperienceService;
+using NosCore.Algorithm.TimeSpaceScoreService;
 using NosCore.Algorithm.TimeSpacePenaltyService;
 using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Messaging;
@@ -64,6 +65,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly IGameEventDispatcher _gameEvents;
         private readonly ITimeSpacePenaltyService _timeSpacePenaltyService;
         private readonly ITimeSpaceExperienceService _timeSpaceExperienceService;
+        private readonly ITimeSpaceScoreService _timeSpaceScoreService;
         private readonly ILowLevelBoostService _lowLevelBoostService;
         private readonly IExperienceBonusService _experienceBonusService;
         private readonly IExperienceProgressionService _experienceProgression;
@@ -97,6 +99,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             IGameLanguageLocalizer gameLanguage,
             ITimeSpacePenaltyService timeSpacePenaltyService,
             ITimeSpaceExperienceService timeSpaceExperienceService,
+            ITimeSpaceScoreService timeSpaceScoreService,
             ILowLevelBoostService lowLevelBoostService,
             IExperienceBonusService experienceBonusService,
             IExperienceProgressionService experienceProgression)
@@ -104,6 +107,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _gameLanguage = gameLanguage;
             _timeSpacePenaltyService = timeSpacePenaltyService;
             _timeSpaceExperienceService = timeSpaceExperienceService;
+            _timeSpaceScoreService = timeSpaceScoreService;
             _lowLevelBoostService = lowLevelBoostService;
             _experienceBonusService = experienceBonusService;
             _experienceProgression = experienceProgression;
@@ -191,7 +195,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 : MapInstanceType.RaidInstance;
 
             return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _gameEvents, _timeSpacePenaltyService,
-                _timeSpaceExperienceService, _lowLevelBoostService, _experienceBonusService, _experienceProgression, _logger, _logLanguage));
+                _timeSpaceExperienceService, _timeSpaceScoreService, _lowLevelBoostService, _experienceBonusService, _experienceProgression, _logger, _logLanguage));
         }
 
         public async Task<IInstanceScript?> LoadScriptAsync(string script)

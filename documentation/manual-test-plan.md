@@ -3853,8 +3853,8 @@ Run `timespace-sample` (minimum level 1) with a level 10 character, killing a fe
 the way, then again with a level 60 character.
 
 - [ ] At level 10, Mission Clear is preceded by the yellow chat line "18% of points reduced
-      because of level penalty." and the points on the score window are 82% of what the same
-      kills score at level 1
+      because of level penalty." and the points on the score window are 82% of the running score
+      shown at the top of the screen when the run ended
 - [ ] At level 60 the line says 100% and the score window shows 0 points
 - [ ] At level 1 no such line appears and the points are unchanged
 - [ ] Let the clock run out with the level 10 character: no penalty line appears
@@ -3908,6 +3908,30 @@ thrown away. A level-up or a capped job level leaves `lev` short of the gain and
 - [ ] Not verifiable yet: the last field of the score line. Every traced run of a level 76 or 98
       character carries 15 and every one of a level 6 to 20 character carries 1; NosCore sends 1 up
       to level 20 and 15 above. Where it changes between 21 and 75 is not known
+
+### Time-space running score
+
+Run `timespace-03` with a level 10 character. Its monsters come one at a time, each flashing (the
+marked monster) while it is the one to kill.
+
+- [ ] On entering the first room the running score at the top of the screen shows 0, and every
+      later room shows the same score on entry
+- [ ] Killing the first room's five monsters in order, the score reads 6, 17, 34, 56 and 84: five
+      more for each marked monster in a row, plus 1 to 3 by how close the monster is to your level
+- [ ] Clearing a room adds 50 at once (84 becomes 134)
+- [ ] In the room where three monsters stand at once, one of them flashing, kill the flashing one
+      first and wait for another to start flashing. Then kill one that is not flashing: it adds only
+      1 to 4. The one now flashing then adds 6 to 9, not 11 to 14, so the run of marked kills started
+      over
+- [ ] The Mission Clear window counts up to the running score shown when the run ended, less the
+      level penalty
+- [ ] Not verifiable yet: the bonus the official server adds to the running score at the clear.
+      Traced clears always show more points than the running score (about 15 to 1 350 more before the
+      level penalty), and
+      no formula over the time left, the Perfect stamps and the deaths reproduces it, so NosCore
+      shows the running score alone
+- [ ] Not verifiable yet: a kill by a partner. NosCore scores it at the partner's own level, which
+      the traces do not settle
 
 ### Raids
 

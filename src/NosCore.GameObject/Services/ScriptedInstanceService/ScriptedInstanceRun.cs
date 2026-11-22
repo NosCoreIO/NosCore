@@ -24,6 +24,7 @@ using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.MiniMap;
@@ -85,6 +86,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly HashSet<(int Room, int Dialog)> _closedDialogs = [];
         private readonly Dictionary<int, int> _roomDialogs = [];
         private readonly HashSet<int> _heldClears = [];
+        private readonly ConcurrentDictionary<int, byte> _markAwaited = new();
         private readonly Dictionary<(ObjectiveKind Kind, short VNum), int> _objectiveProgress = [];
 
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
@@ -94,7 +96,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly List<(Duration At, Action<IInstanceRun> Step)> _scheduled = [];
         private Instant? _scriptStartedAt;
         private int _nextPortalId;
-        private int _combo;
+        private int _chain;
         private bool _started;
         private bool _startConfirmed;
         private bool _hasExit;
@@ -157,8 +159,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public int NpcsLost { get; private set; }
 
-        // Each kill scores; a run of bonus kills scores more the longer it lasts.
-        public int Points { get; private set; }
+        // Shown to the players as it changes. Each kill scores, a kill that continues a run of marked
+        // monsters scores more the longer the run, and each cleared room adds a set amount.
+        public int Score { get; private set; }
 
         public int RoomsVisited => _visited.Count;
 
@@ -186,8 +189,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return CallScriptAsync(run => _script.OnFirstEnter(run));
         }
 
+        // A kill nobody is credited with adds nothing to the score and ends a run of marked monsters. A kill after
+        // the run has ended adds nothing either.
         public Task MonsterKilledAsync(Guid mapInstanceId, short vNum, bool isBonus = false,
-            Action<IInstanceRun>? deathStep = null)
+            Action<IInstanceRun>? deathStep = null, byte? killerLevel = null)
         {
             return RunAsync(async () =>
             {
@@ -199,8 +204,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
                 MonstersKilled++;
                 Advance(ObjectiveKind.KillMonster, vNum);
-                _combo = isBonus ? _combo + 1 : 0;
-                Points += ComboPoints(isBonus ? _combo + 1 : 0);
+                _chain = isBonus && killerLevel != null ? _chain + 1 : 0;
+                if (EndState == null && killerLevel is { } level && _npcMonsters.GetNpcMonster(vNum) is { } killed)
+                {
+                    AddToScore(_host.KillPoints(killed.Level, level, _chain));
+                }
+
                 var aliveBefore = _aliveByRoom.GetValueOrDefault(room.Value);
                 _aliveByRoom[room.Value] = Math.Max(0, aliveBefore - 1);
                 if (_abandoned)
@@ -212,6 +221,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (deathStep != null)
                 {
                     await CallScriptAsync(deathStep);
+                }
+
+                if (isBonus)
+                {
+                    PassTheMark(room.Value);
                 }
 
                 if (!_lockers.TryGetValue(room.Value, out var remaining))
@@ -279,8 +293,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
+            var wasOpen = EndState == null;
             await CallScriptAsync(run => _script.OnRoomCleared(run, room));
             _cleared.Add(room);
+            if (wasOpen)
+            {
+                AddToScore(_host.RoomClearedPoints);
+            }
         }
 
         // The counters are taken as they stand now, so a step that ends the run on this advance still
@@ -295,16 +314,52 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        private static int ComboPoints(int combo)
+        // Packet traces move the mark to a living monster of the same room, picked at random, or to the next
+        // one summoned there when none is left.
+        private void PassTheMark(int room)
         {
-            var (points, next) = (4, 7);
-            for (var i = 0; i < combo; i++)
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, () =>
             {
-                (points, next) = (next, points + next);
+                var alive = mapInstance.EnumerateMonsters().Where(m => m.IsAlive).ToList();
+                if (alive.Any(m => m.IsBonus))
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (alive.Count == 0)
+                {
+                    _markAwaited.TryAdd(room, 0);
+                }
+                else
+                {
+                    Mark(alive[_random.Next(0, alive.Count)]);
+                }
+
+                return Task.CompletedTask;
+            }));
+        }
+
+        private static void Mark(MonsterComponentBundle monster)
+        {
+            monster.IsBonus = true;
+            monster.Effect = BonusEffect;
+            monster.EffectDelay = BonusEffectDelay;
+        }
+
+        private void AddToScore(int points)
+        {
+            if (!_host.ShowsScore)
+            {
+                return;
             }
 
-            return points;
+            Score += points;
+            var score = GenerateScore();
+            _pending.Add(() => BroadcastAsync(score));
         }
+
+        private RnscPacket GenerateScore() => new() { Score = Score };
 
         public Task ItemCollectedAsync(Guid mapInstanceId, short vNum, short amount)
         {
@@ -399,6 +454,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (room is { } current && session.HasPlayerEntity && EndState == null)
                 {
                     DrawRoomMap(session, current, discovered);
+                    if (_host.ShowsScore)
+                    {
+                        var score = GenerateScore();
+                        _pending.Add(() => session.SendPacketAsync(score));
+                    }
+
                     if (GenerateMissionInfo() is { } missionInfo)
                     {
                         _pending.Add(() => session.SendPacketAsync(missionInfo));
@@ -626,7 +687,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 _pending.Add(() => OnRoom(mapInstance, () =>
                 {
                     var monster = mapInstance.SummonMonster(npcMonster, spawn.At.X, spawn.At.Y, spawn.IsHostile);
-                    monster.IsBonus = spawn.IsBonus;
                     monster.DeathStep = spawn.OnDeath;
                     if (spawn.Dialog != 0)
                     {
@@ -639,10 +699,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         monster.HpThresholds = spawn.OnHpBelow ?? [];
                     }
 
-                    if (spawn.IsBonus)
+                    var markAwaited = _markAwaited.TryRemove(room, out _);
+                    if (spawn.IsBonus || markAwaited)
                     {
-                        monster.Effect = BonusEffect;
-                        monster.EffectDelay = BonusEffectDelay;
+                        Mark(monster);
                     }
 
                     return mapInstance.SendPacketAsync(monster.GenerateIn());

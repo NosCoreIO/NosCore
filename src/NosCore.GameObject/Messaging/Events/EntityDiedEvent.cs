@@ -27,6 +27,9 @@ namespace NosCore.GameObject.Messaging.Events
 
         public IAliveEntity? Killer { get => field?.Live(); init; } = Killer;
 
+        // Taken at the kill, before a reward for it can level the killer up.
+        public byte? KillerLevel { get; init; } = Killer?.Level;
+
         private static IReadOnlyDictionary<Entity, int> SnapshotHits(IAliveEntity victim)
             => victim.HitList is { } list
                 ? list.ToArray().ToDictionary(kv => kv.Key, kv => kv.Value)

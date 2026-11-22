@@ -57,6 +57,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // Whether the client draws the run's rooms as a map that fills in as they are discovered.
         bool DrawsRoomMap => false;
 
+        // Whether the players are shown a running score, which the kills and cleared rooms below add to.
+        bool ShowsScore => false;
+
+        // A chain counts the marked monsters killed in a row, this one included; 0 for an unmarked monster.
+        int KillPoints(byte monsterLevel, byte killerLevel, int chain) => 0;
+
+        int RoomClearedPoints => 0;
+
         Task NpcPlacedAsync(ScriptedInstanceRun run, MapInstance room, NpcComponentBundle npc) => Task.CompletedTask;
 
         Task CountdownAsync(ScriptedInstanceRun run, MapInstance room, TimeSpan length) =>
