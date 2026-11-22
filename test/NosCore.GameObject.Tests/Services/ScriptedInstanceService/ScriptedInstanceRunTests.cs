@@ -1590,6 +1590,42 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ARoomClearedAfterTheRunEndedAddsNothingAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.SetMonsterLocker(1, 1);
+                    r.Succeed();
+                }
+            });
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, killerLevel: 10);
+
+            Assert.AreEqual(0, run.Score);
+        }
+
+        [TestMethod]
+        public async Task AMarkedReplacementKeepsTheMarkToItselfAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r => r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1), IsBonus: true,
+                        OnDeath: d => d.Summon(1, new MonsterSpawn(Grunt, new Spot(3, 1), IsBonus: true))),
+                    new MonsterSpawn(Grunt, new Spot(2, 1)))
+            });
+            await run.StartAsync();
+            var marked = _first.EnumerateMonsters().Single(m => m.IsBonus);
+            marked.IsAlive = false;
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt, isBonus: true, marked.DeathStep, killerLevel: 1);
+
+            Assert.AreEqual(3, _first.EnumerateMonsters().Single(m => m.IsAlive && m.IsBonus).PositionX);
+        }
+
+        [TestMethod]
         public async Task TheKillersLevelIsTakenAtTheKillAsync()
         {
             var session = await PlayerInFirstRoomAsync();

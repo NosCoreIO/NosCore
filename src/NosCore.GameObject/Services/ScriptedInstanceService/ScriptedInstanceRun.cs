@@ -293,9 +293,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
+            var wasOpen = EndState == null;
             await CallScriptAsync(run => _script.OnRoomCleared(run, room));
             _cleared.Add(room);
-            AddToScore(_host.RoomClearedPoints);
+            if (wasOpen)
+            {
+                AddToScore(_host.RoomClearedPoints);
+            }
         }
 
         // The counters are taken as they stand now, so a step that ends the run on this advance still
@@ -317,14 +321,19 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var mapInstance = _rooms[room];
             _pending.Add(() => OnRoom(mapInstance, () =>
             {
-                var unmarked = mapInstance.EnumerateMonsters().Where(m => m.IsAlive && !m.IsBonus).ToList();
-                if (unmarked.Count == 0)
+                var alive = mapInstance.EnumerateMonsters().Where(m => m.IsAlive).ToList();
+                if (alive.Any(m => m.IsBonus))
+                {
+                    return Task.CompletedTask;
+                }
+
+                if (alive.Count == 0)
                 {
                     _markAwaited.TryAdd(room, 0);
                 }
                 else
                 {
-                    Mark(unmarked[_random.Next(0, unmarked.Count)]);
+                    Mark(alive[_random.Next(0, alive.Count)]);
                 }
 
                 return Task.CompletedTask;
