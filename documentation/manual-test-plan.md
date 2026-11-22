@@ -55,6 +55,8 @@ outcome is a packet or a stored row, add a scenario for it as well (`test/README
 - [ ] The banner prints and the character list loads
 - [ ] Log in with the account password from a client not started by the launcher: the
       character list loads
+- [ ] With a packet logger, log in with a character that owns two NosMates: its `clist` line
+      carries exactly 26 pet values, the two mates' skin and monster first (`0.333.0.9.-1…`)
 - [ ] Log in on a GM account (`$Help` lists the commands; if it does nothing, the account
       is not GM and none of the rest will work)
 
@@ -3846,6 +3848,11 @@ the way, then again with a level 60 character.
 Run `timespace-01` ("The Time-Space", level 5, seven rooms, two draw items, guards 320 in rooms 3
 and 4) with a level 5 character that has never cleared it.
 
+Before each clear whose `lev` is compared, set the level and the job level again with `$SetLevel` and
+`$SetJobLevel`: both bars then start empty, so one clear's gain cannot reach the next level. Keep the
+job level under its cap (20 for an Adventurer, 80 for the other classes), where job experience is
+thrown away. A level-up or a capped job level leaves `lev` short of the gain and proves nothing.
+
 - [ ] Clear it killing every monster, walking into all seven rooms and keeping both guards alive:
       Mission Clear shows the points, 15 experience per monster killed (3 × the minimum level 5)
       and the kills × 21 / 4 rounded down as job experience, 0 gold, the monsters killed, 7 rooms,
@@ -3864,7 +3871,11 @@ and 4) with a level 5 character that has never cleared it.
 - [ ] Lure monsters onto a guard until it dies, then clear the run: the window shows 1 NPC left
       and no "Perfect" stamp on the NPCs. If the monsters never attack the guard, note that this
       check could not be run
-- [ ] Skip a room or leave a monster alive: that category has no "Perfect" stamp
+- [ ] Leave a monster alive: the monsters have no "Perfect" stamp
+- [ ] Every room of `timespace-01` lies on the way to its exit, so skip one elsewhere: run
+      `timespace-02` ("The Trap", level 8, nine rooms) and enter every room except the dead end
+      behind the east door of the third room (the room with the button; its south door leads on).
+      Mission Clear shows 8 rooms and no "Perfect" stamp on rooms
 - [ ] Clear it a second time and compare the window with the first clear's: the server now marks
       the run as cleared before, so note what the client shows differently
 - [ ] Fail it twice, enter through the Loser Mode button and clear it: the window shows no draw

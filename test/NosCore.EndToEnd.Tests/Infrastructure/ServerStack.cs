@@ -203,6 +203,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             return server;
         }
 
+        private static readonly Regex ScheduledInstantCombat = new(@"(?m)^- Type: InstantCombat\r?\n(?:[ \t]+\S.*\r?\n)*");
+
         // The address a world server announces is in its file, so each channel has its own copy.
         private string WriteConfiguration(string root, string databaseName, int worldPort, bool testClock = false)
         {
@@ -214,6 +216,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 var text = File.ReadAllText(file);
                 text = Regex.Replace(text, @"(?m)^(\s*)Database: noscore\s*$", "$1Database: " + databaseName);
                 text = Regex.Replace(text, @"(?m)^DisplayPort: \d+\s*$", "DisplayPort: " + worldPort);
+                if (Path.GetFileName(file) == "world.yml")
+                {
+                    // The scheduled combat's countdown would refuse the one InstantCombatTests start with $Event.
+                    text = ScheduledInstantCombat.Replace(text, string.Empty);
+                }
+
                 if (testClock && Path.GetFileName(file) == "world.yml")
                 {
                     text += Environment.NewLine + "TestClock: true" + Environment.NewLine;

@@ -41,6 +41,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
+        private const int PetListLength = 26;
+
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHub authHttpClient,
             IDao<AccountDto, long> accountDao, IChannelHub channelHub, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
@@ -152,20 +154,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                  }
                     */
-                var petlist = new List<short?>();
-                var mates = (mateDao.Where(s => s.CharacterId == character.CharacterId) ?? []).ToList();
-                for (var i = 0; i < 26; i++)
-                {
-                    if (mates.Count > i)
-                    {
-                        petlist.Add(mates[i].Skin);
-                        petlist.Add(mates[i].VNum);
-                    }
-                    else
-                    {
-                        petlist.Add(-1);
-                    }
-                }
+                var petlist = (mateDao.Where(s => s.CharacterId == character.CharacterId) ?? [])
+                    .SelectMany(mate => new short?[] { mate.Skin, mate.VNum })
+                    .Take(PetListLength)
+                    .ToList();
+                petlist.AddRange(Enumerable.Repeat<short?>(-1, PetListLength - petlist.Count));
 
                 // 1 1 before long string of -1.-1 = act completion
                 await clientSession.SendPacketAsync(new ClistPacket
