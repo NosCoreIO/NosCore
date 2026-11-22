@@ -57,5 +57,16 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(ids[10], stored.Single(s => s.ScriptStepId == 10).Id);
             Assert.AreEqual((short)9001, stored.Single(s => s.ScriptStepId == 10).Argument1);
         }
+
+        [TestMethod]
+        public async Task ARunStepWithAKnownDestinationIsStoredWithIt()
+        {
+            await ImportAsync("script 1\r\n474\trun 200\r\n500\trun 9\r\n510\ttalk 200\r\n");
+
+            var stored = _scripts.LoadAll().ToDictionary(s => s.ScriptStepId);
+            Assert.AreEqual(((short?)1, (short?)81, (short?)33), (stored[474].TeleportMapId, stored[474].TeleportX, stored[474].TeleportY));
+            Assert.IsNull(stored[500].TeleportMapId);
+            Assert.IsNull(stored[510].TeleportMapId);
+        }
     }
 }

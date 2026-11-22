@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         // The client reads a different number of item fields per pocket: equipment all seven,
-        // specialist cards and costumes five, mounts three and the other pockets four.
+        // specialist cards and costumes five, mounts and the raid pocket three and the other pockets four.
         public static IvnSubPacket ShapedFor(this IvnSubPacket packet, PocketType type)
         {
             if (type == PocketType.Equipment)
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
 
             packet.SecondUpgrade = null;
-            if (type == PocketType.Mount)
+            if (type is PocketType.Mount or PocketType.Raid)
             {
                 packet.UpgradeDesign = null;
             }

@@ -1906,6 +1906,13 @@ Map 49 has a Teleportation Stone at (21, 56) and another at (113, 54); maps 42, 
       costume inventory, then open them from the ADDITIONAL tab: the cards close up in order
       of the job level they need, the costumes in item number order
 
+### The raid window's pocket
+
+- [ ] Open the raid window (the raid list button): the client asks for the raid pocket and the
+      server answers with its list. With nothing in it the window opens as before
+- [ ] Not verifiable yet: an item shown in the raid pocket. Nothing in NosCore puts an item there,
+      so only the empty list can be seen
+
 ### Swapping items
 
 - [ ] Drag a stack on the ETC tab onto a different item: they trade places. Walk a few cells,
@@ -4543,6 +4550,21 @@ chapter's level. Put a level 20 character in Nosville (map 1) on script 1 step 2
 - [ ] Not verifiable yet: whether the button should come back after relogging or changing map before
       the chapter is taken. The traces only show `qnpc` when a chapter ends and when the next is
       taken, and NosCore sends it only then
+
+### Tutorial teleport questions
+
+Three run steps of the opening story (`run 200`, `run 201` and `run 202`) ask whether to teleport to
+map 1 (Nosville), map 2 or map 3. Put a character on script 1 step 474 (the `run 200` after
+Rookie Training quest 1512) outside Nosville, for example on map 2, and enter the world.
+
+- [ ] A window asks "Teleport now?" with Yes and No
+- [ ] Answering Yes takes the character to Nosville at 81, 33, and the story carries on with the
+      next step
+- [ ] Back on step 474, answering No leaves the character where they stand; the story still carries on
+- [ ] Script 1 step 1030 (also `run 200`) asks the same; the steps with `run 201` and `run 202`
+      take the character to map 2 at 72, 15 and to map 3 at 173, 186
+- [ ] Not verifiable yet: `run 203` and `run 204`. No trace shows where they lead, so NosCore asks
+      nothing on them
 
 ### Replaying an act's scene
 

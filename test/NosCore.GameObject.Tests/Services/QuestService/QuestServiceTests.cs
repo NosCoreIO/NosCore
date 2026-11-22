@@ -1088,6 +1088,41 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task ARunStepWithADestinationAsksToTeleport()
+        {
+            await new Spec("The client playing a run step that has a destination is asked whether to teleport there")
+                .Given(CharacterIsOnRun_LeadingTo___, (short)200, (short)1, (short)81, (short)33)
+                .WhenAsync(TheClientReportsRun_, (short)200)
+                .Then(TheTeleportQuestionTo___ShouldBeSent, 1, 81L, 33L)
+                .And(TheRunStepShouldBeTheOfferedTeleport)
+                .And(NoStepShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AReportOfAnotherRunAsksNothing()
+        {
+            await new Spec("A run report that is not the current step's run opens no question")
+                .Given(CharacterIsOnRun_LeadingTo___, (short)200, (short)1, (short)81, (short)33)
+                .WhenAsync(TheClientReportsRun_, (short)201)
+                .Then(NoPacketShouldBeSent)
+                .And(NoTeleportShouldBeOffered)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARunWithoutADestinationAsksNothing()
+        {
+            await new Spec("A run step with no destination, such as one that opens a window, is not answered")
+                .Given(CharacterIsOn_StepOneOfScript_, "run", (byte)1)
+                .And(NoPacketWasSentYet)
+                .WhenAsync(TheClientReportsRun_, (short)0)
+                .Then(NoPacketShouldBeSent)
+                .And(NoTeleportShouldBeOffered)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task RunningTheCurrentStepWithoutAScriptDoesNothing()
         {
             await new Spec("Running the current step of a character with no script sends nothing")
@@ -1143,6 +1178,42 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 SecondArgument = stepId,
             });
         }
+
+        private void CharacterIsOnRun_LeadingTo___(short run, short mapId, short x, short y)
+        {
+            var current = new ScriptDto
+            {
+                Id = Guid.NewGuid(), ScriptId = 1, ScriptStepId = 474, StepType = "run", Argument1 = run,
+                TeleportMapId = mapId, TeleportX = x, TeleportY = y
+            };
+            Scripts.Add(current);
+            Scripts.Add(new ScriptDto { ScriptId = 1, ScriptStepId = 480, StepType = "talk" });
+            Session.Character.Script = current;
+            Session.LastPackets.Clear();
+        }
+
+        private Task TheClientReportsRun_(short run) =>
+            Service.RunScriptAsync(Session.Character, new ScriptClientPacket { Type = QuestActionType.Achieve, FirstArgument = run });
+
+        private void TheTeleportQuestionTo___ShouldBeSent(int mapId, long x, long y) =>
+            PacketAssert.AreEqual(new DlgiPacket
+            {
+                YesPacket = new NosCore.Packets.ClientPackets.UI.GuriPacket
+                {
+                    Type = GuriPacketType.ScriptTeleport, Argument = mapId, VisualId = x, Data = y
+                },
+                NoPacket = new NosCore.Packets.ClientPackets.UI.GuriPacket
+                {
+                    Type = GuriPacketType.ScriptTeleportDeclined, IsWrittenWithoutHash = true
+                },
+                Question = Game18NConstString.TeleportNow
+            }, Session.LastPackets.OfType<DlgiPacket>().Single());
+
+        private void TheRunStepShouldBeTheOfferedTeleport() =>
+            Assert.AreSame(Session.Character.Script, Session.Character.OfferedScriptTeleport);
+
+        private void NoTeleportShouldBeOffered() =>
+            Assert.IsNull(Session.Character.OfferedScriptTeleport);
 
         private void NoPacketWasSentYet()
         {
