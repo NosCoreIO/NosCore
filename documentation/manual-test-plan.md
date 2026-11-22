@@ -187,6 +187,10 @@ same damage means only one of the two is being read.
       on your character
 - [ ] A monster that has its own skills (from its monster data) still casts them with their
       own effects and cards
+- [ ] Two clients on one map hit the same passive monster, the first one first: it fights the
+      first. The first logs out (or dies): the monster turns on the second at once and hits it
+- [ ] Only the first client hits it, the second stands next to it: when the first logs out, the
+      monster leaves the second alone and walks home
 
 ### Combo chains
 

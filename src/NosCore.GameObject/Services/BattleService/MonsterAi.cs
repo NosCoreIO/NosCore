@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
@@ -43,8 +44,9 @@ namespace NosCore.GameObject.Services.BattleService;
 //      stamp the cooldown once the hit was accepted.
 //   3. Otherwise step toward the target along a cached JPS path, stopping beside it.
 //      Stationary entities (CanWalk=false) never chase but still attack.
-// Once the aggro leash expires (aggroService.Current returns HasTarget=false) the entity
-// paths back to FirstX/FirstY.
+// A target that leaves, dies or hides hands the aggro to the next one in the hit list who is
+// still there. Once the aggro leash expires (aggroService.Current returns HasTarget=false)
+// the entity paths back to FirstX/FirstY.
 public sealed class MonsterAi : IMonsterAi, ISingletonService
 {
     private readonly IBattleService battleService;
@@ -145,19 +147,53 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         && !catalog.GetNpcBCards(entity.NpcMonster.NpcMonsterVNum)
             .Any(b => b.Effect() == BCardEffect.SpecialActionsSeeHiddenThings);
 
-    // The aggro target, or null once it is gone or dead (which also drops the aggro).
+    // The aggro target. Once it is gone, dead or hidden the aggro is dropped and passes to whoever
+    // else has hurt the entity most and is still there to fight; null when nobody is.
     private IAliveEntity? CurrentTarget(INonPlayableEntity entity)
     {
         var aggro = aggroService.Current(entity);
         if (!aggro.HasTarget) return null;
 
-        // A target that hides is lost.
         var target = ResolveTarget(entity, aggro.TargetVisualType, aggro.TargetVisualId);
-        if (target is { IsAlive: true } && !IsHiddenFrom(entity, target)) return target;
+        if (CanFight(entity, target)) return target;
 
         aggroService.Clear(entity);
         entity.ChasePath = null;
-        return null;
+
+        if (NextAttacker(entity) is not { } next) return null;
+
+        aggroService.AddThreat(entity, next.Attacker, next.Damage);
+        return next.Attacker;
+    }
+
+    private bool CanFight(INonPlayableEntity entity, [NotNullWhen(true)] IAliveEntity? target) =>
+        target is { IsAlive: true } && !IsHiddenFrom(entity, target);
+
+    // An attacker whose blow landed while the entity was busy with someone else holds no aggro,
+    // and would otherwise be forgotten when that someone leaves.
+    private (IAliveEntity Attacker, int Damage)? NextAttacker(INonPlayableEntity entity)
+    {
+        var world = entity.MapInstance?.EcsWorld;
+        if (world == null) return null;
+
+        (IAliveEntity Attacker, int Damage)? best = null;
+        foreach (var (handle, damage) in entity.HitList)
+        {
+            if (damage <= (best?.Damage ?? 0) || !world.IsAlive(handle)
+                || world.TryGetComponent<EntityIdentityComponent>(handle) is not { } identity
+                || identity.VisualType == entity.VisualType)
+            {
+                continue;
+            }
+
+            var attacker = ResolveTarget(entity, identity.VisualType, identity.VisualId);
+            if (CanFight(entity, attacker))
+            {
+                best = (attacker, damage);
+            }
+        }
+
+        return best;
     }
 
     private async Task<bool> TryReturnHomeAsync(INonPlayableEntity entity)

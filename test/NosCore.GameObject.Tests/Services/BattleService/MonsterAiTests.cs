@@ -372,6 +372,42 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonsterWhoseTargetLeavesTurnsOnTheNextOneWhoHurtIt()
+        {
+            var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
+            PlacePlayer(4, 2);
+            var leaver = await World.CreateSessionAsync();
+            leaver.Character.MapInstance = _map;
+            leaver.Character.PositionX = 5;
+            leaver.Character.PositionY = 1;
+            Hurt(monster, leaver.Character, 50);
+            Hurt(monster, _session.Character, 25);
+            Assert.AreEqual(leaver.Character.VisualId, _aggro.Current(monster).TargetVisualId, "the first one to hurt it keeps its attention");
+
+            World.SessionRegistry.Unregister(leaver.ConnectedChannel.Id);
+
+            Assert.IsTrue(await _ai.TickAsync(monster));
+            SwingsAtThePlayer(Times.Once());
+            Assert.AreEqual(_session.Character.VisualId, _aggro.Current(monster).TargetVisualId);
+        }
+
+        [TestMethod]
+        public async Task AMonsterWhoseTargetLeavesForgetsSomeoneWhoHasNotHurtIt()
+        {
+            var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
+            PlacePlayer(4, 2);
+            var leaver = await World.CreateSessionAsync();
+            leaver.Character.MapInstance = _map;
+            Hurt(monster, leaver.Character, 50);
+
+            World.SessionRegistry.Unregister(leaver.ConnectedChannel.Id);
+
+            Assert.IsFalse(await _ai.TickAsync(monster));
+            SwingsAtThePlayer(Times.Never());
+            Assert.IsFalse(_aggro.Current(monster).HasTarget);
+        }
+
+        [TestMethod]
         public async Task TheChasePathIsKeptOnTheMonsterAndDroppedWithItsTarget()
         {
             var monster = SpawnMonster(4, 1);
@@ -640,6 +676,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _session.Character.PositionX = x;
             _session.Character.PositionY = y;
+        }
+
+        private void Hurt(MonsterComponentBundle monster, IAliveEntity attacker, int damage)
+        {
+            monster.HitList[attacker.Handle] = damage;
+            _aggro.AddThreat(monster, attacker, damage);
         }
 
         private void AcceptSwings(bool accepted) =>
