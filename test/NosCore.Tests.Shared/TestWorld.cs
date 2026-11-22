@@ -151,6 +151,7 @@ namespace NosCore.Tests.Shared
             MailDao = Dao<Mail, MailDto, long>();
 
             Fixture.Inject(ItemList);
+            Fixture.Inject(Ladders);
             Fixture.UseReal<IItemCatalog, ItemCatalog>();
             Fixture.UseReal<GameObject.Services.BattleService.INpcMonsterCatalog, GameObject.Services.BattleService.NpcMonsterCatalog>();
             Fixture.UseReal<GameObject.Services.QuestService.IQuestCatalog, GameObject.Services.QuestService.QuestCatalog>();
@@ -194,8 +195,6 @@ namespace NosCore.Tests.Shared
 
         private static async Task<TestWorld> CreateAsync(DbContextOptions<NosCoreContext> options, bool storesStaticData)
         {
-            GameObject.Ecs.ReputationLevels.Load(ClientLadders.ReputationLevels());
-            GameObject.Ecs.DignityLevels.Load(ClientLadders.DignityLevels());
             var world = new TestWorld(options);
             if (storesStaticData)
             {
@@ -309,6 +308,8 @@ namespace NosCore.Tests.Shared
                 Effect = ItemEffectType.DroppedSpRecharger, EffectValue = 10_000, WaitDelay = 5_000
             }
         };
+
+        public LadderCatalog Ladders { get; } = new(ClientLadders.ReputationLevels(), ClientLadders.DignityLevels());
 
         public Guid MinilandId { get; } = Guid.NewGuid();
         public MapItemGenerationService MapItemProvider { get; }
@@ -445,7 +446,7 @@ namespace NosCore.Tests.Shared
 
             var group = new Group(Data.Enumerations.Group.GroupType.Group, SessionGroupFactory);
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerNetworkComponent(session, session.Channel));
-            ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerContextComponent(mapInstance, group, null));
+            ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerContextComponent(mapInstance, group, null, Ladders));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerInventoryComponent(
                 new InventoryService(new ItemCatalog(ItemList), WorldConfiguration, NullLogger<InventoryService>.Instance, TestLocalizers.Log),
                 new ConcurrentDictionary<short, GameObject.Services.BattleService.CharacterSkill>(),

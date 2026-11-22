@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.Packets.Enumerations;
@@ -26,14 +25,13 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
+            var session = evt.ClientSession;
+            var character = session.Character;
             if (item.ItemType != ItemType.Magical || item.Effect != ItemEffectType.RestoreDignity
-                || DignityLevels.Maximum is not { } maximum)
+                || character.Ladders.MaxDignity is not { } maximum)
             {
                 return;
             }
-
-            var session = evt.ClientSession;
-            var character = session.Character;
 
             if (character.Dignity >= maximum)
             {
