@@ -4395,6 +4395,17 @@ chapter's level. Put a level 20 character in Nosville (map 1) on script 1 step 2
       the chapter is taken. The traces only show `qnpc` when a chapter ends and when the next is
       taken, and NosCore sends it only then
 
+### Replaying an act's scene
+
+The Story tab of the Character Info window has an "Act.N" button for each act the player has
+reached; the server reports act 1 to everyone for now, so only "Act.1" shows.
+
+- [ ] Open Character Info, Story tab: there is one button, "Act.1"
+- [ ] Press "Act.1": the act 1 opening scene plays, the one a new character sees on first entering
+      the world
+- [ ] Not verifiable yet: "Act.2" to "Act.5". The client shows them only once the server reports a
+      later act, and nothing reports one yet
+
 ### Quests the client knows are done
 
 The client only hides a finished quest's offer, and only shows a hand-in button that needs a
