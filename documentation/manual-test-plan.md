@@ -905,10 +905,13 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 
 ### Monster chatter
 
-- [ ] Walk up to a hostile Fox on Chicken Farm Path: when it notices you a speech bubble reads
-      "Keee!!! Keeee!!!!", "Grrrrrrrrrrr..." or "Ggggggggggrrrrrrrrrrrrrrrr!"
-- [ ] A monster without a chatter group (Baby Dander) charges without a bubble
-- [ ] A Fox that keeps fighting you shouts again only after its aggro runs out (about 20 s)
+- [ ] Fight a hostile Fox on Chicken Farm Path: now and then a speech bubble reads
+      "Keee!!! Keeee!!!!", "Grrrrrrrrrrr..." or "Ggggggggggrrrrrrrrrrrrrrrr!", roughly once every
+      20 seconds but at irregular moments, and not necessarily the moment it notices you
+- [ ] A monster without a chatter group (Baby Dander) fights without a bubble
+- [ ] A Fox that has not noticed anyone never shouts
+- [ ] Pull several Foxes at once, or watch the NosVille guards fight a monster together: each
+      one shouts at its own moments, never all of them on the same instant
 
 ### Monster stats
 

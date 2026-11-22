@@ -46,6 +46,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<IBattleService> _battle;
         private AggroService _aggro;
         private Mock<IMonsterChatterService> _chatter;
+        private Mock<IRandomProvider> _random;
         private Mock<INpcCombatCatalog> _catalog;
         private MonsterAi _ai;
 
@@ -62,6 +63,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             AcceptSwings(true);
             _aggro = World.Create<AggroService>();
             _chatter = new Mock<IMonsterChatterService>();
+            _random = new Mock<IRandomProvider>();
             _catalog = new Mock<INpcCombatCatalog>();
             _catalog.Setup(c => c.GetNpcBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
             _ai = new MonsterAi(
@@ -71,7 +73,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 World.SessionRegistry,
                 World.DistanceCalculator,
                 _catalog.Object,
-                new Mock<IRandomProvider>().Object,
+                _random.Object,
                 _chatter.Object,
                 World.Clock,
                 new NosCore.GameObject.Services.SkillService.SkillCatalog([]),
@@ -124,15 +126,57 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public async Task AMonsterShoutsOnceWhenItNoticesAPlayer()
+        public async Task AFightingMonsterShoutsOnEveryTickItsChatterRollComesUp()
         {
+            _random.Setup(r => r.Next(0, 50)).Returns(0);
             var monster = SpawnMonster(4, 1);
             PlacePlayer(4, 5);
 
             await _ai.TickAsync(monster);
             await _ai.TickAsync(monster);
 
-            _chatter.Verify(c => c.ShoutAsync(monster), Times.Once());
+            ShoutsFrom(monster, Times.Exactly(2));
+        }
+
+        [TestMethod]
+        public async Task AFightingMonsterStaysQuietWhileItsChatterRollMisses()
+        {
+            _random.Setup(r => r.Next(0, 50)).Returns(1);
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 5);
+
+            await _ai.TickAsync(monster);
+
+            Assert.IsTrue(_aggro.Current(monster).HasTarget);
+            ShoutsFrom(monster, Times.Never());
+        }
+
+        [TestMethod]
+        public async Task MonstersThatNoticeOnTheSameTickRollTheirChatterSeparately()
+        {
+            _random.SetupSequence(r => r.Next(0, 50)).Returns(0).Returns(17);
+            var (first, second) = SpawnGroup(GroupAttackType.None, m => m.IsHostile = true, m => m.IsHostile = true);
+            PlacePlayer(6, 3);
+
+            await _ai.TickAsync(first);
+            await _ai.TickAsync(second);
+
+            Assert.IsTrue(_aggro.Current(first).HasTarget);
+            Assert.IsTrue(_aggro.Current(second).HasTarget);
+            ShoutsFrom(first, Times.Once());
+            ShoutsFrom(second, Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AMonsterWithoutATargetNeverShouts()
+        {
+            _random.Setup(r => r.Next(0, 50)).Returns(0);
+            var monster = SpawnMonster(4, 1, m => m.NoticeRange = 2);
+            PlacePlayer(4, 5);
+
+            await _ai.TickAsync(monster);
+
+            _chatter.Verify(c => c.ShoutAsync(It.IsAny<INonPlayableEntity>()), Times.Never());
         }
 
         [TestMethod]
@@ -634,6 +678,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var monsterId = monster.VisualId;
             _battle.Verify(b => b.Hit(It.Is<IAliveEntity>(m => m.VisualId == monsterId),
                 It.Is<IAliveEntity>(t => t.VisualId == playerId), It.IsAny<HitArguments>()), times);
+        }
+
+        private void ShoutsFrom(MonsterComponentBundle monster, Times times)
+        {
+            var monsterId = monster.VisualId;
+            _chatter.Verify(c => c.ShoutAsync(It.Is<INonPlayableEntity>(e => e.VisualId == monsterId)), times);
         }
 
         private void PlacePlayer(short x, short y)
