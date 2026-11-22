@@ -289,7 +289,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         private void ShouldReceiveMinilandLockedMessage()
         {
             var lastpacket = (InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
-            Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandLocked);
+            Assert.AreEqual(Game18NConstString.MinilandLocked, lastpacket?.Message);
         }
     }
 }

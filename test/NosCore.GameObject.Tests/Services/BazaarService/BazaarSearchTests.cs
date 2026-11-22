@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             Assert.AreEqual(_links.Count, Search(BazaarListType.Default).Length);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(BazaarListType.Weapon, new short[] { Sword, HeroicBow, AnyClassStick })]
         [DataRow(BazaarListType.Equipment, new short[] { Hat })]
         [DataRow(BazaarListType.Jewelery, new short[] { Ring })]
@@ -111,7 +111,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             CollectionAssert.AreEquivalent(expected, Search(type));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow((byte)1, new short[] { AnyClassStick })]
         [DataRow((byte)0, new short[] { Sword, HeroicBow, AnyClassStick })]
         [DataRow((byte)3, new short[] { Sword })]
@@ -122,7 +122,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             CollectionAssert.AreEquivalent(expected, Search(BazaarListType.Weapon, level: level));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow((byte)1, new short[] { Sword, AnyClassStick }, DisplayName = "Swordsman")]
         [DataRow((byte)2, new short[] { HeroicBow, AnyClassStick }, DisplayName = "Archer")]
         [DataRow((byte)3, new short[] { AnyClassStick }, DisplayName = "Magician")]

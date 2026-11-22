@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
             SpeedCalculationService = World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow((int)CharacterClassType.Archer)]
         [DataRow((int)CharacterClassType.Mage)]
         [DataRow((int)CharacterClassType.Swordsman)]
@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
             Assert.AreEqual((byte)characterClassInt, speed);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow((int)CharacterClassType.Archer)]
         [DataRow((int)CharacterClassType.Mage)]
         [DataRow((int)CharacterClassType.Swordsman)]
@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
             Assert.AreEqual(14, SpeedCalculationService.CalculateSpeed(character));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(true, 13)]
         [DataRow(false, 12)]
         public async Task AWornSpecialistCardAddsItsSpeedOnlyWhileTransformed(bool transformed, int expected)

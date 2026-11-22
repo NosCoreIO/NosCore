@@ -356,7 +356,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ExecuteAsync(new FamilyDismissPacket { CharacterName = _other.Character.Name }, _head);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FamilyAuthority.Head, FamilyAuthority.Assistant)]
         [DataRow(FamilyAuthority.Head, FamilyAuthority.Member)]
         [DataRow(FamilyAuthority.Assistant, FamilyAuthority.Manager)]
@@ -370,7 +370,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             CollectionAssert.AreEqual(new[] { _other.Character.CharacterId }, ((FamilyChangedData)_published.Single()).CharacterIds);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FamilyAuthority.Assistant, FamilyAuthority.Head)]
         [DataRow(FamilyAuthority.Assistant, FamilyAuthority.Assistant)]
         public async Task NobodyDismissesTheirOwnRankOrAbove(FamilyAuthority actor, FamilyAuthority target)
@@ -381,7 +381,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FamilyAuthority.Manager)]
         [DataRow(FamilyAuthority.Member)]
         public async Task OnlyTheHeadAndAssistantsDismiss(FamilyAuthority actor)

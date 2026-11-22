@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class SkillReachTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(1, 1, true)]
         [DataRow(1, 2, true)]
         [DataRow(1, 3, false)]
@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, (byte)range, targetRange: 0, distance));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(3, 5, true)]
         [DataRow(3, 6, false)]
         public void AMonstersAreaWidensTheReach(int area, int distance, bool inReach)
@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, range: 1, targetRange: 0, distance, (byte)area));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(2, true)]
         [DataRow(3, false)]
         [DataRow(50, false)]
@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, range: 0, targetRange: 0, distance));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(4, true)]
         [DataRow(5, false)]
         [DataRow(50, false)]
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 1, range: 2, targetRange: 3, distance));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(0, 10, true)]
         [DataRow(5, 10, true)]
         [DataRow(6, 10, true)]

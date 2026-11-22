@@ -4,7 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net11.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
-    <NoWarn>ASPDEPR008</NoWarn>
     <InvariantGlobalization>false</InvariantGlobalization>
     <SelfContained>false</SelfContained>
   </PropertyGroup>

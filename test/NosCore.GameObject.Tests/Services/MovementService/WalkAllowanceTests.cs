@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
             return true;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(1)]
         [DataRow(11)]
         [DataRow(14)]
@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
             Assert.IsTrue(LongWalkIsAccepted((byte)speed, 0.8));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(11)]
         [DataRow(20)]
         [DataRow(40)]

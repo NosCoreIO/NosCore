@@ -181,7 +181,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.AreEqual(200000, _head.Character.Gold);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Two Words")]
         [DataRow("Tab\tName")]
         public async Task ANameWithACharacterRefusedForCharacterNamesIsRefused(string name)

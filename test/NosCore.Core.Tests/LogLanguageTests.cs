@@ -35,7 +35,7 @@ namespace NosCore.Core.Tests
         }
 
         [TestCategory("OPTIONAL-TEST")]
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(RegionType.EN)]
         [DataRow(RegionType.CS)]
         [DataRow(RegionType.DE)]
@@ -58,7 +58,7 @@ namespace NosCore.Core.Tests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(RegionType.EN)]
         [DataRow(RegionType.CS)]
         [DataRow(RegionType.DE)]

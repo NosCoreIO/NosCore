@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.AreEqual(0, _sent.Count);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(FamilyAuthority.Head, true, true)]
         [DataRow(FamilyAuthority.Assistant, false, true)]
         [DataRow(FamilyAuthority.Manager, true, true)]
