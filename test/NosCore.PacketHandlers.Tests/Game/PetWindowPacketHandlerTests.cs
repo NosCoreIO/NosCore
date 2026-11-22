@@ -50,6 +50,23 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
+        public async Task ThePetWindowShowsThePetsOwnAttackAndDefenceLevels()
+        {
+            var pet = TestMates.Pet(_session.Character.CharacterId);
+            pet.Attack = 3;
+            pet.Defence = 2;
+            pet.NpcMonster.AttackUpgrade = 5;
+            pet.NpcMonster.DefenceUpgrade = 7;
+            _session.Character.Mates[pet.MateTransportId] = pet;
+
+            await World.Create<NpinfoPacketHandler>().ExecuteAsync(new NpInfoPacket { Page = 0 }, _session);
+
+            var scp = _session.LastPackets.OfType<ScpPacket>().Single();
+            Assert.AreEqual(3, scp.AttackUpgrade, "the pet's own attack level, not its monster's weapon upgrade");
+            Assert.AreEqual(2, scp.DefenceUpgrade, "the pet's own defence level, not its monster's armour upgrade");
+        }
+
+        [TestMethod]
         public void TheClientsPetWindowRequestReachesTheHandler()
         {
             var packetTypes = PacketTypes.World();
