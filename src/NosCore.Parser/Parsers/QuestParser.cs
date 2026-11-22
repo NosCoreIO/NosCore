@@ -75,12 +75,23 @@ namespace NosCore.Parser.Parsers
             var quests = await parser.GetDtosAsync();
             KeepExistingIds(quests);
             SetQuestLines(quests);
+            DropUnknownRequirements(quests);
 
             await questDao.TryInsertOrUpdateAsync(quests).OrThrowAsync();
             await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward)).OrThrowAsync();
             await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective)).OrThrowAsync();
 
             _logger.LogInformation(logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
+        }
+
+        // No player can complete a quest the file does not hold, so requiring one would lock the quest for good.
+        private static void DropUnknownRequirements(List<QuestDto> quests)
+        {
+            var known = quests.Select(q => q.QuestId).ToHashSet();
+            foreach (var quest in quests.Where(q => q.RequiredQuestId is { } required && !known.Contains(required)))
+            {
+                quest.RequiredQuestId = null;
+            }
         }
 
         private static void SetQuestLines(List<QuestDto> quests)

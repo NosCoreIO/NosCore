@@ -2581,6 +2581,10 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
       nothing is handed out.
 - [ ] Not verifiable yet: completing a score quest. Nothing records a time-space score against the
       quest's required score, so a taken score quest stays open until it is given up.
+- [ ] Run the parser again first. Then, at level 20+, with no other Viking Family quest done, open Flake
+      the Snow Fairy's "Level 65 - The Viking Family" page and press "(I'm going to try to talk to her.)":
+      "The Viking Family" appears in the quest window. quest.dat makes its first quest require one the
+      file does not hold, so the import drops that requirement.
 - [ ] At level 55+, Soraya Style's "Remove Princess Sakura's Seal!": "Use Princess Sakura's Seal!" is
       handed out. At level 45+, the Jajamaru miner's "Accept Jajamaru Quest" hands out the Jajamaru Quest.
 - [ ] Raphael's "Ginseng Digger" (level 20+), Crusader Graham's "Sure, I'll help." in NosVille
