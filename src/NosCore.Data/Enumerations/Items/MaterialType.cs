@@ -39,5 +39,6 @@ namespace NosCore.Data.Enumerations.Items
         TopazOfCompletion = 27,
         SeedOfPower = 28,
         Saver = 29,
+        GillionStone = 30,
     }
 }

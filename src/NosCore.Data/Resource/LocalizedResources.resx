@@ -708,6 +708,9 @@
   <data name="BOX_CONTENTS_PARSED" xml:space="preserve">
     <value>{Boxes} boxes and packs get their {Rolls} items</value>
   </data>
+  <data name="REFINERS_PARSED" xml:space="preserve">
+    <value>{Refiners} refiners draw from {Rolls} outcomes</value>
+  </data>
   <data name="RECURRING_PUBLISH_FAILED" xml:space="preserve">
     <value>Recurring publish of {Message} failed</value>
   </data>
