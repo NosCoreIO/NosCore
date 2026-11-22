@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
-    <NoWarn>RS1042</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
