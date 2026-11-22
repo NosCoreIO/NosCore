@@ -101,7 +101,7 @@ namespace NosCore.Database.Entities
 
         public short Hp { get; set; }
 
-        // A potion that fills the bar instead of adding Hp; refused on PvP and Act 4 maps.
+        // Fills the bar instead of adding Hp; a potion that does so is refused on PvP and Act 4 maps.
         public bool RestoresAllHp { get; set; }
 
         public bool RestoresAllMp { get; set; }
