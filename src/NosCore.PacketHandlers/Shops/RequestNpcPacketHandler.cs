@@ -61,8 +61,8 @@ namespace NosCore.PacketHandlers.Shops
                             return;
                         }
 
-                        if (await mapTeleporterService.StartAsync(character, found)
-                            || await signpostService.VisitAsync(clientSession, found))
+                        if (await signpostService.VisitAsync(clientSession, found)
+                            || await mapTeleporterService.StartAsync(character, found))
                         {
                             return;
                         }

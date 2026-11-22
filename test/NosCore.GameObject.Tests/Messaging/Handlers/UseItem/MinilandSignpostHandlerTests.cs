@@ -109,6 +109,21 @@ public class MinilandSignpostHandlerTests
     }
 
     [TestMethod]
+    public async Task ASignpostWhoseTimeIsUpDoesNotHideTheOneStillUp()
+    {
+        _item.ItemInstance.Amount = 3;
+        await UseAsync();
+        World.Clock.Advance(SignpostSystem.Lifetime);
+        await UseAsync();
+        World.Clock.AdvanceMinutes(10);
+
+        await UseAsync();
+
+        Assert.AreEqual((short)1, _item.ItemInstance.Amount);
+        Assert.AreEqual(Game18NConstString.AlreadyASignPost, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
+    }
+
+    [TestMethod]
     public async Task ASignpostOutsideNosVilleIsRefusedAndKept()
     {
         _session.Character.MapInstance = World.GetBaseMap(TestWorld.TestMapId);

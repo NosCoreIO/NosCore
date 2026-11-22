@@ -42,8 +42,7 @@ public sealed class MinilandSignpostService(IMapInstanceAccessorService mapInsta
 
     public Duration? TimeLeft(long ownerId)
     {
-        var left = FindSignpost(ownerId) is { } signpost ? signpost.SignpostExpiresAt - clock.GetCurrentInstant() : Duration.Zero;
-        return left > Duration.Zero ? left : null;
+        return FindSignpost(ownerId) is { } signpost ? signpost.SignpostExpiresAt - clock.GetCurrentInstant() : null;
     }
 
     public async Task PlaceAsync(PlayerComponentBundle owner, NpcMonsterDto signpost)
@@ -95,8 +94,12 @@ public sealed class MinilandSignpostService(IMapInstanceAccessorService mapInsta
         }
     }
 
-    private NpcComponentBundle? FindSignpost(long ownerId) =>
-        mapInstanceAccessorService.GetBaseMapById(NosVilleMapId)?.FindNpc(npc => npc.SignpostOwnerId == ownerId);
+    private NpcComponentBundle? FindSignpost(long ownerId)
+    {
+        var now = clock.GetCurrentInstant();
+        return mapInstanceAccessorService.GetBaseMapById(NosVilleMapId)?
+            .FindNpc(npc => npc.SignpostOwnerId == ownerId && npc.SignpostExpiresAt > now);
+    }
 
     private async Task<bool> IsFriendAsync(long ownerId, long visitorId) =>
         (await friendHub.GetFriendsAsync(ownerId))
