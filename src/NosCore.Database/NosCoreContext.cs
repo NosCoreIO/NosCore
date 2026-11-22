@@ -95,6 +95,8 @@ namespace NosCore.Database
 
         public virtual DbSet<MountMapSpeed>? MountMapSpeed { get; set; }
 
+        public virtual DbSet<HairStyleDye>? HairStyleDye { get; set; }
+
         public virtual DbSet<ItemSummon>? ItemSummon { get; set; }
 
         public virtual DbSet<ShopTypeService>? ShopTypeService { get; set; }
@@ -584,6 +586,12 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MountMapSpeed>()
+                .HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemVNum)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<HairStyleDye>()
                 .HasOne(e => e.Item)
                 .WithMany()
                 .HasForeignKey(e => e.ItemVNum)

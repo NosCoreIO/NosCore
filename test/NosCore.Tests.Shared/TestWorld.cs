@@ -157,6 +157,7 @@ namespace NosCore.Tests.Shared
             Fixture.UseReal<GameObject.Services.QuestService.IQuestCatalog, GameObject.Services.QuestService.QuestCatalog>();
             Fixture.UseReal<GameObject.Services.SkillService.ISkillCatalog, GameObject.Services.SkillService.SkillCatalog>();
             Fixture.Inject(new List<MountMapSpeedDto>());
+            Fixture.Inject(new List<HairStyleDyeDto>());
             Fixture.Inject(new List<ItemSummonDto>());
             Fixture.Inject(ShopTypeServices);
             Fixture.Inject<INpcServiceCatalog>(NpcServiceCatalog);
