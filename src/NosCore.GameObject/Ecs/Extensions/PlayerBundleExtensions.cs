@@ -28,6 +28,7 @@ using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.Enumerations;
@@ -108,13 +109,21 @@ public static class PlayerBundleExtensions
     }
 
     // The healed amount floats over the character for everyone on the map; MP has no such number.
-    public static async Task HealAsync(this PlayerComponentBundle player, int hp, int mp)
+    // Each team mate still standing gets teamHp the same way. The mates healed are returned so
+    // the caller can redraw their bars.
+    public static async Task<IReadOnlyList<Mate>> HealAsync(this PlayerComponentBundle player, int hp, int mp,
+        int teamHp = 0)
     {
         var healed = Math.Max(Math.Min(player.MaxHp - player.Hp, hp), 0);
         var restored = Math.Max(Math.Min(player.MaxMp - player.Mp, mp), 0);
-        if (healed == 0 && restored == 0)
+        var mates = teamHp <= 0
+            ? []
+            : player.Mates.Values
+                .Where(m => m.IsTeamMember && m.Entity is { Hp: > 0 } entity && entity.Hp < entity.MaxHp)
+                .ToList();
+        if (healed == 0 && restored == 0 && mates.Count == 0)
         {
-            return;
+            return [];
         }
 
         player.Hp += healed;
@@ -130,7 +139,22 @@ public static class PlayerBundleExtensions
             });
         }
 
+        foreach (var mate in mates)
+        {
+            var entity = mate.Entity.GetValueOrDefault();
+            var mateHealed = Math.Min(entity.MaxHp - entity.Hp, teamHp);
+            entity.Hp += mateHealed;
+            await player.MapInstance.SendPacketAsync(new RcPacket
+            {
+                VisualType = VisualType.Npc,
+                VisualId = mate.MateTransportId,
+                HealAmount = mateHealed,
+                Unknown = 0
+            });
+        }
+
         await player.SendPacketAsync(player.GenerateStat());
+        return mates;
     }
 
     public static FsPacket GenerateFaction(this PlayerComponentBundle player) =>

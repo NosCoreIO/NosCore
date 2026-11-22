@@ -134,35 +134,27 @@ namespace NosCore.GameObject.Services.TransformationService
             character.MorphUpgrade = (byte)sp.Upgrade;
             character.MorphDesign = (byte)sp.Design;
 
-            await skillService.LoadSpecialistSkillsAsync(character, sp.Item.Morph, sp.SpLevel);
             await specialistWingsService.RefreshAsync(character);
             character.Speed = speedCalculationService.CalculateSpeed(character);
 
-            var characterId2 = character.CharacterId;
             var mapInstance = character.MapInstance;
-            var cModePacket = session.Character.GenerateCMode();
-            var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService);
-            var effPacket = session.Character.GenerateEff(196);
-            var spPointPacket = session.Character.GenerateSpPoint(worldConfiguration);
-            var condPacket = session.Character.GenerateCond();
-            var statPacket = session.Character.GenerateStat();
-
-            await mapInstance.SendPacketAsync(cModePacket);
-            await session.SendPacketAsync(levPacket);
-            await mapInstance.SendPacketAsync(session.Character.GenerateEq());
-            await mapInstance.SendPacketAsync(effPacket);
+            await session.SendPacketAsync(character.GenerateCond());
+            await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
+            await session.SendPacketAsync(character.GenerateStat());
+            await mapInstance.SendPacketAsync(character.GenerateCMode());
+            await skillService.LoadSpecialistSkillsAsync(character, sp.Item.Morph, sp.SpLevel);
+            await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
+            await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
+            await mapInstance.SendPacketAsync(character.GenerateEq());
+            await mapInstance.SendPacketAsync(character.GenerateEff(196));
             await mapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.CharacterAnimation,
                 Argument = (uint)VisualType.Player,
-                EntityId = characterId2,
+                EntityId = character.CharacterId,
                 Value = 0,
                 SecondValue = 0
             });
-            await session.SendPacketAsync(spPointPacket);
-            await session.SendPacketAsync(condPacket);
-            await session.SendPacketAsync(statPacket);
-            await session.SendPacketAsync(session.Character.GenerateSc(battleStatsProvider));
         }
 
         public async Task ChangeVehicleAsync(ClientSession session, ItemDto vehicle, ItemDto look)

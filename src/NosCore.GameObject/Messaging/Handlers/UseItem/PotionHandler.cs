@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -45,7 +44,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             var itemInstance = evt.InventoryItem;
-            var refilledMates = new List<Services.MateService.Mate>();
             var character = session.Character;
             var restoresHp = (item.Hp > 0 || item.RestoresAllHp) && character.Hp < character.MaxHp;
             var restoresMp = (item.Mp > 0 || item.RestoresAllMp) && character.Mp < character.MaxMp;
@@ -56,8 +54,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             potionCooldown.Start(character);
             var left = character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await character.HealAsync(item.RestoresAllHp ? character.MaxHp : recoveryBonus.Boost(character, item.Hp),
-                item.RestoresAllMp ? character.MaxMp : recoveryBonus.Boost(character, item.Mp));
+            var hp = recoveryBonus.Boost(character, item.Hp);
+            var refilledMates = (await character.HealAsync(item.RestoresAllHp ? character.MaxHp : hp,
+                item.RestoresAllMp ? character.MaxMp : recoveryBonus.Boost(character, item.Mp),
+                fullRestore ? 0 : hp)).ToList();
             if (fullRestore)
             {
                 foreach (var mate in character.Mates.Values.Where(m => m.IsTeamMember))

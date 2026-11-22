@@ -656,6 +656,15 @@ restart the world server:
       appears and the potion stays in the bag
 - [ ] An ordinary potion (1010) still heals in Glacernon
 
+### Potions and the team
+
+- [ ] With an injured pet and partner in the team, drink an HP potion (`$CreateItem 1004`, 1000 HP)
+      with your own HP missing: a green number floats over you, then one over each mate, and the
+      mates' HP bars by their portraits rise by the same amount (or to full)
+- [ ] With a mate at full HP, it floats no number; a mate out of the team, or one that has fainted
+      and waits to come back, is not healed
+- [ ] A mana potion (`$CreateItem 1005`) floats no number over anybody and leaves the mates' HP as it is
+
 ### Special potions
 
 - [ ] Eat Fafnir's Fried Dinner (5904) with HP and MP low and a level 3 or lower debuff on you:
@@ -1116,6 +1125,8 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] With a second client next to you, transform and untransform: on the second client your
       character plays the same short animation as when an official server shows it, and nothing
       else changes on screen
+- [ ] Transform with skills on the quick bar: the skill bar, the quick bar, the SP points bar, the
+      level bar and the character window all show the card once the transformation effect plays
 
 ### Specialist card upgrade
 
@@ -2201,6 +2212,10 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Eat six Fried Chicken in a row: the sixth shows "I'm feeling sick..." in chat and stays in
       the inventory
 - [ ] Food and a snack eaten together both heal
+- [ ] With an injured pet in the team, eat Fried Chicken: at each tick a green number floats over the
+      pet as well, its HP bar rises, and it keeps rising after your own HP is full
+- [ ] With an injured pet in the team, eat a Roasted Herring: the pet floats no number and its HP bar
+      does not move
 - [ ] At full HP, food and snacks are still used up
 
 ### NosMate beads
