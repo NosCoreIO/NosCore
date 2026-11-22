@@ -28,7 +28,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 return Task.CompletedTask;
             }
 
-            var hidden = buffService.HasEffect(player, BCardEffect.SpecialActionsHide);
+            var hidden = buffService.HasEffect(player, BCardEffect.SpecialActionsHide)
+                || buffService.HasEffect(player, BCardEffect.FalconSkillHide);
             if (player.Invisible == hidden)
             {
                 return Task.CompletedTask;

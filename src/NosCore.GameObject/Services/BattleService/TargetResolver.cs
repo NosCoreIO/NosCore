@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -53,7 +55,10 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
     {
         var results = new List<IAliveEntity>(capacity: 8);
         CollectInArea(attacker, mapInstance, null, x, y, skill.TargetRange, null, results);
-        return results;
+        return skill.BCards.Any(b => b.Effect() == BCardEffect.FalconSkillFalconFocusLowestHp)
+            && results.MinBy(t => t.Hp) is { } weakest
+            ? [weakest]
+            : results;
     }
 
     private void CollectInArea(IAliveEntity attacker, MapInstance mapInstance, HashSet<(short X, short Y)>? cells,

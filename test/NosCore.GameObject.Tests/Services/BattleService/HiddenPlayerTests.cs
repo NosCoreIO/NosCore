@@ -74,6 +74,17 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(_buffs.HasBuff(_session.Character, OtherCardId));
         }
 
+        [TestMethod]
+        public async Task AFalconSkillHideHidesItsBearerToo()
+        {
+            await _buffs.ApplyAsync(_session.Character, new CardDto { CardId = HideCardId, Duration = 50 },
+                new List<BCardDto> { new() { Type = BCardEffect.FalconSkillHide.Type(), SubType = BCardEffect.FalconSkillHide.SubType() } },
+                _session.Character);
+            await _handler.Handle(new HiddenChangedEvent(_session.Character));
+
+            Assert.IsTrue(_session.Character.Invisible);
+        }
+
         private async Task HideAsync()
         {
             await _buffs.ApplyAsync(_session.Character, new CardDto { CardId = HideCardId, Duration = 50 },

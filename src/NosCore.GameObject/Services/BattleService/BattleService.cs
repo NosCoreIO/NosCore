@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
-            await buffService.RemoveEffectAsync(origin, BCardEffect.SpecialActionsHide);
+            await RevealAsync(origin);
             skill = await SpendChargeAsync(origin, skill);
             var targets = targetResolver.Resolve(origin, target, skill);
             if (skill.HitsSeveral && arguments.ListedTargets is { Count: > 0 } listed)
@@ -132,9 +132,20 @@ namespace NosCore.GameObject.Services.BattleService
                 }
             }
 
+            if (origin is PlayerComponentBundle caster && skill.BCards.Any(b => b.Effect() == BCardEffect.FalconSkillFalconFollowing))
+            {
+                caster.SendFalconAfter(target);
+            }
+
             await ExplodeAsync(origin, skill);
             await FinishCastAsync(origin, skill);
             return true;
+        }
+
+        private async Task RevealAsync(IAliveEntity origin)
+        {
+            await buffService.RemoveEffectAsync(origin, BCardEffect.SpecialActionsHide);
+            await buffService.RemoveEffectAsync(origin, BCardEffect.FalconSkillHide);
         }
 
         // Type 29 subtype 2: the attacker blows up, and every enemy within the radius takes the
@@ -198,7 +209,7 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
-            await buffService.RemoveEffectAsync(origin, BCardEffect.SpecialActionsHide);
+            await RevealAsync(origin);
             skill = await SpendChargeAsync(origin, skill);
 
             if (skill.BCards.Any(b => b.Effect() == BCardEffect.FairyXpIncreaseTeleportToLocation)

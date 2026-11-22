@@ -424,6 +424,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new SkillComboComponent(0, 0));
         _world.Add(entity, new WarehouseWindowComponent(false, false, null));
         _world.Add(entity, new ChargeComponent(null));
+        _world.Add(entity, new FalconComponent(default, 0, Instant.MinValue));
         CharacterMapping.Load(spawn.Character, new PlayerComponentBundle(entity, this));
         return entity;
     }
@@ -479,6 +480,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new SkillComboComponent(0, 0));
         _world.Add(entity, new WarehouseWindowComponent(false, false, null));
         _world.Add(entity, charge);
+        _world.Add(entity, new FalconComponent(default, 0, Instant.MinValue));
         return entity;
     }
 
