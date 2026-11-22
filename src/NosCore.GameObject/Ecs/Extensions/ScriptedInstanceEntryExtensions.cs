@@ -20,6 +20,10 @@ public static class ScriptedInstanceEntryExtensions
         (entrance.Definition?.RequiredItems ?? [])
             .FirstOrDefault(item => player.InventoryService.CountItem(item.VNum) < item.Amount);
 
+    public static bool HasClearedRequiredTimeSpaces(this PlayerComponentBundle player, ScriptedInstance entrance) =>
+        (entrance.Definition?.RequiredTimeSpaces ?? [])
+            .All(id => player.CompletedTimeSpaces?.Contains(id) == true);
+
     public static async Task TakeRequiredItemsAsync(this PlayerComponentBundle player, ScriptedInstance entrance)
     {
         foreach (var item in entrance.Definition?.RequiredItems ?? [])

@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        public RbrPacket GenerateRbr(bool loserMode = false, bool completed = false)
+        public RbrPacket GenerateRbr(bool loserMode = false, bool completed = false, bool locked = false)
         {
             return new RbrPacket
             {
@@ -44,7 +44,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     TsType = IsHeroic ? RbrPacketTsType.HeroMission : RbrPacketTsType.MainMission,
                     TsConditionType = RbrPacketTsConditionType.CanEnterAlone
                 },
-                Unknown = (byte)(completed ? 4 : 1),
+                // A stone whose required time-spaces are not cleared yet is captured with 5 here.
+                Unknown = (byte)(locked ? 5 : completed ? 4 : 1),
                 Unknown2 = (byte)(completed ? 15 : 0),
                 MinMaxLevel = new RbrSubPacketMinMaxLevel
                 {

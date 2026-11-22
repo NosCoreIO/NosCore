@@ -191,6 +191,14 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public async Task TheKovoltRiotStaysShutUntilTheMazeIsCleared()
+        {
+            await LoadAsync("timespace-09");
+
+            CollectionAssert.AreEqual(new short[] { 6 }, _script.Definition.RequiredTimeSpaces.ToArray());
+        }
+
+        [TestMethod]
         public async Task TheKovoltRiotGalleryMinerCallsAnotherAsItFalls()
         {
             await LoadAsync("timespace-09");
