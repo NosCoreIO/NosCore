@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
@@ -246,11 +247,29 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             throw new DirectoryNotFoundException("NosCore.sln was not found above " + AppContext.BaseDirectory);
         }
 
+        // A world loads its maps before it binds its port, so a port is taken from below the
+        // kernel's ephemeral range: the connections the servers open meanwhile cannot claim it.
+        private const int FirstPort = 20000;
+        private const int PortCount = 12000;
+        private static int _portOffset = Random.Shared.Next(PortCount);
+
         private static int FreePort()
         {
-            using var listener = new TcpListener(IPAddress.Loopback, 0);
-            listener.Start();
-            return ((IPEndPoint)listener.LocalEndpoint).Port;
+            for (var attempt = 0; attempt < PortCount; attempt++)
+            {
+                var port = FirstPort + (int)((uint)Interlocked.Increment(ref _portOffset) % PortCount);
+                try
+                {
+                    using var listener = new TcpListener(IPAddress.Any, port);
+                    listener.Start();
+                    return port;
+                }
+                catch (SocketException)
+                {
+                }
+            }
+
+            throw new InvalidOperationException("No free port below the ephemeral range.");
         }
 
         public async ValueTask DisposeAsync()
