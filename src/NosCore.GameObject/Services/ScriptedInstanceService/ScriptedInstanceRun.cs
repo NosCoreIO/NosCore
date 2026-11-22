@@ -189,7 +189,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return CallScriptAsync(run => _script.OnFirstEnter(run));
         }
 
-        // A kill nobody is credited with adds nothing to the score, though it still ends a run of marked monsters.
+        // A kill nobody is credited with adds nothing to the score and ends a run of marked monsters. A kill after
+        // the run has ended adds nothing either.
         public Task MonsterKilledAsync(Guid mapInstanceId, short vNum, bool isBonus = false,
             Action<IInstanceRun>? deathStep = null, byte? killerLevel = null)
         {
@@ -203,8 +204,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
                 MonstersKilled++;
                 Advance(ObjectiveKind.KillMonster, vNum);
-                _chain = isBonus ? _chain + 1 : 0;
-                if (killerLevel is { } level && _npcMonsters.GetNpcMonster(vNum) is { } killed)
+                _chain = isBonus && killerLevel != null ? _chain + 1 : 0;
+                if (EndState == null && killerLevel is { } level && _npcMonsters.GetNpcMonster(vNum) is { } killed)
                 {
                     AddToScore(_host.KillPoints(killed.Level, level, _chain));
                 }
@@ -689,7 +690,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         monster.HpThresholds = spawn.OnHpBelow ?? [];
                     }
 
-                    if (spawn.IsBonus || _markAwaited.TryRemove(room, out _))
+                    var markAwaited = _markAwaited.TryRemove(room, out _);
+                    if (spawn.IsBonus || markAwaited)
                     {
                         Mark(monster);
                     }

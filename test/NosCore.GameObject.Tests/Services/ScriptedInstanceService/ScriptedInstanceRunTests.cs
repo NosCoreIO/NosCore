@@ -1566,6 +1566,42 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AMarkedKillNobodyIsCreditedWithEndsTheChainAsync()
+        {
+            var run = Run(new Script());
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true, killerLevel: 10);
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true);
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true, killerLevel: 10);
+
+            Assert.AreEqual(8 + 8, run.Score);
+        }
+
+        [TestMethod]
+        public async Task AKillAfterTheRunEndedScoresNothingAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Succeed() });
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, LevelTenMonster, isBonus: true, killerLevel: 10);
+
+            Assert.AreEqual(0, run.Score);
+        }
+
+        [TestMethod]
+        public async Task TheKillersLevelIsTakenAtTheKillAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            session.Character.Level = 10;
+            var died = new EntityDiedEvent(session.Character, session.Character);
+
+            session.Character.Level = 11;
+
+            Assert.AreEqual((byte)10, died.KillerLevel);
+        }
+
+        [TestMethod]
         public async Task APlayerSeesTheScoreOnEntryAndTheRoomsAfterAKillAndAClearedRoomAsync()
         {
             var run = Run(new Script { Enter = r => r.SetMonsterLocker(1, 1) });

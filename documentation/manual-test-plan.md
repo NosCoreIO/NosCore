@@ -3916,8 +3916,9 @@ marked monster) while it is the one to kill.
 - [ ] Killing the first room's five monsters in order, the score reads 6, 17, 34, 56 and 84: five
       more for each marked monster in a row, plus 1 to 3 by how close the monster is to your level
 - [ ] Clearing a room adds 50 at once (84 becomes 134)
-- [ ] Kill a monster that is not flashing while one is: it adds only 1 to 4, and the next marked
-      monster adds 6 to 9 again instead of continuing the run
+- [ ] In the room where three monsters stand at once, one of them flashing, kill one that is not
+      flashing first: it adds only 1 to 4, and the flashing one then adds 6 to 9 instead of
+      continuing the run from the earlier rooms
 - [ ] The Mission Clear window counts up to the running score shown when the run ended, less the
       level penalty
 - [ ] Not verifiable yet: the bonus the official server adds to the running score at the clear.
