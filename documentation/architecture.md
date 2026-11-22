@@ -50,7 +50,10 @@ Deciding where a change goes, in order:
 3. The meaning of a `.dat` column: an enum in `NosCore.Data`, filled by `NosCore.Parser`. Game
    data lives in the database, not in generated C#.
 4. What happens when something fires: a service in `NosCore.GameObject`.
-5. Text a player reads: a `LanguageKey` and every `.resx`, never a literal.
+5. Text a player reads: the client's own text first, a `Game18NConstString` sent through an i18n
+   packet (`msgi`, `sayi`, `infoi` and the like). Only when the client has no such line does it
+   become a `LanguageKey` with every `.resx`, never a literal.
+6. A log message: a `LogLanguageKey` with its text in `LocalizedResources.resx`.
 
 ## Entities
 
