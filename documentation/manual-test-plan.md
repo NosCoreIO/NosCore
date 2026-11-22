@@ -550,6 +550,11 @@ restart the world server:
       Bleeding (82) stays
 - [ ] Use a Bandage with no bleeding on you: it is used up all the same
 - [ ] Dead, the Bandage stays in the inventory
+- [ ] `$CreateItem 2178 2` and double-click the Zombie Antibiotics in the Etc tab: the Zombie Immunity
+      (105) icon shows for 5 minutes and the stack drops to 1
+- [ ] Dead, the Zombie Antibiotics stay in the inventory
+- [ ] Not verifiable yet: the immunity keeping a Zombie Infection (104) off, since nothing in the game
+      spreads the infection yet; the two cards share a buff family, so applying one replaces the other
 - [ ] Not verifiable yet: Herb Mastery (skill 360) raising Detoxification Ritual to level 3 poisons, since
       an upgrade skill's own effects never reach the skill it upgrades
 
