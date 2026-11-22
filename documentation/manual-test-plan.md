@@ -76,7 +76,12 @@ compute and will mask a regression.
 - [ ] Open a busy map (many monsters and players) right after login: everything appears
       and the session stays up
 - [ ] Close the client while in the world, log back in at once: the character is not
-      reported as already connected and loads normally
+      reported as already connected and loads normally, where it stood when the client closed
+- [ ] Stay in the world on one client and log in on the same account from a second client
+      (same channel, then the other channel): the first client is disconnected, the second one
+      gets the server list and its character loads where the first one left it
+- [ ] Change channel: the character still arrives on the new channel, and logging in on the
+      account from a second client afterwards disconnects the first one there
 - [ ] Change the character's level, job level, hero level and experience, gold, reputation,
       dignity, compliment, SP points, hair, faction, biography and a few game options, move on a
       base map, log out and back in: every value comes back as it was, HP and MP included

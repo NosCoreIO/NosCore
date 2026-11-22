@@ -51,7 +51,8 @@ namespace NosCore.GameObject.Tests.Services.LoginService
                 ChannelHub.Object,
                 World.CharacterDao,
                 SessionRefHolder,
-                World.Create<GameObject.Services.PenaltyService.PenaltyService>());
+                World.Create<GameObject.Services.PenaltyService.PenaltyService>(),
+                World.Clock);
         }
 
         [TestMethod]

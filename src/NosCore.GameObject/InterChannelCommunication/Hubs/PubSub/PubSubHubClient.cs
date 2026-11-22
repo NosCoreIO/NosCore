@@ -27,5 +27,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
         public Task<bool> UnsubscribeAsync(long id) =>
             bus.RequestAsync<bool>(new UnsubscribeRequest(node.QueueName, id));
+
+        public Task<bool> DisconnectAccountAsync(string accountName) =>
+            bus.RequestAsync<bool>(new DisconnectAccountRequest(accountName));
     }
 }

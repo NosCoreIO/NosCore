@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             NoS0577PacketHandler = new NoS0577PacketHandler(new LoginService(LoginConfiguration,
                 World.AccountDao,
                 AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, World.CharacterDao, SessionRefHolder,
-                World.Create<PenaltyService>()));
+                World.Create<PenaltyService>(), World.Clock));
         }
 
         [TestMethod]
@@ -145,7 +145,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             await new Spec("Login when already connected should fail")
                 .Given(AccountIsAlreadyConnected)
-                .WhenAsync(LoggingInWithToken)
+                .WhenAsync(LoggingInWithTokenWhileTimePassesAsync)
                 .Then(ShouldReceiveAlreadyConnectedError)
                 .ExecuteAsync();
         }
@@ -248,6 +248,18 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 AuthToken = GuidToToken(TokenGuid),
             }, Session);
+        }
+
+        private async Task LoggingInWithTokenWhileTimePassesAsync()
+        {
+            var login = LoggingInWithToken();
+            while (!login.IsCompleted)
+            {
+                World.Clock.AdvanceMilliseconds(100);
+                await Task.Delay(1);
+            }
+
+            await login;
         }
 
         private async Task LoggingInWithWrongToken()

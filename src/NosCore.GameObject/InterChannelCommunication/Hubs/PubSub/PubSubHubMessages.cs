@@ -18,4 +18,6 @@ public record SubscribeRequest(string ChannelKey, Subscriber Subscriber) : IMast
 
 public record UnsubscribeRequest(string ChannelKey, long Id) : IMasterRequest;
 
+public record DisconnectAccountRequest(string AccountName) : IMasterRequest;
+
 public record ChannelMessage(IMessage Message);

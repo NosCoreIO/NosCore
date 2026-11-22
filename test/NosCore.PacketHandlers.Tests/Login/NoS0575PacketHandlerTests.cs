@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             NoS0575PacketHandler = new NoS0575PacketHandler(new LoginService(LoginConfiguration,
                     World.AccountDao,
                     AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, World.CharacterDao, SessionRefHolder,
-                    World.Create<PenaltyService>()),
+                    World.Create<PenaltyService>(), World.Clock),
                 LoginConfiguration, Logger, World.LogLanguageLocalizer);
         }
 
@@ -148,12 +148,35 @@ namespace NosCore.PacketHandlers.Tests.Login
         }
 
         [TestMethod]
-        public async Task LoginWhenAlreadyConnectedShouldFail()
+        public async Task LoginWhenTheAccountsSessionDoesNotCloseShouldFail()
         {
-            await new Spec("Login when already connected should fail")
+            await new Spec("Login when the account's session does not close should fail")
                 .Given(AccountIsAlreadyConnected)
-                .WhenAsync(LoggingInCorrectlyAsync)
+                .WhenAsync(LoggingInWhileTimePassesAsync)
                 .Then(ShouldReceiveAlreadyConnectedError)
+                .And(TheAccountsSessionShouldBeAskedToClose)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginTakesTheAccountOverFromTheSessionHoldingIt()
+        {
+            await new Spec("Login takes the account over from the session holding it")
+                .Given(AccountIsConnectedUntilItsSessionIsAskedToClose)
+                .WhenAsync(LoggingInWhileTimePassesAsync)
+                .Then(ShouldReceiveNsTestPacket)
+                .And(TheAccountsSessionShouldBeAskedToClose)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginOnAFreeAccountClosesNoSession()
+        {
+            await new Spec("Login on a free account closes no session")
+                .Given(ServerIsAvailable)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveNsTestPacket)
+                .And(NoSessionShouldBeAskedToClose)
                 .ExecuteAsync();
         }
 
@@ -213,6 +236,16 @@ namespace NosCore.PacketHandlers.Tests.Login
                     { new() { Name = Session.Account.Name } });
         }
 
+        private void AccountIsConnectedUntilItsSessionIsAskedToClose()
+        {
+            var closed = false;
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer } });
+            PubSubHub.Setup(s => s.DisconnectAccountAsync(Session.Account.Name)).ReturnsAsync(() => closed = true);
+            PubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(() => closed
+                ? new List<Subscriber>()
+                : new List<Subscriber> { new() { Name = Session.Account.Name } });
+        }
+
         private void NoServerIsAvailable()
         {
             ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
@@ -240,6 +273,28 @@ namespace NosCore.PacketHandlers.Tests.Login
                 Password = Password,
                 Username = Session.Account.Name.ToUpperInvariant()
             }, Session);
+        }
+
+        private async Task LoggingInWhileTimePassesAsync()
+        {
+            var login = LoggingInCorrectlyAsync();
+            while (!login.IsCompleted)
+            {
+                World.Clock.AdvanceMilliseconds(100);
+                await Task.Delay(1);
+            }
+
+            await login;
+        }
+
+        private void TheAccountsSessionShouldBeAskedToClose()
+        {
+            PubSubHub.Verify(s => s.DisconnectAccountAsync(Session.Account.Name), Times.Once);
+        }
+
+        private void NoSessionShouldBeAskedToClose()
+        {
+            PubSubHub.Verify(s => s.DisconnectAccountAsync(It.IsAny<string>()), Times.Never);
         }
 
         private async Task LoggingInWithFakeAccountAsync()

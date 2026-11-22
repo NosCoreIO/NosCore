@@ -11,7 +11,6 @@ using NosCore.EndToEnd.Tests.Infrastructure;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Packets.ServerPackets.Login;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -63,16 +62,17 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
-        public async Task AnAccountInTheWorldIsRefusedOnTheOtherChannelToo()
+        public async Task ALoginOnTheOtherChannelClosesTheAccountsSessionHereFirst()
         {
             var player = await Harness.AddPlayerAsync("Alice");
             await using var first = Harness.Client(player);
             await first.EnterWorldAsync(player.Slot);
             await using var second = Harness.Client(player, channel: Second);
 
-            var reply = await second.LoginAsync();
+            await second.EnterWorldAsync(player.Slot);
 
-            PacketAssert.AreEqual(new FailcPacket { Type = LoginFailType.AlreadyConnected }, reply.Refusal);
+            Assert.IsTrue(await first.ClosedWithinAsync(TimeSpan.FromSeconds(1)), "the session on the first channel is closed");
+            Assert.AreEqual(player.CharacterId, second.CharacterId);
         }
     }
 }

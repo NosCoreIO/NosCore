@@ -277,6 +277,7 @@ namespace NosCore.Data.Enumerations.I18N
         EXCHANGE_ITEM_NOT_RETURNED,
         EXCHANGE_GOLD_NOT_RETURNED,
         EXCHANGE_BANK_GOLD_NOT_RETURNED,
+        SESSION_TAKEN_OVER,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

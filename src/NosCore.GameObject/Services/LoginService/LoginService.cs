@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
+using NosCore.Data.WebApi;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
@@ -31,9 +32,14 @@ namespace NosCore.GameObject.Services.LoginService
             IAuthHub authHttpClient,
             IPubSubHub pubSubHub, IChannelHub channelHub,
             IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder,
-            IPenaltyService penaltyService)
+            IPenaltyService penaltyService, TimeProvider time)
         : ILoginService
     {
+        // The session left behind by a client that was just closed is often still open; this
+        // login takes the account over from it, saved character and all, before answering.
+        private static readonly TimeSpan TakeOverTimeout = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan TakeOverPoll = TimeSpan.FromMilliseconds(200);
+
         public async Task LoginAsync(string? username, string? md5String, ClientVersionSubPacket? clientVersion,
             Networking.ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {
@@ -93,6 +99,11 @@ namespace NosCore.GameObject.Services.LoginService
                         var connectedAccount = await pubSubHub.GetSubscribersAsync();
                         var comChannels = await channelHub.GetCommunicationChannels();
                         var servers = comChannels.Where(x => x.IsListed()).OrderBy(x => x.ServerId).ThenBy(x => x.Id).ToList();
+                        if (connectedAccount.Any(x => x.Name == acc.Name))
+                        {
+                            connectedAccount = await TakeOverAsync(acc.Name);
+                        }
+
                         if (connectedAccount.Any(x => x.Name == acc.Name))
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
@@ -189,6 +200,23 @@ namespace NosCore.GameObject.Services.LoginService
                     Type = LoginFailType.UnhandledError
                 });
                 throw;
+            }
+        }
+
+        // The accounts connected once the account's session is gone, or as they stand when it
+        // outlasts the wait.
+        private async Task<List<Subscriber>> TakeOverAsync(string accountName)
+        {
+            await pubSubHub.DisconnectAccountAsync(accountName);
+            var started = time.GetTimestamp();
+            while (true)
+            {
+                await Task.Delay(TakeOverPoll, time);
+                var connected = await pubSubHub.GetSubscribersAsync();
+                if (connected.All(x => x.Name != accountName) || time.GetElapsedTime(started) >= TakeOverTimeout)
+                {
+                    return connected;
+                }
             }
         }
     }
