@@ -213,6 +213,17 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public async Task ThePyjamaTimeSpacePaysSixtyGoldAKillAndFiftyReputation()
+        {
+            var script = await LoadAsync("timespace-518");
+
+            Assert.AreEqual(4620, script.Definition.GoldFor(77));
+            Assert.AreEqual(2400, script.Definition.GoldFor(40));
+            Assert.AreEqual(50, script.Definition.Reputation);
+            Assert.AreEqual(25, script.Definition.LevelMinimum);
+        }
+
+        [TestMethod]
         public async Task TheKovoltsFightBesideThePlayer()
         {
             var script = await LoadAsync("timespace-36");

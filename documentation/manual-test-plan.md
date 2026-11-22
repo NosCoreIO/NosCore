@@ -3436,7 +3436,9 @@ negative going north.
 
 `timespace-518` ("What Adventure Awaits?", level 27, quest 2006) is the Yellow Soulstone's
 time-space, on the same 21 rooms as `timespace-34`. Nothing places its stone yet, so add a test
-stone with `Script` set to `timespace-518` and use a level 27+ character. The texts below are
+stone with `Script` set to `timespace-518` and use a level 27+ character. Its level minimum is
+25, not the quest's 27: both captured clears give 75 experience a kill (3 × 25) and a level 27
+character loses 4% of the points. The texts below are
 the French ones of the log, and rooms are named by their minimap position from the first room,
 x to the east and y positive going south.
 
@@ -3454,9 +3456,12 @@ x to the east and y positive going south.
       doors open with "Le portail s'est ouvert."
 - [ ] The lever room (1,2), "Vois-tu le levier au centre ?", opens both its doors when the lever
       is pulled
-- [ ] Not verifiable yet: entering from the Yellow Soulstone (NPC 932); the gold and reputation
-      of the log's clear, which come from a stone entrance this time-space does not have yet; and
-      the mission window's one heart and exit goal, since `minfo` freezes this client
+- [ ] Clear it killing N monsters: Mission Clear shows 60 × N gold (4620 for all 77), and opening
+      the chest pays that gold and 50 reputation, whatever the character's level
+- [ ] A level 27 character's clear shows "4% of points reduced because of level penalty" before
+      the score
+- [ ] Not verifiable yet: entering from the Yellow Soulstone (NPC 932), and the mission window's
+      one heart and exit goal, since `minfo` freezes this client
 
 ### Escorts in a time-space
 

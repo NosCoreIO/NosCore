@@ -2,10 +2,12 @@ public class TimeSpace518 : TimeSpaceScript
 {
     public TimeSpace518() : base(518, "What Adventure Awaits?")
     {
-        Levels(27, 99);
-        Start(13, 9);
+        Levels(25, 99);
+        Start(11, 11);
         Lives(1);
         Clock(TimeSpan.FromSeconds(600));
+        GoldPerKill(60);
+        Reputation(50);
 
         var entrance = Room(4202, 0, 7);
         var hall = Room(4200, 1, 7);
