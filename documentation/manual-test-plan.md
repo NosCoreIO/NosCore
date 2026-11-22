@@ -2760,6 +2760,9 @@ warehouse (3005) placed in the miniland; `mates.sh` adds a pet and a partner out
 - [ ] With a packet logger, a deposit answers the warehouse slot (`stash`) before the bag slot (`ivn`)
 - [ ] Deposit part of a stack, or withdraw a stack, then stop the world server without logging
       out: after a restart the items are where the transfer left them, once and only once
+- [ ] Deposit a weapon with shell options and withdraw it again: right-clicking it shows the same
+      options, and still does after a relog. With a full bag, the withdrawal leaves it in the
+      warehouse, and taking it out later still shows them
 
 ### Invite cooldown and blacklist
 
@@ -3078,6 +3081,8 @@ to 21 (or 49). Members stand next to Salim (vnum 1431, dialog 462).
       dragged onto the warehouse
 - [ ] With a full bag, dragging a stack out leaves it in the warehouse
 - [ ] Two members dragging the same stack out at once: only one of them receives it
+- [ ] A weapon with shell options dragged in, then out by another member, keeps its options for
+      them, also after a relog
 - [ ] Disbanding the family empties its warehouse
 - [ ] "View Warehouse History" opens the history window: every deposit shows as "List
       <name> > <item> X <amount>Piece" and every withdrawal as "Remove ...", newest first, with

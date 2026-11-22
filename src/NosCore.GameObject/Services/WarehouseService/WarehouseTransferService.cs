@@ -27,6 +27,7 @@ using NosCore.Packets.ServerPackets.Warehouse;
 using System;
 using System.Collections.Generic;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.GameObject.Services.ShellOptionService;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,8 +35,8 @@ namespace NosCore.GameObject.Services.WarehouseService
 {
     public class WarehouseTransferService(IWarehouseHub warehouseHub, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
         IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider,
-        ISaveService saveService, IItemDeliveryService itemDelivery, ILogger<WarehouseTransferService> logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        ISaveService saveService, IItemDeliveryService itemDelivery, IShellOptionService shellOptionService,
+        ILogger<WarehouseTransferService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IWarehouseTransferService
     {
         public async Task<List<StoredItem>> GetItemsAsync(long ownerId, WarehouseType warehouseType)
@@ -87,19 +88,22 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return null;
             }
 
-            IItemInstanceDto? copy;
+            bool copied;
             try
             {
-                copy = await itemInstanceDao.TryInsertOrUpdateAsync(stored);
+                copied = await itemInstanceDao.TryInsertOrUpdateAsync(stored) != null
+                    && await CopyOptionsAsync(source.ItemInstanceId, stored);
             }
             catch
             {
+                _ = await itemInstanceDao.TryDeleteAsync(stored.Id);
                 await itemDelivery.ReturnConsumedAsync(session.Character, source, amount);
                 throw;
             }
 
-            if (copy == null)
+            if (!copied)
             {
+                _ = await itemInstanceDao.TryDeleteAsync(stored.Id);
                 await itemDelivery.ReturnConsumedAsync(session.Character, source, amount);
                 return null;
             }
@@ -188,26 +192,40 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return null;
             }
 
-            if (!await warehouseHub.TakeWarehouseItemAsync(stored.LinkId, amount))
-            {
-                return null;
-            }
-
             var whole = amount == stored.Item.Amount;
             var taken = (IItemInstance)stored.Item.Clone();
             taken.Id = Guid.NewGuid();
             taken.Amount = amount;
+            // Taking the original deletes its options, so the copy is written with its own first.
+            var written = taken is WearableInstance;
+            if (written && (await itemInstanceDao.TryInsertOrUpdateAsync(taken) == null
+                    || !await CopyOptionsAsync(stored.Item.Id, taken)))
+            {
+                _ = await itemInstanceDao.TryDeleteAsync(taken.Id);
+                return null;
+            }
+
+            if (!await warehouseHub.TakeWarehouseItemAsync(stored.LinkId, amount))
+            {
+                if (written)
+                {
+                    _ = await itemInstanceDao.TryDeleteAsync(taken.Id);
+                }
+
+                return null;
+            }
+
             var added = session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(taken, session.Character.CharacterId));
             if (added == null || added.Count == 0)
             {
-                var back = whole ? stored.Item : taken;
+                // The copy goes back rather than the original, whose row and options went with it.
                 // A partial amount merges back into the stack still stored, so it needs no row of its own.
-                if (await itemInstanceDao.TryInsertOrUpdateAsync(back) != null || !whole)
+                if (await itemInstanceDao.TryInsertOrUpdateAsync(taken) != null || !whole)
                 {
                     // A failed return leaves the taken amount in its own row rather than in the warehouse.
                     await warehouseHub.ReturnWarehouseItemAsync(warehouse.OwnerId, warehouse.Type, warehouseSlot,
-                        back.Adapt<ItemInstanceDto>()).OrThrowAsync();
+                        taken.Adapt<ItemInstanceDto>()).OrThrowAsync();
                 }
 
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace });
@@ -281,6 +299,18 @@ namespace NosCore.GameObject.Services.WarehouseService
                 _ => new StashClientPacket { Items = items }
             };
             return session.SendPacketAsync(packet);
+        }
+
+        // Options are stored against one instance id, so a copy under a new id needs rows of its own.
+        private async Task<bool> CopyOptionsAsync(Guid fromItemInstanceId, IItemInstance copy)
+        {
+            if (copy is not WearableInstance wearable)
+            {
+                return true;
+            }
+
+            wearable.EquipmentOptions = null;
+            return await shellOptionService.CopyAsync(fromItemInstanceId, copy.Id);
         }
     }
 }

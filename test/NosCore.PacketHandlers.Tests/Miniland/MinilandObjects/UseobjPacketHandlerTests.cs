@@ -29,6 +29,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Warehouse;
+using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -103,7 +104,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider,
                 new PersonalWarehouseService(new WarehouseTransferService(_warehouseHubMock.Object, _itemInstanceDaoMock.Object,
                     new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _itemProvider, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
-                    World.Create<ItemDeliveryService>(),
+                    World.Create<ItemDeliveryService>(), World.Create<ShellOptionService>(),
                 NullLogger<WarehouseTransferService>.Instance, World.LogLanguageLocalizer)),
                 MinigameRewards);
         }

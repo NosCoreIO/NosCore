@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.RarityPointService;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -23,6 +24,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.GameObject.Services.WarehouseService;
 using NosCore.PacketHandlers.Warehouse;
 using NosCore.Packets.ClientPackets.Warehouse;
@@ -120,19 +122,33 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                     return true;
                 });
             hub.Setup(s => s.TakeWarehouseItemAsync(It.IsAny<Guid>(), It.IsAny<short>()))
-                .ReturnsAsync((Guid id, short amount) =>
+                .Returns(async (Guid id, short amount) =>
                 {
                     var index = _stored.FindIndex(s => s.Id == id);
                     var instance = _instances[_stored[index].ItemInstanceId];
                     if (amount == instance.Amount)
                     {
                         _stored.RemoveAt(index);
+                        _instances.Remove(instance.Id);
+                        var options = World.EquipmentOptionDao.Where(o => o.WearableInstanceId == instance.Id)?
+                            .Select(o => o.Id).ToList() ?? [];
+                        if (options.Count > 0)
+                        {
+                            await World.EquipmentOptionDao.TryDeleteAsync(options).OrThrowAsync();
+                        }
                     }
                     else
                     {
                         instance.Amount -= amount;
                     }
 
+                    return true;
+                });
+            hub.Setup(s => s.ReturnWarehouseItemAsync(It.IsAny<long>(), It.IsAny<WarehouseType>(), It.IsAny<short>(),
+                    It.IsAny<ItemInstanceDto>()))
+                .ReturnsAsync((long _, WarehouseType type, short slot, ItemInstanceDto item) =>
+                {
+                    _stored.Add((Guid.NewGuid(), type, slot, item.Id));
                     return true;
                 });
             hub.Setup(s => s.MoveWarehouseItemAsync(It.IsAny<long>(), It.IsAny<WarehouseType>(), It.IsAny<short>(), It.IsAny<short>()))
@@ -166,6 +182,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             instances.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
+            World.UseReal<IShellOptionService, ShellOptionService>();
             World.Inject<IItemDeliveryService>(_delivery ??= World.Create<ItemDeliveryService>());
             World.Inject(hub.Object);
             World.Inject(instances.Object);
@@ -450,6 +467,68 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                 new DepositPacket { Inventory = PocketType.Equipment, Slot = 0, Amount = 1, NewSlot = 0 }, _session);
 
             Assert.AreEqual(1, At(WarehouseType.Warehouse, 0).ItemVNum);
+        }
+
+        private static readonly (byte Level, byte Type, int Value)[] ShellOptions = [(1, 3, 40), (2, 7, 12)];
+
+        private async Task<IItemInstance> AWeaponWithOptionsAsync()
+        {
+            var weapon = _items.Create(1, 1);
+            await World.EquipmentOptionDao.TryInsertOrUpdateAsync(ShellOptions.Select(o => new EquipmentOptionDto
+            {
+                Id = Guid.NewGuid(), WearableInstanceId = weapon.Id, Level = o.Level, Type = o.Type, Value = o.Value
+            }).ToList()).OrThrowAsync();
+            return weapon;
+        }
+
+        private void HasTheShellOptions(Guid itemInstanceId) =>
+            CollectionAssert.AreEqual(ShellOptions,
+                (World.EquipmentOptionDao.Where(o => o.WearableInstanceId == itemInstanceId) ?? [])
+                .OrderBy(o => o.Level).Select(o => (o.Level, o.Type, o.Value)).ToArray());
+
+        [TestMethod]
+        public async Task ADepositedWeaponKeepsItsShellOptions()
+        {
+            OwnsAMinilandWarehouse();
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(await AWeaponWithOptionsAsync(), _session.Character.CharacterId));
+
+            await new DepositPacketHandler(Service()).ExecuteAsync(
+                new DepositPacket { Inventory = PocketType.Equipment, Slot = 0, Amount = 1, NewSlot = 0 }, _session);
+
+            HasTheShellOptions(At(WarehouseType.Warehouse, 0).Id);
+        }
+
+        [TestMethod]
+        public async Task AWithdrawnWeaponKeepsItsShellOptions()
+        {
+            OwnsAMinilandWarehouse();
+            var weapon = await AWeaponWithOptionsAsync();
+            _instances[weapon.Id] = weapon;
+            _stored.Add((Guid.NewGuid(), WarehouseType.Warehouse, 0, weapon.Id));
+
+            await new WithdrawPacketHandler(Service()).ExecuteAsync(new WithdrawPacket { Slot = 0, Amount = 1 }, _session);
+
+            HasTheShellOptions(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull()
+                .ItemInstanceId);
+        }
+
+        [TestMethod]
+        public async Task AWeaponThatDoesNotFitInTheBagGoesBackWithItsShellOptions()
+        {
+            OwnsAMinilandWarehouse();
+            while (_session.Character.InventoryService.AddItemToPocket(
+                       InventoryItemInstance.Create(_items.Create(1, 1), _session.Character.CharacterId)) is { Count: > 0 })
+            {
+            }
+
+            var weapon = await AWeaponWithOptionsAsync();
+            _instances[weapon.Id] = weapon;
+            _stored.Add((Guid.NewGuid(), WarehouseType.Warehouse, 0, weapon.Id));
+
+            await new WithdrawPacketHandler(Service()).ExecuteAsync(new WithdrawPacket { Slot = 0, Amount = 1 }, _session);
+
+            HasTheShellOptions(At(WarehouseType.Warehouse, 0).Id);
         }
 
         [TestMethod]
