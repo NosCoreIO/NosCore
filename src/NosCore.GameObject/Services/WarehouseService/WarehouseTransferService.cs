@@ -221,7 +221,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             {
                 // The copy goes back rather than the original, whose row and options went with it.
                 // A partial amount merges back into the stack still stored, so it needs no row of its own.
-                if (await itemInstanceDao.TryInsertOrUpdateAsync(taken) != null || !whole)
+                if (written || await itemInstanceDao.TryInsertOrUpdateAsync(taken) != null || !whole)
                 {
                     // A failed return leaves the taken amount in its own row rather than in the warehouse.
                     await warehouseHub.ReturnWarehouseItemAsync(warehouse.OwnerId, warehouse.Type, warehouseSlot,

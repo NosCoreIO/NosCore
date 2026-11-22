@@ -55,6 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         private Action? _duringDeposit;
         private bool _refuseDeposits;
         private bool _insertThrows;
+        private int _writesBeforeRefusing = int.MaxValue;
         private (bool Stores, bool Throws) _depositFails;
         private bool _depositAttempted;
         private bool _readBackThrows;
@@ -173,6 +174,11 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                     {
                         _insertFailed = true;
                         throw new TimeoutException();
+                    }
+
+                    if (_writesBeforeRefusing-- <= 0)
+                    {
+                        return null;
                     }
 
                     return _instances[i.NotNull().Id] = i.NotNull();
@@ -525,6 +531,25 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             var weapon = await AWeaponWithOptionsAsync();
             _instances[weapon.Id] = weapon;
             _stored.Add((Guid.NewGuid(), WarehouseType.Warehouse, 0, weapon.Id));
+
+            await new WithdrawPacketHandler(Service()).ExecuteAsync(new WithdrawPacket { Slot = 0, Amount = 1 }, _session);
+
+            HasTheShellOptions(At(WarehouseType.Warehouse, 0).Id);
+        }
+
+        [TestMethod]
+        public async Task AWeaponThatDoesNotFitGoesBackEvenWhenItsRowCannotBeWrittenAgain()
+        {
+            OwnsAMinilandWarehouse();
+            while (_session.Character.InventoryService.AddItemToPocket(
+                       InventoryItemInstance.Create(_items.Create(1, 1), _session.Character.CharacterId)) is { Count: > 0 })
+            {
+            }
+
+            var weapon = await AWeaponWithOptionsAsync();
+            _instances[weapon.Id] = weapon;
+            _stored.Add((Guid.NewGuid(), WarehouseType.Warehouse, 0, weapon.Id));
+            _writesBeforeRefusing = 1;
 
             await new WithdrawPacketHandler(Service()).ExecuteAsync(new WithdrawPacket { Slot = 0, Amount = 1 }, _session);
 
