@@ -73,6 +73,28 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task EricTradesEitherSweetForTheCostumeScrollAndTheRaidSeal()
+        {
+            AllItemsExist();
+
+            await _parser.InsertNpcExchangesAsync();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                (NrunRunnerType.ExchangeForHalloweenCostumeScroll, 1915, 1, 2322, 10),
+                (NrunRunnerType.ExchangeForHalloweenCostumeScroll2, 1915, 1, 2324, 10),
+                (NrunRunnerType.ExchangeForJackOLanternSeal, 1916, 1, 2322, 30),
+                (NrunRunnerType.ExchangeForJackOLanternSeal2, 1916, 1, 2324, 30),
+            }, _exchanges
+                .Where(s => s.Runner is NrunRunnerType.ExchangeForHalloweenCostumeScroll or NrunRunnerType.ExchangeForHalloweenCostumeScroll2
+                    or NrunRunnerType.ExchangeForJackOLanternSeal or NrunRunnerType.ExchangeForJackOLanternSeal2)
+                .Select(s => (s.Runner, (int)s.ItemVNum, (int)s.Amount,
+                    (int)_materials.Single(m => m.NpcExchangeId == s.NpcExchangeId).ItemVNum,
+                    (int)_materials.Single(m => m.NpcExchangeId == s.NpcExchangeId).Amount))
+                .ToList());
+        }
+
+        [TestMethod]
         public async Task ImportingTwiceKeepsOneRowPerExchange()
         {
             AllItemsExist();

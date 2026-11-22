@@ -6,6 +6,7 @@
 
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NpcExchangeService;
@@ -22,6 +23,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         public bool RequiresNpc => true;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
-            npcExchangeService.ExchangeAsync(session, Runner);
+            target is NpcComponentBundle npc ? npcExchangeService.ExchangeAsync(session, npc, Runner) : Task.CompletedTask;
     }
 }

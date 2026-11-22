@@ -23,6 +23,10 @@ namespace NosCore.Parser.Parsers
         private const short GlacerusMane = 2523;
         private const short AkamurCoupon = 5910;
         private const short IceFlower = 5911;
+        private const short HalloweenCostumeScroll = 1915;
+        private const short JackOLanternRaidSeal = 1916;
+        private const short YellowPumpkinSweet = 2322;
+        private const short BlackPumpkinSweet = 2324;
 
         public static readonly IReadOnlyList<NpcExchange> All =
         [
@@ -42,6 +46,10 @@ namespace NosCore.Parser.Parsers
             new(NrunRunnerType.ExchangeForSapphireOfCompletion, 2519, 1, [(GlacerusMane, 5)]),
             new(NrunRunnerType.ExchangeForCleansingPowder, 5984, 3, [(5986, 3)]),
             new(NrunRunnerType.ExchangeFor2xWitchLaurenaSeal, 5977, 2, [(5987, 5)]),
+            new(NrunRunnerType.ExchangeForHalloweenCostumeScroll, HalloweenCostumeScroll, 1, [(YellowPumpkinSweet, 10)]),
+            new(NrunRunnerType.ExchangeForHalloweenCostumeScroll2, HalloweenCostumeScroll, 1, [(BlackPumpkinSweet, 10)]),
+            new(NrunRunnerType.ExchangeForJackOLanternSeal, JackOLanternRaidSeal, 1, [(YellowPumpkinSweet, 30)]),
+            new(NrunRunnerType.ExchangeForJackOLanternSeal2, JackOLanternRaidSeal, 1, [(BlackPumpkinSweet, 30)]),
         ];
     }
 

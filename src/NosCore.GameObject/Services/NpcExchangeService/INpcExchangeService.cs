@@ -6,6 +6,7 @@
 
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 
@@ -13,6 +14,6 @@ namespace NosCore.GameObject.Services.NpcExchangeService
 {
     public interface INpcExchangeService
     {
-        Task ExchangeAsync(ClientSession session, NrunRunnerType runner);
+        Task ExchangeAsync(ClientSession session, NpcComponentBundle npc, NrunRunnerType runner);
     }
 }

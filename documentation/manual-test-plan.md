@@ -2577,6 +2577,13 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 - [ ] Sarakael: three Soul Slivers give three Cleansing Powder, five Seeds of Damnation two Raid
       Seals of Witch Laurena
 - [ ] With the pocket full, an exchange keeps the materials and shows "Not enough space"
+- [ ] Give the scene NPC dialog 464 to make it Eric, then Exchange Sweets, Exchange 10 Yellow
+      Pumpkin Sweets for a Halloween Costume Scroll: 10 Yellow Pumpkin Sweets (Event) become one
+      Halloween Costume Scroll (Event); the Black Pumpkin Sweets button does the same with Black
+      Pumpkin Sweets (Event)
+- [ ] Eric, the two 30-sweet buttons: 30 Yellow or 30 Black Pumpkin Sweets give one Raid Seal of
+      Jack O'Lantern
+- [ ] Eric with 9 Yellow Pumpkin Sweets: "Raw materials missing." and the sweets stay
 
 ### The ship to the Mortaz Desert
 
