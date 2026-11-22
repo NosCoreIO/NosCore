@@ -513,7 +513,7 @@ seconds. It is not written in the chat, so look right after the icon appears.
 - [ ] With card 1689 ("when defending, critical damage reduced by 25%") on you, a monster's critical
       hits on you are a quarter lower; its normal hits are unchanged
 
-### Cleansing effects — BCard type 43 subtype 21, type 24 subtypes 51 and 52
+### Cleansing effects — BCard type 43 subtypes 21 and 22, type 24 subtypes 51 and 52
 
 - [ ] A skill that "removes all bad effects up to level 4" takes a level 2 debuff off its target and
       leaves a level 6 one (`/mnt/project-files/bcard-effects/reset-cleanse.sh`: key 1 puts debuffs
@@ -523,6 +523,13 @@ seconds. It is not written in the chat, so look right after the icon appears.
       debuffs when it lands
 - [ ] A card that "removes buffs below level N" (card 159) takes the lower-level buffs off whoever
       receives it; static buffs such as a fairy booster stay
+- [ ] With a level 4 or lower debuff on you and on a group member standing next to you, cast Cure All
+      (skill 871): both icons go
+- [ ] On a PvP map, cast Soul Guardian (skill 1476) on another player who carries a good buff below
+      level 3, while you carry one too: about one cast in four takes the other player's icon, yours
+      never goes
+- [ ] Not verifiable yet: removing all good effects up to a level (type 43 subtype 22), since no skill,
+      card or item in the client data carries it
 
 ### Stopping bleedings and poisons — BCard type 25 subtypes 51 and 52
 

@@ -273,14 +273,23 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     }
 
     // Effects that strip cards off the entity they land on, whether a skill casts them or a card carries them.
-    private async Task CleanseAsync(IAliveEntity target, IReadOnlyList<BCardDto> bCards)
+    // A skill's effect lands either on its caster or on its targets, never on both.
+    private async Task CleanseAsync(IAliveEntity target, IReadOnlyList<BCardDto> bCards, bool onCaster = false)
     {
         foreach (var bCard in bCards)
         {
+            if (bCard.AppliesToCaster != onCaster)
+            {
+                continue;
+            }
+
             switch (bCard.Effect())
             {
                 case BCardEffect.LightAndShadowRemoveBadEffects:
                     await RemoveUpToLevelAsync(target, BuffType.Bad, bCard.FirstData);
+                    break;
+                case BCardEffect.LightAndShadowRemoveGoodEffects:
+                    await RemoveUpToLevelAsync(target, BuffType.Good, bCard.FirstData);
                     break;
                 case BCardEffect.SpecialisationBuffResistanceRemoveBadEffects when Rolls(bCard.FirstData):
                     await RemoveUpToLevelAsync(target, BuffType.Bad, bCard.SecondData);
@@ -672,7 +681,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     private async Task InflictAsync(IAliveEntity target, IAliveEntity? caster, IReadOnlyList<BCardDto> skillBCards,
         bool onCaster)
     {
-        await CleanseAsync(target, skillBCards);
+        await CleanseAsync(target, skillBCards, onCaster);
         for (var i = 0; i < skillBCards.Count; i++)
         {
             var bCard = skillBCards[i];
