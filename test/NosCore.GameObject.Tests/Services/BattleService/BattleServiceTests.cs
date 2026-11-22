@@ -177,6 +177,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
 
             _buffs.Verify(b => b.RemoveEffectAsync(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialActionsHide), Times.Once);
+            _buffs.Verify(b => b.RemoveEffectAsync(origin, NosCore.Data.Enumerations.Buff.BCardEffect.FalconSkillHide), Times.Once);
         }
 
         [TestMethod]

@@ -862,6 +862,26 @@ cooldown once.
 - [ ] Cast a single-target skill right after: only its target is hit
 - [ ] Recast before the cooldown resets: nothing is hit
 
+### Falcon skills
+
+As an archer wearing the Scout card (`$CreateItem 4498`), transformed:
+
+- [ ] Cast Spy Out (skill 1117) on a monster: the falcon window opens with the Spy Falcon and
+      Hunting Falcon icons
+- [ ] Click Hunting Falcon: the monster is hit by the falcon's attack (skill 1249); clicking it
+      again within 60 seconds hits nothing, and after that it hits again
+- [ ] Walk a screen away from the monster, staying on the map, and click Hunting Falcon once it
+      is ready: the monster is still hit
+- [ ] Kill the monster, then click Hunting Falcon: nothing is hit
+- [ ] At SP level 8, cast Falcon's Astuteness (skill 1121) on a group of monsters, one of them
+      already hurt: only the one with the fewest HP is hit, and when the card rolls it carries
+      Under Sniper's Gaze (card 577)
+- [ ] Not verifiable yet: the falcon drawn circling the pursued entity, and the window closing
+      when the falcon lets go, since nothing is sent for either until a trace shows the lines.
+      Ambush (skill 1123) hides its caster through its card 559, which has no time in the data,
+      so the caster shows again at the next buff tick. The traps some skills drop at a cell
+      (Mobile Trap, Giant Swirl, Fog Arrow's smog) and the ambush raid do nothing yet
+
 ---
 
 ### Experience from kills

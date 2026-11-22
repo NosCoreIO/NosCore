@@ -118,5 +118,32 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(1, targets.Count);
         }
+
+        [TestMethod]
+        public void FalconsAstutenessPicksOnlyTheWeakestEnemyInItsArea()
+        {
+            var monsters = SpawnMonsters((5, 5), (5, 4), (4, 5));
+            var weakest = monsters[1];
+            weakest.Hp = 10;
+            var skill = AreaSkill() with
+            {
+                BCards = new[] { new BCardDto { Type = NosCore.Data.Enumerations.Buff.BCardType.CardType.FalconSkill, SubType = 51 } }
+            };
+
+            var targets = _resolver.ResolveArea(_caster.Character, _map, 5, 5, skill);
+
+            Assert.AreEqual(1, targets.Count);
+            Assert.AreEqual(weakest.VisualId, targets[0].VisualId);
+        }
+
+        [TestMethod]
+        public void AnAreaSkillWithoutItHitsEveryEnemyInItsArea()
+        {
+            SpawnMonsters((5, 5), (5, 4), (4, 5));
+
+            var targets = _resolver.ResolveArea(_caster.Character, _map, 5, 5, AreaSkill());
+
+            Assert.AreEqual(3, targets.Count(t => t.VisualType == VisualType.Monster));
+        }
     }
 }

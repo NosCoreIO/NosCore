@@ -767,11 +767,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             await gameEvents.RaiseAsync(new FairyLookChangedEvent(target));
         }
 
-        if (buff.BCards.Any(b => b.Effect() == BCardEffect.SpecialActionsHide))
+        if (buff.BCards.Any(b => Hides(b.Effect())))
         {
             await gameEvents.RaiseAsync(new HiddenChangedEvent(target));
         }
     }
+
+    private static bool Hides(BCardEffect effect) => effect is BCardEffect.SpecialActionsHide or BCardEffect.FalconSkillHide;
 
     private bool Rolls(int percent) => percent > 0 && randomProvider.Next(0, 100) < percent;
 
