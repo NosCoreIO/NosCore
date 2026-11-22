@@ -362,6 +362,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const byte NextChapterLevel = 19;
         public const short ChapterStep = 10;
         public static readonly Guid FirstChapterLastStep = new("9150a91c-0000-4000-8000-000000009150");
+        public const short ChapterOpeningStep = 5;
+        public static readonly Guid FirstChapterOpening = new("9150a91c-0000-4000-8000-000000009105");
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -1021,6 +1023,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         {
             context.Add(new NpcTalk { DialogId = StorytellerDialog, Name = "storyteller" });
             context.Add(new NpcMonster { NpcMonsterVNum = StorytellerVNum, Name = "storyteller", Level = 1, MaxHp = 100 });
+            context.Add(new Script { Id = FirstChapterOpening, ScriptId = FirstChapter, ScriptStepId = ChapterOpeningStep, StepType = "talk" });
             context.Add(new Script { Id = FirstChapterLastStep, ScriptId = FirstChapter, ScriptStepId = ChapterStep, StepType = "target" });
             context.Add(new Script { Id = Guid.NewGuid(), ScriptId = NextChapter, ScriptStepId = ChapterStep, StepType = "talk" });
             context.Add(new ScriptOffer

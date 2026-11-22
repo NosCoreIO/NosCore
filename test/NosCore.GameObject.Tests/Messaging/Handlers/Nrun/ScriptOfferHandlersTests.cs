@@ -17,6 +17,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
@@ -74,21 +75,59 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
-        public async Task PickingAChapterAsksTheQuestServiceToStartIt()
+        public async Task PickingAChapterAsksBeforeStartingIt()
         {
-            await World.Create<TakeScriptOfferHandler>().HandleAsync(Session, Npc(394),
-                new NrunPacket { Runner = NrunRunnerType.GetQuestFromList, Type = 13 });
+            QuestService.Setup(q => q.CanTakeScriptOffer(It.IsAny<PlayerComponentBundle>(), 394, 13)).Returns(true);
+
+            await World.Create<TakeScriptOfferHandler>().HandleAsync(Session, Npc(394), PickChapter(13));
+
+            PacketAssert.AreEqual(new QnaiPacket
+            {
+                YesPacket = new NrunPacket
+                {
+                    Runner = NrunRunnerType.GetQuestFromList, Type = 13, VisualType = VisualType.Npc, VisualId = NpcId,
+                    Unknown4 = TakeScriptOfferHandler.Confirmed,
+                },
+                Question = Game18NConstString.CannotAbandonMainQuest,
+            }, Session.LastPackets.OfType<QnaiPacket>().Single());
+            QuestService.Verify(q => q.TakeScriptOfferAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task PickingAChapterTheCharacterCannotTakeAsksNothing()
+        {
+            QuestService.Setup(q => q.CanTakeScriptOffer(It.IsAny<PlayerComponentBundle>(), 394, 13)).Returns(false);
+
+            await World.Create<TakeScriptOfferHandler>().HandleAsync(Session, Npc(394), PickChapter(13));
+
+            Assert.IsFalse(Session.LastPackets.OfType<QnaiPacket>().Any());
+            QuestService.Verify(q => q.TakeScriptOfferAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AnsweringYesAsksTheQuestServiceToStartIt()
+        {
+            var yes = PickChapter(13);
+            yes.Unknown4 = TakeScriptOfferHandler.Confirmed;
+
+            await World.Create<TakeScriptOfferHandler>().HandleAsync(Session, Npc(394), yes);
 
             QuestService.Verify(q => q.TakeScriptOfferAsync(It.IsAny<PlayerComponentBundle>(), 394, 13), Times.Once);
+            Assert.IsFalse(Session.LastPackets.OfType<QnaiPacket>().Any());
         }
 
         [TestMethod]
         public async Task PickingAChapterWithoutAnNpcDoesNothing()
         {
-            await World.Create<TakeScriptOfferHandler>().HandleAsync(Session, null,
-                new NrunPacket { Runner = NrunRunnerType.GetQuestFromList, Type = 13 });
+            await World.Create<TakeScriptOfferHandler>().HandleAsync(Session, null, PickChapter(13));
 
+            Assert.IsFalse(Session.LastPackets.OfType<QnaiPacket>().Any());
             QuestService.Verify(q => q.TakeScriptOfferAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<short>(), It.IsAny<byte>()), Times.Never);
         }
+
+        private static NrunPacket PickChapter(short scriptId) => new()
+        {
+            Runner = NrunRunnerType.GetQuestFromList, Type = scriptId, VisualType = VisualType.Npc, VisualId = NpcId
+        };
     }
 }

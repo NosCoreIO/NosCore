@@ -89,13 +89,27 @@ namespace NosCore.GameObject.Services.QuestService
             await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ClickButtonToSearachNewQuests));
         }
 
+        public bool CanTakeScriptOffer(PlayerComponentBundle character, short npcVNum, byte scriptId)
+        {
+            return FindScriptOffer(character, npcVNum, scriptId) != null;
+        }
+
         public async Task<bool> TakeScriptOfferAsync(PlayerComponentBundle character, short npcVNum, byte scriptId)
         {
-            var offer = scriptOffers.FirstOrDefault(o => o.ScriptId == scriptId && o.NpcVNum == npcVNum);
+            var offer = FindScriptOffer(character, npcVNum, scriptId);
             var current = character.Script;
-            if (offer == null || character.Level < offer.LevelMinimum || current == null || current.ScriptId != offer.RequiredScriptId
-                || scripts.Any(s => s.ScriptId == current.ScriptId && s.ScriptStepId > current.ScriptStepId))
+            if (offer == null || current == null)
             {
+                return false;
+            }
+
+            if (scripts.Any(s => s.ScriptId == current.ScriptId && s.ScriptStepId > current.ScriptStepId))
+            {
+                await character.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.AlreadyAMainQuest
+                });
                 return false;
             }
 
@@ -108,6 +122,14 @@ namespace NosCore.GameObject.Services.QuestService
             await StartScriptStepAsync(character, firstStep);
             await character.SendPacketAsync(offer.GenerateQnpcPacket(taken: true));
             return true;
+        }
+
+        private ScriptOfferDto? FindScriptOffer(PlayerComponentBundle character, short npcVNum, byte scriptId)
+        {
+            var offer = scriptOffers.FirstOrDefault(o => o.ScriptId == scriptId && o.NpcVNum == npcVNum);
+            return offer != null && character.Level >= offer.LevelMinimum && character.Script?.ScriptId == offer.RequiredScriptId
+                ? offer
+                : null;
         }
 
         private async Task StartScriptStepAsync(PlayerComponentBundle character, ScriptDto nextScript)

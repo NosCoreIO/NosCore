@@ -43,7 +43,7 @@ even when its packets are covered here.
 | Friends and the blacklist: requests, deleting, blacklisting, what a blacklisted player can no longer send | `FriendTests` |
 | Specialist skins: the skin used up, the look another player sees on transforming, the skin kept after relogging | `SpecialistSkinTests` |
 | Score quests: a band's button hands out its quest, a band above the character's level is refused, the button sent to an NPC whose dialog has none is refused | `ScoreQuestTests` |
-| Story chapters: the NPC that hands out the next chapter named when one ends, and cleared once it is taken | `StoryChapterTests` |
+| Story chapters: the NPC that hands out the next chapter named when one ends, and cleared once it is taken; picking one asks first, and answering Yes mid-chapter says a main quest is underway | `StoryChapterTests` |
 | Dialog buttons naming their quest: the Merling's Curse button hands out the quest it names | `NamedQuestButtonTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
@@ -4365,9 +4365,16 @@ starting on its own. Put a level 60 character on the last step of chapter 11 nex
 (NPC 394, dialog 51).
 
 - [ ] "Get Quest" opens her list of chapters 56, 57, 60 and 65, with "Level 56" highlighted
-- [ ] Picking "Level 56" starts the chapter with her greeting dialogue
-- [ ] Picking "Level 57" does nothing while chapter 56 is not done
-- [ ] At level 50, picking "Level 56" does nothing
+- [ ] Picking "Level 56" asks "You cannot abandon the main quest once started. Start anyway?" and
+      nothing starts yet
+- [ ] Answering No closes the question and nothing starts
+- [ ] Answering Yes starts the chapter with her greeting dialogue
+- [ ] Put the character back on an earlier step of chapter 11, pick "Level 56" and answer Yes:
+      "Already completing a main quest." shows and the character stays on its step
+- [ ] Still on chapter 11, picking "Level 57" asks nothing and does nothing
+- [ ] Partway through the "Level 56" chapter, picking "Level 57" asks the question, and Yes shows
+      "Already completing a main quest." and starts nothing
+- [ ] At level 50, picking "Level 56" asks nothing and does nothing
 - [ ] Finishing a chapter's last step does not start the next chapter until it is taken from its NPC
 
 ### The next chapter's NPC
@@ -4381,8 +4388,8 @@ chapter's level. Put a level 20 character in Nosville (map 1) on script 1 step 2
       bottom right, left of the Shop button
 - [ ] Clicking the button writes in the chat that the quest is received at level 19 from NPC 331
       (the one standing at 59, 86) in Nosville
-- [ ] Take chapter 2 ("Level 19") from that NPC's "Get Quest" list: the chapter starts, and the
-      button no longer names an NPC
+- [ ] Take chapter 2 ("Level 19") from that NPC's "Get Quest" list and answer Yes to the question:
+      the chapter starts, and the button no longer names an NPC
 - [ ] On master nothing appears at the bottom once the last step is acknowledged
 - [ ] Not verifiable yet: whether the button should come back after relogging or changing map before
       the chapter is taken. The traces only show `qnpc` when a chapter ends and when the next is
