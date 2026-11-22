@@ -534,8 +534,12 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var characterId = _session.Character.CharacterId;
             _mailHub.Verify(s => s.SendMailAsync(It.Is<MailRequest>(r =>
-                r.VNum == 1269 && r.Amount == 2 && r.Mail.ReceiverId == characterId)), Times.Once);
+                r.Mail.ReceiverId == characterId && IsStored(r.Mail.ItemInstanceId, 1269, 2))), Times.Once);
         }
+
+        private bool IsStored(Guid? itemInstanceId, short vnum, short amount) =>
+            World.ItemInstanceDao.Where(i => i.Id == itemInstanceId)?.SingleOrDefault() is { } item
+            && item.ItemVNum == vnum && item.Amount == amount;
 
         private void TheMainPocketIsFull()
         {
