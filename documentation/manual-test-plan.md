@@ -4939,6 +4939,10 @@ and :30; `$Event Act4Ship` opens boarding at once.
 - [ ] Ten seconds later 50 000 gold are taken, the client shows the crossing and reconnects to
       the Act 4 channel in the angel citadel (map 130); a demon lands in map 131
 - [ ] A passenger who spent their gold while waiting is put back in Port Alveus instead
+- [ ] Sail across and return five times in a row: the client reconnects every time, and neither
+      world logs the account as already connected
+- [ ] A friend on the ordinary channel sees the passenger online throughout the crossing, never
+      offline once they have landed
 - [ ] On the Act 4 channel, the Leika Passage in the citadel > "Return to Port Alveus": the
       client reconnects to the ordinary channel in Port Alveus
 - [ ] Log out in Glacernon and log in on the ordinary channel: the client moves straight to the

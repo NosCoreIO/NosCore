@@ -53,5 +53,23 @@ namespace NosCore.GameObject.Tests.Networking
                 FriendList = [new FinfoSubPackets { CharacterId = characterId, IsConnected = false, CharacterName = session.Character.Name }],
             }, (FinfoPacket)new Deserializer(packetTypes).Deserialize(posted.Packet.NotNull()));
         }
+
+        [TestMethod]
+        public async Task FriendsAreNotToldOfAMoveToAnotherChannel()
+        {
+            World = await TestWorld.CreateAsync();
+            var session = await World.CreateSessionAsync();
+            var characterId = session.Character.CharacterId;
+            var friendHub = World.Freeze<Mock<IFriendHub>>();
+            friendHub.Setup(s => s.GetFriendsAsync(characterId)).ReturnsAsync(new List<CharacterRelationStatus>
+            {
+                new() { CharacterId = 2, RelationType = CharacterRelationType.Friend },
+            });
+            await session.HandOverAsync();
+
+            await World.Create<FriendNotificationDisconnectHandler>().HandleDisconnectAsync(session);
+
+            World.PubSubHub.Verify(s => s.SendMessagesAsync(It.IsAny<List<IMessage>>()), Times.Never);
+        }
     }
 }

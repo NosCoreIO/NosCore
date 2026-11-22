@@ -8,16 +8,20 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ChannelService;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -226,6 +230,197 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheAccountIsReleasedAndAwaitedBeforeTheClientIsToldToReconnect()
+        {
+            await new Spec("The account is released and awaited before the client is told to reconnect")
+                .GivenAsync(TheSessionClaimedItsAccount)
+                .And(BothKindsOfChannelRun)
+                .And(TheReleaseAndTheAwaitAreRecorded)
+                .WhenAsync(SailingToTheAngelCitadel)
+                .Then(TheClaimShouldBeReleasedThenAwaitedBeforeAnyMz)
+                .And(TheClientShouldShowTheCrossing)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task APacketArrivingDuringTheSaveIsNotHandledBehindTheHandOver()
+        {
+            await new Spec("A packet arriving during the save is not handled behind the hand-over")
+                .GivenAsync(ThePlayerSendsPulses)
+                .And(BothKindsOfChannelRun)
+                .And(TheSaveIsSlow)
+                .When(TheShipSailsFromOutsideThePlayersPackets)
+                .AndAsync(APulseArrivesDuringTheSave)
+                .AndAsync(TheSaveFinishes)
+                .Then(ThePulseShouldNotHaveRun)
+                .And(TheClientShouldShowTheCrossing)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task APacketArrivingDuringAFailedSaveStillRuns()
+        {
+            await new Spec("A packet arriving during a failed save still runs")
+                .GivenAsync(ThePlayerSendsPulses)
+                .And(BothKindsOfChannelRun)
+                .And(TheSaveFails)
+                .And(TheSaveIsSlow)
+                .When(TheShipSailsFromOutsideThePlayersPackets)
+                .AndAsync(APulseArrivesDuringTheSave)
+                .AndAsync(TheSaveFinishes)
+                .Then(ThePulseShouldHaveRun)
+                .And(ThePlayerShouldHaveStayed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task APacketStillRunningKeepsThePlayerOnThisChannel()
+        {
+            await new Spec("A packet still running when the wait runs out keeps the player on this channel")
+                .Given(BothKindsOfChannelRun)
+                .And(ThePlayerStandsInPortAlveus)
+                .AndAsync(APacketOfThePlayersKeepsRunning)
+                .WhenAsync(TheShipSailsWhileItRuns)
+                .Then(ThePlayerShouldHaveStayed)
+                .And(TheCharacterShouldStillStandInPortAlveus)
+                .And(CharacterShouldNotBeSaved)
+                .And(TheSessionShouldStillBeOpen)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASessionAlreadyHandedOverIsNotMovedAgain()
+        {
+            await new Spec("A session already handed over is not moved again")
+                .Given(BothKindsOfChannelRun)
+                .AndAsync(SailingToTheAngelCitadel)
+                .WhenAsync(SailingToTheAngelCitadel)
+                .Then(ThePlayerShouldHaveMoved)
+                .And(CharacterShouldBeSaved)
+                .And(TheClientShouldShowTheCrossing)
+                .ExecuteAsync();
+        }
+
+        private readonly TaskCompletionSource PacketDone = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        // Taken on a flow of its own, so the move does not see the hold as its own.
+        private async Task APacketOfThePlayersKeepsRunning()
+        {
+            var held = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _ = Task.Run(async () =>
+            {
+                using (await Session.AcquirePacketLockAsync())
+                {
+                    held.SetResult();
+                    await PacketDone.Task;
+                }
+            });
+            await held.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private async Task TheShipSailsWhileItRuns()
+        {
+            try
+            {
+                await Task.Run(SailingToTheAngelCitadel).WaitAsync(ClientSession.DisconnectLockTimeout + TimeSpan.FromSeconds(10));
+            }
+            finally
+            {
+                PacketDone.TrySetResult();
+            }
+        }
+
+        private void TheSessionShouldStillBeOpen()
+        {
+            Assert.IsFalse(Session.IsClosing);
+            Assert.IsFalse(Session.IsHandedOver);
+            AuthHub.Verify(s => s.SetAwaitingChannelChangeAsync(It.IsAny<string>(), It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
+        }
+
+        private readonly TaskCompletionSource SaveStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<bool> SaveDone = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private bool SaveSucceeds = true;
+        private int Pulses;
+        private Task<bool> Sailing;
+        private Task PulseHandling;
+
+        private async Task ThePlayerSendsPulses()
+        {
+            Session = await World.CreateSessionAsync(new List<IPacketHandler> { new CountingPulseHandler(() => Pulses++) });
+            Session.Character.MapInstance = World.GetBaseMap(1);
+            Session.LastKeepAliveIdentity = 1;
+        }
+
+        private void TheSaveIsSlow()
+        {
+            SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
+                .Returns(() =>
+                {
+                    SaveStarted.TrySetResult();
+                    return SaveDone.Task;
+                });
+        }
+
+        private void TheShipSailsFromOutsideThePlayersPackets()
+        {
+            Sailing = Task.Run(async () =>
+            {
+                var act4 = (await ChannelHub.Object.GetCommunicationChannels()).Single(c => c.IsAct4);
+                return await Service.MoveToMapAsync(Session, act4, ItModeType.ShipToAct4, 130, 12, 38);
+            });
+        }
+
+        private async Task APulseArrivesDuringTheSave()
+        {
+            await SaveStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            PulseHandling = Session.HandlePacketsAsync(new[]
+            {
+                new PulsePacket { Header = "pulse", KeepAliveId = 2, Tick = 60 }
+            }, true);
+        }
+
+        private async Task TheSaveFinishes()
+        {
+            SaveDone.SetResult(SaveSucceeds);
+            Moved = await Sailing.WaitAsync(TimeSpan.FromSeconds(5));
+            await PulseHandling.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private void ThePulseShouldNotHaveRun() => Assert.AreEqual(0, Pulses);
+
+        private void ThePulseShouldHaveRun() => Assert.AreEqual(1, Pulses);
+
+        private sealed class CountingPulseHandler(Action counted) : PacketHandler<PulsePacket>, IWorldPacketHandler
+        {
+            public override Task ExecuteAsync(PulsePacket packet, ClientSession clientSession)
+            {
+                counted();
+                return Task.CompletedTask;
+            }
+        }
+
+        private readonly List<string> Steps = new();
+
+        private async Task TheSessionClaimedItsAccount()
+        {
+            World.PubSubHub.Setup(h => h.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
+            Assert.IsTrue(await Session.ClaimAccountAsync(Session.Account));
+        }
+
+        private void TheReleaseAndTheAwaitAreRecorded()
+        {
+            World.PubSubHub.Setup(h => h.UnsubscribeAsync(Session.SessionId))
+                .Callback(() => Steps.Add(Session.LastPackets.OfType<MzPacket>().Any() ? "release after mz" : "release"))
+                .ReturnsAsync(true);
+            AuthHub.Setup(s => s.SetAwaitingChannelChangeAsync(Session.Account.Name, 51, It.IsAny<bool>()))
+                .Callback(() => Steps.Add(Session.LastPackets.OfType<MzPacket>().Any() ? "await after mz" : "await"))
+                .Returns(Task.CompletedTask);
+        }
+
+        private void TheClaimShouldBeReleasedThenAwaitedBeforeAnyMz() =>
+            CollectionAssert.AreEqual(new List<string> { "release", "await" }, Steps);
+
         private void ThePlayerStandsInPortAlveus()
         {
             Session.Character.MapId = 145;
@@ -235,6 +430,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
 
         private void TheSaveFails()
         {
+            SaveSucceeds = false;
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>())).ReturnsAsync(false);
         }
 

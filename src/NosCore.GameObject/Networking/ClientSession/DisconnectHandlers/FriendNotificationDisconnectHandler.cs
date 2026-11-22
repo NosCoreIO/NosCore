@@ -20,7 +20,8 @@ public class FriendNotificationDisconnectHandler(IFriendHub friendHub, IPubSubHu
 {
     public async Task HandleDisconnectAsync(ClientSession session)
     {
-        if (!session.HasSelectedCharacter)
+        // A character handed to another channel is still online, and says so from there.
+        if (!session.HasSelectedCharacter || session.IsHandedOver)
         {
             return;
         }

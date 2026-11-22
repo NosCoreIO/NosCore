@@ -15,7 +15,7 @@ public class SaveDisconnectHandler(ISaveService saveService) : ISessionDisconnec
 
     public async Task HandleDisconnectAsync(ClientSession session)
     {
-        if (!session.HasSelectedCharacter)
+        if (!session.HasSelectedCharacter || session.IsHandedOver)
         {
             return;
         }
