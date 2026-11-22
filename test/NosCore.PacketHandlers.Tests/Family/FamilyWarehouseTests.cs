@@ -52,6 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private readonly Dictionary<Guid, IItemInstanceDto> _instances = new();
         private readonly List<(Guid Id, short Slot, Guid ItemInstanceId)> _stored = new();
         private bool _takenElsewhere;
+        private Action? _beforeTheDepositFails;
         private readonly Mock<IFamilyLogService> _log = new();
 
         [TestInitialize]
@@ -99,6 +100,12 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync((WareHouseDepositRequest r) =>
                 {
                     _stored.Add((Guid.NewGuid(), r.Slot, r.ItemInstance.NotNull().Id));
+                    if (_beforeTheDepositFails is { } meanwhile)
+                    {
+                        meanwhile();
+                        throw new TimeoutException();
+                    }
+
                     return true;
                 });
             hub.Setup(s => s.DeleteWarehouseItemAsync(It.IsAny<Guid>()))
@@ -326,6 +333,48 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(Game18NConstString.NotQualifiedForWarehouse, LastInfo(_session));
             Assert.AreEqual(1, _stored.Count);
+        }
+
+        [TestMethod]
+        public async Task ADepositMovedByAnotherMemberBeforeItIsReadBackStaysInTheWarehouseOnly()
+        {
+            Holds(1012, 10);
+            _beforeTheDepositFails = () => _stored[0] = (_stored[0].Id, 5, _stored[0].ItemInstanceId);
+
+            await DepositIgnoringFailureAsync(10, 2);
+
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
+            Assert.AreEqual(10, _instances[_stored.Single(s => s.Slot == 5).ItemInstanceId].Amount);
+        }
+
+        [TestMethod]
+        public async Task ADepositTakenOutByAnotherMemberBeforeItIsReadBackIsNotGivenBack()
+        {
+            Holds(1012, 10);
+            _beforeTheDepositFails = () =>
+            {
+                _instances.Remove(_stored[0].ItemInstanceId);
+                _stored.RemoveAt(0);
+            };
+
+            await DepositIgnoringFailureAsync(10, 2);
+
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
+        }
+
+        private void Holds(short vnum, short amount) =>
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(_items.Create(vnum, amount), _session.Character.CharacterId));
+
+        private async Task DepositIgnoringFailureAsync(short amount, short warehouseSlot)
+        {
+            try
+            {
+                await Service().DepositAsync(_session, PocketType.Main, 0, amount, warehouseSlot);
+            }
+            catch (TimeoutException)
+            {
+            }
         }
 
         [TestMethod]
