@@ -26,6 +26,11 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Ecs.Interfaces;
 using Moq;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.Interfaces;
+using NosCore.Networking.SessionGroup;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
@@ -336,6 +341,171 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .WhenAsync(DrinkingThePotion)
                 .Then(HpShouldBe_, 400)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnOrdinaryPotionHealsTheTeamToo()
+        {
+            await new Spec("A 300 Hp potion also heals each team mate still standing by 300")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(ATeam_WithHp_OutOf_, MateType.Pet, 400, 1000)
+                .AndAsync(ATeam_WithHp_OutOf_, MateType.Partner, 400, 1000)
+                .WhenAsync(DrinkingThePotion)
+                .Then(Every_ShouldHaveHp_, MateType.Pet, 700)
+                .And(Every_ShouldHaveHp_, MateType.Partner, 700)
+                .And(TheMapIsShownAHealOf_OverEveryMate, 300)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheTeamsNumbersComeBetweenTheDrinkersAndTheBars()
+        {
+            await new Spec("The drinker's number comes first, then the pet's, then the bars, the bag and the pet's bar")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(ATeam_WithHp_OutOf_, MateType.Pet, 400, 1000)
+                .And(TheDrinkerSeesWhatTheMapIsShown)
+                .WhenAsync(DrinkingThePotion)
+                .Then(TheDrinkerIsSentTheHealsThenTheBarsThenTheBag)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMateIsOnlyHealedWhatItIsMissing()
+        {
+            await new Spec("A pet missing 50 HP is healed 50 by a 300 Hp potion")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(ATeam_WithHp_OutOf_, MateType.Pet, 950, 1000)
+                .WhenAsync(DrinkingThePotion)
+                .Then(Every_ShouldHaveHp_, MateType.Pet, 1000)
+                .And(TheMapIsShownAHealOf_OverEveryMate, 50)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMateAtFullHealthShowsNoNumber()
+        {
+            await new Spec("A pet with nothing missing floats no number")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(ATeam_WithHp_OutOf_, MateType.Pet, 1000, 1000)
+                .WhenAsync(DrinkingThePotion)
+                .Then(NoMateHealIsShown)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AManaPotionLeavesTheTeamAlone()
+        {
+            await new Spec("A potion with no Hp heals no team mate")
+                .Given(APotionRestoring_Hp_Mp, 0, 300)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(ATeam_WithHp_OutOf_, MateType.Pet, 400, 1000)
+                .WhenAsync(DrinkingThePotion)
+                .Then(Every_ShouldHaveHp_, MateType.Pet, 400)
+                .And(NoMateHealIsShown)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMateOutsideTheTeamIsNotHealed()
+        {
+            await new Spec("A pet out on the map but not in the team keeps its HP")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(ATeam_WithHp_OutOf_, MateType.Pet, 400, 1000)
+                .And(ThePetLeavesTheTeam)
+                .WhenAsync(DrinkingThePotion)
+                .Then(Every_ShouldHaveHp_, MateType.Pet, 400)
+                .ExecuteAsync();
+        }
+
+        private async Task ATeam_WithHp_OutOf_(MateType type, int hp, int maxHp)
+        {
+            var mate = type == MateType.Pet
+                ? TestMates.Pet(_session.Character.CharacterId)
+                : TestMates.Partner(_session.Character.CharacterId);
+            mate.Hp = hp;
+            mate.MaxHp = maxHp;
+            _session.Character.Mates[mate.MateTransportId] = mate;
+            await mate.SpawnAsync(_session.Character, _session.Character.MapInstance,
+                _session.Character.PositionX, _session.Character.PositionY);
+        }
+
+        private void ThePetLeavesTheTeam()
+        {
+            foreach (var mate in _session.Character.Mates.Values.Where(m => m.MateType == MateType.Pet))
+            {
+                mate.IsTeamMember = false;
+            }
+        }
+
+        private void Every_ShouldHaveHp_(MateType type, int hp)
+        {
+            foreach (var mate in _session.Character.Mates.Values.Where(m => m.MateType == type))
+            {
+                Assert.AreEqual(hp, mate.CurrentHp());
+            }
+        }
+
+        private void TheMapIsShownAHealOf_OverEveryMate(int amount)
+        {
+            var shown = _session.Character.MapInstance.LastPackets.OfType<RcPacket>()
+                .Where(rc => rc.VisualType == VisualType.Npc).ToList();
+            Assert.AreEqual(_session.Character.Mates.Count, shown.Count);
+            foreach (var mate in _session.Character.Mates.Values)
+            {
+                PacketAssert.AreEqual(new RcPacket
+                {
+                    VisualType = VisualType.Npc,
+                    VisualId = mate.MateTransportId,
+                    HealAmount = amount,
+                    Unknown = 0
+                }, shown.Single(rc => rc.VisualId == mate.MateTransportId));
+            }
+        }
+
+        private void NoMateHealIsShown() =>
+            Assert.IsFalse(_session.Character.MapInstance.LastPackets.OfType<RcPacket>().Any(rc => rc.VisualType == VisualType.Npc));
+
+        // The drinker is on the map, so what the map is shown reaches them in the same stream.
+        private void TheDrinkerSeesWhatTheMapIsShown()
+        {
+            var map = new Mock<ISessionGroup>();
+            map.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
+                .Callback<IPacket[]>(Receive).Returns(Task.CompletedTask);
+            map.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
+                .Callback<IPacket[], ISessionMatcher>((packets, _) => Receive(packets)).Returns(Task.CompletedTask);
+            _session.Character.MapInstance.Sessions = map.Object;
+
+            void Receive(IPacket[] packets)
+            {
+                foreach (var packet in packets)
+                {
+                    _session.LastPackets.Enqueue(packet);
+                }
+            }
+        }
+
+        private void TheDrinkerIsSentTheHealsThenTheBarsThenTheBag()
+        {
+            var pet = _session.Character.Mates.Values.Single();
+            var received = _session.LastPackets
+                .Where(p => p is RcPacket or StatPacket or IvnPacket or PstPacket).ToList();
+            Assert.AreEqual(5, received.Count);
+            PacketAssert.AreEqual(new RcPacket
+            {
+                VisualType = VisualType.Player, VisualId = _session.Character.VisualId, HealAmount = 300, Unknown = 0
+            }, received[0] as RcPacket);
+            PacketAssert.AreEqual(new RcPacket
+            {
+                VisualType = VisualType.Npc, VisualId = pet.MateTransportId, HealAmount = 300, Unknown = 0
+            }, received[1] as RcPacket);
+            PacketAssert.AreEqual(_session.Character.GenerateStat(), received[2] as StatPacket);
+            Assert.IsInstanceOfType<IvnPacket>(received[3]);
+            PacketAssert.AreEqual(pet.GeneratePst(), received[4] as PstPacket);
         }
 
         private void AFullRestorePotion_Hp_Mp(bool hp, bool mp)

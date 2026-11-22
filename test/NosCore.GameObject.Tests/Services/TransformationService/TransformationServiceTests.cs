@@ -23,6 +23,10 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Specialists;
+using NosCore.Packets.ServerPackets.Battle;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using NosCore.GameObject.Services.TransformationService;
@@ -44,6 +48,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private Mock<ISpecialistWingsService> Wings = new();
         private ClientSession Session;
         private Mock<ISessionGroup> Onlookers = new();
+        private Mock<GameObject.Services.SkillService.ISkillService> SkillBar = new();
         private const short BoostCardId = 336;
         private const short MountWithABuff = 13752;
         private const short RidingCardId = 4328;
@@ -77,7 +82,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 World.LogLanguageLocalizer,
                 World.WorldConfiguration,
                 World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
-                new Mock<GameObject.Services.SkillService.ISkillService>().Object,
+                SkillBar.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
                 Buffs,
                 cards.Object,
@@ -115,6 +120,17 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .WhenAsync(Transforming)
                 .Then(TheMapIsSentTheCharactersGear)
                 .And(TheMapIsSentTheTransformationFinish)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheTransformingPlayerGetsTheirLinesInTheGamesOrder()
+        {
+            await new Spec("The transforming player gets their state, the look, the skills, the points, the level, then the finish")
+                .Given(TheChefCardWearingTheMasterchefSkinIsWorn)
+                .And(ThePlayerSeesWhatTheMapIsSent)
+                .WhenAsync(Transforming)
+                .Then(ThePlayerIsSentTheTransformationLinesInOrder)
                 .ExecuteAsync();
         }
 
@@ -249,6 +265,41 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Value = 0,
                 SecondValue = 0
             }, SentToTheMap().OfType<GuriPacket>().Single());
+
+        // The player is on the map too, so the map's lines reach them in the same stream as their own.
+        private void ThePlayerSeesWhatTheMapIsSent()
+        {
+            Onlookers.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
+                .Callback<IPacket[]>(Receive).Returns(Task.CompletedTask);
+            Onlookers.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
+                .Callback<IPacket[], ISessionMatcher>((packets, _) => Receive(packets)).Returns(Task.CompletedTask);
+            SkillBar.Setup(s => s.LoadSpecialistSkillsAsync(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>(), It.IsAny<short>(), It.IsAny<byte>()))
+                .Returns(() => Session.Character.SendPacketAsync(Session.Character.GenerateSki(true)));
+
+            void Receive(IPacket[] packets)
+            {
+                foreach (var packet in packets)
+                {
+                    Session.LastPackets.Enqueue(packet);
+                }
+            }
+        }
+
+        private void ThePlayerIsSentTheTransformationLinesInOrder()
+        {
+            var received = Session.LastPackets
+                .OfType<IPacket>()
+                .Where(p => p is CondPacket or ScPacket or StatPacket or CModePacket or SkiPacket or SpPacket
+                    or LevPacket or EqPacket or EffectPacket or GuriPacket)
+                .Select(p => p.GetType())
+                .ToList();
+            CollectionAssert.AreEqual(new[]
+            {
+                typeof(CondPacket), typeof(ScPacket), typeof(StatPacket), typeof(CModePacket), typeof(SkiPacket),
+                typeof(SpPacket), typeof(LevPacket), typeof(EqPacket), typeof(EffectPacket), typeof(GuriPacket)
+            }, received);
+            PacketAssert.AreEqual(Session.Character.GenerateEff(196), Session.LastPackets.OfType<EffectPacket>().Single());
+        }
 
         private void CharacterHasSpEquipped()
         {

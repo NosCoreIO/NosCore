@@ -11,10 +11,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
 using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 
@@ -206,6 +211,80 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
                 .And(TheFailureShouldBeCounted)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ASnackTickHealsThePetToo()
+        {
+            await new Spec("A snack's tick heals the team pet by the same amount, its number after the eater's")
+                .Given(CharacterHas_Hp_Mp, 100, 100)
+                .AndAsync(ATeamPetWithHp_OutOf_, 400, 1000)
+                .And(SnackOwes_Hp_MpPerTick, 50, 0)
+                .And(_SecondsPass, 2)
+                .WhenAsync(TheMapTicks)
+                .Then(ThePetShouldHaveHp_, 450)
+                .And(TheMapShouldSeeTheEatersThenThePetsHealOf_, 50)
+                .And(ThePetsBarShouldBeRefreshed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ThePetStillSharesASnackOnceTheEaterIsFull()
+        {
+            await new Spec("At full HP the eater floats no number, but the pet's heal still shows and the bars refresh")
+                .Given(CharacterHas_Hp_Mp, 1000, 1000)
+                .AndAsync(ATeamPetWithHp_OutOf_, 400, 1000)
+                .And(SnackOwes_Hp_MpPerTick, 50, 0)
+                .And(_SecondsPass, 2)
+                .WhenAsync(TheMapTicks)
+                .Then(ThePetShouldHaveHp_, 450)
+                .And(TheBarsShouldBeRefreshed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMealIsNotShared()
+        {
+            await new Spec("A meal's tick heals the eater only")
+                .Given(CharacterHas_Hp_Mp, 100, 100)
+                .AndAsync(ATeamPetWithHp_OutOf_, 400, 1000)
+                .And(FoodOwes_Hp_MpPerTick, 140, 0)
+                .And(_SecondsPass, 2)
+                .WhenAsync(TheMapTicks)
+                .Then(ThePetShouldHaveHp_, 400)
+                .And(TheMapShouldSeeAHealOf_, 140)
+                .ExecuteAsync();
+        }
+
+        private Mate _pet;
+
+        private async Task ATeamPetWithHp_OutOf_(int hp, int maxHp)
+        {
+            _pet = TestMates.Pet(_session.Character.CharacterId);
+            _pet.Hp = hp;
+            _pet.MaxHp = maxHp;
+            _session.Character.Mates[_pet.MateTransportId] = _pet;
+            await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance,
+                _session.Character.PositionX, _session.Character.PositionY);
+        }
+
+        private void ThePetShouldHaveHp_(int hp) => Assert.AreEqual(hp, _pet.CurrentHp());
+
+        private void TheMapShouldSeeTheEatersThenThePetsHealOf_(int amount)
+        {
+            var shown = _session.Character.MapInstance.LastPackets.OfType<RcPacket>().ToList();
+            Assert.AreEqual(2, shown.Count);
+            PacketAssert.AreEqual(new RcPacket
+            {
+                VisualType = VisualType.Player, VisualId = _session.Character.VisualId, HealAmount = amount, Unknown = 0
+            }, shown[0]);
+            PacketAssert.AreEqual(new RcPacket
+            {
+                VisualType = VisualType.Npc, VisualId = _pet.MateTransportId, HealAmount = amount, Unknown = 0
+            }, shown[1]);
+        }
+
+        private void ThePetsBarShouldBeRefreshed() =>
+            PacketAssert.AreEqual(_pet.GeneratePst(), _session.LastPackets.OfType<PstPacket>().Single());
 
         private void CharacterHas_Hp_Mp(int hp, int mp)
         {

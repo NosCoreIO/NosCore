@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NodaTime;
@@ -89,6 +90,8 @@ public sealed class DigestionService(
             state.Lock.Release();
         }
 
-        await player.HealAsync(food.Hp + snack.Hp, food.Mp + snack.Mp);
+        // The team shares in a snack.
+        var healedMates = await player.HealAsync(food.Hp + snack.Hp, food.Mp + snack.Mp, snack.Hp);
+        await player.SendPacketsAsync(healedMates.Select(m => m.GeneratePst()));
     }
 }
