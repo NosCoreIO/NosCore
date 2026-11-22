@@ -43,6 +43,17 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        [DataRow((short)519)]
+        [DataRow((short)520)]
+        [DataRow((short)521)]
+        public async Task ASoulstoneQuestsTimeSpaceLoadsUnderTheNameItsChallengeButtonUses(short timeSpaceId)
+        {
+            var script = await LoadAsync($"timespace-{timeSpaceId}");
+
+            Assert.AreEqual(timeSpaceId, script.Definition.Id);
+        }
+
+        [TestMethod]
         [DynamicData(nameof(TimeSpaces))]
         public async Task EveryTriggerOfATimeSpaceScriptRuns(string name)
         {
