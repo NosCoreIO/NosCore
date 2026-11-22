@@ -72,6 +72,21 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ACardComesDownAtItsBearersLevel()
+        {
+            var caster = await World.CreateSessionAsync();
+            caster.Character.Level = 71;
+            _session.Character.Level = 76;
+            await _service.ApplyAsync(_session.Character, Card, Array.Empty<BCardDto>(), caster.Character);
+            _broadcast.Clear();
+
+            _clock.Advance(Duration.FromSeconds(10));
+            await _service.TickAsync(_session.Character);
+
+            Assert.AreEqual(76, _broadcast.OfType<BfPacket>().Single().BuffLevel);
+        }
+
+        [TestMethod]
         public async Task AStunLandingAndEndingBothRefreshTheMovementCondition()
         {
             var stun = new[] { new BCardDto { Type = BCardType.CardType.SpecialAttack, SubType = 11 }, new BCardDto { Type = BCardType.CardType.Move, SubType = 11 } };
