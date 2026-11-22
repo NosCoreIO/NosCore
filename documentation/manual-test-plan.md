@@ -3925,6 +3925,9 @@ marked monster) while it is the one to kill.
       over
 - [ ] The Mission Clear window counts up to the running score shown when the run ended, less the
       level penalty
+- [ ] In a time-space whose last room ends the run as soon as its monsters are dead, the running
+      score adds that room's 50 before the Mission Clear window opens, and the window counts up to
+      the score including it
 - [ ] Not verifiable yet: the bonus the official server adds to the running score at the clear.
       Traced clears always show more points than the running score (about 15 to 1 350 more before the
       level penalty), and
