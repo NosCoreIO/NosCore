@@ -21,5 +21,9 @@ namespace NosCore.GameObject.Services.TransformationService
         Task ChangeVehicleAsync(ClientSession session, ItemDto vehicle, ItemDto look);
 
         Task RemoveVehicleAsync(ClientSession session);
+
+        Task ChangeMonsterFormAsync(ClientSession session, short morph);
+
+        Task RemoveMonsterFormAsync(ClientSession session);
     }
 }

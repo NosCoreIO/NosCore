@@ -132,6 +132,7 @@ namespace NosCore.GameObject.Services.TransformationService
             await buffService.ClearAsync(character);
             character.LastSp = clock.GetCurrentInstant();
             character.UseSp = true;
+            character.InMonsterForm = false;
             character.Morph = sp.ShownMorph;
             character.MorphUpgrade = (byte)sp.Upgrade;
             character.MorphDesign = (byte)sp.Design;
@@ -163,6 +164,7 @@ namespace NosCore.GameObject.Services.TransformationService
         {
             var character = session.Character;
             character.IsVehicled = true;
+            character.InMonsterForm = false;
             character.VehicleSpeed = vehicle.Speed;
             character.VehicleVNum = vehicle.VNum;
             if (cardCatalog.GetItemCard(vehicle.VNum) is { } ridingCard)
@@ -196,6 +198,24 @@ namespace NosCore.GameObject.Services.TransformationService
             {
                 await mate.DespawnAsync(mapInstance);
             }
+        }
+
+        public async Task ChangeMonsterFormAsync(ClientSession session, short morph)
+        {
+            var character = session.Character;
+            character.InMonsterForm = true;
+            character.Morph = morph;
+            character.MorphUpgrade = 0;
+            character.MorphDesign = 0;
+            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
+        }
+
+        public async Task RemoveMonsterFormAsync(ClientSession session)
+        {
+            var character = session.Character;
+            character.InMonsterForm = false;
+            character.Morph = 0;
+            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
         }
 
         public async Task RemoveVehicleAsync(ClientSession session)
