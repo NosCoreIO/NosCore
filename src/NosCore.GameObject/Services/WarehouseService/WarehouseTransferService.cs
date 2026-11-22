@@ -118,7 +118,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             catch (Exception e)
             {
                 // The warehouse may have stored it before failing, so only what it reads back decides.
-                switch (await IsStoredAsync(warehouse, warehouseSlot, stored.Id))
+                switch (await IsStoredAsync(warehouse, stored.Id))
                 {
                     case true:
                         deposited = true;
@@ -163,12 +163,15 @@ namespace NosCore.GameObject.Services.WarehouseService
             return stored;
         }
 
-        private async Task<bool?> IsStoredAsync(WarehouseSlots warehouse, short warehouseSlot, Guid itemInstanceId)
+        // A family member can move or take the copy before it is read back. Only taking it out of the
+        // warehouse deletes the copy's row, so a missing row means it was stored.
+        private async Task<bool?> IsStoredAsync(WarehouseSlots warehouse, Guid itemInstanceId)
         {
             try
             {
-                return (await warehouseHub.GetWarehouseItems(null, warehouse.OwnerId, warehouse.Type, (byte)warehouseSlot))
-                    .Any(link => link.ItemInstance?.Id == itemInstanceId);
+                return (await warehouseHub.GetWarehouseItems(null, warehouse.OwnerId, warehouse.Type, null))
+                        .Any(link => link.ItemInstance?.Id == itemInstanceId)
+                    || await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == itemInstanceId) == null;
             }
             catch (Exception)
             {
