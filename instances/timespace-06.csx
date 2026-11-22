@@ -165,7 +165,7 @@ public class TimeSpace6 : TimeSpaceScript
         way.Lever(new(15, 15))
             .OnUse(r => r
                 .Dialog(6028)
-                .Spawn(Monster(33).At(16, 10).OnDeath(r => r.Spawn(
+                .Spawn(Monster(33).At(16, 10).Talk(6028).OnDeath(r => r.Spawn(
                     Monster(27).At(11, 17).OnDeath(r => r.Spawn(
                         Monster(55).At(21, 18).OnDeath(r => r.Spawn(
                             Monster(55).At(12, 9).OnDeath(r => r.Spawn(Monster(27).At(16, 19))))))))))

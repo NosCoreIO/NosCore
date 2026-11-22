@@ -43,7 +43,7 @@ public class TimeSpace15 : TimeSpaceScript
             Monster(109).At(11, 6).Bonus(),
             Monster(111).At(9, 14),
             Monster(109).At(9, 12),
-            Monster(108).At(8, 7));
+            Monster(108).At(8, 7).Talk(6190));
         floor1.OnEnter(r => r
                 .Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES)
                 .Dialog(6190))
@@ -99,7 +99,7 @@ public class TimeSpace15 : TimeSpaceScript
             Monster(105).At(11, 7),
             Monster(111).At(11, 6),
             Monster(111).At(3, 8).Bonus(),
-            Monster(108).At(2, 9));
+            Monster(108).At(2, 9).Talk(6190));
         floor4.OnEnter(r => r
                 .Objective(LanguageKey.TIMESPACE_GOAL_KILL_ALL_ENEMIES)
                 .Dialog(6190))

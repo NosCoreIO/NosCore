@@ -115,7 +115,7 @@ public class TimeSpace16 : TimeSpaceScript
                 .Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE));
         fifthLever.Spawn(
             Monster(58).At(9, 17).OnDeath(r => r.Spawn(Monster(58).At(11, 21), Monster(58).At(19, 22))),
-            Monster(58).At(9, 14),
+            Monster(58).At(9, 14).Talk(6079),
             Monster(271).At(14, 22).Bonus());
         fifthLever.OnEnter(r => r.Dialog(6079).Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE));
 

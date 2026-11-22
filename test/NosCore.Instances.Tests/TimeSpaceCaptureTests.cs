@@ -245,6 +245,48 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        [DataRow("timespace-15", (short)4012, (byte)4, (byte)11, (short)108, (short)8, (short)7, (short)6190)]
+        [DataRow("timespace-15", (short)4012, (byte)4, (byte)8, (short)108, (short)2, (short)9, (short)6190)]
+        [DataRow("timespace-16", (short)4212, (byte)3, (byte)10, (short)58, (short)9, (short)14, (short)6079)]
+        [DataRow("timespace-18", (short)4102, (byte)1, (byte)10, (short)338, (short)14, (short)12, (short)6098)]
+        [DataRow("timespace-18", (short)4102, (byte)1, (byte)11, (short)338, (short)17, (short)15, (short)6099)]
+        public async Task ARoomThatTalksOnEntryHoldsAMonsterCarryingThatTalk(string name, short map, byte x, byte y,
+            short vNum, short monsterX, short monsterY, short talk)
+        {
+            await LoadAsync(name);
+            var room = Room(map, x, y);
+            var before = _run.Summoned.Count;
+
+            _script.OnRoomEntered(_run, room);
+
+            CollectionAssert.Contains(_run.Calls, $"dialog({room},{talk})");
+            Assert.AreEqual(talk, _run.Summoned.Take(before).Single(m => m.VNum == vNum && m.At == new Spot(monsterX, monsterY)).Dialog);
+        }
+
+        [TestMethod]
+        public async Task TheBlackKnightSecondStandBringsInATalkingMonsterWithItsTalk()
+        {
+            await LoadAsync("timespace-19");
+            var before = _run.Summoned.Count;
+
+            _script.OnRoomEntered(_run, Room(4205, 2, 8));
+
+            CollectionAssert.AreEqual(new short[] { 0, 6102 }, _run.Summoned.Skip(before).Take(2).Select(m => m.Dialog).ToArray());
+        }
+
+        [TestMethod]
+        public async Task TheLabyrinthWayLeverBringsInAMonsterCarryingItsTalk()
+        {
+            await LoadAsync("timespace-06");
+            var before = _run.Summoned.Count;
+
+            _script.OnButtonUsed(_run, Room(4105, 3, 10), 1);
+
+            var monster = _run.Summoned.Skip(before).Single();
+            Assert.AreEqual(((short)33, new Spot(16, 10), (short)6028), (monster.VNum, monster.At, monster.Dialog));
+        }
+
+        [TestMethod]
         public async Task TheMonsterArmyFifthLeverRoomHoldsItsMonstersBeforeTheTalk()
         {
             await LoadAsync("timespace-16");

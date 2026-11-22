@@ -18,6 +18,8 @@ namespace NosCore.Instances.Abstractions
 
         private bool IsBonus { get; init; }
 
+        private short Dialog { get; init; }
+
         private Action<RoomEvent>? Death { get; init; }
 
         private Action<RoomEvent>? Hit { get; init; }
@@ -53,6 +55,12 @@ namespace NosCore.Instances.Abstractions
 
         public IMonster Bonus() => this with { IsBonus = true };
 
+        public IMonster Talk(short dialog)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dialog);
+            return this with { Dialog = dialog };
+        }
+
         public IMonster OnDeath(Action<RoomEvent> step) => this with { Death = Death + step };
 
         public IMonster OnHit(Action<RoomEvent> step) => this with { Hit = Hit + step };
@@ -76,8 +84,8 @@ namespace NosCore.Instances.Abstractions
                     .ToList();
             for (var copy = 0; copy < Copies; copy++)
             {
-                yield return new MonsterSpawn(VNum, PlaceIn(run, room), IsBonus: IsBonus, OnDeath: death, OnHit: hit,
-                    OnHpBelow: thresholds);
+                yield return new MonsterSpawn(VNum, PlaceIn(run, room), IsBonus: IsBonus, OnDeath: death, Dialog: Dialog,
+                    OnHit: hit, OnHpBelow: thresholds);
             }
         }
 

@@ -103,6 +103,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `Around(x, y, radius)` | A walkable cell picked on each spawn, within radius of the cell |
 | `Count(n)` | That many copies, each placed on its own, so two may share a cell |
 | `Bonus()` | Flashes while alive and counts towards the combo |
+| `Talk(dialog)` | Clicking it opens that NPC dialog, until the room's own `Dialog(dialog)` is closed |
 | `OnDeath(step)` | When this monster falls |
 | `OnHit(step)` | On each hit it survives |
 | `OnHpBelow(percent, step)` | Once, on the hit that takes its HP below that share of its maximum |
