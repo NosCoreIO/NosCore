@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.Packets;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Visibility;
 
@@ -21,6 +22,12 @@ public static class NpcBundleExtensions
         {
             nonPlayer.GroupEffect = LedGroupEffect;
             nonPlayer.Owner = npc.LeaderId;
+        }
+
+        if (npc.SignpostOwnerId != 0 && packet.InNonPlayerSubPacket is { } signpost)
+        {
+            signpost.Title = Game18NConstString.UserMiniland;
+            signpost.TitleArguments = new Game18NArguments(1) { npc.SignpostOwnerName ?? string.Empty };
         }
 
         return packet;

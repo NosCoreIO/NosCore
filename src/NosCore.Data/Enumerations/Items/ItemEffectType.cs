@@ -25,6 +25,8 @@ namespace NosCore.Data.Enumerations.Items
         TimeSpaceStone = 140,
         MateCapture = 100,
         OpenProduction = 100,
+        // A special item's EffectValue is the NPC the signpost puts up.
+        MinilandSignpost = 100,
         Undefined = 69,
         // The map item that adds its amount to the gold counter when picked up.
         Gold = 70,

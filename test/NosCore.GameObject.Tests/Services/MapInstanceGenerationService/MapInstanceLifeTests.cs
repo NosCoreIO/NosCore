@@ -18,12 +18,14 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -156,6 +158,24 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
 
             Assert.IsTrue(map.IsSleeping);
             Assert.IsFalse(map.EcsWorld.IsAlive(item));
+            await map.DisposeAsync();
+        }
+
+        [TestMethod]
+        public async Task ASignpostWhoseTimeIsUpComesDown()
+        {
+            var map = NewMap();
+            var signpost = map.PlaceNpc(new NpcMonsterDto { NpcMonsterVNum = 921, MaxHp = 18000 }, 0, 0);
+            signpost.World.SetComponent(signpost.Entity, new SignpostComponent(7, "Owner", World.Clock.GetCurrentInstant()));
+            var visualId = signpost.VisualId;
+
+            await RunOneTickAsync(map);
+
+            Assert.IsNull(map.GetNpcById((int)visualId));
+            PacketAssert.AreEqual(new DiePacket { VisualType = VisualType.Npc, VisualId = visualId, TargetVisualType = VisualType.Npc, TargetId = visualId },
+                map.LastPackets.OfType<DiePacket>().Single());
+            PacketAssert.AreEqual(new OutPacket { VisualType = VisualType.Npc, VisualId = visualId },
+                map.LastPackets.OfType<OutPacket>().Single());
             await map.DisposeAsync();
         }
 
