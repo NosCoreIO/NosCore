@@ -27,6 +27,13 @@ namespace NosCore.Parser.Parsers
         private const short JackOLanternRaidSeal = 1916;
         private const short YellowPumpkinSweet = 2322;
         private const short BlackPumpkinSweet = 2324;
+        private const short HappyWord = 1611;
+        private const short NewYearWord = 1612;
+        private const short HappyNewYearGoldenBox = 1621;
+        private const short HappyNewYearBox = 1622;
+        private const short NewYearsGiftBox = 5083;
+        private const short StolenGiftBag = 5085;
+        private const short StolenLuckyCharm = 5086;
 
         public static readonly IReadOnlyList<NpcExchange> All =
         [
@@ -50,6 +57,11 @@ namespace NosCore.Parser.Parsers
             new(NrunRunnerType.ExchangeForHalloweenCostumeScroll2, HalloweenCostumeScroll, 1, [(BlackPumpkinSweet, 10)]),
             new(NrunRunnerType.ExchangeForJackOLanternSeal, JackOLanternRaidSeal, 1, [(YellowPumpkinSweet, 30)]),
             new(NrunRunnerType.ExchangeForJackOLanternSeal2, JackOLanternRaidSeal, 1, [(BlackPumpkinSweet, 30)]),
+            new(NrunRunnerType.ExchangeForHappyNewYearGoldenBox, HappyNewYearGoldenBox, 1, [(HappyWord, 1)]),
+            new(NrunRunnerType.ExchangeForHappyNewYearGoldenBox_x10, HappyNewYearGoldenBox, 10, [(HappyWord, 10)]),
+            new(NrunRunnerType.ExchangeForHappyNewYearBox, HappyNewYearBox, 1, [(NewYearWord, 1)]),
+            new(NrunRunnerType.ExchangeForHappyNewYearBox_x10, HappyNewYearBox, 10, [(NewYearWord, 10)]),
+            new(NrunRunnerType.ExchangeForNewYearGiftBox, NewYearsGiftBox, 1, [(StolenGiftBag, 5), (StolenLuckyCharm, 5)]),
         ];
     }
 

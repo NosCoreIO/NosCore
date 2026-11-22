@@ -40,6 +40,8 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
         private const short YellowPumpkinSweet = 2322;
         private const short HalloweenCostumeScroll = 1915;
         private const short ExchangeDialog = 464;
+        private const short HappyWord = 1611;
+        private const short HappyNewYearGoldenBox = 1621;
 
         private TestWorld World;
         private ClientSession _session;
@@ -63,6 +65,8 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new Item { VNum = ArcherCard, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, Class = 4 },
                 new Item { VNum = YellowPumpkinSweet, Type = NoscorePocketType.Main },
                 new Item { VNum = HalloweenCostumeScroll, Type = NoscorePocketType.Main },
+                new Item { VNum = HappyWord, Type = NoscorePocketType.Main },
+                new Item { VNum = HappyNewYearGoldenBox, Type = NoscorePocketType.Main },
             };
             World.Inject(items);
             World.Inject<IItemCatalog>(World.Create<ItemCatalog>());
@@ -75,6 +79,7 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new() { NpcExchangeId = 3, Runner = NrunRunnerType.ExchangeForSP5, ItemVNum = ArcherCard, Amount = 1 },
                 new() { NpcExchangeId = 4, Runner = NrunRunnerType.ExchangeForSP6, ItemVNum = Seal, Amount = 1 },
                 new() { NpcExchangeId = 5, Runner = NrunRunnerType.ExchangeForHalloweenCostumeScroll, ItemVNum = HalloweenCostumeScroll, Amount = 1 },
+                new() { NpcExchangeId = 6, Runner = NrunRunnerType.ExchangeForHappyNewYearGoldenBox_x10, ItemVNum = HappyNewYearGoldenBox, Amount = 10 },
             });
             World.Inject(new List<NpcExchangeMaterialDto>
             {
@@ -83,11 +88,12 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 new() { NpcExchangeMaterialId = 3, NpcExchangeId = 2, ItemVNum = Claw, Amount = 50 },
                 new() { NpcExchangeMaterialId = 4, NpcExchangeId = 3, ItemVNum = Claw, Amount = 50 },
                 new() { NpcExchangeMaterialId = 5, NpcExchangeId = 5, ItemVNum = YellowPumpkinSweet, Amount = 10 },
+                new() { NpcExchangeMaterialId = 6, NpcExchangeId = 6, ItemVNum = HappyWord, Amount = 10 },
             });
             World.Inject(new[]
             {
                 NrunRunnerType.ExchangeForGrenigasRaidSeal, NrunRunnerType.ExchangeForSP5, NrunRunnerType.ExchangeForSP6,
-                NrunRunnerType.ExchangeForHalloweenCostumeScroll,
+                NrunRunnerType.ExchangeForHalloweenCostumeScroll, NrunRunnerType.ExchangeForHappyNewYearGoldenBox_x10,
             }.Select(runner => new NpcTalkButtonDto { NpcTalkButtonId = Guid.NewGuid(), DialogId = ExchangeDialog, Runner = runner }).ToList());
             World.UseReal<INpcTalkButtonCatalog, NpcTalkButtonCatalog>();
             _npc = NpcWithDialog(1, ExchangeDialog);
@@ -197,6 +203,29 @@ namespace NosCore.GameObject.Tests.Services.NpcExchangeService
                 .WhenAsync(ExchangingWithAnotherNpc_, NrunRunnerType.ExchangeForHalloweenCostumeScroll)
                 .Then(TheCharacterShouldHave__, YellowPumpkinSweet, 10)
                 .And(TheCharacterShouldHave__, HalloweenCostumeScroll, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TenHappyWordsBuyTenGoldenBoxes()
+        {
+            await new Spec("The ten-times button takes ten words and gives ten boxes")
+                .Given(TheCharacterHas__, HappyWord, (short)11)
+                .WhenAsync(Exchanging_, NrunRunnerType.ExchangeForHappyNewYearGoldenBox_x10)
+                .Then(TheCharacterShouldHave__, HappyWord, 1)
+                .And(TheCharacterShouldHave__, HappyNewYearGoldenBox, 10)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NineHappyWordsAreRefusedByTheTenTimesButton()
+        {
+            await new Spec("Nine words are kept and the player is told materials are missing")
+                .Given(TheCharacterHas__, HappyWord, (short)9)
+                .WhenAsync(Exchanging_, NrunRunnerType.ExchangeForHappyNewYearGoldenBox_x10)
+                .Then(TheCharacterShouldHave__, HappyWord, 9)
+                .And(TheCharacterShouldHave__, HappyNewYearGoldenBox, 0)
+                .And(RawMaterialsMissingShouldBeSent)
                 .ExecuteAsync();
         }
 

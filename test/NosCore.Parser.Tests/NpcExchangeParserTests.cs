@@ -95,6 +95,32 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task MimiMentorTradesTheNewYearWordsAndStolenGiftsForBoxes()
+        {
+            AllItemsExist();
+
+            await _parser.InsertNpcExchangesAsync();
+
+            var newYear = new[]
+            {
+                NrunRunnerType.ExchangeForHappyNewYearGoldenBox, NrunRunnerType.ExchangeForHappyNewYearGoldenBox_x10,
+                NrunRunnerType.ExchangeForHappyNewYearBox, NrunRunnerType.ExchangeForHappyNewYearBox_x10,
+                NrunRunnerType.ExchangeForNewYearGiftBox,
+            };
+            CollectionAssert.AreEquivalent(new[]
+            {
+                "ExchangeForHappyNewYearGoldenBox 1621x1 <- 1611x1",
+                "ExchangeForHappyNewYearGoldenBox_x10 1621x10 <- 1611x10",
+                "ExchangeForHappyNewYearBox 1622x1 <- 1612x1",
+                "ExchangeForHappyNewYearBox_x10 1622x10 <- 1612x10",
+                "ExchangeForNewYearGiftBox 5083x1 <- 5085x5 5086x5",
+            }, _exchanges.Where(s => newYear.Contains(s.Runner))
+                .Select(s => $"{s.Runner} {s.ItemVNum}x{s.Amount} <- " + string.Join(' ', _materials
+                    .Where(m => m.NpcExchangeId == s.NpcExchangeId).OrderBy(m => m.ItemVNum).Select(m => $"{m.ItemVNum}x{m.Amount}")))
+                .ToList());
+        }
+
+        [TestMethod]
         public async Task ImportingTwiceKeepsOneRowPerExchange()
         {
             AllItemsExist();
