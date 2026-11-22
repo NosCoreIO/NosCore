@@ -79,9 +79,15 @@ jobs:
         directory: coverage
         flags: ${{ matrix.project }}
 
+  # The scenarios are split by class into shards, each running its own server stack.
   end-to-end:
+    name: end-to-end (${{ matrix.shard }}/${{ strategy.job-total }})
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
     services:
       postgres:
         image: postgres:16
@@ -115,7 +121,12 @@ jobs:
     - name: Run end-to-end scenarios
       env:
         NOSCORE_E2E_REQUIRED: true
-      run: dotnet test test/NosCore.EndToEnd.Tests/NosCore.EndToEnd.Tests.csproj --no-build --logger GitHubActions
+        SHARD: ${{ matrix.shard }}
+        SHARDS: ${{ strategy.job-total }}
+      run: |
+        filter=$(grep -rl --include='*.cs' --exclude-dir=obj --exclude-dir=bin '\[TestMethod\]' test/NosCore.EndToEnd.Tests | sort \
+          | awk -v s="$SHARD" -v n="$SHARDS" '(NR - 1) % n == s { sub(".*/", ""); sub("\\.cs$", ""); printf "%sFullyQualifiedName~.%s.", (c++ ? "|" : ""), $0 }')
+        dotnet test test/NosCore.EndToEnd.Tests/NosCore.EndToEnd.Tests.csproj --no-build --logger GitHubActions --filter "$filter"
 
   # The branch protection requires a check named build; it passes only when every lane did.
   build:
