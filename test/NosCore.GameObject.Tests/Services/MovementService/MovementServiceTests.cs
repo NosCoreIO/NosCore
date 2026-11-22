@@ -17,6 +17,15 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.MovementService;
+using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.GameObject.Map;
+using NosCore.Instances.Abstractions;
+using NosCore.Packets.ClientPackets.Instance;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
+using NodaTime;
+using System.Linq;
 using NosCore.Packets.Enumerations;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Tests.Shared;
@@ -166,6 +175,42 @@ namespace NosCore.GameObject.Tests.Services.MovementService
                 .Given(CharacterIsOnMap)
                 .WhenAsync(WalkingToValidPosition)
                 .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AStepDuringALeverBarCancelsItInTheChat()
+        {
+            await new Spec("A step while a lever's bar runs cancels the pull and says so in the chat")
+                .Given(CharacterIsOnMap)
+                .AndAsync(CharacterIsPullingA_, ButtonKind.Lever)
+                .WhenAsync(WalkingToValidPosition)
+                .Then(ThePlayerShouldBeToldTheInteractionWasCancelled)
+                .And(NoBarShouldBePending)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AStepDuringAnotherBarCancelsItWithoutAWord()
+        {
+            await new Spec("A step while a key's bar runs cancels it without a line in the chat")
+                .Given(CharacterIsOnMap)
+                .AndAsync(CharacterIsPullingA_, ButtonKind.Key)
+                .WhenAsync(WalkingToValidPosition)
+                .Then(NoSayiShouldBeSent)
+                .And(NoBarShouldBePending)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AStepAfterALeverBarRanSaysNothing()
+        {
+            await new Spec("A step once a lever's bar has run its length says nothing")
+                .Given(CharacterIsOnMap)
+                .AndAsync(CharacterIsPullingA_, ButtonKind.Lever)
+                .And(TheBarRunsItsLength)
+                .WhenAsync(WalkingToValidPosition)
+                .Then(NoSayiShouldBeSent)
                 .ExecuteAsync();
         }
 
@@ -617,5 +662,34 @@ namespace NosCore.GameObject.Tests.Services.MovementService
         {
             Assert.AreEqual(0, Session.LastPackets.Count);
         }
+
+        private async Task CharacterIsPullingA_(ButtonKind kind)
+        {
+            var button = new MapButton { MapButtonId = 1, PositionX = 4, PositionY = 5, Kind = kind };
+            await Session.Character.StartDelayAsync(new DelayPacket
+            {
+                Delay = MapButtonService.PullDelay,
+                Type = button.BarType,
+                Packet = new GitPacket { ButtonId = button.MapButtonId }
+            }, button, World.Clock.GetCurrentInstant());
+            Session.LastPackets.Clear();
+        }
+
+        private void TheBarRunsItsLength() => World.Clock.Advance(Duration.FromMilliseconds(MapButtonService.PullDelay));
+
+        private void ThePlayerShouldBeToldTheInteractionWasCancelled()
+        {
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = Session.Character.VisualId,
+                Type = SayColorType.Red,
+                Message = Game18NConstString.InteractionCancelledAsYouMoved
+            }, Session.LastPackets.OfType<SayiPacket>().Single());
+        }
+
+        private void NoSayiShouldBeSent() => Assert.IsFalse(Session.LastPackets.OfType<SayiPacket>().Any());
+
+        private void NoBarShouldBePending() => Assert.IsNull(Session.Character.PendingDelayType);
     }
 }

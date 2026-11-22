@@ -5,6 +5,7 @@
 //
 
 using NosCore.Instances.Abstractions;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
@@ -32,6 +33,9 @@ namespace NosCore.GameObject.Map
         public ButtonKind Kind { get; init; }
 
         public bool IsOn { get; set; }
+
+        // A key is taken with the bar a box is opened with.
+        public DelayPacketType BarType => Kind == ButtonKind.Key ? DelayPacketType.OpeningBox : DelayPacketType.Button;
 
         public InPacket GenerateIn()
         {

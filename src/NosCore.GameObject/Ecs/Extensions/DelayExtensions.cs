@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Map;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 
@@ -45,6 +46,17 @@ public static class DelayExtensions
 
         player.CancelDelay();
         return true;
+    }
+
+    // A step breaks a bar in progress; one pulling a map object is answered in the chat.
+    public static Task CancelDelayByMovingAsync(this PlayerComponentBundle player, Instant now)
+    {
+        var pulling = player.PendingDelayType == DelayPacketType.Button && player.PendingDelayTarget is MapButton
+            && now < player.PendingDelayReadyAt;
+        player.CancelDelay();
+        return pulling
+            ? player.SendPacketAsync(player.GenerateSayi(SayColorType.Red, Game18NConstString.InteractionCancelledAsYouMoved))
+            : Task.CompletedTask;
     }
 
     // Moving, attacking or being hit breaks a bar in progress.

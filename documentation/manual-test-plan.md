@@ -3912,7 +3912,14 @@ lair's boss.
 - [ ] When the bar ends, the lever turns into "Pull Lever (After)", the whole room sees "The
       lever has been pulled." and the portal opens
 - [ ] Clicking the pulled lever again starts no bar
-- [ ] Walking away or attacking during the bar cancels it and the lever stays as it was
+- [ ] Clicking the lever again while its bar runs leaves the bar running and shows "This object
+      is already in use."
+- [ ] Walking away during the bar cancels it, the chat shows "Interaction cancelled as you
+      moved." in red and the lever stays as it was
+- [ ] Attacking during the bar lets the bar run to its end, then shows "This object has not been
+      used yet." and the lever stays as it was
+- [ ] In time-space 3, taking a key shows a two second bar; clicking the key again during the bar
+      starts the bar over without a message, and walking away cancels it without a chat line
 - [ ] With `toggles: true`, a second pull switches the lever back and runs `OnButtonUsed` again
 - [ ] A second player who enters the room after the pull sees the lever already pulled
 
