@@ -12,7 +12,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.MailService
 {
@@ -47,7 +49,7 @@ namespace NosCore.GameObject.Services.MailService
                         SenderName = mail.SenderId == null ? "NOSMALL" : characterNames.GetValueOrDefault((long)mail.SenderId),
                         ReceiverName = characterNames.GetValueOrDefault(mail.ReceiverId),
                         MailDto = mail,
-                        ItemType = (short?)item?.ItemType ?? -1
+                        Pocket = item?.Type.ToPocketType() ?? default
                     });
             }
         }

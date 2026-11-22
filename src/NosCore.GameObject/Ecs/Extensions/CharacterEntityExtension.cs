@@ -336,13 +336,6 @@ namespace NosCore.GameObject.Ecs.Extensions
             if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = characterEntity.CharacterId);
-                await characterEntity.SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type.ToPocketType(), invItem.Slot)));
-                await characterEntity.SendPacketAsync(new SMemoiPacket
-                {
-                    Type = SMemoType.SuccessNpc,
-                    Message = Game18NConstString.TradeSuccessfull
-                });
-
                 if (reputprice == 0)
                 {
                     characterEntity.Gold -= (long)(price * percent);
@@ -355,6 +348,13 @@ namespace NosCore.GameObject.Ecs.Extensions
                     await characterEntity.SendPacketAsync(characterEntity.GenerateSayi(SayColorType.Red, Game18NConstString.ReputationReduced,
                         4, reputprice));
                 }
+
+                await characterEntity.SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type.ToPocketType(), invItem.Slot)));
+                await characterEntity.SendPacketAsync(new SMemoiPacket
+                {
+                    Type = SMemoType.SuccessNpc,
+                    Message = Game18NConstString.TradeSuccessfull
+                });
             }
             else
             {

@@ -157,9 +157,9 @@ namespace NosCore.GameObject.Services.WarehouseService
 
             // The warehouse side is already stored; the bag must not wait for the next save.
             await saveService.SaveAsync(session);
+            await SendSlotAsync(session, warehouse.Type, stored, warehouseSlot);
             await session.SendPacketAsync(inventory.LoadBySlotAndType(slot, (NoscorePocketType)pocket)
                 .GeneratePocketChange(pocket, slot));
-            await SendSlotAsync(session, warehouse.Type, stored, warehouseSlot);
             return stored;
         }
 

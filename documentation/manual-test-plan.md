@@ -2317,7 +2317,8 @@ NPC menus, shops, the bank, the NosBazaar and the upgrade windows only answer wh
 stands within 5 cells of the NPC whose dialog was opened, on the same map. Windows opened by an item
 (savings book, NosBazaar medal) work anywhere on the map they were opened on.
 
-- [ ] Click a shop-only NPC (no dialog), buy an item and sell one back: both go through
+- [ ] Click a shop-only NPC (no dialog), buy an item and sell one back: both go through. With a
+      packet logger, the purchase answers `gold`, then `ivn`, then `s_memoi 0 117 0`
 - [ ] Click a shop NPC whose dialog offers the shop, pick the shop and buy, then sell the item back:
       both go through
 - [ ] Click a teleporter NPC from right next to it and pick a destination: the teleport and the fare
@@ -2353,6 +2354,9 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
       the receiver
 - [ ] Delete a parcel and a note from the post box: each disappears and stays gone after a relog
 - [ ] Restart the master server with parcels waiting, then log in at once: every parcel is listed
+- [ ] With a packet logger, gift yourself a Seed of Power (1012), a material from the Etc bag and a
+      piece of equipment, then open the parcel window: each `parcel 1 …` line ends with the bag the
+      item goes to, 1, 2 and 0
 - [ ] `$SetReputation` above the current value shows "Reputation increased: +N" in green, below it
       "Reputation reduced: -N" in red, with N the difference; the same value shows nothing
 - [ ] Give a player `$SetGold` up to the gold cap and have them open a private shop; buying from
@@ -2748,6 +2752,7 @@ warehouse (3005) placed in the miniland; `mates.sh` adds a pet and a partner out
 - [ ] Log out and back in: stored items are still in their slots
 - [ ] Close the warehouse, open it again from the pet basket and deposit: the deposit works
       as before
+- [ ] With a packet logger, a deposit answers the warehouse slot (`stash`) before the bag slot (`ivn`)
 - [ ] Deposit part of a stack, or withdraw a stack, then stop the world server without logging
       out: after a restart the items are where the transfer left them, once and only once
 
@@ -3910,6 +3915,9 @@ confirms "Do you want to create the raid map?".
       about ten seconds later everyone is back on the map they started from
 - [ ] A member with a full inventory gets "Not enough space" instead of the box, and the others
       still get theirs
+- [ ] A member holding 998 of a reward that comes two at a time: the reward tops that stack up to
+      999 and the rest appears in a new slot, both at once and without a relog. The same holds for
+      an Arena of Talents medal and a Glacernon raid reward
 - [ ] B dies: "You will be revived in 20 seconds. You can only be revived once." appears, B
       stays down for 20 seconds, then stands up with full HP and MP where they fell
 - [ ] B dies a second time: the message now says the next death takes B out of the raid, and B
