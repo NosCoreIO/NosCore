@@ -19,7 +19,7 @@ namespace NosCore.Parser.Parsers
 {
     public class RespawnMapTypeParser(IDao<RespawnMapTypeDto, RespawnType> respawnMapTypeDao, ILogger<RespawnMapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        internal async Task InsertRespawnMapTypeAsync()
+        public async Task InsertRespawnMapTypeAsync()
         {
             var respawnmaptypemaps = new List<RespawnMapTypeDto>
             {

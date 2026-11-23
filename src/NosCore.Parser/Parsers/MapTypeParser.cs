@@ -19,7 +19,7 @@ namespace NosCore.Parser.Parsers
 {
     public class MapTypeParser(IDao<MapTypeDto, MapTypeType> dropDao, ILogger<MapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        internal async Task InsertMapTypesAsync()
+        public async Task InsertMapTypesAsync()
         {
             var mts = new List<MapTypeDto> { new()
                 {
