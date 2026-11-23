@@ -106,5 +106,26 @@ namespace NosCore.Parser.Tests
 
             CollectionAssert.AreEqual(new short[] { 2 }, _saved.Select(s => s.MapId).ToList());
         }
+
+        [TestMethod]
+        public async Task TheOasisTowerFloorsAboveMap300GetTheOasisType()
+        {
+            GivenMaps(2615, 2620);
+
+            await _parser.InsertMapTypeMapsAsync();
+
+            CollectionAssert.AreEqual(new[] { MapTypeType.Oasis }, TypesOf(2615));
+            CollectionAssert.AreEqual(new[] { MapTypeType.Oasis }, TypesOf(2620));
+        }
+
+        [TestMethod]
+        public async Task AMapNoRangeCoversGetsNoType()
+        {
+            GivenMaps(2614, 2621);
+
+            await _parser.InsertMapTypeMapsAsync();
+
+            Assert.AreEqual(0, _saved.Count);
+        }
     }
 }

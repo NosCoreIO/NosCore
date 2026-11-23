@@ -22,7 +22,8 @@ namespace NosCore.Parser.Parsers
             var mapTypeId = MapTypeType.Act1;
             var mapsdb = mapDao.LoadAll().ToList();
             var maptypemapdb = mapTypeMapDao.LoadAll().ToList();
-            for (var i = 1; i < 300; i++)
+            // Every stored map, not a fixed range: some map types are on ids far above 300 (the Oasis towers 2615-2620).
+            foreach (var i in mapsdb.Select(s => (int)s.MapId).Order())
             {
                 var objectset = false;
                 if ((i < 3) || ((i > 48) && (i < 53)) || ((i > 67) && (i < 76)) || (i == 102) ||
