@@ -596,9 +596,6 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Сделать эту деревню местом возрождения?</value>
   </data>
-  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
-    <value>Серверы будут отключены через {0} мин. для технического обслуживания.</value>
-  </data>
   <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
     <value>Портал откроется, когда ты победишь всех монстров.</value>
   </data>

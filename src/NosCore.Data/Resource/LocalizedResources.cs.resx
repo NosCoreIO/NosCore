@@ -581,9 +581,6 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Chceš z této vesnice udělat své místo oživení?</value>
   </data>
-  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
-    <value>Servery budou za {0} min. vypnuty kvůli údržbě.</value>
-  </data>
   <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
     <value>Portál se otevře, jakmile porazíš všechny příšery.</value>
   </data>

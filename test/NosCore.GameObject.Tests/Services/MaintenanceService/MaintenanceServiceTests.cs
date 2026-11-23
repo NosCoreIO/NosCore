@@ -188,19 +188,24 @@ namespace NosCore.GameObject.Tests.Services.MaintenanceService
 
         private ClientSession Session(string name) => name == nameof(_player) ? _player : _gameMaster;
 
-#pragma warning disable CS0618 // The warning has no client text, so it goes out as msg.
-        private void NoWarningShouldBeSent() => Assert.IsFalse(_player.LastPackets.OfType<MsgPacket>().Any());
+        private static List<MsgiPacket> Warnings(ClientSession session) => session.LastPackets.OfType<MsgiPacket>()
+            .Where(p => p.Message == Game18NConstString.ServerWillDisconnectShortly).ToList();
+
+        private void NoWarningShouldBeSent() => Assert.AreEqual(0, Warnings(_player).Count);
 
         private void _ShouldBeWarnedOf_Minutes(string name, int minutes)
         {
-            var session = Session(name);
-            var warning = session.LastPackets.OfType<MsgPacket>().Single();
-            Assert.AreEqual(MessageType.Shout, warning.Type);
-            Assert.AreEqual($"{LanguageKey.SERVER_SHUTDOWN_IN_MINUTES} {session.Account.Language} {minutes}", warning.Message);
+            PacketAssert.AreEqual(new MsgiPacket
+            {
+                Type = MessageType.Shout,
+                Message = Game18NConstString.ServerWillDisconnectShortly,
+                ArgumentType = 4,
+                Game18NArguments = { minutes },
+            }, Warnings(Session(name)).Single());
         }
-#pragma warning restore CS0618
 
-        private List<MsgiPacket> Countdown() => _player.LastPackets.OfType<MsgiPacket>().ToList();
+        private List<MsgiPacket> Countdown() => _player.LastPackets.OfType<MsgiPacket>()
+            .Where(p => p.Message != Game18NConstString.ServerWillDisconnectShortly).ToList();
 
         private void TheCountdownShouldBe()
         {

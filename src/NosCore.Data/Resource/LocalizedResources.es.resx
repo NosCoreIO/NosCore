@@ -519,9 +519,6 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>¿Quieres que esta aldea sea tu lugar de resurrección?</value>
   </data>
-  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
-    <value>Los servidores se apagarán en {0} minuto(s) por mantenimiento.</value>
-  </data>
   <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
     <value>El portal se abrirá cuando hayas derrotado a todos los monstruos.</value>
   </data>
