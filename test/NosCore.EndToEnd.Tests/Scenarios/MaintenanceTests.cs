@@ -48,13 +48,11 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 await gm.SendAsync(new SetMaintenancePacket { IsGlobal = false, MaintenanceMode = true, DelayInSeconds = 12 });
 
-#pragma warning disable CS0618 // The warning has no client text, so it goes out as msg.
-                await alice.ExpectAsync<MsgPacket>(p => p is
-                {
-                    Type: MessageType.Shout,
-                    Message: "The servers will be shut down in 1 minute(s) for maintenance.",
-                }, "the shutdown warning");
-#pragma warning restore CS0618
+                var warning = await alice.ExpectAsync<MsgiPacket>(p => p.Message == Game18NConstString.ServerWillDisconnectShortly,
+                    "the shutdown warning");
+                Assert.AreEqual(MessageType.Shout, warning.Type);
+                Assert.AreEqual(4, warning.ArgumentType);
+                Assert.AreEqual(1L, Convert.ToInt64(warning.Game18NArguments[0], CultureInfo.InvariantCulture), "the minutes left");
                 var countdown = await alice.ExpectAsync<MsgiPacket>(p => p.Message == Game18NConstString.ServerWillBeDisonnected,
                     "the countdown");
                 Assert.AreEqual(4, countdown.ArgumentType);
