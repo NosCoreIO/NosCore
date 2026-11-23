@@ -1404,9 +1404,6 @@
   <data name="ITEM_SLOT_TAKEN" xml:space="preserve">
     <value>Slot {Slot} of pocket {Pocket} is taken and no swap was asked</value>
   </data>
-  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
-    <value>The servers will be shut down in {0} minute(s) for maintenance.</value>
-  </data>
   <data name="PARCEL_RETURN_FAILED" xml:space="preserve">
     <value>Item {ItemVNum}x{Amount} (rarity {Rare}, upgrade {Upgrade}) could not be sent to the parcel box of character {CharacterId}; it is kept as item instance {ItemInstanceId}</value>
   </data>

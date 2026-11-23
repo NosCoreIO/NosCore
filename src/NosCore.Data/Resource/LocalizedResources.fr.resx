@@ -1029,9 +1029,6 @@
   <data name="TIMESPACE_HUNTING_TIME_OVER" xml:space="preserve">
     <value>Le temps de chasse est écoulé...</value>
   </data>
-  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
-    <value>Les serveurs seront arrêtés dans {0} minute(s) pour maintenance.</value>
-  </data>
   <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
     <value>Le portail s'ouvrira une fois que tu auras éliminé tous les monstres.</value>
   </data>

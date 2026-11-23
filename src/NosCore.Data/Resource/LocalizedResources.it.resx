@@ -615,9 +615,6 @@
   <data name="ASK_CHANGE_RESPAWN_LOCATION" xml:space="preserve">
     <value>Vuoi rendere questo villaggio il tuo luogo di resurrezione?</value>
   </data>
-  <data name="SERVER_SHUTDOWN_IN_MINUTES" xml:space="preserve">
-    <value>I server verranno spenti tra {0} minuto/i per manutenzione.</value>
-  </data>
   <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
     <value>Il portale si aprirà quando avrai sconfitto tutti i mostri.</value>
   </data>

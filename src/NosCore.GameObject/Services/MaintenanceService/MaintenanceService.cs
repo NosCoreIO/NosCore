@@ -5,8 +5,6 @@
 //
 
 using NodaTime;
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -24,7 +22,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.MaintenanceService
 {
     public sealed class MaintenanceService(IClock clock, ISessionRegistry sessionRegistry, IChannelHub channelHub,
-        IPubSubHub pubSubHub, IGameLanguageLocalizer gameLanguageLocalizer) : IMaintenanceService, ISingletonService
+        IPubSubHub pubSubHub) : IMaintenanceService, ISingletonService
     {
         public static readonly Duration WarningTime = Duration.FromMinutes(5);
 
@@ -134,15 +132,14 @@ namespace NosCore.GameObject.Services.MaintenanceService
             return Task.CompletedTask;
         }
 
-        // The client holds no text for this line, so the i18n msgi cannot carry it.
-#pragma warning disable CS0618
         private Task WarnAsync(int minutes) =>
-            Task.WhenAll(sessionRegistry.GetSessions().Select(session => session.SendPacketAsync(new MsgPacket
+            Task.WhenAll(sessionRegistry.GetSessions().Select(session => session.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Shout,
-                Message = gameLanguageLocalizer[LanguageKey.SERVER_SHUTDOWN_IN_MINUTES, session.Account.Language, minutes],
+                Message = Game18NConstString.ServerWillDisconnectShortly,
+                ArgumentType = 4,
+                Game18NArguments = { minutes },
             })));
-#pragma warning restore CS0618
 
         // Game masters may enter during maintenance, so they are left connected.
         private async Task ShutDownAsync()
