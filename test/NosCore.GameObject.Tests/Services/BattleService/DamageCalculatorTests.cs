@@ -263,6 +263,87 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void ASkillsOwnCriticalChanceCountsForItsHit()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 10, CriticalRate = 200,
+            };
+            var piercing = MeleeSkill with
+            {
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.Critical, SubType = 11, FirstData = 20 } },
+            };
+
+            var plain = Calculator(1.0, 0.25).Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var sharpened = Calculator(1.0, 0.25).Calculate(attacker, StatsBuilder.Default(), piercing);
+
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, plain.HitMode);
+            Assert.AreEqual(SuPacketHitMode.CriticalAttack, sharpened.HitMode);
+        }
+
+        [TestMethod]
+        public void ASkillsOwnCriticalDamageRaisesItsCritical()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 100, CriticalRate = 100,
+            };
+            var heavy = MeleeSkill with
+            {
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.Critical, SubType = 21, FirstData = 100 } },
+            };
+
+            var plain = Calculator(1.0, 0.0).Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var raised = Calculator(1.0, 0.0).Calculate(attacker, StatsBuilder.Default(), heavy);
+            var stronger = Calculator(1.0, 0.0).Calculate(attacker with { CriticalRate = 200 }, StatsBuilder.Default(), MeleeSkill);
+
+            Assert.AreEqual(SuPacketHitMode.CriticalAttack, raised.HitMode);
+            Assert.IsTrue(raised.Damage > plain.Damage);
+            Assert.AreEqual(stronger.Damage, raised.Damage);
+        }
+
+        [TestMethod]
+        public void ASkillThatNeverInflictsCriticalsKeepsItsHitPlain()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 100, CriticalRate = 200,
+            };
+            var blunt = MeleeSkill with
+            {
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.SpecialCritical, SubType = 21 } },
+            };
+
+            var result = Calculator(1.0, 0.0).Calculate(attacker, StatsBuilder.Default(), blunt);
+
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, result.HitMode);
+        }
+
+        [TestMethod]
+        public void ASkillsCriticalCardsMeantForTheReceiverDoNotChangeItsHit()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 10, CriticalRate = 200,
+            };
+            var exposing = MeleeSkill with
+            {
+                BCards = new[] { new BCardDto { Type = BCardType.CardType.SpecialCritical, SubType = 31 } },
+            };
+
+            var result = Calculator(1.0, 0.25).Calculate(attacker, StatsBuilder.Default(), exposing);
+
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, result.HitMode);
+        }
+
+        private static DamageCalculator Calculator(params double[] rolls) =>
+            new(Rng(doubles: rolls, ints: new[] { 100 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService());
+
+        [TestMethod]
         public void ADefendersChanceToTakeLessDamageCutsTheHitWhenItsRollSucceeds()
         {
             var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 100, MaxHit = 100 };

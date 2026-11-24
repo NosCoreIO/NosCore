@@ -37,6 +37,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
 
     public DamageResult Calculate(CombatStats attacker, CombatStats defender, SkillInfo skill)
     {
+        attacker = BattleStatsProvider.WithSkillCriticals(attacker, skill);
         if (attacker.IsPlayer && defender.IsPlayer)
         {
             (attacker, defender) = WithPvpShell(attacker, defender);
