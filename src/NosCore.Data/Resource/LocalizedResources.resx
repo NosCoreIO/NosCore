@@ -1440,6 +1440,9 @@
   <data name="PARCEL_CLAIMED_BUT_KEPT" xml:space="preserve">
     <value>Parcel {MailId} of character {CharacterId} could not be removed after its item {ItemVNum}x{Amount} was taken into the bag and partly used, so it can be claimed again</value>
   </data>
+  <data name="PARCEL_CLAIM_UNCONFIRMED" xml:space="preserve">
+    <value>Parcel {MailId} (stored mail {StoredMailId}) of character {CharacterId} may still be in the parcel box: its item {ItemVNum}x{Amount} was kept in the bag after a failed claim, and the box could neither be read nor the parcel removed</value>
+  </data>
   <data name="TIMESPACE_GOAL_PORTAL_OPENS_ONCE_ALL_DEFEATED" xml:space="preserve">
     <value>The portal will open once you have defeated all the monsters.</value>
   </data>

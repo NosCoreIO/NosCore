@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.Parcel
                 try
                 {
                     claimed = await StoreOptionsAsync(item, options)
-                        && await mailHttpClient.DeleteMailAsync(getGiftPacket.GiftId, characterId, isCopy);
+                        && await mailHttpClient.DeleteStoredMailAsync(getGiftPacket.GiftId, characterId, isCopy, mail.MailDto.MailId);
                 }
                 catch (Exception e)
                 {
@@ -89,7 +89,16 @@ namespace NosCore.PacketHandlers.Parcel
                 }
 
                 // A call that threw may still have removed the mail, and then the item is the player's.
-                if (!claimed && (failure == null || await IsStillInTheParcelBoxAsync(getGiftPacket.GiftId, characterId, isCopy, mail.MailDto.MailId)))
+                bool? stillThere = claimed ? false
+                    : failure == null ? true
+                    : await IsStillInTheParcelBoxAsync(getGiftPacket.GiftId, characterId, isCopy, mail.MailDto.MailId);
+                if (stillThere == null && !await TryRemoveMailAsync(getGiftPacket.GiftId, characterId, isCopy, mail.MailDto.MailId))
+                {
+                    // Whether the parcel went is unknown, so the item stays with the player and the parcel is left to check.
+                    logger.LogError(failure, logLanguage[LogLanguageKey.PARCEL_CLAIM_UNCONFIRMED], getGiftPacket.GiftId,
+                        mail.MailDto.MailId, characterId, item.ItemVNum, amount);
+                }
+                else if (stillThere == true)
                 {
                     if (await TakeBackAsync(inventory, placed, item, options.Count > 0))
                     {
@@ -102,7 +111,7 @@ namespace NosCore.PacketHandlers.Parcel
                     }
 
                     // Part of it was used meanwhile, so the claim stands and the parcel has to go.
-                    if (!await TryRemoveMailAsync(getGiftPacket.GiftId, characterId, isCopy))
+                    if (!await TryRemoveMailAsync(getGiftPacket.GiftId, characterId, isCopy, mail.MailDto.MailId))
                     {
                         logger.LogError(failure, logLanguage[LogLanguageKey.PARCEL_CLAIMED_BUT_KEPT], getGiftPacket.GiftId,
                             characterId, item.ItemVNum, amount);
@@ -126,8 +135,18 @@ namespace NosCore.PacketHandlers.Parcel
         }
 
         // The parcel box number of a removed mail can be given to a new one, so the stored mail is compared.
-        private async Task<bool> IsStillInTheParcelBoxAsync(int giftId, long characterId, bool isCopy, long storedMailId) =>
-            (await mailHttpClient.GetMails(giftId, characterId, isCopy)).Any(m => m.MailDto.MailId == storedMailId);
+        // Null when the box cannot be read.
+        private async Task<bool?> IsStillInTheParcelBoxAsync(int giftId, long characterId, bool isCopy, long storedMailId)
+        {
+            try
+            {
+                return (await mailHttpClient.GetMails(giftId, characterId, isCopy)).Any(m => m.MailDto.MailId == storedMailId);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
 
         private async Task<bool> StoreOptionsAsync(IItemInstance item, List<EquipmentOptionDto> options)
         {
@@ -159,11 +178,11 @@ namespace NosCore.PacketHandlers.Parcel
             return true;
         }
 
-        private async Task<bool> TryRemoveMailAsync(int giftId, long characterId, bool isCopy)
+        private async Task<bool> TryRemoveMailAsync(int giftId, long characterId, bool isCopy, long storedMailId)
         {
             try
             {
-                return await mailHttpClient.DeleteMailAsync(giftId, characterId, isCopy);
+                return await mailHttpClient.DeleteStoredMailAsync(giftId, characterId, isCopy, storedMailId);
             }
             catch (Exception)
             {
