@@ -587,6 +587,20 @@ restart the world server:
 - [ ] Not verifiable yet: Herb Mastery (skill 360) raising Detoxification Ritual to level 3 poisons, since
       an upgrade skill's own effects never reach the skill it upgrades
 
+### No HP or MP consumption and no recovery — BCard type 36 subtypes 21/22 and 31/32
+
+Hold the card through a static buff row (see the BCard test scenes) or have it cast on you.
+
+- [ ] Under a no-HP-consumption card (Invincibility Shield, Perfect Protection), get poisoned or
+      bleed: the HP bar does not drop on the ticks, and casting under Deadly Poison costs no HP
+- [ ] Under a no-HP-recovery card (Illusion, Heartache), stand or sit with HP missing: the bar does not
+      refill, and a health potion is refused and stays in the bag; a potion that also restores MP
+      restores only the MP and is used up
+- [ ] Under a no-MP-consumption card, cast a skill: the MP bar does not drop
+- [ ] Under a no-MP-recovery card, the MP bar does not refill while HP still does
+- [ ] Not verifiable yet: 36/41 "cancels all buffs", carried by one monster card with no trigger in
+      the data
+
 ### Chance-based damage taken
 
 - [ ] Wear an armour with "there is a 100% chance that damage from ranged attacks is reduced by 20%"

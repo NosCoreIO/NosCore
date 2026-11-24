@@ -54,6 +54,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private readonly List<MapTypeMapDto> _mapTypeMaps = new();
         private readonly List<MapTypeDto> _mapTypes = new();
         private Mock<IEquipmentStatsService> _gear;
+        private BuffService _buffs;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -64,8 +65,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.MaxMp = 800;
             _gear = World.Freeze<Mock<IEquipmentStatsService>>();
             _gear.Setup(g => g.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
+            _buffs = World.Create<BuffService>();
             _handler = new PotionHandler(new PotionCooldownService(_mapTypeMaps, _mapTypes, World.Clock),
-                World.Create<RecoveryBonusService>());
+                World.Create<RecoveryBonusService>(), _buffs);
         }
 
         [TestMethod]
@@ -81,6 +83,37 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .And(TheStatBarShouldShow_Hp_Mp, 800, 200)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ACardThatStopsHpRecoveryKeepsAHealthPotionInTheBag()
+        {
+            await new Spec("Under a no-HP-recovery card a health potion heals nothing and stays in the bag")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(TheCharacterHolds_, BCardEffect.TimeCircleSkillsDisableHpRecovery)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 500)
+                .And(PotionCountShouldBe_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACardThatStopsHpRecoveryLeavesAPotionsMp()
+        {
+            await new Spec("Under a no-HP-recovery card a potion still restores its MP")
+                .Given(APotionRestoring_Hp_Mp, 300, 100)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .AndAsync(TheCharacterHolds_, BCardEffect.TimeCircleSkillsDisableHpRecovery)
+                .WhenAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 500)
+                .And(MpShouldBe_, 300)
+                .And(PotionCountShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        private Task TheCharacterHolds_(BCardEffect effect) =>
+            _buffs.ApplyAsync(_session.Character, new CardDto { CardId = 1, Duration = 600 },
+                [new BCardDto { Type = effect.Type(), SubType = effect.SubType() }], null);
 
         [TestMethod]
         public async Task TheHpAPotionHealsFloatsOverTheCharacter()

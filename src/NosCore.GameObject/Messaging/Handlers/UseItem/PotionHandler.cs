@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -20,7 +21,8 @@ using NosCore.Packets.ServerPackets.UI;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class PotionHandler(IPotionCooldownService potionCooldown, IRecoveryBonusService recoveryBonus)
+    public sealed class PotionHandler(IPotionCooldownService potionCooldown, IRecoveryBonusService recoveryBonus,
+        IBuffService buffService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -45,8 +47,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var itemInstance = evt.InventoryItem;
             var character = session.Character;
-            var restoresHp = (item.Hp > 0 || item.RestoresAllHp) && character.Hp < character.MaxHp;
-            var restoresMp = (item.Mp > 0 || item.RestoresAllMp) && character.Mp < character.MaxMp;
+            var restoresHp = (item.Hp > 0 || item.RestoresAllHp) && character.Hp < character.MaxHp
+                && !buffService.HasEffect(character, BCardEffect.TimeCircleSkillsDisableHpRecovery);
+            var restoresMp = (item.Mp > 0 || item.RestoresAllMp) && character.Mp < character.MaxMp
+                && !buffService.HasEffect(character, BCardEffect.TimeCircleSkillsDisableMpRecovery);
             if (!character.IsAlive || (!restoresHp && !restoresMp) || !potionCooldown.IsReady(character))
             {
                 return;
@@ -55,8 +59,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             potionCooldown.Start(character);
             var left = character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             var hp = recoveryBonus.Boost(character, item.Hp);
-            var refilledMates = (await character.HealAsync(item.RestoresAllHp ? character.MaxHp : hp,
-                item.RestoresAllMp ? character.MaxMp : recoveryBonus.Boost(character, item.Mp),
+            var refilledMates = (await character.HealAsync(!restoresHp ? 0 : item.RestoresAllHp ? character.MaxHp : hp,
+                !restoresMp ? 0 : item.RestoresAllMp ? character.MaxMp : recoveryBonus.Boost(character, item.Mp),
                 fullRestore ? 0 : hp)).ToList();
             if (fullRestore)
             {

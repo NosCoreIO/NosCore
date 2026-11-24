@@ -466,7 +466,8 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     // A drain takes from the bearer and gives what it took to whoever applied the card.
     private async Task PulseAsync(IAliveEntity target, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
     {
-        long hpPercent = 0, mpPercent = 0, hpFixed = 0, mpFixed = 0;
+        long hpGainPercent = 0, hpLossPercent = 0, mpGainPercent = 0, mpLossPercent = 0;
+        long hpGainFixed = 0, hpLossFixed = 0, mpGainFixed = 0, mpLossFixed = 0;
         List<(IAliveEntity? Caster, long Hp, long Mp)>? drains = null;
         List<int>? mpLosses = null;
         foreach (var (cardId, buff) in buffs)
@@ -489,14 +490,14 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 var fixedAmount = times * BattleStatsProvider.ScaleByLevel(bCard, buff.CasterLevel ?? target.Level);
                 switch (bCard.Effect())
                 {
-                    case BCardEffect.RecoveryAndDamagePercentHpRecovered: hpPercent += amount; break;
-                    case BCardEffect.RecoveryAndDamagePercentHpReduced: hpPercent -= amount; break;
-                    case BCardEffect.RecoveryAndDamagePercentMpRecovered: mpPercent += amount; break;
-                    case BCardEffect.RecoveryAndDamagePercentMpReduced: mpPercent -= amount; break;
-                    case BCardEffect.HealingBurningAndCastingRestoreHp: hpFixed += fixedAmount; break;
-                    case BCardEffect.HealingBurningAndCastingDecreaseHp: hpFixed -= fixedAmount; break;
-                    case BCardEffect.HealingBurningAndCastingRestoreMp: mpFixed += fixedAmount; break;
-                    case BCardEffect.HealingBurningAndCastingDecreaseMp: mpFixed -= fixedAmount; break;
+                    case BCardEffect.RecoveryAndDamagePercentHpRecovered: hpGainPercent += amount; break;
+                    case BCardEffect.RecoveryAndDamagePercentHpReduced: hpLossPercent += amount; break;
+                    case BCardEffect.RecoveryAndDamagePercentMpRecovered: mpGainPercent += amount; break;
+                    case BCardEffect.RecoveryAndDamagePercentMpReduced: mpLossPercent += amount; break;
+                    case BCardEffect.HealingBurningAndCastingRestoreHp: hpGainFixed += fixedAmount; break;
+                    case BCardEffect.HealingBurningAndCastingDecreaseHp: hpLossFixed += fixedAmount; break;
+                    case BCardEffect.HealingBurningAndCastingRestoreMp: mpGainFixed += fixedAmount; break;
+                    case BCardEffect.HealingBurningAndCastingDecreaseMp: mpLossFixed += fixedAmount; break;
                     case BCardEffect.DrainTransferEnemyHp: drainedHp += fixedAmount; break;
                     case BCardEffect.DrainAndStealLeechEnemyMp: drainedMp += Successes(times, bCard.FirstData) * bCard.SecondData; break;
                     case BCardEffect.ReflectionRemainingMpLostChance:
@@ -517,19 +518,37 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             buffs.TryUpdate(cardId, buff with { PulsedUntil = now }, buff);
         }
 
-        if ((hpPercent == 0 && mpPercent == 0 && hpFixed == 0 && mpFixed == 0 && drains == null && mpLosses == null)
+        if ((hpGainPercent == 0 && hpLossPercent == 0 && mpGainPercent == 0 && mpLossPercent == 0
+                && hpGainFixed == 0 && hpLossFixed == 0 && mpGainFixed == 0 && mpLossFixed == 0
+                && drains == null && mpLosses == null)
             || !target.IsAlive)
         {
             return;
         }
 
-        var hp = (int)Math.Clamp(target.Hp + target.MaxHp * hpPercent / 100 + hpFixed, Math.Min(1, target.Hp), target.MaxHp);
-        var mp = (int)Math.Clamp(target.Mp + target.MaxMp * mpPercent / 100 + mpFixed, 0, target.MaxMp);
+        var noHpLoss = HasEffect(target, BCardEffect.TimeCircleSkillsDisableHpConsumption);
+        var noMpLoss = HasEffect(target, BCardEffect.TimeCircleSkillsDisableMpConsumption);
+        var hpGain = HasEffect(target, BCardEffect.TimeCircleSkillsDisableHpRecovery) ? 0 : target.MaxHp * hpGainPercent / 100 + hpGainFixed;
+        var hpLoss = noHpLoss ? 0 : target.MaxHp * hpLossPercent / 100 + hpLossFixed;
+        var mpGain = HasEffect(target, BCardEffect.TimeCircleSkillsDisableMpRecovery) ? 0 : target.MaxMp * mpGainPercent / 100 + mpGainFixed;
+        var mpLoss = noMpLoss ? 0 : target.MaxMp * mpLossPercent / 100 + mpLossFixed;
+        var hp = (int)Math.Clamp(target.Hp + hpGain - hpLoss, Math.Min(1, target.Hp), target.MaxHp);
+        var mp = (int)Math.Clamp(target.Mp + mpGain - mpLoss, 0, target.MaxMp);
         List<(IAliveEntity Caster, int Hp, int Mp)>? gains = null;
         foreach (var (caster, drainHp, drainMp) in drains ?? [])
         {
             var takenHp = (int)Math.Max(0, Math.Min(drainHp, hp - 1));
             var takenMp = (int)Math.Min(drainMp, mp);
+            if (noHpLoss)
+            {
+                takenHp = 0;
+            }
+
+            if (noMpLoss)
+            {
+                takenMp = 0;
+            }
+
             hp -= takenHp;
             mp -= takenMp;
             if (caster != null && target.MapInstance is { } map && IsOn(caster, map))
@@ -538,7 +557,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             }
         }
 
-        foreach (var percent in mpLosses ?? [])
+        foreach (var percent in (noMpLoss ? null : mpLosses) ?? [])
         {
             mp -= mp * Math.Clamp(percent, 0, 100) / 100;
         }
@@ -557,15 +576,20 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
     }
 
-    private static async Task GiveAsync(IAliveEntity entity, int hp, int mp)
+    private int Held(IAliveEntity target, int current, int next, BCardEffect noLoss, BCardEffect noGain) =>
+        next < current && HasEffect(target, noLoss) || next > current && HasEffect(target, noGain) ? current : next;
+
+    private async Task GiveAsync(IAliveEntity entity, int hp, int mp)
     {
         if (!entity.IsAlive)
         {
             return;
         }
 
-        var newHp = Math.Min(entity.MaxHp, entity.Hp + hp);
-        var newMp = Math.Min(entity.MaxMp, entity.Mp + mp);
+        var newHp = Held(entity, entity.Hp, Math.Min(entity.MaxHp, entity.Hp + hp),
+            BCardEffect.TimeCircleSkillsDisableHpConsumption, BCardEffect.TimeCircleSkillsDisableHpRecovery);
+        var newMp = Held(entity, entity.Mp, Math.Min(entity.MaxMp, entity.Mp + mp),
+            BCardEffect.TimeCircleSkillsDisableMpConsumption, BCardEffect.TimeCircleSkillsDisableMpRecovery);
         var hpChange = newHp - entity.Hp;
         if (hpChange == 0 && newMp == entity.Mp)
         {
@@ -615,7 +639,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             }
         }
 
-        if (loss == 0 || !caster.IsAlive)
+        if (loss == 0 || !caster.IsAlive || HasEffect(caster, BCardEffect.TimeCircleSkillsDisableHpConsumption))
         {
             return;
         }
