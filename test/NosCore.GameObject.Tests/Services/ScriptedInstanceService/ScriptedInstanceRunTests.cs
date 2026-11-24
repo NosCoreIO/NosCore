@@ -1080,6 +1080,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task TheFirstPlayerInIsSentTheStartingClockOnceAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            Assert.AreEqual(1, session.LastPackets.Concat(_first.LastPackets).OfType<EventPacket>()
+                .Count(p => p.Type == EventPacketType.TSTimer));
+        }
+
+        [TestMethod]
         public async Task APlayerJoiningTheLobbySeesTheWaitingClockAsync()
         {
             var first = await PlayerInFirstRoomAsync();
