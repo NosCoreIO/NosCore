@@ -1087,8 +1087,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             await run.EnteredAsync(session, _first.MapInstanceId);
 
-            Assert.AreEqual(1, session.LastPackets.Concat(_first.LastPackets).OfType<EventPacket>()
-                .Count(p => p.Type == EventPacketType.TSTimer));
+            Assert.IsTrue(World.SessionRegistry.GetClientSessionsByMapInstance(_first.MapInstanceId).Contains(session),
+                "the room's broadcast reaches the player");
+            Assert.AreEqual(1, _first.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer));
+            Assert.AreEqual(0, session.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer),
+                "no second copy sent to the player alone");
         }
 
         [TestMethod]
