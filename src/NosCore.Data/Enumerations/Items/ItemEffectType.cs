@@ -20,6 +20,8 @@ namespace NosCore.Data.Enumerations.Items
         ApplyCard = 20,
         // EffectValue is how many colours a wig can be dyed.
         WigDye = 30,
+        // Dyes the hairstyle its HairStyleDye rows name; any other hairstyle refuses it.
+        HairStyleDye = 31,
         MarriageProposal = 34,
         // EffectValue is the passive skill the book teaches.
         PassiveSkillBook = 99,

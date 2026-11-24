@@ -3108,6 +3108,16 @@ in the Equipment pocket.
 - [ ] Use a Dye Bomb with no hat, or with a hat that has no colours: "You're not wearing this
       item." appears and the bomb stays
 
+### Savage Dyes
+
+A male character with the Faux Hawk Undercut and a female one with Choppy Bangs (the hair waxes
+2535 and 2537 give them), each with Savage Dyes (2533) in the Etc pocket.
+
+- [ ] Double-click the dyes and confirm: the hair takes its two-tone dyed look, a second player on
+      the map sees it too, and one dye is used up
+- [ ] Use the dyes again on the dyed hair, or on any other hairstyle: "You can only use it with
+      punk and bomb hairstyles." appears and the dyes stay
+
 ### Speech bubble
 
 Two characters A and B on the same map; A has a Speech Bubble (2174) in the Etc pocket.
