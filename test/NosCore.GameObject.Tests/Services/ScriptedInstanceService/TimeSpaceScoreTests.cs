@@ -33,6 +33,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.TimeSpaces;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -371,6 +372,43 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AClearAboveTheRecordBreaksIt()
+        {
+            await new Spec("A clear scoring 58 on a stone whose record is 57 becomes the record and tells the player")
+                .GivenAsync(TheRecordIs_, 2 * KillPoints + RoomClearedPoints - 1)
+                .AndAsync(ATimeSpaceThatSucceeds)
+                .AndAsync(_MonstersAreKilled, 2)
+                .WhenAsync(TheExitIsReached)
+                .Then(ThePlayerShouldBeToldTheRecordIsBroken_, true)
+                .And(TheRecordShouldBe_ByThePlayer, 2 * KillPoints + RoomClearedPoints)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AClearBelowTheRecordKeepsIt()
+        {
+            await new Spec("A clear scoring 58 on a stone whose record is 59 leaves the record alone")
+                .GivenAsync(TheRecordIs_, 2 * KillPoints + RoomClearedPoints + 1)
+                .AndAsync(ATimeSpaceThatSucceeds)
+                .AndAsync(_MonstersAreKilled, 2)
+                .WhenAsync(TheExitIsReached)
+                .Then(ThePlayerShouldBeToldTheRecordIsBroken_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFailedRunSetsNoRecord()
+        {
+            await new Spec("A failed run never becomes the record")
+                .GivenAsync(TheRecordIs_, 0)
+                .AndAsync(ATimeSpaceThatFails)
+                .AndAsync(_MonstersAreKilled, 2)
+                .WhenAsync(TheExitIsReached)
+                .Then(ThePlayerShouldBeToldTheRecordIsBroken_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ALevelTwentyCharacterScoresOneInTheLastField()
         {
             await new Spec("A character of level 20 or below gets 1 in the score's last field")
@@ -454,6 +492,25 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()), Times.Once);
             _gameEvents.Verify(e => e.RaiseAsync(It.Is<ScriptedInstanceSucceededEvent>(evt => evt.Character.CharacterId == secondId)),
                 Times.Once);
+        }
+
+        private async Task TheRecordIs_(int score)
+        {
+            World.UseReal<ITimeSpaceRecordService, TimeSpaceRecordService>();
+            if (score > 0)
+            {
+                var holder = await World.CreateSessionAsync();
+                await World.Create<ITimeSpaceRecordService>().TryBreakAsync(TimeSpaceId, holder.Character.CharacterId, score);
+            }
+        }
+
+        private void ThePlayerShouldBeToldTheRecordIsBroken_(bool told) =>
+            Assert.AreEqual(told, _session.LastPackets.OfType<MsgiPacket>().Any(m => m.Message == Game18NConstString.BrokeRecordScore));
+
+        private void TheRecordShouldBe_ByThePlayer(int score)
+        {
+            var record = World.TimeSpaceRecordDao.Where(r => r.TimeSpaceId == TimeSpaceId)?.Single();
+            Assert.AreEqual(((int?)score, (long?)_session.Character.CharacterId), (record?.Score, record?.CharacterId));
         }
 
         private void TheCharacterIsLevel_(byte level) => _session.Character.Level = level;

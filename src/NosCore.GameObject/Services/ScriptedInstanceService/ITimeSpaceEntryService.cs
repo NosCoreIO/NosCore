@@ -16,7 +16,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // unless the player has just said no.
         Task ShowAsync(ClientSession session, ScriptedInstance entrance, bool offerToJoin = true);
 
-        Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false);
+        // Asks the gold the stone's record button costs; the answer enters it as a record challenge.
+        Task AskRecordChallengeAsync(ClientSession session, ScriptedInstance entrance);
+
+        Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false,
+            bool recordChallenge = false);
 
         Task JoinAsync(ClientSession session, ScriptedInstance entrance, long memberId);
 

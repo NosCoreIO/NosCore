@@ -69,6 +69,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly ILowLevelBoostService _lowLevelBoostService;
         private readonly IExperienceBonusService _experienceBonusService;
         private readonly IExperienceProgressionService _experienceProgression;
+        private readonly ITimeSpaceRecordService _timeSpaceRecordService;
 
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
@@ -102,7 +103,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             ITimeSpaceScoreService timeSpaceScoreService,
             ILowLevelBoostService lowLevelBoostService,
             IExperienceBonusService experienceBonusService,
-            IExperienceProgressionService experienceProgression)
+            IExperienceProgressionService experienceProgression,
+            ITimeSpaceRecordService timeSpaceRecordService)
         {
             _gameLanguage = gameLanguage;
             _timeSpacePenaltyService = timeSpacePenaltyService;
@@ -111,6 +113,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _lowLevelBoostService = lowLevelBoostService;
             _experienceBonusService = experienceBonusService;
             _experienceProgression = experienceProgression;
+            _timeSpaceRecordService = timeSpaceRecordService;
             _scriptTimeout = worldConfiguration.Value.InstanceScriptTimeout;
             _gameEvents = gameEvents;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
@@ -195,7 +198,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 : MapInstanceType.RaidInstance;
 
             return await InstantiateAsync(logic, instanceType, new TimeSpaceRunHost(entrance, _mapChangeService, _gameEvents, _timeSpacePenaltyService,
-                _timeSpaceExperienceService, _timeSpaceScoreService, _lowLevelBoostService, _experienceBonusService, _experienceProgression, _logger, _logLanguage));
+                _timeSpaceExperienceService, _timeSpaceScoreService, _lowLevelBoostService, _experienceBonusService, _experienceProgression, _timeSpaceRecordService, _logger, _logLanguage));
         }
 
         public async Task<IInstanceScript?> LoadScriptAsync(string script)

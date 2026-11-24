@@ -67,6 +67,17 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheRecordButtonAsksTheRecordsCost()
+        {
+            await new Spec("A wreq to enter with the record button asks the record's cost instead of entering")
+                .Given(TheCharacterStandsOnAStone)
+                .WhenAsync(PressingTheRecordButton)
+                .Then(TheRecordsCostIsAsked)
+                .And(TheTimeSpaceIsNotEntered)
+                .ExecuteAsync();
+        }
+
         private void TheCharacterStandsOnAStone()
         {
             var (mapId, x, y) = (Session.Character.MapId, Session.Character.PositionX, Session.Character.PositionY);
@@ -79,14 +90,19 @@ namespace NosCore.PacketHandlers.Tests.Game
         private Task SendingAWreqToEnter() =>
             World.Create<WreqPacketHandler>().ExecuteAsync(new WreqPacket { Value = WreqPacketType.InstanceEntry }, Session);
 
+        private Task PressingTheRecordButton() =>
+            World.Create<WreqPacketHandler>().ExecuteAsync(new WreqPacket { Value = WreqPacketType.InstanceEntry, Param = 1 }, Session);
+
+        private void TheRecordsCostIsAsked() => Entry.Verify(s => s.AskRecordChallengeAsync(Session, Stone), Times.Once);
+
         private void TheCardIsShown() => Entry.Verify(s => s.ShowAsync(Session, Stone), Times.Once);
 
         private void NoCardIsShown() =>
             Entry.Verify(s => s.ShowAsync(It.IsAny<ClientSession>(), It.IsAny<ScriptedInstance>()), Times.Never);
 
-        private void TheTimeSpaceIsEntered() => Entry.Verify(s => s.EnterAsync(Session, Stone, false), Times.Once);
+        private void TheTimeSpaceIsEntered() => Entry.Verify(s => s.EnterAsync(Session, Stone, false, false), Times.Once);
 
         private void TheTimeSpaceIsNotEntered() =>
-            Entry.Verify(s => s.EnterAsync(It.IsAny<ClientSession>(), It.IsAny<ScriptedInstance>(), It.IsAny<bool>()), Times.Never);
+            Entry.Verify(s => s.EnterAsync(It.IsAny<ClientSession>(), It.IsAny<ScriptedInstance>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
     }
 }

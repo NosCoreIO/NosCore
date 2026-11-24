@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261124223404_AddTattooApplication";
+    public override string LastMigrationId => "20261124224259_KeepTimeSpaceRecords";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -3731,6 +3731,30 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.ToTable("Teleporter");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.TimeSpaceRecord", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uuid");
+
+                b.Property<long>("CharacterId")
+                    .HasColumnType("bigint");
+
+                b.Property<int>("Score")
+                    .HasColumnType("integer");
+
+                b.Property<short>("TimeSpaceId")
+                    .HasColumnType("smallint");
+
+                b.HasKey("Id");
+
+                b.HasIndex("CharacterId");
+
+                b.HasIndex("TimeSpaceId")
+                    .IsUnique();
+
+                b.ToTable("TimeSpaceRecord");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.Title", b =>
             {
                 b.Property<Guid>("Id")
@@ -4967,6 +4991,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("MapNpc");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.TimeSpaceRecord", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Character", "Character")
+                    .WithMany("TimeSpaceRecord")
+                    .HasForeignKey("CharacterId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Character");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.Title", b =>
             {
                 b.HasOne("NosCore.Database.Entities.Character", "Character")
@@ -5094,6 +5129,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("StaticBonus");
 
                 b.Navigation("StaticBuff");
+
+                b.Navigation("TimeSpaceRecord");
 
                 b.Navigation("Title");
 

@@ -10,6 +10,7 @@ public class TimeSpace8 : TimeSpaceScript
         Start(11, 11);
         Requires(1012, 1);
         Lives(2);
+        RecordCost(850);
         Clock(TimeSpan.FromSeconds(180));
         Draw(1031, 1);
         Draw(1032, 1);

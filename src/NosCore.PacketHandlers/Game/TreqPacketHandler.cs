@@ -34,9 +34,13 @@ namespace NosCore.PacketHandlers.Game
                 return Task.CompletedTask;
             }
 
-            return packet.StartPress == true
-                ? timeSpaceEntryService.EnterAsync(session, entrance)
-                : timeSpaceEntryService.ShowAsync(session, entrance);
+            return packet switch
+            {
+                { RecordPress: true, GoldAccepted: true } => timeSpaceEntryService.EnterAsync(session, entrance, recordChallenge: true),
+                { RecordPress: true } => timeSpaceEntryService.AskRecordChallengeAsync(session, entrance),
+                { StartPress: true } => timeSpaceEntryService.EnterAsync(session, entrance),
+                _ => timeSpaceEntryService.ShowAsync(session, entrance)
+            };
         }
     }
 }

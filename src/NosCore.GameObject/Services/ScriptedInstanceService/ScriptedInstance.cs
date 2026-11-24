@@ -34,7 +34,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
-        public RbrPacket GenerateRbr(bool loserMode = false, bool completed = false, bool locked = false)
+        public RbrPacket GenerateRbr(bool loserMode = false, bool completed = false, bool locked = false,
+            RbrSubPacketHighScore? highScore = null)
         {
             return new RbrPacket
             {
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 DrawRewards = Slots(Definition?.DrawItems, 5),
                 SpecialRewards = Slots(Definition?.SpecialItems, 2),
                 BonusRewards = Slots(Definition?.GiftItems, 3),
-                HighScore = new RbrSubPacketHighScore { Score = 0, Nickname = null },
+                HighScore = highScore ?? new RbrSubPacketHighScore { Score = 0, Nickname = null },
                 IsHidden = false,
                 LoserMode = loserMode,
                 TitleAndDescription = new RbrSubPacketTitleAndDescription

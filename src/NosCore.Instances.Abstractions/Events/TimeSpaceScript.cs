@@ -37,6 +37,8 @@ namespace NosCore.Instances.Abstractions
 
         protected void Lives(byte lives) => _builder.WithLives(lives);
 
+        protected void RecordCost(long gold) => _builder.WithRecordCost(gold);
+
         // The run's clock, started as the first player enters.
         protected void Clock(TimeSpan limit) => _clock = limit;
 

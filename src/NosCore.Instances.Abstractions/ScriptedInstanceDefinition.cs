@@ -73,6 +73,9 @@ namespace NosCore.Instances.Abstractions
 
         public long GoldFor(int monstersKilled) => Gold + (long)GoldPerKill * monstersKilled;
 
+        // The gold the stone's record button asks for; a stone without one ignores the button.
+        public long? RecordCost { get; init; }
+
         public int Reputation { get; init; }
 
         public int FamilyExperience { get; init; }
