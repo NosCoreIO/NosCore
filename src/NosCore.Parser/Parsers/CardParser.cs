@@ -53,6 +53,8 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Delay, "TIME", 0, 3, s => Convert.ToInt32(s), "Activation delay")
                 .Field(x => x.TimeoutBuff, "LAST", 0, 2, s => Convert.ToInt16(s), "Follow-up buff id when card expires")
                 .Field(x => x.TimeoutBuffChance, "LAST", 0, 3, s => Convert.ToByte(s), "% chance the follow-up buff fires")
+                .Field(x => x.MateExperienceBonus, chunk => MateExperienceBonuses.All.TryGetValue(Convert.ToInt16(chunk["VNUM"][0][2]), out var bonus) ? bonus : (short)0,
+                    source: "MateExperienceBonuses", description: "Extra experience, in percent, the bearer's team NosMates earn")
                 .Field(x => x.BCards, chunk => AddBCards(chunk),
                     source: "1ST + 2ST (5 groups of 6)", description: "Up to 5 BCards, first 3 from 1ST then 2 from 2ST");
         }

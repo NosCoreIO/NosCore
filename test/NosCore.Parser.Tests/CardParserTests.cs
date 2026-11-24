@@ -146,6 +146,18 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task CardParser_GuardianAngelsBlessingDoublesNosMateExperience()
+        {
+            CreateTestFile(CreateCardData(cardId: 122) + "\r\n" + CreateCardData(cardId: 121));
+
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertCardsAsync(_tempFolder);
+
+            Assert.AreEqual(100, _savedCards.Single(c => c.CardId == 122).MateExperienceBonus);
+            Assert.AreEqual(0, _savedCards.Single(c => c.CardId == 121).MateExperienceBonus);
+        }
+
+        [TestMethod]
         public async Task CardParser_ParsesSingleCard()
         {
             var content = CreateCardData(cardId: 1, name: "Buff1", level: 5, duration: 100);

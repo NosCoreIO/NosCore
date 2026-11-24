@@ -11,6 +11,7 @@ using NosCore.Algorithm.PartnerAgilityService;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -18,7 +19,8 @@ using NosCore.Packets.ServerPackets.UI;
 namespace NosCore.GameObject.Services.MateService
 {
     public sealed class MateProgressionService(IMateStatsService mateStatsService,
-        IPartnerSkillCatalog partnerSkillCatalog, IPartnerAgilityService partnerAgilityService) : IMateProgressionService
+        IPartnerSkillCatalog partnerSkillCatalog, IPartnerAgilityService partnerAgilityService,
+        IBuffService buffService, ICardCatalog cardCatalog) : IMateProgressionService
     {
         public async Task AddAgilityAsync(PlayerComponentBundle owner, byte monsterLevel)
         {
@@ -50,6 +52,8 @@ namespace NosCore.GameObject.Services.MateService
                 return;
             }
 
+            var bonus = buffService.GetActiveBuffs(owner).Sum(b => cardCatalog.GetCard(b.CardId)?.MateExperienceBonus ?? 0);
+            experience = experience * (100 + bonus) / 100;
             foreach (var mate in owner.Mates.Values.Where(s => s.IsTeamMember))
             {
                 await AddExperienceAsync(owner, mate, experience);

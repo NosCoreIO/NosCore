@@ -63,4 +63,5 @@
 | DTO property | Type | Source | Description |
 |---|---|---|---|
 | BCards | ICollection`1 | 1ST + 2ST (5 groups of 6) | Up to 5 BCards, first 3 from 1ST then 2 from 2ST |
+| MateExperienceBonus | Int16 | MateExperienceBonuses | Extra experience, in percent, the bearer's team NosMates earn |
 

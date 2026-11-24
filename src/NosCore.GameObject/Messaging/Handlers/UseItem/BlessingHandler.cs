@@ -19,7 +19,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class AncelloansBlessingHandler(IBuffService buffService, ICardCatalog cardCatalog)
+    public sealed class BlessingHandler(IBuffService buffService, ICardCatalog cardCatalog)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -27,7 +27,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var item = evt.InventoryItem.ItemInstance.Item;
             var session = evt.ClientSession;
             var character = session.Character;
-            if (item.Effect != ItemEffectType.AncelloansBlessing || cardCatalog.GetItemCard(item.VNum) is not { } card
+            if (item.Effect is not (ItemEffectType.AncelloansBlessing or ItemEffectType.GuardianAngelsBlessing)
+                || cardCatalog.GetItemCard(item.VNum) is not { } card
                 || buffService.HasBuff(character, card.CardId))
             {
                 return;

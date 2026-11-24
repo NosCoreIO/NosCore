@@ -1642,6 +1642,22 @@ Re-run the parser first: it marks card 684 as the one the server gives on its ow
       the icon is there again with the time it had when you left, not less
 - [ ] After an hour the icon disappears and kills give normal experience again
 
+### Guardian Angel's Blessing
+
+- [ ] With a pet in the team, `$CreateItem 1285 2` and double-click it in the Main tab: the stack
+      drops to 1, the "effect activated" message appears and the Guardian Angel's Blessing icon
+      shows in the static buff bar with an hour left
+- [ ] Use the second one while blessed: nothing happens and it stays in the inventory
+- [ ] Kill a monster while blessed: the pet's experience bar gains double what an unblessed kill
+      gives it, while your own experience is unchanged
+- [ ] Use Ancelloan's Blessing (1286) as well: the pet now gains four times the unblessed amount
+- [ ] Note the time left, go back to the character selection and come back: the icon is there
+      again with the time it had, and the pet still gains double
+- [ ] The event copy (1499) and Rudolph's Blessing (5210) give the same icon and the same double
+      experience, and each is refused while any of the three is active
+- [ ] Not verifiable yet: the NosMate's movement speed +2 the item text also lists; it is not
+      implemented
+
 ### Fairy Booster
 
 - [ ] Wearing a fairy, `$CreateItem 1296` and double-click it in the Main tab: it is used up,

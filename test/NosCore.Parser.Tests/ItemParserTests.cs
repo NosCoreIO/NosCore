@@ -210,6 +210,21 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)1285)]
+        [DataRow((short)1499)]
+        [DataRow((short)5210)]
+        public async Task ItemParser_EachGuardianAngelsBlessingGrantsItsCard(short vnum)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum, indexType: 1, indexSubType: 4, data: "210\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemEffectType.GuardianAngelsBlessing, _savedItems.Single().Effect);
+            Assert.AreEqual(122, _savedBCards.Single(b => b.ItemVNum == vnum).SecondData);
+        }
+
+        [TestMethod]
         [DataRow((short)2087, "8", 2)]
         [DataRow((short)2128, "12", 3)]
         public async Task ItemParser_ABandageStopsBleedingsUpToItsLevel(short vnum, string level, int expectedLevel)

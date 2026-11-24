@@ -30,11 +30,13 @@ using NosCore.Tests.Shared;
 namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 {
     [TestClass]
-    public class AncelloansBlessingHandlerTests
+    public class BlessingHandlerTests
     {
         private TestWorld World;
         private const short BlessingVNum = 1286;
         private const short BlessingCardId = 121;
+        private const short GuardianAngelVNum = 1285;
+        private const short GuardianAngelCardId = 122;
 
         private static readonly IReadOnlyList<BCardDto> BlessingBCards = new[]
         {
@@ -43,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private ClientSession _session;
         private BuffService _buffs;
-        private AncelloansBlessingHandler _handler;
+        private BlessingHandler _handler;
         private InventoryItemInstance _blessing;
 
         [TestInitialize]
@@ -56,9 +58,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             cards.Setup(c => c.GetCard(BlessingCardId)).Returns(card);
             cards.Setup(c => c.GetItemCard(BlessingVNum)).Returns(card);
             cards.Setup(c => c.GetCardBCards(BlessingCardId)).Returns(BlessingBCards);
+            var guardianAngel = new CardDto { CardId = GuardianAngelCardId, Duration = 6001, MateExperienceBonus = 100 };
+            cards.Setup(c => c.GetCard(GuardianAngelCardId)).Returns(guardianAngel);
+            cards.Setup(c => c.GetItemCard(GuardianAngelVNum)).Returns(guardianAngel);
+            cards.Setup(c => c.GetCardBCards(GuardianAngelCardId)).Returns(Array.Empty<BCardDto>());
             _buffs = World.Create<BuffService>();
             World.Inject<IBuffService>(_buffs);
-            _handler = World.Create<AncelloansBlessingHandler>();
+            _handler = World.Create<BlessingHandler>();
         }
 
         private Instant Now => World.Clock.GetCurrentInstant();
@@ -111,6 +117,20 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task GuardianAngelsBlessingLastsAnHourAndIsRefusedWhileActive()
+        {
+            GiveBlessing(ItemEffectType.GuardianAngelsBlessing, 2, GuardianAngelVNum);
+            await UseAsync();
+            var buff = _buffs.GetActiveBuffs(_session.Character).Single(b => b.CardId == GuardianAngelCardId);
+
+            await UseAsync();
+
+            Assert.AreEqual(3600, (int)(buff.ExpiresAt - Now).TotalSeconds);
+            Assert.IsTrue(buff.Static);
+            Assert.AreEqual(1, _session.Character.InventoryService.CountItem(GuardianAngelVNum));
+        }
+
+        [TestMethod]
         public async Task AnotherEffectIsLeftToItsOwnHandler()
         {
             GiveBlessing(ItemEffectType.BuffPotions, 1);
@@ -125,16 +145,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             System.Linq.Enumerable.FirstOrDefault(_buffs.GetActiveBuffs(_session.Character),
                 b => b.CardId == BlessingCardId);
 
-        private void GiveBlessing(ItemEffectType effect, short amount)
+        private void GiveBlessing(ItemEffectType effect, short amount, short vnum = BlessingVNum)
         {
             var item = new Item
             {
-                VNum = BlessingVNum,
+                VNum = vnum,
                 Type = NoscorePocketType.Main,
                 ItemType = ItemType.Special,
                 Effect = effect,
             };
-            var instance = new ItemInstanceForTest(BlessingVNum) { Amount = amount, Item = item };
+            var instance = new ItemInstanceForTest(vnum) { Amount = amount, Item = item };
             _blessing = InventoryItemInstance.Create(instance, _session.Character.CharacterId);
             _blessing.Slot = 0;
             _blessing.Type = NoscorePocketType.Main;
