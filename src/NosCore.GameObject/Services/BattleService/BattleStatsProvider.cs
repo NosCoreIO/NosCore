@@ -274,6 +274,10 @@ public sealed class BattleStatsProvider(
                     totals.ExplosionRadius = Math.Max(totals.ExplosionRadius, (int)card.FirstData);
                     totals.ExplosionDamage += card.SecondData;
                 }
+                else if (RaceAttack.FromBCard(card) is { } raceAttack)
+                {
+                    (totals.RaceAttack ??= []).Add(raceAttack);
+                }
                 else if (DamageTakenChances.TryGetValue(effect, out var taken))
                 {
                     var percent = taken.Increased ? card.SecondData : -card.SecondData;
@@ -355,6 +359,7 @@ public sealed class BattleStatsProvider(
             PvpDefencePercent = stats.PvpDefencePercent + totals.PvpDefence,
             ChanceDamage = totals.ChanceDamage ?? stats.ChanceDamage,
             ChanceDamageTaken = totals.ChanceDamageTaken ?? stats.ChanceDamageTaken,
+            RaceAttack = totals.RaceAttack ?? stats.RaceAttack,
         };
     }
 
@@ -396,6 +401,7 @@ public sealed class BattleStatsProvider(
         public int DefencePercent;
         public List<ChanceDamage>? ChanceDamage;
         public List<ChanceDamageTaken>? ChanceDamageTaken;
+        public List<RaceAttack>? RaceAttack;
     }
 
     private static readonly FrozenDictionary<BCardEffect, (AttackKind? Kind, bool Increased)> DamageTakenChances =

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NosCore.Algorithm.DodgeChanceService;
 using NosCore.Algorithm.MonsterLevelDamageService;
 using NosCore.Algorithm.UpgradeBonusService;
@@ -157,7 +158,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
             weapon += (int)(weapon * upgradeBonus.GetUpgradeBonus(upgrade));
         }
 
-        attack += weapon + PlayerFlatAttack + SkillAttackBonus(skill, context.Kind, attacker.Level);
+        attack += weapon + PlayerFlatAttack + SkillAttackBonus(skill, context.Kind, attacker.Level) + RaceAttackBonus(attacker, defender, skill);
 
         var damage = attack - defence;
         var levelDifference = morale - defender.Level;
@@ -268,6 +269,34 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         }
 
         return damage * Math.Max(0, 100 + percent) / 100;
+    }
+
+    // Gear and buffs reach the stats; a learned upgrade skill's card rides on the skill it upgrades.
+    private static int RaceAttackBonus(CombatStats attacker, CombatStats defender, SkillInfo skill)
+    {
+        if (defender.Race is not { } race)
+        {
+            return 0;
+        }
+
+        var bonus = 0;
+        foreach (var card in attacker.RaceAttack ?? [])
+        {
+            if (card.Matches(race, defender.RaceType))
+            {
+                bonus += card.Value;
+            }
+        }
+
+        foreach (var bCard in skill.BCards.Concat(skill.ChargeBCards ?? []))
+        {
+            if (RaceAttack.FromBCard(bCard) is { } card && card.Matches(race, defender.RaceType))
+            {
+                bonus += card.Value;
+            }
+        }
+
+        return bonus;
     }
 
     private static int SkillAttackBonus(SkillInfo skill, AttackKind kind, int level) =>

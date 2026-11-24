@@ -400,6 +400,54 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(full, hit(plant with { Race = MonsterRace.LowLevel }));
         }
 
+        // 32 against a plain chicken, as in the class-table test below; the card's attack adds straight on.
+        [TestMethod]
+        public void ARaceSpecialisationAddsAttackAgainstThatRaceOnly()
+        {
+            var swordsman = Player(CharacterClassType.Swordsman, 10, attack: 26) with
+            {
+                RaceAttack = new[] { new RaceAttack(MonsterRace.HighLevel, (byte)MonsterRaceType.Plant, 150) },
+            };
+            var plant = Chicken() with { Race = MonsterRace.HighLevel, RaceType = (byte)MonsterRaceType.Plant };
+
+            Assert.AreEqual(182, Hit(swordsman, plant, MeleeSkill));
+            Assert.AreEqual(32, Hit(swordsman, plant with { RaceType = (byte)MonsterRaceType.Animal }, MeleeSkill));
+            Assert.AreEqual(32, Hit(swordsman, plant with { Race = MonsterRace.LowLevel }, MeleeSkill));
+            Assert.AreEqual(32, Hit(swordsman, Chicken(), MeleeSkill));
+        }
+
+        [TestMethod]
+        public void ARaceCardOnTheSkillAddsAttackLikeOneOnTheStats()
+        {
+            var swordsman = Player(CharacterClassType.Swordsman, 10, attack: 26);
+            var specialised = MeleeSkill with
+            {
+                BCards = new[]
+                {
+                    new BCardDto
+                    {
+                        Type = BCardType.CardType.SpecialisationBuffResistance, SubType = 11, FirstData = 10, SecondData = 150,
+                    },
+                },
+            };
+            var plant = Chicken() with { Race = MonsterRace.HighLevel, RaceType = (byte)MonsterRaceType.Plant };
+
+            Assert.AreEqual(182, Hit(swordsman, plant, specialised));
+            Assert.AreEqual(32, Hit(swordsman, Chicken(), specialised));
+        }
+
+        [TestMethod]
+        public void AReducedRaceSpecialisationTakesAttackAwayAgainstThatRace()
+        {
+            var swordsman = Player(CharacterClassType.Swordsman, 10, attack: 26) with
+            {
+                RaceAttack = new[] { new RaceAttack(MonsterRace.Undead, (byte)MonsterRaceType.Monster, -20) },
+            };
+            var undead = Chicken() with { Race = MonsterRace.Undead, RaceType = (byte)MonsterRaceType.Monster };
+
+            Assert.AreEqual(12, Hit(swordsman, undead, MeleeSkill));
+        }
+
         [TestMethod]
         public void AMapBossBonusRaisesHitsOnMapBossesOnly()
         {

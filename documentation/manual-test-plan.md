@@ -637,6 +637,14 @@ Hold the card through a static buff row (see the BCard test scenes) or have it c
       (4012) and let a ranged monster hit you: each landed hit does a fifth less than without it
 - [ ] A melee-only reduction (4746) leaves a ranged monster's hits unchanged
 
+### Race specialisation — BCard type 24 subtype 1
+
+- [ ] As a Swordsman who knows "Specialised Damage for Low-level Monsters" (314, an upgrade of skill 221
+      adding 40 attack), hit a low-level monster-type monster with skill 221: each hit does about 40
+      more than without the upgrade
+- [ ] The same hit on a monster of another race does the same damage as without the upgrade
+- [ ] A weapon whose card raises damage against a race (757) adds its attack the same way while worn
+
 ### Gear speed bonuses
 
 - [ ] Log in wearing a costume with "movement speed is increased by 2" (4245): the speed in `cond` is two
