@@ -148,7 +148,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AMonsterOnlyAMapNpcFoughtLeavesNothingBehind()
         {
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
             _map.LoadNpcs(new List<MapNpcDto> { new() { MapNpcId = 300, MapId = 0, MapX = 5, MapY = 5, VNum = 2 } },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2 } }));
             var soldier = _map.EnumerateNpcs().Single();
@@ -161,7 +161,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AMonsterAPlayerHelpedAMapNpcKillStillDrops()
         {
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
             _map.LoadNpcs(new List<MapNpcDto> { new() { MapNpcId = 300, MapId = 0, MapX = 5, MapY = 5, VNum = 2 } },
                 new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2 } }));
             var soldier = _map.EnumerateNpcs().Single();
