@@ -173,6 +173,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await gameEvents.RaiseAsync(new MovementConditionChangedEvent(session.Character));
             await session.SendPacketAsync(session.Character.GenerateEquipment());
             await session.SendPacketAsync(newItem.GeneratePocketChange(packet.Type, packet.Slot));
+            if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.MiniPet)
+            {
+                await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMinipet());
+            }
+
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)

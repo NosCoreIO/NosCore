@@ -67,6 +67,10 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             await clientSession.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
+            if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.MiniPet)
+            {
+                await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateMinipet());
+            }
 
             await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq());
             await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment());

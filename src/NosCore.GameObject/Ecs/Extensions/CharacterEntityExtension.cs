@@ -33,6 +33,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
@@ -110,6 +111,14 @@ namespace NosCore.GameObject.Ecs.Extensions
                     }
                 })));
         }
+
+        public static MinipetPacket GenerateMinipet(this PlayerComponentBundle visualEntity) => new()
+        {
+            VisualType = visualEntity.VisualType,
+            VisualId = visualEntity.VisualId,
+            MiniPetVNum = visualEntity.InventoryService.LoadBySlotAndType(EquipmentType.MiniPet, NoscorePocketType.Wear)
+                ?.ItemInstance?.ItemVNum
+        };
 
         public static InEquipmentSubPacket GetEquipmentSubPacket(this PlayerComponentBundle visualEntity) => new()
         {

@@ -257,6 +257,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateCharSc());
                 await session.SendPacketAsync(character.GenerateGidx());
                 await session.SendPacketAsync(character.GeneratePairy(fairy));
+                await session.SendPacketAsync(character.GenerateMinipet());
                 await session.SendPacketsAsync(newMapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
                 if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)

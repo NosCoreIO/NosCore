@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -38,6 +39,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private TestWorld World;
         private const short ArmorVNum = 1;
+        private const short MiniPetVNum = 8585;
         private ClientSession _session;
         private WearHandler _handler;
         private InventoryItemInstance _item;
@@ -174,6 +176,54 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .Then(TheWearerShouldBeToldThereIsNoFairy)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AMiniPetPutOnIsShownToTheMap()
+        {
+            await new Spec("A mini pet put on is shown to everyone on the map")
+                .Given(AMiniPetInTheBag)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(TheMapShouldBeShownTheMiniPet)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GearOtherThanAMiniPetShowsNoMiniPet()
+        {
+            await new Spec("Armour put on sends no mini pet")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(NoMiniPetShouldBeShown)
+                .ExecuteAsync();
+        }
+
+        private void AMiniPetInTheBag()
+        {
+            var miniPet = new WearableInstance(new Item
+            {
+                VNum = MiniPetVNum,
+                Type = NoscorePocketType.Equipment,
+                ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.MiniPet,
+            }, new Mock<ILogger<WearableInstance>>().Object, World.LogLanguageLocalizer) { ItemVNum = MiniPetVNum };
+            _item = InventoryItemInstance.Create(miniPet, _session.Character.CharacterId);
+            _item.Slot = 0;
+            _item.Type = NoscorePocketType.Equipment;
+            _session.Character.InventoryService[_item.ItemInstanceId] = _item;
+        }
+
+        private void TheMapShouldBeShownTheMiniPet() =>
+            PacketAssert.AreEqual(new MinipetPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = _session.Character.CharacterId,
+                MiniPetVNum = MiniPetVNum
+            }, _session.Character.MapInstance.LastPackets.OfType<MinipetPacket>().Single());
+
+        private void NoMiniPetShouldBeShown() =>
+            Assert.IsFalse(_session.Character.MapInstance.LastPackets.OfType<MinipetPacket>().Any());
 
         private void TheEquipPacketsShouldFollowTheGameOrder()
         {
