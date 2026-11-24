@@ -61,6 +61,9 @@ namespace NosCore.Data.Enumerations.Items
         FriendshipWings = 199,
         // Brings the user's raid team to them while they lead it at a raid gate.
         TeamStone = 300,
+        // Used on a weakened monster its ItemTargetMonster rows list, it kills that monster and gives
+        // the item its EffectValue names.
+        SuctionFunnel = 400,
         RaidSeal = 301,
         // A raid's reward box sold or handed out apart from the raid; EffectValue is that raid's number.
         SimpleRaidBox = 304,

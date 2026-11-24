@@ -5329,6 +5329,20 @@ A character with a few Sealed Vessels (1945) in the Main bag.
 - [ ] The released monster does not come back once killed
 - [ ] In Glacernon the vessel is refused with "That cannot be used here." and the stack is kept
 
+### Suction Funnel
+
+A character with two Suction Funnels (1173) in the Main bag, on a map with Kenko Swordsmen (146).
+
+- [ ] Select a Kenko Swordsman at full HP and use a funnel: "Can only be used if the target's HP
+      is less than 20%." and both funnels are kept
+- [ ] Hit the same Kenko until its bar is under a fifth and use a funnel: the Kenko collapses,
+      a Kenko Bead (1174) is in the bag with "You received", one funnel is gone, and the kill
+      gives its experience and counts for a hunt quest on Kenko Swordsmen
+- [ ] The Kenko comes back after its usual respawn time
+- [ ] Selecting a monster other than a Kenko soldier, or nothing, and using a funnel does nothing
+      and keeps it
+- [ ] With quest 1724 taken, bringing the bead to the quest NPC completes it
+
 ### Lord Mukraju and the Glacernon raids
 
 A side needs 100 kills to fill its bar. Both characters need a family and level 60 or more.

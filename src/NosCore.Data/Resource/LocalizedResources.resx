@@ -702,6 +702,9 @@
   <data name="COSTUME_MORPHS_PARSED" xml:space="preserve">
     <value>{Rows} monster looks imported for {Items} costume scrolls</value>
   </data>
+  <data name="ITEM_TARGET_MONSTERS_PARSED" xml:space="preserve">
+    <value>{Rows} target monsters imported for {Items} items</value>
+  </data>
   <data name="SHOP_TYPE_SERVICES_PARSED" xml:space="preserve">
     <value>{Services} NPC services imported for {ShopTypes} shop types</value>
   </data>
