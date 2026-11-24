@@ -11,9 +11,6 @@ namespace NosCore.GameObject.Services.MallService
 {
     public interface IMallDeliveryService
     {
-        // Records an item bought or collected in the NosMall; it reaches the character on their next mall sync.
-        Task<bool> EnqueueAsync(long characterId, short vNum, short amount);
-
         // Sends every item still waiting for the player to their parcel box.
         Task DeliverPendingAsync(PlayerComponentBundle player);
     }

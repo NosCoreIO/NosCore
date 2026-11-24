@@ -22,16 +22,6 @@ namespace NosCore.GameObject.Services.MallService
     public class MallDeliveryService(IDao<MallDeliveryDto, Guid> mallDeliveryDao, IMailHub mailHub, IClock clock)
         : IMallDeliveryService
     {
-        public async Task<bool> EnqueueAsync(long characterId, short vNum, short amount) =>
-            await mallDeliveryDao.TryInsertOrUpdateAsync(new MallDeliveryDto
-            {
-                Id = Guid.NewGuid(),
-                CharacterId = characterId,
-                VNum = vNum,
-                Amount = amount,
-                CreatedAt = clock.GetCurrentInstant()
-            }) != null;
-
         public async Task DeliverPendingAsync(PlayerComponentBundle player)
         {
             var characterId = player.CharacterId;

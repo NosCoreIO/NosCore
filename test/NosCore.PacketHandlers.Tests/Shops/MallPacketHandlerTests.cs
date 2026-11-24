@@ -40,7 +40,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private TestWorld World;
         private ClientSession Session;
         private MallPacketHandler Handler;
-        private IMallDeliveryService MallDelivery;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -74,7 +73,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
                     return true;
                 });
 
-            MallDelivery = World.Create<IMallDeliveryService>();
             Handler = World.Create<MallPacketHandler>();
             Session.LastPackets.Clear();
         }
@@ -136,7 +134,14 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         private async Task ThreeJuicesWerePaidFor() =>
-            Assert.IsTrue(await MallDelivery.EnqueueAsync(Session.Character.CharacterId, Juice, 3));
+            Assert.IsNotNull(await World.MallDeliveryDao.TryInsertOrUpdateAsync(new MallDeliveryDto
+            {
+                Id = Guid.NewGuid(),
+                CharacterId = Session.Character.CharacterId,
+                VNum = Juice,
+                Amount = 3,
+                CreatedAt = World.Clock.GetCurrentInstant()
+            }));
 
         private Task TheMallIsSynced() => Handler.ExecuteAsync(MallPacketWith(50), Session);
 
