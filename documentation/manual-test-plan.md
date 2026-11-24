@@ -2115,6 +2115,12 @@ under half health first.
       show no upgrade level (+0), although the creature itself has a defence upgrade of 1
 - [ ] Set a pet's `"Attack"` and `"Defence"` to 3 and 2 in the `"Mate"` table and log in: its page
       shows attack +3 and defence +2
+- [ ] Open the pet window with a Golden Gloopy Cake (709): it is rated 4 stars; a Chicken (333)
+      is rated 1 star and a partner shows no rating. With a packet logger, the pet's `sc_p` line
+      carries the rating in the field after `0 0` that follows the name, and its `in` line in the
+      second-to-last field
+- [ ] A pet owned before ratings were kept shows its kind's rating after logging in again, and a
+      second client on the map sees the same rating in the pet's `in` line
 
 Managing NosMates. Double-click one of your own NosMates to get Company / Stay / Send back
 under its target bar. `/mnt/project-files/pets-partners/reset-mates.sh` sets up a pet and a

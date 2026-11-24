@@ -81,7 +81,8 @@ namespace NosCore.Parser.Tests
             int hp = 0, int mp = 0, int xp = 0, int jxp = 0, byte armorLvl = 1, byte weaponLvl = 1, byte weaponType = 0,
             string weaponModifiers = "0\t0\t0\t0\t0", string armorModifiers = "0\t0\t0\t0", byte attackClass = 0,
             long etc = 0, string winfo = "0\t0\t0", string ainfo = "0\t0", string preatt = "0\t0\t0\t0\t0\t0",
-            string setting = "0\t0\t0\t0\t0\t0", string? mode = null, string? basic = null, string? card = null)
+            string setting = "0\t0\t0\t0\t0\t0", string? mode = null, string? basic = null, string? card = null,
+            string petInfo = "0\t0\t0\t0\t0")
         {
             var zeros50 = string.Join("\t", Enumerable.Repeat("0", 50));
             var zeros20 = string.Join("\t", Enumerable.Repeat("0", 20));
@@ -99,7 +100,7 @@ namespace NosCore.Parser.Tests
                 $"\tPREATT\t{preatt}\r\n" +
                 $"\tSETTING\t{setting}\r\n" +
                 $"\tETC\t{etc}\t0\t0\t0\t0\t0\t0\t0\r\n" +
-                $"\tPETINFO\t0\t0\t0\t0\r\n" +
+                $"\tPETINFO\t{petInfo}\r\n" +
                 $"\tEFF\t0\t0\t0\r\n" +
                 $"\tZSKILL\t{attackClass}\t0\t0\t0\t0\t0\r\n" +
                 $"\tWINFO\t{winfo}\r\n" +
@@ -126,6 +127,20 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1, _savedMonsters.Count);
             Assert.AreEqual(1, _savedMonsters[0].NpcMonsterVNum);
             Assert.AreEqual("testmob", _savedMonsters[0].NameI18NKey);
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_APetsStarRatingIsTheLastPetInfoColumn()
+        {
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"),
+                BuildMonster(709, "zts5579e", 1, race: 2, raceType: 1, petInfo: "12\t13\t2\t0\t4")
+                + BuildMonster(212, "zts212e", 1, petInfo: "1\t0\t0\t0\t0"));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            Assert.AreEqual(4, _savedMonsters.Single(s => s.NpcMonsterVNum == 709).BaseStarRating);
+            Assert.AreEqual(0, _savedMonsters.Single(s => s.NpcMonsterVNum == 212).BaseStarRating);
         }
 
         [TestMethod]

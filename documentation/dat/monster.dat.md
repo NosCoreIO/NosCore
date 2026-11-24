@@ -15,7 +15,7 @@
 	MODE	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	{AlwaysActive}	{Limiter}	{HpThreshold}	{RangeThreshold}	{CModeVNum}	{CellMinRange}	{Midgard}
 	NAME	{NameI18NKey}
 	PARTNER	{partnerUnused}
-	PETINFO	{petInfoVal1}	{petInfoVal2}	{PetInfoVal3}	{PetInfoVal4}
+	PETINFO	{petInfoVal1}	{petInfoVal2}	{PetInfoVal3}	{PetInfoVal4}	{BaseStarRating}
 	PREATT	{IsHostile}	{GroupAttack}	{NoticeRange}	{Speed}	{RespawnTime}
 	RACE	{Race}	{RaceType}
 	SETTING	{IconId}	{SpawnMobOrColor}	{amountOrItem}	{SpriteSize}	{CellSize}	{unknown0}
@@ -345,6 +345,7 @@
 | 3 | Parsed | PetInfoVal2 | Int32 | Pet stat factor 2 (collectable: cooldown; teleporter: amount; mate: ranged/dodge factor) |
 | 4 | Parsed | PetInfoVal3 | Int32 | Pet stat factor 3 (collectable: needItem flag; teleporter: removeItem; mate: magic/MP factor) |
 | 5 | Parsed | PetInfoVal4 | Int32 | Pet stat factor 4 (collectable: dance duration; mate: level threshold) |
+| 6 | Parsed | BaseStarRating | Byte | Star rating a pet starts with, 1 to 5; 0 for a pet without one |
 
 ## PREATT
 
