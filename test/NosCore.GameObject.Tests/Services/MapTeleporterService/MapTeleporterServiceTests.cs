@@ -70,6 +70,16 @@ namespace NosCore.GameObject.Tests.Services.MapTeleporterService
         }
 
         [TestMethod]
+        public async Task AnNpcSharingTheNumberOfAnotherMapsStoneIsLeftToItsTalk()
+        {
+            await new Spec("An NPC numbered like a teleportation stone on another map starts no bar")
+                .Given(AnNpcNumberedLikeAStoneOnAnotherMap)
+                .WhenAsync(TalkingToTheStone)
+                .Then(NoBarIsStarted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task TheBarRunningOutCarriesThePlayerAndTheirMates()
         {
             await new Spec("Once the bar has run the player and their pet are carried to the destination")
@@ -128,6 +138,16 @@ namespace NosCore.GameObject.Tests.Services.MapTeleporterService
         }
 
         private void AnNpcWithoutADestination() => AStone();
+
+        private void AnNpcNumberedLikeAStoneOnAnotherMap()
+        {
+            AStone();
+            _teleporters.Add(new TeleporterDto
+            {
+                MapNpcId = StoneId, MapId = (short)(_session.Character.MapInstance.Map.MapId + 1),
+                MapX = DestinationX, MapY = DestinationY, Type = TeleporterType.TeleporterOnMapAfterBar
+            });
+        }
 
         private async Task ThePlayerHasAPetOut()
         {
