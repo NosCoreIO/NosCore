@@ -135,7 +135,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task ADropWithACertainChanceLandsWhereTheMonsterFell()
         {
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
@@ -200,7 +200,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task ARollJustUnderTheDropChanceDrops()
         {
             MonsterDrops(DroppableVNum, chance: 2000);
-            World.Random.Setup(r => r.Next(0, 10000)).Returns(1999);
+            World.Random.Setup(r => r.Next(0, RewardService.DropChanceScale)).Returns(1999);
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
@@ -208,10 +208,21 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AChanceAboveATenthIsNotACertainDrop()
+        {
+            MonsterDrops(DroppableVNum, chance: 14000);
+            World.Random.Setup(r => r.Next(0, RewardService.DropChanceScale)).Returns(20000);
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            Assert.IsFalse(_map.GetMapItemBundles().Any(i => i.VNum == DroppableVNum));
+        }
+
+        [TestMethod]
         public async Task ARollAtTheDropChanceDropsNothing()
         {
             MonsterDrops(DroppableVNum, chance: 2000);
-            World.Random.Setup(r => r.Next(0, 10000)).Returns(2000);
+            World.Random.Setup(r => r.Next(0, RewardService.DropChanceScale)).Returns(2000);
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
@@ -230,7 +241,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task ACertainDoubleDropChanceDropsTheItemTwice()
         {
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
             Wear(new BCardDto { Type = BCardType.CardType.DropAndTriggerChance, SubType = 11, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
@@ -241,7 +252,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task ACertainNoDropChanceDropsNothing()
         {
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
             Wear(new BCardDto { Type = BCardType.CardType.DropAndTriggerChance, SubType = 12, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
@@ -259,7 +270,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task OnlyTheTopDamageDealersGearDecidesTheDrops()
         {
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
             Wear(new BCardDto { Type = BCardType.CardType.DropAndTriggerChance, SubType = 12, FirstData = 100 });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 99));
@@ -296,7 +307,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task InGlacernonEveryAttackerGetsTheDropInTheirBag()
         {
             _map.IsAct4 = true;
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 99));
 
@@ -322,7 +333,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task NothingIsRewardedWhenNobodyDamagedTheMonster()
         {
-            MonsterDrops(DroppableVNum, chance: 10000);
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
 
             await _service.DistributeAsync(_monster, _first.Character, new Dictionary<Entity, int>());
 

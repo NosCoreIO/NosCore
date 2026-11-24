@@ -718,6 +718,11 @@ Hold the card through a static buff row (see the BCard test scenes) or have it c
       monster; Archery shots never do
 - [ ] A shot or stab that kills the monster puts no toxin on it
 
+### Drop chances
+
+- [ ] Kill 20 Baby Danders in NosVille: their item (2004, a 14% row) drops about three times,
+      not on every kill
+
 ### Double-drop and no-drop chances
 
 - [ ] With card 4324 ("no loot" 100%) on you, kill a Baby Dander: neither its item nor gold drops

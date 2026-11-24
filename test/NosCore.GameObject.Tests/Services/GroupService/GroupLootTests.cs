@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(1)).Returns(new List<DropDto>
             {
-                new() { VNum = DroppableVNum, Amount = 1, DropChance = 10000, MonsterVNum = 1 },
+                new() { VNum = DroppableVNum, Amount = 1, DropChance = 100000, MonsterVNum = 1 },
             });
             World.Inject(catalog.Object);
             World.Inject(new Mock<IExperienceProgressionService>().Object);

@@ -208,6 +208,12 @@ public sealed class RewardService(
         await AwardDignityAsync(player, mob);
     }
 
+    // A drop's chance is in parts per DropChanceScale, scaled by the map's drop rate.
+    public const int DropChanceScale = 100000;
+
+    private bool DropRolls(DropDto drop, Services.MapInstanceGenerationService.MapInstance mapInstance) =>
+        random.Next(0, DropChanceScale) < drop.DropChance * mapInstance.DropRate;
+
     private bool Rolls(int percent) => percent > 0 && random.Next(0, 100) < percent;
 
     private (int Double, int None) DropChances(PlayerComponentBundle player)
@@ -301,11 +307,7 @@ public sealed class RewardService(
     {
         foreach (var drop in catalog.GetDrops(mob.NpcMonsterVNum))
         {
-            // DropChance is expressed per 10000 (i.e. 2000 means 20%). Scale by the map's
-            // drop rate so GM-configured rates apply uniformly.
-            var roll = random.Next(0, 10000);
-            var threshold = drop.DropChance * mapInstance.DropRate;
-            if (roll >= threshold) continue;
+            if (!DropRolls(drop, mapInstance)) continue;
 
             try
             {
@@ -376,7 +378,7 @@ public sealed class RewardService(
         var attackers = Attackers(victim, hitSnapshot);
         foreach (var drop in catalog.GetDrops(mob.NpcMonsterVNum))
         {
-            if (random.Next(0, 10000) >= drop.DropChance * mapInstance.DropRate)
+            if (!DropRolls(drop, mapInstance))
             {
                 continue;
             }

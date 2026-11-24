@@ -671,7 +671,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new NpcMonster { NpcMonsterVNum = PreyVNum, Name = "prey", Level = 1, MaxHp = 1, Xp = 40, JobXp = 10 });
             await context.SaveChangesAsync();
             context.Add(new MapMonster { MapMonsterId = Prey, MapId = Meadow, MapX = 30, MapY = 70, VNum = PreyVNum });
-            context.Add(new Drop { MonsterVNum = PreyVNum, VNum = Pebble, Amount = PreyDrop, DropChance = 10000 });
+            context.Add(new Drop { MonsterVNum = PreyVNum, VNum = Pebble, Amount = PreyDrop, DropChance = 100000 });
             context.Add(new NpcMonster
             {
                 NpcMonsterVNum = BiterVNum, Name = "biter", Level = 1, MaxHp = 100000, DamageMinimum = 150, DamageMaximum = 150,
