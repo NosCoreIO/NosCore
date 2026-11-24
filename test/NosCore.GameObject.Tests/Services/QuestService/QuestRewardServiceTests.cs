@@ -77,6 +77,23 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private QrPacket Window => Session.LastPackets.OfType<QrPacket>().Single();
 
         [TestMethod]
+        public void AQuestWhosePrizeIsOnlyNotRepeatableHasNoRewards()
+        {
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.NotRepeatable });
+
+            Assert.IsFalse(World.Create<QuestRewardService>().HasRewards(QuestId));
+        }
+
+        [TestMethod]
+        public void AQuestWithGoldBesidesNotRepeatableHasRewards()
+        {
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.NotRepeatable });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.Gold, Amount = 100 });
+
+            Assert.IsTrue(World.Create<QuestRewardService>().HasRewards(QuestId));
+        }
+
+        [TestMethod]
         public async Task GoldIsAddedAndPrintedInTheWindow()
         {
             Character.Gold = 100;
