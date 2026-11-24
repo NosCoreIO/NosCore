@@ -6,35 +6,55 @@
 
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class TimeSpaceEntryService(IScriptedInstanceService scriptedInstanceService,
-            IMapChangeService mapChangeService)
+            IMapChangeService mapChangeService, ISessionRegistry sessionRegistry)
         : ITimeSpaceEntryService
     {
         private const int LoserModeClockScale = 2;
 
-        public async Task ShowAsync(ClientSession session, ScriptedInstance entrance)
+        // What the No of the join question sends back, so the window opens without asking again.
+        private const long DeclinedToJoin = 1;
+
+        public async Task ShowAsync(ClientSession session, ScriptedInstance entrance, bool offerToJoin = true)
         {
-            if (await scriptedInstanceService.LoadAsync(entrance))
+            if (!await scriptedInstanceService.LoadAsync(entrance))
             {
-                var loserMode = entrance.Definition is { } definition
-                    && session.Character.OffersLoserMode(definition.Id);
-                var completed = entrance.TimeSpaceId is { } id
-                    && session.Character.CompletedTimeSpaces?.Contains(id) == true;
-                await session.SendPacketAsync(entrance.GenerateRbr(loserMode, completed,
-                    !session.Character.HasClearedRequiredTimeSpaces(entrance)));
+                return;
             }
+
+            if (offerToJoin && PartyRun(session.Character, entrance) is { } partyRun)
+            {
+                await session.SendPacketAsync(new DlgiPacket
+                {
+                    YesPacket = new WreqPacket { Value = WreqPacketType.TeamTimeSpaceEntry, Param = partyRun.MemberId },
+                    NoPacket = new WreqPacket { Value = WreqPacketType.DailyTeamTimeSpaceEntry, Param = DeclinedToJoin },
+                    Question = Game18NConstString.WantJoinParty
+                });
+                return;
+            }
+
+            var loserMode = entrance.Definition is { } definition
+                && session.Character.OffersLoserMode(definition.Id);
+            var completed = entrance.TimeSpaceId is { } id
+                && session.Character.CompletedTimeSpaces?.Contains(id) == true;
+            await session.SendPacketAsync(entrance.GenerateRbr(loserMode, completed,
+                !session.Character.HasClearedRequiredTimeSpaces(entrance)));
         }
 
         public async Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false)
@@ -94,6 +114,60 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
             var start = run.StartCell();
             await mapChangeService.ChangeMapInstanceAsync(session, firstRoom, start.X, start.Y);
+        }
+
+        // Joining pays the entry like opening a run does, and lands in the run's first room.
+        public async Task JoinAsync(ClientSession session, ScriptedInstance entrance, long memberId)
+        {
+            var character = session.Character;
+            if (!await scriptedInstanceService.LoadAsync(entrance)
+                || PartyRun(character, entrance) is not { } partyRun || partyRun.MemberId != memberId
+                || entrance.Definition is not { Rooms: [var first, ..] } definition)
+            {
+                return;
+            }
+
+            if (character.Level < entrance.EffectiveLevelMinimum
+                || character.Level > entrance.EffectiveLevelMaximum)
+            {
+                await RefuseAsync(session, Game18NConstString.LevelDoesNotMatch);
+                return;
+            }
+
+            var missing = character.MissingRequiredItem(entrance);
+            if (missing != null)
+            {
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.FollowingItemRequired,
+                    2, missing.VNum.ToString()));
+                return;
+            }
+
+            await character.TakeRequiredItemsAsync(entrance);
+            await mapChangeService.ChangeMapInstanceAsync(session, partyRun.Run.Rooms[first.Key],
+                definition.StartX, definition.StartY);
+        }
+
+        // A party member's unfinished run of the same time-space, if one is going on.
+        private (long MemberId, ScriptedInstanceRun Run)? PartyRun(PlayerComponentBundle character, ScriptedInstance entrance)
+        {
+            if (character.Group.Count <= 1 || entrance.Definition is not { } definition)
+            {
+                return null;
+            }
+
+            foreach (var memberId in character.Group.Keys
+                         .Where(k => k.Item1 == VisualType.Player && k.Item2 != character.VisualId).Select(k => k.Item2))
+            {
+                if (sessionRegistry.TryGetCharacter(c => c.VisualId == memberId, out var member)
+                    && member.MapInstance is { } room
+                    && scriptedInstanceService.GetRun(room.MapInstanceId) is { Host: TimeSpaceRunHost host, EndState: null } run
+                    && host.Entrance.Definition?.Id == definition.Id)
+                {
+                    return (memberId, run);
+                }
+            }
+
+            return null;
         }
 
         public Task EnterWithStoneAsync(ClientSession session, InventoryItemInstance stone)

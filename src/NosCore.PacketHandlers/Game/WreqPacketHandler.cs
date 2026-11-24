@@ -29,7 +29,8 @@ namespace NosCore.PacketHandlers.Game
 
             return packet.Value switch
             {
-                null or WreqPacketType.DailyTeamTimeSpaceEntry => timeSpaceEntryService.ShowAsync(session, entrance),
+                null or WreqPacketType.DailyTeamTimeSpaceEntry => timeSpaceEntryService.ShowAsync(session, entrance, offerToJoin: packet.Param == null),
+                WreqPacketType.TeamTimeSpaceEntry when packet.Param is { } memberId => timeSpaceEntryService.JoinAsync(session, entrance, memberId),
                 WreqPacketType.InstanceEntry => timeSpaceEntryService.EnterAsync(session, entrance),
                 WreqPacketType.InstanceEntryLoserMode => timeSpaceEntryService.EnterAsync(session, entrance, loserMode: true),
                 _ => Task.CompletedTask

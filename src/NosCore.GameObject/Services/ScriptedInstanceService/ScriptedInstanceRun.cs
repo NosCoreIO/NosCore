@@ -99,6 +99,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private int _chain;
         private bool _started;
         private bool _startConfirmed;
+        private long? _opener;
         private bool _hasExit;
         private Instant? _clockEndsAt;
         private Instant? _clockPausedAt;
@@ -437,6 +438,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 var discovered = room != null && _visited.Add(room.Value);
                 if (room != null && session.HasPlayerEntity)
                 {
+                    _opener ??= session.Character.CharacterId;
                     _newestArrival[room.Value] = session.Character.CharacterId;
                     BringEscorts(session.Character, room.Value);
                 }
@@ -1253,9 +1255,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             BroadcastClock();
         }
 
-        // Until one of them confirms the start, the way out of the first room asks the players whether
-        // to start, and the clock waits. Every yes from the first room lets its player through; only
-        // the first starts the clock.
+        // Until the start is confirmed, the way out of the first room asks the player who opened the run
+        // whether to start, and the clock waits. A player who joined them is told they cannot move yet
+        // and stays. Every yes from the first room lets its player through; only the first starts the clock.
         public async Task<bool> AskToStartAsync(ClientSession session)
         {
             var asked = false;
@@ -1268,6 +1270,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 asked = true;
+                if (!MayStart(session))
+                {
+                    var player = session.Character;
+                    _pending.Add(() => session.SendPacketAsync(player.GenerateSayi(SayColorType.Yellow, Game18NConstString.CannotMoveBeforeStart)));
+                    return Task.CompletedTask;
+                }
+
                 _pending.Add(() => session.SendPacketAsync(new DlgiPacket
                 {
                     YesPacket = new RStartPacket { Type = RStartPacketType.TimeSpaceInstanceEntry },
@@ -1285,7 +1294,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             await RunAsync(() =>
             {
                 if (!_host.AsksToStart || EndState != null || _abandoned || !session.HasPlayerEntity
-                    || RoomOf(session.Character.MapInstance.MapInstanceId) is not { } room || room != FirstRoom)
+                    || RoomOf(session.Character.MapInstance.MapInstanceId) is not { } room || room != FirstRoom
+                    || (!_startConfirmed && !MayStart(session)))
                 {
                     return Task.CompletedTask;
                 }
@@ -1311,6 +1321,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             });
             return confirmed;
         }
+
+        // The player who opened the run starts it; once they have left it, whoever is still there may.
+        private bool MayStart(ClientSession session) =>
+            _opener is not { } opener || opener == session.Character.CharacterId
+            || !Players().Any(p => p.HasPlayerEntity && p.Character.CharacterId == opener);
 
         public void AddClockTime(TimeSpan extra)
         {
