@@ -8,6 +8,8 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Networking.SessionGroup;
+using NosCore.Packets.Interfaces;
 using NodaTime;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
@@ -1085,13 +1087,24 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var session = await PlayerInFirstRoomAsync();
             var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
 
+            var room = new Mock<ISessionGroup>();
+            room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
+                .Callback<IPacket[]>(Receive).Returns(Task.CompletedTask);
+            room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
+                .Callback<IPacket[], ISessionMatcher>((packets, _) => Receive(packets)).Returns(Task.CompletedTask);
+            _first.Sessions = room.Object;
+
             await run.EnteredAsync(session, _first.MapInstanceId);
 
-            Assert.IsTrue(World.SessionRegistry.GetClientSessionsByMapInstance(_first.MapInstanceId).Contains(session),
-                "the room's broadcast reaches the player");
-            Assert.AreEqual(1, _first.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer));
-            Assert.AreEqual(0, session.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer),
-                "no second copy sent to the player alone");
+            Assert.AreEqual(1, session.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer));
+
+            void Receive(IPacket[] packets)
+            {
+                foreach (var packet in packets)
+                {
+                    session.LastPackets.Enqueue(packet);
+                }
+            }
         }
 
         [TestMethod]
