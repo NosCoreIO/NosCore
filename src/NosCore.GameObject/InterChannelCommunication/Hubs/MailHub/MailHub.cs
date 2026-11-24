@@ -19,6 +19,9 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.MailHub
 
         public Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy) => mailService.DeleteMailAsync(id, characterId, senderCopy);
 
+        public Task<bool> DeleteStoredMailAsync(long id, long characterId, bool senderCopy, long storedMailId) =>
+            mailService.DeleteStoredMailAsync(id, characterId, senderCopy, storedMailId);
+
         public Task<MailData?> ViewMailAsync(long id, JsonPatch mailData) => mailService.EditMailAsync(id, mailData);
 
         public Task<bool> SendMailAsync(MailRequest mail) => mailService.SendMailAsync(mail.Mail, mail.VNum, mail.Amount, mail.Rare, mail.Upgrade);

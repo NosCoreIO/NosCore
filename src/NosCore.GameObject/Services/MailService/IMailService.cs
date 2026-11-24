@@ -18,6 +18,9 @@ namespace NosCore.GameObject.Services.MailService
 
         Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy);
 
+        // Removes the mail at that parcel box number only while it is still the stored mail named.
+        Task<bool> DeleteStoredMailAsync(long id, long characterId, bool senderCopy, long storedMailId);
+
         Task<MailData?> EditMailAsync(long id, JsonPatch mailData);
 
         Task<bool> SendMailAsync(MailDto mail, short? vNum, short? amount, sbyte? rare, byte? upgrade);

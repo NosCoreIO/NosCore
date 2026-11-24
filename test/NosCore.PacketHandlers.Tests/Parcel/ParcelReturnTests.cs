@@ -267,13 +267,14 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                     onRead = null;
                     return _parcels.GetMails(character, copy).Values.Where(m => m.MailId == id).ToList();
                 });
-            hub.Setup(m => m.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()))
-                .ReturnsAsync((long id, long character, bool copy) =>
+            hub.Setup(m => m.DeleteStoredMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<long>()))
+                .ReturnsAsync((long id, long character, bool copy, long storedMailId) =>
                 {
                     onDelete?.Invoke();
                     onDelete = null;
                     var fails = deleteThrows && failingDeletes-- > 0;
-                    var removed = (!fails || deleteRemoves) && _parcels.RemoveMail(character, copy, id, out _);
+                    var removed = (!fails || deleteRemoves) && _parcels.GetMail(character, copy, id)?.MailDto.MailId == storedMailId
+                        && _parcels.RemoveMail(character, copy, id, out _);
                     return fails ? throw new TimeoutException() : removed;
                 });
             return hub.Object;

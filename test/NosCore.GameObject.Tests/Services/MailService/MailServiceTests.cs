@@ -77,6 +77,18 @@ namespace NosCore.GameObject.Tests.Services.MailService
         }
 
         [TestMethod]
+        public async Task AParcelBoxNumberGivenToAnotherMailKeepsThatMail()
+        {
+            ParcelRegistry.Setup(s => s.GetMail(CharacterId, false, 1))
+                .Returns(new MailData { MailId = 1, MailDto = new MailDto { MailId = 7 } });
+
+            Assert.IsFalse(await Service.DeleteStoredMailAsync(1, CharacterId, false, storedMailId: 6));
+
+            ParcelRegistry.Verify(s => s.RemoveMail(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<long>(), out It.Ref<MailData?>.IsAny),
+                Times.Never);
+        }
+
+        [TestMethod]
         public async Task ServiceCanBeConstructed()
         {
             await new Spec("Service can be constructed")

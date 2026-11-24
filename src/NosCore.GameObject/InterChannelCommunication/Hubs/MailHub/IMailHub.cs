@@ -18,6 +18,7 @@ public interface IMailHub
 {
     Task<List<MailData>> GetMails(long id, long characterId, bool senderCopy);
     Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy);
+    Task<bool> DeleteStoredMailAsync(long id, long characterId, bool senderCopy, long storedMailId);
     Task<MailData?> ViewMailAsync(long id, JsonPatch mailData);
     Task<bool> SendMailAsync(MailRequest mail);
 }

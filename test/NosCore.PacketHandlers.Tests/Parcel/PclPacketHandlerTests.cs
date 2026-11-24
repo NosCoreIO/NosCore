@@ -114,6 +114,32 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AClaimWhoseOutcomeCannotBeReadIsFinishedByRemovingTheStoredMail()
+        {
+            await new Spec("A claim whose outcome cannot be read is finished by removing the stored mail")
+                .Given(GiftExists)
+                .And(TheClaimFailsAndTheBoxCannotBeReadAgain)
+                .WhenAsync(ReceivingGift)
+                .Then(TheItemShouldBeInTheBag)
+                .And(ReceiveParcelPacketShouldBeSent)
+                .And(TheStoredMailShouldHaveBeenRemovedOnTheSecondTry)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AClaimWhoseOutcomeStaysUnknownLeavesTheItemWithThePlayer()
+        {
+            await new Spec("A claim whose outcome stays unknown leaves the item with the player")
+                .Given(GiftExists)
+                .And(TheClaimFailsAndTheBoxCannotBeReadAgain)
+                .And(NothingCanBeRemovedEither)
+                .WhenAsync(ReceivingGift)
+                .Then(TheItemShouldBeInTheBag)
+                .And(ReceiveParcelPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
         private void NoGiftExists()
         {
             var characterId = Session.Character.CharacterId;
@@ -138,11 +164,45 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             MailHttpClient.Setup(s => s.GetMails(1, characterId, false)).ReturnsAsync(new List<MailData> { Mail });
             MailHttpClient.Setup(s => s.GetMails(-1, characterId, false)).ReturnsAsync(new List<MailData> { Mail });
             MailHttpClient.Setup(s => s.DeleteMailAsync(1, characterId, false)).ReturnsAsync(true);
+            MailHttpClient.Setup(s => s.DeleteStoredMailAsync(1, characterId, false, Mail.MailDto.MailId)).ReturnsAsync(true);
+        }
+
+        private void TheClaimFailsAndTheBoxCannotBeReadAgain()
+        {
+            var characterId = Session.Character.CharacterId;
+            MailHttpClient.SetupSequence(s => s.GetMails(1, characterId, false))
+                .ReturnsAsync(new List<MailData> { Mail })
+                .ThrowsAsync(new InvalidOperationException());
+            MailHttpClient.SetupSequence(s => s.DeleteStoredMailAsync(1, characterId, false, Mail.MailDto.MailId))
+                .ThrowsAsync(new InvalidOperationException())
+                .ReturnsAsync(true);
+        }
+
+        private void NothingCanBeRemovedEither()
+        {
+            var characterId = Session.Character.CharacterId;
+            MailHttpClient.SetupSequence(s => s.DeleteStoredMailAsync(1, characterId, false, Mail.MailDto.MailId))
+                .ThrowsAsync(new InvalidOperationException())
+                .ThrowsAsync(new InvalidOperationException());
+        }
+
+        private void TheItemShouldBeInTheBag()
+        {
+            Assert.AreEqual(1, Session.Character.InventoryService.Count);
+        }
+
+        private void TheStoredMailShouldHaveBeenRemovedOnTheSecondTry()
+        {
+            var characterId = Session.Character.CharacterId;
+            MailHttpClient.Verify(s => s.DeleteStoredMailAsync(1, characterId, false, Mail.MailDto.MailId), Times.Exactly(2));
+            MailHttpClient.Verify(s => s.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
         }
 
         private void GiftWasAlreadyClaimed()
         {
             MailHttpClient.Setup(s => s.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>())).ReturnsAsync(false);
+            MailHttpClient.Setup(s => s.DeleteStoredMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<long>()))
+                .ReturnsAsync(false);
         }
 
         private async Task ReceivingGiftWithIdBelowZero()
@@ -162,6 +222,8 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         private void NoMailShouldBeDeleted()
         {
             MailHttpClient.Verify(s => s.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
+            MailHttpClient.Verify(s => s.DeleteStoredMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<long>()),
+                Times.Never);
         }
 
         private void InventoryIsFull()
