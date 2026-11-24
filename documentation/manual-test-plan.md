@@ -2638,6 +2638,14 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
 - [ ] Eric, the two 30-sweet buttons: 30 Yellow or 30 Black Pumpkin Sweets give one Raid Seal of
       Jack O'Lantern
 - [ ] Eric with 9 Yellow Pumpkin Sweets: "Raw materials missing." and the sweets stay
+- [ ] Mimi Mentor (dialog 3), Exchange 'New Year': Here are the letters for HAPPY! takes one Happy
+      (Event) and gives one Happy New Year Golden Box; the (10x) H.A.P.P.Y! button takes ten and
+      gives ten boxes
+- [ ] Mimi Mentor, I've collected the letters for 'New Year'! takes one NewYear (Event) and gives one
+      Happy New Year Box; the (10x) N.E.W. Y.E.A.R! button takes ten and gives ten boxes
+- [ ] Mimi Mentor with 9 Happy (Event), the (10x) button: "Raw materials missing." and the words stay
+- [ ] Mimi Mentor, I have the Gift Bags and Lucky Charms!: 5 Stolen Gift Bags (Event) and 5 Stolen
+      Lucky Charms (Event) become one New Year's Gift Box (Event)
 
 ### The ship to the Mortaz Desert
 
