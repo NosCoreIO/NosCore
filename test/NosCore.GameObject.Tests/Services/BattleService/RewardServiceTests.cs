@@ -146,6 +146,33 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonsterOnlyAMapNpcFoughtLeavesNothingBehind()
+        {
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
+            _map.LoadNpcs(new List<MapNpcDto> { new() { MapNpcId = 300, MapId = 0, MapX = 5, MapY = 5, VNum = 2 } },
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2 } }));
+            var soldier = _map.EnumerateNpcs().Single();
+
+            await _service.DistributeAsync(_monster, soldier, new Dictionary<Entity, int> { [soldier.Handle] = 100 });
+
+            Assert.AreEqual(0, _map.GetMapItemBundles().Count());
+        }
+
+        [TestMethod]
+        public async Task AMonsterAPlayerHelpedAMapNpcKillStillDrops()
+        {
+            MonsterDrops(DroppableVNum, chance: RewardService.DropChanceScale);
+            _map.LoadNpcs(new List<MapNpcDto> { new() { MapNpcId = 300, MapId = 0, MapX = 5, MapY = 5, VNum = 2 } },
+                new NosCore.GameObject.Services.BattleService.NpcMonsterCatalog(new List<NpcMonsterDto> { new() { NpcMonsterVNum = 2 } }));
+            var soldier = _map.EnumerateNpcs().Single();
+
+            await _service.DistributeAsync(_monster, soldier,
+                new Dictionary<Entity, int> { [soldier.Handle] = 99, [_first.Character.Handle] = 1 });
+
+            Assert.AreEqual(1, _map.GetMapItemBundles().Count(i => i.VNum == DroppableVNum));
+        }
+
+        [TestMethod]
         public async Task AQuestItemDropsOnlyForTheAttackerCollectingIt()
         {
             _first.Character.Quests.TryAdd(System.Guid.NewGuid(), new CharacterQuest

@@ -1050,6 +1050,12 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Pull a monster that spawns against the right or bottom border, run out of its range and
       let it walk home: it walks back and the server log shows no `AI tick failed`
 
+### Monsters the NosVille guards kill
+
+- [ ] Stand by a NosVille guard and let it kill monsters wandering into its range on its own:
+      nothing falls where they die, neither items nor gold
+- [ ] Hit one of those monsters once and let the guard finish it: its drops fall, owned by you
+
 ### Monster chatter
 
 - [ ] Fight a hostile Fox on Chicken Farm Path: now and then a speech bubble reads
