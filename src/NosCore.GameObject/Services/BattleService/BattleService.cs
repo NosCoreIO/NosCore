@@ -69,6 +69,12 @@ namespace NosCore.GameObject.Services.BattleService
                 return await CastOnSelfOrAllyAsync(origin, target, supportSkill, arguments.SkillId);
             }
 
+            if (origin is MonsterComponentBundle or NpcComponentBundle && CanCast(origin) && !IsStunned(origin)
+                && Resolve(origin, arguments) is { SupportsItsSide: true } ownSkill)
+            {
+                return await CastOnSelfOrAllyAsync(origin, target, ownSkill, arguments.SkillId);
+            }
+
             if (!CanAttack(origin, target) || IsStunned(origin))
             {
                 await CancelAsync(origin, arguments.SkillId, AttackRefusal(origin, target));
@@ -271,7 +277,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             if (mapInstance == null || !recipient.IsAlive || !ReferenceEquals(recipient.MapInstance, mapInstance)
-                || CanAttack(origin, recipient) || !await CastAsync(origin, null, skill))
+                || !ReferenceEquals(recipient, origin) && CanAttack(origin, recipient) || !await CastAsync(origin, null, skill))
             {
                 await CancelAsync(origin, castId, CancelPacketType.CancelAutoAttack);
                 return false;
@@ -404,12 +410,24 @@ namespace NosCore.GameObject.Services.BattleService
             }) ?? Task.CompletedTask;
 
         // The caster, the friendly players around it and the pets and partners those players have out.
+        private static bool SameFaction(IAliveEntity a, IAliveEntity b) =>
+            (a as MonsterComponentBundle?)?.Faction == (b as MonsterComponentBundle?)?.Faction;
+
         private IReadOnlyList<IAliveEntity> FriendliesAround(IAliveEntity origin, MapInstance mapInstance, byte range)
         {
             bool InRange(IAliveEntity entity) =>
                 Math.Abs(entity.PositionX - origin.PositionX) <= range && Math.Abs(entity.PositionY - origin.PositionY) <= range;
 
             var friendlies = new List<IAliveEntity> { origin };
+            if (origin is MonsterComponentBundle or NpcComponentBundle)
+            {
+                IEnumerable<IAliveEntity> side = origin is MonsterComponentBundle
+                    ? mapInstance.EnumerateMonsters().Select(m => (IAliveEntity)m)
+                    : mapInstance.EnumerateNpcs().Select(n => (IAliveEntity)n);
+                friendlies.AddRange(side.Where(e => e.IsAlive && e.VisualId != origin.VisualId && InRange(e)
+                    && SameFaction(origin, e)));
+                return friendlies;
+            }
             foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
             {
                 if (!session.HasPlayerEntity) continue;

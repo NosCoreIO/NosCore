@@ -632,6 +632,45 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             SwingsAtThePlayerFrom(idle, Times.Never());
         }
 
+        [TestMethod]
+        [DataRow((byte)2, false, false, 1)]
+        [DataRow((byte)0, false, false, 0)]
+        [DataRow((byte)0, true, false, 1)]
+        [DataRow((byte)0, true, true, 0)]
+        public async Task ASkillBuffingTheMonstersAroundItIsCastAtAnyDistance(byte hitType, bool handsOutACard, bool alsoHasAnotherCard, int casts)
+        {
+            var catalog = new Mock<INpcCombatCatalog>();
+            catalog.Setup(c => c.GetSkills(1)).Returns(new List<NpcMonsterSkillDto> { new() { NpcMonsterVNum = 1, SkillVNum = 567 } });
+            var cards = new List<BCardDto>();
+            if (handsOutACard)
+            {
+                cards.Add(new BCardDto { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType() });
+            }
+
+            if (alsoHasAnotherCard)
+            {
+                cards.Add(new BCardDto { Type = BCardType.CardType.FearSkill, SubType = 11 });
+            }
+
+            catalog.Setup(c => c.GetSkillBCards(567)).Returns(cards);
+            catalog.Setup(c => c.GetNpcBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
+            var random = new Mock<IRandomProvider>();
+            random.Setup(r => r.Next(0, 10)).Returns(9);
+            var ai = new MonsterAi(_battle.Object, _aggro,
+                World.Create<GameObject.Services.PathfindingService.PathfindingService>(), World.SessionRegistry,
+                World.DistanceCalculator, catalog.Object, random.Object, _chatter.Object, World.Clock,
+                new NosCore.GameObject.Services.SkillService.SkillCatalog([new SkillDto { SkillVNum = 567, Range = 1, TargetType = 1, HitType = hitType, TargetRange = 10 }]),
+                _buffs, NullLogger<MonsterAi>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            var monster = SpawnMonster(4, 1, m => m.CanWalk = false);
+            PlacePlayer(4, 5);
+            _aggro.AddThreat(monster, _session.Character, 10);
+
+            await ai.TickAsync(monster);
+
+            _battle.Verify(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+                It.Is<HitArguments>(a => a.Skill != null && a.Skill.SkillVNum == 567)), Times.Exactly(casts));
+        }
+
         // The shared fixture map declares 8 rows but ships 6, which the pathfinder walks off.
         [TestMethod]
         public async Task AMonsterWindingUpASkillStandsStillUntilItsHitResolvesWithoutHoldingUpTheLoop()

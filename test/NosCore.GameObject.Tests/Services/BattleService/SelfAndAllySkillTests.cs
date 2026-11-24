@@ -105,6 +105,85 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonstersSupportSkillGoesToItAndTheMonstersAroundIt()
+        {
+            await new Spec("A monster's self skill reaching around it buffs it and the monsters near it, not the player it fights")
+                .Given(AMonsterAt_, (short)10, (short)12)
+                .And(AMonsterAt_, (short)12, (short)12)
+                .And(AMonsterAt_, (short)30, (short)30)
+                .And(TheMonstersSkillTargets_WithHitType_, TargetHitType.SingleAoeTargetHit, Cards)
+                .WhenAsync(TheFirstMonsterCastsItOnTheCasterAsync)
+                .Then(TheCastShouldBeAccepted_, true)
+                .And(TheCardsShouldReachMonsters_, new[] { 0, 1 })
+                .And(NothingShouldBeHit)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMonstersSelfBuffGoesToItAlone()
+        {
+            await new Spec("A monster's self skill that only hands out cards buffs the monster alone")
+                .Given(AMonsterAt_, (short)10, (short)12)
+                .And(AMonsterAt_, (short)12, (short)12)
+                .And(TheMonstersSkillTargets_WithHitType_, TargetHitType.SingleTargetHit, Cards)
+                .WhenAsync(TheFirstMonsterCastsItOnTheCasterAsync)
+                .Then(TheCardsShouldReachMonsters_, new[] { 0 })
+                .And(NothingShouldBeHit)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMonstersOtherSelfSkillStillStrikes()
+        {
+            await new Spec("A monster's self skill that does more than hand out cards still strikes its target")
+                .Given(AMonsterAt_, (short)10, (short)12)
+                .And(TheMonstersSkillTargets_WithHitType_, TargetHitType.SingleTargetHit,
+                    (IReadOnlyList<BCardDto>)[new BCardDto { Type = BCardType.CardType.FearSkill, SubType = 11 }])
+                .WhenAsync(TheFirstMonsterCastsItOnTheCasterAsync)
+                .Then(_HitsShouldBeSent, 1)
+                .ExecuteAsync();
+        }
+
+        private readonly List<MonsterComponentBundle> _monsters = new();
+        private readonly List<NosCore.Data.Dto.MapMonsterDto> _spawns = new();
+        private SkillDto _monsterSkill;
+
+        private void AMonsterAt_(short x, short y)
+        {
+            _spawns.Add(new NosCore.Data.Dto.MapMonsterDto { MapMonsterId = 9001 + _spawns.Count, MapId = 0, MapX = x, MapY = y, VNum = 333 });
+            _map.LoadMonsters(_spawns, new NpcMonsterCatalog(new List<NpcMonsterDto>
+            {
+                new() { NpcMonsterVNum = 333, Level = 10, MaxHp = 1000, MaxMp = 10, IsHostile = true },
+            }));
+            _monsters.Clear();
+            _monsters.AddRange(_spawns.Select(spawn => _map.EnumerateMonsters().Single(m => m.VisualId == spawn.MapMonsterId)));
+        }
+
+        private void TheMonstersSkillTargets_WithHitType_(TargetHitType hitType, IReadOnlyList<BCardDto> cards)
+        {
+            _monsterSkill = new SkillDto { SkillVNum = 567, CastId = 0, TargetType = 1, HitType = (byte)hitType, TargetRange = 4 };
+            _skillResolver.Setup(r => r.Describe(_monsterSkill)).Returns(new SkillInfo(
+                SkillVnum: 567, CastId: 0, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
+                Type: 0, HitType: hitType, Range: 2, TargetRange: 4, TargetType: 1,
+                Element: 0, Duration: 0, MpCost: 0, BCards: cards));
+            IAliveEntity monster = _monsters[0];
+            IAliveEntity player = _caster.Character;
+            _targetResolver.Setup(r => r.Resolve(monster, player, It.IsAny<SkillInfo>())).Returns(new[] { player });
+        }
+
+        private async Task TheFirstMonsterCastsItOnTheCasterAsync() =>
+            _accepted = await _service.Hit(_monsters[0], _caster.Character, new HitArguments { Skill = _monsterSkill });
+
+        private void TheCardsShouldReachMonsters_(int[] which)
+        {
+            var reached = _buffService.Invocations
+                .Where(i => i.Method.Name == nameof(IBuffService.InflictCardsAsync))
+                .Select(i => i.Arguments[0] is IAliveEntity e ? (e.VisualType, e.VisualId) : (VisualType.Map, -1L))
+                .ToList();
+            CollectionAssert.AreEquivalent(which.Select(i => (VisualType.Monster, _monsters[i].VisualId)).ToList(), reached);
+        }
+
+        [TestMethod]
         public async Task AnAllyBuffLandsOnTheChosenPlayer()
         {
             await new Spec("A skill cast on a friendly player gives that player its cards")
