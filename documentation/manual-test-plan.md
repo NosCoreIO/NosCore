@@ -288,6 +288,23 @@ a crossbow in the secondary weapon slot). It deals no damage. Use two clients on
 - [ ] Stop attacking and walk away: about 20 seconds later the monster gives up and walks
       home, as after any other fight
 
+### Run Away — BCard type 40 subtype 41
+
+Buffs carry it, not skills: Puppet Mastery (F) to (S) (cards 2336 to 2342), Run Away! (73 and
+222), Mark of Death (597) and Fear of the Dark (1046). The Seer specialist (`$CreateItem 4491`,
+worn as a Magician) puts Puppet Mastery (F), a 2-second card, on what it hits: Death Cage
+(skill 1130) 70% of the time, Cursed Hands (skill 1132) 30% of the time.
+
+- [ ] Let a monster fight you, then hit it with Death Cage until the Puppet Mastery icon shows
+      on it: the monster stops swinging and walks away from you for the 2 seconds, on your
+      screen and on a second player's
+- [ ] Do the same with Cursed Hands
+- [ ] While it runs, it never walks into a wall, a tree or off the edge of the map; a monster
+      backed into a corner stands there without attacking
+- [ ] Once the icon is gone the monster comes back and attacks you again, without having to be
+      provoked a second time
+- [ ] A monster that cannot walk stops attacking for those 2 seconds but does not move
+
 ### Surrounding damage — BCard type 29 subtype 31
 
 - [ ] Hit one of two monsters standing side by side while carrying the effect
