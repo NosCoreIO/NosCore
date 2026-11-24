@@ -3919,7 +3919,7 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       item (202) and the bonus item (3)
 - [ ] Entering shows "The mission starts as soon as you enter the first room." and a 300 second
       clock; walking east into the second room opens NPC talk 6000
-- [ ] While that talk is open the clock at the top stands still, for up to 30 seconds; closing it
+- [ ] While that talk is open the time-space clock at the bottom left stands still, for up to 30 seconds; closing it
       with End Dialogue sets the clock counting down again from where it stopped
 - [ ] In the third room a single monster stands next to a NosVille soldier; killing it brings the
       next one, four in all, and the last kill opens the east portal with "A door has opened."
