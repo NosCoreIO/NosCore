@@ -8,12 +8,13 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Packets.ClientPackets.Commands;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Family
 {
-    public class FamilyShoutPacketHandler(IPubSubHub pubSubHub) : PacketHandler<FamilyShoutPacket>, IWorldPacketHandler
+    public class FamilyShoutPacketHandler(IPubSubHub pubSubHub, IPenaltyService penaltyService) : PacketHandler<FamilyShoutPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FamilyShoutPacket familyShoutPacket, ClientSession session)
         {
@@ -29,7 +30,7 @@ namespace NosCore.PacketHandlers.Family
                 FamilyAuthority.Manager => family.ManagerCanShout,
                 _ => false
             };
-            if (!canShout)
+            if (!canShout || await penaltyService.RefuseMutedSpeakerAsync(session))
             {
                 return;
             }

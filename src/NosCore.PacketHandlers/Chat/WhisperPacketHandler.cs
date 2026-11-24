@@ -16,6 +16,7 @@ using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BlackListService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.GameObject.Services.SubscriberCacheService;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
@@ -37,12 +38,12 @@ namespace NosCore.PacketHandlers.Chat
             IBlacklistCacheService blacklistCache, ISubscriberCacheService subscriberCache,
             IPubSubHub pubSubHub, IChannelHub channelHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, IPenaltyService penaltyService)
         : PacketHandler<WhisperPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
         {
-            if (whisperPacket.Message is not { } whisper)
+            if (whisperPacket.Message is not { } whisper || await penaltyService.RefuseMutedSpeakerAsync(session))
             {
                 return;
             }

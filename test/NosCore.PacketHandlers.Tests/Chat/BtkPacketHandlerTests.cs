@@ -13,6 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.GameObject.Services.SubscriberCacheService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.PacketHandlers.Chat;
@@ -77,7 +78,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 SubscriberCache,
                 channel,
                 World.GameLanguageLocalizer,
-                SessionRegistry.Object);
+                SessionRegistry.Object,
+                World.Create<IPenaltyService>());
         }
 
         [TestMethod]

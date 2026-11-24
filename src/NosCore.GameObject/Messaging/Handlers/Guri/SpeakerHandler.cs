@@ -83,10 +83,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 return;
             }
 
-            if (await penaltyService.GetMuteLeftAsync(session.Account.AccountId) is { } muteLeft)
+            if (await penaltyService.RefuseMutedSpeakerAsync(session))
             {
-                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Red,
-                    Game18NConstString.RemainingPunishment, 4, (long)Math.Ceiling(muteLeft.TotalMinutes)));
                 return;
             }
 

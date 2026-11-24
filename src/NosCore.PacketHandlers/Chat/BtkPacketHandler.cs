@@ -15,6 +15,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.GameObject.Services.SubscriberCacheService;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
@@ -29,11 +30,17 @@ namespace NosCore.PacketHandlers.Chat
 {
     public class BtkPacketHandler(ILogger<BtkPacketHandler> logger, ISerializer packetSerializer, IFriendHub friendHttpClient,
             IPubSubHub packetHttpClient, ISubscriberCacheService subscriberCache, Channel channel,
-            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
+            IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry,
+            IPenaltyService penaltyService)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
         {
+            if (await penaltyService.RefuseMutedSpeakerAsync(session))
+            {
+                return;
+            }
+
             var friendlist = await friendHttpClient.GetFriendsAsync(session.Character.VisualId);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))

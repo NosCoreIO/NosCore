@@ -3092,6 +3092,9 @@ is needed.
       in the chat window. The client still prints the line you typed in your own window
 - [ ] A second player on the map sees the bubble and never the words
 - [ ] Use a speaker item: the red line shows, nobody hears it and the speaker stays in the bag
+- [ ] Whisper a second player, talk in party chat, family chat and to a friend from the
+      messenger, and shout to the family as its head: each time the red "Remaining punishment"
+      line shows and nobody receives the words
 - [ ] Set `DateEnd` to the past: the next line is said normally
 
 ### Game master shout

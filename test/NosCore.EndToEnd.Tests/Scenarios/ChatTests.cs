@@ -73,17 +73,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AMutedAccountsWordsReachNobody()
         {
             var player = await Harness.AddPlayerAsync("Alice", x: 80, y: 116);
-            await using (var context = Harness.Database.CreateContext())
-            {
-                var account = await Harness.StoredAsync(player.CharacterId);
-                var now = SystemClock.Instance.GetCurrentInstant();
-                context.Add(new PenaltyLog
-                {
-                    AccountId = account.AccountId, Penalty = PenaltyType.Muted, AdminName = "admin", Reason = "test",
-                    DateStart = now, DateEnd = now.Plus(Duration.FromMinutes(30))
-                });
-                await context.SaveChangesAsync();
-            }
+            await MuteAsync(player.CharacterId, 30);
 
             await using var alice = Harness.Client(player);
             await alice.EnterWorldAsync(player.Slot);
@@ -110,6 +100,46 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             }, await alice.ExpectAsync<SayiPacket>(p => p.Message == Game18NConstString.RemainingPunishment, "the minutes left"));
             Assert.IsTrue(await bob.NoneSinceAsync<SayPacket>(said, null, TimeSpan.FromSeconds(1)),
                 "the words themselves are sent to nobody");
+        }
+
+        [TestMethod]
+        public async Task AMutedAccountsWhisperReachesNobody()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", x: 80, y: 116);
+            await MuteAsync(player.CharacterId, 30);
+            var bobPlayer = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await using var bob = Harness.Client(bobPlayer);
+            await bob.EnterWorldAsync(bobPlayer.Slot);
+            await using var alice = Harness.Client(player);
+            await alice.EnterWorldAsync(player.Slot);
+
+            var whispered = bob.Mark();
+            await alice.SendAsync(new WhisperPacket { Message = $"{bobPlayer.Name} hello" });
+
+            PacketAssert.AreEqual(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = alice.CharacterId,
+                Type = SayColorType.Red,
+                Message = Game18NConstString.RemainingPunishment,
+                ArgumentType = 4,
+                Game18NArguments = { 30 },
+            }, await alice.ExpectAsync<SayiPacket>(p => p.Message == Game18NConstString.RemainingPunishment, "the minutes left"));
+            Assert.IsTrue(await bob.NoneSinceAsync<SpeakPacket>(whispered, null, TimeSpan.FromSeconds(1)),
+                "the whisper is sent to nobody");
+        }
+
+        private static async Task MuteAsync(long characterId, int minutes)
+        {
+            await using var context = Harness.Database.CreateContext();
+            var account = await Harness.StoredAsync(characterId);
+            var now = SystemClock.Instance.GetCurrentInstant();
+            context.Add(new PenaltyLog
+            {
+                AccountId = account.AccountId, Penalty = PenaltyType.Muted, AdminName = "admin", Reason = "test",
+                DateStart = now, DateEnd = now.Plus(Duration.FromMinutes(minutes))
+            });
+            await context.SaveChangesAsync();
         }
 
         [TestMethod]
