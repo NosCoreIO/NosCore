@@ -224,6 +224,13 @@ same damage means only one of the two is being read.
 - [ ] A monster card meant for whatever it hits (a Thornwalker's Blackout) still lands on you, not
       on the monster
 
+### Monsters' support skills
+
+- [ ] Stand next to a Ruby Phantom (623) with another monster beside it: when it casts Phantom's Anger
+      (skill 567), the card (324) lands on the Phantom and the monsters within 10 cells, never on you
+- [ ] It casts the skill even while you stand out of its melee reach
+- [ ] A monster's damaging skills still strike you as before
+
 ### Combo chains
 
 - [ ] With a class whose basic attack chains (skill 220 is the Swordsman's), attack the

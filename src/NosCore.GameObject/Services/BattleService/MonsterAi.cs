@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Core.Observability;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -148,7 +149,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             (entity.PositionX, entity.PositionY),
             (target.PositionX, target.PositionY));
 
-        if (distance <= skill.SkillRange)
+        if (distance <= skill.SkillRange || ReachesAroundItself(skill))
         {
             await AttackAsync(entity, target, skill);
         }
@@ -615,6 +616,10 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
     private static HitArguments Arguments(ChosenSkill skill) =>
         new() { SkillId = skill.CastId, Skill = skill.Skill, BasicAttack = skill.Skill == null };
+
+    // A skill that hands its cards to the caster and its side around it is cast wherever the target is.
+    private static bool ReachesAroundItself(ChosenSkill skill) =>
+        skill.Skill is { TargetType: SkillReach.SelfSkill, HitType: (byte)TargetHitType.SingleAoeTargetHit };
 
     private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs, int CastTimeMs = 0, SkillDto? Skill = null);
 }
