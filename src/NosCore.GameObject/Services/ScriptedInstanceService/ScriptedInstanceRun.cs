@@ -497,7 +497,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (_clockEndsAt != null && EndState == null && !_clockBroadcastQueued)
                 {
                     var clockPacket = GenerateClock();
-                    _pending.Add(() => session.SendPacketAsync(clockPacket));
+                    // The talk this arrival opens is registered by an earlier queued step, so the hold is decided when sending.
+                    _pending.Add(async () =>
+                    {
+                        await session.SendPacketAsync(clockPacket);
+                        if (HeldForTalk)
+                        {
+                            await session.SendPacketAsync(Hold);
+                        }
+                    });
                 }
             });
         }
@@ -558,6 +566,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (!AwaitsStart && _clockPausedAt is { } pausedAt && now - pausedAt >= TalkPauseLimit)
                 {
                     ResumeClock();
+                }
+
+                if (EndState == null && HeldForTalk)
+                {
+                    FreezeClock();
                 }
 
                 if (EndState == null && _clockEndsAt is { } endsAt && _clockPausedAt == null && now >= endsAt)
@@ -1331,6 +1344,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     _clockEndsAt = endsAt.Plus(now - heldSince);
                     _clockPausedAt = _openDialogs.Count > 0 ? now : null;
                     BroadcastClock();
+                    if (HeldForTalk)
+                    {
+                        FreezeClock();
+                    }
                 }
 
                 if (_host.DrawsRoomMap && _script.Definition.Rooms.FirstOrDefault(r => r.Key == room) is { } first)
@@ -1360,6 +1377,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _clockLimit += added;
             _clockEndsAt = endsAt.Plus(added);
             BroadcastClock();
+            if (HeldForTalk)
+            {
+                FreezeClock();
+            }
         }
 
         // Official runs hold the clock while a talk is open, but one left open past about 30 s let it run on.
@@ -1374,7 +1395,16 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             _clockPausedAt = _clock.GetCurrentInstant();
             BroadcastClock();
+            FreezeClock();
         }
+
+        // The client keeps counting a clock down on its own unless told to stand still, and a clock it
+        // is sent starts it again, so a paused clock is held still every tick.
+        private void FreezeClock() => _pending.Add(() => BroadcastAsync(Hold));
+
+        private static GuriPacket Hold => new() { Type = GuriPacketType.FreezeTimer, Argument = 8 };
+
+        private bool HeldForTalk => _clockPausedAt != null && _openDialogs.Count > 0;
 
         private void ResumeClock()
         {

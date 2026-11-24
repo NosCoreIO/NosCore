@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -65,6 +66,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             public Action<IInstanceRun, int>? Cleared { get; init; }
             public Action<IInstanceRun>? Timeout { get; init; }
             public Action<IInstanceRun, int>? Exit { get; init; }
+            public Action<IInstanceRun>? Button { get; init; }
             public List<string> Calls { get; } = [];
 
             public Script(byte id = 0, params InstanceObjective[] objectives) =>
@@ -100,6 +102,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             public override void OnItemCollected(IInstanceRun run, int room, short vNum) =>
                 Calls.Add($"collected({room},{vNum})");
+
+            public override void OnButtonUsed(IInstanceRun run, int room, int button) => Button?.Invoke(run);
 
             public override void OnTimeout(IInstanceRun run)
             {
@@ -787,6 +791,121 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task TimeAddedWhileATalkHoldsTheClockKeepsItHeldAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.PlaceButton(1, 1, new Spot(2, 2), 1055, 1056);
+                    r.Dialog(1, 6024);
+                },
+                Button = r => r.AddClockTime(TimeSpan.FromSeconds(30))
+            });
+            await run.StartAsync();
+            _first.LastPackets.Clear();
+
+            await run.UseButtonAsync(_first.MapInstanceId, 1, 1);
+
+            var clockPackets = _first.LastPackets
+                .Where(p => p is EventPacket { Type: EventPacketType.TSTimer } or GuriPacket { Type: GuriPacketType.FreezeTimer })
+                .ToList();
+            Assert.IsInstanceOfType<EventPacket>(clockPackets.First());
+            Assert.IsInstanceOfType<GuriPacket>(clockPackets.Last());
+        }
+
+        [TestMethod]
+        public async Task TheClientsClockIsHeldStillOnEveryTickWhileATalkIsOpenAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+            await run.StartAsync();
+
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+            var heldWhileTalking = ClockHolds();
+            await run.DialogClosedAsync(session.Character.CharacterId);
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+
+            Assert.AreEqual(2, heldWhileTalking);
+            Assert.AreEqual(heldWhileTalking, ClockHolds());
+        }
+
+        [TestMethod]
+        public async Task APlayerArrivingWhileATalkHoldsTheClockHasTheirClockHeldTooAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+            await run.StartAsync();
+            var later = await PlayerInFirstRoomAsync();
+            later.LastPackets.Clear();
+
+            await run.EnteredAsync(later, _first.MapInstanceId);
+
+            var clockAndHold = later.LastPackets
+                .Where(p => p is EventPacket { Type: EventPacketType.TSTimer } or GuriPacket { Type: GuriPacketType.FreezeTimer })
+                .ToList();
+            Assert.IsInstanceOfType<EventPacket>(clockAndHold.First());
+            Assert.IsInstanceOfType<GuriPacket>(clockAndHold.Last());
+        }
+
+        [TestMethod]
+        public async Task TheFirstPlayerIntoARoomWithATalkHasTheirClockHeldAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+            RoomBroadcastsReach(session);
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            var clockAndHold = session.LastPackets
+                .Where(p => p is EventPacket { Type: EventPacketType.TSTimer } or GuriPacket { Type: GuriPacketType.FreezeTimer })
+                .ToList();
+            Assert.IsInstanceOfType<EventPacket>(clockAndHold.First());
+            Assert.IsInstanceOfType<GuriPacket>(clockAndHold.Last());
+        }
+
+        [TestMethod]
+        public async Task TheLobbyClockWaitingForTheStartIsNotHeldEveryTickAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+
+            Assert.AreEqual(0, ClockHolds());
+        }
+
+        private int ClockHolds() =>
+            _first.LastPackets.OfType<GuriPacket>().Count(g => g.Type == GuriPacketType.FreezeTimer);
+
+        [TestMethod]
         public async Task ARoomDoesNotClearWhileItsTalkIsOpenAsync()
         {
             await PlayerInFirstRoomAsync();
@@ -1087,16 +1206,21 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var session = await PlayerInFirstRoomAsync();
             var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
 
+            RoomBroadcastsReach(session);
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            Assert.AreEqual(1, session.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer));
+        }
+
+        private void RoomBroadcastsReach(ClientSession session)
+        {
             var room = new Mock<ISessionGroup>();
             room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
                 .Callback<IPacket[]>(Receive).Returns(Task.CompletedTask);
             room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
                 .Callback<IPacket[], ISessionMatcher>((packets, _) => Receive(packets)).Returns(Task.CompletedTask);
             _first.Sessions = room.Object;
-
-            await run.EnteredAsync(session, _first.MapInstanceId);
-
-            Assert.AreEqual(1, session.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer));
 
             void Receive(IPacket[] packets)
             {
