@@ -15,6 +15,7 @@ using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.TimeSpaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
@@ -28,8 +29,6 @@ namespace NosCore.EndToEnd.Tests.Scenarios
     {
         // The channel whose clock this scenario moves, as the Act 4 scenarios do.
         private const int OwnClock = 1;
-        private const short StartX = 20;
-        private const short StartY = 33;
         private const short WayOutX = 30;
         private const short WayOutY = 33;
         private const int Stride = 5;
@@ -48,6 +47,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 X = WorldData.SampleTimeSpaceX, Y = WorldData.SampleTimeSpaceY, StartPress = true
             });
+            var arrived = await tim.ExpectSinceAsync<AtPacket>(entering, p => p.CharacterId == tim.CharacterId,
+                "the character in the first room");
             var waiting = await tim.ExpectSinceAsync<EventPacket>(entering, p => p.Type == EventPacketType.TSTimer,
                 "the lobby's clock");
             PacketAssert.AreEqual(new EventPacket
@@ -63,7 +64,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
                     p => p.VisualType == VisualType.Monster && !seen.Contains(p.VisualId), "a monster of the first room"));
             }
 
-            var (x, y) = (StartX, StartY);
+            var (x, y) = (arrived.PositionX, arrived.PositionY);
             foreach (var monster in monsters)
             {
                 var (nextX, nextY) = ((short)(monster.PositionX - 1), monster.PositionY);
