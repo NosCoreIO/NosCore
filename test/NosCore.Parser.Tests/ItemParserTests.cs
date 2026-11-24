@@ -526,6 +526,21 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_ACampfireKitNamesTheNpcItPutsUp()
+        {
+            CreateTestFile(CreateItemData(vnum: 1375, indexType: 1, indexSubType: 4, equipmentSlot: -1,
+                data: "550\t0\t956\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var kit = _savedItems.Single();
+            Assert.AreEqual(ItemType.Special, kit.ItemType);
+            Assert.AreEqual(ItemEffectType.CookingStation, kit.Effect);
+            Assert.AreEqual(956, kit.EffectValue);
+        }
+
+        [TestMethod]
         public async Task ItemParser_ParsesSingleItem()
         {
             var content = CreateItemData(vnum: 1, price: 500, name: "Sword");

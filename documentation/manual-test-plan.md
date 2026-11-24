@@ -2628,6 +2628,17 @@ and 5 Apples.
 - [ ] Press Produce and confirm: after the bar, "[Attack Potion] has been produced." pops up,
       the potion appears, the materials are gone and one scroll is used up
 
+### Campfires and the Ice Machine
+
+- [ ] `$CreateItem 1375` (Wood for a Small Campfire) and double-click it: one is used up and a
+      Small Campfire appears where the character stands, for everyone on the map
+- [ ] Wood for a Large Campfire (1376) puts up a Large Campfire and the Ice Machine (1437) an Ice
+      Machine the same way
+- [ ] Leave the map and come back within three minutes: the campfire is still there
+- [ ] Three minutes after it went up, the campfire disappears for everyone on the map
+- [ ] Not verifiable yet: talking to a campfire or the Ice Machine and cooking at it. No packet
+      trace shows one in use, so its dialog and recipes are unknown and talking to it does nothing
+
 ### NPC exchanges
 
 The exchanges come from the parser, so re-run it on an existing database first. Scene:

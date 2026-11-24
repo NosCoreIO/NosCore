@@ -131,6 +131,22 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
         }
 
         [TestMethod]
+        public async Task AnNpcWhoseTimeIsUpLeavesTheMap()
+        {
+            var map = NewMap();
+            var npc = map.PlaceNpc(new NpcMonsterDto { NpcMonsterVNum = 956, MaxHp = 900 }, 0, 0);
+            npc.World.AddComponent(npc.Entity, new GameObject.Ecs.Components.ExpiryComponent(World.Clock.GetCurrentInstant()));
+            var visualId = npc.VisualId;
+
+            await RunOneTickAsync(map);
+
+            Assert.IsNull(map.GetNpcById((int)visualId));
+            PacketAssert.AreEqual(new OutPacket { VisualType = VisualType.Npc, VisualId = visualId },
+                map.LastPackets.OfType<OutPacket>().Single());
+            await map.DisposeAsync();
+        }
+
+        [TestMethod]
         public async Task ATimeSpaceRoomKeepsItsDropsPastTheLifetime()
         {
             var map = NewMap(type: MapInstanceType.TimeSpaceInstance);
