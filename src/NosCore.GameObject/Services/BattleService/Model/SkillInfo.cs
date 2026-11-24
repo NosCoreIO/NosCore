@@ -5,7 +5,9 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using NosCore.Data.Enumerations.Battle;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.Services.BattleService.Model;
@@ -59,4 +61,14 @@ public sealed record SkillInfo(
     // such a skill. A skill counts when either its hit type or a non-zero target range says so,
     // since neither column alone is known to mark every one.
     public bool HitsSeveral => IsAoe || TargetRange > 0;
+
+    public bool SupportsItsSide => IsSupportForItsSide(TargetType, HitType, BCards);
+
+    // A monster's or NPC's self skill that only hands out cards: on itself, or on itself and its side
+    // around it for one that reaches around the caster.
+    public static bool IsSupportForItsSide(byte targetType, TargetHitType hitType, IReadOnlyList<BCardDto> bCards) =>
+        targetType == SkillReach.SelfSkill
+        && (hitType == TargetHitType.SingleAoeTargetHit
+            || hitType == TargetHitType.SingleTargetHit && bCards.Count > 0
+                && bCards.All(b => b.Effect() == BCardEffect.BuffChanceCausing));
 }

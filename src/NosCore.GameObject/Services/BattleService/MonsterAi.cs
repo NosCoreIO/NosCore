@@ -16,6 +16,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
@@ -617,9 +618,10 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     private static HitArguments Arguments(ChosenSkill skill) =>
         new() { SkillId = skill.CastId, Skill = skill.Skill, BasicAttack = skill.Skill == null };
 
-    // A skill that hands its cards to the caster and its side around it is cast wherever the target is.
-    private static bool ReachesAroundItself(ChosenSkill skill) =>
-        skill.Skill is { TargetType: SkillReach.SelfSkill, HitType: (byte)TargetHitType.SingleAoeTargetHit };
+    // A skill that only hands cards to the caster and its side is cast wherever the target is.
+    private bool ReachesAroundItself(ChosenSkill skill) =>
+        skill.Skill is { } dto && SkillInfo.IsSupportForItsSide(dto.TargetType, (TargetHitType)dto.HitType,
+            catalog.GetSkillBCards(dto.SkillVNum));
 
     private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs, int CastTimeMs = 0, SkillDto? Skill = null);
 }

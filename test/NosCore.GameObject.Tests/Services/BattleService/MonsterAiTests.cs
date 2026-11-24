@@ -633,12 +633,16 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        [DataRow((byte)2, 1)]
-        [DataRow((byte)0, 0)]
-        public async Task ASkillBuffingTheMonstersAroundItIsCastAtAnyDistance(byte hitType, int casts)
+        [DataRow((byte)2, false, 1)]
+        [DataRow((byte)0, false, 0)]
+        [DataRow((byte)0, true, 1)]
+        public async Task ASkillBuffingTheMonstersAroundItIsCastAtAnyDistance(byte hitType, bool onlyHandsOutCards, int casts)
         {
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetSkills(1)).Returns(new List<NpcMonsterSkillDto> { new() { NpcMonsterVNum = 1, SkillVNum = 567 } });
+            catalog.Setup(c => c.GetSkillBCards(567)).Returns(onlyHandsOutCards
+                ? new List<BCardDto> { new() { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType() } }
+                : new List<BCardDto>());
             catalog.Setup(c => c.GetNpcBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
             var random = new Mock<IRandomProvider>();
             random.Setup(r => r.Next(0, 10)).Returns(9);

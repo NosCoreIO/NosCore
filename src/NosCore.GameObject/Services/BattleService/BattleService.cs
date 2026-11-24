@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             if (origin is MonsterComponentBundle or NpcComponentBundle && CanCast(origin) && !IsStunned(origin)
-                && Resolve(origin, arguments) is { } ownSkill && IsSupportForItsSide(ownSkill))
+                && Resolve(origin, arguments) is { SupportsItsSide: true } ownSkill)
             {
                 return await CastOnSelfOrAllyAsync(origin, target, ownSkill, arguments.SkillId);
             }
@@ -410,14 +410,6 @@ namespace NosCore.GameObject.Services.BattleService
             }) ?? Task.CompletedTask;
 
         // The caster, the friendly players around it and the pets and partners those players have out.
-        // A monster's or NPC's self skill that only hands out cards: on itself, or on itself and its side
-        // around it for one that reaches around the caster.
-        private static bool IsSupportForItsSide(SkillInfo skill) =>
-            skill.TargetType == SkillReach.SelfSkill
-            && (skill.HitType == TargetHitType.SingleAoeTargetHit
-                || skill.HitType == TargetHitType.SingleTargetHit && skill.BCards.Count > 0
-                    && skill.BCards.All(b => b.Effect() == BCardEffect.BuffChanceCausing));
-
         private static bool SameFaction(IAliveEntity a, IAliveEntity b) =>
             (a as MonsterComponentBundle?)?.Faction == (b as MonsterComponentBundle?)?.Faction;
 
