@@ -3508,10 +3508,22 @@ A level 15 character on NosVille Meadows (map 2) sees time-spaces 1 to 4.
       done
 - [ ] Open the panel of a stone the character has cleared and of one it has not: compare how the
       two panels show it
-- [ ] Not verifiable yet: a stone the character may not enter yet. The game keeps time-space 9
-      (map 6, level 18) shut until time-space 6 is cleared, even for a character above level 18,
-      but no client data names a stone's prerequisites, the refusal a player gets has not been
-      captured, and the hero stones' "may enter" states (9 and 13) are not settled
+
+#### Stones that need another one cleared first
+
+Time-space 9 (The Kovolt Riot, map 6, level 18) stays shut until time-space 6 (The Maze) is cleared.
+Use a level 18 or higher character that has not cleared time-space 6, with a Seed of Power.
+
+- [ ] Open time-space 9's panel: compare it with the panel of a stone the character can enter, and
+      note how the client shows the stone as shut
+- [ ] Press START: "Some Time-Space Stones have not been completed." shows in the middle of the
+      screen, the character stays on the map and keeps the Seed of Power
+- [ ] Clear time-space 6, come back and open time-space 9's panel again: it shows as open and
+      START moves the character into the first room
+- [ ] Log out and back in after clearing time-space 6: time-space 9 still lets the character in
+- [ ] Not verifiable yet: other stones that need one cleared first. Only time-space 9 has been
+      captured shut for that reason, no client data lists such requirements, and how the minimap
+      draws a stone shut this way is not captured
 
 ### Time-space stone items
 

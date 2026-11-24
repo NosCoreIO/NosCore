@@ -5,6 +5,7 @@ public class TimeSpace9 : TimeSpaceScript
         Levels(18, 99);
         Start(8, 8);
         Requires(1012, 1);
+        RequiresCleared(6);
         Lives(4);
         Clock(TimeSpan.FromSeconds(500));
         Objective(ObjectiveKind.KillMonster, 109, 1);

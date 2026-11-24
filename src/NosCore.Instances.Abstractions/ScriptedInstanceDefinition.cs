@@ -55,6 +55,9 @@ namespace NosCore.Instances.Abstractions
 
         public IReadOnlyList<InstanceGift> RequiredItems { get; init; } = [];
 
+        // Time-spaces a character has to have cleared before entering this one.
+        public IReadOnlyList<short> RequiredTimeSpaces { get; init; } = [];
+
         public IReadOnlyList<InstanceGift> GiftItems { get; init; } = [];
 
         public IReadOnlyList<InstanceGift> ConsolationItems { get; init; } = [];

@@ -33,6 +33,8 @@ namespace NosCore.Instances.Abstractions
 
         protected void Requires(short vNum, short amount) => _builder.Requiring(vNum, amount);
 
+        protected void RequiresCleared(short timeSpaceId) => _builder.RequiringCleared(timeSpaceId);
+
         protected void Lives(byte lives) => _builder.WithLives(lives);
 
         // The run's clock, started as the first player enters.

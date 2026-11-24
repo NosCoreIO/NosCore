@@ -12,6 +12,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
@@ -31,7 +32,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     && session.Character.OffersLoserMode(definition.Id);
                 var completed = entrance.TimeSpaceId is { } id
                     && session.Character.CompletedTimeSpaces?.Contains(id) == true;
-                await session.SendPacketAsync(entrance.GenerateRbr(loserMode, completed));
+                await session.SendPacketAsync(entrance.GenerateRbr(loserMode, completed,
+                    !session.Character.HasClearedRequiredTimeSpaces(entrance)));
             }
         }
 
@@ -53,6 +55,16 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 || character.Level > entrance.EffectiveLevelMaximum)
             {
                 await RefuseAsync(session, Game18NConstString.LevelDoesNotMatch);
+                return;
+            }
+
+            if (!character.HasClearedRequiredTimeSpaces(entrance))
+            {
+                await session.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.SomeTimeSpaceStonesNotDone
+                });
                 return;
             }
 

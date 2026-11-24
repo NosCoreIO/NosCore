@@ -12,6 +12,7 @@ namespace NosCore.Instances.Abstractions
     {
         private readonly List<InstanceRoom> _rooms = [];
         private readonly List<InstanceGift> _required = [];
+        private readonly List<short> _requiredTimeSpaces = [];
         private readonly List<InstanceGift> _gifts = [];
         private readonly List<InstanceGift> _consolations = [];
         private readonly List<InstanceGift> _draws = [];
@@ -79,6 +80,12 @@ namespace NosCore.Instances.Abstractions
         public InstanceDefinitionBuilder Requiring(short vNum, short amount)
         {
             _required.Add(new InstanceGift(vNum, amount));
+            return this;
+        }
+
+        public InstanceDefinitionBuilder RequiringCleared(short timeSpaceId)
+        {
+            _requiredTimeSpaces.Add(timeSpaceId);
             return this;
         }
 
@@ -168,6 +175,7 @@ namespace NosCore.Instances.Abstractions
                 StartX = _startX,
                 StartY = _startY,
                 RequiredItems = [.. _required],
+                RequiredTimeSpaces = [.. _requiredTimeSpaces],
                 GiftItems = [.. _gifts],
                 ConsolationItems = [.. _consolations],
                 DrawItems = [.. _draws],
