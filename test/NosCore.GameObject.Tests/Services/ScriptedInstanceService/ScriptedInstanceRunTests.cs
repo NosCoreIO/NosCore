@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -877,6 +878,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     r.Dialog(1, 6024);
                 }
             });
+            RoomBroadcastsReach(session);
 
             await run.EnteredAsync(session, _first.MapInstanceId);
 
@@ -1204,16 +1206,21 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var session = await PlayerInFirstRoomAsync();
             var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
 
+            RoomBroadcastsReach(session);
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            Assert.AreEqual(1, session.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer));
+        }
+
+        private void RoomBroadcastsReach(ClientSession session)
+        {
             var room = new Mock<ISessionGroup>();
             room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
                 .Callback<IPacket[]>(Receive).Returns(Task.CompletedTask);
             room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
                 .Callback<IPacket[], ISessionMatcher>((packets, _) => Receive(packets)).Returns(Task.CompletedTask);
             _first.Sessions = room.Object;
-
-            await run.EnteredAsync(session, _first.MapInstanceId);
-
-            Assert.AreEqual(1, session.LastPackets.OfType<EventPacket>().Count(p => p.Type == EventPacketType.TSTimer));
 
             void Receive(IPacket[] packets)
             {
