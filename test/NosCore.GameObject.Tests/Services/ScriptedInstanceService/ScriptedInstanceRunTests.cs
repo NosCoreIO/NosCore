@@ -26,6 +26,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
@@ -1138,6 +1139,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             Assert.IsFalse(await run.AskToStartAsync(session));
             Assert.IsFalse(await run.ConfirmStartAsync(session));
+        }
+
+        [TestMethod]
+        public async Task TheFirstEntryDrawsTheRoomMapAndScoreBeforeOpeningItsWindowsAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms));
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            var order = session.LastPackets
+                .Where(p => p is RsfnPacket or RsfpPacket or RnscPacket or RsfmPacket or MinfoPacket)
+                .Select(p => p?.GetType().Name).Distinct().ToList();
+            CollectionAssert.AreEqual(new[] { nameof(RsfnPacket), nameof(RsfpPacket), nameof(RnscPacket), nameof(RsfmPacket), nameof(MinfoPacket) }, order);
         }
 
         [TestMethod]
