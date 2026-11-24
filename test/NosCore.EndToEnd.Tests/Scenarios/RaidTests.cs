@@ -35,8 +35,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const short SquareX = 26;
         private const short SquareY = 40;
 
-        // A step of five cells, then the time an adventurer takes to cover them.
-        private const int Stride = 5;
+        // At most four cells on each axis, since a diagonal step of five is past what one walk may cover,
+        // then the time an adventurer takes to cover them.
+        private const int Stride = 4;
         private static readonly TimeSpan StrideTime = TimeSpan.FromMilliseconds(1300);
 
         private static Action<Character> RaidLevel => c => c.Level = WorldData.RaidLevel;

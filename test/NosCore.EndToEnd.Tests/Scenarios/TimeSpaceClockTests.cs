@@ -31,7 +31,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const int OwnClock = 1;
         private const short WayOutX = 30;
         private const short WayOutY = 33;
-        private const int Stride = 5;
+        // A diagonal step of five cells is past what one walk may cover, and a refused walk strands the
+        // character where the server last had it.
+        private const int Stride = 4;
         private static readonly TimeSpan StrideTime = TimeSpan.FromMilliseconds(1300);
 
         [TestMethod]
