@@ -200,6 +200,13 @@ same damage means only one of the two is being read.
 - [ ] Only the first client hits it, the second stands next to it: when the first logs out, the
       monster leaves the second alone and walks home
 
+### Teleport skills — BCard type 30 subtype 2
+
+- [ ] As a Magician, walk east and cast Teleport (277): you land 8 cells further east, on a `tp` line
+- [ ] Walk diagonally and cast it again: you land 6 cells further along that diagonal
+- [ ] Cast it facing a wall or the map edge: you land on the farthest walkable cell of that line,
+      beyond the wall if one is in reach
+
 ### Combo chains
 
 - [ ] With a class whose basic attack chains (skill 220 is the Swordsman's), attack the
