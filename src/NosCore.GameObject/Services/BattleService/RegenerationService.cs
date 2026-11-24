@@ -68,6 +68,16 @@ public sealed class RegenerationService(
         hpRate += hpBonus;
         mpRate += mpBonus;
 
+        if (buffService.HasEffect(character, BCardEffect.TimeCircleSkillsDisableHpRecovery))
+        {
+            hpRate = 0;
+        }
+
+        if (buffService.HasEffect(character, BCardEffect.TimeCircleSkillsDisableMpRecovery))
+        {
+            mpRate = 0;
+        }
+
         var changed = false;
         if (character.Hp < character.MaxHp && hpRate > 0)
         {

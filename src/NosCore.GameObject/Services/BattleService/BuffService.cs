@@ -525,11 +525,23 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         var hp = (int)Math.Clamp(target.Hp + target.MaxHp * hpPercent / 100 + hpFixed, Math.Min(1, target.Hp), target.MaxHp);
         var mp = (int)Math.Clamp(target.Mp + target.MaxMp * mpPercent / 100 + mpFixed, 0, target.MaxMp);
+        hp = Held(target, target.Hp, hp, BCardEffect.TimeCircleSkillsDisableHpConsumption, BCardEffect.TimeCircleSkillsDisableHpRecovery);
+        mp = Held(target, target.Mp, mp, BCardEffect.TimeCircleSkillsDisableMpConsumption, BCardEffect.TimeCircleSkillsDisableMpRecovery);
         List<(IAliveEntity Caster, int Hp, int Mp)>? gains = null;
         foreach (var (caster, drainHp, drainMp) in drains ?? [])
         {
             var takenHp = (int)Math.Max(0, Math.Min(drainHp, hp - 1));
             var takenMp = (int)Math.Min(drainMp, mp);
+            if (HasEffect(target, BCardEffect.TimeCircleSkillsDisableHpConsumption))
+            {
+                takenHp = 0;
+            }
+
+            if (HasEffect(target, BCardEffect.TimeCircleSkillsDisableMpConsumption))
+            {
+                takenMp = 0;
+            }
+
             hp -= takenHp;
             mp -= takenMp;
             if (caster != null && target.MapInstance is { } map && IsOn(caster, map))
@@ -557,15 +569,20 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
     }
 
-    private static async Task GiveAsync(IAliveEntity entity, int hp, int mp)
+    private int Held(IAliveEntity target, int current, int next, BCardEffect noLoss, BCardEffect noGain) =>
+        next < current && HasEffect(target, noLoss) || next > current && HasEffect(target, noGain) ? current : next;
+
+    private async Task GiveAsync(IAliveEntity entity, int hp, int mp)
     {
         if (!entity.IsAlive)
         {
             return;
         }
 
-        var newHp = Math.Min(entity.MaxHp, entity.Hp + hp);
-        var newMp = Math.Min(entity.MaxMp, entity.Mp + mp);
+        var newHp = Held(entity, entity.Hp, Math.Min(entity.MaxHp, entity.Hp + hp),
+            BCardEffect.TimeCircleSkillsDisableHpConsumption, BCardEffect.TimeCircleSkillsDisableHpRecovery);
+        var newMp = Held(entity, entity.Mp, Math.Min(entity.MaxMp, entity.Mp + mp),
+            BCardEffect.TimeCircleSkillsDisableMpConsumption, BCardEffect.TimeCircleSkillsDisableMpRecovery);
         var hpChange = newHp - entity.Hp;
         if (hpChange == 0 && newMp == entity.Mp)
         {
@@ -615,7 +632,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             }
         }
 
-        if (loss == 0 || !caster.IsAlive)
+        if (loss == 0 || !caster.IsAlive || HasEffect(caster, BCardEffect.TimeCircleSkillsDisableHpConsumption))
         {
             return;
         }

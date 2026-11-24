@@ -39,6 +39,11 @@ public sealed class SkillCastService(IClock clock, IEquipmentStatsService equipm
         var decrease = Math.Clamp(equipment.MpConsumptionDecrease, 0, 100);
         var percent = Percent(character, equipment.BCards, BCardEffect.CastingManaForSkillsIncreased, BCardEffect.CastingManaForSkillsDecreased);
         mpCost = skill.Skill.MpCost * (100 - decrease) / 100 * Math.Max(0, 100 + percent) / 100;
+        if (buffService.HasEffect(character, BCardEffect.TimeCircleSkillsDisableMpConsumption))
+        {
+            mpCost = 0;
+        }
+
         if (character.Mp < mpCost)
         {
             return SkillCastRefusal.NotEnoughMp;
