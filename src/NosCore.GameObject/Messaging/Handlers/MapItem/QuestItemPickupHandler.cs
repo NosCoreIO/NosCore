@@ -35,6 +35,13 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
 
             await mapInstance.SendPacketAsync(evt.GenerateGet());
             await gameEvents.RaiseAsync(new ItemsReceivedEvent(character, evt.VNum, evt.Amount));
+            foreach (var member in character.PartyOn(mapInstance.EcsWorld))
+            {
+                if (member.CharacterId != character.CharacterId)
+                {
+                    await gameEvents.RaiseAsync(new PartyItemPickedUpEvent(member, evt.VNum));
+                }
+            }
         }
     }
 }

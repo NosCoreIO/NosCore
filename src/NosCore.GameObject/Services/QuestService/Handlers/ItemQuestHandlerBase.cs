@@ -41,6 +41,9 @@ public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
     public virtual Task<ItemQuestProgress> OnNpcDialogRequestedAsync(PlayerComponentBundle character, CharacterQuest quest, short npcVNum) =>
         Task.FromResult(ItemQuestProgress.None);
 
+    public virtual Task<ItemQuestProgress> OnPartyItemPickedUpAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum) =>
+        Task.FromResult(ItemQuestProgress.None);
+
     protected static bool RaiseProgress(CharacterQuest quest, QuestObjectiveDto objective, int value)
     {
         var required = objective.RequiredAmount(quest.Quest.QuestType);

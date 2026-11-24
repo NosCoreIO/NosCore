@@ -12,6 +12,8 @@ namespace NosCore.GameObject.Services.QuestService;
 
 public interface IQuestDropService
 {
-    // timeSpaceId is the client's id of the time-space the monster died in, if any.
-    IReadOnlyList<short> RollDrops(PlayerComponentBundle character, NpcMonsterDto mob, int dropRate, short? timeSpaceId);
+    // timeSpaceId is the client's id of the time-space the monster died in, if any. Each drop names the
+    // collector it fell for.
+    IReadOnlyList<(short VNum, PlayerComponentBundle Collector)> RollDrops(IReadOnlyList<PlayerComponentBundle> collectors,
+        NpcMonsterDto mob, int dropRate, short? timeSpaceId);
 }

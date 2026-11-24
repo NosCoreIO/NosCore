@@ -4689,6 +4689,28 @@ with an Angry Chicken (vnum 340) nearby.
   the quest window reads 1/50 and the bag does not hold a feather
 - [ ] After 50 feathers no more drop and the quest is ready to hand in to the Pyjama Fairy
 - [ ] The count survives a relog
+- [ ] Each pickup also says "Chicken Feathers collected: n/50" in red in the chat
+
+### Quest progress shared in a party
+
+Two characters in a party on map 2110 (Angry Chicken 340, Small Red Jelly 280). The member has
+quest 2001 open and does not attack; the other character does the killing and picking up.
+
+- [ ] The other character kills an Angry Chicken the member never hit: a Chicken Feathers can
+      fall even when only the member collects it
+- [ ] The other character picks that feather up: the member's chat says "Chicken Feathers
+      collected: n/50" and their quest window moves by one, and the feather reaches nobody's bag
+- [ ] Both characters have quest 2001 open: one feather falls per kill, not one each, and
+      picking it up moves both quest windows
+- [ ] The member's counter is already full: a feather the other picks up leaves it at 50/50
+- [ ] The member hands quest 2001 in: the other's pickups no longer touch the member
+- [ ] The member walks to another map: the other's kills and pickups no longer count for them
+- [ ] A hunt quest: the member has one for a monster the other kills; the member's quest window
+      and "Hunting" chat line move although the member did not hit it
+- [ ] Two quests on the same monster with different amounts (one asks 50, the other 20): both
+      move on the same kill
+- [ ] Collect quests counted from the bag, such as quest 1600, still move only for the character
+      whose bag holds the item
 
 ### Quests that only hand out their hand-in
 

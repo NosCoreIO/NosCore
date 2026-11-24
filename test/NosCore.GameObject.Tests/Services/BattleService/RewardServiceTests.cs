@@ -20,9 +20,11 @@ using NosCore.Algorithm.LevelPenaltyService;
 using NosCore.Algorithm.LowLevelBoostService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.EquipmentService;
@@ -160,6 +162,28 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             var drop = _map.GetMapItemBundles().Single(i => i.VNum == 1013);
             Assert.AreEqual(_first.Character.CharacterId, drop.OwnerId);
+        }
+
+        [TestMethod]
+        public async Task ARaidQuestItemDropsForAPartyMemberWhoDidNotHit()
+        {
+            var party = new Group(GroupType.Group, World.SessionGroupFactory);
+            _first.Character.JoinGroup(party);
+            _second.Character.JoinGroup(party);
+            _second.Character.Quests.TryAdd(System.Guid.NewGuid(), new CharacterQuest
+            {
+                QuestId = 2001,
+                Quest = new Quest
+                {
+                    QuestId = 2001, QuestType = QuestType.CollectInRaid,
+                    QuestObjectives = [new QuestObjectiveDto { QuestObjectiveId = System.Guid.NewGuid(), QuestId = 2001, FirstData = 1, SecondData = 1013, ThirdData = 50, FourthData = 50 }],
+                },
+            });
+
+            await _service.DistributeAsync(_monster, _first.Character, new Dictionary<Entity, int> { [_first.Character.Handle] = 100 });
+
+            var drop = _map.GetMapItemBundles().Single(i => i.VNum == 1013);
+            Assert.AreEqual(_second.Character.CharacterId, drop.OwnerId);
         }
 
         [TestMethod]
