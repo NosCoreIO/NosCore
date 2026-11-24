@@ -633,16 +633,26 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        [DataRow((byte)2, false, 1)]
-        [DataRow((byte)0, false, 0)]
-        [DataRow((byte)0, true, 1)]
-        public async Task ASkillBuffingTheMonstersAroundItIsCastAtAnyDistance(byte hitType, bool onlyHandsOutCards, int casts)
+        [DataRow((byte)2, false, false, 1)]
+        [DataRow((byte)0, false, false, 0)]
+        [DataRow((byte)0, true, false, 1)]
+        [DataRow((byte)0, true, true, 0)]
+        public async Task ASkillBuffingTheMonstersAroundItIsCastAtAnyDistance(byte hitType, bool handsOutACard, bool alsoHasAnotherCard, int casts)
         {
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetSkills(1)).Returns(new List<NpcMonsterSkillDto> { new() { NpcMonsterVNum = 1, SkillVNum = 567 } });
-            catalog.Setup(c => c.GetSkillBCards(567)).Returns(onlyHandsOutCards
-                ? new List<BCardDto> { new() { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType() } }
-                : new List<BCardDto>());
+            var cards = new List<BCardDto>();
+            if (handsOutACard)
+            {
+                cards.Add(new BCardDto { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType() });
+            }
+
+            if (alsoHasAnotherCard)
+            {
+                cards.Add(new BCardDto { Type = BCardType.CardType.FearSkill, SubType = 11 });
+            }
+
+            catalog.Setup(c => c.GetSkillBCards(567)).Returns(cards);
             catalog.Setup(c => c.GetNpcBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
             var random = new Mock<IRandomProvider>();
             random.Setup(r => r.Next(0, 10)).Returns(9);
