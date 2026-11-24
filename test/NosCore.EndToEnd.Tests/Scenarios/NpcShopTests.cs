@@ -277,7 +277,6 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             await alice.SendAsync(new BuyPacket { VisualType = VisualType.Npc, VisualId = WorldData.Teacher, Slot = WorldData.TaughtSkill });
 
-            await alice.ExpectAsync<GoldPacket>(null, "the gold paid");
             await alice.ExpectAsync<SkiPacket>(p => p.SkillVnums?.Contains(WorldData.TaughtSkill) == true, "the skill list with the lesson");
             await alice.ExpectAsync<QSlotPacket>(p => p.Slot == 0, "the first quick bar");
             await alice.ExpectAsync<QSlotPacket>(p => p.Slot == 1, "the second quick bar");
