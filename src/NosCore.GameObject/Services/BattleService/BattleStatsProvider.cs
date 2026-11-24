@@ -596,6 +596,39 @@ public sealed class BattleStatsProvider(
         yield return passives;
     }
 
+    // A skill's own critical cards count for its own hit, on top of what its caster carries.
+    public static CombatStats WithSkillCriticals(CombatStats stats, SkillInfo skill)
+    {
+        var totals = new CardTotals { CritInflictedOverride = stats.CriticalChanceOverride };
+        foreach (var card in skill.BCards.Concat(skill.ChargeBCards ?? []))
+        {
+            if (SkillCriticalEffects.Contains(card.Effect()))
+            {
+                CardEffects[card.Effect()](totals, ScaleByLevel(card, stats.Level));
+            }
+        }
+
+        return stats with
+        {
+            CriticalChance = stats.CriticalChance + totals.CritInflicting,
+            DistanceCriticalChance = stats.DistanceCriticalChance + totals.CritInflicting,
+            CriticalRate = stats.CriticalRate + totals.CritDamage,
+            DistanceCriticalRate = stats.DistanceCriticalRate + totals.CritDamage,
+            CriticalChanceOverride = totals.CritInflictedOverride,
+        };
+    }
+
+    private static readonly FrozenSet<BCardEffect> SkillCriticalEffects = new[]
+    {
+        BCardEffect.CriticalInflictingIncreased,
+        BCardEffect.CriticalInflictingReduced,
+        BCardEffect.CriticalDamageIncreased,
+        BCardEffect.CriticalDamageIncreasedInflictingReduced,
+        BCardEffect.SpecialCriticalAlwaysInflict,
+        BCardEffect.SpecialCriticalNeverInflict,
+        BCardEffect.SpecialCriticalInflictingChancePercent,
+    }.ToFrozenSet();
+
     public static int ScaleByLevel(BCardDto card, int level)
     {
         // IsLevelScaled + IsLevelDivided together means "first/level",

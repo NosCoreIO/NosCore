@@ -566,6 +566,12 @@ seconds. It is not written in the chat, so look right after the icon appears.
 - [ ] With card 1689 ("when defending, critical damage reduced by 25%") on you, a monster's critical
       hits on you are a quarter lower; its normal hits are unchanged
 
+### A skill's own critical cards — BCard type 5 subtypes 11/21, type 6 on the skill
+
+- [ ] A Swordsman with no critical gear casts Counterstrike (223, "chance of inflicting a critical
+      hit is increased by 30%") on a defenceless monster twenty times: roughly one hit in three
+      shows as critical. Its basic attack (220), which carries no critical card, never does
+
 ### Cleansing effects — BCard type 43 subtypes 21 and 22, type 24 subtypes 51 and 52
 
 - [ ] A skill that "removes all bad effects up to level 4" takes a level 2 debuff off its target and
