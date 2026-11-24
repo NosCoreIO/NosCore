@@ -76,7 +76,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                 CanPickUp = mate.CanPickUp,
                 Name = mate.DisplayName(language),
                 IsSummonable = mate.IsSummonable,
-                Unknow3 = mate.StarRating
+                Unknow3 = mate.StarRating,
+                // The client divides the pet page's training percentage by this; traces send 1 for an untrained pet.
+                Unknow8 = 1
             };
         }
 

@@ -2191,6 +2191,7 @@ under half health first.
       is rated 1 star and a partner shows no rating. With a packet logger, the pet's `sc_p` line
       carries the rating in the field after `0 0` that follows the name, and its `in` line in the
       second-to-last field
+- [ ] On a rated pet's page, Training Level reads `0/40 (0%)`, never a negative percentage
 - [ ] A pet owned before ratings were kept shows its kind's rating after logging in again, and a
       second client on the map sees the same rating in the pet's `in` line
 
