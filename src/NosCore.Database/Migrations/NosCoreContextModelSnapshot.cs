@@ -17,13 +17,13 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261123123749_AddHairStyleDye";
+    public override string LastMigrationId => "20261124023010_NpcMonsterRole";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
 #pragma warning disable 612, 618
         modelBuilder
-            .HasAnnotation("ProductVersion", "11.0.0-rc.3.26522.148")
+            .HasAnnotation("ProductVersion", "11.0.0")
             .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "arena_type", new[] { "none", "individual", "glory" });
@@ -58,6 +58,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "material_type", new[] { "none", "cella_powder", "soul_gem", "complete_soul_gem", "dimensional_force", "dimensiolith_shard", "equipment_protection_scroll", "golden_equipment_protection_scroll", "angels_feather", "full_moon_crystal", "green_soul", "red_soul", "blue_soul", "dragon_skin", "dragon_blood", "dragon_heart", "dragon_gem", "lower_sp_protection_scroll", "higher_sp_protection_scroll", "river_sand", "small_ruby_of_completion", "small_sapphire_of_completion", "small_obsidian_of_completion", "small_topaz_of_completion", "ruby_of_completion", "sapphire_of_completion", "obsidian_of_completion", "topaz_of_completion", "seed_of_power", "saver" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "minigame_type", new[] { "quarry", "sawmill", "firing_range", "fishpond", "typewriter", "memory_table" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "miniland_state", new[] { "open", "private", "lock" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_role", new[] { "none", "onyx_dragon", "faction_guardian" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_type", new[] { "unknown", "partner", "npc", "well", "portal", "boss", "elite", "peapod", "special", "gem_space_time" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "noscore_pocket_type", new[] { "equipment", "main", "etc", "miniland", "specialist", "costume", "wear", "mount", "raid", "first_partner_inventory", "second_partner_inventory", "third_partner_inventory" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "npc_service", new[] { "equipment_upgrade", "equipment_rarify", "accessory_option", "resistance_sum", "specialist_card_upgrade", "relict_examination", "family_manager", "specialist_card_perfection" });
@@ -2664,6 +2665,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<int>("RespawnTime")
                     .HasColumnType("integer");
+
+                b.Property<byte>("Role")
+                    .HasColumnType("smallint");
 
                 b.Property<int>("SpawnMobOrColor")
                     .HasColumnType("integer");

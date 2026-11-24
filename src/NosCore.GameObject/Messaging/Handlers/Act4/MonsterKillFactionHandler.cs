@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
@@ -22,7 +23,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Act4
         public Task Handle(EntityDiedEvent evt)
         {
             if (evt.Victim is not MonsterComponentBundle { MapInstance: { IsAct4: true, MapInstanceType: MapInstanceType.BaseMapInstance } } monster
-                || monster.VNum == FactionWarService.Mukraju)
+                || monster.NpcMonster.Role == MonsterRole.FactionGuardian)
             {
                 return Task.CompletedTask;
             }

@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -97,7 +98,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Act4
         [TestMethod]
         public async Task KillingMukrajuMovesNoSideButReportsTheGuardian()
         {
-            var mukraju = Spawn(FactionWarService.Mukraju);
+            var mukraju = Spawn(556, MonsterRole.FactionGuardian);
 
             await KillAsync(mukraju, _session.Character);
 
@@ -118,13 +119,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Act4
         {
             _glacernon.IsAct4 = false;
 
-            await KillAsync(Spawn(FactionWarService.Mukraju), _session.Character);
+            await KillAsync(Spawn(556, MonsterRole.FactionGuardian), _session.Character);
 
             _factionWar.Verify(s => s.GuardianDiedAsync(It.IsAny<MonsterComponentBundle>()), Times.Never);
         }
 
-        private MonsterComponentBundle Spawn(short vnum) =>
-            _glacernon.SpawnMonster(new NpcMonsterDto { NpcMonsterVNum = vnum, MaxHp = 1000 }, 6, 5, false);
+        private MonsterComponentBundle Spawn(short vnum, MonsterRole role = MonsterRole.None) =>
+            _glacernon.SpawnMonster(new NpcMonsterDto { NpcMonsterVNum = vnum, Role = role, MaxHp = 1000 }, 6, 5, false);
 
         private async Task KillAsync(MonsterComponentBundle monster, IAliveEntity? killer)
         {

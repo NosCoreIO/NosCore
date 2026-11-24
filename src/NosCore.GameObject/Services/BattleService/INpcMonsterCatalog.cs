@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -11,4 +12,6 @@ namespace NosCore.GameObject.Services.BattleService;
 public interface INpcMonsterCatalog
 {
     NpcMonsterDto? GetNpcMonster(int vnum);
+
+    NpcMonsterDto? GetNpcMonster(MonsterRole role);
 }

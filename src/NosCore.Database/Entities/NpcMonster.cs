@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
@@ -76,6 +77,8 @@ namespace NosCore.Database.Entities
 
         // The card a pet grants its owner while it is in the team, 0 for none.
         public short OwnerBlessingCardId { get; set; }
+
+        public MonsterRole Role { get; set; }
 
         public byte AttackUpgrade { get; set; }
 
