@@ -2627,6 +2627,17 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
 - [ ] Give a player `$SetGold` up to the gold cap and have them open a private shop; buying from
       it shows the client's "Trade failed because shop owner has too much money." and no gold moves
 
+### NosMall deliveries
+
+Nothing in NosCore writes a NosMall delivery yet; for a test, add a `MallDelivery` row with a new `Id`,
+the character's `CharacterId`, `VNum` 1012, `Amount` 3, any `CreatedAt` and an empty `DeliveredAt`.
+
+- [ ] Log in: the client sends `mall`, the NosMall thank-you message names the Seed of Power, "A new
+      parcel has arrived." shows once in yellow, the parcel window lists it from NOSMALL and the
+      row's `DeliveredAt` is set
+- [ ] Take the parcel: three Seeds of Power land in the inventory
+- [ ] Change map so the client sends `mall` again: nothing new arrives and no second parcel is listed
+
 ### Buying from a private shop
 
 - [ ] Open a private shop with a stack of 3 and a single item; from another character, buy 2 of the

@@ -64,6 +64,8 @@ namespace NosCore.Database
 
         public virtual DbSet<CompletedTimeSpace>? CompletedTimeSpace { get; set; }
 
+        public virtual DbSet<MallDelivery>? MallDelivery { get; set; }
+
 
         public virtual DbSet<CharacterSkill>? CharacterSkill { get; set; }
 
@@ -394,6 +396,12 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.CompletedTimeSpace)
+                .WithOne(e => e.Character)
+                .HasForeignKey(e => e.CharacterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Character>()
+                .HasMany(e => e.MallDelivery)
                 .WithOne(e => e.Character)
                 .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);

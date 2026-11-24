@@ -15,7 +15,6 @@ using NosCore.PacketHandlers.NoAction;
 using NosCore.Packets;
 using NosCore.Packets.ClientPackets;
 using NosCore.Packets.ClientPackets.Shops;
-using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 
@@ -36,10 +35,6 @@ namespace NosCore.PacketHandlers.Tests.NoAction
             Session = await World.CreateSessionAsync();
             Session.LastPackets.Clear();
         }
-
-        [TestMethod]
-        public Task TheMallStateSentAfterEveryMapChangeIsTakenSilently() =>
-            AssertTakenSilentlyAsync(World.Create<MallPacketHandler>(), new MallPacket { State = 50 });
 
         [TestMethod]
         public Task ClosingAShopWindowIsTakenSilently() =>

@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261124215740_AddCardMateExperienceBonus";
+    public override string LastMigrationId => "20261124221437_AddMallDelivery";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2020,6 +2020,33 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasIndex("SenderId");
 
                 b.ToTable("Mail");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.MallDelivery", b =>
+            {
+                b.Property<Guid>("Id")
+                    .HasColumnType("uuid");
+
+                b.Property<short>("Amount")
+                    .HasColumnType("smallint");
+
+                b.Property<long>("CharacterId")
+                    .HasColumnType("bigint");
+
+                b.Property<Instant>("CreatedAt")
+                    .HasColumnType("timestamp with time zone");
+
+                b.Property<Instant?>("DeliveredAt")
+                    .HasColumnType("timestamp with time zone");
+
+                b.Property<short>("VNum")
+                    .HasColumnType("smallint");
+
+                b.HasKey("Id");
+
+                b.HasIndex("CharacterId");
+
+                b.ToTable("MallDelivery");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.Map", b =>
@@ -4397,6 +4424,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Sender");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.MallDelivery", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Character", "Character")
+                    .WithMany("MallDelivery")
+                    .HasForeignKey("CharacterId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Character");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.MapMonster", b =>
             {
                 b.HasOne("NosCore.Database.Entities.Map", "Map")
@@ -4983,6 +5021,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Mail");
 
                 b.Navigation("Mail1");
+
+                b.Navigation("MallDelivery");
 
                 b.Navigation("Mate");
 
