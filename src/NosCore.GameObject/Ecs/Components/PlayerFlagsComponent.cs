@@ -24,4 +24,6 @@ public record struct PlayerFlagsComponent(
     bool UseSp,
     bool IsVehicled,
     bool Invisible,
-    bool Camouflage);
+    bool Camouflage,
+    // Wearing a costume scroll's monster look.
+    bool InMonsterForm = false);

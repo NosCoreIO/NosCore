@@ -100,6 +100,8 @@ namespace NosCore.Data.Enumerations.Items
         SpeedBooster = 998,
         BoxEffect = 999,
         Vehicle = 1000,
+        // A special item: transforms into one of the monster looks its CostumeMorph rows list, and back on a second use.
+        CostumeScroll = 1001,
         // A map item a raid collect quest counts when it is picked up; it never reaches the bag.
         RaidCollectQuestItem = 2001,
         // Releases one of the monsters its item's ItemSummon rows list, where the player stands.

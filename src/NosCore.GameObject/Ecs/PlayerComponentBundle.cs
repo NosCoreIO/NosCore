@@ -94,8 +94,8 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
 
     public short VisibleTitle => Titles.FirstOrDefault(s => s.Visible)?.TitleType ?? 0;
 
-    // A mount replaces the sprite just as a specialist card does.
-    public short ShownMorph => UseSp || IsVehicled ? Morph : (short)0;
+    // A mount or a costume scroll's monster replaces the sprite just as a specialist card does.
+    public short ShownMorph => UseSp || IsVehicled || InMonsterForm ? Morph : (short)0;
 
     // A worn wig is drawn in its own colour instead of the hair's.
     public HairColorType ShownHairColor

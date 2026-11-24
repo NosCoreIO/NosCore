@@ -90,6 +90,19 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         }
 
         [TestMethod]
+        public void AMonsterFormIsShownToNewcomersAndInTheOwnMapEntry()
+        {
+            _session.Character.InMonsterForm = true;
+            _session.Character.Morph = 1446;
+
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
+            var cInfo = _session.Character.GenerateCInfo(World.GameLanguageLocalizer);
+
+            Assert.AreEqual((short)1446, sub.Morph);
+            Assert.AreEqual((short)1446, cInfo.Morph);
+        }
+
+        [TestMethod]
         public void TheFamilysLevelIsShownInTheMapEntryAndToNewcomers()
         {
             _session.Character.Family = new Family { FamilyId = 1, Name = "Testers", FamilyLevel = 7 };

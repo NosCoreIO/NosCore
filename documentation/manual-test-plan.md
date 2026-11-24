@@ -1101,6 +1101,23 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       leaving the desert. The same holds for each region a mount's description names (Glacernon,
       NosVille, Port Alveus, Mount Krem, the Region of the Burning Sword, Moritius, Undercity)
 
+### Costume scrolls
+
+A character with a few Halloween Costume Scrolls (1913) in the Main bag, and a second player watching.
+
+- [ ] Use one: the character turns into one of the ten monsters the scroll's description names, the
+      watcher sees the same monster, and the stack drops by one
+- [ ] Change map: the character arrives still in that form, for the watcher too
+- [ ] Use a scroll again: the character is back in its own look and no scroll is used
+- [ ] Transformed into a specialist, use one: "You cannot transform into a monster while you are a
+      specialist." and the stack is kept; the same on a mount with "You cannot transform into a
+      monster while mounted."
+- [ ] Die in monster form: the character revives in its own look
+- [ ] Log out in monster form and back in: the character is in its own look
+- [ ] The Book of Halloween Transformation (1914) gives only the first five of those monsters
+- [ ] Not verifiable yet: the Ice Costume Scrolls (1947, 1948) and the Bushtail Costume Scroll
+      (5084). No data file says which monsters they give, so they do nothing yet
+
 ### Class change
 
 - [ ] `$ChangeClass` to another class

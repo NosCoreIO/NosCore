@@ -265,6 +265,45 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Session.Character.Speed);
         }
 
+        private const short YakWarriorLook = 1446;
+
+        [TestMethod]
+        public async Task TheMapSeesThePlayerTakeAMonsterForm()
+        {
+            Session.Character.MapInstance.Sessions = Onlookers.Object;
+
+            await Service.ChangeMonsterFormAsync(Session, YakWarriorLook);
+
+            Assert.IsTrue(Session.Character.InMonsterForm);
+            CharacterMorphShouldBe_(YakWarriorLook);
+            TheMapIsSentTheMorph_(YakWarriorLook);
+        }
+
+        [TestMethod]
+        public async Task TheMapSeesThePlayerLeaveTheMonsterForm()
+        {
+            Session.Character.MapInstance.Sessions = Onlookers.Object;
+            await Service.ChangeMonsterFormAsync(Session, YakWarriorLook);
+
+            await Service.RemoveMonsterFormAsync(Session);
+
+            Assert.IsFalse(Session.Character.InMonsterForm);
+            CharacterMorphShouldBe_(0);
+            TheMapIsSentTheMorph_(0);
+        }
+
+        [TestMethod]
+        public async Task TransformingIntoASpecialistEndsTheMonsterForm()
+        {
+            TheChefCardWearingTheMasterchefSkinIsWorn();
+            Session.Character.InMonsterForm = true;
+
+            await Transforming();
+
+            Assert.IsFalse(Session.Character.InMonsterForm);
+            CharacterMorphShouldBe_(MasterchefLook);
+        }
+
         private const short MasterchefLook = 37;
 
         private void TheChefCardWearingTheMasterchefSkinIsWorn()
