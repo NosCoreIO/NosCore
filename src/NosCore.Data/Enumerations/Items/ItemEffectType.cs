@@ -11,6 +11,8 @@ namespace NosCore.Data.Enumerations.Items
         NoEffect = 0,
         Teleport = 1,
         ApplyHairDie = 10,
+        // On a Main item: refines a Gillion Stone. EffectValue is the RefinerType.
+        Refiner = 10,
         ApplyHairStyle = 11,
         RestoreDignity = 14,
         Speaker = 15,

@@ -45,6 +45,7 @@ namespace NosCore.Tests.Shared
             [MaterialType.TopazOfCompletion] = 2521,
             [MaterialType.SeedOfPower] = 1012,
             [MaterialType.Saver] = 1211,
+            [MaterialType.GillionStone] = 1013,
         };
 
         public static short VNum(MaterialType material) => VNums[material];

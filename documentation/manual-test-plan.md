@@ -3027,6 +3027,23 @@ Roram the archaeologist stands in Act 5 (map 189, around 47, 139). Give a level 
 - [ ] With less gold than the fee, "not enough gold" shows and the relict stays
 - [ ] A level 59 character is told its level is too low and keeps the relict
 
+### Gillion Stone refiners
+
+Give a character `$CreateItem 1013 20`, `$CreateItem 1036 5`, `$CreateItem 1037 5` and
+`$CreateItem 1038 5`.
+
+- [ ] Double-click a Soul Gem Refiner: one refiner and one Gillion Stone are gone, 5 to 10 Cella
+      Powder arrive and the chat says "You have acquired Cella Powder: Amount" with that number
+- [ ] Keep refining: now and then a Soul Gem or, more rarely, a Complete Soul Gem arrives as well,
+      with a "You have acquired a special item:" line naming it; most refines give Cella alone
+- [ ] The Cellon Refiner gives cellons of level 1 to 6 now and then, level 1 most often
+- [ ] The Crystal Refiner gives New Moon Crystals now and then, and more rarely a Half or Full Moon
+      Crystal or a red, blue, white or black crystal piece
+- [ ] With no Gillion Stone left, double-clicking a refiner says "You have no more Gillion
+      Stones." and the refiner stays
+- [ ] With the Main pocket full and no stack of the extra item to join, a refine that draws one
+      shows the not-enough-space message and nothing is used up
+
 ---
 
 ## Arena

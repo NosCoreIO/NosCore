@@ -810,6 +810,7 @@ namespace NosCore.Parser.Parsers
 
             item.Material = item.VNum switch
             {
+                1013 => MaterialType.GillionStone,
                 1014 => MaterialType.CellaPowder,
                 1015 => MaterialType.SoulGem,
                 1016 => MaterialType.CompleteSoulGem,
