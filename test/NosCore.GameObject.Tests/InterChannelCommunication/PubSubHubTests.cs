@@ -30,11 +30,13 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         private readonly MessagingConfiguration Messaging = new();
         private readonly Dictionary<string, Mock<IDestinationEndpoint>> Endpoints = new();
         private PubSubHub Hub;
+        private MasterClientList Clients;
+        private bool Asked;
 
         [TestInitialize]
         public void Setup()
         {
-            var clients = new MasterClientList();
+            var clients = Clients = new MasterClientList();
             clients.Channels[SenderChannel] = new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer };
             clients.Channels[OtherChannel] = new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer };
             clients.Channels[LoginChannel] = new ChannelInfo { Host = "127.0.0.1", Type = ServerType.LoginServer };
@@ -75,6 +77,51 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
                 .WhenAsync(AWorldChannelPublishesAMessage)
                 .Then(TheChannelShouldNotReceiveIt_, LoginChannel)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClosingAnAccountReachesOnlyTheChannelHoldingIt()
+        {
+            await new Spec("Closing an account reaches only the channel holding it")
+                .Given(TheAccountIsHeldBySession_On_, 7L, OtherChannel)
+                .WhenAsync(TheLoginServerAsksToCloseTheAccount)
+                .Then(TheChannel_ShouldBeAskedToCloseSession_, OtherChannel, 7L)
+                .And(TheChannelShouldNotReceiveIt_, SenderChannel)
+                .And(TheAnswerShouldBe_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClosingAnAccountNobodyHoldsSendsNothing()
+        {
+            await new Spec("Closing an account nobody holds sends nothing")
+                .WhenAsync(TheLoginServerAsksToCloseTheAccount)
+                .Then(TheChannelShouldNotReceiveIt_, SenderChannel)
+                .And(TheChannelShouldNotReceiveIt_, OtherChannel)
+                .And(TheAnswerShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        private void TheAccountIsHeldBySession_On_(long sessionId, string channel)
+        {
+            Clients.AccountClaims["account"] = new AccountClaim(channel, sessionId);
+        }
+
+        private async Task TheLoginServerAsksToCloseTheAccount()
+        {
+            Asked = (await PubSubHub.Handle(new DisconnectAccountRequest("account"), Hub)).Value;
+        }
+
+        private void TheChannel_ShouldBeAskedToCloseSession_(string channel, long sessionId)
+        {
+            Endpoints[channel].Verify(e => e.SendAsync(It.Is<ChannelMessage>(m =>
+                m.Message is DisconnectSessionData && ((DisconnectSessionData)m.Message).SessionId == sessionId
+                && ((DisconnectSessionData)m.Message).AccountName == "account"), It.IsAny<DeliveryOptions?>()), Times.Once);
+        }
+
+        private void TheAnswerShouldBe_(bool asked)
+        {
+            Assert.AreEqual(asked, Asked);
         }
 
         private async Task AWorldChannelPublishesAMessage()

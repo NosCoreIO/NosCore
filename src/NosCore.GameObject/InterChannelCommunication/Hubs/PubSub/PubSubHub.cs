@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,21 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
         public Task<bool> UnsubscribeAsync(long id) =>
             throw new InvalidOperationException("The master server is not a channel");
+
+        public async Task<bool> DisconnectAccountAsync(string accountName)
+        {
+            if (!masterClientList.AccountClaims.TryGetValue(accountName, out var claim))
+            {
+                return false;
+            }
+
+            await bus.EndpointFor(messaging.QueueUri(claim.ChannelKey)).SendAsync(new ChannelMessage(new DisconnectSessionData
+            {
+                SessionId = claim.SessionId,
+                AccountName = accountName,
+            }));
+            return true;
+        }
 
         public bool Subscribe(string channelKey, Subscriber subscriber)
         {
@@ -87,6 +103,9 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
         public static async Task<Reply<List<Subscriber>>> Handle(GetSubscribersRequest _, PubSubHub hub) =>
             new(await hub.GetSubscribersAsync());
+
+        public static async Task<Reply<bool>> Handle(DisconnectAccountRequest request, PubSubHub hub) =>
+            new(await hub.DisconnectAccountAsync(request.AccountName));
 
         public static Reply<bool> Handle(SubscribeRequest request, PubSubHub hub) =>
             new(hub.Subscribe(request.ChannelKey, request.Subscriber));

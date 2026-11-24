@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -100,7 +101,24 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
-        public async Task TheSameAccountCannotLogInTwice()
+        public async Task ALoginTakesTheAccountOverFromAClientGoneWithoutClosingItsConnection()
+        {
+            var player = await Harness.AddPlayerAsync("Alice", x: 80, y: 116);
+            await using var gone = Harness.Client(player);
+            await gone.EnterWorldAsync(player.Slot);
+            await gone.WalkAsync(81, 117);
+            await Task.Delay(500);
+            await using var back = Harness.Client(player);
+
+            var entry = await back.EnterWorldAsync(player.Slot);
+
+            Assert.IsTrue(await gone.ClosedWithinAsync(TimeSpan.FromSeconds(1)), "the session left open is closed");
+            var at = entry.OfType<AtPacket>().Single();
+            Assert.AreEqual(((short)81, (short)117), (at.PositionX, at.PositionY), "the closed session was saved first");
+        }
+
+        [TestMethod]
+        public async Task TheAccountIsNeverInTheWorldTwice()
         {
             var player = await Harness.AddPlayerAsync("Alice");
             await using var first = Harness.Client(player);
@@ -109,7 +127,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var reply = await second.LoginAsync();
 
-            PacketAssert.AreEqual(new FailcPacket { Type = LoginFailType.AlreadyConnected }, reply.Refusal);
+            Assert.IsNotNull(reply.World, reply.ToString());
+            Assert.IsTrue(await first.ClosedWithinAsync(TimeSpan.FromSeconds(1)), "the first session is closed");
         }
     }
 }

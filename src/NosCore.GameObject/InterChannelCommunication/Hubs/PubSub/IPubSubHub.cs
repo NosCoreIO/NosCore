@@ -22,4 +22,7 @@ public interface IPubSubHub
     Task<bool> SubscribeAsync(Subscriber subscriber);
 
     Task<bool> UnsubscribeAsync(long id);
+
+    // Asks the channel holding the account to close that session; false when nothing holds it.
+    Task<bool> DisconnectAccountAsync(string accountName);
 }

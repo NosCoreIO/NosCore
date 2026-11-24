@@ -1473,4 +1473,7 @@
   <data name="PACKET_IN_FLIGHT_ON_CHANNEL_CHANGE" xml:space="preserve">
     <value>Session {SessionId} still had a packet in flight, so it stays on this channel instead of moving to another</value>
   </data>
+  <data name="SESSION_TAKEN_OVER" xml:space="preserve">
+    <value>Account {AccountName} logged in again, so its session {SessionId} is closed</value>
+  </data>
 </root>
