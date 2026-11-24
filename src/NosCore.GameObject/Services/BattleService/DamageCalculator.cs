@@ -40,7 +40,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
     {
         var result = Roll(attacker, defender, skill);
         return skill.AmbushDamage > 0 && result.HitMode != SuPacketHitMode.Miss
-            ? result with { Damage = result.Damage + skill.AmbushDamage }
+            ? result with { Damage = (int)Math.Min((long)result.Damage + skill.AmbushDamage, int.MaxValue) }
             : result;
     }
 

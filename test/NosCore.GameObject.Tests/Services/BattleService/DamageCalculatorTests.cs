@@ -457,6 +457,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void AnAmbushNeverWrapsAHitPastTheLargestDamage()
+        {
+            var swordsman = Player(CharacterClassType.Swordsman, 10, attack: int.MaxValue / 2);
+
+            Assert.AreEqual(int.MaxValue, Hit(swordsman, Chicken(), MeleeSkill with { AmbushDamage = int.MaxValue }));
+        }
+
+        [TestMethod]
         public void AnAmbushAddsNothingToAMiss()
         {
             var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 100, MaxHit = 100 };
