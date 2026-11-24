@@ -201,22 +201,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == 0)), Times.Once);
         }
 
+        [TestMethod]
+        public async Task AnAreaAttackFromHidingCarriesTheAmbushToEveryBlow()
+        {
+            var map = (await TestWorld.CreateAsync()).GetBaseMap(TestWorld.TestMapId);
+            var (origin, target) = AmbushScene(hidden: true);
+            origin.MapInstance = map;
+            var ground = MakeSkill(TargetHitType.ZoneHit, range: 8, targetType: SkillReach.GroundSkill) with
+            {
+                BCards = AmbushCards,
+            };
+            _skillResolver.Setup(r => r.Resolve(origin, 1L)).Returns(ground);
+            _targetResolver.Setup(r => r.ResolveArea(origin, map, 5, 5, It.IsAny<SkillInfo>())).Returns(new IAliveEntity[] { target });
+
+            Assert.IsTrue(await _service.HitArea(origin, 5, 5, new HitArguments { SkillId = 1 }));
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == 320)), Times.Once);
+        }
+
+        private static readonly BCardDto[] AmbushCards =
+        {
+            new()
+            {
+                Type = BCardEffect.LightAndShadowAdditionalDamageWhenHidden.Type(),
+                SubType = BCardEffect.LightAndShadowAdditionalDamageWhenHidden.SubType(),
+                FirstData = 300,
+            },
+        };
+
         private (FakeEntity Origin, FakeEntity Target) AmbushScene(bool hidden)
         {
             var origin = new FakeEntity { Hp = 100 };
             var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
-            var skill = MakeSkill(TargetHitType.SingleTargetHit) with
-            {
-                BCards = new[]
-                {
-                    new BCardDto
-                    {
-                        Type = NosCore.Data.Enumerations.Buff.BCardEffect.LightAndShadowAdditionalDamageWhenHidden.Type(),
-                        SubType = NosCore.Data.Enumerations.Buff.BCardEffect.LightAndShadowAdditionalDamageWhenHidden.SubType(),
-                        FirstData = 300,
-                    },
-                },
-            };
+            var skill = MakeSkill(TargetHitType.SingleTargetHit) with { BCards = AmbushCards };
             SetupLanding(origin, target, skill);
             _targetResolver.Setup(r => r.Resolve(origin, target, It.IsAny<SkillInfo>())).Returns(new[] { target });
             _stats.Setup(s => s.GetStats(origin)).Returns(new CombatStats { AmbushDamage = 20 });

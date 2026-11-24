@@ -101,13 +101,13 @@ namespace NosCore.GameObject.Services.BattleService
                 return true;
             }
 
+            skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
             if (!await CastAsync(origin, target, skill))
             {
                 await CancelAsync(origin, arguments.SkillId, AttackRefusal(origin, target));
                 return false;
             }
 
-            skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
             await RevealAsync(origin);
             skill = await SpendChargeAsync(origin, skill);
             var targets = targetResolver.Resolve(origin, target, skill);
@@ -219,6 +219,7 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
+            skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
             if (!await CastAsync(origin, null, skill))
             {
                 await CancelAsync(origin, arguments.SkillId, CancelPacketType.CancelAutoAttack);
@@ -263,6 +264,12 @@ namespace NosCore.GameObject.Services.BattleService
         {
             var mapInstance = origin.MapInstance;
             var recipient = skill.TargetType == SkillReach.AllySkill ? target : origin;
+            var aroundCaster = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleTargetHitCombo;
+            if (aroundCaster)
+            {
+                skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
+            }
+
             if (mapInstance == null || !recipient.IsAlive || !ReferenceEquals(recipient.MapInstance, mapInstance)
                 || CanAttack(origin, recipient) || !await CastAsync(origin, null, skill))
             {
@@ -270,7 +277,6 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
-            var aroundCaster = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleTargetHitCombo;
             await mapInstance.SendPacketAsync(new SuPacket
             {
                 VisualType = origin.VisualType,
@@ -291,6 +297,7 @@ namespace NosCore.GameObject.Services.BattleService
 
             if (aroundCaster)
             {
+                await RevealAsync(origin);
                 skill = await SpendChargeAsync(origin, skill);
                 var targets = targetResolver.ResolveArea(origin, mapInstance, origin.PositionX, origin.PositionY, skill);
                 for (var i = 0; i < targets.Count; i++)
