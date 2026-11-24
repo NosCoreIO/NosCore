@@ -72,6 +72,8 @@ public sealed class MapTeleporterService(List<TeleporterDto> teleporters, INpcDi
         return true;
     }
 
+    // An NPC placed while a map runs can take the id of another map's stone, and a stone leads within its own map.
     private TeleporterDto? DestinationOf(NpcComponentBundle npc) =>
-        teleporters.FirstOrDefault(t => t.MapNpcId == npc.VisualId && t.Type == TeleporterType.TeleporterOnMapAfterBar);
+        teleporters.FirstOrDefault(t => t.MapNpcId == npc.VisualId && t.Type == TeleporterType.TeleporterOnMapAfterBar
+            && t.MapId == npc.MapInstance.Map.MapId);
 }
