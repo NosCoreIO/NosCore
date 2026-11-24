@@ -176,7 +176,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
     // The extra share of damage a critical adds, or null when the hit is not critical.
     private double? RollCriticalBonus(SkillInfo skill, AttackContext context, CombatStats attacker, CombatStats defender)
     {
-        if (skill.Type == 2 || attacker.CriticalChanceOverride == 0 || defender.CriticalReceivedChanceOverride == 0
+        if (context.Kind == AttackKind.Magical || attacker.CriticalChanceOverride == 0 || defender.CriticalReceivedChanceOverride == 0
             || random.NextDouble() * 100 > CriticalChance(context, attacker, defender))
         {
             return null;

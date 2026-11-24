@@ -151,6 +151,15 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 Attacker() with { CriticalChanceOverride = 100 }, wideOpen with { CriticalReceivedChanceOverride = 0 }, Melee).HitMode);
         }
 
+        [TestMethod]
+        public void AMagesClassTypedSkillNeverCrits()
+        {
+            var mage = Attacker() with { Class = CharacterClassType.Mage, CriticalChanceOverride = 100 };
+
+            Assert.AreNotEqual(SuPacketHitMode.CriticalAttack, _calculator.Calculate(mage, Defender(), Skill(3)).HitMode);
+            Assert.AreNotEqual(SuPacketHitMode.CriticalAttack, _calculator.Calculate(mage, Defender(), Skill(5)).HitMode);
+        }
+
         // The order is ours and not the file's, so it gets a test rather than a comment alone:
         // with both at 100 the attacker's guarantee wins.
         [TestMethod]
