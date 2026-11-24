@@ -34,7 +34,7 @@ namespace NosCore.Parser.Parsers
     //    PREATT	{IsHostile}	{NoticeRange}	{Speed}	{RespawnTime}	400
     //    SETTING	0	0	-1	0	0	0
     //    ETC	8	1	0	0	0	0	0	0
-    //    PETINFO	1	10	0	50
+    //    PETINFO	1	10	0	50	1
     //    EFF	200	0	0
     //    ZSKILL	0	1	3	2	12	0	0
     //    WINFO	0	0	0
@@ -116,6 +116,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.PetInfoVal2, "PETINFO", 0, 3, s => Convert.ToInt32(s), "Pet stat factor 2 (collectable: cooldown; teleporter: amount; mate: ranged/dodge factor)")
                 .Field(x => x.PetInfoVal3, "PETINFO", 0, 4, s => Convert.ToInt32(s), "Pet stat factor 3 (collectable: needItem flag; teleporter: removeItem; mate: magic/MP factor)")
                 .Field(x => x.PetInfoVal4, "PETINFO", 0, 5, s => Convert.ToInt32(s), "Pet stat factor 4 (collectable: dance duration; mate: level threshold)")
+                .Field(x => x.BaseStarRating, "PETINFO", 0, 6, s => Convert.ToByte(s), "Star rating a pet starts with, 1 to 5; 0 for a pet without one")
                 .Field(x => x.CanWalk, "ETC", 0, 2, s => (Convert.ToInt64(s) & 1) == 0, "ETC bit 0 clear -> can walk")
                 .Field(x => x.CanCollect, chunk => IsCollectable(chunk),
                     reads: new[] { ("RACE", 0, 2), ("RACE", 0, 3), ("ETC", 0, 2) },

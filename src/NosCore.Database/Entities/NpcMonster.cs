@@ -223,6 +223,9 @@ namespace NosCore.Database.Entities
 
         public int PetInfoVal4 { get; set; }
 
+        /// <summary>The star rating a pet of this kind starts with; 0 for one without a rating.</summary>
+        public byte BaseStarRating { get; set; }
+
         public short IconId { get; set; }
 
         public int SpawnMobOrColor { get; set; }

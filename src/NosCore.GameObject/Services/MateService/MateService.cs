@@ -79,6 +79,8 @@ namespace NosCore.GameObject.Services.MateService
             var mate = new Mate { NpcMonster = npcMonster };
             row.Adapt(mate);
             mate.MateTransportId = mateIdService.GetNextId();
+            // A pet never rates below its kind's original rating, which also covers rows saved before ratings were kept.
+            mate.StarRating = Math.Max(mate.StarRating, npcMonster.BaseStarRating);
             mateStatsService.ApplyLevel(mate);
             mate.Hp = mate.Hp <= 0 ? mate.MaxHp : Math.Min(mate.Hp, mate.MaxHp);
             mate.Mp = Math.Min(mate.Mp, mate.MaxMp);

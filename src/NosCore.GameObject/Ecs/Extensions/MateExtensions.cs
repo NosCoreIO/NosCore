@@ -75,7 +75,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 XpLoad = mate.XpLoad,
                 CanPickUp = mate.CanPickUp,
                 Name = mate.DisplayName(language),
-                IsSummonable = mate.IsSummonable
+                IsSummonable = mate.IsSummonable,
+                Unknow3 = mate.StarRating
             };
         }
 
@@ -203,7 +204,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                     MateType = mate.MateType == MateType.Partner ? MateVisualType.Partner : MateVisualType.Pet,
                     Skill1 = SkillAt(skills, 0),
                     Skill2 = SkillAt(skills, 1),
-                    Skill3 = SkillAt(skills, 2)
+                    Skill3 = SkillAt(skills, 2),
+                    Unknow7 = mate.StarRating
                 }
             };
         }

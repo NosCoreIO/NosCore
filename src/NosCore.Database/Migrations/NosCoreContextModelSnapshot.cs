@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261124031459_AddRefinerEffect";
+    public override string LastMigrationId => "20261124042104_AddPetStarRating";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2204,6 +2204,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<short>("Skin")
                     .HasColumnType("smallint");
 
+                b.Property<byte>("StarRating")
+                    .HasColumnType("smallint");
+
                 b.Property<short>("VNum")
                     .HasColumnType("smallint");
 
@@ -2419,6 +2422,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.Property<byte>("AttackUpgrade")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("BaseStarRating")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("BasicArea")

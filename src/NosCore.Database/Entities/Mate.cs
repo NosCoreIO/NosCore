@@ -55,5 +55,7 @@ namespace NosCore.Database.Entities
         public short VNum { get; set; }
 
         public short Skin { get; set; }
+
+        public byte StarRating { get; set; }
     }
 }
