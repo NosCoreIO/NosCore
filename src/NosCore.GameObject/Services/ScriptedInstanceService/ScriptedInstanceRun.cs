@@ -497,11 +497,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 if (_clockEndsAt != null && EndState == null && !_clockBroadcastQueued)
                 {
                     var clockPacket = GenerateClock();
-                    _pending.Add(() => session.SendPacketAsync(clockPacket));
-                    if (HeldForTalk)
+                    // The talk this arrival opens is registered by an earlier queued step, so the hold is decided when sending.
+                    _pending.Add(async () =>
                     {
-                        _pending.Add(() => session.SendPacketAsync(Hold));
-                    }
+                        await session.SendPacketAsync(clockPacket);
+                        if (HeldForTalk)
+                        {
+                            await session.SendPacketAsync(Hold);
+                        }
+                    });
                 }
             });
         }

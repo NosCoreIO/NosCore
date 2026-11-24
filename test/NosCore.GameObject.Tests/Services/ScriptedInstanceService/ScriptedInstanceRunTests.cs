@@ -837,6 +837,28 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task TheFirstPlayerIntoARoomWithATalkHasTheirClockHeldAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            var clockAndHold = session.LastPackets
+                .Where(p => p is EventPacket { Type: EventPacketType.TSTimer } or GuriPacket { Type: GuriPacketType.FreezeTimer })
+                .ToList();
+            Assert.IsInstanceOfType<EventPacket>(clockAndHold.First());
+            Assert.IsInstanceOfType<GuriPacket>(clockAndHold.Last());
+        }
+
+        [TestMethod]
         public async Task TheLobbyClockWaitingForTheStartIsNotHeldEveryTickAsync()
         {
             var session = await PlayerInFirstRoomAsync();
