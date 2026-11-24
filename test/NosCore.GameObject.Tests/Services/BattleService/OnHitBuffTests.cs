@@ -195,6 +195,28 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonsterSelfCardTheSkillAlreadyCastsOnItIsNotRolledTwice()
+        {
+            var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Caster));
+
+            await _service.TriggerAsync(monster, _defender.Character, false,
+                [new BCardDto { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType(), FirstData = 50, SecondData = Blackout, AppliesToCaster = true }], false);
+
+            VerifyMonsterInflictedOnItself(monster, Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AMonsterSelfCardStillRollsWhenTheSkillPutsTheSameCardOnTheTarget()
+        {
+            var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Caster));
+
+            await _service.TriggerAsync(monster, _defender.Character, false,
+                [new BCardDto { Type = BCardEffect.BuffChanceCausing.Type(), SubType = BCardEffect.BuffChanceCausing.SubType(), FirstData = 50, SecondData = Blackout }], false);
+
+            VerifyMonsterInflictedOnItself(monster, Times.Once());
+        }
+
+        [TestMethod]
         public async Task AMonsterPutsNothingOnWhatItKilled()
         {
             var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Enemy));

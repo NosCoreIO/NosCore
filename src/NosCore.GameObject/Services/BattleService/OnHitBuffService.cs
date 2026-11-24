@@ -68,7 +68,7 @@ public sealed class OnHitBuffService(IBuffService buffService, IEquipmentStatsSe
 
         var cards = npcCombatCatalog.GetNpcBCards(monster.NpcMonsterVNum)
             .Where(c => c.Slot == 0 && c.Recipient == BCardRecipient.Caster && c.Effect() == BCardEffect.BuffChanceCausing
-                && !skillBCards.Any(s => s.Effect() == BCardEffect.BuffChanceCausing && s.SecondData == c.SecondData))
+                && !skillBCards.Any(s => s.AppliesToCaster && s.Effect() == BCardEffect.BuffChanceCausing && s.SecondData == c.SecondData))
             .ToList();
         return cards.Count == 0 ? Task.CompletedTask : buffService.InflictCardsAsync(attacker, attacker, cards);
     }
