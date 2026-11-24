@@ -24,6 +24,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Specialists;
@@ -128,6 +129,7 @@ namespace NosCore.GameObject.Services.TransformationService
             }
 
             character = session.Character;
+            await buffService.ClearAsync(character);
             character.LastSp = clock.GetCurrentInstant();
             character.UseSp = true;
             character.Morph = sp.ShownMorph;
@@ -145,7 +147,7 @@ namespace NosCore.GameObject.Services.TransformationService
             await skillService.LoadSpecialistSkillsAsync(character, sp.Item.Morph, sp.SpLevel);
             await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
             await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
-            await mapInstance.SendPacketAsync(character.GenerateEq());
+            await mapInstance.SendPacketAsync(character.GenerateEq(), new EveryoneBut(session.ConnectedChannel.Id));
             await mapInstance.SendPacketAsync(character.GenerateEff(196));
             await mapInstance.SendPacketAsync(new GuriPacket
             {

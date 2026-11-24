@@ -373,7 +373,8 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 BuffId = buff.CardId,
                 Duration = 0,
             },
-            BuffLevel = buff.CasterLevel ?? 0,
+            // A player's card comes down at the bearer's own level, whoever cast it.
+            BuffLevel = target is PlayerComponentBundle ? target.Level : buff.CasterLevel ?? 0,
         });
         if (buff.HasLastingEffect)
         {

@@ -26,7 +26,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static readonly TimeSpan TransformingTime = TimeSpan.FromSeconds(5.2);
 
         [TestMethod]
-        public async Task OnlookersSeeTheTransformedGearAndTheTransformationFinish()
+        public async Task OnlookersSeeTheTransformedGearAndEveryoneSeesTheFinish()
         {
             var player = await Harness.AddPlayerAsync("Alice", configure: c => c.SpPoint = 10_000);
             await Harness.GiveAsync(player, new SpecialistInstance { ItemVNum = WorldData.ChefCard, Amount = 1, SpLevel = 1 },
@@ -38,6 +38,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await alice.ExpectAsync<DelayPacket>();
             await Task.Delay(TransformingTime);
             var seen = bob.Mark();
+            var mine = alice.Mark();
 
             await alice.SendAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform });
 
@@ -54,6 +55,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             // Read back, the optional SecondArgument takes the entity id, on the expected packet as on the received one.
             PacketAssert.AreEqual((GuriPacket)Wire.Deserialize(Wire.Serialize(finish)),
                 await bob.ExpectSinceAsync<GuriPacket>(seen, p => p.Type == GuriPacketType.CharacterAnimation, "the end of Alice's transformation"));
+            await alice.ExpectSinceAsync<GuriPacket>(mine, p => p.Type == GuriPacketType.CharacterAnimation, "the end of her own transformation");
+            Assert.IsTrue(await alice.NoneSinceAsync<EqPacket>(mine, p => p.VisualId == alice.CharacterId, TimeSpan.FromMilliseconds(500)),
+                "Alice is not sent her own gear");
         }
     }
 }

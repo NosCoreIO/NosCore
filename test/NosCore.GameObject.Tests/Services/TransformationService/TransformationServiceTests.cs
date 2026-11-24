@@ -26,6 +26,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
 using System.Linq;
@@ -131,6 +132,44 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .And(ThePlayerSeesWhatTheMapIsSent)
                 .WhenAsync(Transforming)
                 .Then(ThePlayerIsSentTheTransformationLinesInOrder)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheTransformingPlayerIsNotSentTheirOwnGear()
+        {
+            await new Spec("Only the others on the map are sent the transformed player's gear")
+                .Given(TheChefCardWearingTheMasterchefSkinIsWorn)
+                .And(ThePlayerSeesWhatTheMapIsSent)
+                .WhenAsync(Transforming)
+                .Then(TheMapIsSentTheCharactersGear)
+                .And(ThePlayerIsSentNoGear)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingEndsTheCardsThePlayerIsUnder()
+        {
+            await new Spec("Transforming ends the cards the player is under first, silently, at the player's own level")
+                .Given(TheChefCardWearingTheMasterchefSkinIsWorn)
+                .And(ThePlayerIsAtLevel_, 76)
+                .AndAsync(ThePlayerIsUnderACardFromAMateAtLevel_, 71)
+                .And(ThePlayerSeesWhatTheMapIsSent)
+                .WhenAsync(Transforming)
+                .Then(TheCardIsTakenDownBeforeTheTransformationLines)
+                .And(ThePlayerIsNoLongerUnderTheCard)
+                .And(TheEndOfTheCardIsNotAnnounced)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task APermanentCardOutlivesTheTransformation()
+        {
+            await new Spec("A permanent card the player holds is kept through the transformation")
+                .Given(TheChefCardWearingTheMasterchefSkinIsWorn)
+                .AndAsync(ThePlayerHoldsAPermanentCard)
+                .WhenAsync(Transforming)
+                .Then(ThePlayerStillHoldsThePermanentCard)
                 .ExecuteAsync();
         }
 
@@ -272,7 +311,13 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             Onlookers.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
                 .Callback<IPacket[]>(Receive).Returns(Task.CompletedTask);
             Onlookers.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
-                .Callback<IPacket[], ISessionMatcher>((packets, _) => Receive(packets)).Returns(Task.CompletedTask);
+                .Callback<IPacket[], ISessionMatcher>((packets, matcher) =>
+                {
+                    if (matcher.Matches(Session.Channel.NotNull().Id))
+                    {
+                        Receive(packets);
+                    }
+                }).Returns(Task.CompletedTask);
             SkillBar.Setup(s => s.LoadSpecialistSkillsAsync(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>(), It.IsAny<short>(), It.IsAny<byte>()))
                 .Returns(() => Session.Character.SendPacketAsync(Session.Character.GenerateSki(true)));
 
@@ -287,19 +332,63 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private void ThePlayerIsSentTheTransformationLinesInOrder()
         {
-            var received = Session.LastPackets
-                .OfType<IPacket>()
-                .Where(p => p is CondPacket or ScPacket or StatPacket or CModePacket or SkiPacket or SpPacket
-                    or LevPacket or EqPacket or EffectPacket or GuriPacket)
-                .Select(p => p.GetType())
-                .ToList();
             CollectionAssert.AreEqual(new[]
             {
                 typeof(CondPacket), typeof(ScPacket), typeof(StatPacket), typeof(CModePacket), typeof(SkiPacket),
-                typeof(SpPacket), typeof(LevPacket), typeof(EqPacket), typeof(EffectPacket), typeof(GuriPacket)
-            }, received);
+                typeof(SpPacket), typeof(LevPacket), typeof(EffectPacket), typeof(GuriPacket)
+            }, TransformationLinesReceived());
             PacketAssert.AreEqual(Session.Character.GenerateEff(196), Session.LastPackets.OfType<EffectPacket>().Single());
         }
+
+        private List<System.Type> TransformationLinesReceived() => Session.LastPackets
+            .OfType<IPacket>()
+            .Where(p => p is BfPacket or CondPacket or ScPacket or StatPacket or CModePacket or SkiPacket or SpPacket
+                or LevPacket or EqPacket or EffectPacket or GuriPacket)
+            .Select(p => p.GetType())
+            .ToList();
+
+        private void ThePlayerIsSentNoGear() => Assert.IsFalse(Session.LastPackets.OfType<EqPacket>().Any());
+
+        private const short MateBlessingCardId = 840;
+
+        private void ThePlayerIsAtLevel_(int level) => Session.Character.Level = (byte)level;
+
+        private async Task ThePlayerIsUnderACardFromAMateAtLevel_(int level)
+        {
+            var mate = await World.CreateSessionAsync();
+            mate.Character.Level = (byte)level;
+            await Buffs.ApplyAsync(Session.Character, new NosCore.Data.StaticEntities.CardDto { CardId = MateBlessingCardId, Duration = 3000 },
+                new List<NosCore.Data.StaticEntities.BCardDto>(), mate.Character);
+            Session.LastPackets.Clear();
+        }
+
+        private void TheCardIsTakenDownBeforeTheTransformationLines()
+        {
+            CollectionAssert.AreEqual(new[]
+            {
+                typeof(BfPacket), typeof(CondPacket), typeof(ScPacket), typeof(StatPacket), typeof(CModePacket), typeof(SkiPacket),
+                typeof(SpPacket), typeof(LevPacket), typeof(EffectPacket), typeof(GuriPacket)
+            }, TransformationLinesReceived());
+            PacketAssert.AreEqual(new BfPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = Session.Character.VisualId,
+                Buff = new BfPacket.BuffElementSubPacket { ChargeValue = 0, BuffId = MateBlessingCardId, Duration = 0 },
+                BuffLevel = 76,
+            }, Session.LastPackets.OfType<BfPacket>().Single());
+        }
+
+        private void ThePlayerIsNoLongerUnderTheCard() => Assert.IsFalse(Buffs.HasBuff(Session.Character, MateBlessingCardId));
+
+        private void TheEndOfTheCardIsNotAnnounced() => Assert.IsFalse(Session.LastPackets.OfType<SayiPacket>().Any());
+
+        private const short PermanentCardId = 999;
+
+        private Task ThePlayerHoldsAPermanentCard() =>
+            Buffs.ApplyPermanentAsync(Session.Character, new NosCore.Data.StaticEntities.CardDto { CardId = PermanentCardId },
+                new List<NosCore.Data.StaticEntities.BCardDto>());
+
+        private void ThePlayerStillHoldsThePermanentCard() => Assert.IsTrue(Buffs.HasBuff(Session.Character, PermanentCardId));
 
         private void CharacterHasSpEquipped()
         {

@@ -1178,6 +1178,12 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
       else changes on screen
 - [ ] Transform with skills on the quick bar: the skill bar, the quick bar, the SP points bar, the
       level bar and the character window all show the card once the transformation effect plays
+- [ ] Have a pet or partner cast a buff on you, then transform: its icon leaves the buff bar as
+      the transformation starts, with no "effect ended" line in the chat, and a second client on
+      the map sees the icon go too. A permanent card (specialist wings) stays
+- [ ] Transform beside a second client: on your own screen the character keeps its weapon,
+      costume and wings on the card's look although your client is no longer sent its own gear
+      line, and the second client still sees the card's look with its weapon drawn
 
 ### Specialist card upgrade
 
