@@ -31,6 +31,7 @@ namespace NosCore.Database.Entities
             RecipeItem = new HashSet<RecipeItem>();
             NpcExchange = new HashSet<NpcExchange>();
             NpcExchangeMaterial = new HashSet<NpcExchangeMaterial>();
+            UpgradeCostMaterial = new HashSet<UpgradeCostMaterial>();
             ShopItem = new HashSet<ShopItem>();
             BCards = new HashSet<BCard>();
             ItemInstances = new HashSet<ItemInstance>();
@@ -213,6 +214,8 @@ namespace NosCore.Database.Entities
         public virtual ICollection<NpcExchange> NpcExchange { get; set; }
 
         public virtual ICollection<NpcExchangeMaterial> NpcExchangeMaterial { get; set; }
+
+        public virtual ICollection<UpgradeCostMaterial> UpgradeCostMaterial { get; set; }
 
         public short ReduceOposantResistance { get; set; }
 

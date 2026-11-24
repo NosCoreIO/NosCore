@@ -690,6 +690,9 @@
   <data name="NPC_EXCHANGES_PARSED" xml:space="preserve">
     <value>{Exchanges} NPC exchanges imported</value>
   </data>
+  <data name="UPGRADE_COSTS_PARSED" xml:space="preserve">
+    <value>{Costs} upgrade costs imported</value>
+  </data>
   <data name="MOUNT_MAP_SPEEDS_PARSED" xml:space="preserve">
     <value>{Rows} map speed bonuses imported for {Mounts} mounts</value>
   </data>

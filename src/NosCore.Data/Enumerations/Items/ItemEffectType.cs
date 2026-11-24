@@ -49,6 +49,10 @@ namespace NosCore.Data.Enumerations.Items
         PermanentPetBasket = 603,
         PermanentInventoryTicketUpgrade = 604,
         InventoryTicketUpgrade = 605,
+
+        // EffectValue names the loa whose tattoos the pattern can ink.
+        TattooPattern = 606,
+
         RenamingCard = 767,
         MedalOfErenia = 201,
         AdventurersMedal = 202,

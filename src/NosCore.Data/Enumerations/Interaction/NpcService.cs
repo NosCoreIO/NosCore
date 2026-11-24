@@ -16,6 +16,7 @@ namespace NosCore.Data.Enumerations.Interaction
         SpecialistCardUpgrade = 20,
         RelictExamination = 35,
         FamilyManager = 41,
+        TattooApplication = 83,
         SpecialistCardPerfection = 45
     }
 }
