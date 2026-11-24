@@ -48,12 +48,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         var now = clock.GetCurrentInstant();
         var durationMs = overrideDuration >= 0 ? overrideDuration : card.Duration * 100;
+        // A card with no duration in the data lasts until something removes it.
         var buff = new BuffInstance(
             CardId: card.CardId,
             BuffType: ClassifyBuffType(card),
             Caster: caster,
             StartedAt: now,
-            ExpiresAt: now.Plus(Duration.FromMilliseconds(durationMs)),
+            ExpiresAt: durationMs == 0 && overrideDuration < 0 ? Instant.MaxValue : now.Plus(Duration.FromMilliseconds(durationMs)),
             BCards: bCards)
         {
             CasterLevel = caster?.Level,

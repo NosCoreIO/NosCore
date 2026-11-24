@@ -324,7 +324,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         public static IEnumerable<BfePacket> GenerateLastingEffects(this IAliveEntity aliveEntity, Instant now) =>
             aliveEntity.BuffState()?.Values
                 .Where(b => b.HasLastingEffect && b.ExpiresAt > now)
-                .Select(b => aliveEntity.GenerateBfe(b.CardId, b.ExpiresAt - now))
+                .Select(b => aliveEntity.GenerateBfe(b.CardId, b.ExpiresAt == Instant.MaxValue ? Duration.Zero : b.ExpiresAt - now))
                 .ToList() ?? [];
 
         // No time left ends the effect.
