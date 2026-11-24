@@ -487,7 +487,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 // A room's objective set while discovering it reaches this player through Objective.
                 if (room is { } current && session.HasPlayerEntity && EndState == null)
                 {
-
                     if (_roomObjectives.TryGetValue(current, out var objective))
                     {
                         if (!discovered)
