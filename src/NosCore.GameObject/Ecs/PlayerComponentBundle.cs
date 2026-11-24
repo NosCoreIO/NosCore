@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.Buff;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Ecs;
@@ -109,11 +110,14 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
 
     public Task SendPacketAsync(IPacket? packet)
     {
-        return Sender?.SendPacketAsync(packet) ?? Task.CompletedTask;
+        return LiveSender?.SendPacketAsync(packet) ?? Task.CompletedTask;
     }
 
     public Task SendPacketsAsync(IEnumerable<IPacket?> packets)
     {
-        return Sender?.SendPacketsAsync(packets) ?? Task.CompletedTask;
+        return LiveSender?.SendPacketsAsync(packets) ?? Task.CompletedTask;
     }
+
+    // A player found just before their entity was taken down has nobody left to send to.
+    private IPacketSender? LiveSender => World.TryGetComponent<PlayerNetworkComponent>(Entity)?.Sender;
 }
