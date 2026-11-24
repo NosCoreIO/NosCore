@@ -133,7 +133,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             Points = points,
             Experience = experience,
             JobExperience = jobExperience,
-            Gold = (int)Math.Min(entrance.Definition?.Gold ?? 0, int.MaxValue),
+            Gold = (int)Math.Min(entrance.Definition?.GoldFor(run.MonstersKilled) ?? 0, int.MaxValue),
             DrawRewardCount = run.IsLoserMode ? (byte)0 : (byte)(entrance.Definition?.DrawItems.Count ?? 0),
             MonstersKilled = (short)run.MonstersKilled,
             RoomsExplored = (short)run.RoomsVisited,

@@ -3565,6 +3565,37 @@ negative going north.
 - [ ] 521: killing the Powerless Dust King in (1,-8) wins the run
 - [ ] Not verifiable yet: entering from the quest's own stone, which nothing places yet
 
+### Pyjama time-space
+
+`timespace-518` ("What Adventure Awaits?", level 27, quest 2006) is the Yellow Soulstone's
+time-space, on the same 21 rooms as `timespace-34`. Nothing places its stone yet, so add a test
+stone with `Script` set to `timespace-518` and use a level 27+ character. Its level minimum is
+25, not the quest's 27: both captured clears give 75 experience a kill (3 × 25) and a level 27
+character loses 4% of the points. The texts below are
+the French ones of the log, and rooms are named by their minimap position from the first room,
+x to the east and y positive going south.
+
+- [ ] Once the start is confirmed and the second room entered, the clock shows ten minutes
+- [ ] (2,-1) and (5,-1) say "Le portail s'ouvrira une fois que tu auras éliminé tous les
+      monstres." and open every door when cleared, with "La sortie est ouverte."
+- [ ] (4,0) shows a red two-minute clock; clearing it within the two minutes opens its north and
+      south doors only and adds three minutes with "Tu as gagné 3 minutes de temps bonus."
+- [ ] (5,2) says "Élimine tous les ennemis !"; clearing it opens only its north door, adds two
+      minutes and shows the Quick Mission line. Its west door never opens
+- [ ] (4,2) holds the exit, open from the start: walking onto it wins with Mission Clear without
+      going through the dark trap or the lever room
+- [ ] The dark trap (3,2) shows "Le piège des ténèbres ! Tu es piégé pendant 1 minute." and a red
+      one-minute clock; killing the Dark Gargs opens nothing, and when the clock ends its three
+      doors open with "Le portail s'est ouvert."
+- [ ] The lever room (1,2), "Vois-tu le levier au centre ?", opens both its doors when the lever
+      is pulled
+- [ ] Clear it killing N monsters: Mission Clear shows 60 × N gold (4620 for all 77), and opening
+      the chest pays that gold and 50 reputation, whatever the character's level
+- [ ] A level 27 character's clear shows "4% of points reduced because of level penalty" before
+      the score
+- [ ] Not verifiable yet: entering from the Yellow Soulstone (NPC 932), and the mission window's
+      one heart and exit goal, since `minfo` freezes this client
+
 ### Escorts in a time-space
 
 A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`; Guards in

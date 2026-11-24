@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return false;
             }
 
-            await GiveGoldAsync(character, definition.Gold);
+            await GiveGoldAsync(character, definition.GoldFor(run.MonstersKilled));
             if (definition.Reputation > 0)
             {
                 await character.SetReputationAsync(character.Reputation + definition.Reputation);

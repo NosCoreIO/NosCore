@@ -105,6 +105,7 @@ namespace NosCore.Instances.Tests
         [DataRow("timespace-38")]
         [DataRow("timespace-44")]
         [DataRow("timespace-46")]
+        [DataRow("timespace-518")]
         [DataRow("timespace-628")]
         public async Task EnteringTheFirstRoomStartsTheMission(string name)
         {
@@ -178,6 +179,48 @@ namespace NosCore.Instances.Tests
 
             Assert.AreEqual(bonus, run.Calls.Contains("addClock(180s)"));
             Assert.IsTrue(run.Unlocked.Any(p => p.From == bonusRoom));
+        }
+
+        [TestMethod]
+        public async Task ThePyjamaHuntRoomOpensOnlyItsWayBackAndAddsTwoMinutes()
+        {
+            var script = await LoadAsync("timespace-518");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+            const int eastWing = 16;
+            const int huntRoom = 17;
+            const int exitRoom = 18;
+
+            script.OnRoomEntered(run, huntRoom);
+            script.OnRoomCleared(run, huntRoom);
+
+            Assert.IsTrue(run.Unlocked.Contains((huntRoom, eastWing)));
+            Assert.IsFalse(run.Unlocked.Contains((huntRoom, exitRoom)));
+            CollectionAssert.AreEqual(
+                new[] { $"unlock({huntRoom}->{eastWing})", "message(ADoorHasOpened)", "addClock(120s)", "message(QuickMissionComplete)" },
+                run.Calls.TakeLast(4).ToList());
+        }
+
+        [TestMethod]
+        public async Task ThePyjamaExitIsOpenFromTheStart()
+        {
+            var script = await LoadAsync("timespace-518");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+
+            Assert.AreEqual((18, false), run.Exits.Single());
+            Assert.IsEmpty(script.Definition.Objectives);
+        }
+
+        [TestMethod]
+        public async Task ThePyjamaTimeSpacePaysSixtyGoldAKillAndFiftyReputation()
+        {
+            var script = await LoadAsync("timespace-518");
+
+            Assert.AreEqual(4620, script.Definition.GoldFor(77));
+            Assert.AreEqual(2400, script.Definition.GoldFor(40));
+            Assert.AreEqual(50, script.Definition.Reputation);
+            Assert.AreEqual(25, script.Definition.LevelMinimum);
         }
 
         [TestMethod]
