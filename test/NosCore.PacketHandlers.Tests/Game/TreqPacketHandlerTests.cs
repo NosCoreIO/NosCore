@@ -96,6 +96,27 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheRecordButtonAsksTheRecordsCost()
+        {
+            await new Spec("The record button asks the record's cost instead of entering")
+                .Given(AStoneIsUnderTheCharacter)
+                .WhenAsync(Pressing_, new TreqPacket { StartPress = true, RecordPress = true })
+                .Then(TheRecordsCostIsAsked)
+                .And(TheTimeSpaceIsNotEntered)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AcceptingTheCostEntersAsARecordChallenge()
+        {
+            await new Spec("Accepting the record's cost enters the time-space as a record challenge")
+                .Given(AStoneIsUnderTheCharacter)
+                .WhenAsync(Pressing_, new TreqPacket { StartPress = true, RecordPress = true, GoldAccepted = true })
+                .Then(TheTimeSpaceIsEnteredAsARecordChallenge)
+                .ExecuteAsync();
+        }
+
         private void AStoneIsUnderTheCharacter() =>
             Instances.Setup(s => s.GetAt(Stone.MapId, Stone.PositionX, Stone.PositionY)).Returns(Stone);
 
@@ -113,6 +134,13 @@ namespace NosCore.PacketHandlers.Tests.Game
         private Task SendingATreqFarAway() =>
             SendAsync(new TreqPacket { X = Stone.PositionX + 5, Y = Stone.PositionY, StartPress = true });
 
+        private Task Pressing_(TreqPacket packet)
+        {
+            packet.X = Stone.PositionX;
+            packet.Y = Stone.PositionY;
+            return SendAsync(packet);
+        }
+
         private Task SendAsync(TreqPacket packet) => World.Create<TreqPacketHandler>().ExecuteAsync(packet, Session);
 
         private void TheCardIsShown() => Entry.Verify(s => s.ShowAsync(Session, Stone), Times.Once);
@@ -120,9 +148,14 @@ namespace NosCore.PacketHandlers.Tests.Game
         private void NoCardIsShown() =>
             Entry.Verify(s => s.ShowAsync(It.IsAny<ClientSession>(), It.IsAny<ScriptedInstance>()), Times.Never);
 
-        private void TheTimeSpaceIsEntered() => Entry.Verify(s => s.EnterAsync(Session, Stone, false), Times.Once);
+        private void TheTimeSpaceIsEntered() => Entry.Verify(s => s.EnterAsync(Session, Stone, false, false), Times.Once);
+
+        private void TheTimeSpaceIsEnteredAsARecordChallenge() =>
+            Entry.Verify(s => s.EnterAsync(Session, Stone, false, true), Times.Once);
+
+        private void TheRecordsCostIsAsked() => Entry.Verify(s => s.AskRecordChallengeAsync(Session, Stone), Times.Once);
 
         private void TheTimeSpaceIsNotEntered() =>
-            Entry.Verify(s => s.EnterAsync(It.IsAny<ClientSession>(), It.IsAny<ScriptedInstance>(), It.IsAny<bool>()), Times.Never);
+            Entry.Verify(s => s.EnterAsync(It.IsAny<ClientSession>(), It.IsAny<ScriptedInstance>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
     }
 }

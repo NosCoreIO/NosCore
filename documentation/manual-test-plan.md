@@ -4398,6 +4398,30 @@ marked monster) while it is the one to kill.
 - [ ] Not verifiable yet: a kill by a partner. NosCore scores it at the partner's own level, which
       the traces do not settle
 
+### Time-space record score
+
+Each stone keeps the best score any character has scored in it, and that character's name, on the
+stone's panel. Use two characters of different accounts at level 5 and `timespace-01`.
+
+- [ ] Before anyone has cleared it, the panel's high score shows 0 with no name
+- [ ] Clear it with the first character: right after Mission Clear, "You broke the record score."
+      shows, and the panel then shows the points of that window and that character's name
+- [ ] Clear it with the second character scoring less: no record message, and the panel still shows
+      the first character
+- [ ] Clear it with the second character scoring more: the message shows and the panel switches to
+      the second character's score and name
+- [ ] Restart the world server: the panel still shows the record
+- [ ] On `timespace-08` with a level 17 character holding at least 850 gold and the Seed of Power
+      it needs, press the panel's record button: a question asks "850 Gold is required to challenge a
+      record. Do you want to try it?"
+- [ ] Answer yes: the gold drops by 850, the Seed of Power is used up and the first room opens as
+      in a normal entry
+- [ ] With 849 gold, answer yes: "You don't have enough Gold." shows, the gold stays and no run opens
+- [ ] Press the record button on a stone other than `timespace-08`: nothing happens
+- [ ] Not verifiable yet: the record cost of any stone but `timespace-08`, whether a record run
+      differs from a normal one beyond its cost, and whether only record runs may set the record.
+      NosCore lets any successful run, Loser Mode included, set it
+
 ### Raids
 
 The parser gives each known raid gate (`Type` 1 in `ScriptedInstance`) its script from `instances/`.

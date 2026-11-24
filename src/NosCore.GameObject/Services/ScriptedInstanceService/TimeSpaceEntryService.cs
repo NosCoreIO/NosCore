@@ -13,6 +13,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ClientPackets.Instance;
+using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
@@ -23,7 +24,8 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class TimeSpaceEntryService(IScriptedInstanceService scriptedInstanceService,
-            IMapChangeService mapChangeService, ISessionRegistry sessionRegistry)
+            IMapChangeService mapChangeService, ISessionRegistry sessionRegistry,
+            ITimeSpaceRecordService timeSpaceRecordService)
         : ITimeSpaceEntryService
     {
         private const int LoserModeClockScale = 2;
@@ -53,11 +55,38 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 && session.Character.OffersLoserMode(definition.Id);
             var completed = entrance.TimeSpaceId is { } id
                 && session.Character.CompletedTimeSpaces?.Contains(id) == true;
+            var highScore = entrance.Definition is { } shown
+                ? await timeSpaceRecordService.GetHighScoreAsync(shown.Id)
+                : null;
             await session.SendPacketAsync(entrance.GenerateRbr(loserMode, completed,
-                !session.Character.HasClearedRequiredTimeSpaces(entrance)));
+                !session.Character.HasClearedRequiredTimeSpaces(entrance), highScore));
         }
 
-        public async Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false)
+        public async Task AskRecordChallengeAsync(ClientSession session, ScriptedInstance entrance)
+        {
+            if (!await scriptedInstanceService.LoadAsync(entrance) || entrance.Definition?.RecordCost is not { } cost)
+            {
+                return;
+            }
+
+            await session.SendPacketAsync(new QnaiPacket
+            {
+                YesPacket = new TreqPacket
+                {
+                    X = entrance.PositionX,
+                    Y = entrance.PositionY,
+                    StartPress = true,
+                    RecordPress = true,
+                    GoldAccepted = true
+                },
+                Question = Game18NConstString.GoldRequiredToChallengeRecord,
+                ArgumentType = 4,
+                Game18NArguments = { cost }
+            });
+        }
+
+        public async Task EnterAsync(ClientSession session, ScriptedInstance entrance, bool loserMode = false,
+            bool recordChallenge = false)
         {
             var character = session.Character;
             if (!await scriptedInstanceService.LoadAsync(entrance))
@@ -96,6 +125,23 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
+            var recordCost = 0L;
+            if (recordChallenge)
+            {
+                if (loserMode || entrance.Definition?.RecordCost is not { } cost)
+                {
+                    return;
+                }
+
+                if (character.Gold < cost)
+                {
+                    await RefuseAsync(session, Game18NConstString.NotEnoughGold);
+                    return;
+                }
+
+                recordCost = cost;
+            }
+
             var run = await scriptedInstanceService.InstantiateAsync(entrance);
             if (run == null || entrance.Definition is not { } definition)
             {
@@ -107,6 +153,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 run.IsLoserMode = true;
                 run.ClockScale = LoserModeClockScale;
+            }
+
+            if (recordCost > 0)
+            {
+                character.Gold -= recordCost;
+                await session.SendPacketAsync(character.GenerateGold());
             }
 
             await character.TakeRequiredItemsAsync(entrance);

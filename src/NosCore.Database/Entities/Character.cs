@@ -26,6 +26,7 @@ namespace NosCore.Database.Entities
             Title = new HashSet<Title>();
             CompletedTimeSpace = new HashSet<CompletedTimeSpace>();
             MallDelivery = new HashSet<MallDelivery>();
+            TimeSpaceRecord = new HashSet<TimeSpaceRecord>();
             StaticBuff = new HashSet<StaticBuff>();
             BazaarItem = new HashSet<BazaarItem>();
             Inventory = new HashSet<InventoryItemInstance>();
@@ -151,6 +152,7 @@ namespace NosCore.Database.Entities
         public virtual ICollection<CompletedTimeSpace> CompletedTimeSpace { get; set; }
 
         public virtual ICollection<MallDelivery> MallDelivery { get; set; }
+        public virtual ICollection<TimeSpaceRecord> TimeSpaceRecord { get; set; }
 
 
         public virtual ICollection<Mate> Mate { get; set; }

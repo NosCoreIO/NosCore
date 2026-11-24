@@ -32,6 +32,7 @@ namespace NosCore.Instances.Abstractions
         private short _startY;
         private long _gold;
         private int _goldPerKill;
+        private long? _recordCost;
         private int _reputation;
         private int _familyExperience;
         private byte _lives;
@@ -108,6 +109,12 @@ namespace NosCore.Instances.Abstractions
         public InstanceDefinitionBuilder WithGoldPerKill(int gold)
         {
             _goldPerKill = gold;
+            return this;
+        }
+
+        public InstanceDefinitionBuilder WithRecordCost(long gold)
+        {
+            _recordCost = gold;
             return this;
         }
 
@@ -189,6 +196,7 @@ namespace NosCore.Instances.Abstractions
                 SpecialItems = [.. _specials],
                 Gold = _gold,
                 GoldPerKill = _goldPerKill,
+                RecordCost = _recordCost,
                 Reputation = _reputation,
                 FamilyExperience = _familyExperience,
                 Lives = _lives,

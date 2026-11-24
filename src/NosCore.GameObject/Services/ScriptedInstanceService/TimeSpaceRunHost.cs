@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         ITimeSpaceExperienceService timeSpaceExperienceService, ITimeSpaceScoreService timeSpaceScoreService,
         ILowLevelBoostService lowLevelBoostService,
         IExperienceBonusService experienceBonusService, IExperienceProgressionService experienceProgression,
-        ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        ITimeSpaceRecordService timeSpaceRecordService, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IInstanceRunHost
     {
         // Every time-space revival in the packet traces names 568 for a level 14-19 character and 569 for a
@@ -113,7 +113,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     Game18NConstString.PointsReducedLevelPenalty, 4, penalty));
             }
 
-            await character.SendPacketAsync(Score(run, character, run.Score * (100 - penalty) / 100, experience, jobExperience));
+            var points = run.Score * (100 - penalty) / 100;
+            await character.SendPacketAsync(Score(run, character, points, experience, jobExperience));
+            if (entrance.Definition is { } definition
+                && await timeSpaceRecordService.TryBreakAsync(definition.Id, character.CharacterId, points))
+            {
+                await character.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.BrokeRecordScore
+                });
+            }
         }
 
         private Task TakeStoneAsync(PlayerComponentBundle character) =>

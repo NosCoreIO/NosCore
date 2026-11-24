@@ -147,6 +147,7 @@ namespace NosCore.Tests.Shared
             CharacterSkillDao = Dao<CharacterSkill, CharacterSkillDto, Guid>();
             QuicklistEntryDao = Dao<QuicklistEntry, QuicklistEntryDto, Guid>();
             CompletedTimeSpaceDao = Dao<CompletedTimeSpace, CompletedTimeSpaceDto, Guid>();
+            TimeSpaceRecordDao = Dao<TimeSpaceRecord, TimeSpaceRecordDto, Guid>();
             EquipmentOptionDao = Dao<EquipmentOption, EquipmentOptionDto, Guid>();
             MailDao = Dao<Mail, MailDto, long>();
             MallDeliveryDao = Dao<MallDelivery, MallDeliveryDto, Guid>();
@@ -295,6 +296,7 @@ namespace NosCore.Tests.Shared
         public IDao<QuicklistEntryDto, Guid> QuicklistEntryDao { get; }
         public IDao<CompletedTimeSpaceDto, Guid> CompletedTimeSpaceDao { get; }
         public IDao<MallDeliveryDto, Guid> MallDeliveryDao { get; }
+        public IDao<TimeSpaceRecordDto, Guid> TimeSpaceRecordDao { get; }
         public IDao<EquipmentOptionDto, Guid> EquipmentOptionDao { get; }
         public IDao<MailDto, long> MailDao { get; }
 

@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Game
             {
                 null or WreqPacketType.DailyTeamTimeSpaceEntry => timeSpaceEntryService.ShowAsync(session, entrance, offerToJoin: packet.Param == null),
                 WreqPacketType.TeamTimeSpaceEntry when packet.Param is { } memberId => timeSpaceEntryService.JoinAsync(session, entrance, memberId),
+                WreqPacketType.InstanceEntry when packet.Param == 1 => timeSpaceEntryService.AskRecordChallengeAsync(session, entrance),
                 WreqPacketType.InstanceEntry => timeSpaceEntryService.EnterAsync(session, entrance),
                 WreqPacketType.InstanceEntryLoserMode => timeSpaceEntryService.EnterAsync(session, entrance, loserMode: true),
                 _ => Task.CompletedTask
