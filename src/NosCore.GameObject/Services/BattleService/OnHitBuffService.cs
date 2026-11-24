@@ -38,6 +38,7 @@ public sealed class OnHitBuffService(IBuffService buffService, IEquipmentStatsSe
         }
 
         await InflictAsync(attacker, attacker, attackerCards, BCardEffect.ChanceReceivingXBuffOnAttack);
+        await InflictMonsterSelfCardsAsync(attacker, skillBCards);
         await InflictAsync(attacker, defender, defenderCards, BCardEffect.ChanceCausingXBuffOnEnemyOnDefence,
             BCardEffect.SecondSpCardCastBuffOnAttacker, BCardEffect.SecondSpCardChanceCausingXBuffOnAttacker);
     }
@@ -55,6 +56,21 @@ public sealed class OnHitBuffService(IBuffService buffService, IEquipmentStatsSe
                 && !skillBCards.Any(s => s.Effect() == BCardEffect.BuffChanceCausing && s.SecondData == c.SecondData))
             .ToList();
         return cards.Count == 0 ? Task.CompletedTask : buffService.InflictCardsAsync(defender, attacker, cards);
+    }
+
+    // A monster's own cards marked for itself, such as a Ram's chance to fly into a Rage when it attacks.
+    private Task InflictMonsterSelfCardsAsync(IAliveEntity attacker, IReadOnlyList<BCardDto> skillBCards)
+    {
+        if (attacker is MateComponentBundle || attacker is not INonPlayableEntity { NpcMonster: { } monster } || !attacker.IsAlive)
+        {
+            return Task.CompletedTask;
+        }
+
+        var cards = npcCombatCatalog.GetNpcBCards(monster.NpcMonsterVNum)
+            .Where(c => c.Slot == 0 && c.Recipient == BCardRecipient.Caster && c.Effect() == BCardEffect.BuffChanceCausing
+                && !skillBCards.Any(s => s.AppliesToCaster && s.Effect() == BCardEffect.BuffChanceCausing && s.SecondData == c.SecondData))
+            .ToList();
+        return cards.Count == 0 ? Task.CompletedTask : buffService.InflictCardsAsync(attacker, attacker, cards);
     }
 
     private List<BCardDto> Cards(IAliveEntity entity) =>
