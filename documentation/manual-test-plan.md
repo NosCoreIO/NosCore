@@ -2788,25 +2788,14 @@ Run the parser again first, so the quests' interim talks and the Pyjama card pri
       your hand out.": you land on the small soulstone platform (map 2107) next to the Yellow Soulstone.
       "Leave it." only closes the dialog.
 - [ ] Walk onto the platform's portal (11, 5): you are back in Sunny Meadows at (213, 111).
-- [ ] Talk to the Yellow Soulstone and finish its dialog: "Give Pyjama a blanket!" (2000) appears.
-      Talk to it without 50 Wool: the Pyjama "interim" talk plays instead of the soulstone's own dialog.
-- [ ] With 50 Wool, talk to it: "Delivered 50/50", "Quest complete", the wool leaves the bag and
-      "Give Pyjama a pillow!" (2001) appears, with no soulstone dialog opening.
-- [ ] Walk the chain to "Complete the Time-Space mission the Pyjama Fairy gave you!" (2006): talking
-      to the soulstone shows "The Pyjama Fairy is avoiding eye contact with me." and its "Time-Space
-      Challenge" enters time-space 518 (once its script is on master). Clearing it completes 2006 and
-      hands out 2007.
-- [ ] Talk to the soulstone with 2007 held: the quest is marked done but stays in the quest window and
-      the card is not in the bag yet. Click the quest in the quest window: the Pyjama Specialist Card
-      (900) lands in the bag, the chat says a specialist card was received, the reward window lists it,
-      the quest leaves the window and dignity is restored.
-- [ ] With 2007 waiting in the quest window, the soulstone's "End Dialogue" (n_run 2000 2000) says a
-      quest of the same kind is already under way and hands out nothing.
 - [ ] Any quest that pays a reward now waits in the quest window once done, and pays out when clicked
       there; log out between the two and the quest is still done and claimable after logging back in.
-- [ ] At level 36+, take "Find the Powerless Dust King's Heart!" (2008) from its soulstone: its
-      interim talk's "Time-Space Challenge" enters time-space 519, and the later quests of the line
-      enter 520 and 521 the same way.
+- [ ] Not verifiable yet: talking to the Yellow Soulstone on map 2107, and so its quest line
+      (2000-2007: the Pyjama interim talk, the 50 Wool hand-in, time-space 518's "Time-Space
+      Challenge", claiming the Pyjama Specialist Card from the quest window and the "same kind of
+      quest" refusal) and the level 36 line's challenges into time-spaces 519-521. The soulstones
+      stand stacked on one cell of map 2107, and a click there opens the Blue Soulstone's dialog
+      instead
 - [ ] Not verifiable yet: the other soulstones (933, 934, 948, 954) stand on map 2107 in the stored
       captures, stacked on the Yellow Soulstone's cell, because their rooms (2108, 2109, 2111, 2112)
       reuse map 2107's grid and the server has no map for them; their "Stretch your hand out." does

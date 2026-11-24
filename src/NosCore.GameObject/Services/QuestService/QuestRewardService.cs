@@ -48,7 +48,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
     private const byte ItemArgument = 2;
     private const byte NumberArgument = 4;
 
-    public bool HasRewards(short questId) => RewardsOf(questId).Any();
+    public bool HasRewards(short questId) => RewardsOf(questId).Any(r => r.RewardType != QuestRewardType.NotRepeatable);
 
     public bool HasRoomFor(PlayerComponentBundle character, short questId) =>
         RewardsOf(questId).Where(r => ItemCandidates(r).Count > 0)
