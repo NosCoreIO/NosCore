@@ -106,7 +106,7 @@ public sealed class RewardService(
             await mapInstance.Executor.RunAsync(() => AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot));
             var topDamageDealer = FindTopDamageDealer(victim, hitSnapshot);
             var (doubleChance, noDropChance) = topDamageDealer is { } hunter ? DropChances(hunter) : (0, 0);
-            var dropsLoot = !Rolls(noDropChance);
+            var dropsLoot = hitSnapshot.Keys.Any(h => FightsForAPlayer(mapInstance.EcsWorld, h)) && !Rolls(noDropChance);
             if (dropsLoot && mapInstance.IsAct4)
             {
                 await GiveDropsToAttackersAsync(victim, mob, mapInstance, hitSnapshot);
@@ -357,6 +357,12 @@ public sealed class RewardService(
             }
         }
     }
+
+    // A monster that only map NPCs fought leaves nothing behind.
+    private static bool FightsForAPlayer(MapWorld world, Entity handle) =>
+        world.IsAlive(handle)
+        && (world.TryGetComponent<Ecs.Components.EntityIdentityComponent>(handle) is { VisualType: Shared.Enumerations.VisualType.Player }
+            || world.TryGetComponent<Ecs.Components.MateStateComponent>(handle) != null);
 
     private static List<PlayerComponentBundle> Attackers(IAliveEntity victim, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
