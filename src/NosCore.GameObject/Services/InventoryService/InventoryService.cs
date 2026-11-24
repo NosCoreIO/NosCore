@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Options;
+using NosCore.Packets.Enumerations;
 using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -39,7 +40,8 @@ namespace NosCore.GameObject.Services.InventoryService
                 NoscorePocketType.Miniland => 50 + Expensions[pocket],
                 NoscorePocketType.Specialist => 45 + Expensions[pocket],
                 NoscorePocketType.Costume => 60 + Expensions[pocket],
-                NoscorePocketType.Wear or NoscorePocketType.FirstPartnerInventory
+                NoscorePocketType.Wear => (int)EquipmentType.MiniPet + 1,
+                NoscorePocketType.FirstPartnerInventory
                     or NoscorePocketType.SecondPartnerInventory or NoscorePocketType.ThirdPartnerInventory => 17,
                 NoscorePocketType.Mount => 20 + Expensions[pocket],
                 NoscorePocketType.Raid => 63 + Expensions[pocket],

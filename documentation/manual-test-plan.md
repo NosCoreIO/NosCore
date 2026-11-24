@@ -1189,6 +1189,12 @@ A character with a few Halloween Costume Scrolls (1913) in the Main bag, and a s
       no gold is taken and the boost appears under Skill Info > Training
 - [ ] Double-click a second copy: "You've already learned" and the book stays
 
+### Mini pets
+
+- [ ] Double-click a mini pet (8585) in the equipment bag: it leaves the bag and floats beside you
+- [ ] Log out and back in wearing it: it floats beside you again
+- [ ] Take it off in the character window: it goes back to the bag and disappears
+
 ### Equipment gates
 
 - [ ] Try to wear an item above your job level: the message says the **job level** is too
