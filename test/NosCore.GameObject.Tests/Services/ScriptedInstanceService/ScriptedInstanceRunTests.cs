@@ -65,6 +65,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             public Action<IInstanceRun, int>? Cleared { get; init; }
             public Action<IInstanceRun>? Timeout { get; init; }
             public Action<IInstanceRun, int>? Exit { get; init; }
+            public Action<IInstanceRun>? Button { get; init; }
             public List<string> Calls { get; } = [];
 
             public Script(byte id = 0, params InstanceObjective[] objectives) =>
@@ -100,6 +101,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             public override void OnItemCollected(IInstanceRun run, int room, short vNum) =>
                 Calls.Add($"collected({room},{vNum})");
+
+            public override void OnButtonUsed(IInstanceRun run, int room, int button) => Button?.Invoke(run);
 
             public override void OnTimeout(IInstanceRun run)
             {
@@ -784,6 +787,32 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.IsNull(run.EndState);
             var clock = _first.LastPackets.OfType<EventPacket>().Last(s => s.Type == EventPacketType.TSTimer);
             Assert.AreEqual(600, clock.Parameter);
+        }
+
+        [TestMethod]
+        public async Task TimeAddedWhileATalkHoldsTheClockKeepsItHeldAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.PlaceButton(1, 1, new Spot(2, 2), 1055, 1056);
+                    r.Dialog(1, 6024);
+                },
+                Button = r => r.AddClockTime(TimeSpan.FromSeconds(30))
+            });
+            await run.StartAsync();
+            _first.LastPackets.Clear();
+
+            await run.UseButtonAsync(_first.MapInstanceId, 1, 1);
+
+            var clockPackets = _first.LastPackets
+                .Where(p => p is EventPacket { Type: EventPacketType.TSTimer } or GuriPacket { Type: GuriPacketType.FreezeTimer })
+                .ToList();
+            Assert.IsInstanceOfType<EventPacket>(clockPackets.First());
+            Assert.IsInstanceOfType<GuriPacket>(clockPackets.Last());
         }
 
         [TestMethod]

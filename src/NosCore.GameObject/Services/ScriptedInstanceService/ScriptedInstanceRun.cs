@@ -1377,6 +1377,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _clockLimit += added;
             _clockEndsAt = endsAt.Plus(added);
             BroadcastClock();
+            if (HeldForTalk)
+            {
+                FreezeClock();
+            }
         }
 
         // Official runs hold the clock while a talk is open, but one left open past about 30 s let it run on.
