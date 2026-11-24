@@ -347,6 +347,7 @@ public sealed class BattleStatsProvider(
             SurroundingDamageRadius = Math.Max(stats.SurroundingDamageRadius, totals.SurroundingRadius),
             ExplosionRadius = Math.Max(stats.ExplosionRadius, totals.ExplosionRadius),
             ExplosionDamage = stats.ExplosionDamage + totals.ExplosionDamage,
+            AmbushDamage = stats.AmbushDamage + totals.Ambush,
             FinalCriticalDamagePercent = stats.FinalCriticalDamagePercent + totals.FinalCrit,
             FinalCriticalDamageTakenPercent = stats.FinalCriticalDamageTakenPercent + totals.FinalCritTaken,
             CannotDodge = stats.CannotDodge || totals.CannotDodge,
@@ -396,7 +397,7 @@ public sealed class BattleStatsProvider(
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
         public int FairyElement;
         public int GuaranteedHit, GuaranteedDodge;
-        public int OnyxDragon, ForcedMovementResistance, SurroundingChance, SurroundingRadius, ExplosionRadius, ExplosionDamage;
+        public int OnyxDragon, ForcedMovementResistance, SurroundingChance, SurroundingRadius, ExplosionRadius, ExplosionDamage, Ambush;
         public int FinalCrit, FinalCritTaken;
         public int DefencePercent;
         public List<ChanceDamage>? ChanceDamage;
@@ -421,6 +422,7 @@ public sealed class BattleStatsProvider(
         new Dictionary<BCardEffect, Action<CardTotals, int>>
         {
             [BCardEffect.AttackPowerAllAttacksIncreased] = (t, v) => t.AttackAll += v,
+            [BCardEffect.LightAndShadowAdditionalDamageWhenHidden] = (t, v) => t.Ambush += v,
             [BCardEffect.AttackPowerAllAttacksDecreased] = (t, v) => t.AttackAll -= v,
             [BCardEffect.AttackPowerMeleeAttacksIncreased] = (t, v) => t.AttackMelee += v,
             [BCardEffect.AttackPowerMeleeAttacksDecreased] = (t, v) => t.AttackMelee -= v,

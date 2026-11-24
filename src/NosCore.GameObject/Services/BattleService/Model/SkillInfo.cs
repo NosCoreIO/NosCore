@@ -37,7 +37,9 @@ public sealed record SkillInfo(
     // The cards of a charge the caster spends on this attack.
     IReadOnlyList<BCardDto>? ChargeBCards = null,
     // Damage every blow deals as it is, neither rolled nor reduced.
-    int? FixedDamage = null)
+    int? FixedDamage = null,
+    // Added to every landed blow because the caster struck from hiding.
+    int AmbushDamage = 0)
 {
     private const byte ChargeType = 4;
     private const byte DashType = 5;

@@ -645,6 +645,17 @@ Hold the card through a static buff row (see the BCard test scenes) or have it c
 - [ ] The same hit on a monster of another race does the same damage as without the upgrade
 - [ ] A weapon whose card raises damage against a race (757) adds its attack the same way while worn
 
+### Ambush from hiding — BCard type 43 subtype 4
+
+- [ ] Card 85, the hide that skill 851 gives, has no duration in the data. Until such cards last until
+      something removes them, give it one in the database first (`update "Card" set "Duration" = 2400
+      where "CardId" = 85`)
+- [ ] As an Archer wearing the SP card 904, hide with skill 851, then hit a monster with skill 853
+      ("ambush attacks cause 2500 additional damage"). Against a monster with no dodge and with no
+      critical hit, the hit does exactly 2500 more than the same skill used without hiding, and the
+      attack reveals the Archer
+- [ ] The next skill used after being revealed does its normal damage
+
 ### Gear speed bonuses
 
 - [ ] Log in wearing a costume with "movement speed is increased by 2" (4245): the speed in `cond` is two

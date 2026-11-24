@@ -13,6 +13,7 @@ using Arch.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Battle;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
@@ -178,6 +179,66 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _buffs.Verify(b => b.RemoveEffectAsync(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialActionsHide), Times.Once);
             _buffs.Verify(b => b.RemoveEffectAsync(origin, NosCore.Data.Enumerations.Buff.BCardEffect.FalconSkillHide), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AnAttackFromHidingCarriesTheAmbushDamageOfTheSkillAndTheCaster()
+        {
+            var (origin, target) = AmbushScene(hidden: true);
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == 320)), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AnAttackInTheOpenCarriesNoAmbushDamage()
+        {
+            var (origin, target) = AmbushScene(hidden: false);
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == 0)), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AnAreaAttackFromHidingCarriesTheAmbushToEveryBlow()
+        {
+            var map = (await TestWorld.CreateAsync()).GetBaseMap(TestWorld.TestMapId);
+            var (origin, target) = AmbushScene(hidden: true);
+            origin.MapInstance = map;
+            var ground = MakeSkill(TargetHitType.ZoneHit, range: 8, targetType: SkillReach.GroundSkill) with
+            {
+                BCards = AmbushCards,
+            };
+            _skillResolver.Setup(r => r.Resolve(origin, 1L)).Returns(ground);
+            _targetResolver.Setup(r => r.ResolveArea(origin, map, 5, 5, It.IsAny<SkillInfo>())).Returns(new IAliveEntity[] { target });
+
+            Assert.IsTrue(await _service.HitArea(origin, 5, 5, new HitArguments { SkillId = 1 }));
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == 320)), Times.Once);
+        }
+
+        private static readonly BCardDto[] AmbushCards =
+        {
+            new()
+            {
+                Type = BCardEffect.LightAndShadowAdditionalDamageWhenHidden.Type(),
+                SubType = BCardEffect.LightAndShadowAdditionalDamageWhenHidden.SubType(),
+                FirstData = 300,
+            },
+        };
+
+        private (FakeEntity Origin, FakeEntity Target) AmbushScene(bool hidden)
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            var skill = MakeSkill(TargetHitType.SingleTargetHit) with { BCards = AmbushCards };
+            SetupLanding(origin, target, skill);
+            _targetResolver.Setup(r => r.Resolve(origin, target, It.IsAny<SkillInfo>())).Returns(new[] { target });
+            _stats.Setup(s => s.GetStats(origin)).Returns(new CombatStats { AmbushDamage = 20 });
+            _buffs.Setup(b => b.HasEffect(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialActionsHide)).Returns(hidden);
+            return (origin, target);
         }
 
         [TestMethod]

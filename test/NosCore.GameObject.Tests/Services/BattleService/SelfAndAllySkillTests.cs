@@ -206,6 +206,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AnAttackAroundAHiddenCasterCarriesItsAmbushAndRevealsTheCaster()
+        {
+            await new Spec("A hidden caster striking all around adds the skill's ambush damage to every blow, then shows up")
+                .Given(TheSkillAroundTheCasterCarriesAnAmbushOf_, 300)
+                .And(TwoMonstersStandAroundTheCaster)
+                .And(TheCasterIsHidden)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(EveryBlowShouldCarryAnAmbushOf_, 300)
+                .And(TheCasterShouldBeRevealed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task APetsBasicAttackStrikesTheMonster()
         {
             await new Spec("A pet with no skill of its own still lands its basic attack on a monster")
@@ -366,6 +379,41 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 SkillVnum: 207, CastId: 1, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
                 Type: 0, HitType: hitType, Range: 0, TargetRange: 4, TargetType: targetType,
                 Element: 0, Duration: 0, MpCost: 0, BCards: Cards));
+        }
+
+        private void TheSkillAroundTheCasterCarriesAnAmbushOf_(int damage)
+        {
+            IAliveEntity caster = _caster.Character;
+            _skillResolver.Setup(r => r.Resolve(caster, 1L)).Returns(new SkillInfo(
+                SkillVnum: 207, CastId: 1, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
+                Type: 0, HitType: TargetHitType.SingleTargetHitCombo, Range: 0, TargetRange: 4, TargetType: 1,
+                Element: 0, Duration: 0, MpCost: 0, BCards: new[]
+                {
+                    new BCardDto
+                    {
+                        Type = BCardEffect.LightAndShadowAdditionalDamageWhenHidden.Type(),
+                        SubType = BCardEffect.LightAndShadowAdditionalDamageWhenHidden.SubType(),
+                        FirstData = (short)damage,
+                    },
+                }));
+        }
+
+        private void TheCasterIsHidden()
+        {
+            IAliveEntity caster = _caster.Character;
+            _buffService.Setup(b => b.HasEffect(caster, BCardEffect.SpecialActionsHide)).Returns(true);
+        }
+
+        private void EveryBlowShouldCarryAnAmbushOf_(int damage)
+        {
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == damage)), Times.Exactly(2));
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage != damage)), Times.Never);
+        }
+
+        private void TheCasterShouldBeRevealed()
+        {
+            IAliveEntity caster = _caster.Character;
+            _buffService.Verify(b => b.RemoveEffectAsync(caster, BCardEffect.SpecialActionsHide), Times.Once);
         }
 
         private void TheAllyWalksAway()

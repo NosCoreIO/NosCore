@@ -449,6 +449,34 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void AnAmbushAddsItsDamageToALandedBlow()
+        {
+            var swordsman = Player(CharacterClassType.Swordsman, 10, attack: 26);
+
+            Assert.AreEqual(332, Hit(swordsman, Chicken(), MeleeSkill with { AmbushDamage = 300 }));
+        }
+
+        [TestMethod]
+        public void AnAmbushNeverWrapsAHitPastTheLargestDamage()
+        {
+            var swordsman = Player(CharacterClassType.Swordsman, 10, attack: int.MaxValue / 2);
+
+            Assert.AreEqual(int.MaxValue, Hit(swordsman, Chicken(), MeleeSkill with { AmbushDamage = int.MaxValue }));
+        }
+
+        [TestMethod]
+        public void AnAmbushAddsNothingToAMiss()
+        {
+            var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 100, MaxHit = 100 };
+            var dodger = StatsBuilder.Default() with { GuaranteedDodgeChance = 100 };
+
+            var result = new DamageCalculator(Rng(doubles: new[] { 0.0, 0.0 }, ints: new[] { 100 }).Object, new MonsterLevelDamageService(), new UpgradeBonusService(), new DodgeChanceService())
+                .Calculate(attacker, dodger, MeleeSkill with { AmbushDamage = 300 });
+
+            Assert.AreEqual(0, result.Damage);
+        }
+
+        [TestMethod]
         public void AMapBossBonusRaisesHitsOnMapBossesOnly()
         {
             var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 100, MaxHit = 100, MapBossDamagePercent = 20 };

@@ -38,6 +38,14 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
 
     public DamageResult Calculate(CombatStats attacker, CombatStats defender, SkillInfo skill)
     {
+        var result = Roll(attacker, defender, skill);
+        return skill.AmbushDamage > 0 && result.HitMode != SuPacketHitMode.Miss
+            ? result with { Damage = (int)Math.Min((long)result.Damage + skill.AmbushDamage, int.MaxValue) }
+            : result;
+    }
+
+    private DamageResult Roll(CombatStats attacker, CombatStats defender, SkillInfo skill)
+    {
         attacker = BattleStatsProvider.WithSkillCriticals(attacker, skill);
         if (attacker.IsPlayer && defender.IsPlayer)
         {

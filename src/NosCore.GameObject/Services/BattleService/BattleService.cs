@@ -101,6 +101,7 @@ namespace NosCore.GameObject.Services.BattleService
                 return true;
             }
 
+            skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
             if (!await CastAsync(origin, target, skill))
             {
                 await CancelAsync(origin, arguments.SkillId, AttackRefusal(origin, target));
@@ -141,6 +142,20 @@ namespace NosCore.GameObject.Services.BattleService
             await ExplodeAsync(origin, skill);
             await FinishCastAsync(origin, skill);
             return true;
+        }
+
+        // Type 43 subtype 4 on the skill or on the caster counts only while the caster is still hidden.
+        private int AmbushDamage(IAliveEntity origin, SkillInfo skill)
+        {
+            if (!buffService.HasEffect(origin, BCardEffect.SpecialActionsHide)
+                && !buffService.HasEffect(origin, BCardEffect.FalconSkillHide))
+            {
+                return 0;
+            }
+
+            return statsProvider.GetStats(origin).AmbushDamage + skill.BCards
+                .Where(card => card.Effect() == BCardEffect.LightAndShadowAdditionalDamageWhenHidden)
+                .Sum(card => BattleStatsProvider.ScaleByLevel(card, origin.Level));
         }
 
         private async Task RevealAsync(IAliveEntity origin)
@@ -204,6 +219,7 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
+            skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
             if (!await CastAsync(origin, null, skill))
             {
                 await CancelAsync(origin, arguments.SkillId, CancelPacketType.CancelAutoAttack);
@@ -248,6 +264,12 @@ namespace NosCore.GameObject.Services.BattleService
         {
             var mapInstance = origin.MapInstance;
             var recipient = skill.TargetType == SkillReach.AllySkill ? target : origin;
+            var aroundCaster = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleTargetHitCombo;
+            if (aroundCaster)
+            {
+                skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
+            }
+
             if (mapInstance == null || !recipient.IsAlive || !ReferenceEquals(recipient.MapInstance, mapInstance)
                 || CanAttack(origin, recipient) || !await CastAsync(origin, null, skill))
             {
@@ -255,7 +277,6 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
-            var aroundCaster = skill.TargetType == SkillReach.SelfSkill && skill.HitType == TargetHitType.SingleTargetHitCombo;
             await mapInstance.SendPacketAsync(new SuPacket
             {
                 VisualType = origin.VisualType,
@@ -276,6 +297,7 @@ namespace NosCore.GameObject.Services.BattleService
 
             if (aroundCaster)
             {
+                await RevealAsync(origin);
                 skill = await SpendChargeAsync(origin, skill);
                 var targets = targetResolver.ResolveArea(origin, mapInstance, origin.PositionX, origin.PositionY, skill);
                 for (var i = 0; i < targets.Count; i++)
