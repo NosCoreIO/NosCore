@@ -52,7 +52,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var morale = attacker.Morale;
 
         // Dodge phase: only melee/ranged skills can miss. Magicians never dodge.
-        if ((skill.Type == 0 || skill.Type == 1) && attacker.Class != CharacterClassType.Mage)
+        if ((skill.Type == 0 || skill.Type == 1) && attacker.Class != CharacterClassType.Mage && !defender.CannotDodge)
         {
             // Type 16 overrides this roll from both sides: subtype 11 on the attacker is "there
             // is a %s%% chance that every attack hits", subtype 21 on the defender is "always
@@ -117,7 +117,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         // Elemental damage layer. See `ComputeElementalDamage` for the full pipeline.
         var elementalDamage = ComputeElementalDamage(attacker, defender, skill, baseDamage);
 
-        var criticalBonus = RollCriticalBonus(skill, context, defender);
+        var criticalBonus = RollCriticalBonus(skill, context, attacker, defender);
         if (criticalBonus is { } bonus)
         {
             baseDamage += (int)(baseDamage * bonus);
@@ -162,7 +162,7 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var levelDifference = morale - defender.Level;
         var elementalDamage = ComputeElementalDamage(attacker, defender, skill, damage + levelDifference);
 
-        var criticalBonus = RollCriticalBonus(skill, context, defender);
+        var criticalBonus = RollCriticalBonus(skill, context, attacker, defender);
         if (criticalBonus is { } bonus)
         {
             damage += (int)(Math.Max(0, damage) * bonus);
@@ -174,9 +174,10 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
     private const int PlayerFlatAttack = 15;
 
     // The extra share of damage a critical adds, or null when the hit is not critical.
-    private double? RollCriticalBonus(SkillInfo skill, AttackContext context, CombatStats defender)
+    private double? RollCriticalBonus(SkillInfo skill, AttackContext context, CombatStats attacker, CombatStats defender)
     {
-        if (skill.Type == 2 || random.NextDouble() * 100 > context.MainCritChance + defender.CriticalReceivedChance)
+        if (context.Kind == AttackKind.Magical || attacker.CriticalChanceOverride == 0 || defender.CriticalReceivedChanceOverride == 0
+            || random.NextDouble() * 100 > CriticalChance(context, attacker, defender))
         {
             return null;
         }
@@ -184,6 +185,14 @@ public sealed class DamageCalculator(IRandomProvider random, IMonsterLevelDamage
         var critHit = context.MainCritHit * (100 + defender.CriticalDamageReceived) / 100.0;
         return Math.Max(0, critHit) / 100.0;
     }
+
+    // An override from either side replaces the stats; the higher one wins.
+    private static int CriticalChance(AttackContext context, CombatStats attacker, CombatStats defender) =>
+        (attacker.CriticalChanceOverride, defender.CriticalReceivedChanceOverride) switch
+        {
+            (null, null) => context.MainCritChance + defender.CriticalReceivedChance,
+            var (inflicted, received) => Math.Max(inflicted ?? 0, received ?? 0),
+        };
 
     // A hit that lands always does some damage: anything under 5 becomes 1 to 5.
     private DamageResult Land(CombatStats attacker, CombatStats defender, AttackKind kind, int damage, bool isCritical)

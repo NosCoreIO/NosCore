@@ -33,7 +33,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 MagicDefence = 300,
                 DefenceDodge = 40,
                 DamageMinimum = 50,
-                DamageMaximum = 50
+                DamageMaximum = 50,
+                Element = 1,
+                ElementRate = 10
             };
 
             var entity = new Mock<INonPlayableEntity>();
@@ -79,6 +81,84 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = StatsWith(Card(BCardEffect.SpecialDefenceAllDefenceNullified));
 
             Assert.AreEqual(40, stats.DefenceDodge);
+        }
+
+        [TestMethod]
+        public void MeleeDefenceNullifiedRemovesOnlyMeleeDefence()
+        {
+            var stats = StatsWith(Card(BCardEffect.SpecialDefenceMeleeDefenceNullified));
+
+            Assert.AreEqual(0, stats.Defence);
+            Assert.AreEqual(200, stats.DistanceDefence);
+            Assert.AreEqual(300, stats.MagicDefence);
+        }
+
+        [TestMethod]
+        public void RangedDefenceNullifiedRemovesOnlyRangedDefence()
+        {
+            var stats = StatsWith(Card(BCardEffect.SpecialDefenceRangedDefenceNullified));
+
+            Assert.AreEqual(100, stats.Defence);
+            Assert.AreEqual(0, stats.DistanceDefence);
+            Assert.AreEqual(300, stats.MagicDefence);
+        }
+
+        [TestMethod]
+        public void MagicDefenceNullifiedRemovesOnlyMagicDefence()
+        {
+            var stats = StatsWith(Card(BCardEffect.SpecialDefenceMagicDefenceNullified));
+
+            Assert.AreEqual(100, stats.Defence);
+            Assert.AreEqual(200, stats.DistanceDefence);
+            Assert.AreEqual(0, stats.MagicDefence);
+        }
+
+        [TestMethod]
+        public void NoDefenceTakesAwayDodging()
+        {
+            Assert.IsFalse(StatsWith().CannotDodge);
+            Assert.IsTrue(StatsWith(Card(BCardEffect.SpecialDefenceNoDefence)).CannotDodge);
+        }
+
+        [TestMethod]
+        public void AnElementIncreaseOfTheBearersElementRaisesItsElementRate()
+        {
+            var stats = StatsWith(
+                Card(BCardEffect.IncreaseDamageFireIncreased, 30),
+                Card(BCardEffect.IncreaseDamageFireDecreased, 5));
+
+            Assert.AreEqual(35, stats.ElementRate);
+        }
+
+        [TestMethod]
+        public void AnElementIncreaseOfAnotherElementDoesNothing()
+        {
+            var stats = StatsWith(Card(BCardEffect.IncreaseDamageWaterIncreased, 30));
+
+            Assert.AreEqual(10, stats.ElementRate);
+        }
+
+        [TestMethod]
+        public void AlwaysAndNeverCriticalBecomeOverrides()
+        {
+            Assert.IsNull(StatsWith().CriticalChanceOverride);
+            Assert.AreEqual(100, StatsWith(Card(BCardEffect.SpecialCriticalAlwaysInflict)).CriticalChanceOverride);
+            Assert.AreEqual(25, StatsWith(Card(BCardEffect.SpecialCriticalInflictingChancePercent, 25)).CriticalChanceOverride);
+            Assert.AreEqual(100, StatsWith(Card(BCardEffect.SpecialCriticalAlwaysReceives)).CriticalReceivedChanceOverride);
+            Assert.AreEqual(40, StatsWith(Card(BCardEffect.SpecialCriticalReceivingChancePercent, 40)).CriticalReceivedChanceOverride);
+        }
+
+        [TestMethod]
+        public void NeverCriticalOutweighsAlwaysOnTheSameEntity()
+        {
+            var stats = StatsWith(
+                Card(BCardEffect.SpecialCriticalNeverInflict),
+                Card(BCardEffect.SpecialCriticalAlwaysInflict),
+                Card(BCardEffect.SpecialCriticalAlwaysReceives),
+                Card(BCardEffect.SpecialCriticalNeverReceives));
+
+            Assert.AreEqual(0, stats.CriticalChanceOverride);
+            Assert.AreEqual(0, stats.CriticalReceivedChanceOverride);
         }
 
         [TestMethod]

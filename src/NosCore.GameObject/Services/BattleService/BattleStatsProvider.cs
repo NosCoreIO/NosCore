@@ -323,9 +323,9 @@ public sealed class BattleStatsProvider(
             CriticalRate = stats.CriticalRate + totals.CritDamage,
             DistanceCriticalChance = stats.DistanceCriticalChance + totals.CritInflicting,
             DistanceCriticalRate = stats.DistanceCriticalRate + totals.CritDamage,
-            Defence = totals.DefenceNullified ? 0 : ByPercent(ByFactor(stats.Defence + totals.DefenceAll + totals.DefenceMelee, totals.FactorDefenceAll + totals.FactorDefenceMelee), totals.DefencePercent),
-            DistanceDefence = totals.DefenceNullified ? 0 : ByPercent(ByFactor(stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged, totals.FactorDefenceAll + totals.FactorDefenceRanged), totals.DefencePercent),
-            MagicDefence = totals.DefenceNullified ? 0 : ByPercent(ByFactor(stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical, totals.FactorDefenceAll + totals.FactorDefenceMagical), totals.DefencePercent),
+            Defence = totals.DefenceNullified || totals.MeleeDefenceNullified ? 0 : ByPercent(ByFactor(stats.Defence + totals.DefenceAll + totals.DefenceMelee, totals.FactorDefenceAll + totals.FactorDefenceMelee), totals.DefencePercent),
+            DistanceDefence = totals.DefenceNullified || totals.RangedDefenceNullified ? 0 : ByPercent(ByFactor(stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged, totals.FactorDefenceAll + totals.FactorDefenceRanged), totals.DefencePercent),
+            MagicDefence = totals.DefenceNullified || totals.MagicDefenceNullified ? 0 : ByPercent(ByFactor(stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical, totals.FactorDefenceAll + totals.FactorDefenceMagical), totals.DefencePercent),
             DefenceDodge = stats.DefenceDodge + totals.Dodge,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + totals.Dodge,
             // "All" adds to each of the four rather than living in a fifth field: the
@@ -345,6 +345,9 @@ public sealed class BattleStatsProvider(
             ExplosionDamage = stats.ExplosionDamage + totals.ExplosionDamage,
             FinalCriticalDamagePercent = stats.FinalCriticalDamagePercent + totals.FinalCrit,
             FinalCriticalDamageTakenPercent = stats.FinalCriticalDamageTakenPercent + totals.FinalCritTaken,
+            CannotDodge = stats.CannotDodge || totals.CannotDodge,
+            CriticalChanceOverride = totals.CritInflictedOverride ?? stats.CriticalChanceOverride,
+            CriticalReceivedChanceOverride = totals.CritReceivedOverride ?? stats.CriticalReceivedChanceOverride,
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
             CriticalReceivedChance = stats.CriticalReceivedChance + totals.CritReceivedChance,
@@ -364,6 +367,9 @@ public sealed class BattleStatsProvider(
         _ => value,
     };
 
+    // A "never" on the same entity outlasts any "always" or chance it also carries.
+    private static int Override(int? current, int chance) => current == 0 ? 0 : Math.Max(current ?? 0, chance);
+
     private static int ByPercent(int value, int percent) => value * (100 + percent) / 100;
 
     private sealed class CardTotals
@@ -376,7 +382,9 @@ public sealed class BattleStatsProvider(
         public int FactorDefenceAll, FactorDefenceMelee, FactorDefenceRanged, FactorDefenceMagical;
         public int HitRate, HitRateMelee, HitRateRanged, Dodge, Morale;
         public int AttackLevel, DefenceLevel;
-        public bool DefenceNullified;
+        public bool DefenceNullified, MeleeDefenceNullified, RangedDefenceNullified, MagicDefenceNullified;
+        public bool CannotDodge;
+        public int? CritInflictedOverride, CritReceivedOverride;
         public int PvpAttack, PvpDefence;
         public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
         public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
@@ -416,6 +424,17 @@ public sealed class BattleStatsProvider(
             [BCardEffect.AttackPowerMagicalAttacksDecreased] = (t, v) => t.AttackMagical -= v,
 
             [BCardEffect.SpecialDefenceAllDefenceNullified] = (t, _) => t.DefenceNullified = true,
+            [BCardEffect.SpecialDefenceMeleeDefenceNullified] = (t, _) => t.MeleeDefenceNullified = true,
+            [BCardEffect.SpecialDefenceRangedDefenceNullified] = (t, _) => t.RangedDefenceNullified = true,
+            [BCardEffect.SpecialDefenceMagicDefenceNullified] = (t, _) => t.MagicDefenceNullified = true,
+            [BCardEffect.SpecialDefenceNoDefence] = (t, _) => t.CannotDodge = true,
+
+            [BCardEffect.SpecialCriticalAlwaysInflict] = (t, _) => t.CritInflictedOverride = Override(t.CritInflictedOverride, 100),
+            [BCardEffect.SpecialCriticalNeverInflict] = (t, _) => t.CritInflictedOverride = 0,
+            [BCardEffect.SpecialCriticalInflictingChancePercent] = (t, v) => t.CritInflictedOverride = Override(t.CritInflictedOverride, v),
+            [BCardEffect.SpecialCriticalAlwaysReceives] = (t, _) => t.CritReceivedOverride = Override(t.CritReceivedOverride, 100),
+            [BCardEffect.SpecialCriticalNeverReceives] = (t, _) => t.CritReceivedOverride = 0,
+            [BCardEffect.SpecialCriticalReceivingChancePercent] = (t, v) => t.CritReceivedOverride = Override(t.CritReceivedOverride, v),
 
             [BCardEffect.DamageDamageIncreased] = (t, v) => t.DamageAll += v,
             [BCardEffect.DamageDamageDecreased] = (t, v) => t.DamageAll -= v,
@@ -533,6 +552,14 @@ public sealed class BattleStatsProvider(
             [BCardEffect.ElementLightDecreased] = (t, v) => t.ElementLight -= v,
             [BCardEffect.ElementDarkIncreased] = (t, v) => t.ElementDark += v,
             [BCardEffect.ElementDarkDecreased] = (t, v) => t.ElementDark -= v,
+            [BCardEffect.IncreaseDamageFireIncreased] = (t, v) => t.ElementFire += v,
+            [BCardEffect.IncreaseDamageFireDecreased] = (t, v) => t.ElementFire -= v,
+            [BCardEffect.IncreaseDamageWaterIncreased] = (t, v) => t.ElementWater += v,
+            [BCardEffect.IncreaseDamageWaterDecreased] = (t, v) => t.ElementWater -= v,
+            [BCardEffect.IncreaseDamageLightIncreased] = (t, v) => t.ElementLight += v,
+            [BCardEffect.IncreaseDamageLightDecreased] = (t, v) => t.ElementLight -= v,
+            [BCardEffect.IncreaseDamageDarkIncreased] = (t, v) => t.ElementDark += v,
+            [BCardEffect.IncreaseDamageDarkDecreased] = (t, v) => t.ElementDark -= v,
 
             // Type 96, "the equipped fairy's element": the fairy's rate is the character's
             // element rate, so it lands there whatever element the fairy has.
