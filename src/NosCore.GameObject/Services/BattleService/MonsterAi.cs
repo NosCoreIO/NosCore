@@ -227,14 +227,31 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         return await StepAlongPathAsync(entity, entity.MapX, entity.MapY, cellsToLeave: 0);
     }
 
-    private static ChosenSkill BasicAttack(INonPlayableEntity entity)
+    private ChosenSkill BasicAttack(INonPlayableEntity entity)
     {
         var npcMonster = entity.NpcMonster;
+        var cooldown = npcMonster.BasicCooldown + AttackTimeChange(entity);
         return new ChosenSkill(
             SkillVnum: 0,
             CastId: 0,
             SkillRange: Math.Max(1, (int)npcMonster.BasicRange),
-            CooldownMs: Math.Max(200, npcMonster.BasicCooldown * 100));
+            CooldownMs: Math.Max(200, cooldown * 100));
+    }
+
+    // Deciseconds added to or taken off the time between basic attacks, as the basic cooldown counts them.
+    private int AttackTimeChange(INonPlayableEntity entity)
+    {
+        var change = 0;
+        foreach (var bCard in buffService.GetActiveBuffs(entity).SelectMany(b => b.BCards))
+        {
+            switch (bCard.Effect())
+            {
+                case BCardEffect.ModeAttackTimeIncreased: change += Math.Abs(bCard.FirstData); break;
+                case BCardEffect.ModeAttackTimeDecreased: change -= Math.Abs(bCard.FirstData); break;
+            }
+        }
+
+        return change;
     }
 
     // Returns the closest qualifying enemy within NoticeRange. Two-faction rule:

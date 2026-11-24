@@ -144,6 +144,36 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonsterPutsItsSelfCardOnItselfWhenItAttacks()
+        {
+            var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Caster));
+
+            await _service.TriggerAsync(monster, _defender.Character, false, [], false);
+
+            VerifyMonsterInflictedOnItself(monster, Times.Once());
+        }
+
+        [TestMethod]
+        public async Task AMonsterRollsItsSelfCardEvenWhenItsHitKills()
+        {
+            var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Caster));
+
+            await _service.TriggerAsync(monster, _defender.Character, true, [], false);
+
+            VerifyMonsterInflictedOnItself(monster, Times.Once());
+        }
+
+        [TestMethod]
+        public async Task AMonsterCardForWhatItHitsIsNotPutOnItself()
+        {
+            var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Enemy));
+
+            await _service.TriggerAsync(monster, _defender.Character, false, [], false);
+
+            VerifyMonsterInflictedOnItself(monster, Times.Never());
+        }
+
+        [TestMethod]
         public async Task AMonsterCardOnItsDeathSlotStaysOff()
         {
             var monster = AThornwalkerCarrying(MonsterCard(BCardRecipient.Enemy, slot: 2));
@@ -288,6 +318,16 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _catalog.Setup(c => c.GetNpcBCards(ThornwalkerVNum)).Returns([card]);
             return _defender.Character.MapInstance.SummonMonster(
                 new NpcMonsterDto { NpcMonsterVNum = ThornwalkerVNum, MaxHp = 1000 }, 1, 1, true);
+        }
+
+        private void VerifyMonsterInflictedOnItself(IAliveEntity monster, Times times)
+        {
+            var monsterId = monster.VisualId;
+            _buffs.Verify(b => b.InflictCardsAsync(
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Monster && e.VisualId == monsterId),
+                It.Is<IAliveEntity>(e => e.VisualType == VisualType.Monster && e.VisualId == monsterId),
+                It.Is<IReadOnlyList<BCardDto>>(cards => cards.Count == 1 && cards[0].Effect() == BCardEffect.BuffChanceCausing
+                    && cards[0].FirstData == 6 && cards[0].SecondData == Blackout)), times);
         }
 
         private void VerifyMonsterInflicted(IAliveEntity monster, Times times)

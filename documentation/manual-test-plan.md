@@ -207,6 +207,14 @@ same damage means only one of the two is being read.
 - [ ] Cast it facing a wall or the map edge: you land on the farthest walkable cell of that line,
       beyond the wall if one is in reach
 
+### Monster cards on themselves and attack time — BCard type 41 subtypes 31/32
+
+- [ ] Let a Ram (16) or a Nervous Ram (17) hit you a dozen times: now and then the Rage effect
+      shows over it, and while it lasts its `su` lines come about 0.4 s closer together
+      (1.2 s down to 0.8 s)
+- [ ] A monster card meant for whatever it hits (a Thornwalker's Blackout) still lands on you, not
+      on the monster
+
 ### Combo chains
 
 - [ ] With a class whose basic attack chains (skill 220 is the Swordsman's), attack the

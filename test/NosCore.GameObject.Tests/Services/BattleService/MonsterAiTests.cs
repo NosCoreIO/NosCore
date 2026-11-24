@@ -373,6 +373,41 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ACardThatShortensTheAttackTimeSwingsSooner()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 2);
+            await _buffs.ApplyAsync(monster, new CardDto { CardId = 6, Duration = 600 },
+                [AttackTime(BCardEffect.ModeAttackTimeDecreased, 4)], monster);
+
+            await _ai.TickAsync(monster);
+            World.Clock.Advance(Duration.FromMilliseconds(700));
+            await _ai.TickAsync(monster);
+
+            SwingsAtThePlayer(Times.Exactly(2));
+        }
+
+        [TestMethod]
+        public async Task ACardThatLengthensTheAttackTimeSwingsLater()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 2);
+            await _buffs.ApplyAsync(monster, new CardDto { CardId = 7, Duration = 600 },
+                [AttackTime(BCardEffect.ModeAttackTimeIncreased, 4)], monster);
+
+            await _ai.TickAsync(monster);
+            World.Clock.Advance(Duration.FromMilliseconds(1200));
+            await _ai.TickAsync(monster);
+
+            SwingsAtThePlayer(Times.Once());
+        }
+
+        private static BCardDto AttackTime(BCardEffect effect, int deciseconds) => new()
+        {
+            Type = effect.Type(), SubType = effect.SubType(), FirstData = deciseconds,
+        };
+
+        [TestMethod]
         public async Task ARefusedSwingLeavesTheCooldownAlone()
         {
             AcceptSwings(false);
