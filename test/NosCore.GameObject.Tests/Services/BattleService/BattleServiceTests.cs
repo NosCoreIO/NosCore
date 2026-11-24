@@ -13,6 +13,7 @@ using Arch.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Battle;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
@@ -178,6 +179,49 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _buffs.Verify(b => b.RemoveEffectAsync(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialActionsHide), Times.Once);
             _buffs.Verify(b => b.RemoveEffectAsync(origin, NosCore.Data.Enumerations.Buff.BCardEffect.FalconSkillHide), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AnAttackFromHidingCarriesTheAmbushDamageOfTheSkillAndTheCaster()
+        {
+            var (origin, target) = AmbushScene(hidden: true);
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == 320)), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AnAttackInTheOpenCarriesNoAmbushDamage()
+        {
+            var (origin, target) = AmbushScene(hidden: false);
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+
+            _hitQueue.Verify(q => q.EnqueueAsync(It.Is<HitRequest>(h => h.Skill.AmbushDamage == 0)), Times.Once);
+        }
+
+        private (FakeEntity Origin, FakeEntity Target) AmbushScene(bool hidden)
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            var skill = MakeSkill(TargetHitType.SingleTargetHit) with
+            {
+                BCards = new[]
+                {
+                    new BCardDto
+                    {
+                        Type = NosCore.Data.Enumerations.Buff.BCardEffect.LightAndShadowAdditionalDamageWhenHidden.Type(),
+                        SubType = NosCore.Data.Enumerations.Buff.BCardEffect.LightAndShadowAdditionalDamageWhenHidden.SubType(),
+                        FirstData = 300,
+                    },
+                },
+            };
+            SetupLanding(origin, target, skill);
+            _targetResolver.Setup(r => r.Resolve(origin, target, It.IsAny<SkillInfo>())).Returns(new[] { target });
+            _stats.Setup(s => s.GetStats(origin)).Returns(new CombatStats { AmbushDamage = 20 });
+            _buffs.Setup(b => b.HasEffect(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialActionsHide)).Returns(hidden);
+            return (origin, target);
         }
 
         [TestMethod]

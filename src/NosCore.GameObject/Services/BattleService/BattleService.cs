@@ -107,6 +107,7 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
+            skill = skill with { AmbushDamage = AmbushDamage(origin, skill) };
             await RevealAsync(origin);
             skill = await SpendChargeAsync(origin, skill);
             var targets = targetResolver.Resolve(origin, target, skill);
@@ -141,6 +142,20 @@ namespace NosCore.GameObject.Services.BattleService
             await ExplodeAsync(origin, skill);
             await FinishCastAsync(origin, skill);
             return true;
+        }
+
+        // Type 43 subtype 4 on the skill or on the caster counts only while the caster is still hidden.
+        private int AmbushDamage(IAliveEntity origin, SkillInfo skill)
+        {
+            if (!buffService.HasEffect(origin, BCardEffect.SpecialActionsHide)
+                && !buffService.HasEffect(origin, BCardEffect.FalconSkillHide))
+            {
+                return 0;
+            }
+
+            return statsProvider.GetStats(origin).AmbushDamage + skill.BCards
+                .Where(card => card.Effect() == BCardEffect.LightAndShadowAdditionalDamageWhenHidden)
+                .Sum(card => BattleStatsProvider.ScaleByLevel(card, origin.Level));
         }
 
         private async Task RevealAsync(IAliveEntity origin)

@@ -104,6 +104,8 @@ public readonly record struct CombatStats(
     // ExplosionRadius cells of the attacker.
     int ExplosionRadius = 0,
     int ExplosionDamage = 0,
+    // Type 43 subtype 4: damage added to each blow of an attack made from hiding.
+    int AmbushDamage = 0,
     // Type 38 subtype 3: percent added to the final damage of this entity's critical hits.
     int FinalCriticalDamagePercent = 0,
     // Type 38 subtype 4: percent added to the final damage of critical hits this entity takes.
