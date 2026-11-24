@@ -3911,13 +3911,19 @@ test stone at it and drop `MaxHp` of monsters 26, 30 and 31.
       "Defeat all the enemies!" as you walk in; on every floor the groups of two Happy Miners and a Weak
       Expy Miner come only when a Tired Chief Miner calls them, never all at once with the floor's talk
 - [ ] In `timespace-16`, the last lever room (map 4212) already holds its two Fire Vampies and its Dark Gargs
-      as you walk in
+      as you walk in; closing its talk says "Use the lever to escape!" again and "New mission goal!"
 - [ ] A monster that carries its room's talk: the Weak Expy Miner at (8, 7) on the first strike floor
       and at (2, 9) on the fourth of `timespace-15` (talk 6190), the Fire Vampie at (9, 14) in the last
       lever room of `timespace-16` (6079), the Knight at (14, 12) and the one at (17, 15) in the two rooms
       on map 4102 of `timespace-18` (6098, 6099), and the Mufflon at (11, 9) in the second room of
       `timespace-19` (6102). Click it while the room's talk is up: the same talk opens again. Close the
       talk with End Dialogue and click it again: nothing opens. The other monsters of the room carry no talk
+- [ ] In `timespace-16`, closing the talk of each of the other four button rooms brings its monsters and
+      "New mission goal!"
+- [ ] In `timespace-16`, using a room's button opens its door, adds time to the clock and shows "A door has
+      opened." and "New mission goal!"; using it again turns it back into "Button (Before)", shuts the door
+      with the locked-door line and "New mission goal!"; a third use opens the door again without adding time
+- [ ] In `timespace-16`, the side room west of map 4211 holds two Old Boxes at (4, 14) and (4, 12)
 - [ ] In `timespace-22`, closing each talk shows "New mission goal!"; walking into the last room opens its exit with
       "A door has opened.", talk 6118 and "New mission goal!"
 - [ ] In `timespace-08`, walking into the lever room (map 4106, east) opens its way back with "A door has

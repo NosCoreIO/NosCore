@@ -304,7 +304,60 @@ namespace NosCore.Instances.Tests
 
             _script.OnDialogClosed(_run, fifthLever, 6079);
 
-            Assert.AreEqual(0, CallsSince(before).Count);
+            CollectionAssert.AreEqual(new[] { "message(TIMESPACE_USE_LEVER_TO_ESCAPE)", "message(NewGoal)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheMonsterArmyTalksBringTheirMonstersWithANewGoal()
+        {
+            await LoadAsync("timespace-16");
+            var firstLever = Room(4205, 3, 8);
+            var before = _run.Calls.Count;
+
+            _script.OnDialogClosed(_run, firstLever, 6079);
+
+            CollectionAssert.AreEqual(new[] { $"summon({firstLever},58,58,271)", "message(NewGoal)" }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheMonsterArmyButtonShutsItsDoorWhenSwitchedBack()
+        {
+            await LoadAsync("timespace-16");
+            var firstLever = Room(4205, 3, 8);
+            var secondLever = Room(4208, 2, 8);
+            CollectionAssert.Contains(_run.Calls, $"button({firstLever},1,5,15,1051,1052,True)");
+            var before = _run.Calls.Count;
+
+            Switch(firstLever, 1);
+            Switch(firstLever, 1);
+            Switch(firstLever, 1);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"unlock({firstLever}->{secondLever})", "message(ADoorHasOpened)", "message(NewGoal)", "addClock(80s)",
+                $"lock({firstLever}->{secondLever})", "message(DoorIsLocked)", "message(NewGoal)",
+                $"unlock({firstLever}->{secondLever})", "message(ADoorHasOpened)", "message(NewGoal)"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheMonsterArmySideRoomHoldsTwoOldBoxes()
+        {
+            await LoadAsync("timespace-16");
+            var sideRoom = Room(4202, 1, 9);
+
+            CollectionAssert.IsSubsetOf(new[] { $"item({sideRoom},1001,4,14)", $"item({sideRoom},1001,4,12)" }, _run.Calls);
+        }
+
+        private void Switch(int room, int button)
+        {
+            if (!_run.Used.Remove((room, button)))
+            {
+                _run.Used.Add((room, button));
+                _run.SwitchedOn[(room, button)] = _run.SwitchedOn.GetValueOrDefault((room, button)) + 1;
+            }
+
+            _script.OnButtonUsed(_run, room, button);
         }
 
         [TestMethod]

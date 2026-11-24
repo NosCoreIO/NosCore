@@ -512,6 +512,30 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ALockedAgainPortalIsTakenOffBeforeItIsShownClosedAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.SetMonsterLocker(1, 1);
+                    r.SpawnPortal(1, new Spot(3, 3), 2, new Spot(1, 1), locked: false);
+                },
+                Cleared = (r, room) => r.LockPortal(room, 2)
+            });
+
+            await run.StartAsync();
+            _first.LastPackets.Clear();
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+
+            var lines = _first.LastPackets.OfType<GpPacket>().ToList();
+            Assert.HasCount(2, lines);
+            Assert.AreEqual((PortalType.Open, true), (lines[0].PortalType, lines[0].IsDisabled));
+            Assert.AreEqual((PortalType.Closed, false), (lines[1].PortalType, lines[1].IsDisabled));
+            Assert.IsFalse(run.IsPortalOpen(1, 2));
+        }
+
+        [TestMethod]
         public async Task APortalReadsOpenOnceItsUnlockHasRunAsync()
         {
             var run = Run(new Script

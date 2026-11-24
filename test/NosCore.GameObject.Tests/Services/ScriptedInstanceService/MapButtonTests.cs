@@ -210,6 +210,18 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AToggleCountsTheTimesItIsSwitchedOn()
+        {
+            await new Spec("A toggling button pulled three times has been switched on twice")
+                .GivenAsync(ARunWithA_Button, true)
+                .AndAsync(TheButtonIsPulled)
+                .AndAsync(TheButtonIsPulled)
+                .WhenAsync(TheButtonIsPulled)
+                .Then(TheButtonShouldHaveBeenSwitchedOn_Times, 2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AButtonOutOfReachCannotBePressed()
         {
             await new Spec("A button too far away starts no bar")
@@ -396,6 +408,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var lastOut = broadcast.FindLastIndex(packet => packet is OutPacket { VisualType: VisualType.Object, VisualId: Button });
             Assert.IsTrue(lastOut > lastIn);
         }
+
+        private void TheButtonShouldHaveBeenSwitchedOn_Times(int times) => Assert.AreEqual(times, _run.TimesSwitchedOn(1, Button));
 
         private void TheScriptShouldHaveSeen_Pulls(int pulls)
         {

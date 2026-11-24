@@ -35,47 +35,66 @@ public class TimeSpace16 : TimeSpaceScript
 
         firstLever.Portal(new(28, 15), briefing, new(1, 15));
         var firstToSecond = firstLever.Portal(new(1, 15), secondLever, new(28, 15));
-        firstLever.Lever(new(5, 15), 1051, 1052)
-            .OnUse(r => r
+        firstLever.Switch(new(5, 15), 1051, 1052)
+            .OnSwitchedOn(r => r
                 .Unlock(firstToSecond)
-                .AddTime(TimeSpan.FromSeconds(80))
                 .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.NewGoal))
+            .OnFirstSwitchedOn(r => r.AddTime(TimeSpan.FromSeconds(80)))
+            .OnSwitchedOff(r => r
+                .Lock(firstToSecond)
+                .Say(Game18NConstString.DoorIsLocked)
                 .Say(Game18NConstString.NewGoal));
         firstLever.OnEnter(r => r.Dialog(6079).Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE))
-            .OnDialogClosed(6079, r => r.Spawn(
-                Monster(58).At(11, 17),
-                Monster(58).At(11, 12).OnDeath(r => r.Spawn(Monster(58).At(13, 22))),
-                Monster(271).At(17, 13)));
+            .OnDialogClosed(6079, r => r
+                .Spawn(
+                    Monster(58).At(11, 17),
+                    Monster(58).At(11, 12).OnDeath(r => r.Spawn(Monster(58).At(13, 22))),
+                    Monster(271).At(17, 13))
+                .Say(Game18NConstString.NewGoal));
 
         secondLever.Portal(new(28, 15), firstLever, new(1, 15));
         var secondToThird = secondLever.Portal(new(14, 28), thirdLever, new(14, 1));
-        secondLever.Lever(new(5, 15), 1051, 1052)
-            .OnUse(r => r
+        secondLever.Switch(new(5, 15), 1051, 1052)
+            .OnSwitchedOn(r => r
                 .Unlock(secondToThird)
-                .AddTime(TimeSpan.FromSeconds(80))
                 .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.NewGoal))
+            .OnFirstSwitchedOn(r => r.AddTime(TimeSpan.FromSeconds(80)))
+            .OnSwitchedOff(r => r
+                .Lock(secondToThird)
+                .Say(Game18NConstString.DoorIsLocked)
                 .Say(Game18NConstString.NewGoal));
         secondLever.OnEnter(r => r.Dialog(6079).Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE))
-            .OnDialogClosed(6079, r => r.Spawn(
-                Monster(64).At(13, 22),
-                Monster(64).At(7, 20).OnDeath(r => r.Spawn(Monster(58).At(12, 15))),
-                Monster(271).At(14, 18)));
+            .OnDialogClosed(6079, r => r
+                .Spawn(
+                    Monster(64).At(13, 22),
+                    Monster(64).At(7, 20).OnDeath(r => r.Spawn(Monster(58).At(12, 15))),
+                    Monster(271).At(14, 18))
+                .Say(Game18NConstString.NewGoal));
 
         thirdLever.Portal(new(14, 1), secondLever, new(14, 28));
         var thirdToFourth = thirdLever.Portal(new(29, 15), fourthLever, new(1, 15));
         var thirdToSide = thirdLever.Portal(new(1, 15), sideRoom, new(28, 15));
-        thirdLever.Lever(new(15, 17), 1051, 1052)
-            .OnUse(r => r
+        thirdLever.Switch(new(15, 17), 1051, 1052)
+            .OnSwitchedOn(r => r
                 .Unlock(thirdToFourth, thirdToSide)
-                .AddTime(TimeSpan.FromSeconds(80))
                 .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.NewGoal))
+            .OnFirstSwitchedOn(r => r.AddTime(TimeSpan.FromSeconds(80)))
+            .OnSwitchedOff(r => r
+                .Lock(thirdToFourth, thirdToSide)
+                .Say(Game18NConstString.DoorIsLocked)
                 .Say(Game18NConstString.NewGoal));
         thirdLever.OnEnter(r => r.Dialog(6079).Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE))
-            .OnDialogClosed(6079, r => r.Spawn(
-                Monster(20).At(7, 10).OnDeath(r => r.Spawn(Monster(58).At(6, 18), Monster(58).At(10, 21))),
-                Monster(271).At(14, 18).Bonus()));
+            .OnDialogClosed(6079, r => r
+                .Spawn(
+                    Monster(20).At(7, 10).OnDeath(r => r.Spawn(Monster(58).At(6, 18), Monster(58).At(10, 21))),
+                    Monster(271).At(14, 18).Bonus())
+                .Say(Game18NConstString.NewGoal));
 
         var sideToThird = sideRoom.Portal(new(28, 15), thirdLever, new(1, 15));
+        sideRoom.Spawn(Item(1001).At(4, 14), Item(1001).At(4, 12));
         sideRoom.Spawn(
             Monster(58).At(16, 20),
             Monster(58).At(12, 11).OnDeath(r => r.Spawn(
@@ -91,33 +110,46 @@ public class TimeSpace16 : TimeSpaceScript
 
         var fourthToFifth = fourthLever.Portal(new(14, 28), fifthLever, new(14, 1));
         fourthLever.Portal(new(1, 15), thirdLever, new(29, 15));
-        fourthLever.Lever(new(22, 15), 1051, 1052)
-            .OnUse(r => r
+        fourthLever.Switch(new(22, 15), 1051, 1052)
+            .OnSwitchedOn(r => r
                 .Unlock(fourthToFifth)
-                .AddTime(TimeSpan.FromSeconds(100))
                 .Say(Game18NConstString.ADoorHasOpened)
+                .Say(Game18NConstString.NewGoal))
+            .OnFirstSwitchedOn(r => r.AddTime(TimeSpan.FromSeconds(100)))
+            .OnSwitchedOff(r => r
+                .Lock(fourthToFifth)
+                .Say(Game18NConstString.DoorIsLocked)
                 .Say(Game18NConstString.NewGoal));
         fourthLever.OnEnter(r => r.Dialog(6079).Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE))
-            .OnDialogClosed(6079, r => r.Spawn(
-                Monster(58).At(20, 20),
-                Monster(58).At(8, 20).Bonus().OnDeath(r => r.Spawn(Monster(58).At(23, 18))),
-                Monster(271).At(14, 18)));
+            .OnDialogClosed(6079, r => r
+                .Spawn(
+                    Monster(58).At(20, 20),
+                    Monster(58).At(8, 20).Bonus().OnDeath(r => r.Spawn(Monster(58).At(23, 18))),
+                    Monster(271).At(14, 18))
+                .Say(Game18NConstString.NewGoal));
 
         fifthLever.Portal(new(14, 1), fourthLever, new(14, 28));
         var fifthToSeal = fifthLever.Portal(new(28, 15), sealRoom, new(1, 15));
         var fifthToDeadEnd = fifthLever.Portal(new(14, 28), deadEnd, new(14, 1));
-        fifthLever.Lever(new(15, 15), 1051, 1052)
-            .OnUse(r => r
+        fifthLever.Switch(new(15, 15), 1051, 1052)
+            .OnSwitchedOn(r => r
                 .Unlock(fifthToDeadEnd, fifthToSeal)
-                .AddTime(TimeSpan.FromSeconds(80))
                 .Say(Game18NConstString.ADoorHasOpened)
-                .Say(Game18NConstString.NewGoal)
-                .Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE));
+                .Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE)
+                .Say(Game18NConstString.NewGoal))
+            .OnFirstSwitchedOn(r => r.AddTime(TimeSpan.FromSeconds(80)))
+            .OnSwitchedOff(r => r
+                .Lock(fifthToDeadEnd, fifthToSeal)
+                .Say(Game18NConstString.DoorIsLocked)
+                .Say(Game18NConstString.NewGoal));
         fifthLever.Spawn(
             Monster(58).At(9, 17).OnDeath(r => r.Spawn(Monster(58).At(11, 21), Monster(58).At(19, 22))),
             Monster(58).At(9, 14).Talk(6079),
             Monster(271).At(14, 22).Bonus());
-        fifthLever.OnEnter(r => r.Dialog(6079).Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE));
+        fifthLever.OnEnter(r => r.Dialog(6079).Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE))
+            .OnDialogClosed(6079, r => r
+                .Say(LanguageKey.TIMESPACE_USE_LEVER_TO_ESCAPE)
+                .Say(Game18NConstString.NewGoal));
 
         var deadEndToFifth = deadEnd.Portal(new(14, 1), fifthLever, new(14, 28));
         deadEnd.Spawn(

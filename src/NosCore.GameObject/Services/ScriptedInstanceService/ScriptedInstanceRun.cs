@@ -943,6 +943,21 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public void LockPortal(int fromRoom, int toRoom)
+        {
+            var from = _rooms[fromRoom];
+            var to = _rooms[toRoom].MapInstanceId;
+            _pending.Add(() => OnRoom(from, async () =>
+            {
+                foreach (var portal in from.Portals.Where(s => s.DestinationMapInstanceId == to && s.Type == PortalType.Open).ToList())
+                {
+                    await from.SendPacketAsync(portal.GenerateRemovalGp());
+                    portal.Type = PortalType.Closed;
+                    await from.SendPacketAsync(portal.GenerateGp());
+                }
+            }));
+        }
+
         public bool IsPortalOpen(int fromRoom, int toRoom)
         {
             var to = _rooms[toRoom].MapInstanceId;
@@ -1060,6 +1075,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public bool IsButtonOn(int room, int button) =>
             _rooms[room].Buttons.TryGetValue(button, out var placed) && placed.IsOn;
+
+        public int TimesSwitchedOn(int room, int button) =>
+            _rooms[room].Buttons.TryGetValue(button, out var placed) ? placed.TimesSwitchedOn : 0;
 
         public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever)
         {
@@ -1212,6 +1230,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 used.IsOn = !used.IsOn;
                 if (used.IsOn)
                 {
+                    used.TimesSwitchedOn++;
                     Advance(ObjectiveKind.UseObject, used.OffVNum);
                 }
 
@@ -1881,6 +1900,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
 
+            public void LockPortal(int fromRoom, int toRoom) => Do(() => run.LockPortal(fromRoom, toRoom));
+
             public bool IsPortalOpen(int fromRoom, int toRoom) => run.IsPortalOpen(fromRoom, toRoom);
 
             public void SpawnExit(int room, Spot at, bool locked = true) => Do(() => run.SpawnExit(room, at, locked));
@@ -1899,6 +1920,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public Spot RandomCell(int room, Spot around, short radius) => run.RandomCell(room, around, radius);
 
             public bool IsButtonOn(int room, int button) => run.IsButtonOn(room, button);
+
+            public int TimesSwitchedOn(int room, int button) => run.TimesSwitchedOn(room, button);
 
             public void PlaceButton(int room, int button, Spot at, short offVNum, short onVNum, bool toggles = false, ButtonKind kind = ButtonKind.Lever) =>
                 Do(() => run.PlaceButton(room, button, at, offVNum, onVNum, toggles, kind));

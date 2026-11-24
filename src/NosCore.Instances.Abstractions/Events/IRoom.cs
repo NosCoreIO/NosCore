@@ -25,6 +25,9 @@ namespace NosCore.Instances.Abstractions
         // Drawn as offVNum until it is used, then as onVNum; says it has been pulled.
         IButton Lever(Spot at, short offVNum = 1000, short onVNum = 1045);
 
+        // A lever that each use switches between offVNum and onVNum, saying each time it has been pulled.
+        ISwitch Switch(Spot at, short offVNum, short onVNum);
+
         // Moved without a word when it is used.
         IButton Sculpture(Spot at, short offVNum, short onVNum);
 
@@ -62,6 +65,17 @@ namespace NosCore.Instances.Abstractions
     public interface IButton
     {
         IButton OnUse(Action<RoomEvent> step);
+    }
+
+    public interface ISwitch
+    {
+        // Each time it is switched on.
+        ISwitch OnSwitchedOn(Action<RoomEvent> step);
+
+        // Only the first time it is switched on, after its OnSwitchedOn steps.
+        ISwitch OnFirstSwitchedOn(Action<RoomEvent> step);
+
+        ISwitch OnSwitchedOff(Action<RoomEvent> step);
     }
 
     // Reaching an open exit wins the run once its own steps have run.
