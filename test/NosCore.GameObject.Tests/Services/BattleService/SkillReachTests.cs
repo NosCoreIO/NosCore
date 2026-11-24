@@ -24,6 +24,24 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        [DataRow(4, 7, 12, true)]
+        [DataRow(4, 7, 13, false)]
+        [DataRow(-2, 3, 2, true)]
+        [DataRow(-2, 3, 3, false)]
+        [DataRow(-5, 3, 2, true)]
+        [DataRow(-5, 3, 3, false)]
+        public void ARangeBonusMovesTheEdgeOfATargetedSkillButNeverBelowTheNextCell(int bonus, int range, int distance, bool inReach)
+        {
+            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, (byte)range, targetRange: 0, distance, rangeBonus: bonus));
+        }
+
+        [TestMethod]
+        public void ARangeBonusLeavesACasterCentredSkillAlone()
+        {
+            Assert.IsFalse(SkillReach.IsInReach(targetType: 1, range: 2, targetRange: 3, distance: 5, rangeBonus: 4));
+        }
+
+        [TestMethod]
         [DataRow(3, 5, true)]
         [DataRow(3, 6, false)]
         public void AMonstersAreaWidensTheReach(int area, int distance, bool inReach)

@@ -200,6 +200,13 @@ same damage means only one of the two is being read.
 - [ ] Only the first client hits it, the second stands next to it: when the first logs out, the
       monster leaves the second alone and walks home
 
+### Attack range cards — BCard type 72 subtype 3
+
+- [ ] As an Archer holding a bow, under Eagle Eye (card 578, range +4), attack a monster 11 cells away with
+      the basic shot (range 8): the shot lands (`su`) instead of being refused (`cancel 2`)
+- [ ] Without the card, the same shot from 11 cells is refused
+- [ ] Under Floundering (card 1489, range -2), a melee hit on the next cell still lands
+
 ### Teleport skills — BCard type 30 subtype 2
 
 - [ ] As a Magician, walk east and cast Teleport (277): you land 8 cells further east, on a `tp` line

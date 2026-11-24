@@ -49,7 +49,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _handler = new UseAoeSkillPacketHandler(
                 _battleService.Object,
                 new SkillCastService(World.Clock, _gear.Object, World.Create<BuffService>()),
-                World.DistanceCalculator);
+                World.DistanceCalculator,
+                World.Create<BuffService>());
         }
 
         [TestMethod]

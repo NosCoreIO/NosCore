@@ -25,7 +25,8 @@ namespace NosCore.PacketHandlers.Battle
     public class UseAoeSkillPacketHandler(
         IBattleService battleService,
         ISkillCastService skillCastService,
-        IHeuristic distanceCalculator)
+        IHeuristic distanceCalculator,
+        IBuffService buffService)
         : PacketHandler<UseAoeSkillPacket>, IWorldPacketHandler
     {
         // Has the client put the name of the item whose vnum follows into the line.
@@ -47,7 +48,8 @@ namespace NosCore.PacketHandlers.Battle
 
             var skill = skillCastService.FindLearned(character, packet.CastId);
             var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (packet.MapX, packet.MapY));
-            if (skill?.Skill == null || !SkillReach.IsTargetInReach(skill.Skill.Range, distance))
+            if (skill?.Skill == null || !SkillReach.IsTargetInReach(skill.Skill.Range, distance,
+                    rangeBonus: SkillReach.RangeBonus(buffService, character)))
             {
                 await CancelAsync(clientSession, packet.CastId, CancelPacketType.CancelAutoAttack);
                 return;

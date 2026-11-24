@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Ecs;
 using Moq;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -38,6 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private ClientSession Session;
         private ClientSession TargetSession;
         private Mock<IBattleService> BattleService;
+        private BuffService Buffs;
         private readonly ILogger<UseSkillPacketHandler> Logger = new Mock<ILogger<UseSkillPacketHandler>>().Object;
 
         [TestInitialize]
@@ -51,14 +53,16 @@ namespace NosCore.PacketHandlers.Tests.Battle
             BattleService.Setup(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
                 It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<HitArguments>())).ReturnsAsync(true);
 
+            Buffs = World.Create<BuffService>();
             Handler = new UseSkillPacketHandler(
                 Logger,
                 World.LogLanguageLocalizer,
                 BattleService.Object,
                 World.SessionRegistry,
-                new SkillCastService(World.Clock, Gear.Object, World.Create<BuffService>()),
+                new SkillCastService(World.Clock, Gear.Object, Buffs),
                 World.DistanceCalculator,
-                World.Create<WalkService>());
+                World.Create<WalkService>(),
+                Buffs);
         }
 
         private readonly Mock<IEquipmentStatsService> Gear = new();
@@ -249,6 +253,62 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(BattleServiceShouldNotBeCalled)
                 .And(CharacterMpShouldBe_, 50)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACardThatLengthensTheAttackRangeBringsAFurtherTargetIntoReach()
+        {
+            await new Spec("A card adding 4 cells to the attack range lets a range 1 skill hit a target 6 cells away")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)1)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)6)
+                .AndAsync(CharacterBearsACardChangingTheAttackRangeBy_, 4)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(BattleServiceShouldBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACardThatShortensTheAttackRangePutsATargetOutOfReach()
+        {
+            await new Spec("A card taking 2 cells from the attack range stops a range 3 skill reaching a target 4 cells away")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)3)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)4)
+                .AndAsync(CharacterBearsACardChangingTheAttackRangeBy_, -2)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(TheAutoAttackShouldBeStopped)
+                .And(BattleServiceShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AShortenedRangeStillReachesTheNextCell()
+        {
+            await new Spec("A card taking 2 cells from a melee skill's range still lets it hit the cell next to the caster")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)0)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)1)
+                .AndAsync(CharacterBearsACardChangingTheAttackRangeBy_, -2)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(BattleServiceShouldBeCalled)
+                .ExecuteAsync();
+        }
+
+        private Task CharacterBearsACardChangingTheAttackRangeBy_(int cells)
+        {
+            var effect = cells < 0 ? BCardEffect.FearSkillAttackRangedDecreased : BCardEffect.FearSkillAttackRangedIncreased;
+            return Buffs.ApplyAsync(Session.Character, new CardDto { CardId = 74, BuffType = BuffType.Good, Duration = 3000 },
+                [new BCardDto { Type = effect.Type(), SubType = effect.SubType(), FirstData = Math.Abs(cells) }], null);
         }
 
         [TestMethod]
