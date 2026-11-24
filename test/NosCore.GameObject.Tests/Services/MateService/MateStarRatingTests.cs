@@ -57,6 +57,16 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
+        public async Task ARatedPetsTrainingPercentageHasANonZeroDivisorAsync()
+        {
+            await new Spec("A rated pet's page gets a training divisor of 1 instead of 0")
+                .GivenAsync(APetStoredWithRating_, KindRating)
+                .WhenAsync(LoadingAsync)
+                .Then(ItsTrainingDivisorIsOne)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AStoredRatingAboveTheKindsIsKeptAsync()
         {
             await new Spec("A stored rating above the kind's is kept")
@@ -99,6 +109,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
             });
 
         private async Task LoadingAsync() => _loaded = await Service.LoadAsync(CharacterId);
+
+        private void ItsTrainingDivisorIsOne() =>
+            Assert.AreEqual(1, _loaded.Single().GenerateScp(RegionType.EN).Unknow8);
 
         private void ItsRatingIs_(byte rating)
         {
