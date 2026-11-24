@@ -237,7 +237,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                         Message = Game18NConstString.JobLevelIncreased
                     });
                     await mapInstance.SendPacketAsync(player.GenerateEff(8));
-                    await skillService.LearnClassSkillsAsync(player);
+                    await skillService.LearnClassSkillsAsync(player, announce: true);
                 }
 
                 if (heroLeveledUp)

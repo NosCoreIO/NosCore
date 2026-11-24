@@ -270,20 +270,22 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             var player = await Harness.AddPlayerAsync("Alice", WorldData.Market, WorldData.TeacherX, WorldData.TeacherY + 1);
             await using var alice = await EnterAsync(player);
-            var talked = alice.Mark();
             await alice.SendAsync(new RequestNpcPacket { Type = VisualType.Npc, TargetId = WorldData.Teacher });
             await alice.SendAsync(new ShoppingPacket { ShopType = 0, Unknown = 0, VisualType = VisualType.Npc, VisualId = WorldData.Teacher });
-            await alice.ExpectSinceAsync<NInvPacket>(talked, p => p.VisualId == WorldData.Teacher, "the teacher's lessons");
+            await alice.ExpectAsync<NInvPacket>(p => p.VisualId == WorldData.Teacher, "the teacher's lessons");
             var bought = alice.Mark();
 
             await alice.SendAsync(new BuyPacket { VisualType = VisualType.Npc, VisualId = WorldData.Teacher, Slot = WorldData.TaughtSkill });
 
+            await alice.ExpectAsync<SkiPacket>(p => p.SkillVnums?.Contains(WorldData.TaughtSkill) == true, "the skill list with the lesson");
+            await alice.ExpectAsync<QSlotPacket>(p => p.Slot == 0, "the first quick bar");
+            await alice.ExpectAsync<QSlotPacket>(p => p.Slot == 1, "the second quick bar");
             PacketAssert.AreEqual(new IconPacket
             {
                 VisualType = VisualType.Player, VisualId = alice.CharacterId, IconType = 0, IconParameter = WorldData.TaughtSkill
-            }, await alice.ExpectSinceAsync<IconPacket>(bought, null, "the skill's icon over Alice"));
-            await alice.ExpectSinceAsync<QSlotPacket>(bought, null, "the quick bar");
-            await alice.ExpectSinceAsync<SayiPacket>(bought, p => p.VisualId == alice.CharacterId && p.Type == SayColorType.Yellow
+            }, await alice.ExpectAsync<IconPacket>(null, "the skill's icon over Alice"));
+            await alice.ExpectAsync<LevPacket>(null, "the levels");
+            await alice.ExpectAsync<SayiPacket>(p => p.VisualId == alice.CharacterId && p.Type == SayColorType.Yellow
                 && p.Message == Game18NConstString.SkillLearned, "the chat line");
             Assert.IsTrue(await alice.NoneSinceAsync<MsgiPacket>(bought, p => p.Message == Game18NConstString.SkillLearned, TimeSpan.Zero),
                 "no line across the screen");
