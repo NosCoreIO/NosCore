@@ -3,7 +3,7 @@ public class TimeSpace18 : TimeSpaceScript
     public TimeSpace18() : base(18, "Hidden Schemes")
     {
         Levels(28, 99);
-        Start(7, 9);
+        Start(11, 11);
         Requires(1012, 2);
         Lives(2);
         Clock(TimeSpan.FromSeconds(120));

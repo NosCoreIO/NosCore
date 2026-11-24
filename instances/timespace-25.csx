@@ -11,7 +11,7 @@ public class TimeSpace25 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(25, "L'invincible Kenko", "L'invincible Kenko")
             .ForLevels(35, 99)
-            .StartingAt(7, 11)
+            .StartingAt(9, 11)
             .Requiring(1012, 3)
             .WithLives(1)
             .WithDraw(518, 1)

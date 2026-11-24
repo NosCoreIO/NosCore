@@ -3,7 +3,7 @@ public class TimeSpace15 : TimeSpaceScript
     public TimeSpace15() : base(15, "A Bold Warrior: Part 3")
     {
         Levels(25, 99);
-        Start(9, 7);
+        Start(8, 8);
         Requires(1012, 2);
         Lives(3);
         Clock(TimeSpan.FromSeconds(1300));

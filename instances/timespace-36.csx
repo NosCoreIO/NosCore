@@ -3,7 +3,7 @@ public class TimeSpace36 : TimeSpaceScript
     public TimeSpace36() : base(36, "Alliance avec les Kovolts")
     {
         Levels(46, 99);
-        Start(9, 13);
+        Start(11, 11);
         Requires(1012, 4);
         Lives(3);
         Clock(TimeSpan.FromSeconds(200));

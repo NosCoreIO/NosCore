@@ -19,7 +19,7 @@ public class TimeSpace521 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(521, "Powerless Dust King", "Powerless Dust King")
             .ForLevels(36, 99)
-            .StartingAt(12, 12)
+            .StartingAt(11, 11)
             .WithLives(1)
             .WithObjective(ObjectiveKind.KillMonster, 281, 1)
             .WithRoom(4100, out _room1, 3, 11)

@@ -3,7 +3,7 @@ public class TimeSpace6 : TimeSpaceScript
     public TimeSpace6() : base(6, "The Labyrinth")
     {
         Levels(15, 99);
-        Start(9, 10);
+        Start(11, 11);
         Requires(1012, 1);
         Lives(2);
         Clock(TimeSpan.FromSeconds(300));

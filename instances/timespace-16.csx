@@ -3,7 +3,7 @@ public class TimeSpace16 : TimeSpaceScript
     public TimeSpace16() : base(16, "The Monster Army")
     {
         Levels(26, 99);
-        Start(11, 10);
+        Start(9, 11);
         Requires(1012, 2);
         Lives(2);
         Clock(TimeSpan.FromSeconds(150));

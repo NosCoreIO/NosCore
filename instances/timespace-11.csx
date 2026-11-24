@@ -9,7 +9,7 @@ public class TimeSpace11 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(11, "Lord Cuarry's Knights", "Lord Cuarry's Knights")
             .ForLevels(21, 99)
-            .StartingAt(9, 12)
+            .StartingAt(9, 11)
             .Requiring(1012, 2)
             .WithLives(1)
             .WithDraw(156, 1)

@@ -7,7 +7,7 @@ public class TimeSpace8 : TimeSpaceScript
     public TimeSpace8() : base(8, "Nasty Imps")
     {
         Levels(17, 99);
-        Start(14, 10);
+        Start(11, 11);
         Requires(1012, 1);
         Lives(2);
         Clock(TimeSpan.FromSeconds(180));

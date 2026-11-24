@@ -1884,6 +1884,35 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public void EachEntryLandsOnItsOwnWalkableCellNearTheStart()
+        {
+            var run = Run(new Script(new ScriptedInstanceDefinition
+            {
+                StartX = 1,
+                StartY = 1,
+                Rooms = [new InstanceRoom(1, 2004, 0, 0)]
+            }));
+
+            var cells = Enumerable.Range(0, 50).Select(_ => run.StartCell()).ToList();
+
+            Assert.IsTrue(cells.All(c => c.X is >= 0 and <= 3 && c.Y is >= 0 and <= 3));
+            Assert.IsTrue(cells.Distinct().Count() > 1);
+        }
+
+        [TestMethod]
+        public void AStartTooFarFromAnyWalkableCellIsKept()
+        {
+            var run = Run(new Script(new ScriptedInstanceDefinition
+            {
+                StartX = 30,
+                StartY = 30,
+                Rooms = [new InstanceRoom(1, 2004, 0, 0)]
+            }));
+
+            Assert.AreEqual(new Spot(30, 30), run.StartCell());
+        }
+
+        [TestMethod]
         public async Task ARoomWithoutALockerClearsWithItsLastMonsterAsync()
         {
             var script = new Script

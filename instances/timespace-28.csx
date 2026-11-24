@@ -13,7 +13,7 @@ public class TimeSpace28 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(28, "Le choix des Kenkos", "Le choix des Kenkos")
             .ForLevels(38, 99)
-            .StartingAt(9, 8)
+            .StartingAt(11, 11)
             .Requiring(1012, 3)
             .WithLives(1)
             .WithDraw(711, 1)

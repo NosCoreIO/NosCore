@@ -3,7 +3,7 @@ public class TimeSpace34 : TimeSpaceScript
     public TimeSpace34() : base(34, "La salle du trésor")
     {
         Levels(44, 99);
-        Start(14, 10);
+        Start(11, 11);
         Requires(1012, 4);
         Lives(2);
         Clock(TimeSpan.FromSeconds(300));

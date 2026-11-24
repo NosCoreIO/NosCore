@@ -15,7 +15,7 @@ public class TimeSpace13 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(13, "A Bold Warrior: Part 2", "A Bold Warrior: Part 2")
             .ForLevels(23, 99)
-            .StartingAt(8, 9)
+            .StartingAt(11, 11)
             .Requiring(1012, 2)
             .WithLives(2)
             .WithDraw(223, 1)

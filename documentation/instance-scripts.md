@@ -65,7 +65,7 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 
 | Call | Meaning |
 |---|---|
-| `Levels(min, max)`, `Start(x, y)`, `Requires(vnum, n)`, `Lives(n)` | Who may enter, where they land, the stone's price, deaths the party can afford |
+| `Levels(min, max)`, `Start(x, y)`, `Requires(vnum, n)`, `Lives(n)` | Who may enter, where they land (each entry draws its own walkable cell within 4 of the start cell, so give the centre of the area), the stone's price, deaths the party can afford |
 | `Clock(length)` | The run's clock, started as the first player enters |
 | `Objective(kind, vnum, n)` | A goal in the mission window; the exit stays shut until every one is met |
 | `Reward`, `Draw`, `Special` | The reward chest |

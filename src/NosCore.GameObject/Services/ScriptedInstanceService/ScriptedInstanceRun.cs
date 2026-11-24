@@ -1029,6 +1029,16 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return cells.Count == 0 ? around : cells[_random.Next(0, cells.Count)];
         }
 
+        // How far from the script's start cell a player can land in the first room.
+        public const short StartSpread = 4;
+
+        // Each entry lands on its own walkable cell within StartSpread of the script's start cell.
+        public Spot StartCell()
+        {
+            var start = new Spot(_script.Definition.StartX, _script.Definition.StartY);
+            return FirstRoom is { } room ? RandomCell(room, start, StartSpread) : start;
+        }
+
         private static List<(short X, short Y)> WalkableCells(GameObject.Map.Map map, short margin)
         {
             var cells = new List<(short X, short Y)>();

@@ -9,7 +9,7 @@ public class TimeSpace624 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(624, "Gate 1", "Gate 1")
             .ForLevels(30, 99)
-            .StartingAt(12, 8)
+            .StartingAt(11, 11)
             .WithLives(2)
             .WithRoom(4201, out _room1, 4, 11)
             .WithRoom(4206, out _room2, 4, 10)

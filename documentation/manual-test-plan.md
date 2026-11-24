@@ -3558,6 +3558,11 @@ A level 15 character on NosVille Meadows (map 2) sees time-spaces 1 to 4.
       done
 - [ ] Open the panel of a stone the character has cleared and of one it has not: compare how the
       two panels show it
+- [ ] Enter time-space 6 (or any on map 4100) several times: the first room puts you on a
+      different cell each time, always within four cells of (11, 11) in both directions, never at
+      the room's edges or on a wall
+- [ ] Not verifiable yet: whether each member of a party draws their own cell. Only the leader
+      enters through the stone; the traces hold no member's first arrival
 
 #### Stones that need another one cleared first
 

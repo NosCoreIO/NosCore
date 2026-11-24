@@ -3,7 +3,7 @@ public class TimeSpace23 : TimeSpaceScript
     public TimeSpace23() : base(23, "The Kovolt Hero")
     {
         Levels(33, 99);
-        Start(7, 8);
+        Start(9, 10);
         Requires(1012, 3);
         Lives(3);
         Clock(TimeSpan.FromSeconds(3000));

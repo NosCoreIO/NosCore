@@ -19,7 +19,7 @@ public class TimeSpace14 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(14, "The Mine Manager", "The Mine Manager")
             .ForLevels(24, 99)
-            .StartingAt(9, 15)
+            .StartingAt(11, 11)
             .Requiring(1012, 2)
             .WithLives(3)
             .WithDraw(717, 1)
