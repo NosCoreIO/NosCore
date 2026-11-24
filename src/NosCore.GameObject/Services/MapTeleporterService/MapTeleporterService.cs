@@ -73,5 +73,6 @@ public sealed class MapTeleporterService(List<TeleporterDto> teleporters, INpcDi
     }
 
     private TeleporterDto? DestinationOf(NpcComponentBundle npc) =>
-        teleporters.FirstOrDefault(t => t.MapNpcId == npc.VisualId && t.Type == TeleporterType.TeleporterOnMapAfterBar);
+        teleporters.FirstOrDefault(t => t.MapNpcId == npc.VisualId && t.MapId == npc.MapInstance.Map.MapId
+            && t.Type == TeleporterType.TeleporterOnMapAfterBar);
 }

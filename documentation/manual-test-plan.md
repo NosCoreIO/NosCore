@@ -95,6 +95,8 @@ should give the same NPCs.
 - [ ] Port Alveus Market (map 146): Sarakael, Leika Passage, Isalin, Lilith and the other stall
       keepers all stand on the map, and the minimap shows them
 - [ ] The shops, skill shops and teleporters of the NPCs above still open and work
+- [ ] A teleportation stone that leads across its own map (vnum 856) shows a five-second bar when
+      talked to, and the bar running out carries you and your pet to its destination cell
 
 ### Quests after an import
 
