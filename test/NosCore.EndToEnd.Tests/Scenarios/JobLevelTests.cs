@@ -37,6 +37,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         public async Task AJobLevelThatTeachesASkillSaysSoInTheChatAndAcrossTheScreenThenRedrawsTheBar()
         {
             var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 30, 71, AboutToLearnTheTaunt);
+            await Harness.TeachAsync(player, WorldData.SwordsmanSwing);
             await using var alice = Harness.Client(player);
             await alice.EnterWorldAsync(player.Slot);
             await alice.ExpectSinceAsync<InPacket>(0, p => p.VisualType == VisualType.Monster && p.VisualId == WorldData.Prey,
