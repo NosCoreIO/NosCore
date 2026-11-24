@@ -156,6 +156,67 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task NoHpRecoveryStillLetsPoisonTakeHpBesideAHeal()
+        {
+            await new Spec("Under a no-HP-recovery card a heal is blocked but poison still takes HP")
+                .Given(TheCharacterHas_Hp, 500)
+                .AndAsync(TheCharacterHolds_, TimeCircle(BCardEffect.TimeCircleSkillsDisableHpRecovery))
+                .AndAsync(TheCharacterHolds_, PercentHp(BCardEffect.RecoveryAndDamagePercentHpRecovered, 20))
+                .AndAsync(TheCharacterIsPoisonedAsync)
+                .WhenAsync(FourSecondsPassAsync)
+                .Then(TheCharacterShouldHaveLostSomeHp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NoHpConsumptionStillLetsAHealWorkBesidePoison()
+        {
+            await new Spec("Under a no-HP-consumption card poison is blocked but a weaker heal still heals")
+                .Given(TheCharacterHas_Hp, 500)
+                .AndAsync(TheCharacterHolds_, TimeCircle(BCardEffect.TimeCircleSkillsDisableHpConsumption))
+                .AndAsync(TheCharacterHolds_, PercentHp(BCardEffect.RecoveryAndDamagePercentHpRecovered, 5))
+                .AndAsync(TheCharacterIsPoisonedAsync)
+                .WhenAsync(FourSecondsPassAsync)
+                .Then(TheCharacterShouldHaveRegainedHp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NoMpConsumptionKeepsAnMpLossFromTakingMp()
+        {
+            await new Spec("A card that takes a share of MP takes none under a no-MP-consumption card")
+                .Given(TheCharacterHas_Mp, 200)
+                .AndAsync(TheCharacterHolds_, TimeCircle(BCardEffect.TimeCircleSkillsDisableMpConsumption))
+                .AndAsync(TheCharacterHolds_, MpLoss())
+                .WhenAsync(FourSecondsPassAsync)
+                .Then(TheCharacterShouldStillHave_Mp, 200)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WithoutTheCardAnMpLossTakesMp()
+        {
+            await new Spec("A card that takes a share of MP takes it without the card")
+                .Given(TheCharacterHas_Mp, 200)
+                .AndAsync(TheCharacterHolds_, MpLoss())
+                .WhenAsync(FourSecondsPassAsync)
+                .Then(TheCharacterShouldHaveLostSomeMp)
+                .ExecuteAsync();
+        }
+
+        private static BCardDto PercentHp(BCardEffect effect, int percent) => new()
+        {
+            Type = effect.Type(), SubType = effect.SubType(), FirstData = percent, ThirdData = 1,
+        };
+
+        private static BCardDto MpLoss() => new()
+        {
+            Type = BCardEffect.ReflectionRemainingMpLostChance.Type(),
+            SubType = BCardEffect.ReflectionRemainingMpLostChance.SubType(),
+            FirstData = 100, SecondData = 50, ThirdData = 1,
+        };
+
         private static BCardDto TimeCircle(BCardEffect effect) => new()
         {
             Type = effect.Type(), SubType = effect.SubType(),
@@ -239,6 +300,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private void TheCharacterShouldHaveLostSomeHp() => Assert.IsTrue(Session.Character.Hp < HpBefore);
 
         private void TheCharacterShouldHaveRegainedHp() => Assert.IsTrue(Session.Character.Hp > HpBefore);
+
+        private void TheCharacterShouldHaveLostSomeMp() => Assert.IsTrue(Session.Character.Mp < MpBefore);
 
         private void TheCharacterShouldStillHave_Mp(int mp) => Assert.AreEqual(mp, Session.Character.Mp);
     }
