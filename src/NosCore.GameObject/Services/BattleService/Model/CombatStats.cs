@@ -5,7 +5,9 @@
 //
 
 using System.Collections.Generic;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
+using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.BattleService.Model;
@@ -77,6 +79,8 @@ public readonly record struct CombatStats(
     bool IsPlayer = false,
     IReadOnlyList<ChanceDamage>? ChanceDamage = null,
     IReadOnlyList<ChanceDamageTaken>? ChanceDamageTaken = null,
+    // Type 24 subtype 1: attack added to hits on one race.
+    IReadOnlyList<RaceAttack>? RaceAttack = null,
     // Set on monsters only, so that race bonuses never match a player.
     MonsterRace? Race = null,
     byte RaceType = 0,
@@ -117,6 +121,21 @@ public readonly record struct ChanceDamage(int Chance, int Percent);
 // Type 11: each hit taken of the given kind, or of any kind when Kind is null, rolls Chance percent
 // to change its damage by Percent.
 public readonly record struct ChanceDamageTaken(int Chance, int Percent, AttackKind? Kind);
+
+// The card names the race as Race * 10 + RaceType.
+public readonly record struct RaceAttack(MonsterRace Race, byte RaceType, int Value)
+{
+    public static RaceAttack FromCard(int race, int value) => new((MonsterRace)(race / 10), (byte)(race % 10), value);
+
+    public static RaceAttack? FromBCard(BCardDto card) => card.Effect() switch
+    {
+        BCardEffect.SpecialisationBuffResistanceIncreaseDamageAgainst => FromCard(card.FirstData, card.SecondData),
+        BCardEffect.SpecialisationBuffResistanceReduceDamageAgainst => FromCard(card.FirstData, -card.SecondData),
+        _ => null,
+    };
+
+    public bool Matches(MonsterRace race, byte raceType) => Race == race && RaceType == raceType;
+}
 
 // Percent added to hits on monsters of a race, or of one subtype of it when RaceType is set.
 public readonly record struct RaceDamage(MonsterRace Race, MonsterRaceType? RaceType, int Percent)
