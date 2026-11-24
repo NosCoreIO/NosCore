@@ -899,6 +899,7 @@ namespace NosCore.Parser.Parsers
             {
                 ItemEffectType.SpeedBooster => 336,
                 ItemEffectType.AncelloansBlessing => 121,
+                ItemEffectType.GuardianAngelsBlessing => 122,
                 ItemEffectType.HeatResistance => 340,
                 ItemEffectType.FairyBooster => 131,
                 // Each wing design's effect, as its item description lists it, is the card named after those wings.

@@ -57,6 +57,7 @@ namespace NosCore.Data.Enumerations.Items
         MedalOfFriendship = 205,
         MimisMedal = 206,
         AncelloansBlessing = 208,
+        GuardianAngelsBlessing = 210,
         FairyBooster = 250,
         FriendshipWings = 199,
         // Brings the user's raid team to them while they lead it at a raid gate.

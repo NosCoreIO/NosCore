@@ -53,6 +53,8 @@ namespace NosCore.Database.Entities
 
         public byte Propability { get; set; }
 
+        public short MateExperienceBonus { get; set; }
+
         public virtual ICollection<BCard> BCards { get; set; }
 
         public virtual ICollection<StaticBuff> StaticBuff { get; set; }

@@ -7,11 +7,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using NodaTime;
 using NosCore.Algorithm.MateExperienceService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MateService;
@@ -129,6 +133,22 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             Assert.AreEqual(5, pet.Experience);
             Assert.AreEqual(10, pet.Level);
+        }
+
+        [TestMethod]
+        public async Task ABlessingOnTheOwnerAddsItsShareOfMateExperience()
+        {
+            var card = new CardDto { CardId = 122, Duration = 6001, MateExperienceBonus = 100 };
+            World.Freeze<Mock<ICardCatalog>>().Setup(c => c.GetCard(card.CardId)).Returns(card);
+            var buffs = World.Create<BuffService>();
+            World.Inject<IBuffService>(buffs);
+            _service = World.Create<MateProgressionService>();
+            await buffs.ApplyStaticAsync(_session.Character, card, [], Duration.FromHours(1));
+            var pet = AddPet();
+
+            await _service.AddExperienceAsync(_session.Character, 5);
+
+            Assert.AreEqual(10, pet.Experience);
         }
 
         [TestMethod]
