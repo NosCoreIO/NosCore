@@ -149,6 +149,7 @@ namespace NosCore.Tests.Shared
             CompletedTimeSpaceDao = Dao<CompletedTimeSpace, CompletedTimeSpaceDto, Guid>();
             EquipmentOptionDao = Dao<EquipmentOption, EquipmentOptionDto, Guid>();
             MailDao = Dao<Mail, MailDto, long>();
+            MallDeliveryDao = Dao<MallDelivery, MallDeliveryDto, Guid>();
 
             Fixture.Inject(ItemList);
             Fixture.Inject(Ladders);
@@ -293,6 +294,7 @@ namespace NosCore.Tests.Shared
         public IDao<CharacterSkillDto, Guid> CharacterSkillDao { get; }
         public IDao<QuicklistEntryDto, Guid> QuicklistEntryDao { get; }
         public IDao<CompletedTimeSpaceDto, Guid> CompletedTimeSpaceDao { get; }
+        public IDao<MallDeliveryDto, Guid> MallDeliveryDao { get; }
         public IDao<EquipmentOptionDto, Guid> EquipmentOptionDao { get; }
         public IDao<MailDto, long> MailDao { get; }
 
