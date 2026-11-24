@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging.Events;
@@ -83,6 +84,35 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _handler.Handle(new HiddenChangedEvent(_session.Character));
 
             Assert.IsTrue(_session.Character.Invisible);
+        }
+
+        [TestMethod]
+        public async Task AHideCardWithNoDurationKeepsItsBearerHiddenUntilRemoved()
+        {
+            await _buffs.ApplyAsync(_session.Character, new CardDto { CardId = HideCardId, Duration = 0 },
+                new List<BCardDto> { new() { Type = BCardEffect.SpecialActionsHide.Type(), SubType = BCardEffect.SpecialActionsHide.SubType() } },
+                _session.Character);
+
+            World.Clock.Advance(Duration.FromMinutes(30));
+            await _buffs.TickAsync(_session.Character);
+
+            Assert.IsTrue(_buffs.HasEffect(_session.Character, BCardEffect.SpecialActionsHide));
+
+            await _buffs.RemoveEffectAsync(_session.Character, BCardEffect.SpecialActionsHide);
+
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, HideCardId));
+        }
+
+        [TestMethod]
+        public async Task AnExplicitDurationOfZeroStillEndsTheCardAtOnce()
+        {
+            await _buffs.ApplyAsync(_session.Character, new CardDto { CardId = OtherCardId, Duration = 50 },
+                new List<BCardDto>(), _session.Character, overrideDuration: 0);
+
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await _buffs.TickAsync(_session.Character);
+
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, OtherCardId));
         }
 
         private async Task HideAsync()
