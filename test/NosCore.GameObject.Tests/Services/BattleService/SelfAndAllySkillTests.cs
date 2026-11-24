@@ -274,6 +274,91 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _accepted = await _service.Hit(_pet, monster, new HitArguments());
         }
 
+        [TestMethod]
+        public async Task ATeleportSkillJumpsItsRadiusTheWayTheCasterFaces()
+        {
+            await new Spec("A teleport skill moves the caster its radius in the direction it faces")
+                .Given(TheCasterStandsAt_Facing_, (short)0, (short)7, (byte)1)
+                .And(TheSkillTeleportsWithinARadiusOf_, 5)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheCasterShouldStandAt_, (short)5, (short)7)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ADiagonalTeleportCountsEachCellAsTheDiagonalOfOne()
+        {
+            await new Spec("Facing a diagonal, a radius of 8 fields is 6 cells")
+                .Given(TheCasterStandsAt_Facing_, (short)0, (short)7, (byte)5)
+                .And(TheSkillTeleportsWithinARadiusOf_, 8)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheCasterShouldStandAt_, (short)6, (short)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATeleportPassesOverAWall()
+        {
+            await new Spec("A teleport lands beyond a wall in its way")
+                .Given(TheCasterStandsAt_Facing_, (short)0, (short)2, (byte)1)
+                .And(TheSkillTeleportsWithinARadiusOf_, 4)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheCasterShouldStandAt_, (short)4, (short)2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATeleportStopsShortOfAWallOrTheMapEdge()
+        {
+            await new Spec("A teleport whose landing cells are walls or off the map lands on the farthest walkable one")
+                .Given(TheCasterStandsAt_Facing_, (short)0, (short)2, (byte)1)
+                .And(TheSkillTeleportsWithinARadiusOf_, 3)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheCasterShouldStandAt_, (short)0, (short)2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATeleportNeverLeavesTheMap()
+        {
+            await new Spec("A teleport towards the edge of the map stops at the edge")
+                .Given(TheCasterStandsAt_Facing_, (short)2, (short)7, (byte)3)
+                .And(TheSkillTeleportsWithinARadiusOf_, 8)
+                .WhenAsync(TheCasterCastsItOn_, "caster")
+                .Then(TheCasterShouldStandAt_, (short)0, (short)7)
+                .ExecuteAsync();
+        }
+
+        private void TheCasterStandsAt_Facing_(short x, short y, byte direction)
+        {
+            _caster.Character.PositionX = x;
+            _caster.Character.PositionY = y;
+            _caster.Character.Direction = direction;
+        }
+
+        private void TheSkillTeleportsWithinARadiusOf_(int radius)
+        {
+            IAliveEntity caster = _caster.Character;
+            _skillResolver.Setup(r => r.Resolve(caster, 1L)).Returns(new SkillInfo(
+                SkillVnum: 277, CastId: 1, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
+                Type: 0, HitType: TargetHitType.SingleTargetHit, Range: 0, TargetRange: 0, TargetType: 1,
+                Element: 0, Duration: 0, MpCost: 0, BCards: new[]
+                {
+                    new BCardDto
+                    {
+                        Type = BCardEffect.SpecialEffects2TeleportInRadius.Type(),
+                        SubType = BCardEffect.SpecialEffects2TeleportInRadius.SubType(),
+                        FirstData = radius,
+                    },
+                }));
+        }
+
+        private void TheCasterShouldStandAt_(short x, short y)
+        {
+            Assert.AreEqual(x, _caster.Character.PositionX);
+            Assert.AreEqual(y, _caster.Character.PositionY);
+        }
+
         private void TheSkillTargets_WithHitType_(byte targetType, TargetHitType hitType)
         {
             IAliveEntity caster = _caster.Character;

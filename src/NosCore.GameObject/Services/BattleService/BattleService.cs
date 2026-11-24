@@ -25,6 +25,7 @@ using NosCore.GameObject.Services.ArenaService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MovementService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
@@ -327,8 +328,28 @@ namespace NosCore.GameObject.Services.BattleService
                 }
             }
 
+            await TeleportForwardAsync(origin, mapInstance, skill);
             await FinishCastAsync(origin, skill);
             return true;
+        }
+
+        // Type 30 subtype 2, "Teleports you within a radius of %s fields": the caster jumps that far the way it
+        // faces, a diagonal cell counting as √2 fields, and lands on the farthest walkable cell of the line.
+        private static async Task TeleportForwardAsync(IAliveEntity origin, MapInstance mapInstance, SkillInfo skill)
+        {
+            var radius = skill.BCards.FirstOrDefault(b => b.Effect() == BCardEffect.SpecialEffects2TeleportInRadius)?.FirstData ?? 0;
+            var (stepX, stepY) = Facing.Step(origin.Direction);
+            var cells = stepX != 0 && stepY != 0 ? (int)Math.Round(radius / Math.Sqrt(2)) : radius;
+            for (var n = cells; n > 0; n--)
+            {
+                var x = (short)(origin.PositionX + stepX * n);
+                var y = (short)(origin.PositionY + stepY * n);
+                if (mapInstance.Map.IsWalkable(x, y))
+                {
+                    await origin.TeleportAsync(x, y);
+                    return;
+                }
+            }
         }
 
         // Every blow of the next attack carries the charge, whether it lands or not.
