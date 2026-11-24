@@ -40,6 +40,13 @@ namespace NosCore.GameObject.Services.TransferService
             public List<InventoryItemInstance> Upserted { get; } = new();
             public List<InventoryItemInstance> Deleted { get; } = new();
             public List<EquipmentOptionDto> Options { get; } = new();
+            public List<Side> Gold { get; } = new();
+            public List<MovedItem> Moved { get; } = new();
+        }
+
+        private sealed record MovedItem(Side Side, InventoryItemInstance Item, short VNum, short Amount)
+        {
+            public IReadOnlyCollection<PlacedStack> Placed { get; set; } = [];
         }
 
         public async Task<List<KeyValuePair<long, IvnPacket>>?> TransferAsync(PlayerComponentBundle first,
@@ -57,22 +64,21 @@ namespace NosCore.GameObject.Services.TransferService
                 .ToDictionary(i => i.ItemInstanceId,
                     i => equipmentOptionDao.Where(o => o.WearableInstanceId == i.ItemInstanceId)?.ToList() ?? []);
 
-            var snapshot = new Snapshot(first, second);
+            var changes = new Changes();
             try
             {
-                var changes = Apply(sides, options);
-                if (changes != null && await PersistAsync(first, second, changes))
+                if (Apply(sides, options, changes) && await PersistAsync(first, second, changes))
                 {
                     return changes.Packets;
                 }
             }
             catch
             {
-                snapshot.Restore();
+                Undo(changes);
                 throw;
             }
 
-            snapshot.Restore();
+            Undo(changes);
             logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
             return null;
         }
@@ -94,9 +100,9 @@ namespace NosCore.GameObject.Services.TransferService
                 && live.ItemInstance.Amount >= item.Value);
         }
 
-        private static Changes? Apply(IReadOnlyList<Side> sides, IReadOnlyDictionary<Guid, List<EquipmentOptionDto>> options)
+        private static bool Apply(IReadOnlyList<Side> sides, IReadOnlyDictionary<Guid, List<EquipmentOptionDto>> options,
+            Changes changes)
         {
-            var changes = new Changes();
             foreach (var side in sides)
             {
                 var giver = side.Giver;
@@ -105,55 +111,98 @@ namespace NosCore.GameObject.Services.TransferService
                 receiver.Gold += side.Offer.Gold;
                 giver.BankGold -= side.Offer.BankGold;
                 receiver.BankGold += side.Offer.BankGold;
+                changes.Gold.Add(side);
 
                 foreach (var (item, amount) in side.Offer.Items)
                 {
-                    InventoryItemInstance? remaining = null;
-                    if (amount == item.ItemInstance.Amount)
+                    var whole = amount == item.ItemInstance.Amount;
+                    if (!giver.InventoryService.TryConsume(item, amount))
                     {
-                        side.Giver.InventoryService.Remove(item.ItemInstanceId);
-                        changes.Deleted.Add(item);
-                    }
-                    else
-                    {
-                        remaining = side.Giver.InventoryService.RemoveItemAmountFromInventory(amount, item.ItemInstanceId);
-                        changes.Upserted.Add(item);
+                        return false;
                     }
 
-                    changes.Packets.Add(new KeyValuePair<long, IvnPacket>(side.Giver.VisualId,
+                    var moved = new MovedItem(side, item, item.ItemInstance.ItemVNum, amount);
+                    changes.Moved.Add(moved);
+                    (whole ? changes.Deleted : changes.Upserted).Add(item);
+                    var remaining = giver.InventoryService.TryGetValue(item.ItemInstanceId, out var left) ? left : null;
+                    changes.Packets.Add(new KeyValuePair<long, IvnPacket>(giver.VisualId,
                         remaining.GeneratePocketChange(item.Type.ToPocketType(), item.Slot)));
                 }
             }
 
-            foreach (var side in sides)
+            foreach (var moved in changes.Moved.ToList())
             {
-                foreach (var (item, amount) in side.Offer.Items)
+                var (side, item, _, amount) = moved;
+                var clone = CloneForReceiver(item.ItemInstance, amount);
+                var placed = side.Receiver.InventoryService.PlaceItem(InventoryItemInstance.Create(clone, side.Receiver.VisualId)) ?? [];
+                moved.Placed = placed;
+                if (placed.Sum(p => p.Added) != amount)
                 {
-                    var clone = CloneForReceiver(item.ItemInstance, amount);
-                    var inventory = side.Receiver.InventoryService;
-                    var before = inventory.Values
-                        .Where(s => s.ItemInstance.ItemVNum == clone.ItemVNum)
-                        .ToDictionary(s => s.ItemInstanceId, s => s.ItemInstance.Amount);
-                    var touched = inventory.AddItemToPocket(InventoryItemInstance.Create(clone, side.Receiver.VisualId)) ?? [];
-                    var received = touched.Sum(s =>
-                        s.ItemInstance.Amount - (before.TryGetValue(s.ItemInstanceId, out var was) ? was : 0));
-                    if (received != amount)
-                    {
-                        return null;
-                    }
-
-                    if (options.TryGetValue(item.ItemInstanceId, out var itemOptions))
-                    {
-                        changes.Options.AddRange(itemOptions.Select(o => o.CopyFor(clone.Id)));
-                    }
-
-                    changes.Upserted.AddRange(touched);
-                    changes.Packets.AddRange(touched.Select(s => new KeyValuePair<long, IvnPacket>(side.Receiver.VisualId,
-                        s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot))));
+                    return false;
                 }
+
+                if (options.TryGetValue(item.ItemInstanceId, out var itemOptions))
+                {
+                    changes.Options.AddRange(itemOptions.Select(o => o.CopyFor(clone.Id)));
+                }
+
+                changes.Upserted.AddRange(placed.Select(p => p.Stack));
+                changes.Packets.AddRange(placed.Select(p => new KeyValuePair<long, IvnPacket>(side.Receiver.VisualId,
+                    p.Stack.GeneratePocketChange(p.Stack.Type.ToPocketType(), p.Stack.Slot))));
             }
 
-            return changes;
+            return true;
+        }
+
+        // Undoes only what this exchange moved, so anything either character gained or spent meanwhile stays. What a
+        // receiver has already used is not taken back, and the giver is not paid back for it either.
+        private void Undo(Changes changes)
+        {
+            var returnable = new List<MovedItem>();
+            foreach (var moved in Enumerable.Reverse(changes.Moved))
+            {
+                if (moved.Side.Receiver.InventoryService.TryUndoPlacement(moved.Placed))
+                {
+                    returnable.Add(moved);
+                    continue;
+                }
+
+                logger.LogError(logLanguage[LogLanguageKey.EXCHANGE_ITEM_NOT_RETURNED], moved.VNum, moved.Amount,
+                    moved.Side.Receiver.CharacterId, moved.Side.Giver.CharacterId);
+            }
+
+            foreach (var moved in returnable)
+            {
+                moved.Side.Giver.InventoryService.RestoreConsumed(moved.Item, moved.Amount);
+            }
+
+            foreach (var side in Enumerable.Reverse(changes.Gold))
+            {
+                var (giver, offer, receiver) = side;
+                var gold = Math.Min(offer.Gold, Math.Max(0, receiver.Gold));
+                receiver.Gold -= gold;
+                giver.Gold += gold;
+                if (gold != offer.Gold)
+                {
+                    logger.LogError(logLanguage[LogLanguageKey.EXCHANGE_GOLD_NOT_RETURNED], gold, offer.Gold,
+                        receiver.CharacterId, giver.CharacterId);
+                }
+
+                var bankGold = Math.Min(offer.BankGold, Math.Max(0, receiver.BankGold));
+                receiver.BankGold -= bankGold;
+                giver.BankGold += bankGold;
+                if (bankGold != offer.BankGold)
+                {
+                    logger.LogError(logLanguage[LogLanguageKey.EXCHANGE_BANK_GOLD_NOT_RETURNED], bankGold, offer.BankGold,
+                        receiver.CharacterId, giver.CharacterId);
+                }
+
+                foreach (var character in new[] { giver, receiver })
+                {
+                    character.CharacterDto.Gold = character.Gold;
+                    character.Account.BankMoney = character.BankGold;
+                }
+            }
         }
 
         private async Task<bool> PersistAsync(PlayerComponentBundle first, PlayerComponentBundle second, Changes changes)
@@ -206,41 +255,6 @@ namespace NosCore.GameObject.Services.TransferService
             }
 
             return clone;
-        }
-
-        private sealed class Snapshot
-        {
-            private readonly List<(PlayerComponentBundle Character, long Gold, long BankGold,
-                List<(InventoryItemInstance Item, short Amount)> Items)> _parties;
-
-            public Snapshot(params PlayerComponentBundle[] characters)
-            {
-                _parties = characters.Select(c => (c, c.Gold, c.BankGold,
-                    c.InventoryService.Values.Select(s => (s, s.ItemInstance.Amount)).ToList())).ToList();
-            }
-
-            public void Restore()
-            {
-                foreach (var (character, gold, bankGold, items) in _parties)
-                {
-                    character.Gold = gold;
-                    character.BankGold = bankGold;
-                    character.CharacterDto.Gold = gold;
-                    character.Account.BankMoney = bankGold;
-                    var inventory = character.InventoryService;
-                    var kept = items.Select(s => s.Item.ItemInstanceId).ToHashSet();
-                    foreach (var added in inventory.Keys.Where(id => !kept.Contains(id)).ToList())
-                    {
-                        inventory.Remove(added);
-                    }
-
-                    foreach (var (item, amount) in items)
-                    {
-                        item.ItemInstance.Amount = amount;
-                        inventory[item.ItemInstanceId] = item;
-                    }
-                }
-            }
         }
     }
 }

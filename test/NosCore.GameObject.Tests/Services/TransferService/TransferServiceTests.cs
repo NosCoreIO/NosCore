@@ -76,6 +76,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private InventoryItemInstance _armorEntry;
         private Snapshot _before;
         private InvalidOperationException? _thrown;
+        private InventoryItemInstance _picked;
 
         private static TransferOffer Nothing => new(0, 0, new Dictionary<InventoryItemInstance, short>());
 
@@ -160,6 +161,34 @@ namespace NosCore.GameObject.Tests.Services.TransferService
                 .Then(TheBugReachesTheCaller)
                 .And(NothingIsCommitted)
                 .And(BothCharactersAreAsBefore)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WhatArrivesDuringAFailedWriteIsKept()
+        {
+            await new Spec("A failed write undoes only the exchange, so what a character got meanwhile stays")
+                .GivenAsync(FirstOffersGoldAndPartOfAStack)
+                .AndAsync(SecondOffersBankGoldAndAnArmorWithOptions)
+                .And(FirstPicksSomethingUpWhileTheFailingWriteRuns)
+                .WhenAsync(Transferring)
+                .Then(TheTransferFails)
+                .And(FirstHasItsOwnThingsAndWhatItPickedUp)
+                .And(SecondIsAsBefore)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AReceivedStackUsedDuringAFailedWriteIsNotReturnedTwice()
+        {
+            await new Spec("A received stack used before the rollback stays with the receiver and is not paid back")
+                .GivenAsync(FirstOffersGoldAndPartOfAStack)
+                .And(SecondUsesPartOfTheReceivedStackWhileTheFailingWriteRuns)
+                .WhenAsync(Transferring)
+                .Then(TheTransferFails)
+                .And(FirstKeepsOnlyTheRestOfTheStack)
+                .And(SecondKeepsWhatIsLeftOfTheReceivedStack)
+                .And(TheGoldGoesBack)
                 .ExecuteAsync();
         }
 
@@ -253,6 +282,49 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         {
             _first.Character.Gold = 100;
             _before = new Snapshot(_first, _second);
+        }
+
+        private void FirstPicksSomethingUpWhileTheFailingWriteRuns() =>
+            WithInventoryWrite(d => d.Callback(() =>
+            {
+                _first.Character.Gold += 50;
+                _picked = _first.Character.InventoryService.AddItemToPocket(Stack(Other, 2, _first)).NotNull().First();
+            }).ReturnsAsync(false));
+
+        private void SecondUsesPartOfTheReceivedStackWhileTheFailingWriteRuns() =>
+            WithInventoryWrite(d => d.Callback(() =>
+            {
+                var received = _second.Character.InventoryService.Values.Single(i => i.ItemInstance.ItemVNum == Stackable.VNum);
+                _second.Character.InventoryService.TryConsume(received, 1);
+            }).ReturnsAsync(false));
+
+        private void FirstHasItsOwnThingsAndWhatItPickedUp()
+        {
+            var inventory = _first.Character.InventoryService;
+            Assert.AreEqual(1_050L, _first.Character.Gold);
+            Assert.AreEqual(0L, _first.Character.BankGold);
+            Assert.AreEqual((short)10, inventory[_firstStack.ItemInstanceId].ItemInstance.Amount);
+            Assert.AreEqual((short)2, inventory[_picked.ItemInstanceId].ItemInstance.Amount);
+            Assert.AreEqual(2, inventory.Count);
+        }
+
+        private void SecondIsAsBefore()
+        {
+            Assert.AreEqual(0L, _second.Character.Gold);
+            Assert.AreEqual(5_000L, _second.Character.BankGold);
+            Assert.AreSame(_armorEntry, _second.Character.InventoryService.Values.Single());
+        }
+
+        private void FirstKeepsOnlyTheRestOfTheStack() =>
+            Assert.AreEqual((short)6, _first.Character.InventoryService.Values.Single().ItemInstance.Amount);
+
+        private void SecondKeepsWhatIsLeftOfTheReceivedStack() =>
+            Assert.AreEqual((short)3, _second.Character.InventoryService.Values.Single().ItemInstance.Amount);
+
+        private void TheGoldGoesBack()
+        {
+            Assert.AreEqual(1_000L, _first.Character.Gold);
+            Assert.AreEqual(0L, _second.Character.Gold);
         }
 
         private void TheInventoryWriteFails() =>
