@@ -446,9 +446,37 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     BringEscorts(session.Character, room.Value);
                 }
 
+                // The room map and score come before anything the script says, and the map window and
+                // mission window before what the room itself says on entry.
+                var arriving = room != null && session.HasPlayerEntity && EndState == null;
+                var firstSight = false;
+                if (arriving && room is { } arrivedIn)
+                {
+                    firstSight = DrawRoomMap(session, arrivedIn, discovered);
+                    if (_host.ShowsScore)
+                    {
+                        var score = GenerateScore();
+                        _pending.Add(() => session.SendPacketAsync(score));
+                    }
+                }
+
                 if (!_started && !_abandoned && _host.StartsOnFirstEntry)
                 {
                     await BeginAsync();
+                }
+
+                if (arriving && EndState == null)
+                {
+                    if (firstSight)
+                    {
+                        var window = new RsfmPacket { TimeSpaceId = _script.Definition.Id, Type = RsfmPacketType.Open };
+                        _pending.Add(() => session.SendPacketAsync(window));
+                    }
+
+                    if (GenerateMissionInfo() is { } missionInfo)
+                    {
+                        _pending.Add(() => session.SendPacketAsync(missionInfo));
+                    }
                 }
 
                 if (discovered && room is { } entered && _started && !_abandoned && EndState == null)
@@ -459,17 +487,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 // A room's objective set while discovering it reaches this player through Objective.
                 if (room is { } current && session.HasPlayerEntity && EndState == null)
                 {
-                    DrawRoomMap(session, current, discovered);
-                    if (_host.ShowsScore)
-                    {
-                        var score = GenerateScore();
-                        _pending.Add(() => session.SendPacketAsync(score));
-                    }
-
-                    if (GenerateMissionInfo() is { } missionInfo)
-                    {
-                        _pending.Add(() => session.SendPacketAsync(missionInfo));
-                    }
 
                     if (_roomObjectives.TryGetValue(current, out var objective))
                     {
@@ -1628,12 +1645,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         // A player's first room shows them every room and opens the map; a room found later is
         // filled in for the whole run.
-        private void DrawRoomMap(ClientSession session, int room, bool discovered)
+        // True when this is the player's first sight of the room map, which then still needs its window.
+        private bool DrawRoomMap(ClientSession session, int room, bool discovered)
         {
             var rooms = _script.Definition.Rooms;
             if (!_host.DrawsRoomMap || rooms.FirstOrDefault(r => r.Key == room) is not { } current)
             {
-                return;
+                return false;
             }
 
             var firstSight = _shownRoomMap.Add(session.Character.CharacterId);
@@ -1649,12 +1667,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             packets.Add(new RsfpPacket { MapX = current.IndexX, MapY = current.IndexY });
-            if (firstSight)
-            {
-                packets.Add(new RsfmPacket { TimeSpaceId = _script.Definition.Id, Type = RsfmPacketType.Open });
-            }
-
             _pending.Add(() => session.SendPacketsAsync(packets));
+            return firstSight;
         }
 
         private RsfnPacket GenerateRoom(InstanceRoom room) => new()
