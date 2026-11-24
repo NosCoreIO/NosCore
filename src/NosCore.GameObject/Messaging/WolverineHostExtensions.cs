@@ -7,6 +7,7 @@
 using System;
 using System.Text.Json;
 using JasperFx.Core;
+using JasperFx.CodeGeneration;
 using JasperFx.CodeGeneration.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +52,7 @@ namespace NosCore.GameObject.Messaging
                 // ExtensionDiscovery.ManualOnly below stops WolverineFx.RuntimeCompilation from
                 // self-registering, so it has to be invoked here.
                 opts.UseRuntimeCompilation();
+                opts.CodeGeneration.TypeLoadMode = TypeLoadMode.Dynamic;
 
                 // Wolverine's code generation only sees the IServiceCollection, not Autofac, so
                 // handlers backed by Autofac registrations take IServiceProvider and resolve there.
