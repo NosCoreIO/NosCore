@@ -92,6 +92,9 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
     private static readonly Duration UnreachableRetry = Duration.FromSeconds(2);
 
+    // A fighting entity shouts on its own roll each tick, about once every 20 seconds.
+    private const int ChatterOdds = 50;
+
     public async Task<bool> TickAsync(INonPlayableEntity entity)
     {
         if (!entity.IsAlive || entity.NpcMonster == null) return false;
@@ -106,7 +109,6 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             {
                 aggroService.AddThreat(entity, noticed, 1);
                 target = CurrentTarget(entity);
-                await chatter.ShoutAsync(entity);
             }
         }
 
@@ -123,6 +125,11 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         if (target == null)
         {
             return await TryReturnHomeAsync(entity);
+        }
+
+        if (random.Next(0, ChatterOdds) == 0)
+        {
+            await chatter.ShoutAsync(entity);
         }
 
         var skill = PickSkill(entity) ?? BasicAttack(entity);
