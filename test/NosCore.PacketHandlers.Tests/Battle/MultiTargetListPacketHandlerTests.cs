@@ -61,7 +61,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 World.SessionRegistry,
                 new SkillCastService(World.Clock, _gear.Object, World.Create<BuffService>()),
                 World.DistanceCalculator,
-                new WalkService(World.Clock));
+                new WalkService(World.Clock),
+                World.Create<BuffService>());
         }
 
         [TestMethod]

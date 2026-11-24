@@ -40,7 +40,8 @@ namespace NosCore.PacketHandlers.Battle
         ISessionRegistry sessionRegistry,
         ISkillCastService skillCastService,
         IHeuristic distanceCalculator,
-        IWalkService walkService)
+        IWalkService walkService,
+        IBuffService buffService)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseSkillPacket packet, ClientSession clientSession)
@@ -156,7 +157,8 @@ namespace NosCore.PacketHandlers.Battle
             itemVNum = skill.Skill.ItemVNum;
             var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (target.PositionX, target.PositionY));
             var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
-            if (!SkillReach.IsInReach(skill.Skill.TargetType, skill.Skill.Range, skill.Skill.TargetRange, distance, targetArea))
+            if (!SkillReach.IsInReach(skill.Skill.TargetType, skill.Skill.Range, skill.Skill.TargetRange, distance, targetArea,
+                    SkillReach.RangeBonus(buffService, character)))
             {
                 return false;
             }
@@ -179,12 +181,13 @@ namespace NosCore.PacketHandlers.Battle
                 return null;
             }
 
+            var rangeBonus = SkillReach.RangeBonus(buffService, character);
             return listed
                 .Select(t => FindTarget(t.VisualType, t.VisualId, session))
                 .OfType<IAliveEntity>()
                 .Where(t => SkillReach.IsTargetInReach(skill.Range,
                     (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (t.PositionX, t.PositionY)),
-                    t is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0))
+                    t is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0, rangeBonus))
                 .ToList();
         }
 
