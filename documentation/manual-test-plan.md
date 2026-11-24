@@ -96,13 +96,6 @@ should give the same NPCs.
       keepers all stand on the map, and the minimap shows them
 - [ ] The shops, skill shops and teleporters of the NPCs above still open and work
 
-### Time-space buttons in NPC dialogs
-
-- [ ] An NPC whose dialog has a button to a specialist card's time-space stone (2107-2109, 2111,
-      2112) takes the player to that stone, and stepping on it opens the time-space card
-- [ ] An NPC whose dialog has a button to a quest time-space (518-524, 608) sends the player
-      straight into it; one without a script yet answers that the time-space does not exist
-
 ### Quests after an import
 
 Run the parser twice on the same database, or once on a database an older parser filled
@@ -2723,6 +2716,38 @@ both Grenigas seal halves, 55 Draco's Claws and 100 Akamur Coupons.
       of course." on her Valentine's Day page (level 70+) and Mary's "Of course I'll stop the ritual!"
       (level 20+) hand out The Path to the Lost Catacombs, Not Enough Ingredients! (Easter Event), Cause
       for the Arrival, Let Your Love Show! and The Cursed 13.
+
+### Soulstones and the Pyjama Specialist Card
+
+Run the parser again first, so the quests' interim talks and the Pyjama card prize are stored.
+
+- [ ] At level 27+, talk to the Mysterious Soulstone in Sunny Meadows (216, 111) and choose "Stretch
+      your hand out.": you land on the small soulstone platform (map 2107) next to the Yellow Soulstone.
+      "Leave it." only closes the dialog.
+- [ ] Walk onto the platform's portal (11, 5): you are back in Sunny Meadows at (213, 111).
+- [ ] Talk to the Yellow Soulstone and finish its dialog: "Give Pyjama a blanket!" (2000) appears.
+      Talk to it without 50 Wool: the Pyjama "interim" talk plays instead of the soulstone's own dialog.
+- [ ] With 50 Wool, talk to it: "Delivered 50/50", "Quest complete", the wool leaves the bag and
+      "Give Pyjama a pillow!" (2001) appears, with no soulstone dialog opening.
+- [ ] Walk the chain to "Complete the Time-Space mission the Pyjama Fairy gave you!" (2006): talking
+      to the soulstone shows "The Pyjama Fairy is avoiding eye contact with me." and its "Time-Space
+      Challenge" enters time-space 518 (once its script is on master). Clearing it completes 2006 and
+      hands out 2007.
+- [ ] Talk to the soulstone with 2007 held: the quest is marked done but stays in the quest window and
+      the card is not in the bag yet. Click the quest in the quest window: the Pyjama Specialist Card
+      (900) lands in the bag, the chat says a specialist card was received, the reward window lists it,
+      the quest leaves the window and dignity is restored.
+- [ ] With 2007 waiting in the quest window, the soulstone's "End Dialogue" (n_run 2000 2000) says a
+      quest of the same kind is already under way and hands out nothing.
+- [ ] Any quest that pays a reward now waits in the quest window once done, and pays out when clicked
+      there; log out between the two and the quest is still done and claimable after logging back in.
+- [ ] At level 36+, take "Find the Powerless Dust King's Heart!" (2008) from its soulstone: its
+      interim talk's "Time-Space Challenge" enters time-space 519, and the later quests of the line
+      enter 520 and 521 the same way.
+- [ ] Not verifiable yet: the other soulstones (933, 934, 948, 954) stand on map 2107 in the stored
+      captures, stacked on the Yellow Soulstone's cell, because their rooms (2108, 2109, 2111, 2112)
+      reuse map 2107's grid and the server has no map for them; their "Stretch your hand out." does
+      nothing.
 
 ### Forming a party
 

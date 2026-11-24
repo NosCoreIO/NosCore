@@ -36,6 +36,10 @@ namespace NosCore.GameObject.Services.QuestService
         // Validates or achieves the script step the character is currently on.
         Task RunCurrentScriptStepAsync(PlayerComponentBundle character, QuestActionType type);
 
+        // Pays out the quest in that quest window slot whose objectives are met, or validates the current
+        // script step when no such quest waits there.
+        Task ClaimQuestAsync(PlayerComponentBundle character, int slot);
+
         // Whether the NPC offers this story chapter to a character of this level on the chapter before it.
         bool CanTakeScriptOffer(PlayerComponentBundle character, short npcVNum, byte scriptId);
 

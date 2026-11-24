@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.RainbowBattleService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Algorithm.DignityService;
@@ -150,6 +151,54 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Then(NpcTalkedEventShouldBeRaised)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AHeldQuestAnswersWithItsInterimDialog()
+        {
+            await new Spec("Talking to the NPC a held quest names answers with the quest's interim dialog")
+                .Given(NpcWithDialogExistsOnMap)
+                .And(TheCharacterHoldsAQuestWhoseInterimDialogWithTheNpcIs_, 6317)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(TheCharacterShouldBeAnsweredWithDialog_, 6317)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATalkThatMeetsAQuestOpensNoDialog()
+        {
+            await new Spec("A talk that meets a quest's objectives answers with the quest and no dialog")
+                .Given(NpcWithDialogExistsOnMap)
+                .And(TheCharacterHoldsAQuestWhoseInterimDialogWithTheNpcIs_, 6317)
+                .And(TalkingToTheNpcMeetsTheQuest)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(NoDialogShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private readonly List<CharacterQuest> _heldQuests = [];
+
+        private void TheCharacterHoldsAQuestWhoseInterimDialogWithTheNpcIs_(int dialog)
+        {
+            var heldQuest = new CharacterQuest
+            {
+                Id = Guid.NewGuid(),
+                QuestId = 2001,
+                Quest = new NosCore.GameObject.Services.QuestService.Quest { QuestId = 2001, QuestType = QuestType.CollectInRaid, InterimNpcVNum = 1, InterimDialogId = dialog, QuestObjectives = [] },
+            };
+            _heldQuests.Add(heldQuest);
+            _session.Character.Quests.TryAdd(heldQuest.Id, heldQuest);
+        }
+
+        private void TalkingToTheNpcMeetsTheQuest() =>
+            GameEvents.Setup(g => g.RaiseAsync(It.IsAny<NpcTalkedEvent>()))
+                .Callback(() => _heldQuests.ForEach(q => q.ObjectivesCompletedOn = World.Clock.GetCurrentInstant()))
+                .Returns(Task.CompletedTask);
+
+        private void TheCharacterShouldBeAnsweredWithDialog_(int dialog) =>
+            PacketAssert.AreEqual(new RequestNpcPacket { Type = VisualType.Player, TargetId = _session.Character.VisualId, Data = dialog },
+                _session.LastPackets.OfType<RequestNpcPacket>().Single());
+
+        private void NoDialogShouldBeSent() => Assert.IsFalse(_session.LastPackets.OfType<RequestNpcPacket>().Any());
 
         [TestMethod]
         public async Task TalkingToAMonsterAnswersWithNoDialog()

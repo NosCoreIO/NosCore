@@ -101,6 +101,7 @@ namespace NosCore.Parser
         {
             await actParser.ImportActAsync(_folder);
             await questPrizeParser.ImportQuestPrizesAsync(_folder);
+            await questPrizeParser.ImportUnlistedQuestPrizesAsync();
             await questParser.ImportQuestsAsync(_folder);
             await familyQuestParser.InsertFamilyQuestsAsync(_folder);
         }

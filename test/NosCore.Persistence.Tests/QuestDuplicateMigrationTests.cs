@@ -72,7 +72,7 @@ namespace NosCore.Persistence.Tests
         private async Task AQuestImportedThreeTimesWithProgressOnTwoCopies()
         {
             await using var context = _database.CreateContext();
-            // Written by hand: the model's quest has columns that later migrations add.
+            // Quests and character quests are written by hand: the model has columns that later migrations add.
             await context.Database.ExecuteSqlAsync($"""
                 INSERT INTO "Quest" ("QuestId", "Title", "Desc", "AutoFinish", "IsDaily", "IsSecondary", "LevelMin", "LevelMax", "QuestLineId", "QuestType")
                 VALUES ({QuestId}, 'title', 'desc', false, false, false, 0, 0, 0, 0)
@@ -87,7 +87,11 @@ namespace NosCore.Persistence.Tests
                 context.Add(new QuestQuestReward { Id = Guid.NewGuid(), QuestId = QuestId, QuestRewardId = 4 });
             }
 
-            context.Add(new CharacterQuest { Id = CharacterQuestId, CharacterId = 1, QuestId = QuestId });
+            await context.SaveChangesAsync();
+            await context.Database.ExecuteSqlAsync($"""
+                INSERT INTO "CharacterQuest" ("Id", "CharacterId", "QuestId")
+                VALUES ({CharacterQuestId}, 1, {QuestId})
+                """);
             context.Add(new CharacterQuestObjective { Id = Guid.NewGuid(), CharacterQuestId = CharacterQuestId, QuestObjectiveId = FirstCopy, Count = 1 });
             context.Add(new CharacterQuestObjective { Id = Guid.NewGuid(), CharacterQuestId = CharacterQuestId, QuestObjectiveId = SecondCopy, Count = 3 });
             await context.SaveChangesAsync();

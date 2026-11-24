@@ -27,6 +27,9 @@ namespace NosCore.Database.Entities
 
         public Instant? CompletedOn { get; set; }
 
+        // Set once the objectives are met; a quest that pays a reward stays open until it is claimed.
+        public Instant? ObjectivesCompletedOn { get; set; }
+
         public virtual ICollection<CharacterQuestObjective> CharacterQuestObjective { get; set; }
     }
 }

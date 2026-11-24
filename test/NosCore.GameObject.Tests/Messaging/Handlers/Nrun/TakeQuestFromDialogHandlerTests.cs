@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,6 +19,7 @@ using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
@@ -30,7 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private Mock<IQuestService> QuestService;
         private readonly List<QuestDto> Quests =
         [
-            new() { QuestId = 6864, QuestType = QuestType.WinRaid, LevelMin = 20, LevelMax = 99 },
+            new() { QuestId = 6864, QuestType = QuestType.WinRaid, LevelMin = 20, LevelMax = 99, QuestLineId = 6864 },
             new() { QuestId = 5007, QuestType = QuestType.Hunt, LevelMin = 80, LevelMax = 99, RequiredQuestId = 5006 },
             new() { QuestId = 6807, QuestType = QuestType.Dialog1, LevelMin = 80, LevelMax = 99 },
             new() { QuestId = 6332, QuestType = QuestType.Dialog1, LevelMin = 80, LevelMax = 99 },
@@ -152,6 +154,22 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             {
                 QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), QuestActionType.Achieve, questId), Times.Once);
             }
+        }
+
+        [TestMethod]
+        public async Task AQuestWhoseLineIsStillHeldIsRefused()
+        {
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), new CharacterQuest
+            {
+                QuestId = 6865,
+                Quest = new GameObject.Services.QuestService.Quest { QuestId = 6865, QuestLineId = 6864, QuestObjectives = [] },
+            });
+
+            await World.Create<TakeSpecialistQuestFromDialogHandler>()
+                .HandleAsync(Session, QuestGiver, new NrunPacket { Runner = NrunRunnerType.GetXSPQuest, Type = 6864 });
+
+            QuestService.Verify(q => q.AddQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>(), It.IsAny<short>()), Times.Never);
+            Assert.AreEqual(Game18NConstString.AlreadyCompletingSameQuestType, Session.LastPackets.OfType<SayiPacket>().Single().Message);
         }
 
         [TestMethod]

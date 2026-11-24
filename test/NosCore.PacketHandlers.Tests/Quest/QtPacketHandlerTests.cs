@@ -40,13 +40,17 @@ namespace NosCore.PacketHandlers.Tests.Quest
         }
 
         [TestMethod]
-        public async Task ValidatingRunsTheCurrentScriptStep()
+        public async Task ValidatingClaimsTheQuestInThePacketsSlot()
         {
-            await new Spec("Validating runs the current script step as a validation")
+            await new Spec("Validating claims the quest in the quest window slot the packet names")
                 .WhenAsync(SendingQt_, QuestActionType.Validate)
-                .Then(TheCurrentStepShouldRunAs_, QuestActionType.Validate)
+                .Then(TheQuestInSlot_ShouldBeClaimed, QuestId)
+                .And(NoScriptStepShouldRun)
                 .ExecuteAsync();
         }
+
+        private void TheQuestInSlot_ShouldBeClaimed(short slot) =>
+            QuestService.Verify(x => x.ClaimQuestAsync(It.Is<PlayerComponentBundle>(c => c.VisualId == CharacterId), slot), Times.Once);
 
         [TestMethod]
         public async Task AchievingRunsTheCurrentScriptStep()

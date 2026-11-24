@@ -110,6 +110,13 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static Task AnswerRequestAsync(this NpcComponentBundle npc, ClientSession requester)
         {
+            var character = requester.Character;
+            if (npc.NpcMonster is { } kind && character.Quests.Values.FirstOrDefault(q => q.CompletedOn == null
+                    && q.ObjectivesCompletedOn == null && q.Quest.InterimNpcVNum == kind.NpcMonsterVNum)?.Quest.InterimDialogId is { } interim)
+            {
+                return requester.SendPacketAsync(character.GenerateNpcReq(interim));
+            }
+
             if (npc.Dialog is { } dialog and not 0)
             {
                 return requester.SendPacketAsync(npc.GenerateNpcReq(dialog));

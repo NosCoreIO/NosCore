@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
@@ -15,6 +16,8 @@ using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
@@ -36,6 +39,13 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
             if (!session.Character.HasDoneRequiredQuest(quest))
             {
+                return;
+            }
+
+            if (session.Character.Quests.Values.Any(q => q.CompletedOn == null && q.Quest.QuestLineId == quest.QuestLineId))
+            {
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow,
+                    Game18NConstString.AlreadyCompletingSameQuestType));
                 return;
             }
 

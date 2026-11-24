@@ -11,6 +11,8 @@ namespace NosCore.GameObject.Services.QuestService;
 
 public interface IQuestRewardService
 {
+    bool HasRewards(short questId);
+
     bool HasRoomFor(PlayerComponentBundle character, short questId);
 
     // Grants every prize of the quest and opens the reward window.

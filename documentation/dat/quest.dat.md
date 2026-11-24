@@ -10,6 +10,8 @@
 | AutoFinish | Boolean |  |  |
 | DescI18NKey | String |  |  |
 | EndDialogId | Nullable`1 |  |  |
+| InterimDialogId | Nullable`1 |  |  |
+| InterimNpcVNum | Nullable`1 |  |  |
 | IsDaily | Boolean |  |  |
 | IsSecondary | Boolean |  |  |
 | LevelMax | Byte |  |  |

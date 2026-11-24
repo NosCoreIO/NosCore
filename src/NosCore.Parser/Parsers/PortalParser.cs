@@ -129,9 +129,15 @@ namespace NosCore.Parser.Parsers
                 await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal).OrThrowAsync();
             }
 
-            // The arenas are entered through an NPC, so no portal leads out of them.
+            // The arenas and the Yellow Soulstone's room are entered through an NPC, so no portal of the
+            // capture pairs with their way out.
             foreach (var arenaExit in new[]
                      {
+                         new PortalDto
+                         {
+                             SourceMapId = 2107, SourceX = 11, SourceY = 5, DestinationMapId = 4,
+                             DestinationX = 213, DestinationY = 111, Type = PortalType.MapPortal
+                         },
                          new PortalDto
                          {
                              SourceMapId = 2006, SourceX = 37, SourceY = 15, DestinationMapId = 1,
@@ -154,6 +160,7 @@ namespace NosCore.Parser.Parsers
                 await portalDao.TryInsertOrUpdateAsync(arenaExit).OrThrowAsync();
             }
 
+            var grids = SharedGrids(packets, maps);
             foreach (var packet in packets)
             {
                 if (packet is AtPacket at)
@@ -172,7 +179,7 @@ namespace NosCore.Parser.Parsers
                     SourceMapId = map,
                     SourceX = gp.SourceX,
                     SourceY = gp.SourceY,
-                    DestinationMapId = gp.MapId,
+                    DestinationMapId = grids.GetValueOrDefault(gp.MapId, gp.MapId),
                     Type = gp.PortalType,
                     DestinationX = -1,
                     DestinationY = -1,
@@ -221,6 +228,30 @@ namespace NosCore.Parser.Parsers
 
             logger.LogInformation(logLanguage[LogLanguageKey.PORTALS_PARSED],
                 portalsDtos.Count + portalCounter);
+        }
+
+        // A map the client is told by another id than its grid's, such as Sunny Meadows' hidden chicken
+        // place (shown as 2110 on grid 2104): portals name the shown id, the grid is what the server loads.
+        private static Dictionary<short, short> SharedGrids(IEnumerable<IPacket> packets, List<MapDto> maps)
+        {
+            var known = maps.Select(m => m.MapId).ToHashSet();
+            var grids = new Dictionary<short, short>();
+            short? grid = null;
+            foreach (var packet in packets)
+            {
+                switch (packet)
+                {
+                    case AtPacket at:
+                        grid = at.MapId;
+                        break;
+                    case CMapPacket { IsEntering: true } shown when grid is { } loaded && shown.Id != loaded && !known.Contains(shown.Id):
+                        grids.TryAdd(shown.Id, loaded);
+                        grid = null;
+                        break;
+                }
+            }
+
+            return grids;
         }
     }
 }

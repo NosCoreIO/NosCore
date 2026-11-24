@@ -4,46 +4,46 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject.Ecs;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
-    // n_run 1000 {timeSpaceId}: the dialog button that sends the player into a quest time-space
-    // that has no stone of its own.
+    // n_run 1000 {timeSpaceId}: the "Time-Space Challenge" of a held quest's dialog enters the time-space
+    // the quest asks the player to complete, from where the player stands.
     [UsedImplicitly]
-    public sealed class GoToQuestTimeSpaceHandler(ITimeSpaceEntryService timeSpaceEntryService,
-        INpcTalkButtonCatalog npcTalkButtons) : INrunEventHandler
+    public sealed class TimeSpaceChallengeHandler(ITimeSpaceEntryService timeSpaceEntryService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.GoToXTimeSpace;
 
-        public bool RequiresNpc => true;
+        public bool RequiresNpc => false;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (packet.Type is not { } timeSpaceId || target is not NpcComponentBundle npc
-                || !npcTalkButtons.Offers(npc, Runner, timeSpaceId))
+            var character = session.Character;
+            if (packet.Type is not { } timeSpaceId
+                || character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
+                || !character.Quests.Values.Any(q => q.CompletedOn == null && q.ObjectivesCompletedOn == null
+                    && q.Quest.QuestType == QuestType.TimesSpace && q.Quest.QuestObjectives.Any(o => o.FirstData == timeSpaceId)))
             {
                 return Task.CompletedTask;
             }
 
-            var character = session.Character;
             return timeSpaceEntryService.EnterAsync(session, new ScriptedInstance
             {
                 MapId = character.MapId,
                 PositionX = character.PositionX,
                 PositionY = character.PositionY,
                 Type = ScriptedInstanceType.TimeSpace,
-                TimeSpaceId = timeSpaceId,
-                Script = $"timespace-{timeSpaceId:00}"
+                Script = $"timespace-{timeSpaceId}",
             });
         }
     }

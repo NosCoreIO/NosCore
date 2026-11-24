@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
@@ -39,6 +40,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private List<QuestDto> Quests;
         private List<QuestObjectiveDto> QuestObjectives;
         private readonly Mock<IGameEventDispatcher> GameEvents = new();
+        private readonly Mock<IQuestRewardService> RewardService = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -172,7 +174,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     new NpcButtonQuestHandler(new GameObject.Services.QuestService.QuestCatalog(Quests, QuestObjectives)),
                 },
                 GameEvents.Object,
-                new Mock<IQuestRewardService>().Object,
+                RewardService.Object,
                 World.Clock);
         }
 
@@ -213,6 +215,75 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void QuestCompletedShouldBeRaisedFor_(short questId) =>
             Assert.IsTrue(GameEvents.Invocations.Select(i => i.Arguments[0]).OfType<GameObject.Messaging.Events.QuestCompletedEvent>()
                 .Any(e => e.Quest.QuestId == questId));
+
+        [TestMethod]
+        public async Task AQuestThatPaysARewardWaitsForItsClaim()
+        {
+            await new Spec("A quest with a reward stays in the quest window once its objectives are met")
+                .Given(Quest_PaysAReward, (short)2)
+                .AndAsync(TakingQuest_, (short)2)
+                .WhenAsync(MeetingTheObjectivesOf_, (short)2)
+                .Then(Quest_ShouldBeDone_, (short)2, false)
+                .And(NoRewardShouldBeGiven)
+                .And(QuestCompletedShouldBeRaisedTimes_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClaimingAQuestPaysItsReward()
+        {
+            await new Spec("Claiming a quest from its quest window slot pays the reward and ends it")
+                .Given(Quest_PaysAReward, (short)2)
+                .AndAsync(TakingQuest_, (short)2)
+                .AndAsync(MeetingTheObjectivesOf_, (short)2)
+                .WhenAsync(ClaimingTheSlotOf_, (short)2)
+                .Then(Quest_ShouldBeDone_, (short)2, true)
+                .And(TheRewardOf_ShouldBeGivenOnce, (short)2)
+                .And(QuestCompletedShouldBeRaisedFor_, (short)2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AQuestWhoseObjectivesAreNotMetCannotBeClaimed()
+        {
+            await new Spec("Claiming a quest whose objectives are not met pays nothing")
+                .Given(Quest_PaysAReward, (short)2)
+                .AndAsync(TakingQuest_, (short)2)
+                .WhenAsync(ClaimingTheSlotOf_, (short)2)
+                .Then(Quest_ShouldBeDone_, (short)2, false)
+                .And(NoRewardShouldBeGiven)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AQuestWithoutRewardEndsWithItsObjectives()
+        {
+            await new Spec("A quest with no reward ends as soon as its objectives are met")
+                .GivenAsync(TakingQuest_, (short)2)
+                .WhenAsync(MeetingTheObjectivesOf_, (short)2)
+                .Then(Quest_ShouldBeDone_, (short)2, true)
+                .And(QuestCompletedShouldBeRaisedFor_, (short)2)
+                .ExecuteAsync();
+        }
+
+        private void Quest_PaysAReward(short questId)
+        {
+            RewardService.Setup(r => r.HasRewards(questId)).Returns(true);
+            RewardService.Setup(r => r.HasRoomFor(It.IsAny<PlayerComponentBundle>(), questId)).Returns(true);
+        }
+
+        private Task MeetingTheObjectivesOf_(short questId) =>
+            Service.CompleteQuestAsync(Session.Character, Session.Character.Quests.Values.Single(q => q.QuestId == questId));
+
+        private Task ClaimingTheSlotOf_(short questId) =>
+            Service.ClaimQuestAsync(Session.Character, Session.Character.Quests.Values.Single(q => q.QuestId == questId).Slot);
+
+        private void NoRewardShouldBeGiven() =>
+            RewardService.Verify(r => r.GiveAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<CharacterQuest>()), Times.Never);
+
+        private void TheRewardOf_ShouldBeGivenOnce(short questId) =>
+            RewardService.Verify(r => r.GiveAsync(It.IsAny<PlayerComponentBundle>(), It.Is<CharacterQuest>(q => q.QuestId == questId)),
+                Times.Once);
 
         [TestMethod]
         public async Task TwoCompletionsAtOnceRewardAQuestOnce()

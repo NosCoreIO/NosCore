@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261124042104_AddPetStarRating";
+    public override string LastMigrationId => "20261124050516_AddQuestInterimDialogAndClaim";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -646,6 +646,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("bigint");
 
                 b.Property<Instant?>("CompletedOn")
+                    .HasColumnType("timestamp with time zone");
+
+                b.Property<Instant?>("ObjectivesCompletedOn")
                     .HasColumnType("timestamp with time zone");
 
                 b.Property<short>("QuestId")
@@ -2868,6 +2871,12 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<int?>("EndDialogId")
                     .HasColumnType("integer");
+
+                b.Property<int?>("InterimDialogId")
+                    .HasColumnType("integer");
+
+                b.Property<short?>("InterimNpcVNum")
+                    .HasColumnType("smallint");
 
                 b.Property<bool>("IsDaily")
                     .HasColumnType("boolean");

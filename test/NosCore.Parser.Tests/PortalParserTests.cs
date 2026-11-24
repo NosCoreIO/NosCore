@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -67,7 +68,10 @@ namespace NosCore.Parser.Tests
                     new() { MapId = 2587 },
                     new() { MapId = 189 },
                     new() { MapId = 2006 },
-                    new() { MapId = 2106 }
+                    new() { MapId = 2106 },
+                    new() { MapId = 4 },
+                    new() { MapId = 2104 },
+                    new() { MapId = 2107 }
                 });
         }
 
@@ -117,6 +121,41 @@ namespace NosCore.Parser.Tests
                 (1, 48, 132, 20001),
                 (145, 9, 171, 20001),
             }, entrances);
+        }
+
+        [TestMethod]
+        public async Task PortalParser_APortalToAMapShownUnderAnotherIdLeadsToItsGrid()
+        {
+            var packets = new List<IPacket>
+            {
+                Captured.Arrival(4),
+                new CMapPacket { Id = 4, IsEntering = true },
+                Captured.Portal(224, 103, 2110, PortalType.MapPortal),
+                Captured.Arrival(2104),
+                new CMapPacket { Id = 2110, IsEntering = true },
+                Captured.Portal(41, 43, 4, PortalType.MapPortal),
+            };
+
+            var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
+            await parser.InsertPortalsAsync(packets);
+
+            var way = _savedPortals.Single(p => p.SourceMapId == 4);
+            var back = _savedPortals.Single(p => p.SourceMapId == 2104);
+            Assert.AreEqual(((short)224, (short)103, (short)2104, (short)41, (short)43),
+                (way.SourceX, way.SourceY, way.DestinationMapId, way.DestinationX, way.DestinationY));
+            Assert.AreEqual(((short)41, (short)43, (short)4, (short)224, (short)103),
+                (back.SourceX, back.SourceY, back.DestinationMapId, back.DestinationX, back.DestinationY));
+        }
+
+        [TestMethod]
+        public async Task PortalParser_CreatesTheSoulstoneRoomExit()
+        {
+            var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
+            await parser.InsertPortalsAsync(new List<IPacket>());
+
+            var exit = _savedPortals.Single(p => p.SourceMapId == 2107);
+            Assert.AreEqual(((short)11, (short)5, (short)4, (short)213, (short)111),
+                (exit.SourceX, exit.SourceY, exit.DestinationMapId, exit.DestinationX, exit.DestinationY));
         }
 
         [TestMethod]

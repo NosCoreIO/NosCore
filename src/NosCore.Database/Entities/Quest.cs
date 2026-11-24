@@ -42,6 +42,11 @@ namespace NosCore.Database.Entities
 
         public int? EndDialogId { get; set; }
 
+        // The NPC that answers with InterimDialogId while the quest is held and its objectives are not met.
+        public short? InterimNpcVNum { get; set; }
+
+        public int? InterimDialogId { get; set; }
+
         public virtual ICollection<QuestObjective> QuestObjective { get; set; }
 
         public short? TargetMap { get; set; }
