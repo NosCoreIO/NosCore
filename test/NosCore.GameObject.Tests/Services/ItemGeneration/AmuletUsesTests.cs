@@ -32,18 +32,28 @@ namespace NosCore.GameObject.Tests.Services.ItemGeneration
         public async Task ARandomChampionBlessingAmuletIsCreatedWithItsUses()
         {
             await new Spec("A new random Champion Blessing Amulet can be used as many times as its data says")
-                .Given(TheAmuletIsAnItemWith_Uses, 3)
+                .Given(The_AmuletIsAnItemWith_Uses, ItemEffectType.RandomHeroic, 3)
                 .When(TheAmuletIsCreated)
                 .Then(ItShouldHave_UsesLeft, 3)
                 .ExecuteAsync();
         }
 
-        private void TheAmuletIsAnItemWith_Uses(int uses) => World.Inject(new List<ItemDto>
+        [TestMethod]
+        public async Task AChampionProtectionAmuletIsCreatedWithItsUse()
+        {
+            await new Spec("A new Weakened Fernon's Cursed Amulet can be used once")
+                .Given(The_AmuletIsAnItemWith_Uses, ItemEffectType.HeroicProtectionAmulet, 1)
+                .When(TheAmuletIsCreated)
+                .Then(ItShouldHave_UsesLeft, 1)
+                .ExecuteAsync();
+        }
+
+        private void The_AmuletIsAnItemWith_Uses(ItemEffectType effect, int uses) => World.Inject(new List<ItemDto>
         {
             new Item
             {
                 VNum = AmuletVNum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
-                EquipmentSlot = EquipmentType.Amulet, Effect = ItemEffectType.RandomHeroic, EffectValue = uses,
+                EquipmentSlot = EquipmentType.Amulet, Effect = effect, EffectValue = uses,
             },
         });
 

@@ -844,6 +844,20 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_WeakenedFernonsCursedAmuletProtectsChampionGearOnce()
+        {
+            CreateTestFile(CreateItemData(vnum: 4574));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var amulet = _savedItems.Single(i => i.VNum == 4574);
+            Assert.AreEqual(ItemEffectType.HeroicProtectionAmulet, amulet.Effect);
+            Assert.AreEqual(1, amulet.EffectValue);
+            Assert.IsFalse(amulet.OnlyForBoundItems);
+        }
+
+        [TestMethod]
         public async Task ItemParser_OnlyTheEventAmuletsAreLimitedToBoundItems()
         {
             var content = string.Join("\n#========================================================\n",
