@@ -811,6 +811,44 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(heldWhileTalking, ClockHolds());
         }
 
+        [TestMethod]
+        public async Task APlayerArrivingWhileATalkHoldsTheClockHasTheirClockHeldTooAsync()
+        {
+            await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+            await run.StartAsync();
+            var later = await PlayerInFirstRoomAsync();
+            later.LastPackets.Clear();
+
+            await run.EnteredAsync(later, _first.MapInstanceId);
+
+            var clockAndHold = later.LastPackets
+                .Where(p => p is EventPacket { Type: EventPacketType.TSTimer } or GuriPacket { Type: GuriPacketType.FreezeTimer })
+                .ToList();
+            Assert.IsInstanceOfType<EventPacket>(clockAndHold.First());
+            Assert.IsInstanceOfType<GuriPacket>(clockAndHold.Last());
+        }
+
+        [TestMethod]
+        public async Task TheLobbyClockWaitingForTheStartIsNotHeldEveryTickAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script(TwoRooms) { Enter = r => r.StartClock(TimeSpan.FromSeconds(60)) });
+            await run.EnteredAsync(session, _first.MapInstanceId);
+
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+
+            Assert.AreEqual(0, ClockHolds());
+        }
+
         private int ClockHolds() =>
             _first.LastPackets.OfType<GuriPacket>().Count(g => g.Type == GuriPacketType.FreezeTimer);
 

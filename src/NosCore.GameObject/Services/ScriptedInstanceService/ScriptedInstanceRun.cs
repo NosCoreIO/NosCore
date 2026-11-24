@@ -498,6 +498,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 {
                     var clockPacket = GenerateClock();
                     _pending.Add(() => session.SendPacketAsync(clockPacket));
+                    if (HeldForTalk)
+                    {
+                        _pending.Add(() => session.SendPacketAsync(Hold));
+                    }
                 }
             });
         }
@@ -560,7 +564,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     ResumeClock();
                 }
 
-                if (EndState == null && _clockPausedAt != null)
+                if (EndState == null && HeldForTalk)
                 {
                     FreezeClock();
                 }
@@ -1336,6 +1340,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     _clockEndsAt = endsAt.Plus(now - heldSince);
                     _clockPausedAt = _openDialogs.Count > 0 ? now : null;
                     BroadcastClock();
+                    if (HeldForTalk)
+                    {
+                        FreezeClock();
+                    }
                 }
 
                 if (_host.DrawsRoomMap && _script.Definition.Rooms.FirstOrDefault(r => r.Key == room) is { } first)
@@ -1384,8 +1392,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         // The client keeps counting a clock down on its own unless told to stand still, and a clock it
         // is sent starts it again, so a paused clock is held still every tick.
-        private void FreezeClock() =>
-            _pending.Add(() => BroadcastAsync(new GuriPacket { Type = GuriPacketType.FreezeTimer, Argument = 8 }));
+        private void FreezeClock() => _pending.Add(() => BroadcastAsync(Hold));
+
+        private static GuriPacket Hold => new() { Type = GuriPacketType.FreezeTimer, Argument = 8 };
+
+        private bool HeldForTalk => _clockPausedAt != null && _openDialogs.Count > 0;
 
         private void ResumeClock()
         {
