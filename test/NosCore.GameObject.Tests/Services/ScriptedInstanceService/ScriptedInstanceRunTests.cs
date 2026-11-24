@@ -787,6 +787,34 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task TheClientsClockIsHeldStillOnEveryTickWhileATalkIsOpenAsync()
+        {
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.StartClock(TimeSpan.FromSeconds(60));
+                    r.Dialog(1, 6024);
+                }
+            });
+            await run.StartAsync();
+
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+            var heldWhileTalking = ClockHolds();
+            await run.DialogClosedAsync(session.Character.CharacterId);
+            World.Clock.AdvanceSeconds(1);
+            await run.TickAsync();
+
+            Assert.AreEqual(2, heldWhileTalking);
+            Assert.AreEqual(heldWhileTalking, ClockHolds());
+        }
+
+        private int ClockHolds() =>
+            _first.LastPackets.OfType<GuriPacket>().Count(g => g.Type == GuriPacketType.FreezeTimer);
+
+        [TestMethod]
         public async Task ARoomDoesNotClearWhileItsTalkIsOpenAsync()
         {
             await PlayerInFirstRoomAsync();

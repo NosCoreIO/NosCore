@@ -560,6 +560,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     ResumeClock();
                 }
 
+                if (EndState == null && _clockPausedAt != null)
+                {
+                    FreezeClock();
+                }
+
                 if (EndState == null && _clockEndsAt is { } endsAt && _clockPausedAt == null && now >= endsAt)
                 {
                     _clockEndsAt = null;
@@ -1374,7 +1379,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             _clockPausedAt = _clock.GetCurrentInstant();
             BroadcastClock();
+            FreezeClock();
         }
+
+        // The client keeps counting a clock down on its own unless told to stand still, and a clock it
+        // is sent starts it again, so a paused clock is held still every tick.
+        private void FreezeClock() =>
+            _pending.Add(() => BroadcastAsync(new GuriPacket { Type = GuriPacketType.FreezeTimer, Argument = 8 }));
 
         private void ResumeClock()
         {
