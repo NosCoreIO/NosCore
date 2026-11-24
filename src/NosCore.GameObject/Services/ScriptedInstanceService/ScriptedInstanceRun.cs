@@ -103,6 +103,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private bool _hasExit;
         private Instant? _clockEndsAt;
         private Instant? _clockPausedAt;
+
+        // A clock broadcast already queued in this trigger reaches a player who has just arrived.
+        private bool _clockBroadcastQueued;
         private Duration _clockLimit;
         private Instant? _returnAt;
         private readonly TimeSpan _stepTimeout;
@@ -491,7 +494,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
-                if (_clockEndsAt != null && EndState == null)
+                if (_clockEndsAt != null && EndState == null && !_clockBroadcastQueued)
                 {
                     var clockPacket = GenerateClock();
                     _pending.Add(() => session.SendPacketAsync(clockPacket));
@@ -1394,6 +1397,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private void BroadcastClock()
         {
+            _clockBroadcastQueued = true;
             var packet = GenerateClock();
             _pending.Add(() => BroadcastAsync(packet));
         }
@@ -1798,6 +1802,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private async Task RunTriggerAsync(Func<Task> trigger)
         {
             Running.Value = this;
+            _clockBroadcastQueued = false;
             try
             {
                 await trigger();
