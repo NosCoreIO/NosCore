@@ -146,9 +146,9 @@ namespace NosCore.GameObject.Services.SkillService
                 .ToHashSet();
             var characterId = character.VisualId;
 
-            var passives = skills.Where(s => s.IsPassive()).Select(s => s.SkillVNum).ToHashSet();
+            var classless = skills.Where(s => s.IsPassive() || s.IsTattoo()).Select(s => s.SkillVNum).ToHashSet();
             foreach (var stale in characterSkillDao.Where(x => x.CharacterId == characterId)?
-                         .Where(x => !keep.Contains(x.SkillVNum) && !passives.Contains(x.SkillVNum)).ToList() ?? [])
+                         .Where(x => !keep.Contains(x.SkillVNum) && !classless.Contains(x.SkillVNum)).ToList() ?? [])
             {
                 await characterSkillDao.TryDeleteAsync(stale.Id).OrThrowAsync();
                 character.Skills.TryRemove(stale.SkillVNum, out _);
@@ -216,6 +216,19 @@ namespace NosCore.GameObject.Services.SkillService
         }
 
         public Task BuyAsync(PlayerComponentBundle character, SkillDto skill) => TeachAsync(character, skill, skill.Price, fromShop: true);
+
+        public async Task LearnTattooAsync(PlayerComponentBundle character, SkillDto tattoo)
+        {
+            var entry = new CharacterSkill
+            {
+                Id = Guid.NewGuid(),
+                CharacterId = character.VisualId,
+                SkillVNum = tattoo.SkillVNum,
+                Skill = tattoo,
+            };
+            await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>()).OrThrowAsync();
+            character.Skills[tattoo.SkillVNum] = entry;
+        }
 
         public async Task<bool> LearnFromBookAsync(PlayerComponentBundle character, short skillVNum)
         {

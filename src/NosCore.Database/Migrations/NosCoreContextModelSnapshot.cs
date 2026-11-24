@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261124221437_AddMallDelivery";
+    public override string LastMigrationId => "20261124223404_AddTattooApplication";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -50,7 +50,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender_type", new[] { "male", "female" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_color_type", new[] { "dark_purple", "yellow", "blue", "purple", "orange", "brown", "green", "dark_grey", "light_blue", "pink_red", "light_yellow", "light_pink", "light_green", "light_grey", "sky_blue", "black", "dark_orange", "dark_orange_variant2", "dark_orange_variant3", "dark_orange_variant4", "dark_orange_variant5", "dark_orange_variant6", "light_orange", "light_light_orange", "light_light_light_orange", "light_light_light_light_orange", "super_light_orange", "dark_yellow", "light_light_yellow", "kaki_yellow", "super_light_yellow", "super_light_yellow2", "super_light_yellow3", "little_dark_yellow", "yellow_variant", "yellow_variant1", "yellow_variant2", "yellow_variant3", "yellow_variant4", "yellow_variant5", "yellow_variant6", "yellow_variant7", "yellow_variant8", "yellow_variant9", "green_variant", "green_variant1", "dark_green_variant", "green_more_dark_variant", "green_variant2", "green_variant3", "green_variant4", "green_variant5", "green_variant6", "green_variant7", "green_variant8", "green_variant9", "green_variant10", "green_variant11", "green_variant12", "green_variant13", "green_variant14", "green_variant15", "green_variant16", "green_variant17", "green_variant18", "green_variant19", "green_variant20", "light_blue_variant1", "light_blue_variant2", "light_blue_variant3", "light_blue_variant4", "light_blue_variant5", "light_blue_variant6", "light_blue_variant7", "light_blue_variant8", "light_blue_variant9", "light_blue_variant10", "light_blue_variant11", "light_blue_variant12", "light_blue_variant13", "dark_black", "light_blue_variant14", "light_blue_variant15", "light_blue_variant16", "light_blue_variant17", "blue_variant", "blue_variant_dark", "blue_variant_dark_dark", "blue_variant_dark_dark2", "flash_blue", "flash_blue_dark", "flash_blue_dark2", "flash_blue_dark3", "flash_blue_dark4", "flash_blue_dark5", "flash_blue_dark6", "flash_blue_dark7", "flash_blue_dark8", "flash_blue_dark9", "white", "flash_blue_dark10", "flash_blue1", "flash_blue2", "flash_blue3", "flash_blue4", "flash_blue5", "flash_purple", "flash_light_purple", "flash_light_purple2", "flash_light_purple3", "flash_light_purple4", "flash_light_purple5", "light_purple", "purple_variant1", "purple_variant2", "purple_variant3", "purple_variant4", "purple_variant5", "purple_variant6", "purple_variant7", "purple_variant8", "purple_variant9", "purple_variant10", "purple_variant11", "purple_variant12", "purple_variant13", "purple_variant14", "purple_variant15" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_style_type", new[] { "hair_style_a", "hair_style_b", "hair_style_c", "hair_style_d", "no_hair", "french_braid", "choppy_bangs", "savage_choppy_bangs", "faux_hawk_undercut", "savage_faux_hawk_undercut", "jelly_rolls" });
-        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_effect_type", new[] { "no_effect", "teleport", "apply_hair_die", "refiner", "apply_hair_style", "restore_dignity", "speaker", "speech_bubble", "apply_card", "wig_dye", "hair_style_dye", "marriage_proposal", "holder", "medal_of_honour", "undefined", "gold", "sp_charger", "passive_skill_book", "open_production", "mate_capture", "miniland_signpost", "time_space_stone", "dropped_sp_recharger", "premium_sp_recharger", "crafted_sp_recharger", "friendship_wings", "medal_of_erenia", "adventurers_medal", "self_introduction", "specialist_medal", "medal_of_friendship", "mimis_medal", "inventory_upgrade", "ancelloans_blessing", "guardian_angels_blessing", "fairy_booster", "pet_basket_upgrade", "team_stone", "raid_seal", "simple_raid_box", "apply_skin_partner", "specialist_skin", "suction_funnel", "cooking_station", "change_faction", "permanent_inventory_upgrade", "permanent_partner_backpack", "permanent_pet_basket", "permanent_inventory_ticket_upgrade", "inventory_ticket_upgrade", "change_specialist_wings", "change_gender", "point_initialisation", "renaming_card", "sealed_tarot_card", "tarot_card", "red_amulet", "blue_amulet", "reinforcement_amulet", "heroic", "random_heroic", "rarity_increase_amulet", "heroic_rarity_increase_amulet", "heroic_protection_amulet", "family_experience_booster", "class_box", "attack_amulet", "defense_amulet", "item_pack", "heat_resistance", "play_effect", "speed_booster", "box_effect", "vehicle", "costume_scroll", "sealed_vessel", "gold_nos_merchant_upgrade", "silver_nos_merchant_upgrade", "pet_space_upgrade", "pet_backpack_upgrade", "cuarry_bank_vip_medal", "cuarry_bank_savings_book", "shell_identification", "shell_option_removal", "soul_revival", "event_sp_upgrade_scroll", "costume_fusion", "event_specialist", "minigame_durability_coupon", "production_coupon", "tarot_card_game", "perfume", "minigame_chest", "release_scroll", "arena_of_masters_ticket", "sound_flower", "relict", "bandage", "angel_base_flag", "demon_base_flag", "partner_skill_ticket", "partner_skill_ticket_all", "raid_collect_quest_item", "buff_potions", "marriage_separation" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_effect_type", new[] { "no_effect", "teleport", "apply_hair_die", "refiner", "apply_hair_style", "restore_dignity", "speaker", "speech_bubble", "apply_card", "wig_dye", "hair_style_dye", "marriage_proposal", "holder", "medal_of_honour", "undefined", "gold", "sp_charger", "passive_skill_book", "open_production", "mate_capture", "miniland_signpost", "time_space_stone", "dropped_sp_recharger", "premium_sp_recharger", "crafted_sp_recharger", "friendship_wings", "medal_of_erenia", "adventurers_medal", "self_introduction", "specialist_medal", "medal_of_friendship", "mimis_medal", "inventory_upgrade", "ancelloans_blessing", "guardian_angels_blessing", "fairy_booster", "pet_basket_upgrade", "team_stone", "raid_seal", "simple_raid_box", "apply_skin_partner", "specialist_skin", "suction_funnel", "cooking_station", "change_faction", "permanent_inventory_upgrade", "permanent_partner_backpack", "permanent_pet_basket", "permanent_inventory_ticket_upgrade", "inventory_ticket_upgrade", "tattoo_pattern", "change_specialist_wings", "change_gender", "point_initialisation", "renaming_card", "sealed_tarot_card", "tarot_card", "red_amulet", "blue_amulet", "reinforcement_amulet", "heroic", "random_heroic", "rarity_increase_amulet", "heroic_rarity_increase_amulet", "heroic_protection_amulet", "family_experience_booster", "class_box", "attack_amulet", "defense_amulet", "item_pack", "heat_resistance", "play_effect", "speed_booster", "box_effect", "vehicle", "costume_scroll", "sealed_vessel", "gold_nos_merchant_upgrade", "silver_nos_merchant_upgrade", "pet_space_upgrade", "pet_backpack_upgrade", "cuarry_bank_vip_medal", "cuarry_bank_savings_book", "shell_identification", "shell_option_removal", "soul_revival", "event_sp_upgrade_scroll", "costume_fusion", "event_specialist", "minigame_durability_coupon", "production_coupon", "tarot_card_game", "perfume", "minigame_chest", "release_scroll", "arena_of_masters_ticket", "sound_flower", "relict", "bandage", "angel_base_flag", "demon_base_flag", "partner_skill_ticket", "partner_skill_ticket_all", "raid_collect_quest_item", "buff_potions", "marriage_separation" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_type", new[] { "weapon", "armor", "fashion", "jewelery", "specialist", "box", "shell", "main", "upgrade", "production", "map", "special", "potion", "event", "title", "quest1", "sell", "food", "snack", "magical", "part", "teacher", "ammo", "quest2", "house", "garden", "minigame", "terrace", "miniland_theme" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "map_type", new[] { "normal", "time_space", "miniland", "raid", "arena", "land_of_death", "act4", "radikun_beach", "act4raid", "act4ship" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "map_type_type", new[] { "act1", "act2", "act3", "act4", "act42", "act51", "act52", "act61", "act62", "act61a", "act61d", "comet_plain", "mine1", "mine2", "meadow_of_mine", "sunny_plain", "fernon", "fernon_f", "cliff", "land_of_the_dead", "act32", "cleft_of_darkness", "citadel_angel", "citadel_demon", "oasis" });
@@ -61,7 +61,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_role", new[] { "none", "onyx_dragon", "faction_guardian" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_type", new[] { "unknown", "partner", "npc", "well", "portal", "boss", "elite", "peapod", "special", "gem_space_time" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "noscore_pocket_type", new[] { "equipment", "main", "etc", "miniland", "specialist", "costume", "wear", "mount", "raid", "first_partner_inventory", "second_partner_inventory", "third_partner_inventory" });
-        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "npc_service", new[] { "equipment_upgrade", "equipment_rarify", "accessory_option", "resistance_sum", "specialist_card_upgrade", "relict_examination", "family_manager", "specialist_card_perfection" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "npc_service", new[] { "equipment_upgrade", "equipment_rarify", "accessory_option", "resistance_sum", "specialist_card_upgrade", "relict_examination", "family_manager", "specialist_card_perfection", "tattoo_application" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "penalty_type", new[] { "muted", "banned", "block_exp", "block_f_exp", "block_rep", "warning" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "portal_type", new[] { "ts_normal", "closed", "open", "miniland", "ts_end", "ts_end_closed", "exit", "exit_closed", "raid", "effect", "blue_raid", "dark_raid", "time_space", "shop_teleport", "map_portal" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "quest_reward_type", new[] { "none", "gold", "gold_per_monster", "experience", "experience_per_monster", "job_experience", "consecutive_item", "etc_main_item", "wear_item", "reputation", "gold_per_kill", "experience_per_kill", "job_experience_per_kill", "not_repeatable", "class_item", "hero_experience", "level", "level_and_job_level" });
@@ -73,6 +73,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "sp_partner_rank", new[] { "not_identified_yet", "f", "e", "d", "c", "b", "a", "s" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "static_bonus_type", new[] { "bazaar_medal_gold", "bazaar_medal_silver", "back_pack", "pet_basket", "pet_back_pack", "inventory_ticket_upgrade", "cuarry_bank_vip", "medal_of_erenia", "adventurers_medal", "medal_of_friendship", "mimis_medal", "family_experience_booster" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "teleporter_type", new[] { "teleporter", "teleporter_on_map", "teleporter_on_map_after_bar" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "upgrade_packet_type", new[] { "item_to_part", "upgrade_item", "cellon_item", "rarify_item", "sum_resistance", "upgrade_sp_no_protection", "upgrade_item_protected", "rarify_item_protected", "upgrade_sp_protected", "upgrade_sp_protected2", "upgrade_sp_chiken", "upgrade_sp_pyjama", "perfect_sp", "upgrade_sp_pirate", "upgrade_item_gold_scroll", "create_fairy_zenas", "create_fairy_erenia", "create_fairy_fernon", "fusion_item", "apply_tattoo" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "warehouse_type", new[] { "warehouse", "family_ware_house", "pet_warehouse" });
         NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
@@ -3755,6 +3756,45 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.ToTable("Title");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.UpgradeCost", b =>
+            {
+                b.Property<short>("UpgradeCostId")
+                    .HasColumnType("smallint");
+
+                b.Property<long>("Gold")
+                    .HasColumnType("bigint");
+
+                b.Property<int>("Kind")
+                    .HasColumnType("integer");
+
+                b.HasKey("UpgradeCostId");
+
+                b.ToTable("UpgradeCost");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.UpgradeCostMaterial", b =>
+            {
+                b.Property<short>("UpgradeCostMaterialId")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Amount")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("ItemVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("UpgradeCostId")
+                    .HasColumnType("smallint");
+
+                b.HasKey("UpgradeCostMaterialId");
+
+                b.HasIndex("ItemVNum");
+
+                b.HasIndex("UpgradeCostId");
+
+                b.ToTable("UpgradeCostMaterial");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>
             {
                 b.Property<Guid>("Id")
@@ -4938,6 +4978,25 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Character");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.UpgradeCostMaterial", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Item", "Item")
+                    .WithMany("UpgradeCostMaterial")
+                    .HasForeignKey("ItemVNum")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("NosCore.Database.Entities.UpgradeCost", "UpgradeCost")
+                    .WithMany("UpgradeCostMaterial")
+                    .HasForeignKey("UpgradeCostId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Item");
+
+                b.Navigation("UpgradeCost");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>
             {
                 b.HasOne("NosCore.Database.Entities.Character", "Character")
@@ -5087,6 +5146,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("ScrollRecipe");
 
                 b.Navigation("ShopItem");
+
+                b.Navigation("UpgradeCostMaterial");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.ItemInstance", b =>
@@ -5222,6 +5283,11 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("NpcMonsterSkill");
 
                 b.Navigation("ShopSkill");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.UpgradeCost", b =>
+            {
+                b.Navigation("UpgradeCostMaterial");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.Warehouse", b =>

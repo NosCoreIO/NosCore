@@ -1602,6 +1602,26 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] Not verifiable yet: the item's tooltip showing the look it took; the costume tooltip is not
       sent by the server at all yet
 
+### Tattoos
+
+The tattooist's shop type is 83 in `shoptype.dat` (services 80, 83 and 84). No packet capture
+places Churisgo on a map, so give a nearby NPC's `Shop` row shop type 83 (stack stopped) to
+reach the window. The window is `wopen 81` and answers with `up_gr 81`; that the shop's tab asks
+for it with `n_run 12 81`, as the other upgrade tabs do, is not confirmed yet.
+
+- [ ] Talk to the shop-type-83 NPC and open the tattoo tab: the tattoo window opens
+- [ ] `$CreateItem 5790` (Bear Loa Tattoo Pattern), place it in the window and confirm: "Applied
+      the ... tattoo." names one of the eight bear tattoos, the pattern is used up, and the skill
+      window lists the tattoo
+- [ ] Relog: the tattoo is still listed
+- [ ] With a bear tattoo, a second Bear Loa pattern is refused with "You already have a tattoo
+      of this type." and kept
+- [ ] With a bear and a lion tattoo, an Eagle Loa pattern (5793) is refused with "You cannot add
+      another tattoo." and kept
+- [ ] An NPC whose shop type does not list service 83 never opens the window
+- [ ] Not verifiable yet: what applying a tattoo costs besides the pattern, whether it can fail,
+      upgrading (`wopen 82`) and removing a tattoo; none of them is wired
+
 ### Medals of Honour
 
 - [ ] `$CreateItem 5899` and use it, confirming the client's "Use the item." box: a green

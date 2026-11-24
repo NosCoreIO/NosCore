@@ -61,6 +61,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             new SkillDto { SkillVNum = 221, Class = 1, LevelMinimum = 5, CastId = 1, SkillType = 1 },
             new SkillDto { SkillVNum = 222, Class = 1, LevelMinimum = 50, CastId = 2, SkillType = 1 },
             new SkillDto { SkillVNum = 20, Class = 0, LevelMinimum = 0, CastId = 0, SkillType = 0 },
+            new SkillDto { SkillVNum = 689, Class = 27, LevelMinimum = 0, CastId = 40, SkillType = 1 },
         };
 
         [TestInitialize]
@@ -252,6 +253,22 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             await _service.ForgetUnlearnableSkillsAsync(_session.Character);
 
             Assert.IsTrue(_dao.Rows.Any(r => r.SkillVNum == 20));
+        }
+
+        [TestMethod]
+        public async Task ATattooIsKept()
+        {
+            _session.Character.Class = CharacterClassType.Swordsman;
+            _dao.Rows.Add(new CharacterSkillDto
+            {
+                Id = Guid.NewGuid(),
+                CharacterId = _session.Character.VisualId,
+                SkillVNum = 689
+            });
+
+            await _service.ForgetUnlearnableSkillsAsync(_session.Character);
+
+            Assert.IsTrue(_dao.Rows.Any(r => r.SkillVNum == 689));
         }
 
         // Passive 20 shares cast id 0 with the basic attack; a cast must never pick it.

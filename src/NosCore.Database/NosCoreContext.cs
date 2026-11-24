@@ -110,6 +110,10 @@ namespace NosCore.Database
 
         public virtual DbSet<NpcExchangeMaterial>? NpcExchangeMaterial { get; set; }
 
+        public virtual DbSet<UpgradeCost>? UpgradeCost { get; set; }
+
+        public virtual DbSet<UpgradeCostMaterial>? UpgradeCostMaterial { get; set; }
+
         public virtual DbSet<InstantCombatDrop>? InstantCombatDrop { get; set; }
 
         public virtual DbSet<InstantCombatMonster>? InstantCombatMonster { get; set; }
@@ -572,6 +576,16 @@ namespace NosCore.Database
             modelBuilder.Entity<NpcExchange>()
                 .HasMany(e => e.NpcExchangeMaterial)
                 .WithOne(e => e.NpcExchange)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Item>()
+                .HasMany(e => e.UpgradeCostMaterial)
+                .WithOne(e => e.Item)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UpgradeCost>()
+                .HasMany(e => e.UpgradeCostMaterial)
+                .WithOne(e => e.UpgradeCost)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Item>()
