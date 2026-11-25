@@ -27,6 +27,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using NosCore.GameObject.Services.PenaltyService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,14 +38,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger<EntryPointPacketHandler> logger, IAuthHub authHttpClient,
-            IChannelHub channelHub, IOptions<WorldConfiguration> configuration,
+            IChannelHub channelHub, IPenaltyService penaltyService, IOptions<WorldConfiguration> configuration,
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         private const int PetListLength = 26;
 
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHub authHttpClient,
-            IDao<AccountDto, long> accountDao, IChannelHub channelHub, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<AccountDto, long> accountDao, IChannelHub channelHub, IPenaltyService penaltyService, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             var account = await accountDao.FirstOrDefaultAsync(s => s.Name == accountName);
 
@@ -71,6 +72,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
             if (account.Authority < AuthorityType.User)
             {
                 _logger.LogWarning(logLanguage[LogLanguageKey.WORLD_ENTRY_REFUSED_AUTHORITY], accountName, account.Authority);
+                await clientSession.DisconnectAsync();
+                return;
+            }
+
+            if (await penaltyService.IsBannedAsync(account.AccountId))
+            {
+                _logger.LogWarning(logLanguage[LogLanguageKey.WORLD_ENTRY_REFUSED_BANNED], accountName);
                 await clientSession.DisconnectAsync();
                 return;
             }
@@ -107,7 +115,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var password = packet.Password ?? throw new InvalidOperationException();
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                    accountDao, channelHub, packet.Name, password == "thisisgfmode"
+                    accountDao, channelHub, penaltyService, packet.Name, password == "thisisgfmode"
                         ? async _ =>
                         {
                             var grant = await authHttpClient.RedeemWorldEntryAsync(packet.Name, clientSession.SessionId);

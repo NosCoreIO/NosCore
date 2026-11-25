@@ -16,20 +16,21 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using NosCore.GameObject.Services.PenaltyService;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger<DacPacketHandler> logger, IAuthHub authHttpClient,
-            IChannelHub channelHub, ISessionRefHolder sessionRefHolder,
+            IChannelHub channelHub, IPenaltyService penaltyService, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<DacPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                accountDao, channelHub, packet.AccountName, async _ =>
+                accountDao, channelHub, penaltyService, packet.AccountName, async _ =>
                 {
                     var grant = await authHttpClient.RedeemChannelChangeAsync(packet.AccountName);
                     clientSession.MfaValidated = grant?.MfaValidated ?? false;

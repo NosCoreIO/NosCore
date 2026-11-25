@@ -906,6 +906,9 @@
   <data name="WORLD_ENTRY_REFUSED_MAINTENANCE" xml:space="preserve">
     <value>World entry refused for {AccountName}: the channel is in maintenance</value>
   </data>
+  <data name="WORLD_ENTRY_REFUSED_BANNED" xml:space="preserve">
+    <value>World entry refused for {AccountName}: the account is banned</value>
+  </data>
   <data name="CHARACTER_CREATION_NOT_COMMITTED" xml:space="preserve">
     <value>The creation of {Name} was not committed</value>
   </data>

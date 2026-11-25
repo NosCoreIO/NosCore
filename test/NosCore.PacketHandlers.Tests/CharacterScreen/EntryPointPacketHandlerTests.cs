@@ -4,6 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.PenaltyService;
+using NodaTime;
+using NosCore.Data.Enumerations.Interaction;
 using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -62,6 +65,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 Logger.Object,
                 AuthHttpClient.Object,
                 World.ChannelHub.Object,
+                World.Create<IPenaltyService>(),
                 World.WorldConfiguration,
                 new SessionRefHolder(),
                 World.LogLanguageLocalizer);
@@ -184,6 +188,16 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task ConnectionOfABannedAccountShouldFail()
+        {
+            await new Spec("Connection of a banned account should fail")
+                .GivenAsync(TheAccountIsBanned)
+                .WhenAsync(ConnectingWithValidPassword)
+                .Then(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ConnectionWithMfaEnabledShouldRequireValidation()
         {
             await new Spec("Connection with MFA enabled should require validation")
@@ -278,6 +292,13 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private void TheChannelIsInMaintenance()
         {
             World.ChannelHub.Setup(h => h.IsInMaintenanceAsync()).ReturnsAsync(true);
+        }
+
+        private async Task TheAccountIsBanned()
+        {
+            var account = (await World.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
+            await World.Create<IPenaltyService>().GiveAsync(account.AccountId, PenaltyType.Banned,
+                World.Clock.GetCurrentInstant().Plus(Duration.FromDays(1)), "test", "admin");
         }
 
         private async Task AccountHasMfaEnabled()
