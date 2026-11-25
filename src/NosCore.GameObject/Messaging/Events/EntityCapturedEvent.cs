@@ -14,7 +14,8 @@ namespace NosCore.GameObject.Messaging.Events
     // side effects (xp/gold rewards, death bcards, kill-count quest credit).
     // Capture-specific quest objectives and any other capture-only reactions
     // subscribe to this instead.
-    public sealed record EntityCapturedEvent(IAliveEntity Victim, IAliveEntity Captor) : IGameEvent
+    // BecamePet is false when a CaptureWithoutGettingTheMonster quest took the monster instead.
+    public sealed record EntityCapturedEvent(IAliveEntity Victim, IAliveEntity Captor, bool BecamePet) : IGameEvent
     {
         public IAliveEntity? Subject => Victim;
 

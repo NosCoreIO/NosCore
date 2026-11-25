@@ -14,4 +14,6 @@ namespace NosCore.GameObject.Services.QuestService.Handlers;
 public sealed class CaptureWithoutGettingTheMonsterQuestHandler : CaptureQuestHandlerBase
 {
     public override QuestType QuestType => QuestType.CaptureWithoutGettingTheMonster;
+
+    protected override Game18NConstString ProgressMessage => Game18NConstString.Captured2;
 }

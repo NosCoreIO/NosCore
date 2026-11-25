@@ -13,4 +13,6 @@ namespace NosCore.GameObject.Services.QuestService.Handlers;
 public sealed class CaptureQuestHandler : CaptureQuestHandlerBase
 {
     public override QuestType QuestType => QuestType.Capture;
+
+    protected override Game18NConstString ProgressMessage => Game18NConstString.CurrentlyCaptured;
 }

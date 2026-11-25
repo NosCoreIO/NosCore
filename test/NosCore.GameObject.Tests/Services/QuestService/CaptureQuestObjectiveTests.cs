@@ -27,8 +27,13 @@ using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.QuestService.Handlers;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -193,6 +198,50 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ACaptureForTheQuestEndsTheCastLikeTheRecording()
+        {
+            await new Spec("A CaptureWithoutGettingTheMonster capture tells its progress, then the message, then cancels the cast")
+                .Given(CharacterHasQuest_Needing_Of_, QuestType.CaptureWithoutGettingTheMonster, 2, ChickenVNum)
+                .WhenAsync(Capturing_, ChickenVNum)
+                .Then(TheOwnerShouldGet_, new[] { nameof(Sayi2Packet), nameof(QstiPacket), nameof(MsgiPacket), nameof(CancelPacket) })
+                .And(TheCastShouldBeCancelledWithTheSkill)
+                .And(TheMonsterShouldLeaveWithoutTheCatchAnimation)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastCaptureForTheQuestCompletesItBeforeTheMessage()
+        {
+            await new Spec("The last CaptureWithoutGettingTheMonster capture completes the quest before the capture message")
+                .Given(CharacterHasQuest_Needing_Of_, QuestType.CaptureWithoutGettingTheMonster, 1, ChickenVNum)
+                .WhenAsync(Capturing_, ChickenVNum)
+                .Then(TheOwnerShouldBeTold_, new[] { Game18NConstString.QuestComplete, Game18NConstString.CaptureSuccessfulQuest })
+                .And(TheChatShouldSay_, Game18NConstString.Captured2, "1/1")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACaptureForTheQuestIsCountedInTheChat()
+        {
+            await new Spec("A CaptureWithoutGettingTheMonster capture is counted in the chat")
+                .Given(CharacterHasQuest_Needing_Of_, QuestType.CaptureWithoutGettingTheMonster, 2, ChickenVNum)
+                .WhenAsync(Capturing_, ChickenVNum)
+                .Then(TheChatShouldSay_, Game18NConstString.Captured2, "1/2")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACaptureQuestCaptureIsCountedInTheChatAfterTheMessage()
+        {
+            await new Spec("A Capture quest capture is counted in the chat after the capture message")
+                .Given(CharacterHasQuest_Needing_Of_, QuestType.Capture, 2, ChickenVNum)
+                .WhenAsync(Capturing_, ChickenVNum)
+                .Then(TheChatShouldSay_, Game18NConstString.CurrentlyCaptured, "1/2")
+                .And(TheOwnerShouldGet_, new[] { nameof(MsgiPacket), nameof(Sayi2Packet), nameof(QstiPacket) })
+                .ExecuteAsync();
+        }
+
         private static I18NString Named(string name)
         {
             var text = new I18NString();
@@ -229,6 +278,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Session.Character.PositionX = 12;
             Session.Character.PositionY = 13;
             Session.LastPackets.Clear();
+            map.LastPackets.Clear();
 
             await Captures.TryCaptureAsync(Session.Character, monster, CaptureSkill);
         }
@@ -263,6 +313,38 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void CharacterShouldHave_PetsOf_(int expected, short monsterVNum)
         {
             Assert.AreEqual(expected, Session.Character.Mates.Values.Count(m => m.VNum == monsterVNum));
+        }
+
+        private void TheOwnerShouldGet_(string[] expected)
+        {
+            var sent = Session.LastPackets
+                .Where(p => p is Sayi2Packet or QstiPacket or MsgiPacket or CancelPacket)
+                .Select(p => p.NotNull().GetType().Name)
+                .ToArray();
+            CollectionAssert.AreEqual(expected, sent);
+        }
+
+        private void TheOwnerShouldBeTold_(Game18NConstString[] expected) =>
+            CollectionAssert.AreEqual(expected, Session.LastPackets.OfType<MsgiPacket>().Select(p => p.Message).ToArray());
+
+        private void TheChatShouldSay_(Game18NConstString message, string count)
+        {
+            var said = Session.LastPackets.OfType<Sayi2Packet>().Single();
+            Assert.AreEqual(message, said.Message);
+            Assert.AreEqual(ChickenVNum.ToString(), said.Game18NArguments[0]?.ToString());
+            Assert.AreEqual(count, said.Game18NArguments[1]?.ToString());
+        }
+
+        private void TheCastShouldBeCancelledWithTheSkill() =>
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = CaptureSkill.SkillVnum, Unknow = -1 },
+                Session.LastPackets.OfType<CancelPacket>().Single());
+
+        private void TheMonsterShouldLeaveWithoutTheCatchAnimation()
+        {
+            var map = Session.Character.MapInstance.LastPackets.ToList();
+            Assert.IsTrue(map.OfType<OutPacket>().Any(p => p.VisualType == VisualType.Monster));
+            Assert.IsFalse(map.OfType<SuPacket>().Any());
+            Assert.IsFalse(map.OfType<EffectPacket>().Any());
         }
 
         private void TheCaptureShouldBeAnnouncedAs_(Game18NConstString message)
