@@ -241,6 +241,13 @@ branch → PR → CI → merge → tag `X.Y.Z` (bare, no `v` prefix) → wait fo
 A successful `dotnet nuget push` is not the same as the package being restorable; poll the
 flat-container index before bumping the consumer.
 
+**Release a sibling package as rarely as possible.** Every release costs the whole chain above,
+and every consumer has to follow it. Before cutting one, gather every change already known to be
+needed in that package: its open issues, wire-shape gaps found in traces, follow-ups noted by
+other PRs. Ship them together as one version. A change that needs the package and is not urgent
+waits for the next batch; record it as an issue on the package's repo so that release picks it
+up, rather than releasing for that one field.
+
 A new major of a package means bumping it in the siblings that use it as well, not only here:
 NosCore.Networking builds on NosCore.Packets. The nightly `siblings-head` job fails when any
 reference trails the latest release by more than one major.
