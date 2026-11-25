@@ -7,16 +7,21 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Core.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Interaction;
 
 namespace NosCore.GameObject.Services.PenaltyService
 {
     // Read from the table on every question: a penalty is given to an account, from any channel,
     // while its character may already be in the world.
-    public sealed class PenaltyService(IDao<PenaltyLogDto, int> penaltyLogDao, IClock clock) : IPenaltyService
+    public sealed class PenaltyService(IDao<PenaltyLogDto, int> penaltyLogDao, IDao<CharacterDto, long> characterDao,
+        IDao<AccountDto, long> accountDao, IClock clock) : IPenaltyService
     {
+        public static readonly Instant Forever = Instant.FromUtc(9999, 1, 1, 0, 0);
+
         public Task<Duration?> GetMuteLeftAsync(long accountId)
         {
             var end = LatestEnd(accountId, PenaltyType.Muted);
@@ -25,6 +30,49 @@ namespace NosCore.GameObject.Services.PenaltyService
 
         public Task<bool> IsBannedAsync(long accountId) =>
             Task.FromResult(LatestEnd(accountId, PenaltyType.Banned) != null);
+
+        public async Task<AccountDto?> FindAccountAsync(string? characterName, int serverId)
+        {
+            if (string.IsNullOrEmpty(characterName))
+            {
+                return null;
+            }
+
+            var character = await characterDao.FirstOrDefaultAsync(c =>
+                c.Name == characterName && c.ServerId == serverId && c.State == CharacterState.Active);
+            return character == null ? null : await accountDao.FirstOrDefaultAsync(a => a.AccountId == character.AccountId);
+        }
+
+        public Task GiveAsync(long accountId, PenaltyType penalty, Instant end, string reason, string adminName) =>
+            penaltyLogDao.TryInsertOrUpdateAsync(new PenaltyLogDto
+            {
+                AccountId = accountId,
+                Penalty = penalty,
+                DateStart = clock.GetCurrentInstant(),
+                DateEnd = end,
+                Reason = reason,
+                AdminName = adminName,
+            }).OrThrowAsync();
+
+        public async Task<bool> LiftAsync(long accountId, PenaltyType penalty)
+        {
+            var now = clock.GetCurrentInstant();
+            var running = penaltyLogDao
+                .Where(s => s.AccountId == accountId && s.Penalty == penalty && s.DateEnd > now)?
+                .ToList();
+            if (running == null || running.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var log in running)
+            {
+                log.DateEnd = now;
+            }
+
+            await penaltyLogDao.TryInsertOrUpdateAsync(running).OrThrowAsync();
+            return true;
+        }
 
         private Instant? LatestEnd(long accountId, PenaltyType penalty)
         {
