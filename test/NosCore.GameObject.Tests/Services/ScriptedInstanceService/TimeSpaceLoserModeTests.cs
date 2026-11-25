@@ -4,19 +4,29 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.TimeSpace;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Instances.Abstractions;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,10 +41,15 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private TestWorld World;
         private ClientSession _session;
         private GameObject.Services.ScriptedInstanceService.ScriptedInstance _entrance;
+        private Script _script;
 
         private sealed class Script : InstanceScript
         {
-            public Script(short id) => Definition = InstanceDefinitionBuilder.Named(id, "timespace", "timespace").Build();
+            public readonly int Room;
+
+            public Script(short id) => Definition = InstanceDefinitionBuilder.Named(id, "timespace", "timespace")
+                .WithRoom(4100, out Room)
+                .Build();
         }
 
         [TestInitialize]
@@ -42,9 +57,12 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            _entrance = new GameObject.Services.ScriptedInstanceService.ScriptedInstance { Logic = new Script(TimeSpaceId) };
-            World.Freeze<Mock<IScriptedInstanceService>>()
-                .Setup(s => s.LoadAsync(_entrance)).ReturnsAsync(true);
+            _script = new Script(TimeSpaceId);
+            _entrance = new GameObject.Services.ScriptedInstanceService.ScriptedInstance { Logic = _script };
+            World.Freeze<Mock<IMapChangeService>>();
+            var instances = World.Freeze<Mock<IScriptedInstanceService>>();
+            instances.Setup(s => s.LoadAsync(_entrance)).ReturnsAsync(true);
+            instances.Setup(s => s.InstantiateAsync(_entrance)).ReturnsAsync(CreateRun);
         }
 
         [TestMethod]
@@ -86,6 +104,31 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 2)
                 .WhenAsync(ThePlayerEntersInLoserMode)
                 .Then(ARunShouldHaveBeenOpened_Times, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoserModeEntryCostsDignityAndWarnsAboutTheRewardAsync()
+        {
+            await new Spec("Entering in Loser Mode warns that the reward may be limited and takes 10 dignity")
+                .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 2)
+                .And(ThePlayerHas_Dignity, (short)50)
+                .WhenAsync(ThePlayerEntersInLoserMode)
+                .Then(ThePlayerShouldBeWarnedTheRewardMayBeLimited_, true)
+                .And(ThePlayerShouldHave_Dignity, (short)40)
+                .And(ThePlayerShouldBeToldTheDignityChangedBy_, -10)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANormalEntryCostsNoDignityAsync()
+        {
+            await new Spec("Entering normally after two failures neither warns about the reward nor takes dignity")
+                .GivenAsync(ThePlayerFailed_Times, TimeSpaceId, 2)
+                .And(ThePlayerHas_Dignity, (short)50)
+                .WhenAsync(ThePlayerEntersNormally)
+                .Then(ThePlayerShouldBeWarnedTheRewardMayBeLimited_, false)
+                .And(ThePlayerShouldHave_Dignity, (short)50)
                 .ExecuteAsync();
         }
 
@@ -151,11 +194,38 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var told = _session.LastPackets.OfType<SayiPacket>()
                 .Single(packet => packet.Message == Game18NConstString.LoserModeAvailable);
             Assert.AreEqual(SayColorType.Red, told.Type);
-            Assert.AreEqual(failures, System.Convert.ToInt32(told.Game18NArguments.Single()));
+            Assert.AreEqual(failures, Convert.ToInt32(told.Game18NArguments.Single()));
         }
 
-        private Task ThePlayerEntersInLoserMode() =>
-            World.Create<TimeSpaceEntryService>().EnterAsync(_session, _entrance, loserMode: true);
+        private Task ThePlayerEntersInLoserMode()
+        {
+            _session.LastPackets.Clear();
+            return World.Create<TimeSpaceEntryService>().EnterAsync(_session, _entrance, loserMode: true);
+        }
+
+        private Task ThePlayerEntersNormally()
+        {
+            _session.LastPackets.Clear();
+            return World.Create<TimeSpaceEntryService>().EnterAsync(_session, _entrance);
+        }
+
+        private void ThePlayerHas_Dignity(short dignity) => _session.Character.Dignity = dignity;
+
+        private void ThePlayerShouldHave_Dignity(short dignity) => Assert.AreEqual(dignity, _session.Character.Dignity);
+
+        private void ThePlayerShouldBeToldTheDignityChangedBy_(int change)
+        {
+            var say = _session.LastPackets.OfType<SayiPacket>().Single(packet => packet.Message == Game18NConstString.DignityReduced);
+            Assert.AreEqual(change, Convert.ToInt32(say.Game18NArguments.Single()));
+        }
+
+        private void ThePlayerShouldBeWarnedTheRewardMayBeLimited_(bool warned)
+        {
+            var warnings = _session.LastPackets.OfType<SayiPacket>()
+                .Where(packet => packet.Message == Game18NConstString.RewardLimitedObserverMode).ToList();
+            Assert.AreEqual(warned ? 1 : 0, warnings.Count);
+            Assert.IsTrue(warnings.All(packet => packet.Type == SayColorType.Yellow));
+        }
 
         private void ARunShouldHaveBeenOpened_Times(int times) =>
             World.Freeze<Mock<IScriptedInstanceService>>().Verify(s => s.InstantiateAsync(_entrance), Times.Exactly(times));
@@ -163,6 +233,26 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private void ThePlayerShouldNotBeToldAboutLoserMode()
         {
             Assert.IsFalse(_session.LastPackets.OfType<SayiPacket>().Any(packet => packet.Message == Game18NConstString.LoserModeAvailable));
+        }
+
+        private ScriptedInstanceRun CreateRun()
+        {
+            var room = World.MapInstanceGeneratorService.CreateMapInstance(
+                new GameObject.Map.Map
+                {
+                    MapId = 4100,
+                    NameI18NKey = "room",
+                    Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
+            room.Sessions = new Mock<ISessionGroup>().Object;
+            return new ScriptedInstanceRun(
+                World.CreateTimeSpaceRunHost(_entrance),
+                _script,
+                new Dictionary<int, MapInstance> { [_script.Room] = room },
+                new NpcMonsterCatalog([]),
+                new RandomProvider(), World.Clock, World.SessionRegistry, World.Create<AggroService>(),
+                World.Create<ItemThrowService>(), NullLogger.Instance,
+                World.LogLanguageLocalizer, World.GameLanguageLocalizer, TimeSpan.FromSeconds(30));
         }
 
         private async Task TheStoneShould_OfferLoserMode(bool offered)

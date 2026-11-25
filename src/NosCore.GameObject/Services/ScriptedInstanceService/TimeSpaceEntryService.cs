@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.DignityService;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
@@ -25,10 +26,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class TimeSpaceEntryService(IScriptedInstanceService scriptedInstanceService,
             IMapChangeService mapChangeService, ISessionRegistry sessionRegistry,
-            ITimeSpaceRecordService timeSpaceRecordService)
+            ITimeSpaceRecordService timeSpaceRecordService, IDignityService dignityService)
         : ITimeSpaceEntryService
     {
         private const int LoserModeClockScale = 2;
+        private const short LoserModeDignityCost = 10;
 
         // What the No of the join question sends back, so the window opens without asking again.
         private const long DeclinedToJoin = 1;
@@ -166,6 +168,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
             var start = run.StartCell();
             await mapChangeService.ChangeMapInstanceAsync(session, firstRoom, start.X, start.Y);
+            if (loserMode)
+            {
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.RewardLimitedObserverMode));
+                await character.LoseDignityAsync(dignityService, LoserModeDignityCost);
+            }
         }
 
         // Joining pays the entry like opening a run does, and lands in the run's first room.
