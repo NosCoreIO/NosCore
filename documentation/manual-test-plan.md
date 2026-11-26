@@ -5128,6 +5128,23 @@ and lifts it with `$Unban <character>`.
 - [ ] With a moderator account, `$Ban` or `$Mute` the GM, or the moderator's own character: a red
       line says it cannot punish that account, and nothing is written
 
+### Experience blocks
+
+`$BlockExp <character> <minutes> [reason]` stops the account's characters earning experience from
+kills, and `$BlockFExp <character> <minutes> [reason]` stops them earning experience for their
+family. Each is a `PenaltyLog` row (`Penalty` 2 and 3) that ends on its own; reputation from kills
+is still given.
+
+- [ ] With the GM, `$BlockExp <second character> 5`: the GM sees "<name> has been punished for 5
+      minutes."
+- [ ] With the second character, kill a monster: neither the level nor the job bar moves, and a
+      partner out with it earns nothing either
+- [ ] Wait the five minutes and kill another: both bars move again
+- [ ] With the second character in a family at level 29, `$BlockFExp <second character> 5`, then
+      kill monsters until it reaches level 30: the family's bar does not move and its history gets
+      the level-up line but no experience line
+- [ ] `$BlockExp Nobody 5`: the client's "unknown character" window, and nothing is written
+
 ### One session per account
 
 - [ ] Log in on channel 1, then log the same account in from a second client and pick

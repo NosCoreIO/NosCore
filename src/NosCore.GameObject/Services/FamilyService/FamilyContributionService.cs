@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.Interaction;
 using Act4RaidType = NosCore.Packets.Enumerations.Act4RaidType;
@@ -16,7 +17,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyContributionService(IFamilyLogService familyLogService, IFamilyHub familyHub,
-        IPubSubHub pubSubHub) : IFamilyContributionService
+        IPubSubHub pubSubHub, IPenaltyService penaltyService) : IFamilyContributionService
     {
         // A history trace holds experience lines of 1 000, 5 000, 10 000, 50 000 and 100 000 only, and
         // none of 600, 800 or 1 200 beside its level 30, 40 and 60 lines, so this amount is suspect.
@@ -45,6 +46,11 @@ namespace NosCore.GameObject.Services.FamilyService
         public async Task<bool> ExperienceEarnedAsync(long familyId, long characterId, string characterName, int experience,
             bool boosted)
         {
+            if (await penaltyService.IsRunningForCharacterAsync(characterId, PenaltyType.BlockFExp))
+            {
+                return false;
+            }
+
             if (boosted)
             {
                 experience *= FamilyExperienceBoost;
