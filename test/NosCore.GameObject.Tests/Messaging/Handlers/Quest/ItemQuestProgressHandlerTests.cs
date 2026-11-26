@@ -298,14 +298,52 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         }
 
         [TestMethod]
-        public async Task BringingTooFewItemsTakesNothing()
+        public async Task BringingTooFewItemsHandsInWhatIsCarried()
         {
-            await new Spec("Talking to the NPC with fewer items than asked keeps the items and the quest open")
+            await new Spec("Talking to the NPC with fewer items than asked hands those in and keeps the quest open")
                 .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Brings, 3, QuestItem, Npc)
                 .And(TheCharacterCarries_Of_, 2, QuestItem)
                 .WhenAsync(TheCharacterTalksTo_, Npc)
-                .Then(TheQuestShouldNotBeCompleted)
-                .And(TheCharacterShouldStillCarry_Of_, 2, QuestItem)
+                .Then(TheObjectiveShouldRead_, 2)
+                .And(TheProgressShouldBeSentToTheClient)
+                .And(TheQuestShouldNotBeCompleted)
+                .And(TheCharacterShouldStillCarry_Of_, 0, QuestItem)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASecondDeliveryCompletesTheQuest()
+        {
+            await new Spec("Bringing the rest of the items on a later talk completes the quest and takes only what was missing")
+                .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Brings, 3, QuestItem, Npc)
+                .And(TheObjectiveAlreadyReads_, 2)
+                .And(TheCharacterCarries_Of_, 4, QuestItem)
+                .WhenAsync(TheCharacterTalksTo_, Npc)
+                .Then(TheObjectiveShouldRead_, 3)
+                .And(TheQuestShouldBeCompleted)
+                .And(TheCharacterShouldStillCarry_Of_, 3, QuestItem)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ADeliveryCallsOutTheCount()
+        {
+            await new Spec("Each item handed in is called out with the count it brings the objective to")
+                .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Brings, 4, QuestItem, Npc)
+                .And(TheCharacterCarries_Of_, 1, QuestItem)
+                .WhenAsync(TheCharacterTalksTo_, Npc)
+                .Then(TheChatShouldSay_, Game18NConstString.Delivered, QuestItem, "1/4")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACollectItemCallsOutTheCount()
+        {
+            await new Spec("Each collect quest item received is called out with the count it brings the objective to")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.Collect, 3, QuestItem)
+                .And(TheCharacterCarries_Of_, 2, QuestItem)
+                .WhenAsync(TheCharacterReceives_, QuestItem)
+                .Then(TheChatShouldSay_, Game18NConstString.Collected, QuestItem, "2/3")
                 .ExecuteAsync();
         }
 
@@ -505,9 +543,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         private Task APartyMemberPicksUp_(short vNum) =>
             _handler.Handle(new PartyItemPickedUpEvent(_session.Character, vNum));
 
-        private void TheChatShouldSay_Collected_(short vNum, string count)
+        private void TheChatShouldSay_Collected_(short vNum, string count) =>
+            TheChatShouldSay_(Game18NConstString.Collected, vNum, count);
+
+        private void TheChatShouldSay_(Game18NConstString message, short vNum, string count)
         {
-            var said = _session.LastPackets.OfType<Sayi2Packet>().Last(p => p.Message == Game18NConstString.Collected);
+            var said = _session.LastPackets.OfType<Sayi2Packet>().Last(p => p.Message == message);
             Assert.AreEqual(vNum.ToString(), said.Game18NArguments[0]?.ToString());
             Assert.AreEqual(count, said.Game18NArguments[1]?.ToString());
         }

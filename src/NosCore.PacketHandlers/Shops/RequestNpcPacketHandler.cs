@@ -70,9 +70,10 @@ namespace NosCore.PacketHandlers.Shops
 
                         npcDialogService.Open(character, found, NpcDialogWindow.Conversation);
                         var open = character.Quests.Values.Where(q => q.ObjectivesCompletedOn == null).ToList();
+                        var progressBefore = open.Sum(q => q.ObjectiveProgress.Values.Sum());
                         await gameEvents.RaiseAsync(new NpcTalkedEvent(character, found));
-                        // A talk that meets a quest's objectives answers with the quest instead of the dialog.
-                        if (open.Any(q => q.ObjectivesCompletedOn != null))
+                        // A talk that hands in quest items or meets a quest's objectives answers with the quest instead of the dialog.
+                        if (open.Any(q => q.ObjectivesCompletedOn != null) || open.Sum(q => q.ObjectiveProgress.Values.Sum()) != progressBefore)
                         {
                             return;
                         }

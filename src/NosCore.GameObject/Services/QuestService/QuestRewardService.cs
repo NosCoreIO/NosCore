@@ -279,11 +279,19 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
 
     private static long Percent(long total, int percent) => total * percent / 100;
 
+    // The window prints a gold amount and an item with its count; every other reward shows only its icon.
+    private static (QuestRewardType Type, int Data, int Amount) WindowSlot((QuestRewardType Type, int Data, int Amount) slot) => slot.Type switch
+    {
+        QuestRewardType.Gold or QuestRewardType.GoldPerMonster or QuestRewardType.GoldPerKill => (slot.Type, 0, slot.Amount),
+        QuestRewardType.EtcMainItem or QuestRewardType.WearItem or QuestRewardType.ClassItem or QuestRewardType.ConsecutiveItem => slot,
+        _ => (slot.Type, 0, 0),
+    };
+
     private static void Fill(QrPacket window, List<(QuestRewardType Type, int Data, int Amount)> slots)
     {
         for (var i = 0; i < Math.Min(slots.Count, WindowSlots); i++)
         {
-            var (type, data, amount) = slots[i];
+            var (type, data, amount) = WindowSlot(slots[i]);
             switch (i)
             {
                 case 0: (window.Reward1Type, window.Reward1Data, window.Reward1Amount) = (type, data, amount); break;

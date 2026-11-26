@@ -106,6 +106,16 @@ several times.
 - [ ] Take quest 1510 and talk to Guard Sam: the quest completes and the next one is offered
 - [ ] A quest with several objectives lists each objective once in the quest window
 
+### Story chapter deliveries and rewards
+
+- [ ] On quest 1598 (Suspicious Guard) talk to the NPC carrying only some of the five items: the items
+      carried are taken, the chat says "<item> delivered to: n/m" for each, the quest window counts
+      them and no dialog opens; a later talk with the rest completes the quest
+- [ ] On quest 1615 (Rival) each Mandra flower picked up says "<item> collected: n/3", and the third
+      completes the quest and hands out quest 1616 without a talk
+- [ ] Claim quest 1600 or 1601 from the quest window: the reward window shows the experience, job
+      experience and level icons without numbers; a gold reward still shows its amount
+
 ---
 
 ## Movement

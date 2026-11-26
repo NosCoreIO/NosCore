@@ -175,6 +175,18 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ATalkThatHandsInPartOfAQuestOpensNoDialog()
+        {
+            await new Spec("A talk that hands in some of a quest's items answers with the quest and no dialog")
+                .Given(NpcWithDialogExistsOnMap)
+                .And(TheCharacterHoldsAQuestWhoseInterimDialogWithTheNpcIs_, 6317)
+                .And(TalkingToTheNpcHandsInPartOfTheQuest)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(NoDialogShouldBeSent)
+                .ExecuteAsync();
+        }
+
         private readonly List<CharacterQuest> _heldQuests = [];
 
         private void TheCharacterHoldsAQuestWhoseInterimDialogWithTheNpcIs_(int dialog)
@@ -192,6 +204,11 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private void TalkingToTheNpcMeetsTheQuest() =>
             GameEvents.Setup(g => g.RaiseAsync(It.IsAny<NpcTalkedEvent>()))
                 .Callback(() => _heldQuests.ForEach(q => q.ObjectivesCompletedOn = World.Clock.GetCurrentInstant()))
+                .Returns(Task.CompletedTask);
+
+        private void TalkingToTheNpcHandsInPartOfTheQuest() =>
+            GameEvents.Setup(g => g.RaiseAsync(It.IsAny<NpcTalkedEvent>()))
+                .Callback(() => _heldQuests.ForEach(q => q.ObjectiveProgress[Guid.NewGuid()] = 1))
                 .Returns(Task.CompletedTask);
 
         private void TheCharacterShouldBeAnsweredWithDialog_(int dialog) =>

@@ -108,6 +108,27 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task TheWindowShowsOnlyTheIconOfAnExperienceLevelOrReputationReward()
+        {
+            Character.Level = 10;
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.Experience, Data = 26, Amount = 37 });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.JobExperience, Data = 16, Amount = 30 });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.Reputation, Amount = 50 });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.LevelAndJobLevel, Data = 27, SecondData = 12 });
+
+            await GiveAsync();
+
+            PacketAssert.AreEqual(new QrPacket
+            {
+                Reward1Type = QuestRewardType.Experience,
+                Reward2Type = QuestRewardType.JobExperience,
+                Reward3Type = QuestRewardType.Reputation,
+                Reward4Type = QuestRewardType.LevelAndJobLevel,
+                QuestId = QuestId,
+            }, Window);
+        }
+
+        [TestMethod]
         public async Task ExperienceIsAPercentOfTheNamedLevel()
         {
             Prize(new QuestRewardDto { RewardType = QuestRewardType.Experience, Data = 20, Amount = 35 });
