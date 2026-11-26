@@ -21,6 +21,9 @@ namespace NosCore.GameObject.Services.PenaltyService
         // The account behind an active character of that server, or null when there is none.
         Task<AccountDto?> FindAccountAsync(string? characterName, int serverId);
 
+        // A moderator only punishes accounts below their own authority, and never their own.
+        bool MayPunish(AccountDto moderator, AccountDto target);
+
         Task GiveAsync(long accountId, PenaltyType penalty, Instant end, string reason, string adminName);
 
         // Ends every running penalty of that type now; false when none was running.

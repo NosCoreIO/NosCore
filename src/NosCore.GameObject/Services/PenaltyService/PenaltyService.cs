@@ -43,6 +43,9 @@ namespace NosCore.GameObject.Services.PenaltyService
             return character == null ? null : await accountDao.FirstOrDefaultAsync(a => a.AccountId == character.AccountId);
         }
 
+        public bool MayPunish(AccountDto moderator, AccountDto target) =>
+            target.AccountId != moderator.AccountId && target.Authority < moderator.Authority;
+
         public Task GiveAsync(long accountId, PenaltyType penalty, Instant end, string reason, string adminName) =>
             penaltyLogDao.TryInsertOrUpdateAsync(new PenaltyLogDto
             {

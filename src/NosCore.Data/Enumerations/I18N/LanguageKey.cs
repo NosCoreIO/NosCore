@@ -289,6 +289,7 @@ namespace NosCore.Data.Enumerations.I18N
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum LanguageKey
     {
+        CANNOT_PUNISH_ACCOUNT,
         SUPPORT,
         CHANNEL,
         ADMINISTRATOR,

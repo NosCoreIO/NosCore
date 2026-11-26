@@ -366,6 +366,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Impossible de jeter, il y a trop d'objet au sol.</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>Vous ne pouvez pas sanctionner un compte d'autorité égale ou supérieure, ni le vôtre.</value>
+  </data>
   <data name="ITEMS_LOADED" xml:space="preserve">
     <value>Les objets ont été chargés avec succès !</value>
   </data>

@@ -187,6 +187,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Mapa je plná předmětů více jich zde nemůže být!</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>Nemůžeš potrestat účet se stejným nebo vyšším oprávněním, ani svůj vlastní.</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Zadejte složku se soubory, které chcete nahrát</value>
   </data>

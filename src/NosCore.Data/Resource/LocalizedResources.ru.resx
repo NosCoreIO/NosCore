@@ -216,6 +216,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Слишком много предметов на локации! Пожалуйста, попробуйте позже!</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>Нельзя наказать учётную запись с равными или более высокими правами, а также свою собственную.</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Пожалуйста, введите адрес директории с файлами для импорта</value>
   </data>

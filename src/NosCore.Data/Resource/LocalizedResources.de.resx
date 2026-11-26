@@ -215,6 +215,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Es befinden sich zu viele Items auf der Karte! Versuch es später nocheinmal!</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>Du kannst kein Konto mit gleicher oder höherer Berechtigung bestrafen, auch nicht dein eigenes.</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Bitte gib das Verzeichnis mit den Dateien zum laden an.</value>
   </data>

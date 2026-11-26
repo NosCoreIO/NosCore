@@ -5,10 +5,14 @@
 //
 
 using NodaTime;
+using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -16,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class MutePacketHandler(IPenaltyService penaltyService, IClock clock)
+    public class MutePacketHandler(IPenaltyService penaltyService, IGameLanguageLocalizer gameLanguageLocalizer, IClock clock)
         : PacketHandler<MutePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(MutePacket mutePacket, ClientSession session)
@@ -25,6 +29,13 @@ namespace NosCore.PacketHandlers.Command
             if (account == null)
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.UnknownCharacter });
+                return;
+            }
+
+            if (!penaltyService.MayPunish(session.Account, account))
+            {
+                await session.SendPacketAsync(session.Character.GenerateSay(
+                    gameLanguageLocalizer[LanguageKey.CANNOT_PUNISH_ACCOUNT, session.Account.Language], SayColorType.Red));
                 return;
             }
 

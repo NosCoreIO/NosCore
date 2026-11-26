@@ -13,7 +13,9 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.PenaltyService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,7 +36,34 @@ namespace NosCore.PacketHandlers.Tests.Command
             World = await TestWorld.CreateAsync();
             _moderator = await World.CreateSessionAsync();
             _target = await World.CreateSessionAsync();
+            _moderator.Account.Authority = AuthorityType.Moderator;
             _penalties = World.Create<IPenaltyService>();
+        }
+
+        [TestMethod]
+        public async Task AModeratorCannotBanAGameMaster()
+        {
+            var gameMaster = await World.AccountDao.FirstOrDefaultAsync(a => a.AccountId == _target.Account.AccountId);
+            Assert.IsNotNull(gameMaster);
+            gameMaster.Authority = AuthorityType.GameMaster;
+            Assert.IsNotNull(await World.AccountDao.TryInsertOrUpdateAsync(gameMaster));
+
+            await World.Create<BanPacketHandler>().ExecuteAsync(
+                new BanPacket { Name = _target.Character.Name, Days = 3 }, _moderator);
+
+            Assert.IsFalse(await _penalties.IsBannedAsync(_target.Account.AccountId));
+            World.PubSubHub.Verify(s => s.DisconnectAccountAsync(It.IsAny<string>()), Times.Never);
+            Assert.IsTrue(_moderator.LastPackets.OfType<SayPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task AModeratorCannotMuteTheirOwnAccount()
+        {
+            await World.Create<MutePacketHandler>().ExecuteAsync(
+                new MutePacket { Name = _moderator.Character.Name, Minutes = 30 }, _moderator);
+
+            Assert.IsNull(await _penalties.GetMuteLeftAsync(_moderator.Account.AccountId));
+            Assert.IsFalse(_moderator.LastPackets.OfType<Msgi2Packet>().Any());
         }
 
         [TestMethod]

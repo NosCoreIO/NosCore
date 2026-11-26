@@ -189,6 +189,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Na mapie jest zbyt wiele przedmiotów! Spróbuj ponownie później!</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>Nie możesz ukarać konta o równych lub wyższych uprawnieniach ani własnego.</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Wprowadź katalog plików do wprowadzenia:</value>
   </data>

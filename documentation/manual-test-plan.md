@@ -5125,6 +5125,8 @@ and lifts it with `$Unban <character>`.
       and closes
 - [ ] Set `DateEnd` to the past: the login works again, and the row is still there
 - [ ] Ban again with 0 days, then `$Unban <second character>`: the login works again
+- [ ] With a moderator account, `$Ban` or `$Mute` the GM, or the moderator's own character: a red
+      line says it cannot punish that account, and nothing is written
 
 ### One session per account
 
