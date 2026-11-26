@@ -182,6 +182,26 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public async Task GuardsInDangerSecondPlaceOpensItsDoorAsItIsEntered()
+        {
+            await LoadAsync("timespace-20");
+            var secondPlace = Room(4206, 2, 8);
+            var crystalBall = Room(4203, 2, 7);
+            var fourthPlace = Room(4206, 3, 8);
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, secondPlace);
+            _script.OnRoomCleared(_run, fourthPlace);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                "message(TIMESPACE_SECOND_PLACE_TO_VISIT)",
+                $"unlock({secondPlace}->{crystalBall})",
+                "message(ADoorHasOpened)"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
         public async Task HiddenSchemesRoomsHoldTheirKnightsBeforeTheTalk()
         {
             await LoadAsync("timespace-18");

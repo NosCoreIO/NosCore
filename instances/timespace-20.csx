@@ -214,6 +214,8 @@ public class TimeSpace20 : InstanceScript
         else if (room == _room5)
         {
             r.Message(LanguageKey.TIMESPACE_SECOND_PLACE_TO_VISIT);
+            r.UnlockPortal(_room5, _room11);
+            r.Message(Game18NConstString.ADoorHasOpened);
         }
         else if (room == _room7)
         {
@@ -245,10 +247,6 @@ public class TimeSpace20 : InstanceScript
             r.AddClockTime(TimeSpan.FromSeconds(100));
             r.Message(Game18NConstString.ADoorHasOpened);
             r.Dialog(_room8, 6105);
-        }
-        else if (room == _room10)
-        {
-            r.UnlockPortal(_room5, _room11);
         }
         else if (room == _room11)
         {
