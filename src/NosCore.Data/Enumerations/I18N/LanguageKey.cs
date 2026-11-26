@@ -254,6 +254,7 @@ namespace NosCore.Data.Enumerations.I18N
         REQINFO_MATE_NOT_WIRED,
         WORLD_ENTRY_REFUSED_AUTHORITY,
         WORLD_ENTRY_REFUSED_MAINTENANCE,
+        WORLD_ENTRY_REFUSED_BANNED,
         CHARACTER_CREATION_NOT_COMMITTED,
         STARTER_ITEMS_FAILED,
         CHARACTER_NOT_STORED,
@@ -288,6 +289,7 @@ namespace NosCore.Data.Enumerations.I18N
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum LanguageKey
     {
+        CANNOT_PUNISH_ACCOUNT,
         SUPPORT,
         CHANNEL,
         ADMINISTRATOR,

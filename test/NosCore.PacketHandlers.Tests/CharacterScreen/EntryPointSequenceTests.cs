@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             {
                 new EntryPointPacketHandler(World.CharacterDao, World.AccountDao,
                     World.MateDao, NullLogger<EntryPointPacketHandler>.Instance, AuthHub,
-                    World.ChannelHub.Object, World.WorldConfiguration, sessionRefHolder,
+                    World.ChannelHub.Object, World.Create<IPenaltyService>(), World.WorldConfiguration, sessionRefHolder,
                     World.LogLanguageLocalizer)
             });
             AccountName = Session.Account.Name;

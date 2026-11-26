@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Core.Dao;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -54,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             PubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
             DacPacketHandler =
-                new DacPacketHandler(World.AccountDao, Logger.Object, AuthHttpClient.Object, ChannelHub.Object, new SessionRefHolder(), World.LogLanguageLocalizer);
+                new DacPacketHandler(World.AccountDao, Logger.Object, AuthHttpClient.Object, ChannelHub.Object, World.Create<IPenaltyService>(), new SessionRefHolder(), World.LogLanguageLocalizer);
         }
 
         [TestMethod]

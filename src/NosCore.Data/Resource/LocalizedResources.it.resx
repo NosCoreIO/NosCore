@@ -213,6 +213,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Ci sono troppi oggetti in mappa! Prova più tardi</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>Non puoi punire un account con autorità pari o superiore, né il tuo.</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Immetti la directory dei file da sincronizzare</value>
   </data>

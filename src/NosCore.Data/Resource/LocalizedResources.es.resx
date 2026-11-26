@@ -189,6 +189,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>Â¡Hay demasiados objetos en este mapa! Intentelo de nuevo mÃ¡s tarde.</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>No puedes sancionar una cuenta con autoridad igual o superior, ni la tuya.</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Por favor, introduzca el directorio de los archivos para comenzar el anÃ¡lisis.</value>
   </data>

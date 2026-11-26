@@ -190,6 +190,9 @@
   <data name="DROP_MAP_FULL" xml:space="preserve">
     <value>There are too many items on this map! Try again later!</value>
   </data>
+  <data name="CANNOT_PUNISH_ACCOUNT" xml:space="preserve">
+    <value>You cannot punish an account of equal or higher authority, nor your own.</value>
+  </data>
   <data name="ENTER_PATH" xml:space="preserve">
     <value>Please enter the directory of files to parse</value>
   </data>
@@ -905,6 +908,9 @@
   </data>
   <data name="WORLD_ENTRY_REFUSED_MAINTENANCE" xml:space="preserve">
     <value>World entry refused for {AccountName}: the channel is in maintenance</value>
+  </data>
+  <data name="WORLD_ENTRY_REFUSED_BANNED" xml:space="preserve">
+    <value>World entry refused for {AccountName}: the account is banned</value>
   </data>
   <data name="CHARACTER_CREATION_NOT_COMMITTED" xml:space="preserve">
     <value>The creation of {Name} was not committed</value>

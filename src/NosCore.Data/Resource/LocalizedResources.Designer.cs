@@ -279,6 +279,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You cannot punish an account of equal or higher authority, nor your own..
+        /// </summary>
+        public static string CANNOT_PUNISH_ACCOUNT {
+            get {
+                return ResourceManager.GetString("CANNOT_PUNISH_ACCOUNT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are too many items on this map! Try again later!.
         /// </summary>
         public static string DROP_MAP_FULL {

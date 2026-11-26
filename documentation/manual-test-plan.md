@@ -3298,9 +3298,13 @@ Same setup as above, with both players inside the arena.
 
 ### Muted accounts
 
-A mute is a row in `PenaltyLog` for the account (`Penalty` 0, `DateEnd` in the future). There is
-no command for it yet, so insert the row; it is read on every line, so no restart or new login
-is needed.
+A mute is a row in `PenaltyLog` for the account (`Penalty` 0, `DateEnd` in the future). A game
+master or moderator gives one with `$Mute <character> <minutes> [reason]` and lifts it with
+`$Unmute <character>`. It is read on every line, so it applies from the next one.
+
+- [ ] With the GM: `$Mute <second character> 30 spam`. The GM sees "<name> has been punished for
+      30 minutes." across the screen, and a `PenaltyLog` row names the GM and the reason
+- [ ] `$Mute Nobody 30`: the GM gets the client's "unknown character" window and nothing is written
 
 - [ ] Say something in general chat: a speech bubble with the client's own "<I am serving a
       penalty.>" appears over the character, and "Remaining punishment: N minutes" shows in red
@@ -3311,6 +3315,7 @@ is needed.
       messenger, and shout to the family as its head: each time the red "Remaining punishment"
       line shows and nobody receives the words
 - [ ] Set `DateEnd` to the past: the next line is said normally
+- [ ] Mute again, then `$Unmute <second character>`: the next line is said normally
 
 ### Game master shout
 
@@ -5109,11 +5114,19 @@ and start the world server with `--config <copy>`.
 
 ### Timed bans
 
-A ban is a row in `PenaltyLog` for the account (`Penalty` 1, `DateEnd` in the future).
+A ban is a row in `PenaltyLog` for the account (`Penalty` 1, `DateEnd` in the future). A game
+master or moderator gives one with `$Ban <character> <days> [reason]`, where 0 days bans for good,
+and lifts it with `$Unban <character>`.
+
+- [ ] With the GM, `$Ban <second character> 1 cheating` while that character is in the world on any
+      channel: its client is disconnected at once
 
 - [ ] Log in with the account: the client shows its "banned" message instead of the server list
       and closes
 - [ ] Set `DateEnd` to the past: the login works again, and the row is still there
+- [ ] Ban again with 0 days, then `$Unban <second character>`: the login works again
+- [ ] With a moderator account, `$Ban` or `$Mute` the GM, or the moderator's own character: a red
+      line says it cannot punish that account, and nothing is written
 
 ### One session per account
 
@@ -5274,9 +5287,6 @@ Recorded so nobody spends time hunting for them:
   the card window (`slinfo`) and the item tooltip say nothing about it; whether the client expects
   them to is unknown.
 
-- **Being muted or banned while playing** — nothing writes a `PenaltyLog` row from inside the
-  game yet. A mute given by hand applies from the next line; a ban given by hand only applies at
-  the next login, the player who is online is not disconnected.
 - **A dead monster on arrival** — a monster waiting to respawn is no longer sent to a player
   who enters the map, but the client never drew one it received at 0 HP, so the screen is the
   same either way. The end-to-end scenario checks the packet.
