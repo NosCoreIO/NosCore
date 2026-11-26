@@ -21,6 +21,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Mate
 
         [UsedImplicitly]
         public Task Handle(EntityCapturedEvent evt) =>
-            evt.Captor is PlayerComponentBundle owner ? petSkillBarService.RefreshAsync(owner) : Task.CompletedTask;
+            evt.BecamePet && evt.Captor is PlayerComponentBundle owner ? petSkillBarService.RefreshAsync(owner) : Task.CompletedTask;
     }
 }

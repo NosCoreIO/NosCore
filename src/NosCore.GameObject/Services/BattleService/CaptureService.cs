@@ -116,11 +116,13 @@ namespace NosCore.GameObject.Services.BattleService
             monster.HitList.Clear();
             monster.RespawnAt = clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster));
 
+            // No catch animation here: the quest's progress, the message and the cancel end the cast.
             if (owner.CapturedMonsterGoesToQuest(monster.NpcMonster.NpcMonsterVNum))
             {
+                await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner, BecamePet: false));
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessfulQuest));
-                await ShowCaughtAsync(owner, monster, caughtAt);
-                await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner));
+                await owner.SendPacketAsync(Cancel(skill.SkillVnum));
+                await monster.MapInstance.SendPacketAsync(monster.GenerateOut());
                 return true;
             }
 
@@ -145,7 +147,7 @@ namespace NosCore.GameObject.Services.BattleService
                 Type = VisualType.Npc, PetId = mate.MateTransportId, Action = 3, Unknown = 0
             });
             await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessful));
-            await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner));
+            await gameEvents.RaiseAsync(new EntityCapturedEvent(monster, owner, BecamePet: true));
             await owner.SendPacketsAsync(owner.GenerateMateRoster(partnerSkillCatalog));
             if (mate.IsTeamMember)
             {
