@@ -38,6 +38,11 @@ namespace NosCore.Database.Entities
 
         public required byte[] Data { get; set; }
 
+        // The map whose grid the client loads for this one, when the server shows a grid under several
+        // ids, each its own map with its own NPCs (the soulstone rooms 2107 and 2112 share grid 2107).
+        // The at packet names the grid, c_map names this map. Empty for a map with its own grid.
+        public short? GridMapId { get; set; }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public short MapId { get; set; }

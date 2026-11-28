@@ -41,12 +41,14 @@ namespace NosCore.Parser.Parsers
             var visit = 0;
             foreach (var packet in packets)
             {
+                if (ShownMaps.Follow(packet, ref map))
+                {
+                    visit += packet is AtPacket ? 1 : 0;
+                    continue;
+                }
+
                 switch (packet)
                 {
-                    case AtPacket at:
-                        map = at.MapId;
-                        visit++;
-                        break;
                     case InPacket { VisualType: VisualType.Npc or VisualType.Monster } entity:
                         var sighting = new Sighting(entity.VisualType, map, entity.VNum, entity.VisualId);
                         sightings[entity] = sighting;
@@ -124,11 +126,13 @@ namespace NosCore.Parser.Parsers
             map = 0;
             foreach (var packet in packets)
             {
+                if (ShownMaps.Follow(packet, ref map))
+                {
+                    continue;
+                }
+
                 switch (packet)
                 {
-                    case AtPacket at:
-                        map = at.MapId;
-                        break;
                     case InPacket entity when sightings.TryGetValue(entity, out var sighting) && ids.TryGetValue(sighting, out var kept):
                         currentIds[(entity.VisualType, map, entity.VisualId)] = kept;
                         entity.VisualId = kept;

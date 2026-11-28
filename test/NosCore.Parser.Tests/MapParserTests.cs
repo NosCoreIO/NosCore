@@ -110,6 +110,41 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task MapParser_GivesAMapShownOnAnotherGridItsOwnRow()
+        {
+            WriteMapIdDat("");
+            var maps = Path.Combine(_tempFolder, "map");
+            Directory.CreateDirectory(maps);
+            var grid = new byte[] { 2, 0, 1, 0, 0, 1 };
+            File.WriteAllBytes(Path.Combine(maps, "2107"), grid);
+            File.WriteAllBytes(Path.Combine(maps, "46"), new byte[] { 1, 0, 1, 0, 0 });
+
+            List<MapDto> saved = [];
+            _daoMock.Setup(x => x.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<MapDto>>()))
+                .Callback<IEnumerable<MapDto>>(m => saved.AddRange(m))
+                .ReturnsAsync(true);
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            // The Pyjama room is shown as its grid, the Grey Soulstone's room as 2112 (official EU trace, 2026-11-29).
+            await parser.InsertOrUpdateMapsAsync(_tempFolder, new List<IPacket>
+            {
+                new AtPacket { MapId = 46, Music = 26, MapType = MapType.Normal },
+                new CMapPacket { Id = 46, IsEntering = true },
+                new AtPacket { MapId = 2107, Music = 14, MapType = MapType.Normal },
+                new CMapPacket { Id = 2112, IsEntering = true },
+                new AtPacket { MapId = 2107, Music = 14, MapType = MapType.Normal },
+                new CMapPacket { Id = 2107, IsEntering = true },
+            });
+
+            var room = saved.Single(m => m.MapId == 2112);
+            Assert.AreEqual((short)2107, room.GridMapId);
+            CollectionAssert.AreEqual(grid, room.Data);
+            Assert.AreEqual(14, room.Music);
+            Assert.IsNull(saved.Single(m => m.MapId == 2107).GridMapId);
+            Assert.IsNull(saved.Single(m => m.MapId == 46).GridMapId);
+            Assert.AreEqual(3, saved.Count);
+        }
+
+        [TestMethod]
         public async Task MapParser_ParsesSingleEntry()
         {
             WriteMapIdDat("1 1 0 0 nosvillage\r\nDATA 0\r\n");

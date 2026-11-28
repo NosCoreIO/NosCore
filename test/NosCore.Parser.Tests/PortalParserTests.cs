@@ -71,7 +71,9 @@ namespace NosCore.Parser.Tests
                     new() { MapId = 2106 },
                     new() { MapId = 4 },
                     new() { MapId = 2104 },
-                    new() { MapId = 2107 }
+                    new() { MapId = 2107 },
+                    new() { MapId = 2112, GridMapId = 2107 },
+                    new() { MapId = 46 }
                 });
         }
 
@@ -156,6 +158,56 @@ namespace NosCore.Parser.Tests
             var exit = _savedPortals.Single(p => p.SourceMapId == 2107);
             Assert.AreEqual(((short)11, (short)5, (short)4, (short)213, (short)111),
                 (exit.SourceX, exit.SourceY, exit.DestinationMapId, exit.DestinationX, exit.DestinationY));
+        }
+
+        [TestMethod]
+        public async Task PortalParser_CreatesTheGreySoulstoneRoomExit()
+        {
+            var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
+            await parser.InsertPortalsAsync(new List<IPacket>());
+
+            var exit = _savedPortals.Single(p => p.SourceMapId == 2112);
+            Assert.AreEqual(((short)11, (short)5, (short)46, (short)11, (short)43),
+                (exit.SourceX, exit.SourceY, exit.DestinationMapId, exit.DestinationX, exit.DestinationY));
+        }
+
+        [TestMethod]
+        public async Task PortalParser_APortalOfAMapShownOnAnotherGridStandsOnTheShownMap()
+        {
+            _mapDaoMock.Setup(x => x.LoadAll()).Returns(new List<MapDto>
+            {
+                new() { MapId = 4 },
+                new() { MapId = 2104 },
+                new() { MapId = 2110, GridMapId = 2104 },
+            });
+            var deleted = new List<int>();
+            _portalDaoMock.Setup(x => x.LoadAll()).Returns(new List<PortalDto>
+            {
+                new() { PortalId = 7, SourceMapId = 4, SourceX = 224, SourceY = 103, DestinationMapId = 2104, DestinationX = 41, DestinationY = 43 },
+            });
+            _portalDaoMock.Setup(x => x.TryDeleteAsync(It.IsAny<IEnumerable<int>>()))
+                .Callback<IEnumerable<int>>(ids => deleted.AddRange(ids))
+                .ReturnsAsync(new List<PortalDto>());
+            var packets = new List<IPacket>
+            {
+                Captured.Arrival(4),
+                new CMapPacket { Id = 4, IsEntering = true },
+                Captured.Portal(224, 103, 2110, PortalType.MapPortal),
+                Captured.Arrival(2104),
+                new CMapPacket { Id = 2110, IsEntering = true },
+                Captured.Portal(41, 43, 4, PortalType.MapPortal),
+            };
+
+            var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
+            await parser.InsertPortalsAsync(packets);
+
+            var way = _savedPortals.Single(p => p.SourceMapId == 4);
+            var back = _savedPortals.Single(p => p.SourceMapId == 2110);
+            Assert.AreEqual(((short)224, (short)103, (short)2110, (short)41, (short)43),
+                (way.SourceX, way.SourceY, way.DestinationMapId, way.DestinationX, way.DestinationY));
+            Assert.AreEqual(((short)41, (short)43, (short)4, (short)224, (short)103),
+                (back.SourceX, back.SourceY, back.DestinationMapId, back.DestinationX, back.DestinationY));
+            CollectionAssert.AreEqual(new[] { 7 }, deleted, "the portal stored before 2110 had its own map led to its grid");
         }
 
         [TestMethod]

@@ -248,7 +248,9 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateEquipment());
                 await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, spExperienceService, skillPointService));
                 await session.SendPacketAsync(character.GenerateStat());
-                await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music, newMapInstance.MapType));
+                // A map shown on another map's grid (a soulstone room) has the client load that grid, and the
+                // c_map below names the map itself.
+                await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.GridMapId ?? newMapInstance.Map.MapId, newMapInstance.Map.Music, newMapInstance.MapType));
                 await session.SendPacketAsync(character.GenerateCond());
                 // The map's broadcast below reaches only those already on it, so the arriving player gets their own.
                 await session.SendPacketAsync(titInfoPacket);

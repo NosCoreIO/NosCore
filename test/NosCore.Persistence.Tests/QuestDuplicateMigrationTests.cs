@@ -72,13 +72,16 @@ namespace NosCore.Persistence.Tests
         private async Task AQuestImportedThreeTimesWithProgressOnTwoCopies()
         {
             await using var context = _database.CreateContext();
-            // Quests and character quests are written by hand: the model has columns that later migrations add.
+            // Quests, character quests and maps are written by hand: the model has columns that later migrations add.
             await context.Database.ExecuteSqlAsync($"""
                 INSERT INTO "Quest" ("QuestId", "Title", "Desc", "AutoFinish", "IsDaily", "IsSecondary", "LevelMin", "LevelMax", "QuestLineId", "QuestType")
                 VALUES ({QuestId}, 'title', 'desc', false, false, false, 0, 0, 0, 0)
                 """);
+            await context.Database.ExecuteSqlAsync($"""
+                INSERT INTO "Map" ("MapId", "Arena", "Data", "Music", "Name", "ShopAllowed", "MapType")
+                VALUES (1, 0, '', 0, 'map', false, 1)
+                """);
             context.Add(new Account { AccountId = 1, Name = "account", Password = "password" });
-            context.Add(new Map { MapId = 1, Name = "map", Data = [] });
             context.Add(new Character { CharacterId = 1, AccountId = 1, MapId = 1, Name = "character" });
             context.Add(new QuestReward { QuestRewardId = 4 });
             foreach (var id in new[] { SecondCopy, Kept, FirstCopy })
