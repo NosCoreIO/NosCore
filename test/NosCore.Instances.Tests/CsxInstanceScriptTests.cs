@@ -208,6 +208,9 @@ namespace NosCore.Instances.Tests
             Calls.Add($"item({room},{vNum},{at.X},{at.Y})");
         }
 
+        public void Teleport(int room, Spot from, short radius, Spot to) =>
+            Calls.Add($"teleport({room},{from.X},{from.Y},{radius}->{to.X},{to.Y})");
+
         public void StartClock(TimeSpan limit) => Calls.Add($"clock({limit.TotalMinutes}m)");
 
         public void ShowCountdown(int room, TimeSpan length) => Calls.Add($"countdown({room},{length.TotalSeconds}s)");
@@ -716,35 +719,115 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
-        public async Task TheRaidOpensOnItsEntranceWithTheBossWaitingInTheSquare()
+        public async Task TheCubyRaidStartsInTheFieldWithElevenCubiesAndThreeLeversToOpenTheSquare()
         {
             var script = await LoadAsync("raid-mother-cuby");
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
 
+            Assert.AreEqual(77, script.Definition.StartX);
+            Assert.AreEqual(167, script.Definition.StartY);
+            CollectionAssert.AreEqual(new short[] { 2511, 2512 }, script.Definition.Rooms.Select(r => r.VNum).ToArray());
             CollectionAssert.AreEqual(new[]
             {
-                "clock(40m)",
-                "portal(1->2,open)",
-                "summon(2,282,283,283,283,283,283,283,283,283)",
-                "summon(2,167,167,167,167,167,167,167,167)",
-                "summon(2,168,168,168,168,168,168,168)",
-                "summon(2,169,169,169,169,169,169,169)",
-                "summon(2,170,170,170,170,170,170,170)"
+                new InstanceObjective(ObjectiveKind.KillMonster, 283, 11),
+                new InstanceObjective(ObjectiveKind.UseObject, 1135, 3)
+            }, script.Definition.Objectives.ToArray());
+            CollectionAssert.AreEqual(new[] { (1, 2, true), (2, 1, true) }, run.Portals);
+            CollectionAssert.Contains(run.Calls, "clock(40m)");
+            CollectionAssert.Contains(run.Calls, "monsterLocker(1,11,283)");
+            CollectionAssert.IsSubsetOf(new[]
+            {
+                "button(1,1,79,107,1135,1136,False)", "button(1,2,41,70,1135,1136,False)", "button(1,3,26,162,1135,1136,False)",
+                "button(1,4,86,15,1137,1138,False)", "button(1,5,109,139,1137,1138,False)"
             }, run.Calls);
+            Assert.AreEqual(11, run.Summoned.Count(m => m.VNum == 283));
+            Assert.AreEqual(2, run.Summoned.Count(m => m.VNum == 283 && m.OnHpBelow is { Count: 1 }));
+            CollectionAssert.Contains(run.Calls, "summon(2,282)");
+            CollectionAssert.Contains(run.Calls, "summon(2,167)");
         }
 
         [TestMethod]
-        public async Task OnlyTheBossFallingWinsTheRaid()
+        public async Task TheSquareOpensOnceTheCubiesAreDownAndTheThreeLeversPulled()
+        {
+            var script = await LoadAsync("raid-mother-cuby");
+            var run = new RecordingRun { LockerLeft = 0 };
+            script.OnFirstEnter(run);
+            run.Calls.Clear();
+
+            run.ButtonsOn.Add(1);
+            run.ButtonsOn.Add(2);
+            script.OnButtonUsed(run, 1, 2);
+            script.OnRoomCleared(run, 1);
+            run.ButtonsOn.Add(3);
+            run.LockerLeft = 1;
+            script.OnButtonUsed(run, 1, 3);
+            Assert.IsFalse(run.Calls.Contains("unlock(1->2)"), "a Cuby still standing keeps the square shut");
+
+            run.LockerLeft = 0;
+            script.OnRoomCleared(run, 1);
+
+            Assert.AreEqual(1, run.Calls.Count(c => c == "unlock(1->2)"));
+            Assert.AreEqual("message(ADoorHasOpened)", run.Calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task TheFirstAndLastLeversCallTheirMonsters()
+        {
+            var script = await LoadAsync("raid-mother-cuby");
+            var run = new RecordingRun { LockerLeft = 11 };
+
+            script.OnButtonUsed(run, 1, 1);
+            script.OnButtonUsed(run, 1, 2);
+            script.OnButtonUsed(run, 1, 3);
+
+            Assert.AreEqual(30, run.Summoned.Count(m => m.VNum == 37));
+            Assert.AreEqual(20, run.Summoned.Count(m => m.VNum == 100));
+            Assert.AreEqual(50, run.Summoned.Count);
+        }
+
+        [TestMethod]
+        [DataRow(4, "teleport(1,86,15,4->132,152)")]
+        [DataRow(5, "teleport(1,109,139,4->82,22)")]
+        public async Task ATeleportLeverMovesWhoeverPullsIt(int lever, string teleport)
+        {
+            var script = await LoadAsync("raid-mother-cuby");
+            var run = new RecordingRun { LockerLeft = 11 };
+
+            script.OnButtonUsed(run, 1, lever);
+
+            CollectionAssert.AreEqual(new[] { teleport }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task JellyWavesComeEveryTwentySecondsAfterTheFirstHalfMinuteInTheSquare()
+        {
+            var script = await LoadAsync("raid-mother-cuby");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromMinutes(5) };
+
+            script.OnRoomEntered(run, 1);
+            Assert.AreEqual(0, run.Scheduled.Count);
+            script.OnRoomEntered(run, 2);
+
+            var times = run.Scheduled.Select(s => s.At).OrderBy(t => t).ToList();
+            Assert.AreEqual(TimeSpan.FromSeconds(330), times[0]);
+            Assert.AreEqual(TimeSpan.FromSeconds(350), times[1]);
+            Assert.IsTrue(times[^1] < TimeSpan.FromMinutes(40));
+            run.Scheduled[0].Step(run);
+            Assert.AreEqual(32, run.Summoned.Count);
+        }
+
+        [TestMethod]
+        public async Task MotherCubyThrowsHerLootAsTheRaidIsWon()
         {
             var script = await LoadAsync("raid-mother-cuby");
             var run = new RecordingRun();
 
             script.OnMonsterKilled(run, 1, 283);
-            script.OnMonsterKilled(run, 1, 282);
+            script.OnMonsterKilled(run, 2, 282);
 
-            CollectionAssert.AreEqual(new[] { "succeed" }, run.Calls);
+            CollectionAssert.AreEqual(new[] { "throw(2,41)", "succeed" }, run.Calls);
         }
 
         [TestMethod]

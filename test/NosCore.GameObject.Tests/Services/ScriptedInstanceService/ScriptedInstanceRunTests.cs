@@ -1469,6 +1469,67 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 Task.CompletedTask;
         }
 
+        private sealed class SlowReturnHost : IInstanceRunHost
+        {
+            public List<long> Returned { get; } = [];
+
+            public string Name => "slow return";
+
+            public TimeSpan ReturnDelay => TimeSpan.FromSeconds(30);
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) => Task.CompletedTask;
+
+            public Task ReturnAsync(ClientSession session)
+            {
+                Returned.Add(session.Character.CharacterId);
+                return Task.CompletedTask;
+            }
+        }
+
+        [TestMethod]
+        public async Task TheHostSetsHowLongThePlayersStayAfterTheEndingAsync()
+        {
+            var host = new SlowReturnHost();
+            _host = host;
+            var run = Run(new Script { Enter = r => r.Succeed() });
+            var player = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(player, _first.MapInstanceId);
+            await run.StartAsync();
+
+            World.Clock.Advance(Duration.FromSeconds(29));
+            await run.TickAsync();
+            Assert.AreEqual(0, host.Returned.Count);
+
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await run.TickAsync();
+            CollectionAssert.AreEqual(new[] { player.Character.CharacterId }, host.Returned);
+        }
+
+        [TestMethod]
+        public async Task ATeleportMovesOnlyThePlayersWithinReachOfTheSpotAsync()
+        {
+            _first = World.GetBaseMap(TestWorld.TestMapId);
+            var run = Run(new Script());
+            var near = await World.CreateSessionAsync();
+            near.Character.PositionX = 1;
+            near.Character.PositionY = 1;
+            var far = await World.CreateSessionAsync();
+            far.Character.PositionX = 3;
+            far.Character.PositionY = 3;
+            await run.EnteredAsync(near, _first.MapInstanceId);
+            await run.EnteredAsync(far, _first.MapInstanceId);
+
+            run.Teleport(1, new Spot(0, 0), 1, new Spot(2, 0));
+            await run.TickAsync();
+
+            Assert.AreEqual(((short)2, (short)0), (near.Character.PositionX, near.Character.PositionY));
+            Assert.AreEqual(((short)3, (short)3), (far.Character.PositionX, far.Character.PositionY));
+        }
+
         [TestMethod]
         public async Task AnEscortJoinsThePlayerWhoComesNearAsync()
         {

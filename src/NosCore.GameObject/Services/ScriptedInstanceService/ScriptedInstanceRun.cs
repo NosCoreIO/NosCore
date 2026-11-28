@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Instances.Abstractions;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Instance;
@@ -45,7 +46,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class ScriptedInstanceRun : IInstanceRun
     {
-        private static readonly Duration ReturnDelay = Duration.FromSeconds(10);
         private static readonly Duration TimeoutReturnDelay = Duration.FromSeconds(120);
         private const int EscortReach = 4;
         private const int EscortJoinedEffect = 5004;
@@ -1165,6 +1165,27 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _pending.Add(() => OnRoom(mapInstance, () => _itemThrowService.PlaceAsync(mapInstance, at, vNum)));
         }
 
+        public void Teleport(int room, Spot from, short radius, Spot to)
+        {
+            var mapInstance = _rooms[room];
+            _pending.Add(() => OnRoom(mapInstance, async () =>
+            {
+                foreach (var player in PlayersOf(mapInstance)
+                    .Where(p => Math.Max(Math.Abs(p.PositionX - from.X), Math.Abs(p.PositionY - from.Y)) <= radius).ToList())
+                {
+                    await player.TeleportAsync(to.X, to.Y);
+                    var mates = player.Mates.Values.Where(m => m.IsTeamMember && m.Entity is { } entity && entity.MapInstance == mapInstance);
+                    foreach (var (mate, mateX, mateY) in MatePlacement.Arrange(to.X, to.Y, mapInstance.Map, mates.ToList()))
+                    {
+                        if (mate.Entity is { } entity)
+                        {
+                            await entity.TeleportAsync(mateX, mateY);
+                        }
+                    }
+                }
+            }));
+        }
+
         public Task DialogClosedAsync(long characterId) => RunAsync(() => CloseDialogAsync(characterId));
 
         private async Task CloseDialogAsync(long characterId)
@@ -1629,7 +1650,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _clockEndsAt = null;
             _clockPausedAt = null;
             _scheduled.Clear();
-            _returnAt = _clock.GetCurrentInstant().Plus(state == EndStateType.Timeout ? TimeoutReturnDelay : ReturnDelay);
+            _returnAt = _clock.GetCurrentInstant().Plus(state == EndStateType.Timeout ? TimeoutReturnDelay : Duration.FromTimeSpan(_host.ReturnDelay));
             foreach (var room in _rooms.Values)
             {
                 room.IsPvp = false;
@@ -1979,6 +2000,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void PlaceNpc(int room, short vNum, Spot at) => Do(() => run.PlaceNpc(room, vNum, at));
 
             public void PlaceItem(int room, short vNum, Spot at) => Do(() => run.PlaceItem(room, vNum, at));
+
+            public void Teleport(int room, Spot from, short radius, Spot to) => Do(() => run.Teleport(room, from, radius, to));
 
             public void StartClock(TimeSpan limit) => Do(() => run.StartClock(limit));
 

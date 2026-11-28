@@ -33,6 +33,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         Task ReturnAsync(ClientSession session);
 
+        // How long the players stay after any ending but a timeout before they are sent back.
+        TimeSpan ReturnDelay => TimeSpan.FromSeconds(10);
+
         // False when the host starts the script itself, for instance once a sign-up is over.
         bool StartsOnFirstEntry => true;
 

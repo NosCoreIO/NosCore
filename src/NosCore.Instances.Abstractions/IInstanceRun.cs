@@ -142,6 +142,9 @@ namespace NosCore.Instances.Abstractions
         // Lays one item on that cell for anyone to pick up.
         void PlaceItem(int room, short vNum, Spot at);
 
+        // Moves the players standing within radius of the spot, with their pets and partners, to a cell of the same room.
+        void Teleport(int room, Spot from, short radius, Spot to);
+
         void StartClock(TimeSpan limit);
 
         // Gives the run's clock more time, raising its limit by as much times ClockScale.
