@@ -789,6 +789,8 @@ namespace NosCore.GameObject.Services.RaidService
 
             public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
 
+            public TimeSpan ReturnDelay => TimeSpan.FromSeconds(30);
+
             public Task PlayerDownAsync(ScriptedInstanceRun run, PlayerComponentBundle player) =>
                 service.FellAsync(this, run, player);
 

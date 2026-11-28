@@ -4450,12 +4450,24 @@ confirms "Do you want to create the raid map?".
 - [ ] With only A and B, A starts: "too few raid members" appears and nobody moves
 - [ ] With D on another map, A starts: "all raid members should be on" appears
 - [ ] With E at level 20, A starts: "level does not match" appears
-- [ ] With A to E on A's map, A starts: all five land at the bottom of Jelly Entrance and a
-      40-minute clock appears; the portal at the top leads to Jelly Square, where Mother Cuby
-      waits in the middle among Cubys, with a pack of jellies in each corner
-- [ ] Killing a Cuby does nothing; killing Mother Cuby ends the raid: every member still inside
-      gets one Raid Box of Mother Cuby (4684) and a "received" line, the team is dissolved, and
-      about ten seconds later everyone is back on the map they started from
+- [ ] With A to E on A's map, A starts: all five land in the field (2511) at 77,167 and a
+      40-minute clock appears; eleven Cubies stand around the field, three levers at 79,107,
+      41,70 and 26,162, and the portal at 154,11 is shut
+- [ ] Pulling the lever at 79,107 brings 30 Piis around it, the one at 26,162 brings 20 Poisonous
+      Hamsters north of it, the one at 41,70 brings nothing
+- [ ] Pulling the lever at 86,15 moves whoever stands within 4 cells of it, with their pets, to
+      132,152; the one at 109,139 moves them to 82,22
+- [ ] Bringing the Cuby at 32,95 below half its HP calls 13 Wild Piis; the one at 108,6 calls
+      Soft Pii Pods and Soft Piis. Killing either outright calls nothing
+- [ ] Once the eleven Cubies are down and the three levers pulled (in any order), "A door has
+      opened" appears and the portal at 154,11 leads to the square (2512) at 26,40, where Mother
+      Cuby waits at 26,28. Its way back stays shut
+- [ ] 30 seconds after the first player enters the square, and every 20 seconds after that,
+      32 jellies come in around its corners
+- [ ] Killing Mother Cuby ends the raid: her loot (gold and items) is scattered around her, every
+      member still inside gets one Raid Box of Mother Cuby (4684) and a "received" line, the team
+      is dissolved, and about thirty seconds later everyone is back where they stood on the
+      map they started from
 - [ ] A member with a full inventory gets "Not enough space" instead of the box, and the others
       still get theirs
 - [ ] A member holding 998 of a reward that comes two at a time: the reward tops that stack up to
