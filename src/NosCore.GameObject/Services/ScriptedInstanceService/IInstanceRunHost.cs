@@ -65,6 +65,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         int RoomClearedPoints => 0;
 
+        // Whether the run counts the players' own hits on each monster, so the kill that wins it can rank them.
+        bool RanksDamage => false;
+
         Task NpcPlacedAsync(ScriptedInstanceRun run, MapInstance room, NpcComponentBundle npc) => Task.CompletedTask;
 
         Task CountdownAsync(ScriptedInstanceRun run, MapInstance room, TimeSpan length) =>
