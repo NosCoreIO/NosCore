@@ -326,9 +326,10 @@ namespace NosCore.GameObject.Services.RaidService
             }
 
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
-            foreach (var member in members)
+            for (var i = 0; i < members.Count; i++)
             {
-                await mapChangeService.ChangeMapInstanceAsync(member, firstRoom, definition.StartX, definition.StartY);
+                var start = definition.StartOf(i);
+                await mapChangeService.ChangeMapInstanceAsync(members[i], firstRoom, start.X, start.Y);
             }
 
             await run.StartAsync();

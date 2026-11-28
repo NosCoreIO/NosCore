@@ -960,6 +960,56 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public void SpawnTeamPortal(int room, Spot at, Spot arrival)
+        {
+            var mapInstance = _rooms[room];
+            var portal = new Portal
+            {
+                PortalId = ++_nextPortalId,
+                SourceMapId = mapInstance.Map.MapId,
+                SourceX = at.X,
+                SourceY = at.Y,
+                SourceMapInstanceId = mapInstance.MapInstanceId,
+                DestinationMapId = mapInstance.Map.MapId,
+                DestinationX = arrival.X,
+                DestinationY = arrival.Y,
+                DestinationMapInstanceId = mapInstance.MapInstanceId,
+                Type = PortalType.Raid
+            };
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                mapInstance.Portals.Add(portal);
+                return mapInstance.SendPacketAsync(portal.GenerateGp());
+            }));
+        }
+
+        // Runs on the room's own executor, from the packet of the player who stepped on the portal.
+        public async Task<bool> CarryRoomAsync(PlayerComponentBundle player)
+        {
+            var room = player.MapInstance;
+            if (RoomOf(room.MapInstanceId) == null || EndState != null
+                || room.Portals.FirstOrDefault(s => s.Type == PortalType.Raid
+                    && s.DestinationMapInstanceId == room.MapInstanceId
+                    && Math.Max(Math.Abs(s.SourceX - player.PositionX), Math.Abs(s.SourceY - player.PositionY)) <= 2) is not { } portal)
+            {
+                return false;
+            }
+
+            foreach (var carried in PlayersOf(room).ToList())
+            {
+                await carried.TeleportAsync(portal.DestinationX, portal.DestinationY);
+                foreach (var mate in carried.Mates.Values.Where(m => m.IsTeamMember))
+                {
+                    if (mate.Entity is { } entity && entity.MapInstance == room)
+                    {
+                        await entity.TeleportAsync(portal.DestinationX, portal.DestinationY);
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public void UnlockPortal(int fromRoom, int toRoom)
         {
             var from = _rooms[fromRoom];
@@ -1945,6 +1995,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
                 Do(() => run.SpawnPortal(fromRoom, at, toRoom, arrival, locked));
+
+            public void SpawnTeamPortal(int room, Spot at, Spot arrival) => Do(() => run.SpawnTeamPortal(room, at, arrival));
 
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
 

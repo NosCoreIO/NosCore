@@ -49,6 +49,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .ForTeams(2, 3)
                 .Requiring(Seal, 1)
                 .StartingAt(1, 1)
+                .AlsoStartingAt(3, 2)
                 .WithRoom(TestWorld.TestMapId, out _)
                 .WithReward(Box, BoxesWon)
                 .Build();
@@ -337,6 +338,18 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         }
 
         [TestMethod]
+        public async Task TheTeamIsDealtBetweenTheStartsInJoiningOrder()
+        {
+            await new Spec("Members start on the raid's start cells in turn, the leader on the first")
+                .GivenAsync(ATeamOf_Async, 3)
+                .WhenAsync(TheLeaderStartsAsync)
+                .Then(Player_StartsAt__, 0, 1, 1)
+                .And(Player_StartsAt__, 1, 3, 2)
+                .And(Player_StartsAt__, 2, 1, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task KillingTheBossRewardsEveryMember()
         {
             await new Spec("Killing the boss wins the raid and gives every member its box")
@@ -607,6 +620,9 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 Assert.AreEqual(room, player.Character.MapInstance.MapInstanceId);
             }
         }
+
+        private void Player_StartsAt__(int player, int x, int y) =>
+            Assert.AreEqual(((short)x, (short)y), (_players[player].Character.PositionX, _players[player].Character.PositionY));
 
         private void TheRaidEnded_(EndStateType state) => Assert.AreEqual(state, Run.EndState);
 

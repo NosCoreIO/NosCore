@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Movement
             var result = await movementService.UsePortalAsync(session);
             if (result == PortalResult.NoPortal)
             {
-                if (await scriptedInstanceService.UseExitAsync(session))
+                if (await scriptedInstanceService.UseExitAsync(session) || await scriptedInstanceService.UseTeamPortalAsync(session))
                 {
                     return;
                 }
