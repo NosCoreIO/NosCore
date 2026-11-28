@@ -45,12 +45,10 @@ namespace NosCore.GameObject.Services.InstantCombatService
     public class InstantCombatService(
         List<InstantCombatMonsterDto> monsters,
         List<InstantCombatDropDto> drops,
-        IMapInstanceRegistry mapInstanceRegistry,
         IMapChangeService mapChangeService,
         IScriptedInstanceService scriptedInstanceService,
         ISessionRegistry sessionRegistry,
         IItemGenerationService itemGenerationService,
-        IRandomProvider random,
         IInstantCombatRewardService rewardService,
         IFamilyContributionService familyContributionService,
         IOptions<WorldConfiguration> worldConfiguration,
@@ -80,6 +78,9 @@ namespace NosCore.GameObject.Services.InstantCombatService
         private static readonly TimeSpan SignUpReminder = TimeSpan.FromSeconds(7);
 
         private const byte InstantCombatSignUpClosed = 4;
+
+        // A whole room lands on a ten by ten square around the script's start cell.
+        public const short ArrivalSpread = 5;
 
         private int _running;
         private IInstanceScript? _script;
@@ -201,12 +202,13 @@ namespace NosCore.GameObject.Services.InstantCombatService
                     return;
                 }
 
-                var arena = run.Rooms[script.Definition.Rooms[0].Key];
-                var mapInstance = mapInstanceRegistry.GetById(arena);
+                var arenaKey = script.Definition.Rooms[0].Key;
+                var arena = run.Rooms[arenaKey];
+                var start = new Spot(script.Definition.StartX, script.Definition.StartY);
                 foreach (var player in room.Players)
                 {
-                    var (x, y) = mapInstance == null ? ((short)0, (short)0) : RandomCell(mapInstance);
-                    await mapChangeService.ChangeMapInstanceAsync(player, arena, x, y);
+                    var cell = run.RandomCell(arenaKey, start, ArrivalSpread);
+                    await mapChangeService.ChangeMapInstanceAsync(player, arena, cell.X, cell.Y);
                 }
             }
         }
@@ -246,10 +248,6 @@ namespace NosCore.GameObject.Services.InstantCombatService
         {
             foreach (var session in run.Players().ToList())
             {
-                await session.SendPacketAsync(new EventPacket
-                {
-                    Type = EventPacketType.ClearTimeSpaceUI,
-                });
                 await ReturnAsync(session);
                 await session.SendPacketAsync(new MsgiPacket
                 {
@@ -269,9 +267,12 @@ namespace NosCore.GameObject.Services.InstantCombatService
             }
         }
 
-        private Task ReturnAsync(ClientSession session) =>
-            mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX,
+        public async Task ReturnAsync(ClientSession session)
+        {
+            await session.SendPacketAsync(new EventPacket { Type = EventPacketType.ClearTimeSpaceUI });
+            await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX,
                 session.Character.MapY);
+        }
 
         private sealed class RoomHost(InstantCombatService service, byte levelMinimum) : IInstanceRunHost
         {
@@ -291,18 +292,13 @@ namespace NosCore.GameObject.Services.InstantCombatService
             public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
         }
 
-        private async Task RewardAsync(PlayerComponentBundle character)
+        public async Task RewardAsync(PlayerComponentBundle character)
         {
             var gold = rewardService.GetGold(character.Level);
             character.Gold = Math.Min(worldConfiguration.Value.MaxGoldAmount, character.Gold + gold);
             await character.SendPacketAsync(character.GenerateGold());
-            await character.SetReputationAsync(character.Reputation + rewardService.GetReputation(character.Level));
-            await character.SendPacketAsync(new MsgiPacket
-            {
-                Message = Game18NConstString.EarnedReputationAndReward,
-                ArgumentType = 4,
-                Game18NArguments = { gold },
-            });
+            var reputation = rewardService.GetReputation(character.Level);
+            await character.SetReputationAsync(character.Reputation + reputation);
             if (character.Family is { } family)
             {
                 await familyContributionService.InstantCombatWonAsync(family.FamilyId, character.CharacterId);
@@ -311,13 +307,15 @@ namespace NosCore.GameObject.Services.InstantCombatService
             var spPoints = rewardService.GetSpAdditionPoints(character.Level);
             character.AddAdditionalSpPoints(spPoints, worldConfiguration);
             await character.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
-            await character.SendPacketAsync(character.GenerateSayi(SayColorType.Green,
-                Game18NConstString.ReceiveSpecialistPoints, 4, spPoints));
-        }
-
-        private (short X, short Y) RandomCell(MapInstance mapInstance)
-        {
-            return mapInstance.Map.RandomWalkableCell(random, 100) ?? (0, 0);
+            foreach (var (message, amount) in new[]
+                     {
+                         (Game18NConstString.VictoryReceivedGold, gold),
+                         (Game18NConstString.VictoryReceivedFame, reputation),
+                         (Game18NConstString.VictoryReceivedAdditionalSP, (long)spPoints),
+                     })
+            {
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, message, 4, amount));
+            }
         }
 
         private static MsgiPacket Started => new() { Type = MessageType.Notification, Message = Game18NConstString.InstantCombatStarted };

@@ -2221,6 +2221,59 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(EndStateType.Success, run.EndState);
         }
 
+        private sealed class ReturningHost : IInstanceRunHost
+        {
+            public List<long> Returned { get; } = [];
+
+            public string Name => "test";
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) => Task.CompletedTask;
+
+            public Task ReturnAsync(NosCore.GameObject.Networking.ClientSession.ClientSession session)
+            {
+                Returned.Add(session.Character.CharacterId);
+                return Task.CompletedTask;
+            }
+        }
+
+        [TestMethod]
+        public async Task TheWayHomeOpensAfterTheWinAndSendsWhoeverStepsInBackAsync()
+        {
+            var host = new ReturningHost();
+            _host = host;
+            var session = await PlayerInFirstRoomAsync();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Succeed();
+                    r.SpawnWayOut(1, new Spot(3, 3));
+                }
+            });
+
+            await run.StartAsync();
+
+            Assert.AreEqual(EndStateType.Success, run.EndState);
+            var wayOut = _first.Portals.Single();
+            Assert.IsTrue(ScriptedInstanceRun.IsWayOut(wayOut));
+            PacketAssert.AreEqual(new GpPacket
+            {
+                SourceX = 3,
+                SourceY = 3,
+                MapId = ScriptedInstanceRun.WayOutMapId,
+                PortalType = PortalType.TsNormal,
+                PortalId = wayOut.PortalId,
+            }, _first.LastPackets.OfType<GpPacket>().Single());
+
+            await run.LeaveAsync(session);
+
+            CollectionAssert.AreEqual(new[] { session.Character.CharacterId }, host.Returned);
+        }
+
         [TestMethod]
         public async Task AnUnlockedExitIsTakenOffBeforeItIsShownOpenAsync()
         {

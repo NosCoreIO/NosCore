@@ -303,9 +303,21 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public async Task<bool> UseExitAsync(ClientSession session)
         {
             var character = session.Character;
-            if (character.MapInstance is not { } room || GetRun(room.MapInstanceId) is not { } run
-                || !room.Portals.Any(s => s.Type == PortalType.TsEnd
-                    && Math.Max(Math.Abs(s.SourceX - character.PositionX), Math.Abs(s.SourceY - character.PositionY)) <= 2))
+            if (character.MapInstance is not { } room || GetRun(room.MapInstanceId) is not { } run)
+            {
+                return false;
+            }
+
+            bool Near(Portal portal) =>
+                Math.Max(Math.Abs(portal.SourceX - character.PositionX), Math.Abs(portal.SourceY - character.PositionY)) <= 2;
+
+            if (room.Portals.Any(s => ScriptedInstanceRun.IsWayOut(s) && Near(s)))
+            {
+                await run.LeaveAsync(session);
+                return true;
+            }
+
+            if (!room.Portals.Any(s => s.Type == PortalType.TsEnd && Near(s)))
             {
                 return false;
             }

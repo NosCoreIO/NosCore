@@ -279,5 +279,68 @@ namespace NosCore.GameObject.Tests.Services.InstantCombatService
             PacketAssert.AreEqual(new EsfPacket { Value = 4 }, _absent.LastPackets.OfType<EsfPacket>().Single());
             Assert.IsFalse(_joiner.LastPackets.OfType<EsfPacket>().Any());
         }
+
+        private ClientSession _winner;
+        private long _goldBefore;
+        private long _reputationBefore;
+
+        [TestMethod]
+        public async Task AWinnerIsToldOfEachRewardOnItsOwnLine()
+        {
+            await new Spec("A level 90 winner gets 90000 gold, 4500 reputation and 9000 SP points, each told on its own yellow line")
+                .GivenAsync(AWinnerOfLevel_, (byte)90)
+                .WhenAsync(TheWinnerIsRewarded)
+                .Then(TheWinnerShouldHaveGained_GoldAnd_Reputation, 90000L, 4500L)
+                .And(TheWinnerShouldBeToldOf_Gold_FameAnd_SpPoints, 90000L, 4500L, 9000L)
+                .ExecuteAsync();
+        }
+
+        private async Task AWinnerOfLevel_(byte level)
+        {
+            _winner = await World.CreateSessionAsync();
+            _winner.Character.Level = level;
+            _goldBefore = _winner.Character.Gold;
+            _reputationBefore = _winner.Character.Reputation;
+        }
+
+        private Task TheWinnerIsRewarded() => World.Create<InstantCombat>().RewardAsync(_winner.Character);
+
+        private void TheWinnerShouldHaveGained_GoldAnd_Reputation(long gold, long reputation)
+        {
+            Assert.AreEqual(_goldBefore + gold, _winner.Character.Gold);
+            Assert.AreEqual(_reputationBefore + reputation, _winner.Character.Reputation);
+        }
+
+        private void TheWinnerShouldBeToldOf_Gold_FameAnd_SpPoints(long gold, long fame, long sp)
+        {
+            var lines = _winner.LastPackets.OfType<SayiPacket>().Where(p => p.Type == SayColorType.Yellow)
+                .Select(p => $"{p.Message} {p.ArgumentType} {p.Game18NArguments.First()}");
+            Assert.AreEqual(string.Join(" | ", new[]
+            {
+                $"{Game18NConstString.VictoryReceivedGold} 4 {gold}",
+                $"{Game18NConstString.VictoryReceivedFame} 4 {fame}",
+                $"{Game18NConstString.VictoryReceivedAdditionalSP} 4 {sp}",
+            }), string.Join(" | ", lines));
+            Assert.IsFalse(_winner.LastPackets.OfType<MsgiPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task LeavingClearsTheEventScreenBeforeTheWayBack()
+        {
+            await new Spec("A player sent back from the combat first has the event's screen cleared")
+                .GivenAsync(AWinnerOfLevel_, (byte)90)
+                .WhenAsync(TheWinnerIsSentBack)
+                .Then(TheFirstPacketShouldClearTheEventScreen)
+                .ExecuteAsync();
+        }
+
+        private Task TheWinnerIsSentBack()
+        {
+            _winner.LastPackets.Clear();
+            return World.Create<InstantCombat>().ReturnAsync(_winner);
+        }
+
+        private void TheFirstPacketShouldClearTheEventScreen() =>
+            PacketAssert.AreEqual(new EventPacket { Type = EventPacketType.ClearTimeSpaceUI }, _winner.LastPackets.First());
     }
 }

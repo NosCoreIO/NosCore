@@ -1031,6 +1031,35 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        // The way home is drawn as a plain portal to map 4998, which is no map of the client.
+        public const short WayOutMapId = 4998;
+
+        public void SpawnWayOut(int room, Spot at)
+        {
+            var mapInstance = _rooms[room];
+            var portal = new Portal
+            {
+                PortalId = ++_nextPortalId,
+                SourceMapId = mapInstance.Map.MapId,
+                SourceX = at.X,
+                SourceY = at.Y,
+                SourceMapInstanceId = mapInstance.MapInstanceId,
+                DestinationMapId = WayOutMapId,
+                Type = PortalType.TsNormal
+            };
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                mapInstance.Portals.Add(portal);
+                return mapInstance.SendPacketAsync(portal.GenerateGp());
+            }));
+        }
+
+        public static bool IsWayOut(Portal portal) =>
+            portal is { Type: PortalType.TsNormal, DestinationMapId: WayOutMapId } && portal.DestinationMapInstanceId == default;
+
+        // Sends a player who stepped into the way home back to where they came from.
+        public Task LeaveAsync(ClientSession session) => _host.ReturnAsync(session);
+
         public void SetMonsterLocker(int room, short count)
         {
             _lockers[room] = count;
@@ -1953,6 +1982,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public void SpawnExit(int room, Spot at, bool locked = true) => Do(() => run.SpawnExit(room, at, locked));
 
             public void UnlockExit(int room) => Do(() => run.UnlockExit(room));
+
+            public void SpawnWayOut(int room, Spot at) => Do(() => run.SpawnWayOut(room, at));
 
             public void SetMonsterLocker(int room, short count) => Do(() => run.SetMonsterLocker(room, count));
 

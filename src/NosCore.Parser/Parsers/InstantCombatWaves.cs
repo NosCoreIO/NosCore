@@ -9,8 +9,10 @@ using System.Collections.Generic;
 namespace NosCore.Parser.Parsers
 {
     // The client data has no Instant Combat table; these are the monsters each level bracket faces
-    // per wave (wave 4 brings the boss) and what each player receives before the next wave. Only
-    // the 70 bracket has been checked against a trace; the other prize amounts are unconfirmed.
+    // per wave (wave 4 brings the boss) and what each player receives before the next wave. The 70
+    // bracket and the 80 bracket's monsters have been checked against traces; the other prize amounts
+    // are unconfirmed. A trace shows the last monster of each wave twice, so counting its in lines gives
+    // one too many: the 16 and 14 of the unchecked brackets may be that.
     public static class InstantCombatWaves
     {
         public static readonly IReadOnlyList<(byte LevelMinimum, byte Wave, short NpcMonsterVNum, short Amount, bool IsMoving)> Monsters =
@@ -177,26 +179,26 @@ namespace NosCore.Parser.Parsers
             (80, 0, 1003, 15, false),
             (80, 0, 1002, 15, true),
             (80, 0, 1001, 15, true),
-            (80, 0, 1000, 16, true),
+            (80, 0, 1000, 15, true),
 
             (80, 1, 1199, 15, true),
             (80, 1, 1198, 15, true),
             (80, 1, 1197, 15, true),
             (80, 1, 1196, 15, true),
-            (80, 1, 1123, 16, true),
+            (80, 1, 1123, 15, true),
 
             (80, 2, 1305, 15, true),
             (80, 2, 1304, 15, true),
             (80, 2, 1303, 15, true),
             (80, 2, 1302, 15, true),
-            (80, 2, 1194, 16, true),
+            (80, 2, 1194, 15, true),
 
             (80, 3, 1902, 15, true),
             (80, 3, 1901, 15, true),
             (80, 3, 1900, 15, true),
             (80, 3, 1045, 15, true),
             (80, 3, 1043, 15, true),
-            (80, 3, 1042, 16, true),
+            (80, 3, 1042, 15, true),
 
             (80, 4, 637, 1, true),
             (80, 4, 1903, 13, true),

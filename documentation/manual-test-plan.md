@@ -4554,8 +4554,8 @@ countdown starts at :55). Use two characters on a base map.
       the world log; closing it with No leaves the character out of the fight
 - [ ] The character that has not answered sees "An Instant Combat has started" again about every
       7 seconds while the sign-up is open; the one that said yes does not
-- [ ] After 30 seconds whoever said yes is moved to the Instant Combat map; whoever did not has
-      the question removed
+- [ ] After 30 seconds whoever said yes is moved to the Instant Combat map, landing within five
+      cells of 42,33; whoever did not has the question removed
 - [ ] Characters of level 45 and 85 land in different rooms, each fighting its own bracket's
       monsters
 - [ ] About 10 and 3 seconds before the first wave "A horde of monsters is slowly approaching..."
@@ -4576,9 +4576,12 @@ countdown starts at :55). Use two characters on a base map.
       before the end; no timer bar is shown
 - [ ] Killed monsters do not come back
 - [ ] Dying sends the character back where they came from with 1 HP, without the revive question
-- [ ] Clearing the last wave once it is out shows "You have won the Instant Combat",
-      and gives level x 50 reputation, level x 1000 gold and level x 100 SP points
-- [ ] Ten seconds later everyone is back where they came from
+- [ ] Clearing the last wave once it is out gives level x 1000 gold, level x 50 reputation and
+      level x 100 SP points, each told on its own yellow line ("... Gold received as reward for
+      victory." and so on), then a portal opens at 47,33 and "You have won the Instant Combat"
+      shows; nothing says when the players will be sent back
+- [ ] Stepping into that portal sends the character back where they came from at once
+- [ ] Ten seconds after the win everyone still in the room is back where they came from
 - [ ] Not clearing it within 15 minutes of the first wave sends everyone straight back to where
       they signed up, then shows "Instant Combat is over." with "Time limit exceeded!", and
       gives nothing more
