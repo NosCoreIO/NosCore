@@ -14,6 +14,7 @@ namespace NosCore.Instances.Abstractions
     internal sealed class RoomHandle(TimeSpaceScript script, int key) : IRoom
     {
         private readonly Dictionary<int, Action<RoomEvent>> _dialogsClosed = [];
+        private readonly Dictionary<int, Action<RoomEvent>> _kills = [];
         private readonly Dictionary<short, Action<RoomEvent>> _itemsCollected = [];
         private readonly List<(TimeSpan Interval, TimeSpan From, int? Times, Action<RoomEvent> Step)> _waves = [];
         private readonly List<Action<IInstanceRun>> _buttons = [];
@@ -116,6 +117,13 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        public IRoom OnKills(int kills, Action<RoomEvent> step)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(kills, 1);
+            _kills[kills] = _kills.GetValueOrDefault(kills) + step;
+            return this;
+        }
+
         public IRoom OnDialogClosed(int dialog, Action<RoomEvent> step)
         {
             _dialogsClosed[dialog] = _dialogsClosed.GetValueOrDefault(dialog) + step;
@@ -157,6 +165,9 @@ namespace NosCore.Instances.Abstractions
 
         internal void OnCleared(Action<IInstanceRun> step) => _clearedForRun += step;
 
+        internal void MonsterKilled(IInstanceRun run) =>
+            _kills.GetValueOrDefault(run.KillsIn(Key))?.Invoke(new RoomEvent(run, this));
+
         internal void DialogClosed(IInstanceRun run, int dialog) =>
             _dialogsClosed.GetValueOrDefault(dialog)?.Invoke(new RoomEvent(run, this));
 
@@ -171,7 +182,8 @@ namespace NosCore.Instances.Abstractions
             }
         }
 
-        internal void ExitReached(IInstanceRun run) => _exit?.Reached(new RoomEvent(run, this));
+        // False when the exit waits for its talk to be closed before the run is won.
+        internal bool ExitReached(IInstanceRun run) => _exit?.Reached(new RoomEvent(run, this)) ?? true;
 
         internal void Summon(IInstanceRun run, IMonster[] monsters) => SummonAll(run, MonsterSpec.All(monsters));
 
@@ -304,6 +316,7 @@ namespace NosCore.Instances.Abstractions
     internal sealed class ExitHandle(RoomHandle room) : IExit
     {
         private Action<RoomEvent>? _reached;
+        private int? _dialog;
 
         public RoomHandle Room => room;
 
@@ -316,6 +329,28 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
-        internal void Reached(RoomEvent room) => _reached?.Invoke(room);
+        public IExit WinsAfterDialog(int dialog)
+        {
+            if (_dialog != null)
+            {
+                throw new InvalidOperationException($"The exit of room {room.Key} already waits for a talk.");
+            }
+
+            _dialog = dialog;
+            room.OnDialogClosed(dialog, closed => closed.Succeed());
+            return this;
+        }
+
+        internal bool Reached(RoomEvent reached)
+        {
+            _reached?.Invoke(reached);
+            if (_dialog is not { } dialog)
+            {
+                return true;
+            }
+
+            reached.Dialog(dialog);
+            return false;
+        }
     }
 }

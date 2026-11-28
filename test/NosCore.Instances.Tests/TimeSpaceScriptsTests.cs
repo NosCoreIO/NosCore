@@ -116,6 +116,10 @@ namespace NosCore.Instances.Tests
         [DataRow("timespace-38")]
         [DataRow("timespace-44")]
         [DataRow("timespace-46")]
+        [DataRow("timespace-404")]
+        [DataRow("timespace-405")]
+        [DataRow("timespace-406")]
+        [DataRow("timespace-407")]
         [DataRow("timespace-518")]
         [DataRow("timespace-628")]
         public async Task EnteringTheFirstRoomStartsTheMission(string name)
@@ -294,6 +298,84 @@ namespace NosCore.Instances.Tests
             CollectionAssert.AreEqual(new[] { $"dismiss({heart})", $"stopRoomClock({heart})" }, run.Calls.TakeLast(2).ToList());
         }
 
+        [TestMethod]
+        [DataRow("timespace-404", 57, 11856)]
+        [DataRow("timespace-405", 72, 14976)]
+        [DataRow("timespace-406", 90, 18720)]
+        [DataRow("timespace-407", 74, 15392)]
+        public async Task TheDarkAvengerTimeSpacesPayTheirCapturedGoldAndReputation(string name, int kills, int gold)
+        {
+            var script = await LoadAsync(name);
+
+            Assert.AreEqual(gold, script.Definition.GoldFor(kills));
+            Assert.AreEqual(1950, script.Definition.Reputation);
+            Assert.AreEqual(65, script.Definition.LevelMinimum);
+        }
+
+        [TestMethod]
+        [DataRow("timespace-404", 7324)]
+        [DataRow("timespace-405", 7329)]
+        [DataRow("timespace-406", 7334)]
+        [DataRow("timespace-407", 7338)]
+        public async Task TheDarkAvengerExitsWinOnlyOnceTheirLastTalkIsClosed(string name, int dialog)
+        {
+            var script = await LoadAsync(name);
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+            var exitRoom = script.Definition.Rooms[^1].Key;
+
+            script.OnExitReached(run, exitRoom);
+            var wonAtOnce = run.Calls.Contains("succeed");
+            script.OnDialogClosed(run, exitRoom, dialog);
+
+            Assert.IsFalse(wonAtOnce);
+            CollectionAssert.Contains(run.Calls, "message(PleaseWait)");
+            CollectionAssert.Contains(run.Calls, $"dialog({exitRoom},{dialog})");
+            Assert.AreEqual("succeed", run.Calls[^1]);
+        }
+
+        [TestMethod]
+        public async Task TheHermitsFirstHoldoutSendsSixWavesThenLetsThePartyThrough()
+        {
+            var script = await LoadAsync("timespace-405");
+            var run = new RecordingRun { Players = 1 };
+            script.OnFirstEnter(run);
+            const int holdout = 2;
+            var before = run.Summoned.Count;
+
+            script.OnRoomEntered(run, holdout);
+            RunTimers(run);
+
+            Assert.AreEqual(6, run.Calls.Count(c => c == "message(EnemiesReinforcements)"));
+            Assert.AreEqual(16, run.Summoned.Count - before);
+            CollectionAssert.IsSubsetOf(new[] { (holdout, 1), (holdout, 3) }, run.Unlocked.ToList());
+            Assert.IsTrue(run.Calls.IndexOf($"dismiss({holdout})") > run.Calls.IndexOf($"unlock({holdout}->3)"));
+        }
+
+        [TestMethod]
+        public async Task AGateOfEchekaruelBringsFollowersOnItsThirdAndFifthKills()
+        {
+            var script = await LoadAsync("timespace-407");
+            var run = new RecordingRun();
+            script.OnFirstEnter(run);
+            const int gate = 3;
+            var waves = new List<int>();
+
+            for (var kill = 1; kill <= 13; kill++)
+            {
+                var before = run.Summoned.Count;
+                run.Kills[gate] = kill;
+                script.OnMonsterKilled(run, gate, 520);
+                if (run.Summoned.Count > before)
+                {
+                    waves.Add(kill);
+                }
+            }
+
+            CollectionAssert.AreEqual(new[] { 3, 5 }, waves);
+            CollectionAssert.Contains(run.Calls, $"summon({gate},520,477,520,477)");
+        }
+
         private static void RunTimers(RecordingRun run)
         {
             while (run.Scheduled.Count > 0)
@@ -313,7 +395,12 @@ namespace NosCore.Instances.Tests
             var run = new RecordingRun();
 
             script.OnFirstEnter(run);
-            script.OnExitReached(run, script.Definition.Rooms[^1].Key);
+            var exitRoom = script.Definition.Rooms[^1].Key;
+            script.OnExitReached(run, exitRoom);
+            foreach (var (room, dialog) in run.Dialogs.Where(d => d.Room == exitRoom).ToList())
+            {
+                script.OnDialogClosed(run, room, dialog);
+            }
 
             Assert.AreEqual("succeed", run.Calls[^1]);
         }

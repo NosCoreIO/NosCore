@@ -81,6 +81,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly HashSet<long> _showingObjective = [];
         private readonly HashSet<long> _shownRoomMap = [];
         private readonly Dictionary<int, int> _aliveByRoom = [];
+        private readonly Dictionary<int, int> _killedByRoom = [];
         private readonly HashSet<long> _down = [];
         private readonly Dictionary<long, (int Room, int Dialog)> _openDialogs = [];
         private readonly HashSet<(int Room, int Dialog)> _closedDialogs = [];
@@ -207,6 +208,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 MonstersKilled++;
+                _killedByRoom[room.Value] = _killedByRoom.GetValueOrDefault(room.Value) + 1;
                 Advance(ObjectiveKind.KillMonster, vNum);
                 _chain = isBonus && killerLevel != null ? _chain + 1 : 0;
                 if (EndState == null && killerLevel is { } level && _npcMonsters.GetNpcMonster(vNum) is { } killed)
@@ -678,6 +680,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public bool WasCleared(int room) => _cleared.Contains(room);
 
         public int PlayersIn(int room) => PlayersOf(_rooms[room]).Count();
+
+        public int KillsIn(int room) => _killedByRoom.GetValueOrDefault(room);
 
         public bool OneSideStanding(int room)
         {
@@ -1928,6 +1932,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             public bool WasCleared(int room) => run.WasCleared(room);
 
             public int PlayersIn(int room) => run.PlayersIn(room);
+
+            public int KillsIn(int room) => run.KillsIn(room);
 
             public bool OneSideStanding(int room) => run.OneSideStanding(room);
 

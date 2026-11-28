@@ -440,6 +440,27 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task EachRoomCountsItsOwnKillsBeforeTheScriptHearsOfThemAsync()
+        {
+            var counted = new List<int>();
+            var run = Run(new KillCountingScript(counted));
+            await run.StartAsync();
+
+            await run.MonsterKilledAsync(_first.MapInstanceId, Grunt);
+            await run.MonsterKilledAsync(_second.MapInstanceId, Grunt);
+            await run.MonsterKilledAsync(_first.MapInstanceId, Boss);
+
+            CollectionAssert.AreEqual(new[] { 1, 1, 2 }, counted);
+            Assert.AreEqual(2, run.KillsIn(1));
+            Assert.AreEqual(1, run.KillsIn(2));
+        }
+
+        private sealed class KillCountingScript(List<int> counted) : InstanceScript
+        {
+            public override void OnMonsterKilled(IInstanceRun run, int room, short vNum) => counted.Add(run.KillsIn(room));
+        }
+
+        [TestMethod]
         public async Task AKillInAnotherRoomDoesNotOpenThisOneAsync()
         {
             var script = new Script { Enter = r => r.SetMonsterLocker(1, 1) };

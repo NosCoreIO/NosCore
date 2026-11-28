@@ -49,6 +49,10 @@ namespace NosCore.Instances.Tests
 
         public int PlayersIn(int room) => Players;
 
+        public Dictionary<int, int> Kills { get; } = [];
+
+        public int KillsIn(int room) => Kills.GetValueOrDefault(room);
+
         public bool OneSideStanding(int room) => Decided;
 
         public void SetPvp(int room, bool isPvp) => Calls.Add($"pvp({room},{isPvp})");
