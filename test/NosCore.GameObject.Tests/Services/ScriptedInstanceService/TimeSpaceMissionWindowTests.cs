@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         private const short Boss = 109;
         private const short Seal = 1048;
         private const short Artifact = 1059;
+        private const short Talk = 7119;
 
         private TestWorld World;
         private ClientSession _session;
@@ -53,6 +54,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             public bool WonByPickUp { get; init; }
 
+            public bool OpensTheTalk { get; init; }
+
             public override void OnItemCollected(IInstanceRun run, int room, short vNum)
             {
                 if (WonByPickUp)
@@ -67,6 +70,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 if (_withExit)
                 {
                     run.SpawnExit(1, new Spot(2, 2));
+                }
+
+                if (OpensTheTalk)
+                {
+                    run.Dialog(1, Talk);
                 }
             }
         }
@@ -171,6 +179,44 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task EnteringShowsTheTalkStillToHave()
+        {
+            await new Spec("Entering a time-space whose goal is a talk shows the talk counter at zero beside the way out")
+                .Given(ATimeSpaceWith_LivesAndATalkToHave, (byte)3)
+                .WhenAsync(ThePlayerEnters)
+                .Then(ThePlayerShouldBeShown_, new MinfoPacket
+                {
+                    GoToExit = true,
+                    Conversation = new MinfoConversationSubPacket { Had = 0, Total = 1 },
+                    MaxLives = 3
+                })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClosingTheTalkToHaveMovesItsCounter()
+        {
+            await new Spec("Closing the talk an objective counts shows it had to the run")
+                .Given(ATimeSpaceWith_LivesAndATalkToHave, (byte)3)
+                .AndAsync(ThePlayerEnters)
+                .WhenAsync(TheTalkIsClosed)
+                .Then(TheRunShouldBeShown_, new MinfoPacket
+                {
+                    GoToExit = true,
+                    Conversation = new MinfoConversationSubPacket { Had = 1, Total = 1 },
+                    MaxLives = 3
+                })
+                .ExecuteAsync();
+        }
+
+        private void ATimeSpaceWith_LivesAndATalkToHave(byte lives) =>
+            ATimeSpace(InstanceDefinitionBuilder.Named(1, "timespace", "timespace").WithLives(lives)
+                .WithObjective(ObjectiveKind.Conversation, Talk, 1)
+                .Build(), true, opensTheTalk: true);
+
+        private Task TheTalkIsClosed() => _run.DialogClosedAsync(_session.Character.CharacterId);
+
         private void ATimeSpaceWith_LivesAndAnExit(byte lives) =>
             ATimeSpace(InstanceDefinitionBuilder.Named(1, "timespace", "timespace").WithLives(lives).Build(), true);
 
@@ -192,7 +238,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private Task TheArtifactIsPickedUp() => _run.ItemCollectedAsync(_room.MapInstanceId, Artifact, 1);
 
-        private void ATimeSpace(ScriptedInstanceDefinition definition, bool withExit, bool wonByPickUp = false)
+        private void ATimeSpace(ScriptedInstanceDefinition definition, bool withExit, bool wonByPickUp = false,
+            bool opensTheTalk = false)
         {
             _room = World.MapInstanceGeneratorService.CreateMapInstance(
                 new GameObject.Map.Map
@@ -202,7 +249,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
             _room.Sessions = _roomSessions.Object;
-            var script = new Script(definition, withExit) { WonByPickUp = wonByPickUp };
+            var script = new Script(definition, withExit) { WonByPickUp = wonByPickUp, OpensTheTalk = opensTheTalk };
             _run = new ScriptedInstanceRun(
                 World.CreateTimeSpaceRunHost(new GameObject.Services.ScriptedInstanceService.ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, Logic = script }),
                 script,
