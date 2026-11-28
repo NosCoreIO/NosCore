@@ -785,7 +785,7 @@ namespace NosCore.GameObject.Services.RainbowBattleService
                 Members = Players(team).Select(p => (FblstSubPacket?)new FblstSubPacket
                 {
                     Level = p.Level,
-                    Morph = p.UseSp ? p.Morph : -1,
+                    Morph = p.UseSp ? p.Morph : null,
                     Class = p.Class,
                     Kills = p.RainbowBattleKills,
                     Name = p.Name,

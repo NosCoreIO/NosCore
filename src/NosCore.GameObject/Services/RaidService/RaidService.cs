@@ -662,8 +662,8 @@ namespace NosCore.GameObject.Services.RaidService
             return BroadcastAsync(team, packet);
         }
 
-        private static short Morph(PlayerComponentBundle player) =>
-            player.UseSp || player.IsVehicled ? (short)player.Morph : (short)-1;
+        private static short? Morph(PlayerComponentBundle player) =>
+            player.UseSp || player.IsVehicled ? player.Morph : null;
 
         private IEnumerable<ClientSession> Sessions(Group team) =>
             team.MembersInJoiningOrder.Where(s => s.VisualType == VisualType.Player)

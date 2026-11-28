@@ -167,7 +167,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             await _service.UnloadSpecialistSkillsAsync(_session.Character);
 
-            PacketAssert.AreEqual(new QsetClientSubPacket { Type = QSetType.Reset, OriginQuickList = -1, OriginQuickListSlot = -1 },
+            PacketAssert.AreEqual(new QsetClientSubPacket { Type = QSetType.Reset },
                 QuickBarSlot(1, 2));
         }
 

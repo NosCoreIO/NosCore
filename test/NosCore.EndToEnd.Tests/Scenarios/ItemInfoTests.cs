@@ -50,7 +50,6 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 ItemVNum = WorldData.CostumeHat,
                 TradeRestriction = TradeRestriction.NotTradable,
-                RemainingHours = -1,
             }, await alice.ExpectSinceAsync<EInfoCostumeHatPacket>(asked, null, "the costume hat's window"));
         }
 
@@ -66,7 +65,6 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             {
                 ItemVNum = WorldData.CostumeHat,
                 TradeRestriction = TradeRestriction.NotTradable,
-                RemainingHours = -1,
             }, await alice.ExpectSinceAsync<EInfoCostumeHatPacket>(asked, null, "the costume hat's window"));
         }
 

@@ -230,7 +230,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.NotEnoughMpForSpell,
             }, sayi);
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 1, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 1 },
                 sent.OfType<CancelPacket>().Single());
             Assert.IsTrue(sent.IndexOf(sayi) < sent.FindIndex(p => p is CancelPacket));
         }
@@ -711,11 +711,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         private void TheCastShouldBeCancelled() =>
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelCast, TargetId = 1, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelCast, TargetId = 1 },
                 Session.LastPackets.OfType<CancelPacket>().Single());
 
         private void TheAutoAttackShouldBeStopped() =>
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 1, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 1 },
                 Session.LastPackets.OfType<CancelPacket>().Single());
 
         private void NoPacketShouldBeSent()

@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private void TheCastShouldBeRefused() => Assert.IsFalse(_accepted);
 
         private void TheCancelShouldBe_(CancelPacketType type) =>
-            PacketAssert.AreEqual(new CancelPacket { Type = type, TargetId = CastId, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = type, TargetId = CastId },
                 _caster.LastPackets.OfType<CancelPacket>().Single());
     }
 }

@@ -166,7 +166,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .SelectMany(mate => new short?[] { mate.Skin, mate.VNum })
                     .Take(PetListLength)
                     .ToList();
-                petlist.AddRange(Enumerable.Repeat<short?>(-1, PetListLength - petlist.Count));
+                petlist.AddRange(Enumerable.Repeat<short?>(null, PetListLength - petlist.Count));
 
                 // 1 1 before long string of -1.-1 = act completion
                 await clientSession.SendPacketAsync(new ClistPacket

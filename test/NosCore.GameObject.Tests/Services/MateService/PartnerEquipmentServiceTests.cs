@@ -95,7 +95,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment));
             var scn = _session.LastPackets.OfType<ScnPacket>().Single();
             Assert.AreEqual(PartnerWeapon, scn.WeaponInstanceDetails.NotNull().ItemId);
-            Assert.AreEqual(-1, scn.ArmorInstanceDetails.NotNull().ItemId);
+            Assert.IsNull(scn.ArmorInstanceDetails);
         }
 
         [TestMethod]
@@ -169,7 +169,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             Assert.IsNull(Worn(EquipmentType.MainWeapon));
             Assert.AreEqual(PartnerWeapon,
                 _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance.ItemVNum);
-            Assert.AreEqual(-1, _session.LastPackets.OfType<ScnPacket>().Last().WeaponInstanceDetails.NotNull().ItemId);
+            Assert.IsNull(_session.LastPackets.OfType<ScnPacket>().Last().WeaponInstanceDetails);
         }
 
         [TestMethod]

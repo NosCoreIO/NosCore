@@ -336,7 +336,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         private void TheCastShouldBeCancelledWithTheSkill() =>
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = CaptureSkill.SkillVnum, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = CaptureSkill.SkillVnum },
                 Session.LastPackets.OfType<CancelPacket>().Single());
 
         private void TheMonsterShouldLeaveWithoutTheCatchAnimation()

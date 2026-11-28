@@ -496,7 +496,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .Given(Npc_OffersChapter_FromLevel_, (short)331, (byte)2, (byte)19)
                 .And(CharacterIsOnTheLastStepOfChapterOne)
                 .WhenAsync(TakingChapter_FromNpc_, (byte)2, (short)331)
-                .Then(TheQuestNpcShouldBe_OnMap_AtLevel_, (short)-1, (short)1, (short)19)
+                .Then(TheQuestNpcShouldBeCleared_OnMap_AtLevel_, (short)1, (short)19)
                 .ExecuteAsync();
         }
 
@@ -1342,7 +1342,13 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
         private Task TheScriptRuns() => Service.RunScriptAsync(Session.Character);
 
-        private void TheQuestNpcShouldBe_OnMap_AtLevel_(short npcVNum, short mapId, short level)
+        private void TheQuestNpcShouldBe_OnMap_AtLevel_(short npcVNum, short mapId, short level) =>
+            TheQuestNpcShouldShow(npcVNum, mapId, level);
+
+        private void TheQuestNpcShouldBeCleared_OnMap_AtLevel_(short mapId, short level) =>
+            TheQuestNpcShouldShow(null, mapId, level);
+
+        private void TheQuestNpcShouldShow(short? npcVNum, short mapId, short level)
         {
             var groups = new List<QnpcSubPacket> { new() { Unknown0 = npcVNum, Unknown1 = mapId, Unknown2 = level } };
             groups.AddRange(Enumerable.Range(0, 9).Select(_ => new QnpcSubPacket()));

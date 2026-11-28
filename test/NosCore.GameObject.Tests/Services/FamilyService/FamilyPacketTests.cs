@@ -140,7 +140,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
             var packet = _session.Character.GenerateCInfo(World.GameLanguageLocalizer);
 
-            Assert.AreEqual((-1, (Game18NConstString?)null, (string?)null),
+            Assert.AreEqual(((long?)null, (Game18NConstString?)null, (string?)null),
                 (packet.FamilyId, packet.FamilyRank, packet.FamilyName));
         }
 

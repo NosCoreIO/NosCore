@@ -358,7 +358,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         private static int Percent(int current, int maximum, int whenUnknown) =>
             maximum > 0 ? (int)(current / (float)maximum * 100) : whenUnknown;
 
-        private static ScnPacket.ScEquipmentDetails Gear(this Mate mate, IInventoryService inventory, EquipmentType slot)
+        private static ScnPacket.ScEquipmentDetails? Gear(this Mate mate, IInventoryService inventory, EquipmentType slot)
         {
             var pocket = mate.EquipmentPocket();
             var worn = pocket == null ? null : inventory.LoadBySlotAndType(slot, pocket.Value)?.ItemInstance;
@@ -369,7 +369,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                     ItemRare = wearable.Rare,
                     ItemUpgrade = wearable.Upgrade
                 }
-                : new ScnPacket.ScEquipmentDetails { ItemId = -1 };
+                : null;
         }
     }
 }

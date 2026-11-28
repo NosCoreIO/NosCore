@@ -396,7 +396,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 }
 
                 var size = TeamOf(registrant).Count;
-                await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Update, -1,
+                await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Update, null,
                     size == TalentArenaTeams.TeamSize ? BsInfoText.NoOpposingTeamFound : BsInfoText.NoTeammatesFound));
                 registrant.Next = size == TalentArenaTeams.TeamSize ? BsInfoText.SearchOpposingTeam
                     : size == 1 ? BsInfoText.SearchTeammates : BsInfoText.SearchTeammatesAgain;
@@ -433,7 +433,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 {
                     member.Next = merged.Count == TalentArenaTeams.TeamSize ? BsInfoText.SearchOpposingTeam
                         : BsInfoText.SearchTeammatesAgain;
-                    await SendAsync(member, Search(ArenaKind.Talents, BsInfoMode.Update, -1, BsInfoText.TeammatesFound));
+                    await SendAsync(member, Search(ArenaKind.Talents, BsInfoMode.Update, null, BsInfoText.TeammatesFound));
                 }
             }
         }
@@ -457,7 +457,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
                 foreach (var registrant in zenas.Concat(erenia))
                 {
                     _registrants.Remove(registrant);
-                    await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Update, -1, BsInfoText.OpposingTeamFound));
+                    await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Update, null, BsInfoText.OpposingTeamFound));
                     await SendAsync(registrant, Search(registrant.Kind, BsInfoMode.Close, 0, BsInfoText.WaitForEntry));
                 }
 
@@ -654,7 +654,7 @@ namespace NosCore.GameObject.Services.TalentArenaService
         private List<TalentArenaEntrant> Entrants(IEnumerable<Registrant> team) =>
             team.Select(r => new TalentArenaEntrant(r.CharacterId, Session(r.CharacterId)?.Character.Level ?? 0)).ToList();
 
-        private static BSInfoPacket Search(ArenaKind kind, BsInfoMode mode, short seconds, BsInfoText text) => new()
+        private static BSInfoPacket Search(ArenaKind kind, BsInfoMode mode, short? seconds, BsInfoText text) => new()
         {
             Mode = mode,
             Title = kind == ArenaKind.Masters ? BscPacketType.ArenaOfMasters : BscPacketType.TalentArena,

@@ -141,7 +141,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             CollectionAssert.AreEqual(new long[] { 12, 10, 5, 4, 3, 2, 1 }, client.Since<MsgiPacket>(beforePrize)
                 .Where(p => p.Message == Game18NConstString.BattleEndInMinutes)
                 .Select(p => Convert.ToInt64(p.Game18NArguments.First())).ToArray(), "the minutes left");
-            PacketAssert.AreEqual(new ServerEventPacket { Type = EventPacketType.ClearTimeSpaceUI, Parameter = -1, SecondParameter = -1 },
+            PacketAssert.AreEqual(new ServerEventPacket { Type = EventPacketType.ClearTimeSpaceUI },
                 await client.ExpectSinceAsync<ServerEventPacket>(beforeEnd, p => p.Type == EventPacketType.ClearTimeSpaceUI));
             var back = await client.ExpectSinceAsync<AtPacket>(beforeEnd, p => p.MapId == WorldData.Town, "back in town");
             Assert.AreEqual((signedUpAt.PositionX, signedUpAt.PositionY), (back.PositionX, back.PositionY), "where the player signed up");

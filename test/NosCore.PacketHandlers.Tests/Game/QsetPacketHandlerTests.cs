@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.AreEqual(2, lastpacket?.OriginQuickListSlot ?? 0);
             Assert.AreEqual(0, lastpacket?.Data?.Data ?? 0);
             Assert.AreEqual(7, lastpacket?.Data?.OriginQuickList ?? 0);
-            Assert.AreEqual(-1, lastpacket?.Data?.OriginQuickListSlot ?? 0);
+            Assert.IsNull(lastpacket?.Data?.OriginQuickListSlot);
         }
 
         private void BothQuicklistEntriesShouldExist()

@@ -40,7 +40,7 @@ public static class QuestPackets
     {
         SubPackets =
         [
-            new QnpcSubPacket { Unknown0 = taken ? (short)-1 : offer.NpcVNum, Unknown1 = offer.MapId, Unknown2 = offer.LevelMinimum },
+            new QnpcSubPacket { Unknown0 = taken ? null : offer.NpcVNum, Unknown1 = offer.MapId, Unknown2 = offer.LevelMinimum },
             .. Enumerable.Range(1, QnpcGroups - 1).Select(_ => new QnpcSubPacket()),
         ],
     };

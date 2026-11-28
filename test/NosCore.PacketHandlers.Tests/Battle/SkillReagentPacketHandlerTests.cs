@@ -164,7 +164,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             Assert.IsFalse(_session.LastPackets.OfType<SayiPacket>().Any(p => p.Message == Game18NConstString.MissingItemForSkill));
 
         private void ACancelShouldBeSent() =>
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = CastId, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = CastId },
                 _session.LastPackets.OfType<CancelPacket>().Single());
 
         private void TheBattleServiceShouldBeCalled() =>

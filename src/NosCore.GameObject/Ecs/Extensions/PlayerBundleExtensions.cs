@@ -343,7 +343,7 @@ public static class PlayerBundleExtensions
                     Mp = player.MaxMp > 0 ? (int)(player.Mp / (float)player.MaxMp * 100) : 100
                 },
                 IsSitting = player.IsSitting,
-                GroupId = player.Group.Count == 1 ? -1 : player.Group.GroupId,
+                GroupId = player.Group.Count == 1 ? null : player.Group.GroupId,
                 Fairy = (byte)(fairy == null ? 0 : 4),
                 FairyElement = (byte)(fairy?.Item.Element ?? 0),
                 FairyBooster = false,
@@ -521,7 +521,7 @@ public static class PlayerBundleExtensions
             ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
             Class = player.Class,
             Gender = player.Gender,
-            FamilyId = player.Family?.FamilyId ?? -1,
+            FamilyId = player.Family?.FamilyId,
             FamilyName = player.GenerateFamilyTag(localizer, viewerLanguage),
             ReputationIco = (ExtendedReputationType)player.ReputIcon,
             DignityIco = player.DignityIcon,
@@ -563,8 +563,7 @@ public static class PlayerBundleExtensions
             Direction = player.Direction,
             Unknown1 = 0,
             Music = music,
-            MapType = mapType,
-            Unknown3 = -1
+            MapType = mapType
         };
     }
 
@@ -575,8 +574,7 @@ public static class PlayerBundleExtensions
             Name = player.Authority == AuthorityType.Moderator
                 ? $"[{localizer[LanguageKey.SUPPORT, player.AccountLanguage]}]" + player.Name : player.Name,
             Unknown1 = null,
-            GroupId = -1,
-            FamilyId = (int)(player.Family?.FamilyId ?? -1),
+            FamilyId = player.Family?.FamilyId,
             FamilyRank = player.FamilyRank(),
             FamilyName = player.Family?.Name,
             CharacterId = player.VisualId,
@@ -591,8 +589,7 @@ public static class PlayerBundleExtensions
             Invisible = false,
             FamilyLevel = player.Family?.FamilyLevel ?? 0,
             MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
-            ArenaWinner = false,
-            Unknown3 = -1
+            ArenaWinner = false
         };
     }
 
