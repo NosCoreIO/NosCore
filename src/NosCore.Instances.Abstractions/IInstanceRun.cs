@@ -75,6 +75,9 @@ namespace NosCore.Instances.Abstractions
 
         int PlayersIn(int room);
 
+        // How many of the room's monsters have been killed so far; dismissed ones do not count.
+        int KillsIn(int room);
+
         // True once the players in the room who are still in the fight are all on one side,
         // a group counting as one side.
         bool OneSideStanding(int room);

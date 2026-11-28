@@ -113,10 +113,8 @@ namespace NosCore.Instances.Abstractions
             }
         }
 
-        // A monster's own OnDeath answers for its fall.
-        void IInstanceScript.OnMonsterKilled(IInstanceRun run, int room, short vNum)
-        {
-        }
+        // A monster's own OnDeath answers for its fall; the room answers for its count.
+        void IInstanceScript.OnMonsterKilled(IInstanceRun run, int room, short vNum) => RoomOf(room)?.MonsterKilled(run);
 
         void IInstanceScript.OnRoomCleared(IInstanceRun run, int room) => RoomOf(room)?.Cleared(run);
 
@@ -128,11 +126,13 @@ namespace NosCore.Instances.Abstractions
 
         void IInstanceScript.OnItemCollected(IInstanceRun run, int room, short vNum) => RoomOf(room)?.ItemCollected(run, vNum);
 
-        // Reaching the way out is how a time-space is won.
+        // Reaching the way out is how a time-space is won, at once or once the exit's talk is closed.
         void IInstanceScript.OnExitReached(IInstanceRun run, int room)
         {
-            RoomOf(room)?.ExitReached(run);
-            run.Succeed();
+            if (RoomOf(room)?.ExitReached(run) ?? true)
+            {
+                run.Succeed();
+            }
         }
 
         void IInstanceScript.OnTimeout(IInstanceRun run) => _timeout?.Invoke(new RunEvent(run));

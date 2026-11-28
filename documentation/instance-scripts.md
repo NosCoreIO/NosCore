@@ -86,9 +86,10 @@ in: portals, monsters, NPCs, levers and exits come in as they are declared.
 | `Sculpture(at, off, on)` | A sculpture, moved without a word, with `OnUse(step)` |
 | `KeyAnywhere(vnum)` | A key on a walkable cell picked anew for each run, taken by whoever uses it |
 | `ClearedAfter(kills, vnum)` | The room counts as cleared once that many of its monsters of that vnum fall |
-| `Exit(at, locked)` | The way out, at most one per room, with `OnReached(step)`; reaching it wins the run |
+| `Exit(at, locked)` | The way out, at most one per room, with `OnReached(step)`; reaching it wins the run, or with `WinsAfterDialog(id)` opens that talk and wins once it is closed |
 | `OnEnter(step)` | The first time anyone enters |
 | `OnCleared(step)` | When its last monster falls |
+| `OnKills(n, step)` | On the kill that brings the room's count to n, whichever of its monsters falls; dismissed monsters do not count |
 | `OnDialogClosed(dialog, step)` | The first time that dialog is closed |
 | `Every(interval, step, from, times)` | While the room's clock runs: `from` after it starts (at once by default), then every interval, whenever someone is inside; only the first `times` calls when it is given |
 | `OnClockOut(step)` | When the room's clock runs out; the clock is taken down after the step |

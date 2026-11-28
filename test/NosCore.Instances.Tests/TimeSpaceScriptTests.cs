@@ -181,6 +181,50 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        public void AnExitWithATalkWinsOnlyOnceTheTalkIsClosed()
+        {
+            new Spec("Reaching an exit that waits for a talk runs its steps and opens the talk; closing it wins")
+                .Given(TheSecondRoomHasAnExitThatWaitsForTalk_, 7324)
+                .And(TheRunStarts)
+                .When(TheExitOfTheSecondRoomIsReached)
+                .Then(TheCallsShouldBe_, new[] { "exit(2,open)", "message(PleaseWait)", "dialog(2,7324)" })
+                .When(Dialog_IsClosedInTheSecondRoom, 7324)
+                .Then(TheCallsShouldBe_, new[] { "succeed" })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AnExitWaitsForOneTalkAtMost()
+        {
+            var exit = _first.Exit(new Spot(1, 1)).WinsAfterDialog(7324);
+
+            Assert.ThrowsExactly<InvalidOperationException>(() => exit.WinsAfterDialog(7329));
+        }
+
+        [TestMethod]
+        public void ARoomActsOnTheKillsItCounts()
+        {
+            new Spec("A room's kill steps run on the kill that brings its count to theirs, whichever monster falls")
+                .Given(TheFirstRoomBringsAGruntOnItsSecondKillAndABossOnItsThird)
+                .And(TheRunStarts)
+                .When(AMonsterFallsInRoom_, 1)
+                .Then(TheCallsShouldBe_, new[] { "summon(1,58)" })
+                .When(AMonsterFallsInRoom_, 2)
+                .And(AMonsterFallsInRoom_, 1)
+                .Then(TheCallsShouldBe_, new[] { "summon(1,58)" })
+                .When(AMonsterFallsInRoom_, 1)
+                .And(AMonsterFallsInRoom_, 1)
+                .Then(TheCallsShouldBe_, new[] { "summon(1,59)" })
+                .Execute();
+        }
+
+        [TestMethod]
+        public void AKillStepNeedsAtLeastOneKill()
+        {
+            Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => _first.OnKills(0, r => r.Succeed()));
+        }
+
+        [TestMethod]
         public void AnExitCanBeUnlocked()
         {
             new Spec("A locked exit opens when a step unlocks it")
@@ -687,6 +731,22 @@ namespace NosCore.Instances.Tests
 
         private void TheSecondRoomHasAnExitThatSaysGoodbye() =>
             _second.Exit(new Spot(28, 15)).OnReached(r => r.Say(Game18NConstString.TimeSpaceCompleted));
+
+        private void TheSecondRoomHasAnExitThatWaitsForTalk_(int dialog) =>
+            _second.Exit(new Spot(21, 5), locked: false).OnReached(r => r.Say(Game18NConstString.PleaseWait)).WinsAfterDialog(dialog);
+
+        private void Dialog_IsClosedInTheSecondRoom(int dialog) => Script.OnDialogClosed(_run, 2, dialog);
+
+        private void TheFirstRoomBringsAGruntOnItsSecondKillAndABossOnItsThird() =>
+            _first.Spawn(Declared.Mob(Grunt).At(1, 1))
+                .OnKills(2, r => r.Spawn(Declared.Mob(Grunt).At(2, 2)))
+                .OnKills(3, r => r.Spawn(Declared.Mob(Boss).At(3, 3)));
+
+        private void AMonsterFallsInRoom_(int room)
+        {
+            _run.Kills[room] = _run.Kills.GetValueOrDefault(room) + 1;
+            Script.OnMonsterKilled(_run, room, Grunt);
+        }
 
         private void ClearingTheSecondRoomUnlocksItsExit()
         {

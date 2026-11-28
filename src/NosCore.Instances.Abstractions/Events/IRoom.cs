@@ -46,6 +46,9 @@ namespace NosCore.Instances.Abstractions
         // When the room's last monster falls.
         IRoom OnCleared(Action<RoomEvent> step);
 
+        // When the kill that brings the room's count to kills falls, whichever of its monsters it is.
+        IRoom OnKills(int kills, Action<RoomEvent> step);
+
         // The first time someone closes that dialog after the room opened it.
         IRoom OnDialogClosed(int dialog, Action<RoomEvent> step);
 
@@ -82,6 +85,9 @@ namespace NosCore.Instances.Abstractions
     public interface IExit
     {
         IExit OnReached(Action<RoomEvent> step);
+
+        // Reaching it opens that talk for the room instead, and closing the talk wins the run.
+        IExit WinsAfterDialog(int dialog);
     }
 
     // Each call returns a new monster, so one can be the base of several.
