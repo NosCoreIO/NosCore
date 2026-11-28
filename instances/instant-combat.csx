@@ -19,11 +19,15 @@ public class InstantCombat : InstanceScript
     private static readonly TimeSpan ThirtySecondsLeft = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan Length = TimeSpan.FromMinutes(15);
 
+    // Once the fight is won a way home opens beside where the players landed.
+    private static readonly Spot WayOut = new(47, 33);
+
     private readonly int _arena;
 
     public InstantCombat()
     {
         Definition = InstanceDefinitionBuilder.Named(0, "instant-combat", "instant-combat")
+            .StartingAt(42, 33)
             .WithRoom(2004, out _arena)
             .Build();
     }
@@ -43,8 +47,8 @@ public class InstantCombat : InstanceScript
 
                 run.At(lands, r =>
                 {
-                    r.SummonWave(_arena, current);
                     r.Message(Game18NConstString.MonsterHaveAppeared);
+                    r.SummonWave(_arena, current);
                 });
             }
             else
@@ -74,9 +78,9 @@ public class InstantCombat : InstanceScript
             return;
         }
 
-        run.Message(Game18NConstString.InstantCombatSuccess);
-        run.Message(Game18NConstString.ReturnToStartingPositionTenSeconds);
         run.Succeed();
+        run.SpawnWayOut(_arena, WayOut);
+        run.Message(Game18NConstString.InstantCombatSuccess);
     }
 }
 

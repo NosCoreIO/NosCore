@@ -105,6 +105,8 @@ namespace NosCore.Instances.Tests
             Calls.Add($"exit({room},{(locked ? "locked" : "open")})");
         }
 
+        public void SpawnWayOut(int room, Spot at) => Calls.Add($"wayout({room},{at.X},{at.Y})");
+
         public void UnlockExit(int room)
         {
             UnlockedExits.Add(room);
@@ -343,8 +345,8 @@ namespace NosCore.Instances.Tests
             {
                 "14 message(MonstersAreApproaching)",
                 "21 message(MonstersAreApproaching)",
-                "24 wave(1,0)",
                 "24 message(MonsterHaveAppeared)",
+                "24 wave(1,0)",
                 "144 message(MonsterWillAppearsInSeconds,40)",
                 "154 drop(1,0)",
                 "169 message(MonstersAreApproaching)",
@@ -391,9 +393,9 @@ namespace NosCore.Instances.Tests
             script.OnMonsterKilled(run, 1, 333);
             CollectionAssert.AreEqual(new[]
             {
-                "message(InstantCombatSuccess)",
-                "message(ReturnToStartingPositionTenSeconds)",
-                "succeed"
+                "succeed",
+                "wayout(1,47,33)",
+                "message(InstantCombatSuccess)"
             }, run.Calls);
         }
 

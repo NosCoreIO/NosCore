@@ -108,6 +108,10 @@ namespace NosCore.Instances.Abstractions
 
         void UnlockExit(int room);
 
+        // A way home that is open at once and stays usable after the run has ended: whoever walks onto
+        // it is sent back to where they came from.
+        void SpawnWayOut(int room, Spot at);
+
         // A locker holds the room shut until that many of its monsters are dead.
         void SetMonsterLocker(int room, short count);
 
