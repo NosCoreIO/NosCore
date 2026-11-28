@@ -5,6 +5,8 @@
 //
 
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Event;
+using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.Visibility;
 
 namespace NosCore.GameObject.Ecs.Extensions;
@@ -24,4 +26,13 @@ public static class MonsterBundleExtensions
 
     public static InPacket GenerateIn(this MonsterComponentBundle monster) =>
         monster.GenerateIn(SpawnEffectType.Summon, monster.Dialog ?? 0);
+
+    public static RbossPacket GenerateRboss(this MonsterComponentBundle monster) => new()
+    {
+        VisualType = VisualType.Monster,
+        VisualId = monster.VisualId,
+        CurrentHp = monster.IsAlive ? monster.Hp : 0,
+        MaxHp = monster.MaxHp,
+        VNum = monster.VNum
+    };
 }

@@ -73,6 +73,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly List<Func<Task>> _pending = [];
         private readonly Dictionary<int, short> _lockers = [];
         private readonly Dictionary<int, short> _lockerVNums = [];
+        private readonly Dictionary<int, short> _lockerGoals = [];
+        private readonly ConcurrentDictionary<(MapInstance Room, int MonsterId), byte> _bosses = new();
         private readonly HashSet<int> _visited = [];
         private readonly HashSet<int> _cleared = [];
         private readonly Dictionary<int, LanguageKey> _roomObjectives = [];
@@ -267,6 +269,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 _lockers[room.Value] = --remaining;
+                var lockerRoom = room.Value;
+                _pending.Add(() => _host.LockerChangedAsync(this, lockerRoom));
                 if (remaining == 0)
                 {
                     await RoomClearedAsync(room.Value);
@@ -554,6 +558,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         }
                     });
                 }
+
+                if (arriving && room is { } reached)
+                {
+                    var reachedRoom = _rooms[reached];
+                    _pending.Add(() => OnRoom(reachedRoom, () => session.SendPacketsAsync(BossBars(reachedRoom))));
+                    _pending.Add(() => _host.ArrivedAsync(this, session, reached));
+                }
             });
         }
 
@@ -608,6 +619,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     {
                         _pending.Add(RecruitEscortsAsync);
                     }
+                }
+
+                if (!_bosses.IsEmpty)
+                {
+                    _pending.Add(ShowBossBarsAsync);
                 }
 
                 if (!AwaitsStart && _clockPausedAt is { } pausedAt && now - pausedAt >= TalkPauseLimit)
@@ -771,7 +787,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                         Mark(monster);
                     }
 
-                    return mapInstance.SendPacketAsync(monster.GenerateIn());
+                    if (!spawn.IsBoss)
+                    {
+                        return mapInstance.SendPacketAsync(monster.GenerateIn());
+                    }
+
+                    _bosses.TryAdd((mapInstance, (int)monster.VisualId), 0);
+                    return mapInstance.SendPacketsAsync([monster.GenerateIn(), monster.GenerateRboss()]);
                 }));
             }
         }
@@ -1114,17 +1136,56 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public void SetMonsterLocker(int room, short count)
         {
+            _lockerGoals[room] = count;
             _lockers[room] = count;
             _lockerVNums.Remove(room);
+            _pending.Add(() => _host.LockerChangedAsync(this, room));
         }
 
         public void SetMonsterLocker(int room, short count, short countedVNum)
         {
+            _lockerGoals[room] = count;
             _lockers[room] = count;
             _lockerVNums[room] = countedVNum;
+            _pending.Add(() => _host.LockerChangedAsync(this, room));
         }
 
         public int LockerLeft(int room) => _lockers.GetValueOrDefault(room);
+
+        // The kills the room's locker was set to wait for, and those it still waits for; both 0 without a locker.
+        public (short Goal, short Left) LockerOf(int room) =>
+            (_lockerGoals.GetValueOrDefault(room), _lockers.GetValueOrDefault(room));
+
+        private IEnumerable<IPacket> BossBars(MapInstance room) =>
+            _bosses.Keys.Where(b => b.Room == room)
+                .Select(b => room.GetMonsterById(b.MonsterId))
+                .OfType<MonsterComponentBundle>()
+                .Where(m => m.IsAlive)
+                .Select(m => (IPacket)m.GenerateRboss())
+                .ToList();
+
+        // A boss's bar is shown about once a second while it lives, and a last time with no HP left once it falls.
+        private async Task ShowBossBarsAsync()
+        {
+            foreach (var boss in _bosses.Keys.ToList())
+            {
+                await OnRoom(boss.Room, () =>
+                {
+                    if (boss.Room.GetMonsterById(boss.MonsterId) is not { } monster)
+                    {
+                        _bosses.TryRemove(boss, out _);
+                        return Task.CompletedTask;
+                    }
+
+                    if (!monster.IsAlive)
+                    {
+                        _bosses.TryRemove(boss, out _);
+                    }
+
+                    return boss.Room.SendPacketAsync(monster.GenerateRboss());
+                });
+            }
+        }
 
         private const short DoorMargin = 3;
 

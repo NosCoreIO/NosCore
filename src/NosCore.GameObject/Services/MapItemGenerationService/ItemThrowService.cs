@@ -10,6 +10,7 @@ using NosCore.Instances.Abstractions;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking;
+using NosCore.Packets.ServerPackets.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,7 +20,8 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
     public class ItemThrowService(IItemGenerationService itemGenerationService,
         IMapItemGenerationService mapItemGenerationService, IRandomProvider random) : IItemThrowService
     {
-        private const int Spread = 4;
+        // Traced raid loot lands up to 10 cells away from its boss on either axis.
+        private const int Spread = 10;
         private const int Attempts = 10;
 
         public async Task ThrowAsync(MapInstance mapInstance, Spot around, IEnumerable<ItemPile> piles)
@@ -31,7 +33,16 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
                     var (x, y) = Landing(mapInstance, around);
                     var item = itemGenerationService.Create(pile.VNum, (short)Math.Min(pile.Amount, short.MaxValue));
                     var dropped = mapItemGenerationService.Create(mapInstance, item, x, y);
-                    await mapInstance.SendPacketAsync(dropped.GenerateDrop());
+                    await mapInstance.SendPacketAsync(new ThrowPacket
+                    {
+                        VNum = pile.VNum,
+                        VisualId = dropped.VisualId,
+                        FromX = around.X,
+                        FromY = around.Y,
+                        ToX = x,
+                        ToY = y,
+                        Amount = dropped.Amount
+                    });
                 }
             }
         }

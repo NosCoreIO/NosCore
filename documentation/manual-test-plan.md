@@ -4490,6 +4490,16 @@ confirms "Do you want to create the raid map?".
       question: B stays out of A's new team
 - [ ] With only A and B in the team, B disconnects before the start: A stays in the raid team
       and sees that B left
+- [ ] With A to E, A starts: each member sees the raid's start banner once, on arrival, and the
+      objective panel shows the team's lives as 5 of 5. Going through to Jelly Square does not show
+      the banner again
+- [ ] In Jelly Square, Mother Cuby's HP bar appears as she comes into view, and drops within about a
+      second of each hit; a member arriving later sees it at once with her current HP
+- [ ] B dies: every member's lives go to 4 of 5, and stay at 4 after B stands up again
+- [ ] Killing Mother Cuby: her bar shows empty once and disappears, then the "boss defeated" banner
+      shows for every member
+- [ ] Loot thrown by a Glacernon raid boss flies out of the boss's cell and lands up to 10 cells
+      away; each piece can be picked up where it lands
 - [ ] On Jelly Entrance the gate shows at the top of the path; Chicken Farm Path, whose raid has
       no script yet, shows none
 - [ ] D, in no raid team, steps on the gate: "A team must first be created for the raid." appears

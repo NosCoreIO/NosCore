@@ -46,13 +46,14 @@ public class ZenasRaid : InstanceScript
             .AlsoStartingAt(245, 102)
             .WithRoom(2602, out _hall, 0, 0)
             .WithReward(9844, 1)
+            .WithRaidHudValue(20)
             .Build();
     }
 
     public override void OnFirstEnter(IInstanceRun run)
     {
         run.StartClock(TimeSpan.FromHours(1));
-        run.Summon(_hall, new MonsterSpawn(Zenas, new Spot(160, 128)));
+        run.Summon(_hall, new MonsterSpawn(Zenas, new Spot(160, 128), IsBoss: true));
         run.Summon(_hall, Pack(GuardianKnight, (90, 261), (77, 214), (69, 235), (249, 236), (248, 208), (222, 265), (218, 239), (206, 204), (199, 254), (185, 227), (180, 290), (171, 291), (164, 291), (157, 291), (147, 291), (103, 194), (132, 229), (111, 205), (106, 245), (101, 193)));
         run.Summon(_hall, Pack(GuardianCommander, (97, 227), (87, 261), (79, 195), (76, 193), (71, 232), (71, 196), (69, 192), (66, 234), (247, 233), (222, 262), (221, 268), (220, 238), (209, 202), (207, 206), (202, 257), (195, 278), (189, 193), (188, 230), (143, 244), (134, 228), (134, 201), (132, 282), (132, 232), (118, 240), (114, 257), (108, 204)));
         run.Summon(_hall, Pack(GuardianMage, (92, 260), (87, 241), (68, 232), (253, 215), (180, 254), (153, 132), (212, 160), (246, 236), (220, 242), (217, 235), (199, 256), (196, 251), (185, 230), (140, 244), (132, 228), (132, 198), (130, 231), (116, 255), (113, 259), (113, 205), (109, 206), (100, 276), (100, 225)));

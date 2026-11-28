@@ -21,7 +21,9 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Instances.Abstractions;
 using NosCore.Packets.ClientPackets.Event;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -46,6 +48,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         private const short Boss = 282;
         private const short Cuby = 283;
         private const short BoxesWon = 2;
+        private const byte HudValue = 25;
 
         // Mother Cuby's maximum HP in the official trace of the raid, 2026-11-28.
         private const int BossMaxHp = 1006894;
@@ -62,17 +65,16 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .AlsoStartingAt(3, 2)
                 .WithRoom(TestWorld.TestMapId, out _room)
                 .WithReward(Box, BoxesWon)
+                .WithRaidHudValue(HudValue)
                 .Build();
 
-            public MonsterSpawn[] Spawns { get; set; } = [];
+            public MonsterSpawn[] Spawns { get; set; } = [new MonsterSpawn(Boss, new Spot(3, 3), IsBoss: true)];
 
             public override void OnFirstEnter(IInstanceRun run)
             {
                 run.StartClock(TimeSpan.FromMinutes(40));
-                if (Spawns.Length > 0)
-                {
-                    run.Summon(_room, Spawns);
-                }
+                run.SetMonsterLocker(_room, 1, Boss);
+                run.Summon(_room, Spawns);
             }
 
             public override void OnMonsterKilled(IInstanceRun run, int room, short vNum)
@@ -617,6 +619,152 @@ namespace NosCore.GameObject.Tests.Services.RaidService
 
         private Task TheLeaderKicks_Async(int player) => _raids.KickAsync(Leader, _players[player].Character.CharacterId);
 
+        [TestMethod]
+        public async Task EveryMemberSeesTheStartBannerAndTheCounters()
+        {
+            await new Spec("Entering the raid shows each member the start banner, the boss to kill and the team's lives")
+                .GivenAsync(ATeamOf_Async, 2)
+                .WhenAsync(TheTeamEntersTheRaidAsync)
+                .Then(Player_SawTheBanner_, 0, RaidBannerType.Started)
+                .And(Player_SawTheBanner_, 1, RaidBannerType.Started)
+                .And(Player_LastSawTheCounters_, 1, new RaidmbfPacket { MonsterGoal = 1, MonstersLeft = 1, LivesLeft = 2, Lives = 2, Unknown = HudValue })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingTheBossCountsItAndShowsTheEndBanner()
+        {
+            await new Spec("Killing the boss brings its counter to zero and shows every member the end banner")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .WhenAsync(TheBossDiesAsync)
+                .Then(Player_LastSawTheCounters_, 1, new RaidmbfPacket { MonsterGoal = 1, MonstersLeft = 0, LivesLeft = 2, Lives = 2, Unknown = HudValue })
+                .And(Player_SawTheBanner_, 0, RaidBannerType.BossDefeated)
+                .And(Player_SawTheBanner_, 1, RaidBannerType.BossDefeated)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EachFallCostsTheTeamALife()
+        {
+            await new Spec("Each fall takes one of the team's lives, and standing up again gives none back")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .AndAsync(Player_FallsAndStandsUpAsync, 1)
+                .WhenAsync(Player_FallsAsync, 0)
+                .Then(Player_LastSawTheCounters_, 1, new RaidmbfPacket { MonsterGoal = 1, MonstersLeft = 1, LivesLeft = 0, Lives = 2, Unknown = HudValue })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ArrivingShowsTheBossBar()
+        {
+            await new Spec("A member arriving in the boss's room is shown its HP bar")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .WhenAsync(Player_ArrivesAsync, 1)
+                .Then(Player_SawTheBossBar_Times, 1, 1)
+                .And(Player_LastSawTheBossBarAt_Hp, 1, BossMaxHp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheBossBarFollowsItsHp()
+        {
+            await new Spec("The boss's HP bar is shown to its room every second with its HP")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .And(TheRoomIsWatchedBy_, 1)
+                .AndAsync(TheBossIsDownTo_Hp, 4)
+                .WhenAsync(ASecondPassesAsync)
+                .Then(Player_SawTheBossBar_Times, 1, 1)
+                .And(Player_LastSawTheBossBarAt_Hp, 1, 4)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFallenBossShowsItsBarOnceMoreEmpty()
+        {
+            await new Spec("A boss that has fallen shows its bar one last time with no HP, then no more")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .And(TheRoomIsWatchedBy_, 1)
+                .AndAsync(TheBossFallsAsync)
+                .WhenAsync(ASecondPassesAsync)
+                .AndAsync(ASecondPassesAsync)
+                .Then(Player_SawTheBossBar_Times, 1, 1)
+                .And(Player_LastSawTheBossBarAt_Hp, 1, 0)
+                .ExecuteAsync();
+        }
+
+        // The arrival a map change raises is not dispatched here, so the test raises it.
+        private async Task TheTeamEntersTheRaidAsync()
+        {
+            await TheLeaderStartsAsync();
+            foreach (var player in Enumerable.Range(0, 2))
+            {
+                await Player_ArrivesAsync(player);
+            }
+        }
+
+        private Task Player_ArrivesAsync(int player) =>
+            Run.EnteredAsync(_players[player], _players[player].Character.MapInstance.MapInstanceId);
+
+        private void TheRoomIsWatchedBy_(int player)
+        {
+            var watcher = _players[player];
+            var room = new Mock<ISessionGroup>();
+            room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
+                .Callback<IPacket[]>(Receive).Returns(Task.CompletedTask);
+            room.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
+                .Callback<IPacket[], ISessionMatcher>((packets, _) => Receive(packets)).Returns(Task.CompletedTask);
+            watcher.Character.MapInstance.Sessions = room.Object;
+
+            void Receive(IPacket[] packets)
+            {
+                foreach (var packet in packets)
+                {
+                    watcher.LastPackets.Enqueue(packet);
+                }
+            }
+        }
+
+        private void Player_SawTheBanner_(int player, RaidBannerType type) =>
+            Assert.IsTrue(_players[player].LastPackets.OfType<RaidbfPacket>().Any(p => p.Type == type && p.Unknown == HudValue));
+
+        private void Player_LastSawTheCounters_(int player, RaidmbfPacket expected) =>
+            PacketAssert.AreEqual(expected, _players[player].LastPackets.OfType<RaidmbfPacket>().Last());
+
+        private void Player_LastSawTheBossBarAt_Hp(int player, int hp)
+        {
+            var bar = _players[player].LastPackets.OfType<RbossPacket>().Last();
+            Assert.AreEqual(hp, bar.CurrentHp);
+            Assert.AreEqual(BossMaxHp, bar.MaxHp);
+            Assert.AreEqual(Boss, bar.VNum);
+        }
+
+        private void Player_SawTheBossBar_Times(int player, int times) =>
+            Assert.AreEqual(times, _players[player].LastPackets.OfType<RbossPacket>().Count());
+
+        private Task TheBossIsDownTo_Hp(int hp) => OnTheBossAsync(boss => boss.Hp = hp);
+
+        private Task TheBossFallsAsync() => OnTheBossAsync(boss =>
+        {
+            boss.Hp = 0;
+            boss.IsAlive = false;
+        });
+
+        private async Task OnTheBossAsync(Action<MonsterComponentBundle> change)
+        {
+            var room = Leader.Character.MapInstance;
+            await room.Executor.RunAsync(() =>
+            {
+                change(room.EnumerateMonsters().Single(m => m.VNum == Boss));
+                return Task.CompletedTask;
+            });
+        }
+
+        private async Task ASecondPassesAsync()
+        {
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await Run.TickAsync();
+        }
+
         private async Task ATeamOf_Async(int size)
         {
             await Player_UsesTheSealAsync(0);
@@ -646,7 +794,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
 
         private async Task AStartedRaidAgainstTheBossOf_Async(int size)
         {
-            _raid.Spawns = [new MonsterSpawn(Boss, new Spot(1, 1)), new MonsterSpawn(Cuby, new Spot(3, 1))];
+            _raid.Spawns = [new MonsterSpawn(Boss, new Spot(1, 1), IsBoss: true), new MonsterSpawn(Cuby, new Spot(3, 1))];
             _members = size;
             await AStartedRaidOf_Async(size);
         }

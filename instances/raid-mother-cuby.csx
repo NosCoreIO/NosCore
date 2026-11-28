@@ -62,6 +62,7 @@ public class MotherCubyRaid : InstanceScript
             .WithObjective(ObjectiveKind.KillMonster, Cuby, CubyCount)
             .WithObjective(ObjectiveKind.UseObject, LeverOff, (short)Levers.Length)
             .WithReward(4684, 1)
+            .WithRaidHudValue(25)
             .Build();
     }
 
@@ -104,7 +105,7 @@ public class MotherCubyRaid : InstanceScript
         run.Summon(_field, Pack(13, (161, 155), (161, 150), (160, 159), (160, 148), (153, 160), (153, 156), (153, 150)));
         run.Summon(_field, Pack(7, (83, 12), (81, 16), (79, 21), (57, 19), (57, 14), (54, 55), (54, 53), (54, 51), (54, 49), (45, 19), (41, 14), (157, 59), (155, 52), (155, 47)));
 
-        run.Summon(_square, new MonsterSpawn(MotherCuby, BossAt));
+        run.Summon(_square, new MonsterSpawn(MotherCuby, BossAt, IsBoss: true));
         run.Summon(_square, Pack(WeakRedJelly, (7, 8)));
     }
 

@@ -296,8 +296,9 @@ namespace NosCore.GameObject.Services.RaidService
                 return;
             }
 
+            var host = new RaidHost(this, team, raid);
             var run = raid.Logic is { } logic
-                ? await scriptedInstanceService.InstantiateAsync(logic, MapInstanceType.RaidInstance, new RaidHost(this, team, raid))
+                ? await scriptedInstanceService.InstantiateAsync(logic, MapInstanceType.RaidInstance, host)
                 : null;
             if (run == null)
             {
@@ -316,6 +317,7 @@ namespace NosCore.GameObject.Services.RaidService
                 {
                     team.RaidRun = run;
                     members = Sessions(team).ToList();
+                    host.Lives = (short)members.Count;
                 }
             }
 
@@ -380,6 +382,12 @@ namespace NosCore.GameObject.Services.RaidService
             if (state == EndStateType.Success)
             {
                 var winners = run.Players().Where(s => s.HasPlayerEntity).ToList();
+                var banner = new RaidbfPacket { Type = RaidBannerType.BossDefeated, Unknown = HudValue(raid) };
+                foreach (var winner in winners)
+                {
+                    await winner.SendPacketAsync(banner);
+                }
+
                 var familyWinners = winners
                     .Select(s => s.Character.Family is { } family ? new RaidWinner(family.FamilyId, s.Character.CharacterId) : null)
                     .OfType<RaidWinner>()
@@ -443,6 +451,14 @@ namespace NosCore.GameObject.Services.RaidService
             var falls = host.Falls.GetValueOrDefault(player.CharacterId) + 1;
             host.Falls[player.CharacterId] = falls;
             await RefreshAsync(host.Team);
+            foreach (var teammate in run.Players().Where(s => s.HasPlayerEntity))
+            {
+                if (RoomOf(run, teammate) is { } room)
+                {
+                    await teammate.SendPacketAsync(Counters(host, run, room));
+                }
+            }
+
             if (falls <= RevivesPerRun)
             {
                 host.RevivesAt[player.CharacterId] = clock.GetCurrentInstant().Plus(ReviveDelay);
@@ -465,6 +481,47 @@ namespace NosCore.GameObject.Services.RaidService
             await MessageAsync(session, Game18NConstString.FinishedLives);
             await RemoveAsync(session, host.Team, Game18NConstString.PlayerHasLeftTeam, true);
         }
+
+        // The start banner reaches each member once, on their first room; the counters on every room.
+        private async Task ArrivedAsync(RaidHost host, ScriptedInstanceRun run, ClientSession session, int room)
+        {
+            if (host.Arrived.Add(session.Character.CharacterId))
+            {
+                await session.SendPacketAsync(new RaidbfPacket { Type = RaidBannerType.Started, Unknown = HudValue(host.Raid) });
+            }
+
+            await session.SendPacketAsync(Counters(host, run, room));
+        }
+
+        private async Task LockerChangedAsync(RaidHost host, ScriptedInstanceRun run, int room)
+        {
+            var counters = Counters(host, run, room);
+            foreach (var session in run.Players().Where(s => s.HasPlayerEntity && RoomOf(run, s) == room))
+            {
+                await session.SendPacketAsync(counters);
+            }
+        }
+
+        // The lives are the team's size when the raid started, less one for each fall since.
+        private static RaidmbfPacket Counters(RaidHost host, ScriptedInstanceRun run, int room)
+        {
+            var (goal, left) = run.LockerOf(room);
+            return new RaidmbfPacket
+            {
+                MonsterGoal = goal,
+                MonstersLeft = left,
+                LivesLeft = (short)Math.Max(0, host.Lives - host.Falls.Values.Sum()),
+                Lives = host.Lives,
+                Unknown = HudValue(host.Raid)
+            };
+        }
+
+        private static byte HudValue(ScriptedInstance raid) => raid.Definition?.RaidHudValue ?? 0;
+
+        private static int? RoomOf(ScriptedInstanceRun run, ClientSession session) =>
+            run.Rooms.Where(r => r.Value == session.Character.MapInstance.MapInstanceId)
+                .Select(r => (int?)r.Key)
+                .FirstOrDefault();
 
         private async Task ReviveDueAsync(RaidHost host, ScriptedInstanceRun run)
         {
@@ -770,6 +827,12 @@ namespace NosCore.GameObject.Services.RaidService
         {
             public Group Team => team;
 
+            public ScriptedInstance Raid => raid;
+
+            public short Lives { get; set; }
+
+            public HashSet<long> Arrived { get; } = [];
+
             public Dictionary<long, int> Falls { get; } = [];
 
             public Dictionary<long, Instant> RevivesAt { get; } = [];
@@ -795,6 +858,12 @@ namespace NosCore.GameObject.Services.RaidService
                 service.FellAsync(this, run, player);
 
             public Task TickAsync(ScriptedInstanceRun run) => service.ReviveDueAsync(this, run);
+
+            public Task ArrivedAsync(ScriptedInstanceRun run, ClientSession session, int room) =>
+                service.ArrivedAsync(this, run, session, room);
+
+            public Task LockerChangedAsync(ScriptedInstanceRun run, int room) =>
+                service.LockerChangedAsync(this, run, room);
         }
     }
 }
