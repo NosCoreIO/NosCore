@@ -36,6 +36,7 @@ namespace NosCore.Instances.Abstractions
         private int _reputation;
         private int _familyExperience;
         private byte _lives;
+        private byte _raidHudValue;
 
         public static InstanceDefinitionBuilder Named(short id, string label, string title)
         {
@@ -136,6 +137,12 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        public InstanceDefinitionBuilder WithRaidHudValue(byte value)
+        {
+            _raidHudValue = value;
+            return this;
+        }
+
         public InstanceDefinitionBuilder WithDraw(short vNum, short amount)
         {
             _draws.Add(new InstanceGift(vNum, amount));
@@ -200,6 +207,7 @@ namespace NosCore.Instances.Abstractions
                 Reputation = _reputation,
                 FamilyExperience = _familyExperience,
                 Lives = _lives,
+                RaidHudValue = _raidHudValue,
                 Sides = [.. _sides],
                 Bases = [.. _bases],
                 Rooms = [.. _rooms],

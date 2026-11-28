@@ -21,6 +21,7 @@ public class MotherCubyRaid : InstanceScript
             .WithRoom(2510, out _entrance, 0, 1)
             .WithRoom(2512, out _square, 0, 0)
             .WithReward(4684, 1)
+            .WithRaidHudValue(25)
             .Build();
     }
 
@@ -29,7 +30,7 @@ public class MotherCubyRaid : InstanceScript
         run.StartClock(TimeSpan.FromMinutes(40));
         run.SpawnPortal(_entrance, new Spot(20, 5), _square, new Spot(26, 40), locked: false);
         run.Summon(_square,
-            new MonsterSpawn(MotherCuby, new Spot(26, 28)),
+            new MonsterSpawn(MotherCuby, new Spot(26, 28), IsBoss: true),
             new MonsterSpawn(Cuby, new Spot(25, 27)),
             new MonsterSpawn(Cuby, new Spot(26, 27)),
             new MonsterSpawn(Cuby, new Spot(27, 27)),

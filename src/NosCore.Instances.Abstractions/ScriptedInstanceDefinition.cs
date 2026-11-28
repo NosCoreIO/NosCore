@@ -83,6 +83,10 @@ namespace NosCore.Instances.Abstractions
         // Deaths the party can afford: the one after the last life fails the run.
         public byte Lives { get; init; }
 
+        // The last number of a raid's raidbf and raidmbf. It never changes during a raid: 25 for Mother Cuby,
+        // 20 for Zenas. What the client uses it for is not known.
+        public byte RaidHudValue { get; init; }
+
         public IReadOnlyList<BoutSide> Sides { get; init; } = [];
 
         public IReadOnlyList<SideBase> Bases { get; init; } = [];

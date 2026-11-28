@@ -23,10 +23,11 @@ namespace NosCore.Instances.Abstractions
     // A bonus monster flashes while alive, and each one killed in a row adds to the run's combo.
     // OnDeath runs when this particular monster falls, OnHit on each hit it survives. IsHostile: false keeps a
     // monster that aggroes on sight from noticing anyone until it is attacked; it cannot make a peaceful monster
-    // aggressive. A monster with a Dialog carries that talk of its room until someone closes it.
+    // aggressive. A monster with a Dialog carries that talk of its room until someone closes it. A boss shows
+    // its HP bar to the players in its room.
     public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true, bool IsBonus = false,
         Action<IInstanceRun>? OnDeath = null, short Dialog = 0, Action<IInstanceRun>? OnHit = null,
-        IReadOnlyList<HpThreshold>? OnHpBelow = null);
+        IReadOnlyList<HpThreshold>? OnHpBelow = null, bool IsBoss = false);
 
     // An escort joins the first player who comes near it, walks where that player's client sends it and goes
     // with them from room to room. The run fails if it falls, and that failure takes the place of its OnDeath.
@@ -63,7 +64,7 @@ namespace NosCore.Instances.Abstractions
         // Puts the items the instance's own data lists for that wave into the bag of each player in the room.
         void DropWave(int room, byte wave);
 
-        // Scatters each pile around the spot, the way a boss throws its loot when it falls.
+        // Throws each pile from the spot to a cell around it, the way a boss throws its loot when it falls.
         void Throw(int room, Spot around, params ItemPile[] piles);
 
         void SummonNpcs(int room, params NpcSpawn[] npcs);

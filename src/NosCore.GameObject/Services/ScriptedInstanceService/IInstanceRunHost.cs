@@ -48,6 +48,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
 
+        // A player has come into a room of the run, after what the room shows on arrival.
+        Task ArrivedAsync(ScriptedInstanceRun run, ClientSession session, int room) => Task.CompletedTask;
+
+        // The room's monster locker has been set, or a kill has counted towards it.
+        Task LockerChangedAsync(ScriptedInstanceRun run, int room) => Task.CompletedTask;
+
         // The lives a run's players still share, shown in the mission window. Null for a host with no window.
         int? LivesLeft => null;
 
