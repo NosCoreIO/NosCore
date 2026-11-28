@@ -21,11 +21,12 @@ namespace NosCore.Instances.Abstractions
     {
         KillMonster,
         UseObject,
-        CollectItem
+        CollectItem,
+        Conversation
     }
 
-    // An objective counts kills of the monster, uses of the objects drawn with that vnum before use, or
-    // items of that vnum picked up.
+    // An objective counts kills of the monster, uses of the objects drawn with that vnum before use,
+    // items of that vnum picked up, or closings of the talk of that id.
     public record InstanceObjective(ObjectiveKind Kind, short VNum, short Count);
 
     public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY, bool KeepsMapMonsters = false)

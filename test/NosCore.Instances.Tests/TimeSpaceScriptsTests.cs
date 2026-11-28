@@ -118,6 +118,7 @@ namespace NosCore.Instances.Tests
         [DataRow("timespace-46")]
         [DataRow("timespace-518")]
         [DataRow("timespace-628")]
+        [DataRow("timespace-68")]
         public async Task EnteringTheFirstRoomStartsTheMission(string name)
         {
             var script = await LoadAsync(name);

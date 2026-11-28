@@ -455,5 +455,73 @@ namespace NosCore.Instances.Tests
                 || w.Contains(",109", StringComparison.Ordinal)));
             Assert.AreEqual(7, CallsSince(before).Count(c => c == $"message({battlefield},EnemiesReinforcements)"));
         }
+
+        [TestMethod]
+        public async Task TheSuspiciousIncidentsFirstHoldoutSendsSevenWavesBeforeItsDoorOpens()
+        {
+            await LoadAsync("timespace-68");
+            var holdout = Room(4630, 1, 5);
+            var northHall = Room(4639, 2, 5);
+            CollectionAssert.Contains(_run.Calls, $"portal({holdout}->{northHall},locked)");
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, holdout);
+            RunTimers();
+
+            var calls = CallsSince(before);
+            Assert.AreEqual($"roomClock({holdout},200s)", calls[0]);
+            Assert.AreEqual(7, calls.Count(c => c == $"summon({holdout},175,175)"));
+            Assert.AreEqual(3, calls.Count(c => c == $"summon({holdout},177,177)"));
+            Assert.AreEqual(3, calls.Count(c => c == $"summon({holdout},476)"));
+            Assert.AreEqual(7, calls.Count(c => c == "message(EnemiesReinforcements)"));
+            CollectionAssert.AreEqual(new[]
+            {
+                $"unlock({holdout}->{northHall})",
+                "message(ADoorHasOpened)",
+                "message(QuickMissionComplete)",
+                $"dismiss({holdout})",
+                "message(NewGoal)"
+            }, calls.Where(c => !c.StartsWith("stopRoomClock", StringComparison.Ordinal)).TakeLast(5).ToList());
+        }
+
+        [TestMethod]
+        public async Task TheSuspiciousIncidentsThirdBattleEndsWithItsCaptain()
+        {
+            await LoadAsync("timespace-68");
+            var battle = Room(4630, 6, 3);
+            var west = Room(4630, 5, 3);
+            var east = Room(4640, 7, 3);
+            CollectionAssert.Contains(_run.Calls, $"monsterLocker({battle},1,467)");
+            var before = _run.Calls.Count;
+
+            _script.OnRoomCleared(_run, battle);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"unlock({battle}->{west})",
+                $"unlock({battle}->{east})",
+                "message(ADoorHasOpened)",
+                "message(QuickMissionComplete)",
+                $"dismiss({battle})"
+            }, CallsSince(before));
+        }
+
+        [TestMethod]
+        public async Task TheSuspiciousIncidentsLastRoomTalksThreeSecondsInAndTheTalkIsTheGoal()
+        {
+            await LoadAsync("timespace-68");
+            var office = Room(4674, 6, 10);
+            CollectionAssert.Contains(_script.Definition.Objectives.ToList(), new InstanceObjective(ObjectiveKind.Conversation, 7119, 1));
+            var before = _run.Calls.Count;
+
+            _script.OnRoomEntered(_run, office);
+            RunTimers();
+            _script.OnDialogClosed(_run, office, 7119);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                $"roomClock({office},3s)", $"dialog({office},7119)", "message(NewGoal)", "message(NewGoal)"
+            }, CallsSince(before).Where(c => !c.StartsWith("stopRoomClock", StringComparison.Ordinal)).ToList());
+        }
     }
 }

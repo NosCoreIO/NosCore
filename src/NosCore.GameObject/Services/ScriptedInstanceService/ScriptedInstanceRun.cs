@@ -1175,6 +1175,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 return;
             }
 
+            Advance(ObjectiveKind.Conversation, (short)closed.Dialog);
+
             if (_roomDialogs.TryGetValue(closed.Room, out var shown) && shown == closed.Dialog)
             {
                 _roomDialogs.Remove(closed.Room);
@@ -1675,8 +1677,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             Status = _visited.Contains(room.Key) ? 0 : 1
         };
 
-        // The window with the run's lives and objective counters. Kills of everything, talks and NPCs to
-        // protect are not objectives a script can set yet, so they stay empty.
+        // The window with the run's lives and objective counters. Kills of everything and NPCs to protect
+        // are not objectives a script can set yet, so they stay empty.
         private MinfoPacket? GenerateMissionInfo()
         {
             if (_host.LivesLeft is not { } lives)
@@ -1690,6 +1692,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 GoToExit = _hasExit,
                 KillMonster = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.KillMonster)),
                 CollectItem = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.CollectItem)),
+                Conversation = Talks(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.Conversation)),
                 InteractObjects = Counter(objectives.FirstOrDefault(o => o.Kind == ObjectiveKind.UseObject)),
                 MaxLives = lives
             };
@@ -1699,9 +1702,17 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 : new MinfoObjectiveSubPacket
                 {
                     Vnum = objective.VNum,
-                    Current = Math.Min(objective.Count, _objectiveProgress.GetValueOrDefault((objective.Kind, objective.VNum))),
+                    Current = Done(objective),
                     Total = objective.Count
                 };
+
+            // The talk counter carries no vnum.
+            MinfoConversationSubPacket Talks(InstanceObjective? objective) => objective == null
+                ? MinfoConversationSubPacket.None
+                : new MinfoConversationSubPacket { Had = Done(objective), Total = objective.Count };
+
+            int Done(InstanceObjective objective) =>
+                Math.Min(objective.Count, _objectiveProgress.GetValueOrDefault((objective.Kind, objective.VNum)));
         }
 
         private Task BroadcastMissionInfoAsync() =>
