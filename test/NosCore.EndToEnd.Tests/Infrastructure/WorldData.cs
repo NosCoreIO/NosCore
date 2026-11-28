@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.Buff;
 using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -260,9 +261,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short MainWeaponMark = 54;
         public const short SecondaryWeaponMark = 55;
 
-        // The Mother Cuby raid as its script lays it out: its gate on the entrance map, the seal
-        // that opens a team, and its boss, which falls to any hit.
+        // The Mother Cuby raid as its script lays it out: its gate on the entrance map, the seal that opens a
+        // team, and the field the team starts in with the square behind it.
         public const short JellyEntrance = 2510;
+        public const short JellyField = 2511;
         public const short JellySquare = 2512;
         public const short RaidGateX = 20;
         public const short RaidGateY = 5;
@@ -270,6 +272,17 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const short RaidReward = 4684;
         public const byte RaidLevel = 30;
         public const int RaidTeamMinimum = 5;
+
+        // The Glacerus raid, short enough to play through: one lever opens the den, whose boss falls to any hit.
+        public const short GlacerusEntrance = 2587;
+        public const short GlacerusGrotto = 2588;
+        public const short GlacerusDen = 2589;
+        public const short GlacerusGateX = 12;
+        public const short GlacerusGateY = 43;
+        public const short GlacerusSeal = 5512;
+        public const short GlacerusReward = 4772;
+        public const byte GlacerusLevel = 80;
+        public const short GlacerusRaidId = 17;
         public const short RaidMissionId = 9100;
 
         // The Instant Combat arena, with one standing monster for each wave of the lowest bracket and a
@@ -759,6 +772,19 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await SeedStorytellerAsync(context);
             await SeedFishermanAsync(context);
             await context.SaveChangesAsync();
+            await SeedCubyFieldAsync(context);
+        }
+
+        // The Cuby field's other monsters stand in for themselves, unless the world already gives their vnum to another.
+        private static async Task SeedCubyFieldAsync(NosCoreContext context)
+        {
+            var seeded = context.Set<NpcMonster>().Select(m => m.NpcMonsterVNum).ToHashSet();
+            foreach (var vnum in new short[] { 4, 7, 11, 13, 14, 17, 36, 37, 40, 45, 48, 82, 100, 103, 104, 208, 271, 340 }.Where(v => !seeded.Contains(v)))
+            {
+                context.Add(new NpcMonster { NpcMonsterVNum = vnum, Name = "field" + vnum, Level = 30, MaxHp = 100000 });
+            }
+
+            await context.SaveChangesAsync();
         }
 
         private static async Task SeedMarketAsync(NosCoreContext context)
@@ -842,13 +868,23 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private static async Task SeedRaidAsync(NosCoreContext context)
         {
             context.Add(OpenMap(JellyEntrance, 60, 60));
+            context.Add(OpenMap(JellyField, 170, 170));
             context.Add(OpenMap(JellySquare, 60, 60));
+            context.Add(OpenMap(GlacerusEntrance, 60, 60));
+            context.Add(OpenMap(GlacerusGrotto, 60, 60));
+            context.Add(OpenMap(GlacerusDen, 60, 60));
             context.Add(new Item
             {
                 VNum = RaidSeal, Name = "raidseal", Type = NoscorePocketType.Main, ItemType = ItemType.Special, Effect = ItemEffectType.RaidSeal
             });
+            context.Add(new Item
+            {
+                VNum = GlacerusSeal, Name = "glacerusseal", Type = NoscorePocketType.Main, ItemType = ItemType.Special, Effect = ItemEffectType.RaidSeal
+            });
             context.Add(new Item { VNum = RaidReward, Name = "raidreward", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
+            context.Add(new Item { VNum = GlacerusReward, Name = "glacerusreward", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
             context.Add(new NpcMonster { NpcMonsterVNum = 282, Name = "mothercuby", Level = 40, MaxHp = 1 });
+            context.Add(new NpcMonster { NpcMonsterVNum = 2049, Name = "glacerus", Level = 90, MaxHp = 1 });
             foreach (short vnum in new short[] { 283, 167, 168, 169, 170 })
             {
                 context.Add(new NpcMonster { NpcMonsterVNum = vnum, Name = "jelly" + vnum, Level = 30, MaxHp = 100000 });
@@ -865,9 +901,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 MapId = JellyEntrance, PositionX = RaidGateX, PositionY = RaidGateY, Type = ScriptedInstanceType.Raid,
                 Script = "raid-mother-cuby", LevelMinimum = 30, LevelMaximum = 49
             });
+            context.Add(new ScriptedInstance
+            {
+                MapId = GlacerusEntrance, PositionX = GlacerusGateX, PositionY = GlacerusGateY, Type = ScriptedInstanceType.Raid,
+                Script = "raid-glacerus", LevelMinimum = 80, LevelMaximum = 99
+            });
             context.Add(new FamilyQuest
             {
-                QuestId = RaidMissionId, Kind = FamilyQuestKind.Mission, Objective = FamilyQuestObjective.Raid, Parameter = 0,
+                QuestId = RaidMissionId, Kind = FamilyQuestKind.Mission, Objective = FamilyQuestObjective.Raid, Parameter = GlacerusRaidId,
                 Target = 10, Experience = 100, ResetsDaily = true, OncePerMemberPerDay = true
             });
             await context.SaveChangesAsync();

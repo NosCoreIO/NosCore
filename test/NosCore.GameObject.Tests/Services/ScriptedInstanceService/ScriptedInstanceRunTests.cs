@@ -543,6 +543,54 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ATeamPortalIsARaidPortalBackIntoItsOwnRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SpawnTeamPortal(1, new Spot(3, 3), new Spot(0, 1)) });
+
+            await run.StartAsync();
+
+            var portal = _first.Portals.Single();
+            Assert.AreEqual(PortalType.Raid, portal.Type);
+            Assert.AreEqual((_first.MapInstanceId, (short)0, (short)1),
+                (portal.DestinationMapInstanceId, portal.DestinationX, portal.DestinationY));
+            Assert.AreEqual(PortalType.Raid, _first.LastPackets.OfType<GpPacket>().Single().PortalType);
+        }
+
+        [TestMethod]
+        public async Task SteppingOnATeamPortalCarriesEveryoneInTheRoomAsync()
+        {
+            var stepper = await PlayerInFirstRoomAsync();
+            var teammate = await PlayerInFirstRoomAsync();
+            var elsewhere = await PlayerInRoomAsync(_second);
+            (stepper.Character.PositionX, stepper.Character.PositionY) = ((short)3, (short)2);
+            (teammate.Character.PositionX, teammate.Character.PositionY) = ((short)0, (short)3);
+            (elsewhere.Character.PositionX, elsewhere.Character.PositionY) = ((short)3, (short)3);
+            var run = Run(new Script { Enter = r => r.SpawnTeamPortal(1, new Spot(3, 3), new Spot(0, 1)) });
+            await run.StartAsync();
+
+            Assert.IsTrue(await run.CarryRoomAsync(stepper.Character));
+
+            foreach (var carried in new[] { stepper, teammate })
+            {
+                Assert.AreEqual(((short)0, (short)1), (carried.Character.PositionX, carried.Character.PositionY));
+            }
+
+            Assert.AreEqual(((short)3, (short)3), (elsewhere.Character.PositionX, elsewhere.Character.PositionY));
+        }
+
+        [TestMethod]
+        public async Task OnlyAPlayerOnATeamPortalCarriesTheRoomAsync()
+        {
+            var player = await PlayerInFirstRoomAsync();
+            (player.Character.PositionX, player.Character.PositionY) = ((short)0, (short)0);
+            var run = Run(new Script { Enter = r => r.SpawnPortal(1, new Spot(0, 0), 2, new Spot(1, 1), locked: false) });
+            await run.StartAsync();
+
+            Assert.IsFalse(await run.CarryRoomAsync(player.Character));
+            Assert.AreEqual(((short)0, (short)0), (player.Character.PositionX, player.Character.PositionY));
+        }
+
+        [TestMethod]
         public async Task APortalReadsOpenOnceItsUnlockHasRunAsync()
         {
             var run = Run(new Script
@@ -1467,6 +1515,67 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             public Task ReturnAsync(NosCore.GameObject.Networking.ClientSession.ClientSession session) =>
                 Task.CompletedTask;
+        }
+
+        private sealed class SlowReturnHost : IInstanceRunHost
+        {
+            public List<long> Returned { get; } = [];
+
+            public string Name => "slow return";
+
+            public TimeSpan ReturnDelay => TimeSpan.FromSeconds(30);
+
+            public IEnumerable<WaveMonster> WaveMonsters(byte wave) => [];
+
+            public Task DropWaveAsync(MapInstance room, byte wave) => Task.CompletedTask;
+
+            public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) => Task.CompletedTask;
+
+            public Task ReturnAsync(ClientSession session)
+            {
+                Returned.Add(session.Character.CharacterId);
+                return Task.CompletedTask;
+            }
+        }
+
+        [TestMethod]
+        public async Task TheHostSetsHowLongThePlayersStayAfterTheEndingAsync()
+        {
+            var host = new SlowReturnHost();
+            _host = host;
+            var run = Run(new Script { Enter = r => r.Succeed() });
+            var player = await PlayerInFirstRoomAsync();
+            await run.EnteredAsync(player, _first.MapInstanceId);
+            await run.StartAsync();
+
+            World.Clock.Advance(Duration.FromSeconds(29));
+            await run.TickAsync();
+            Assert.AreEqual(0, host.Returned.Count);
+
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await run.TickAsync();
+            CollectionAssert.AreEqual(new[] { player.Character.CharacterId }, host.Returned);
+        }
+
+        [TestMethod]
+        public async Task ATeleportMovesOnlyThePlayersWithinReachOfTheSpotAsync()
+        {
+            _first = World.GetBaseMap(TestWorld.TestMapId);
+            var run = Run(new Script());
+            var near = await World.CreateSessionAsync();
+            near.Character.PositionX = 1;
+            near.Character.PositionY = 1;
+            var far = await World.CreateSessionAsync();
+            far.Character.PositionX = 3;
+            far.Character.PositionY = 3;
+            await run.EnteredAsync(near, _first.MapInstanceId);
+            await run.EnteredAsync(far, _first.MapInstanceId);
+
+            run.Teleport(1, new Spot(0, 0), 1, new Spot(2, 0));
+            await run.TickAsync();
+
+            Assert.AreEqual(((short)2, (short)0), (near.Character.PositionX, near.Character.PositionY));
+            Assert.AreEqual(((short)3, (short)3), (far.Character.PositionX, far.Character.PositionY));
         }
 
         [TestMethod]

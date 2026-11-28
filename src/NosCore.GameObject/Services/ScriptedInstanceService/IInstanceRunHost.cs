@@ -33,6 +33,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         Task ReturnAsync(ClientSession session);
 
+        // How long the players stay after any ending but a timeout before they are sent back.
+        TimeSpan ReturnDelay => TimeSpan.FromSeconds(10);
+
         // False when the host starts the script itself, for instance once a sign-up is over.
         bool StartsOnFirstEntry => true;
 
@@ -70,6 +73,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         int KillPoints(byte monsterLevel, byte killerLevel, int chain) => 0;
 
         int RoomClearedPoints => 0;
+
+        // Whether the run counts the players' own hits on each monster, so the kill that wins it can rank them.
+        bool RanksDamage => false;
 
         Task NpcPlacedAsync(ScriptedInstanceRun run, MapInstance room, NpcComponentBundle npc) => Task.CompletedTask;
 

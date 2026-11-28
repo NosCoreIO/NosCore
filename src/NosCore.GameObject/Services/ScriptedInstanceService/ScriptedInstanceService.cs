@@ -314,6 +314,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return true;
         }
 
+        public Task<bool> UseTeamPortalAsync(ClientSession session) =>
+            session.Character.MapInstance is { } room && GetRun(room.MapInstanceId) is { } run
+                ? run.CarryRoomAsync(session.Character)
+                : Task.FromResult(false);
+
         public Task<bool> AskToStartAsync(ClientSession session, Portal wayOut) =>
             RunLeftThrough(session, wayOut) is { } run ? run.AskToStartAsync(session) : Task.FromResult(false);
 

@@ -20,6 +20,7 @@ namespace NosCore.Instances.Abstractions
         private readonly List<BoutSide> _sides = [];
         private readonly List<SideBase> _bases = [];
         private readonly List<InstanceObjective> _objectives = [];
+        private readonly List<Spot> _moreStarts = [];
 
         private short _id;
         private string? _label;
@@ -61,6 +62,13 @@ namespace NosCore.Instances.Abstractions
         {
             _startX = x;
             _startY = y;
+            return this;
+        }
+
+        // Another cell a raid's members start on: they are dealt in joining order between StartingAt and these.
+        public InstanceDefinitionBuilder AlsoStartingAt(short x, short y)
+        {
+            _moreStarts.Add(new Spot(x, y));
             return this;
         }
 
@@ -195,6 +203,7 @@ namespace NosCore.Instances.Abstractions
                 TeamSizeMaximum = _teamSizeMaximum,
                 StartX = _startX,
                 StartY = _startY,
+                MoreStarts = [.. _moreStarts],
                 RequiredItems = [.. _required],
                 RequiredTimeSpaces = [.. _requiredTimeSpaces],
                 GiftItems = [.. _gifts],
