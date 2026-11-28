@@ -62,7 +62,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             PacketAssert.AreEqual(new ScriptPacket { ScriptId = WorldData.NextChapter, ScriptStepId = WorldData.ChapterStep },
                 await client.ExpectSinceAsync<ScriptPacket>(answered));
-            PacketAssert.AreEqual(QuestNpc(-1), await client.ExpectSinceAsync<QnpcPacket>(answered));
+            PacketAssert.AreEqual(QuestNpc(null), await client.ExpectSinceAsync<QnpcPacket>(answered));
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             return client;
         }
 
-        private static QnpcPacket QuestNpc(short npcVNum) => new()
+        private static QnpcPacket QuestNpc(short? npcVNum) => new()
         {
             SubPackets =
             [
