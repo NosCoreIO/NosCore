@@ -543,6 +543,54 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ATeamPortalIsARaidPortalBackIntoItsOwnRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.SpawnTeamPortal(1, new Spot(3, 3), new Spot(0, 1)) });
+
+            await run.StartAsync();
+
+            var portal = _first.Portals.Single();
+            Assert.AreEqual(PortalType.Raid, portal.Type);
+            Assert.AreEqual((_first.MapInstanceId, (short)0, (short)1),
+                (portal.DestinationMapInstanceId, portal.DestinationX, portal.DestinationY));
+            Assert.AreEqual(PortalType.Raid, _first.LastPackets.OfType<GpPacket>().Single().PortalType);
+        }
+
+        [TestMethod]
+        public async Task SteppingOnATeamPortalCarriesEveryoneInTheRoomAsync()
+        {
+            var stepper = await PlayerInFirstRoomAsync();
+            var teammate = await PlayerInFirstRoomAsync();
+            var elsewhere = await PlayerInRoomAsync(_second);
+            (stepper.Character.PositionX, stepper.Character.PositionY) = ((short)3, (short)2);
+            (teammate.Character.PositionX, teammate.Character.PositionY) = ((short)0, (short)3);
+            (elsewhere.Character.PositionX, elsewhere.Character.PositionY) = ((short)3, (short)3);
+            var run = Run(new Script { Enter = r => r.SpawnTeamPortal(1, new Spot(3, 3), new Spot(0, 1)) });
+            await run.StartAsync();
+
+            Assert.IsTrue(await run.CarryRoomAsync(stepper.Character));
+
+            foreach (var carried in new[] { stepper, teammate })
+            {
+                Assert.AreEqual(((short)0, (short)1), (carried.Character.PositionX, carried.Character.PositionY));
+            }
+
+            Assert.AreEqual(((short)3, (short)3), (elsewhere.Character.PositionX, elsewhere.Character.PositionY));
+        }
+
+        [TestMethod]
+        public async Task OnlyAPlayerOnATeamPortalCarriesTheRoomAsync()
+        {
+            var player = await PlayerInFirstRoomAsync();
+            (player.Character.PositionX, player.Character.PositionY) = ((short)0, (short)0);
+            var run = Run(new Script { Enter = r => r.SpawnPortal(1, new Spot(0, 0), 2, new Spot(1, 1), locked: false) });
+            await run.StartAsync();
+
+            Assert.IsFalse(await run.CarryRoomAsync(player.Character));
+            Assert.AreEqual(((short)0, (short)0), (player.Character.PositionX, player.Character.PositionY));
+        }
+
+        [TestMethod]
         public async Task APortalReadsOpenOnceItsUnlockHasRunAsync()
         {
             var run = Run(new Script

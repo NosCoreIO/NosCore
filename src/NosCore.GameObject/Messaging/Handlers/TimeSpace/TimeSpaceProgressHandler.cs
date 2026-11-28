@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.ScriptedInstanceService;
@@ -37,7 +38,7 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
             return run == null
                 ? Task.CompletedTask
                 : run.MonsterKilledAsync(mapInstance.MapInstanceId, monster.VNum, monster.IsBonus, monster.DeathStep,
-                    evt.Killer is MonsterComponentBundle ? null : evt.KillerLevel);
+                    evt.Killer is MonsterComponentBundle ? null : evt.KillerLevel, monster.VisualId);
         }
 
         // Every NPC that falls counts as lost. An escort's fall fails the run, which takes the place of its
@@ -56,13 +57,24 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
             }
         }
 
+        // A raid counts each player's own hits, the killing blow included; a partner's or a pet's do not count.
         // The thresholds a hit crossed are taken from the HP that hit left, so a later hit that has
         // already landed, or killed the monster, cannot hide them.
         [UsedImplicitly]
         public Task Handle(EntityDamagedEvent evt)
         {
-            if (evt.Killed || evt.Target is not MonsterComponentBundle { MapInstance: { } mapInstance } monster
-                || (monster.HitStep == null && monster.HpThresholds.Count == 0)
+            if (evt.Target is not MonsterComponentBundle { MapInstance: { } mapInstance } monster)
+            {
+                return Task.CompletedTask;
+            }
+
+            if (evt.Attacker is PlayerComponentBundle player && mapInstance.MapInstanceType == MapInstanceType.RaidInstance
+                && scriptedInstanceService.GetRun(mapInstance.MapInstanceId) is { } raid)
+            {
+                raid.MonsterDamaged(mapInstance.MapInstanceId, monster.VisualId, monster.MaxHp, player.CharacterId, evt.Damage);
+            }
+
+            if (evt.Killed || (monster.HitStep == null && monster.HpThresholds.Count == 0)
                 || scriptedInstanceService.GetRun(mapInstance.MapInstanceId) is not { } run)
             {
                 return Task.CompletedTask;

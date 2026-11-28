@@ -4507,7 +4507,7 @@ confirms "Do you want to create the raid map?".
       no longer shows it; B trying the same is told only the leader can
 - [ ] A registers twice: "Already registered in the raid list." appears
 - [ ] A starts the raid: the team is gone from everyone's board
-- [ ] On a freshly parsed database, the Mother Cuby, Ginseng, Glacerus and Grenigas gates show
+- [ ] On a freshly parsed database, the Mother Cuby, Ginseng, Glacerus, Grenigas and Zenas gates show
       without touching the `Script` column
 
 #### Ginseng
@@ -4551,6 +4551,33 @@ to 99 first. Dropping `MaxHp` of the Fiery Giant (1925) and of Grenigas (1058) m
       three Fiery Giants, and leads to Grenigas Temple (2539)
 - [ ] Killing Grenigas wins: every member still inside gets a Raid Box of Grenigas (4698) and is
       sent back to Grenigas Square
+
+#### Zenas
+
+Seal 5883, levels 85 to 99, gate on map 232 at 103,125. Raise A to E to levels 85 to 99 first.
+Dropping `MaxHp` of Archangel Lucifer (2553) and of Zenas (2504) makes it quick.
+
+- [ ] A starts at the gate: A, C and E land at 90,103 and B and D at 245,102 of map 2602, with a
+      one-hour clock and Zenas at 160,128 among her guards
+- [ ] After ten seconds "Zenas' first test will start" shows, and twenty seconds later seven
+      Guardian Knights, Commanders and Mages close in on each start cell
+- [ ] Killing the 21 guards of the west pack (around 90,103) opens a raid portal at 91,149 and
+      shows "first test passed"; the east pack does not count
+- [ ] One player stepping on it brings every member, with their partners, to 88,175
+- [ ] Thirty seconds after the portal opened, Archangel Lucifer appears at 160,269
+- [ ] Killing Lucifer takes every guard left off the map, drops its loot around 160,269 and shows
+      "second test passed"; five seconds later a raid portal at 160,247 carries the team to 160,217
+- [ ] Thirty seconds after Lucifer fell, Priestess Kelly, Priestess Molly, an Initiate and seven
+      Crusaders of the Second Squad appear around 160,217, a one-minute red clock starts and a
+      Knight, a Commander and a Mage come every eight seconds from the Crusaders' cells
+- [ ] The Initiate and the Crusaders fight the guards; Kelly and Molly do not
+- [ ] When the red clock ends it stops, "all tests passed" shows, and six seconds later a raid
+      portal at 160,203 carries the team to 159,170, before Zenas
+- [ ] Killing Zenas drops her loot and gold around 160,133 and every member still inside gets a
+      Simple Raid Box of Zenas (9844)
+- [ ] Not verifiable yet: Zenas' talks to the team at the start and after the tests, the guards'
+      shout when they appear, Kelly's plea when the prayer starts, the Second Squad moving before
+      Zenas, and where the portal at 233,129 that opens when Lucifer falls leads
 
 ### Instant Combat
 

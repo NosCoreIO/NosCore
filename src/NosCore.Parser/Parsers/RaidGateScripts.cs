@@ -14,6 +14,7 @@ namespace NosCore.Parser.Parsers
         public static readonly IReadOnlyDictionary<(short MapId, short X, short Y), string> All =
             new Dictionary<(short MapId, short X, short Y), string>
             {
+                [(232, 103, 125)] = "raid-zenas",
                 [(2510, 20, 5)] = "raid-mother-cuby",
                 [(2520, 25, 1)] = "raid-ginseng",
                 [(2536, 26, 25)] = "raid-grenigas",

@@ -90,6 +90,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<(ObjectiveKind Kind, short VNum), int> _objectiveProgress = [];
 
         private readonly ConcurrentDictionary<long, byte> _chestsOpened = new();
+        private readonly ConcurrentDictionary<(Guid Room, long MonsterId), MonsterDamage> _damage = new();
+        private MonsterDamage? _dying;
         private readonly Dictionary<int, long> _newestArrival = [];
         private readonly List<(MapInstance Room, int NpcId)> _escorts = [];
         private readonly ConcurrentDictionary<(Guid Room, long NpcId), byte> _livingNpcs = new();
@@ -169,6 +171,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public int RoomsVisited => _visited.Count;
 
+        // The players' hits on the monster whose death won the run, for a host that ranks them.
+        public MonsterDamage? WinningKillDamage { get; private set; }
+
         public TimeSpan Elapsed => _scriptStartedAt is { } startedAt
             ? (_clock.GetCurrentInstant() - startedAt).ToTimeSpan()
             : TimeSpan.Zero;
@@ -196,10 +201,16 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // A kill nobody is credited with adds nothing to the score and ends a run of marked monsters. A kill after
         // the run has ended adds nothing either.
         public Task MonsterKilledAsync(Guid mapInstanceId, short vNum, bool isBonus = false,
-            Action<IInstanceRun>? deathStep = null, byte? killerLevel = null)
+            Action<IInstanceRun>? deathStep = null, byte? killerLevel = null, long? monsterId = null)
         {
             return RunAsync(async () =>
             {
+                MonsterDamage? damage = null;
+                if (monsterId is { } id)
+                {
+                    _damage.TryRemove((mapInstanceId, id), out damage);
+                }
+
                 var room = RoomOf(mapInstanceId);
                 if (room == null)
                 {
@@ -221,10 +232,18 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     return;
                 }
 
-                await CallScriptAsync(run => _script.OnMonsterKilled(run, room.Value, vNum));
-                if (deathStep != null)
+                _dying = damage;
+                try
                 {
-                    await CallScriptAsync(deathStep);
+                    await CallScriptAsync(run => _script.OnMonsterKilled(run, room.Value, vNum));
+                    if (deathStep != null)
+                    {
+                        await CallScriptAsync(deathStep);
+                    }
+                }
+                finally
+                {
+                    _dying = null;
                 }
 
                 if (isBonus)
@@ -253,6 +272,18 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     await RoomClearedAsync(room.Value);
                 }
             });
+        }
+
+        // A player's own hit on a monster of the run. Kept only for a host that ranks the damage, and only while
+        // the monster lives: its death either wins the run or drops the count.
+        public void MonsterDamaged(Guid mapInstanceId, long monsterId, int maxHp, long characterId, int damage)
+        {
+            if (!_host.RanksDamage || damage <= 0)
+            {
+                return;
+            }
+
+            _damage.GetOrAdd((mapInstanceId, monsterId), _ => new MonsterDamage(maxHp)).Add(characterId, damage);
         }
 
         // Only a monster summoned with hit or HP steps is reported, so a script that asked for none is never called.
@@ -960,6 +991,56 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }));
         }
 
+        public void SpawnTeamPortal(int room, Spot at, Spot arrival)
+        {
+            var mapInstance = _rooms[room];
+            var portal = new Portal
+            {
+                PortalId = ++_nextPortalId,
+                SourceMapId = mapInstance.Map.MapId,
+                SourceX = at.X,
+                SourceY = at.Y,
+                SourceMapInstanceId = mapInstance.MapInstanceId,
+                DestinationMapId = mapInstance.Map.MapId,
+                DestinationX = arrival.X,
+                DestinationY = arrival.Y,
+                DestinationMapInstanceId = mapInstance.MapInstanceId,
+                Type = PortalType.Raid
+            };
+            _pending.Add(() => OnRoom(mapInstance, () =>
+            {
+                mapInstance.Portals.Add(portal);
+                return mapInstance.SendPacketAsync(portal.GenerateGp());
+            }));
+        }
+
+        // Runs on the room's own executor, from the packet of the player who stepped on the portal.
+        public async Task<bool> CarryRoomAsync(PlayerComponentBundle player)
+        {
+            var room = player.MapInstance;
+            if (RoomOf(room.MapInstanceId) == null || EndState != null
+                || room.Portals.FirstOrDefault(s => s.Type == PortalType.Raid
+                    && s.DestinationMapInstanceId == room.MapInstanceId
+                    && Math.Max(Math.Abs(s.SourceX - player.PositionX), Math.Abs(s.SourceY - player.PositionY)) <= 2) is not { } portal)
+            {
+                return false;
+            }
+
+            foreach (var carried in PlayersOf(room).ToList())
+            {
+                await carried.TeleportAsync(portal.DestinationX, portal.DestinationY);
+                foreach (var mate in carried.Mates.Values.Where(m => m.IsTeamMember))
+                {
+                    if (mate.Entity is { } entity && entity.MapInstance == room)
+                    {
+                        await entity.TeleportAsync(portal.DestinationX, portal.DestinationY);
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public void UnlockPortal(int fromRoom, int toRoom)
         {
             var from = _rooms[fromRoom];
@@ -1647,6 +1728,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             EndState = state;
+            if (state == EndStateType.Success)
+            {
+                WinningKillDamage = _dying;
+            }
+
             _clockEndsAt = null;
             _clockPausedAt = null;
             _scheduled.Clear();
@@ -1966,6 +2052,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
                 Do(() => run.SpawnPortal(fromRoom, at, toRoom, arrival, locked));
+
+            public void SpawnTeamPortal(int room, Spot at, Spot arrival) => Do(() => run.SpawnTeamPortal(room, at, arrival));
 
             public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
 

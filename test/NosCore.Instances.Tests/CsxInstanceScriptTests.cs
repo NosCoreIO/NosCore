@@ -83,6 +83,9 @@ namespace NosCore.Instances.Tests
             Calls.Add($"portal({fromRoom}->{toRoom},{(locked ? "locked" : "open")})");
         }
 
+        public void SpawnTeamPortal(int room, Spot at, Spot arrival) =>
+            Calls.Add($"teamPortal({room},{at.X},{at.Y}->{arrival.X},{arrival.Y})");
+
         public void UnlockPortal(int fromRoom, int toRoom)
         {
             Unlocked.Add((fromRoom, toRoom));
@@ -834,6 +837,7 @@ namespace NosCore.Instances.Tests
         [DataRow("raid-ginseng", 1, 1128, 40, 59, 4685)]
         [DataRow("raid-glacerus", 17, 5512, 80, 99, 4772)]
         [DataRow("raid-grenigas", 15, 5922, 85, 99, 4698)]
+        [DataRow("raid-zenas", 23, 5883, 85, 99, 9844)]
         public async Task EachRaidIsOpenedByItsOwnSeal(string name, int raid, int seal, int minimum, int maximum, int box)
         {
             var definition = (await LoadAsync(name)).Definition;
@@ -916,6 +920,116 @@ namespace NosCore.Instances.Tests
             (await LoadAsync("raid-grenigas")).OnMonsterKilled(run, 3, 1058);
 
             CollectionAssert.AreEqual(new[] { "succeed" }, run.Calls);
+        }
+
+        [TestMethod]
+        public async Task TheZenasTeamIsSplitBetweenTheTwoEndsOfTheHall()
+        {
+            var definition = (await LoadAsync("raid-zenas")).Definition;
+
+            CollectionAssert.AreEqual(new[] { new Spot(90, 103), new Spot(245, 102), new Spot(90, 103), new Spot(245, 102) },
+                Enumerable.Range(0, 4).Select(definition.StartOf).ToList());
+        }
+
+        [TestMethod]
+        public async Task TheFirstZenasTestStartsThirtySecondsInWithGuardsAtBothEnds()
+        {
+            var run = new RecordingRun();
+
+            (await LoadAsync("raid-zenas")).OnFirstEnter(run);
+
+            Assert.AreEqual("clock(60m)", run.Calls[0]);
+            Assert.AreEqual(1, run.Summoned.Count(m => m.VNum == 2504));
+            Assert.AreEqual(92, run.Summoned.Count(m => m.VNum is >= 2506 and <= 2509));
+            CollectionAssert.AreEqual(new[] { TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(30) }, run.Scheduled.Select(s => s.At).ToList());
+
+            run.Scheduled[0].Step(run);
+            run.Scheduled[1].Step(run);
+
+            Assert.AreEqual("message(ZenasFirstTestWillStart)", run.Calls[6]);
+            Assert.AreEqual(92 + 42, run.Summoned.Count(m => m.VNum is >= 2506 and <= 2508 || m.VNum == 2509));
+        }
+
+        [TestMethod]
+        public async Task TheWestGuardsFallingOpensThePortalAndCallsLuciferThirtySecondsLater()
+        {
+            var run = new RecordingRun();
+            (await LoadAsync("raid-zenas")).OnFirstEnter(run);
+            run.Scheduled[1].Step(run);
+            var west = run.Summoned.Where(m => m.OnDeath != null).ToList();
+            Assert.AreEqual(21, west.Count);
+            Assert.IsTrue(west.All(m => m.At.X < 150));
+            run.Calls.Clear();
+
+            foreach (var guard in west.Take(20))
+            {
+                guard.OnDeath!(run);
+            }
+
+            Assert.AreEqual(0, run.Calls.Count);
+
+            run.Elapsed = TimeSpan.FromSeconds(55);
+            west[20].OnDeath!(run);
+
+            CollectionAssert.AreEqual(new[] { "teamPortal(1,91,149->88,175)", "message(ZenasFirstTestPassed)" }, run.Calls);
+            var lucifer = run.Scheduled.Last();
+            Assert.AreEqual(TimeSpan.FromSeconds(85), lucifer.At);
+            lucifer.Step(run);
+            CollectionAssert.AreEqual(new[] { "message(ArchangelLuciferZenas13thWingAppeared)", "summon(1,2553)" }, run.Calls.TakeLast(2).ToList());
+        }
+
+        [TestMethod]
+        public async Task LuciferFallingClearsTheGuardsAndLeadsToThePrayer()
+        {
+            var script = await LoadAsync("raid-zenas");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromSeconds(90) };
+
+            script.OnMonsterKilled(run, 1, 2553);
+
+            CollectionAssert.AreEqual(new[]
+            {
+                "dismiss(1,2506)", "dismiss(1,2507)", "dismiss(1,2508)", "dismiss(1,2509)", "throw(1,8)", "message(ZenasSecondTestPassed)"
+            }, run.Calls);
+            CollectionAssert.AreEqual(new[] { TimeSpan.FromSeconds(95), TimeSpan.FromSeconds(120) }, run.Scheduled.Select(s => s.At).ToList());
+            run.Scheduled[0].Step(run);
+            Assert.AreEqual("teamPortal(1,160,247->160,217)", run.Calls.Last());
+        }
+
+        [TestMethod]
+        public async Task ThePrayerLastsAMinuteUnderSevenWavesThenOpensTheWayToZenas()
+        {
+            var script = await LoadAsync("raid-zenas");
+            var run = new RecordingRun { Elapsed = TimeSpan.FromSeconds(90) };
+            script.OnMonsterKilled(run, 1, 2553);
+            run.Elapsed = TimeSpan.FromSeconds(120);
+            run.Scheduled[1].Step(run);
+            run.Scheduled.RemoveRange(0, 2);
+
+            CollectionAssert.IsSubsetOf(new[] { "npcs(1,2550,2551,2549)", "npcs(1,2505,2505,2505,2505,2505,2505,2505)", "roomClock(1,60s)" }, run.Calls);
+            Assert.IsTrue(run.SummonedNpcs.Where(n => n.VNum is 2505 or 2549).All(n => n.IsAlly));
+            Assert.IsFalse(run.SummonedNpcs.Single(n => n.VNum == 2550).IsAlly);
+            CollectionAssert.AreEqual(new[] { 126, 134, 142, 150, 158, 166, 174, 180, 186 },
+                run.Scheduled.Select(s => (int)s.At.TotalSeconds).ToList());
+
+            run.Calls.Clear();
+            foreach (var (_, step) in run.Scheduled)
+            {
+                step(run);
+            }
+
+            Assert.AreEqual(7, run.Calls.Count(c => c == "summon(1,2506,2507,2508)"));
+            CollectionAssert.AreEqual(new[] { "stopRoomClock(1)", "message(ZenasAllTestPassed)", "teamPortal(1,160,203->159,170)" },
+                run.Calls.TakeLast(3).ToList());
+        }
+
+        [TestMethod]
+        public async Task KillingZenasThrowsTheLootAndWinsTheRaid()
+        {
+            var run = new RecordingRun();
+
+            (await LoadAsync("raid-zenas")).OnMonsterKilled(run, 1, 2504);
+
+            CollectionAssert.AreEqual(new[] { "throw(1,11)", "succeed" }, run.Calls);
         }
 
         [TestMethod]

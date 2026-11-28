@@ -50,6 +50,7 @@ namespace NosCore.GameObject.Services.RaidService
         private const byte Leader = 2;
         private const long NoLeader = -1;
         private const int RevivesPerRun = 2;
+        private const int RankedPlayers = 3;
         private static readonly Duration ReviveDelay = Duration.FromSeconds(20);
 
         public async Task OpenAsync(ClientSession leader, InventoryItemInstance seal)
@@ -326,9 +327,10 @@ namespace NosCore.GameObject.Services.RaidService
             }
 
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
-            foreach (var member in members)
+            for (var i = 0; i < members.Count; i++)
             {
-                await mapChangeService.ChangeMapInstanceAsync(member, firstRoom, definition.StartX, definition.StartY);
+                var start = definition.StartOf(i);
+                await mapChangeService.ChangeMapInstanceAsync(members[i], firstRoom, start.X, start.Y);
             }
 
             await run.StartAsync();
@@ -391,6 +393,14 @@ namespace NosCore.GameObject.Services.RaidService
                     }
                 }
 
+                if (Ranking(run, winners) is { } ranking)
+                {
+                    foreach (var member in winners)
+                    {
+                        await member.SendPacketAsync(ranking);
+                    }
+                }
+
                 if (raid.Definition is { } won)
                 {
                     await messageBus.PublishAsync(new RaidWonEvent(familyWinners, won.Id, raid.IsHeroic));
@@ -398,6 +408,33 @@ namespace NosCore.GameObject.Services.RaidService
             }
 
             await DissolveAsync(team, null);
+        }
+
+        // The players who did the most damage to the boss whose death won the raid, highest first. Only players
+        // still in the raid are shown; null when none of them hit the boss.
+        private static HcscorePacket? Ranking(ScriptedInstanceRun run, IReadOnlyCollection<ClientSession> winners)
+        {
+            if (run.WinningKillDamage is not { } damage)
+            {
+                return null;
+            }
+
+            var ranked = damage.Ranking()
+                .Select(hits => winners.FirstOrDefault(s => s.Character.CharacterId == hits.CharacterId) is { } session
+                    ? new HcscoreSubPacket
+                    {
+                        Morph = Morph(session.Character),
+                        Class = session.Character.Class,
+                        Name = session.Character.Name,
+                        Gender = session.Character.Gender,
+                        Score = (int)Math.Min(int.MaxValue, hits.Score),
+                        DamagePercent = damage.PercentOf(hits)
+                    }
+                    : null)
+                .OfType<HcscoreSubPacket>()
+                .Take(RankedPlayers)
+                .ToList<HcscoreSubPacket?>();
+            return ranked.Count == 0 ? null : new HcscorePacket { Ranking = ranked };
         }
 
         // Each member is brought back where they fell twice; a third fall takes them out of the team.
@@ -738,6 +775,8 @@ namespace NosCore.GameObject.Services.RaidService
             public Dictionary<long, Instant> RevivesAt { get; } = [];
 
             public string Name => $"raid {raid.ScriptedInstanceId}";
+
+            public bool RanksDamage => true;
 
             public bool StartsOnFirstEntry => false;
 
