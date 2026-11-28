@@ -11,10 +11,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ExperienceService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.QuestService;
@@ -173,6 +175,26 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             CollectionAssert.Contains(new[] { 1012, 1013 }, given);
             Assert.AreEqual(3, Character.InventoryService.CountItem((short)given));
             Assert.AreEqual(3, Window.Reward1Amount);
+        }
+
+        [TestMethod]
+        public async Task AnItemThatDoesNotFitInTheBagIsSentAsAParcel()
+        {
+            // Official EU trace, 2026-11-29 (quest 3249): a full bag still pays the item, as a parcel.
+            var delivery = World.Freeze<Mock<IItemDeliveryService>>();
+            for (short slot = 0; slot < World.WorldConfiguration.Value.BackpackSize; slot++)
+            {
+                Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                    World.GenerateItemProvider().Create(1013, 999), Character.CharacterId), NoscorePocketType.Main, slot);
+            }
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.EtcMainItem, Data = 1012, Amount = 1 });
+
+            await GiveAsync();
+
+            delivery.Verify(d => d.DeliverAsync(Character, It.Is<IItemInstance>(i => i.ItemVNum == 1012 && i.Amount == 1)), Times.Once);
+            Assert.AreEqual(0, Character.InventoryService.CountItem(1012));
+            Assert.AreEqual(QuestRewardType.EtcMainItem, Window.Reward1Type);
+            Assert.AreEqual(1012, Window.Reward1Data);
         }
 
         [TestMethod]

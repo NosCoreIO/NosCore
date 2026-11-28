@@ -53,13 +53,17 @@ namespace NosCore.PacketHandlers.Tests.Quest
             QuestService.Verify(x => x.ClaimQuestAsync(It.Is<PlayerComponentBundle>(c => c.VisualId == CharacterId), slot), Times.Once);
 
         [TestMethod]
-        public async Task AchievingRunsTheCurrentScriptStep()
+        public async Task AchievingAchievesThePacketsQuest()
         {
-            await new Spec("Achieving runs the current script step as an achievement")
+            await new Spec("Achieving (qt 1) achieves the quest the packet names")
                 .WhenAsync(SendingQt_, QuestActionType.Achieve)
-                .Then(TheCurrentStepShouldRunAs_, QuestActionType.Achieve)
+                .Then(TheQuestShouldBeAchieved)
+                .And(NoScriptStepShouldRun)
                 .ExecuteAsync();
         }
+
+        private void TheQuestShouldBeAchieved() =>
+            QuestService.Verify(x => x.AchieveQuestAsync(It.Is<PlayerComponentBundle>(c => c.VisualId == CharacterId), QuestId), Times.Once);
 
         [TestMethod]
         public async Task GivingUpGivesUpThePacketsQuest()
@@ -74,12 +78,6 @@ namespace NosCore.PacketHandlers.Tests.Quest
         private Task SendingQt_(QuestActionType type)
         {
             return Handler.ExecuteAsync(new QtPacket { Type = type, Data = QuestId }, Session);
-        }
-
-        private void TheCurrentStepShouldRunAs_(QuestActionType type)
-        {
-            QuestService.Verify(x => x.RunCurrentScriptStepAsync(It.Is<PlayerComponentBundle>(c => c.VisualId == CharacterId), type), Times.Once);
-            QuestService.Verify(x => x.GiveUpQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<int>()), Times.Never);
         }
 
         private void TheQuestShouldBeGivenUp()

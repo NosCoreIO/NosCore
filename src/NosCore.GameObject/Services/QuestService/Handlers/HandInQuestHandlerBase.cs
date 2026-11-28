@@ -22,8 +22,14 @@ public abstract class HandInQuestHandlerBase : ItemQuestHandlerBase
             .Where(o => o.NpcVNum(QuestType) == npcVNum && o.ItemVNum(QuestType) != null
                 && !(quest.ObjectiveProgress.TryGetValue(o.QuestObjectiveId, out var c) && c >= o.RequiredAmount(QuestType)))
             .ToList();
-        if (due.Count == 0 || due.Any(o => character.InventoryService.CountItem(o.ItemVNum(QuestType).GetValueOrDefault()) < o.RequiredAmount(QuestType)))
+        if (due.Count == 0)
         {
+            return ItemQuestProgress.None;
+        }
+
+        if (due.Any(o => character.InventoryService.CountItem(o.ItemVNum(QuestType).GetValueOrDefault()) < o.RequiredAmount(QuestType)))
+        {
+            await OnItemsMissingAsync(character);
             return ItemQuestProgress.None;
         }
 
@@ -35,6 +41,12 @@ public abstract class HandInQuestHandlerBase : ItemQuestHandlerBase
             await character.SendPacketsAsync(packets);
         }
 
+        await OnHandedInAsync(character, npcVNum);
         return Outcome(quest, true);
     }
+
+    // The NPC asked for the quest's items but the bag lacks some; its usual dialog follows.
+    protected virtual Task OnItemsMissingAsync(PlayerComponentBundle character) => Task.CompletedTask;
+
+    protected virtual Task OnHandedInAsync(PlayerComponentBundle character, short npcVNum) => Task.CompletedTask;
 }

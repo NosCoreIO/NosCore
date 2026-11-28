@@ -269,7 +269,6 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void Quest_PaysAReward(short questId)
         {
             RewardService.Setup(r => r.HasRewards(questId)).Returns(true);
-            RewardService.Setup(r => r.HasRoomFor(It.IsAny<PlayerComponentBundle>(), questId)).Returns(true);
         }
 
         private Task MeetingTheObjectivesOf_(short questId) =>
@@ -636,6 +635,105 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .WhenAsync(ValidatingQuest)
                 .Then(ValidationShouldFail)
                 .ExecuteAsync();
+        }
+
+        // Official EU trace, 2026-11-29 (quests 3238 and 3248): "qt 1 {quest}" on reaching the place is answered
+        // with "quest complete", the target cleared and the quest window, then the step after its q_complete.
+        [TestMethod]
+        public async Task ReachingAGoToQuestsPlaceCompletesItAndMovesTheStoryOn()
+        {
+            await new Spec("Reaching a go-to quest's place completes it and moves to the step after its q_complete")
+                .Given(CharacterIsOnTheQCompleteStepOfAGoToQuest)
+                .And(CharacterIsAtTargetLocation)
+                .WhenAsync(TheClientAchievesQuest_, (short)1)
+                .Then(Quest_ShouldBeDone_, (short)1, true)
+                .And(TheCompletionShouldBeSentInTheTracesOrder)
+                .And(CharacterShouldBeOnStep_OfScript_, (short)900, (byte)17)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReachingAGoToQuestAlreadyDoneOnTheWayLeavesTheStoryStep()
+        {
+            await new Spec("A qt 1 for a go-to quest the walk already completed does not skip the next story talk")
+                .Given(CharacterIsOnTheQCompleteStepOfAGoToQuest)
+                .And(CharacterIsAtTargetLocation)
+                .AndAsync(MeetingTheObjectivesOf_, (short)1)
+                .And(NoPacketWasSentYet)
+                .WhenAsync(TheClientAchievesQuest_, (short)1)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)900, (byte)17)
+                .And(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReachingAGoToQuestsPlaceFromAfarDoesNothing()
+        {
+            await new Spec("A qt 1 sent away from the go-to quest's place neither completes it nor moves the story")
+                .Given(CharacterIsOnTheQCompleteStepOfAGoToQuest)
+                .And(CharacterIsNotAtTargetLocation)
+                .WhenAsync(TheClientAchievesQuest_, (short)1)
+                .Then(Quest_ShouldBeDone_, (short)1, false)
+                .And(CharacterShouldBeOnStep_OfScript_, (short)880, (byte)17)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AchievingAQuestTheCharacterDoesNotHoldRunsTheCurrentStep()
+        {
+            await new Spec("A qt 1 naming no held quest runs the current script step")
+                .Given(CharacterIsOnTalkStepOneOfScript_, (byte)100)
+                .WhenAsync(TheClientAchievesQuest_, (short)999)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheQuestWindowIsUpdatedBeforeTheNextStoryStep()
+        {
+            await new Spec("A quest ending on its q_complete step closes before the next story step is sent")
+                .Given(CharacterIsOnTheQCompleteStepOfAGoToQuest)
+                .And(TheCompletionIsWatched)
+                .WhenAsync(MeetingTheObjectivesOf_, (short)1)
+                .Then(TheQuestShouldHaveClosedBeforeTheNextStep)
+                .ExecuteAsync();
+        }
+
+        private bool _stepSentBeforeTheQuestClosed = true;
+
+        private void CharacterIsOnTheQCompleteStepOfAGoToQuest()
+        {
+            CharacterHasGoToQuest();
+            var current = new ScriptDto { Id = Guid.NewGuid(), ScriptId = 17, ScriptStepId = 880, StepType = "q_complete", Argument1 = 1 };
+            Scripts.Add(new ScriptDto { Id = Guid.NewGuid(), ScriptId = 17, ScriptStepId = 870, StepType = "quest", Argument1 = 1 });
+            Scripts.Add(current);
+            Scripts.Add(new ScriptDto { Id = Guid.NewGuid(), ScriptId = 17, ScriptStepId = 900, StepType = "talk", Argument1 = 6844 });
+            Scripts.Add(new ScriptDto { Id = Guid.NewGuid(), ScriptId = 17, ScriptStepId = 910, StepType = "talk", Argument1 = 6845 });
+            Session.Character.Script = current;
+            Session.LastPackets.Clear();
+        }
+
+        private void TheCompletionIsWatched() =>
+            GameEvents.Setup(g => g.RaiseAsync(It.IsAny<GameObject.Messaging.Events.QuestCompletedEvent>()))
+                .Callback(() => _stepSentBeforeTheQuestClosed = Session.LastPackets.OfType<ScriptPacket>().Any())
+                .Returns(Task.CompletedTask);
+
+        private void TheQuestShouldHaveClosedBeforeTheNextStep()
+        {
+            Assert.IsFalse(_stepSentBeforeTheQuestClosed);
+            Assert.AreEqual(1, Session.LastPackets.OfType<ScriptPacket>().Count());
+        }
+
+        private Task TheClientAchievesQuest_(short questId) => Service.AchieveQuestAsync(Session.Character, questId);
+
+        private void TheCompletionShouldBeSentInTheTracesOrder()
+        {
+            var sent = Session.LastPackets.Where(p => p is MsgiPacket or TargetOffPacket or QstiPacket or ScriptPacket).ToList();
+            Assert.AreEqual(4, sent.Count);
+            PacketAssert.AreEqual(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.QuestComplete }, sent[0]);
+            PacketAssert.AreEqual(new TargetOffPacket { QuestId = 1, TargetMap = 0, TargetX = 5, TargetY = 5 }, sent[1]);
+            Assert.IsInstanceOfType<QstiPacket>(sent[2]);
+            PacketAssert.AreEqual(new ScriptPacket { ScriptId = 17, ScriptStepId = 900 }, sent[3]);
         }
 
         [TestMethod]

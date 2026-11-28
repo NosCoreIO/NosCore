@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Quest;
@@ -344,6 +345,51 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                 .And(TheCharacterShouldStillCarry_Of_, 0, QuestItem)
                 .ExecuteAsync();
         }
+
+        // Official EU trace, 2026-11-29 (quest 3250): the hand-in is called out as "talked to {npc}"; without the
+        // item the NPC says the delivery is short and its own dialog follows.
+        [TestMethod]
+        public async Task HandingInARequiredItemSaysTheNpcWasTalkedTo()
+        {
+            await new Spec("Handing a required quest's item to its NPC says the NPC was talked to")
+                .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Required, 1, QuestItem, Npc)
+                .And(TheCharacterCarries_Of_, 1, QuestItem)
+                .WhenAsync(TheCharacterTalksTo_, Npc)
+                .Then(TheChatShouldSayNpc_WasTalkedTo, Npc)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TalkingToARequiredQuestsNpcWithoutTheItemSaysItIsShort()
+        {
+            await new Spec("Talking to a required quest's NPC without the item says the delivery is short")
+                .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Required, 1, QuestItem, Npc)
+                .WhenAsync(TheCharacterTalksTo_, Npc)
+                .Then(TheQuestShouldNotBeCompleted)
+                .And(TheChatShouldSayTheItemsAreShort)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TalkingToAnotherNpcDuringARequiredQuestSaysNothing()
+        {
+            await new Spec("Talking to an NPC a required quest does not name adds no chat line")
+                .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Required, 1, QuestItem, Npc)
+                .WhenAsync(TheCharacterTalksTo_, OtherNpc)
+                .Then(NoChatLineShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void TheChatShouldSayNpc_WasTalkedTo(short npc) =>
+            PacketAssert.AreEqual(_session.Character.GenerateSayi2(SayColorType.Red, Game18NConstString.TalkedTo, 6, npc),
+                _session.LastPackets.OfType<Sayi2Packet>().Single());
+
+        private void TheChatShouldSayTheItemsAreShort() =>
+            PacketAssert.AreEqual(_session.Character.GenerateSayi(SayColorType.Red, Game18NConstString.InsufficientItemsToDelivery),
+                _session.LastPackets.OfType<SayiPacket>().Single());
+
+        private void NoChatLineShouldBeSent() =>
+            Assert.IsFalse(_session.LastPackets.Any(p => p is SayiPacket or Sayi2Packet));
 
         [TestMethod]
         public async Task RequiredQuestIgnoresOtherItems()
