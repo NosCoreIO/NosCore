@@ -16,11 +16,15 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
 public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
 {
+    private const byte ItemArgument = 7;
+
     public abstract QuestType QuestType { get; }
 
     public Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest) =>
@@ -69,6 +73,12 @@ public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
 
         return Outcome(quest, progressed);
     }
+
+    // The chat line naming the item and where its objective now stands, e.g. "1155 2/3".
+    protected Sayi2Packet ProgressLine(PlayerComponentBundle character, Game18NConstString message, CharacterQuest quest,
+        QuestObjectiveDto objective) =>
+        character.GenerateSayi2(SayColorType.Red, message, ItemArgument, objective.ItemVNum(QuestType).GetValueOrDefault(),
+            $"{quest.ObjectiveProgress.GetValueOrDefault(objective.QuestObjectiveId)}/{objective.RequiredAmount(QuestType)}");
 
     protected static ItemQuestProgress Outcome(CharacterQuest quest, bool progressed) =>
         !progressed ? ItemQuestProgress.None

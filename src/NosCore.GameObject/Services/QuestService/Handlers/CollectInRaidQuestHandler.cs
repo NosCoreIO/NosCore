@@ -34,8 +34,7 @@ public sealed class CollectInRaidQuestHandler : ItemQuestHandlerBase
             }
 
             progressed = true;
-            await character.SendPacketAsync(character.GenerateSayi2(SayColorType.Red, Game18NConstString.Collected, 7,
-                vNum, $"{current}/{objective.RequiredAmount(QuestType)}"));
+            await character.SendPacketAsync(ProgressLine(character, Game18NConstString.Collected, quest, objective));
         }
 
         return Outcome(quest, progressed);
