@@ -28,8 +28,16 @@ namespace NosCore.GameObject.Services.PenaltyService
             return Task.FromResult(end == null ? (Duration?)null : end.Value - clock.GetCurrentInstant());
         }
 
-        public Task<bool> IsBannedAsync(long accountId) =>
-            Task.FromResult(LatestEnd(accountId, PenaltyType.Banned) != null);
+        public Task<bool> IsBannedAsync(long accountId) => IsRunningAsync(accountId, PenaltyType.Banned);
+
+        public Task<bool> IsRunningAsync(long accountId, PenaltyType penalty) =>
+            Task.FromResult(LatestEnd(accountId, penalty) != null);
+
+        public async Task<bool> IsRunningForCharacterAsync(long characterId, PenaltyType penalty)
+        {
+            var character = await characterDao.FirstOrDefaultAsync(c => c.CharacterId == characterId);
+            return character != null && LatestEnd(character.AccountId, penalty) != null;
+        }
 
         public async Task<AccountDto?> FindAccountAsync(string? characterName, int serverId)
         {

@@ -18,6 +18,10 @@ namespace NosCore.GameObject.Services.PenaltyService
 
         Task<bool> IsBannedAsync(long accountId);
 
+        Task<bool> IsRunningAsync(long accountId, PenaltyType penalty);
+
+        Task<bool> IsRunningForCharacterAsync(long characterId, PenaltyType penalty);
+
         // The account behind an active character of that server, or null when there is none.
         Task<AccountDto?> FindAccountAsync(string? characterName, int serverId);
 

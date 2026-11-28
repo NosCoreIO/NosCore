@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Arch.Core;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
@@ -68,6 +70,7 @@ public sealed class RewardService(
     IScriptedInstanceService scriptedInstanceService,
     IItemDeliveryService itemDeliveryService,
     IGameEventDispatcher gameEvents,
+    IPenaltyService penaltyService,
     IOptions<WorldConfiguration> worldConfiguration,
     ILogger<RewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random) : IRewardService
 {
@@ -200,8 +203,11 @@ public sealed class RewardService(
             fairyXp = FairyXpRate;
         }
 
-        await experienceProgression.AddExperienceAsync(player, levelXp, jobXp, heroXp, spXp, fairyXp);
-        await mateProgression.AddExperienceAsync(player, levelXp);
+        if (!await penaltyService.IsRunningAsync(player.AccountId, PenaltyType.BlockExp))
+        {
+            await experienceProgression.AddExperienceAsync(player, levelXp, jobXp, heroXp, spXp, fairyXp);
+            await mateProgression.AddExperienceAsync(player, levelXp);
+        }
         await mateProgression.AddAgilityAsync(player, mob.Level);
 
         await AwardReputationAsync(player, mob, bonus);

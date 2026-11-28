@@ -9,7 +9,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
+using NosCore.Core.Dao;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Family;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Data.Enumerations.Interaction;
 using Act4RaidType = NosCore.Packets.Enumerations.Act4RaidType;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
@@ -129,6 +134,18 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         [TestMethod]
+        public async Task AMemberWhoseFamilyExperienceIsBlockedEarnsTheFamilyNothing()
+        {
+            await new Spec("A member under a family experience block earns the family nothing")
+                .GivenAsync(TheMembersFamilyExperienceIsBlocked)
+                .WhenAsync(TheMemberEarns_, 250)
+                .Then(TheFamilyShouldHaveEarnedNothing)
+                .And(NothingShouldBeWrittenOrShown)
+                .And(TheGainShouldBeReportedAs_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AWonRaidCountsForEveryMemberWithoutAHistoryLine()
         {
             await new Spec("Two members winning Mother Cuby advance its missions twice and write no history line")
@@ -206,6 +223,18 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .ReturnsAsync(new FamilyExperienceGain((byte)level, true));
 
         private void TheMemberUsesAnFxpBooster() => _boosted = true;
+
+        private async Task TheMembersFamilyExperienceIsBlocked()
+        {
+            var member = await World.CreateSessionAsync();
+            await World.CharacterDao.TryInsertOrUpdateAsync(new CharacterDto
+            {
+                CharacterId = CharacterId, Name = CharacterName, Slot = 2, AccountId = member.Account.AccountId,
+                MapId = 1, State = CharacterState.Active,
+            }).OrThrowAsync();
+            await World.Create<IPenaltyService>().GiveAsync(member.Account.AccountId, PenaltyType.BlockFExp,
+                World.Clock.GetCurrentInstant().Plus(Duration.FromMinutes(30)), "", "Moderator");
+        }
 
         private void TheMasterStoresNothing() =>
             _hub.Setup(s => s.AddExperienceAsync(FamilyId, CharacterId, It.IsAny<int>()))

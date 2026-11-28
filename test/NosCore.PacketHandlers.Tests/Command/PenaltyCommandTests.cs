@@ -91,6 +91,29 @@ namespace NosCore.PacketHandlers.Tests.Command
         }
 
         [TestMethod]
+        public async Task BlockingExperienceLastsTheGivenMinutes()
+        {
+            await World.Create<BlockExpPacketHandler>().ExecuteAsync(
+                new BlockExpPacket { Name = _target.Character.Name, Minutes = 30 }, _moderator);
+
+            Assert.IsTrue(await _penalties.IsRunningAsync(_target.Account.AccountId, PenaltyType.BlockExp));
+            Assert.IsFalse(await _penalties.IsRunningAsync(_target.Account.AccountId, PenaltyType.BlockFExp));
+            World.Clock.Advance(Duration.FromMinutes(30));
+            Assert.IsFalse(await _penalties.IsRunningAsync(_target.Account.AccountId, PenaltyType.BlockExp));
+        }
+
+        [TestMethod]
+        public async Task BlockingFamilyExperienceCoversEveryCharacterOfTheAccount()
+        {
+            await World.Create<BlockFExpPacketHandler>().ExecuteAsync(
+                new BlockFExpPacket { Name = _target.Character.Name, Minutes = 30 }, _moderator);
+
+            Assert.IsTrue(await _penalties.IsRunningForCharacterAsync(_target.Character.CharacterId, PenaltyType.BlockFExp));
+            Assert.IsFalse(await _penalties.IsRunningForCharacterAsync(_moderator.Character.CharacterId, PenaltyType.BlockFExp));
+            Assert.AreEqual(Game18NConstString.HasBeenPunished, _moderator.LastPackets.OfType<Msgi2Packet>().Single().Message);
+        }
+
+        [TestMethod]
         public async Task UnmutingLetsTheAccountSpeakAgain()
         {
             await World.Create<MutePacketHandler>().ExecuteAsync(

@@ -5,6 +5,9 @@
 //
 
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Interaction;
+using NosCore.GameObject.Services.PenaltyService;
+using NodaTime;
 using NosCore.Algorithm.MateExperienceService;
 using NosCore.GameObject.Services.MateService;
 using System.Collections.Generic;
@@ -86,6 +89,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await KillAsync((_session, 100));
 
             Assert.AreEqual((1000L, 100L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
+        public async Task ABlockedAccountEarnsNoExperience()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 30;
+            await World.Create<IPenaltyService>().GiveAsync(_session.Account.AccountId, PenaltyType.BlockExp,
+                World.Clock.GetCurrentInstant().Plus(Duration.FromMinutes(30)), "", "Moderator");
+
+            await KillAsync((_session, 100));
+
+            Assert.IsFalse(_awarded.ContainsKey(_session.Character.CharacterId));
         }
 
         [TestMethod]
