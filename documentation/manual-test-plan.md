@@ -3899,6 +3899,43 @@ x to the east and y positive going south.
 - [ ] Not verifiable yet: entering from the Yellow Soulstone (NPC 932), and the mission window's
       one heart and exit goal, since `minfo` freezes this client
 
+### Dark Avenger time-spaces (SP4 stones)
+
+`timespace-404` to `timespace-407` ("Unlimited Hatred", "Hermit", "Black Flame", "Echekaruel
+Mysticaron", level 65 to 99) are the time-spaces of the stones 1357 to 1360, handed out by quests
+2104, 2111, 2118 and 2132 and cleared for quests 2105, 2112, 2119 and 2133. Use the stone from the
+inventory on map 2112 (the Grey Soulstone's room, reached from the Mysterious Soulstone on map 46)
+with a level 65+ character. Texts are the French ones of the trace; rooms are named by their place
+on the mission map.
+
+- [ ] Each one opens with the MissionStartWhenEnterFirstRoom line, the
+      start question, three hearts (two for 407) and a 21 minute clock (25 for 405 to 407)
+- [ ] 404 (5,11) and (5,9) say "Attaque des monstres" and keep both doors shut until every
+      Sentinel is down; a third Sentinel comes on the second kill, wherever the first two stood
+- [ ] 404 (7,9) opens the talk 7321, then Whitney (503) and an Ugly Spearman come with
+      "Élimine le boss !"; killing Whitney takes the spearmen away and opens both doors
+- [ ] 404 (7,7) opens its west door as it is entered, shows the talk 7322, and Whitney follows the
+      player to the exit; the run is lost if she falls
+- [ ] 404 (5,7): the lever opens the east and south doors and wakes three Young Moles; the north
+      door opens once (5,8) is cleared, (5,6)'s north door once the lever at (3,6) is pulled, and
+      (5,4)'s west door once (5,3) is cleared
+- [ ] 405 (4,11), (5,11), (5,7), (5,6) and (4,7) hold their doors for three minutes with a
+      wave and the EnemiesReinforcements line every 30 seconds, then open them and take the
+      leftover monsters away; the first two say "Les monstres deviennent féroces."
+- [ ] 405 (5,9): Kupei (515) follows the player after the talk 7326
+- [ ] 406 (6,4) and (8,5) say "Attaque des monstres" and hold for two minutes; the end of (8,5)
+      opens (5,5)'s west door and the end of (2,5) its north door
+- [ ] 406 (6,3) opens the way north as it is entered and shows the talk 7332; in (5,2) Whitney
+      follows the player and Justin (502) stays
+- [ ] 407 (5,10): Whitney, Kupei and Justin all follow the player after the talk 7335
+- [ ] 407 (5,9) to (5,5) say "Élimine l'ennemi !" and bring more monsters on their third and
+      fifth kills; the angel rooms name their angel and the last room "Élimine Echekaruel
+      Mysticaron."
+- [ ] Reaching the exit shows the PleaseWait line and the closing talk (7324, 7329, 7334, 7338);
+      Mission Clear only comes once it is closed
+- [ ] The score pays 208 gold a kill and 1950 reputation, and a level 90 character loses 50% of
+      the points to the level penalty
+
 ### Escorts in a time-space
 
 A script marks an NPC as an escort with `new NpcSpawn(vnum, spot, IsEscort: true)`; Guards in

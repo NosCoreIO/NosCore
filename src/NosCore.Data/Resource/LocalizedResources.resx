@@ -1488,6 +1488,30 @@
   <data name="TIMESPACE_GOAL_PATROL_TWO_MINUTES" xml:space="preserve">
     <value>Patrol here for 2 minutes.</value>
   </data>
+  <data name="TIMESPACE_GOAL_MONSTER_ATTACK" xml:space="preserve">
+    <value>Monster attack</value>
+  </data>
+  <data name="TIMESPACE_GOAL_MONSTERS_GROW_FIERCE" xml:space="preserve">
+    <value>The monsters are growing fierce.</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_THE_BOSS" xml:space="preserve">
+    <value>Defeat the boss!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_THE_ENEMY" xml:space="preserve">
+    <value>Defeat the enemy!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ANGEL_JABINIEL" xml:space="preserve">
+    <value>Defeat Angel Jabiniel, one of the Mystic Knights!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ANGEL_ISRAEL" xml:space="preserve">
+    <value>Defeat Angel Israel, one of the Mystic Knights!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ANGEL_REEDWHANEL" xml:space="preserve">
+    <value>Defeat Angel Reedwhanel, one of the Mystic Knights!</value>
+  </data>
+  <data name="TIMESPACE_GOAL_KILL_ECHEKARUEL" xml:space="preserve">
+    <value>Defeat Echekaruel Mysticaron.</value>
+  </data>
   <data name="HELP_COMMAND_HEADER" xml:space="preserve">
     <value>-------------Help command-------------</value>
   </data>
