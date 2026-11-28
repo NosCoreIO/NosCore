@@ -48,6 +48,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         Task TickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
 
+        // Every tick from the start, including after the run has ended while its players wait to be sent back.
+        Task HudTickAsync(ScriptedInstanceRun run) => Task.CompletedTask;
+
         // A player has come into a room of the run, after what the room shows on arrival.
         Task ArrivedAsync(ScriptedInstanceRun run, ClientSession session, int room) => Task.CompletedTask;
 

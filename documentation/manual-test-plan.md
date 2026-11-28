@@ -4488,6 +4488,13 @@ confirms "Do you want to create the raid map?".
       shows for every member
 - [ ] Loot thrown by a Glacernon raid boss flies out of the boss's cell and lands up to 10 cells
       away; each piece can be picked up where it lands
+- [ ] With A to E inside Mother Cuby, every member's party panel shows each member's HP and MP
+      bars, and they follow damage and healing within about a second, also after the win until
+      everyone is sent back
+- [ ] After the win, as each member is sent back to Jelly Entrance, their raid HUD (counters, boss
+      bar, team window) is gone and they are no longer in a raid team
+- [ ] Not verifiable yet: an Act 6 raid's team window and HP/MP bars (rdlstf, raidf, raidfhp and
+      raidfmp). No raid script declares itself Act 6 yet; the Zenas script will
 - [ ] On Jelly Entrance the gate shows at the top of the path; Chicken Farm Path, whose raid has
       no script yet, shows none
 - [ ] D, in no raid team, steps on the gate: "A team must first be created for the raid." appears

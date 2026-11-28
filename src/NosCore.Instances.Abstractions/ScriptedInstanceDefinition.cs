@@ -87,6 +87,10 @@ namespace NosCore.Instances.Abstractions
         // 20 for Zenas. What the client uses it for is not known.
         public byte RaidHudValue { get; init; }
 
+        // An Act 6 raid (Zenas, Erenia) shows its team with rdlstf and raidf, and its members' HP and MP with
+        // raidfhp and raidfmp, where the other raids use rdlst and raid.
+        public bool IsAct6 { get; init; }
+
         public IReadOnlyList<BoutSide> Sides { get; init; } = [];
 
         public IReadOnlyList<SideBase> Bases { get; init; } = [];
