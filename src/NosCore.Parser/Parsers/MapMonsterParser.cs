@@ -34,9 +34,8 @@ namespace NosCore.Parser.Parsers
 
             foreach (var packet in packets)
             {
-                if (packet is AtPacket at)
+                if (ShownMaps.Follow(packet, ref map))
                 {
-                    map = at.MapId;
                     continue;
                 }
 

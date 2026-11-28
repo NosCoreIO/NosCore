@@ -39,12 +39,13 @@ namespace NosCore.Parser.Parsers
 
             foreach (var packet in packets)
             {
+                if (ShownMaps.Follow(packet, ref currentMap))
+                {
+                    continue;
+                }
+
                 switch (packet)
                 {
-                    case AtPacket at:
-                        currentMap = at.MapId;
-                        continue;
-
                     case WpPacket wp:
                         Collect(new ScriptedInstanceDto
                         {

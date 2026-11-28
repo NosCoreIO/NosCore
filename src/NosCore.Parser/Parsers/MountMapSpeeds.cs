@@ -18,7 +18,7 @@ namespace NosCore.Parser.Parsers
         private static IEnumerable<short> Maps(int first, int last) =>
             Enumerable.Range(first, last - first + 1).Select(m => (short)m);
 
-        private static readonly short[] Act1 = [.. Maps(1, 8), .. Maps(10, 17), .. Maps(49, 84), 103, 104, 129, 2104, 2520];
+        private static readonly short[] Act1 = [.. Maps(1, 8), .. Maps(10, 17), .. Maps(49, 84), 103, 104, 129, 2104, 2110, 2520];
 
         private static readonly short[] NosVille = [1];
 

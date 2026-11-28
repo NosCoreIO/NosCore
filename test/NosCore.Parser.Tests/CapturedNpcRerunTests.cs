@@ -20,6 +20,7 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
@@ -178,6 +179,39 @@ namespace NosCore.Parser.Tests
             Assert.IsFalse(rerun.Teleporters.LoadAll().Any(s => s.MapNpcId == 100));
             Assert.IsFalse(rerun.Recipes.LoadAll().Any(s => s.MapNpcId == 100));
             Assert.AreEqual(0, rerun.ShopSkills.LoadAll().Count());
+        }
+
+        [TestMethod]
+        public async Task EachSoulstoneRoomKeepsOnlyItsOwnStone()
+        {
+            // An earlier import stacked five soulstones on one cell of 2107; the official server shows the
+            // Pyjama room with stone 932 and the Grey Soulstone's room, 2112 on the same grid, with stone 954
+            // (official EU trace, 2026-11-29).
+            var database = new Database();
+            short[] stacked = [932, 933, 934, 948, 954];
+            await database.MapNpcs.TryInsertOrUpdateAsync(stacked.Select((vnum, i) =>
+                new MapNpcDto { MapNpcId = 10 + i, MapId = 2107, VNum = vnum, MapX = 5, MapY = 5 }).ToList()).OrThrowAsync();
+            var npcMonsters = new Mock<IDao<NpcMonsterDto, short>>();
+            npcMonsters.Setup(s => s.LoadAll()).Returns(stacked.Select(v => new NpcMonsterDto { NpcMonsterVNum = v }).ToList());
+            var npcTalks = new Mock<IDao<NpcTalkDto, short>>();
+            npcTalks.Setup(s => s.LoadAll()).Returns([new NpcTalkDto { DialogId = 6314 }, new NpcTalkDto { DialogId = 7300 }]);
+            var packets = new List<IPacket>
+            {
+                Captured.Arrival(2107, 6, 1),
+                new CMapPacket { Id = 2107, IsEntering = true },
+                Captured.Npc(932, 40673, 5, 5, dialog: 6314),
+                Captured.Arrival(2107, 2, 7),
+                new CMapPacket { Id = 2112, IsEntering = true },
+                Captured.Npc(954, 40712, 5, 5, dialog: 7300),
+            };
+            CaptureSessions.MergeRepeatedEntities(packets);
+
+            await new MapNpcParser(database.MapNpcs, npcMonsters.Object, npcTalks.Object, database.Shops, database.ShopItems,
+                database.ShopSkills, database.Teleporters, database.Recipes, database.RecipeItems,
+                new Mock<ILogger<MapNpcParser>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object).InsertMapNpcsAsync(packets);
+
+            CollectionAssert.AreEquivalent(new[] { "40673 2107 932 6314", "40712 2112 954 7300" },
+                database.MapNpcs.LoadAll().Select(s => $"{s.MapNpcId} {s.MapId} {s.VNum} {s.Dialog}").ToList());
         }
 
         [TestMethod]

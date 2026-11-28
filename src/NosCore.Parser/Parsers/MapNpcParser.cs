@@ -23,13 +23,19 @@ using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 {
     // Rows already stored on the cell of a captured NPC under another id are copies from an earlier
-    // import, so they are removed with their shops, teleports and recipes; the NPC's own row is
+    // import, or NPCs of another map that shares its grid (the soulstones once stacked on one cell of
+    // 2107), so they are removed with their shops, teleports and recipes; the NPC's own row is
     // brought in line with the capture.
     public class MapNpcParser(IDao<MapNpcDto, int> mapNpcDao, IDao<NpcMonsterDto, short> npcMonsterDao, IDao<NpcTalkDto, short> npcTalkDao,
         IDao<ShopDto, int> shopDao, IDao<ShopItemDto, int> shopItemDao, IDao<ShopSkillDto, int> shopSkillDao,
         IDao<TeleporterDto, short> teleporterDao, IDao<RecipeDto, short> recipeDao, IDao<RecipeItemDto, short> recipeItemDao,
         ILogger<MapNpcParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
+        // The official server numbers the NPCs standing on its maps up to five digits (the soulstones are
+        // 40673 and 40712, the arena's NPCs 54047 to 54050); player shops, pets and time-space NPCs it
+        // spawns take six or seven, or have an owner.
+        private const long LastMapNpcId = 99999;
+
         public async Task InsertMapNpcsAsync(IReadOnlyList<IPacket> packets)
         {
             var npcmonsterdb = npcMonsterDao.LoadAll().ToDictionary(n => n.NpcMonsterVNum);
@@ -39,13 +45,12 @@ namespace NosCore.Parser.Parsers
             var npcTalks = npcTalkDao.LoadAll().ToDictionary(s => s.DialogId, s => s);
             foreach (var packet in packets)
             {
-                if (packet is AtPacket at)
+                if (ShownMaps.Follow(packet, ref map))
                 {
-                    map = at.MapId;
                     continue;
                 }
 
-                if (packet is not InPacket { VisualType: VisualType.Npc, VisualId: <= 20000, InNonPlayerSubPacket: { } npc } inPacket
+                if (packet is not InPacket { VisualType: VisualType.Npc, VisualId: <= LastMapNpcId, InNonPlayerSubPacket: { Owner: null or <= 0 } npc } inPacket
                     || !short.TryParse(inPacket.VNum, out var vnum) || !npcmonsterdb.TryGetValue(vnum, out var npcMonster))
                 {
                     continue;
@@ -76,9 +81,9 @@ namespace NosCore.Parser.Parsers
             }
 
             var ids = npcs.Select(s => s.MapNpcId).ToHashSet();
-            var cells = npcs.Select(s => (s.MapId, s.VNum, s.MapX, s.MapY)).ToHashSet();
+            var cells = npcs.Select(s => (s.MapId, s.MapX, s.MapY)).ToHashSet();
             await DeleteCopiesAsync(stored.Values
-                .Where(s => !ids.Contains(s.MapNpcId) && cells.Contains((s.MapId, s.VNum, s.MapX, s.MapY)))
+                .Where(s => !ids.Contains(s.MapNpcId) && cells.Contains((s.MapId, s.MapX, s.MapY)))
                 .Select(s => s.MapNpcId).ToList());
 
             var changed = npcs.Where(s => !stored.TryGetValue(s.MapNpcId, out var row) || !Fields(row).Equals(Fields(s))).ToList();

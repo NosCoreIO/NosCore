@@ -11,6 +11,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -217,6 +219,48 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(1, _savedNpcs.Count);
         }
+
+        [TestMethod]
+        public async Task MapNpcParser_PutsTheNpcsOfAMapShownOnAnotherGridOnTheShownMap()
+        {
+            var packets = new List<IPacket>
+            {
+                Captured.Arrival(2107),
+                new CMapPacket { Id = 2112, IsEntering = true },
+                Captured.Npc(1, 40712, 5, 5, dialog: 1),
+                Captured.Arrival(2107),
+                new CMapPacket { Id = 2107, IsEntering = true },
+                Captured.Npc(2, 40673, 5, 5, dialog: 2),
+            };
+
+            await Parser().InsertMapNpcsAsync(packets);
+
+            CollectionAssert.AreEquivalent(new[] { (40712, (short)2112), (40673, (short)2107) },
+                _savedNpcs.Select(s => (s.MapNpcId, s.MapId)).ToList());
+        }
+
+        [TestMethod]
+        public async Task MapNpcParser_LeavesOutTheNpcsTheServerSpawns()
+        {
+            var shop = Captured.Npc(1, 4190829, 76, 60);
+            var pet = Captured.Npc(2, 40000, 5, 7);
+            pet.InNonPlayerSubPacket = new InNonPlayerSubPacket { Owner = 1000001 };
+            var packets = new List<IPacket>
+            {
+                Captured.Arrival(1),
+                shop,
+                pet,
+                Captured.Npc(100, 54047, 10, 10),
+            };
+
+            await Parser().InsertMapNpcsAsync(packets);
+
+            Assert.AreEqual(54047, _savedNpcs.Single().MapNpcId);
+        }
+
+        private MapNpcParser Parser() => new(_mapNpcDaoMock.Object, _npcMonsterDaoMock.Object, _npcTalkDaoMock.Object, new Mock<IDao<ShopDto, int>>().Object,
+            new Mock<IDao<ShopItemDto, int>>().Object, new Mock<IDao<ShopSkillDto, int>>().Object, new Mock<IDao<TeleporterDto, short>>().Object,
+            new Mock<IDao<RecipeDto, short>>().Object, new Mock<IDao<RecipeItemDto, short>>().Object, _loggerMock.Object, _logLanguageMock.Object);
 
         [TestMethod]
         public async Task MapNpcParser_HandlesEmptyPacketList()

@@ -78,6 +78,28 @@ namespace NosCore.Parser.Parsers
                 }
             }).ToList();
 
+            // A map the server shows on another map's grid has no file of its own: it is a copy of the grid
+            // under its own id, so it holds its own NPCs while the client draws the grid.
+            var files = maps.ToDictionary(m => m.MapId);
+            foreach (var (shown, grid) in ShownMaps.Grids(packets))
+            {
+                if (files.ContainsKey(shown) || !files.TryGetValue(grid.MapId, out var gridMap))
+                {
+                    continue;
+                }
+
+                maps.Add(new MapDto
+                {
+                    NameI18NKey = dictionaryId.FirstOrDefault(s => s.MapId == shown)?.NameI18NKey ?? string.Empty,
+                    Music = grid.Music,
+                    MapType = gridMap.MapType,
+                    MapId = shown,
+                    GridMapId = grid.MapId,
+                    Data = gridMap.Data,
+                    Arena = ArenaType.None
+                });
+            }
+
             await mapDao.TryInsertOrUpdateAsync(maps).OrThrowAsync();
             _logger.LogInformation(logLanguage[LogLanguageKey.MAPS_PARSED], maps.Count);
         }

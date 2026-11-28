@@ -129,14 +129,20 @@ namespace NosCore.Parser.Parsers
                 await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal).OrThrowAsync();
             }
 
-            // The arenas and the Yellow Soulstone's room are entered through an NPC, so no portal of the
-            // capture pairs with their way out.
+            // The arenas and the soulstone rooms are entered through an NPC, so no portal of the capture
+            // pairs with their way out. The Grey Soulstone's room (2112) is left by its portal to Fir
+            // Forest, which lands next to the Mysterious Soulstone (official EU trace, 2026-11-29).
             foreach (var arenaExit in new[]
                      {
                          new PortalDto
                          {
                              SourceMapId = 2107, SourceX = 11, SourceY = 5, DestinationMapId = 4,
                              DestinationX = 213, DestinationY = 111, Type = PortalType.MapPortal
+                         },
+                         new PortalDto
+                         {
+                             SourceMapId = 2112, SourceX = 11, SourceY = 5, DestinationMapId = 46,
+                             DestinationX = 11, DestinationY = 43, Type = PortalType.MapPortal
                          },
                          new PortalDto
                          {
@@ -163,9 +169,9 @@ namespace NosCore.Parser.Parsers
             var grids = SharedGrids(packets, maps);
             foreach (var packet in packets)
             {
-                if (packet is AtPacket at)
+                if (ShownMaps.Follow(packet, ref map))
                 {
-                    map = at.MapId;
+                    map = grids.GetValueOrDefault(map, map);
                     continue;
                 }
 
@@ -219,6 +225,17 @@ namespace NosCore.Parser.Parsers
             }
 
 
+            // A portal stored before its destination had a map of its own led to the grid it is shown on.
+            var regridded = portalsdb.Where(stale => _listPortals2.Any(portal => portal.SourceMapId == stale.SourceMapId
+                    && portal.SourceX == stale.SourceX && portal.SourceY == stale.SourceY
+                    && maps.Any(m => m.MapId == portal.DestinationMapId && m.GridMapId == stale.DestinationMapId)))
+                .ToList();
+            if (regridded.Count > 0)
+            {
+                await portalDao.TryDeleteAsync(regridded.Select(s => s.PortalId).ToList()).OrThrowAsync();
+                portalsdb = portalsdb.Except(regridded).ToList();
+            }
+
             // so this dude doesnt exist yet in DAOFactory -> insert it
             var portalsDtos = _listPortals2.Where(portal => !portalsdb
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
@@ -230,28 +247,14 @@ namespace NosCore.Parser.Parsers
                 portalsDtos.Count + portalCounter);
         }
 
-        // A map the client is told by another id than its grid's, such as Sunny Meadows' hidden chicken
-        // place (shown as 2110 on grid 2104): portals name the shown id, the grid is what the server loads.
+        // A map shown on another map's grid, such as Sunny Meadows' hidden chicken place (2110 on grid
+        // 2104), is its own map once the map import has given it a row. Without one, its portals stand on
+        // the grid and portals into it lead there.
         private static Dictionary<short, short> SharedGrids(IEnumerable<IPacket> packets, List<MapDto> maps)
         {
             var known = maps.Select(m => m.MapId).ToHashSet();
-            var grids = new Dictionary<short, short>();
-            short? grid = null;
-            foreach (var packet in packets)
-            {
-                switch (packet)
-                {
-                    case AtPacket at:
-                        grid = at.MapId;
-                        break;
-                    case CMapPacket { IsEntering: true } shown when grid is { } loaded && shown.Id != loaded && !known.Contains(shown.Id):
-                        grids.TryAdd(shown.Id, loaded);
-                        grid = null;
-                        break;
-                }
-            }
-
-            return grids;
+            return ShownMaps.Grids(packets).Where(g => !known.Contains(g.Key))
+                .ToDictionary(g => g.Key, g => g.Value.MapId);
         }
     }
 }

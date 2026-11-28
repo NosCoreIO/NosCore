@@ -342,6 +342,30 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         }
 
         [TestMethod]
+        public async Task AMapShownOnAnotherMapsGridHasTheClientLoadThatGrid()
+        {
+            // The Grey Soulstone's room: at 2107, then c_map 0 2112 1 (official EU trace, 2026-11-29).
+            World.GetBaseMap(1).Map.GridMapId = 0;
+            Session.LastPackets.Clear();
+
+            await ChangingToBaseMap1();
+
+            var sent = Session.LastPackets.ToList();
+            Assert.AreEqual((short)0, sent.OfType<AtPacket>().Single().MapId);
+            Assert.AreEqual((short)1, sent.OfType<CMapPacket>().Single(p => p.IsEntering).Id);
+        }
+
+        [TestMethod]
+        public async Task AMapWithItsOwnGridIsLoadedUnderItsOwnId()
+        {
+            Session.LastPackets.Clear();
+
+            await ChangingToBaseMap1();
+
+            Assert.AreEqual((short)1, Session.LastPackets.OfType<AtPacket>().Single().MapId);
+        }
+
+        [TestMethod]
         public async Task EnteringTheGameLeavesNoMapBehind()
         {
             Session.LastPackets.Clear();
