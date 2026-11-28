@@ -795,9 +795,6 @@
   <data name="QUEST_REWARD_NO_CLASS_ITEM" xml:space="preserve">
     <value>Quest reward {RewardId} has no item for class {Class}</value>
   </data>
-  <data name="QUEST_REWARD_LOST_INVENTORY_FULL" xml:space="preserve">
-    <value>Quest reward {VNum}x{Amount} lost: inventory full for character {CharacterId}</value>
-  </data>
   <data name="HIT_PROCESSING_FAILED" xml:space="preserve">
     <value>Hit processing failed: {Attacker} -&gt; {Target}</value>
   </data>

@@ -184,6 +184,30 @@ namespace NosCore.GameObject.Services.QuestService
             });
         }
 
+        // qt 1 {questId}: the client reached the place a go-to quest names. The quest is completed through the
+        // same path as the walk that reaches it, so a quest already done leaves the story step where it is.
+        public async Task AchieveQuestAsync(PlayerComponentBundle character, short questId)
+        {
+            var held = character.Quests.Values.Where(q => q.QuestId == questId).ToList();
+            if (held.Count == 0)
+            {
+                await RunCurrentScriptStepAsync(character, QuestActionType.Achieve);
+                return;
+            }
+
+            var quest = held.FirstOrDefault(q => q.ObjectivesCompletedOn == null && q.CompletedOn == null);
+            if (quest == null)
+            {
+                return;
+            }
+
+            var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
+            if (handler != null && await handler.ValidateAsync(character, quest))
+            {
+                await CompleteQuestAsync(character, quest);
+            }
+        }
+
         public async Task GiveUpQuestAsync(PlayerComponentBundle character, int questId)
         {
             var entry = character.Quests.FirstOrDefault(q => q.Value.QuestId == questId);
@@ -278,16 +302,6 @@ namespace NosCore.GameObject.Services.QuestService
             var questId = charQuest.QuestId;
             if (!charQuest.AreObjectivesComplete())
             {
-                return false;
-            }
-
-            if (!questRewardService.HasRoomFor(character, questId))
-            {
-                await character.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
                 return false;
             }
 
@@ -502,12 +516,23 @@ namespace NosCore.GameObject.Services.QuestService
                 quest.CompletedOn ??= clock.GetCurrentInstant();
             }
 
+            // The trace's order: "quest complete", the target marker cleared, the quest window, then the next story step.
             await character.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
                 Message = Game18NConstString.QuestComplete
             });
+            if (quest.Quest.TargetMap != null)
+            {
+                await character.SendPacketAsync(quest.Quest.GenerateTargetOffPacket());
+            }
             await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+
+            if (!waitsForClaim)
+            {
+                await questRewardService.GiveAsync(character, quest);
+                await gameEvents.RaiseAsync(new QuestCompletedEvent(character, quest));
+            }
 
             var currentStep = character.Script;
             if (currentStep != null
@@ -515,12 +540,6 @@ namespace NosCore.GameObject.Services.QuestService
                 && currentStep.Argument1 == quest.QuestId)
             {
                 await RunScriptAsync(character);
-            }
-
-            if (!waitsForClaim)
-            {
-                await questRewardService.GiveAsync(character, quest);
-                await gameEvents.RaiseAsync(new QuestCompletedEvent(character, quest));
             }
         }
     }

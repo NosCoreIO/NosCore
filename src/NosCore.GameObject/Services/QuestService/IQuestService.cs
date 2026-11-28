@@ -46,6 +46,10 @@ namespace NosCore.GameObject.Services.QuestService
         // Starts the story chapter an NPC offers once the character has the level and has finished the chapter before it.
         Task<bool> TakeScriptOfferAsync(PlayerComponentBundle character, short npcVNum, byte scriptId);
 
+        // Completes the held quest the client says it achieved (qt 1, a go-to quest's place reached) once its
+        // handler agrees; a quest the character does not hold falls back to the current script step.
+        Task AchieveQuestAsync(PlayerComponentBundle character, short questId);
+
         Task GiveUpQuestAsync(PlayerComponentBundle character, int questId);
     }
 }

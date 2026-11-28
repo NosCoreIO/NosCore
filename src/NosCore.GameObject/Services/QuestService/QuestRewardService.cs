@@ -40,7 +40,7 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         IExperienceProgressionService experienceProgression, IExperienceService experienceService,
         IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISpExperienceService spExperienceService,
         ISkillPointService skillPointService, IMonsterGoldService monsterGoldService, INpcMonsterCatalog npcMonsters,
-        ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer,
+        ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer, IItemDeliveryService itemDeliveryService,
         IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRandomProvider random)
     : IQuestRewardService
 {
@@ -49,10 +49,6 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
     private const byte NumberArgument = 4;
 
     public bool HasRewards(short questId) => RewardsOf(questId).Any(r => r.RewardType != QuestRewardType.NotRepeatable);
-
-    public bool HasRoomFor(PlayerComponentBundle character, short questId) =>
-        RewardsOf(questId).Where(r => ItemCandidates(r).Count > 0)
-            .All(r => character.InventoryService.CanAddItem(ItemCandidates(r)[0]));
 
     public async Task GiveAsync(PlayerComponentBundle character, CharacterQuest quest)
     {
@@ -207,9 +203,10 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(created, character.VisualId));
         if (added == null || added.Count == 0)
         {
-            logger.LogWarning(logLanguage[LogLanguageKey.QUEST_REWARD_LOST_INVENTORY_FULL],
-                vnum, amount, character.CharacterId);
-            return null;
+            // A full bag sends the prize to the parcel box (official EU trace, 2026-11-29: "parcel 1 1 …" and
+            // "a new parcel has arrived" right after the qr window), and the window still shows it.
+            await itemDeliveryService.DeliverAsync(character, created);
+            return (reward.RewardType, vnum, amount);
         }
 
         foreach (var inv in added)

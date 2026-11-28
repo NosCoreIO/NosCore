@@ -17,21 +17,15 @@ public sealed class GoToQuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.GoTo;
 
-    public async Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest)
+    public Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest)
     {
         var targetX = quest.Quest.TargetX ?? 0;
         var targetY = quest.Quest.TargetY ?? 0;
         var targetMap = quest.Quest.TargetMap ?? 0;
 
-        var inRange = character.MapX <= targetX + 5 && character.MapX >= targetX - 5
+        // Completing the quest clears its target marker.
+        return Task.FromResult(character.MapX <= targetX + 5 && character.MapX >= targetX - 5
             && character.MapY <= targetY + 5 && character.MapY >= targetY - 5
-            && character.MapId == targetMap;
-        if (!inRange)
-        {
-            return false;
-        }
-
-        await character.SendPacketAsync(quest.Quest.GenerateTargetOffPacket());
-        return true;
+            && character.MapId == targetMap);
     }
 }

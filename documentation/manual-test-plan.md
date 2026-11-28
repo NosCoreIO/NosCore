@@ -4878,6 +4878,25 @@ next to them.
       killing the last two monsters together) giving the reward once; the client can't time two
       kills that closely, so a unit test covers it
 
+### Main story chapters 17 and 18 (quests 3229–3252)
+
+A level 70+ character on chapter 17 of the main story (`script 17`), compared with the official EU
+trace of 2026-11-29.
+
+- [ ] Quest 3238 (go to map 46, 172,60): walking onto the spot shows "Quest complete", clears the
+      map marker and empties the quest slot, then the next talk (step 900) opens; the client's
+      `qt 1 3238` that follows does not skip that talk
+- [ ] Quest 3248 (go to map 46, 170,169) behaves the same and the chapter moves on to step 140
+- [ ] Quest 3241 (collect the object on map 112, 109,62): the map marker is cleared with "Quest
+      complete"
+- [ ] Quest 3250 (bring item 1257 to NPC 456): talking without the item says the items to deliver
+      are insufficient and opens the NPC's dialog; with it the item leaves the bag, the chat says
+      "Talked to" the NPC and the quest completes without a dialog
+- [ ] With a full bag, claiming 3249's reward from the quest window still pays item 1257: it
+      arrives as a parcel ("A new parcel has arrived") and the window lists it
+- [ ] After step 1110 the quest NPC button points at NPC 300 in NosVille (level 70); its "Get
+      quest" list offers chapter 18, which starts at step 10 with quest 3245
+
 ### Quests offered in NPC dialogs
 
 Many NPC dialogs have a button that hands out a quest (`n_run 3006 <quest>`). Put a level 90
