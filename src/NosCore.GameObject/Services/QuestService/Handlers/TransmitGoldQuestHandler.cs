@@ -50,8 +50,9 @@ public sealed class TransmitGoldQuestHandler(IGameLanguageLocalizer gameLanguage
             }
 
             await character.RemoveGoldAsync(gold, gameLanguageLocalizer);
+            await character.SendPacketAsync(character.TalkedToLine(npc.NpcMonsterVNum));
         }
 
-        return quest.AreObjectivesComplete();
+        return NpcObjectiveProgress.AllReached(quest, o => o.SecondData ?? 0);
     }
 }

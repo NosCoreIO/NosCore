@@ -127,6 +127,40 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AWinIsCalledOutWithTheCount()
+        {
+            await new Spec("A win is called out with where the time-space objective stands, as the official server does")
+                .Given(CharacterHasQuest_For_Times, QuestType.TimesSpace, TimeSpaceId, 1)
+                .WhenAsync(Winning_, ScriptedInstanceType.TimeSpace, TimeSpaceId)
+                .Then(TheChatShouldSayTheTimeSpaceIsDone_, "1/1")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheQuestWindowCountsTheWins()
+        {
+            await new Spec("The quest window counts the wins of a time-space to clear twice")
+                .Given(CharacterHasQuest_For_Times, QuestType.TimesSpace, TimeSpaceId, 2)
+                .WhenAsync(Winning_, ScriptedInstanceType.TimeSpace, TimeSpaceId)
+                .Then(TheChatShouldSayTheTimeSpaceIsDone_, "1/2")
+                .And(TheQuestWindowShouldRead_Of_, 1, 2)
+                .ExecuteAsync();
+        }
+
+        private void TheChatShouldSayTheTimeSpaceIsDone_(string count)
+        {
+            var said = Session.LastPackets.OfType<NosCore.Packets.ServerPackets.Chats.Sayi2Packet>()
+                .Single(p => p.Message == Game18NConstString.TimeSpaceStoneCompleted);
+            Assert.AreEqual(count, said.Game18NArguments[0]?.ToString());
+        }
+
+        private void TheQuestWindowShouldRead_Of_(int current, int required)
+        {
+            var window = Session.LastPackets.OfType<NosCore.Packets.ServerPackets.Quest.QstiPacket>().Last().QuestSubPacket;
+            Assert.AreEqual(((short)current, (short)required), (window.Objective1Current, window.Objective1Required));
+        }
+
         private void CharacterHasQuest_For_Times(QuestType type, byte instanceId, int times)
         {
             const short questId = 1500;

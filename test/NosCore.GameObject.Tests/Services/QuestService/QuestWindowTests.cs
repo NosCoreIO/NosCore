@@ -8,7 +8,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.Enumerations;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.Tests.Services.QuestService
 {
@@ -78,6 +80,67 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             Assert.AreEqual((byte)5, CharacterQuest.FreeSlot([open], secondary: true, previous: 7));
         }
+
+        [TestMethod]
+        public void AMainQuestThatFollowsAnotherTakesTheFirstFreeMainSlot()
+        {
+            var other = QuestOf(5914, line: 5914, secondary: false);
+            other.Slot = 4;
+
+            Assert.AreEqual((byte)0, CharacterQuest.FreeSlot([other], secondary: false, previous: 1));
+        }
+
+        [TestMethod]
+        public void ATimeSpaceQuestCountsTheTimeSpaceToClear()
+        {
+            var quest = QuestOf(2105, line: 2100, secondary: false, QuestType.TimesSpace, new QuestObjectiveDto
+            {
+                QuestObjectiveId = Guid.NewGuid(), QuestId = 2105, FirstData = 404, SecondData = 1, ThirdData = 1
+            });
+
+            var window = quest.GenerateQuestSubPacket(false);
+
+            Assert.AreEqual(((short)0, (short)1, (byte)0), (window.Objective1Current, window.Objective1Required, window.Status));
+        }
+
+        [TestMethod]
+        public void AClearedTimeSpaceQuestReadsOneOfOne()
+        {
+            var objective = new QuestObjectiveDto { QuestObjectiveId = Guid.NewGuid(), QuestId = 2105, FirstData = 404, SecondData = 1, ThirdData = 1 };
+            var quest = QuestOf(2105, line: 2100, secondary: false, QuestType.TimesSpace, objective);
+            quest.ObjectiveProgress[objective.QuestObjectiveId] = 1;
+
+            var window = quest.GenerateQuestSubPacket(false);
+
+            Assert.AreEqual(((short)1, (short)1, (byte)1), (window.Objective1Current, window.Objective1Required, window.Status));
+        }
+
+        [TestMethod]
+        public void AGoldPaymentQuestShowsNoAmount()
+        {
+            var quest = QuestOf(2123, line: 2100, secondary: false, QuestType.TransmitGold, new QuestObjectiveDto
+            {
+                QuestObjectiveId = Guid.NewGuid(), QuestId = 2123, FirstData = 461, SecondData = 75
+            });
+
+            var window = quest.GenerateQuestSubPacket(false);
+
+            Assert.AreEqual(((short)0, (short)0), (window.Objective1Current, window.Objective1Required));
+        }
+
+        private static CharacterQuest QuestOf(short id, short line, bool secondary, QuestType type,
+            params QuestObjectiveDto[] objectives) => new()
+        {
+            QuestId = id,
+            Quest = new Quest
+            {
+                QuestId = id,
+                QuestLineId = line,
+                IsSecondary = secondary,
+                QuestType = type,
+                QuestObjectives = objectives.ToList(),
+            },
+        };
 
         private static CharacterQuest QuestOf(short id, short line, bool secondary) => new()
         {

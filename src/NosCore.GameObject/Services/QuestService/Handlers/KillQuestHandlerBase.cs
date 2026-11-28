@@ -57,6 +57,10 @@ public abstract class KillQuestHandlerBase : IQuestTypeHandler
         {
             await character.SendPacketAsync(character.GenerateSayi2(SayColorType.Red, Game18NConstString.Hunting, 6, mobVNum, $"{current}/{required}"));
         }
-        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+
+        if (!quest.AreObjectivesComplete())
+        {
+            await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+        }
     }
 }
