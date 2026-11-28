@@ -38,6 +38,7 @@ namespace NosCore.Instances.Abstractions
         private int _familyExperience;
         private byte _lives;
         private byte _raidHudValue;
+        private bool _isAct6;
 
         public static InstanceDefinitionBuilder Named(short id, string label, string title)
         {
@@ -151,6 +152,12 @@ namespace NosCore.Instances.Abstractions
             return this;
         }
 
+        public InstanceDefinitionBuilder InAct6()
+        {
+            _isAct6 = true;
+            return this;
+        }
+
         public InstanceDefinitionBuilder WithDraw(short vNum, short amount)
         {
             _draws.Add(new InstanceGift(vNum, amount));
@@ -217,6 +224,7 @@ namespace NosCore.Instances.Abstractions
                 FamilyExperience = _familyExperience,
                 Lives = _lives,
                 RaidHudValue = _raidHudValue,
+                IsAct6 = _isAct6,
                 Sides = [.. _sides],
                 Bases = [.. _bases],
                 Rooms = [.. _rooms],

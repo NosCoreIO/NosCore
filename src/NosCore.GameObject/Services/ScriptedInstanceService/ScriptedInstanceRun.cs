@@ -621,6 +621,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     }
                 }
 
+                if (_started)
+                {
+                    _pending.Add(() => _host.HudTickAsync(this));
+                }
+
                 if (!_bosses.IsEmpty)
                 {
                     _pending.Add(ShowBossBarsAsync);

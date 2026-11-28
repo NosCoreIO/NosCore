@@ -48,6 +48,8 @@ namespace NosCore.GameObject.Services.RaidService
     {
         private const byte InTeam = 1;
         private const byte Leader = 2;
+        private const byte HudShown = 4;
+        private const byte Inside = 5;
         private const long NoLeader = -1;
         private const int RevivesPerRun = 2;
         private const int RankedPlayers = 3;
@@ -103,7 +105,7 @@ namespace NosCore.GameObject.Services.RaidService
                 .GeneratePocketChange(seal.Type.ToPocketType(), seal.Slot));
 
             await MessageAsync(leader, Game18NConstString.YouAreRaidLeader);
-            await leader.SendPacketsAsync(TeamPackets(character.CharacterId));
+            await leader.SendPacketsAsync(TeamPackets(raid, character.CharacterId));
             await RefreshAsync(character.Group);
         }
 
@@ -192,7 +194,7 @@ namespace NosCore.GameObject.Services.RaidService
             }
 
             await MessageAsync(joiner, Game18NConstString.JoinedToTeam);
-            await joiner.SendPacketsAsync(TeamPackets(team.Leader?.VisualId ?? leaderId));
+            await joiner.SendPacketsAsync(TeamPackets(team.Raid, team.Leader?.VisualId ?? leaderId));
             await TellTeamAsync(team, character.CharacterId, Game18NConstString.PlayerJoinedToTeam, character.Name);
             await RefreshAsync(team);
         }
@@ -331,6 +333,12 @@ namespace NosCore.GameObject.Services.RaidService
             var firstRoom = run.Rooms[definition.Rooms[0].Key];
             for (var i = 0; i < members.Count; i++)
             {
+                // An Act 6 raid closes its team window before the member is moved; the others close it on arrival.
+                if (definition.IsAct6)
+                {
+                    await members[i].SendPacketAsync(TeamState(raid, InTeam, 0));
+                }
+
                 var start = definition.StartOf(i);
                 await mapChangeService.ChangeMapInstanceAsync(members[i], firstRoom, start.X, start.Y);
             }
@@ -414,8 +422,51 @@ namespace NosCore.GameObject.Services.RaidService
                     await messageBus.PublishAsync(new RaidWonEvent(familyWinners, won.Id, raid.IsHeroic));
                 }
             }
+        }
 
-            await DissolveAsync(team, null);
+        // Once the raid is over, each member leaves the team as they are sent back, and their HUD is cleared then.
+        private async Task SendBackAsync(RaidHost host, ClientSession session)
+        {
+            var team = host.Team;
+            if (team.RaidRun is not { EndState: not null } run || !await LeaveOverAsync(session, team))
+            {
+                await ReturnAsync(session);
+                return;
+            }
+
+            await session.SendPacketsAsync(
+            [
+                TeamState(host.Raid, Leader, NoLeader),
+                new EventPacket { Type = EventPacketType.ClearTimeSpaceUI, Parameter = -1, SecondParameter = -1 }
+            ]);
+            await ReturnAsync(session);
+            if (team.Count > 0 && !run.Players().Any(s => s.HasPlayerEntity && team.IsMember(s.Character.CharacterId)))
+            {
+                await DissolveAsync(team, null);
+            }
+        }
+
+        private async Task<bool> LeaveOverAsync(ClientSession member, Group team)
+        {
+            var character = member.Character;
+            using (await Group.MembershipLock.AcquireAsync())
+            {
+                if (!ReferenceEquals(character.Group, team) || !team.IsMember(character.CharacterId))
+                {
+                    return false;
+                }
+
+                team.LeaveGroup(character);
+                character.Group = new Group(GroupType.Group, sessionGroupFactory);
+                character.Group.JoinGroup(character);
+                if (team.Count == 0)
+                {
+                    team.Invited.Clear();
+                    groupIdService.Items.TryRemove(team.GroupId, out _);
+                }
+            }
+
+            return true;
         }
 
         // The players who did the most damage to the boss whose death won the raid, highest first. Only players
@@ -482,16 +533,81 @@ namespace NosCore.GameObject.Services.RaidService
             await RemoveAsync(session, host.Team, Game18NConstString.PlayerHasLeftTeam, true);
         }
 
-        // The start banner reaches each member once, on their first room; the counters on every room.
+        // The start banner and the team's HUD reach each member once, on their first room; the counters on every room.
         private async Task ArrivedAsync(RaidHost host, ScriptedInstanceRun run, ClientSession session, int room)
         {
-            if (host.Arrived.Add(session.Character.CharacterId))
+            var first = host.Arrived.Add(session.Character.CharacterId);
+            if (first)
             {
                 await session.SendPacketAsync(new RaidbfPacket { Type = RaidBannerType.Started, Unknown = HudValue(host.Raid) });
             }
 
             await session.SendPacketAsync(Counters(host, run, room));
+            if (!first)
+            {
+                return;
+            }
+
+            var raid = host.Raid;
+            var packets = new List<IPacket>();
+            if (raid.Definition?.IsAct6 != true)
+            {
+                packets.Add(TeamState(raid, InTeam, 0));
+            }
+
+            packets.Add(TeamWindow(host.Team));
+            packets.Add(TeamState(raid, Inside, 0));
+            packets.Add(TeamState(raid, HudShown, null));
+            packets.AddRange(MemberStats(host.Team));
+            await session.SendPacketsAsync(packets);
         }
+
+        // Every member's HP and MP, to the members inside, about once a second until they are sent back.
+        private async Task ShowMemberStatsAsync(RaidHost host, ScriptedInstanceRun run)
+        {
+            var inside = run.Players().Where(s => s.HasPlayerEntity && host.Team.IsMember(s.Character.CharacterId)).ToList();
+            if (inside.Count == 0)
+            {
+                return;
+            }
+
+            var stats = MemberStats(host.Team).ToList();
+            foreach (var session in inside)
+            {
+                await session.SendPacketsAsync(stats);
+            }
+        }
+
+        private IEnumerable<IPacket> MemberStats(Group team)
+        {
+            var members = Sessions(team).Select(s => s.Character).ToList();
+            if (team.Raid?.Definition?.IsAct6 != true)
+            {
+                return
+                [
+                    new RaidMemberStatsPacket
+                    {
+                        Members = members.Select(c => (RaidMemberStatSubPacket?)new RaidMemberStatSubPacket
+                        {
+                            CharacterId = c.CharacterId,
+                            HpPercent = Percent(c.Hp, c.MaxHp),
+                            MpPercent = Percent(c.Mp, c.MaxMp)
+                        }).ToList()
+                    }
+                ];
+            }
+
+            return
+            [
+                new RaidfhpPacket { Type = 3, Members = members.Select(c => Member(c.CharacterId, Percent(c.Hp, c.MaxHp))).ToList() },
+                new RaidfmpPacket { Type = 3, Members = members.Select(c => Member(c.CharacterId, Percent(c.Mp, c.MaxMp))).ToList() }
+            ];
+
+            static RaidfMemberSubPacket? Member(long id, byte percent) => new() { CharacterId = id, Percent = percent };
+        }
+
+        private static byte Percent(long value, long maximum) =>
+            maximum > 0 ? (byte)Math.Clamp(value * 100 / maximum, 0, 100) : (byte)0;
 
         private async Task LockerChangedAsync(RaidHost host, ScriptedInstanceRun run, int room)
         {
@@ -605,14 +721,14 @@ namespace NosCore.GameObject.Services.RaidService
 
             if (online)
             {
-                await member.SendPacketsAsync(LeftTeamPackets());
+                await member.SendPacketsAsync(LeftTeamPackets(team.Raid));
             }
 
             await TellTeamAsync(team, character.CharacterId, told, character.Name);
             if (wasLeader && team.Leader is { } newLeader)
             {
                 await TellTeamAsync(team, null, Game18NConstString.PlayerBecameNewRaidLeader, newLeader.Name);
-                await BroadcastAsync(team, new RaidPacket { Type = Leader, Value = newLeader.VisualId });
+                await BroadcastAsync(team, TeamState(team.Raid, Leader, newLeader.VisualId));
             }
 
             await RefreshAsync(team);
@@ -651,7 +767,7 @@ namespace NosCore.GameObject.Services.RaidService
                     await MessageAsync(member, told.Value);
                 }
 
-                await member.SendPacketsAsync(LeftTeamPackets());
+                await member.SendPacketsAsync(LeftTeamPackets(team.Raid));
             }
         }
 
@@ -731,29 +847,30 @@ namespace NosCore.GameObject.Services.RaidService
             return new ServerRlPacket { Mode = (byte)mode, Teams = teams };
         }
 
-        // Redraws the raid team window of every member, with each member's falls in this run.
-        private Task RefreshAsync(Group team)
+        // Redraws the raid team window of every member.
+        private Task RefreshAsync(Group team) => BroadcastAsync(team, TeamWindow(team));
+
+        // The team window, with each member's falls in this run.
+        private IPacket TeamWindow(Group team)
         {
             var falls = (team.RaidRun?.Host as RaidHost)?.Falls;
-            var members = Sessions(team).ToList();
-            var packet = new RdlstPacket
+            var levelMinimum = team.Raid?.EffectiveLevelMinimum ?? 0;
+            var levelMaximum = team.Raid?.EffectiveLevelMaximum ?? 0;
+            var raidId = team.Raid?.Definition?.Id ?? 0;
+            var members = Sessions(team).Select(s => (RdlstSubPacket?)new RdlstSubPacket
             {
-                LevelMinimum = team.Raid?.EffectiveLevelMinimum ?? 0,
-                LevelMaximum = team.Raid?.EffectiveLevelMaximum ?? 0,
-                RaidId = team.Raid?.Definition?.Id ?? 0,
-                Members = members.Select(s => (RdlstSubPacket?)new RdlstSubPacket
-                {
-                    Level = s.Character.Level,
-                    Morph = Morph(s.Character),
-                    Class = s.Character.Class,
-                    Deaths = (short)(falls?.GetValueOrDefault(s.Character.CharacterId) ?? 0),
-                    Name = s.Character.Name,
-                    Gender = s.Character.Gender,
-                    CharacterId = s.Character.CharacterId,
-                    HeroLevel = s.Character.HeroLevel
-                }).ToList()
-            };
-            return BroadcastAsync(team, packet);
+                Level = s.Character.Level,
+                Morph = Morph(s.Character),
+                Class = s.Character.Class,
+                Deaths = (short)(falls?.GetValueOrDefault(s.Character.CharacterId) ?? 0),
+                Name = s.Character.Name,
+                Gender = s.Character.Gender,
+                CharacterId = s.Character.CharacterId,
+                HeroLevel = s.Character.HeroLevel
+            }).ToList();
+            return team.Raid?.Definition?.IsAct6 == true
+                ? new RdlstfPacket { LevelMinimum = levelMinimum, LevelMaximum = levelMaximum, RaidId = raidId, Members = members }
+                : new RdlstPacket { LevelMinimum = levelMinimum, LevelMaximum = levelMaximum, RaidId = raidId, Members = members };
         }
 
         private static short Morph(PlayerComponentBundle player) =>
@@ -786,17 +903,23 @@ namespace NosCore.GameObject.Services.RaidService
             return team.Count >= maximum ? Game18NConstString.TeamIsFull : null;
         }
 
-        private static IEnumerable<IPacket> TeamPackets(long leaderId) =>
+        private static IEnumerable<IPacket> TeamPackets(ScriptedInstance? raid, long leaderId) =>
         [
-            new RaidPacket { Type = Leader, Value = leaderId },
-            new RaidPacket { Type = InTeam, Value = 1 }
+            TeamState(raid, Leader, leaderId),
+            TeamState(raid, InTeam, 1)
         ];
 
-        private static IEnumerable<IPacket> LeftTeamPackets() =>
+        private static IEnumerable<IPacket> LeftTeamPackets(ScriptedInstance? raid) =>
         [
-            new RaidPacket { Type = InTeam, Value = 0 },
-            new RaidPacket { Type = Leader, Value = NoLeader }
+            TeamState(raid, InTeam, 0),
+            TeamState(raid, Leader, NoLeader)
         ];
+
+        // An Act 6 raid sends raidf where the others send raid.
+        private static IPacket TeamState(ScriptedInstance? raid, byte type, long? value) =>
+            raid?.Definition?.IsAct6 == true
+                ? new RaidfPacket { Type = type, Value = value }
+                : new RaidPacket { Type = type, Value = value };
 
         private async Task TellTeamAsync(Group team, long? except, Game18NConstString message, string? name)
         {
@@ -850,7 +973,7 @@ namespace NosCore.GameObject.Services.RaidService
             public Task EndedAsync(ScriptedInstanceRun run, EndStateType state) =>
                 service.EndedAsync(run, team, raid, state);
 
-            public Task ReturnAsync(ClientSession session) => service.ReturnAsync(session);
+            public Task ReturnAsync(ClientSession session) => service.SendBackAsync(this, session);
 
             public TimeSpan ReturnDelay => TimeSpan.FromSeconds(30);
 
@@ -858,6 +981,8 @@ namespace NosCore.GameObject.Services.RaidService
                 service.FellAsync(this, run, player);
 
             public Task TickAsync(ScriptedInstanceRun run) => service.ReviveDueAsync(this, run);
+
+            public Task HudTickAsync(ScriptedInstanceRun run) => service.ShowMemberStatsAsync(this, run);
 
             public Task ArrivedAsync(ScriptedInstanceRun run, ClientSession session, int room) =>
                 service.ArrivedAsync(this, run, session, room);

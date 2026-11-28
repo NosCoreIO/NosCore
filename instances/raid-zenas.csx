@@ -47,6 +47,7 @@ public class ZenasRaid : InstanceScript
             .WithRoom(2602, out _hall, 0, 0)
             .WithReward(9844, 1)
             .WithRaidHudValue(20)
+            .InAct6()
             .Build();
     }
 

@@ -57,16 +57,19 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         {
             private readonly int _room;
 
-            public Raid() => Definition = InstanceDefinitionBuilder.Named(0, "raid", "raid")
-                .ForLevels(30, 49)
-                .ForTeams(2, 4)
-                .Requiring(Seal, 1)
-                .StartingAt(1, 1)
-                .AlsoStartingAt(3, 2)
-                .WithRoom(TestWorld.TestMapId, out _room)
-                .WithReward(Box, BoxesWon)
-                .WithRaidHudValue(HudValue)
-                .Build();
+            public Raid(bool inAct6 = false)
+            {
+                var builder = InstanceDefinitionBuilder.Named(0, "raid", "raid")
+                    .ForLevels(30, 49)
+                    .ForTeams(2, 4)
+                    .Requiring(Seal, 1)
+                    .StartingAt(1, 1)
+                    .AlsoStartingAt(3, 2)
+                    .WithRoom(TestWorld.TestMapId, out _room)
+                    .WithReward(Box, BoxesWon)
+                    .WithRaidHudValue(HudValue);
+                Definition = (inAct6 ? builder.InAct6() : builder).Build();
+            }
 
             public MonsterSpawn[] Spawns { get; set; } = [new MonsterSpawn(Boss, new Spot(3, 3), IsBoss: true)];
 
@@ -91,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         private TestWorld World;
         private readonly List<ClientSession> _players = [];
         private ServiceUnderTest _raids;
-        private readonly Raid _raid = new();
+        private Raid _raid = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -117,7 +120,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
             }
 
             var loader = new Mock<IInstanceScriptLoader>();
-            loader.Setup(s => s.LoadAsync("raid")).ReturnsAsync(_raid);
+            loader.Setup(s => s.LoadAsync("raid")).ReturnsAsync(() => _raid);
             World.Inject(loader.Object);
             World.Inject(new List<ScriptedInstanceDto>
             {
@@ -383,7 +386,6 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .WhenAsync(TheBossDiesAsync)
                 .Then(TheRaidEnded_, EndStateType.Success)
                 .And(EveryMemberHasTheBox)
-                .And(TheTeamIsDissolved)
                 .ExecuteAsync();
         }
 
@@ -692,6 +694,206 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task EnteringTheRaidShowsTheTeamHud()
+        {
+            await new Spec("A member's first room closes the team window and shows the team's HUD with every member's HP and MP")
+                .GivenAsync(ATeamOf_Async, 2)
+                .WhenAsync(TheTeamEntersTheRaidAsync)
+                .Then(Player_LastSaw_, 1, new IPacket[]
+                {
+                    new RaidPacket { Type = 1, Value = 0 }, new RdlstPacket(), new RaidPacket { Type = 5, Value = 0 },
+                    new RaidPacket { Type = 4 }, new RaidMemberStatsPacket()
+                })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EveryMemberSeesTheTeamsHpAndMpEverySecond()
+        {
+            await new Spec("Every second, each member inside is shown every member's HP and MP in percent, in team order")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .AndAsync(EveryMemberIsAtFullHpAndMpAsync)
+                .AndAsync(Player_IsAtHalfHpAndAQuarterMpAsync, 1)
+                .WhenAsync(ASecondPassesAsync)
+                .Then(Player_LastSawTheTeamAt_, 0, new[] { "100.100", "50.25" })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheTeamsHpAndMpStayShownUntilTheMembersAreSentBack()
+        {
+            await new Spec("After the win the members are still shown the team's HP and MP until they are sent back")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .AndAsync(EveryMemberIsAtFullHpAndMpAsync)
+                .AndAsync(TheBossDiesAsync)
+                .And(Player_ForgetsWhatTheySaw, 0)
+                .WhenAsync(ASecondPassesAsync)
+                .Then(Player_LastSawTheTeamAt_, 0, new[] { "100.100", "100.100" })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheEndOfTheRaidTakesEachMemberOutOfTheTeamAsTheyAreSentBack()
+        {
+            await new Spec("When the members are sent back after the win, each leaves the team and has the raid HUD cleared")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .AndAsync(TheBossDiesAsync)
+                .And(Player_ForgetsWhatTheySaw, 0)
+                .WhenAsync(TheReturnDelayPassesAsync)
+                .Then(Player_LastSaw_, 0, new IPacket[] { new RaidPacket { Type = 2, Value = -1 }, HudCleared })
+                .And(Player_IsOutOfTheRaidAndAlive, 0)
+                .And(TheTeamIsDissolved)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheTeamStaysTogetherUntilItIsSentBack()
+        {
+            await new Spec("The win itself does not break up the team")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .WhenAsync(TheBossDiesAsync)
+                .Then(Player_IsInTheTeam, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnAct6TeamUsesTheAct6TeamWindow()
+        {
+            await new Spec("An Act 6 raid's team is shown with rdlstf and raidf")
+                .Given(TheRaidIsInAct6)
+                .WhenAsync(ATeamOf_Async, 2)
+                .Then(Player_LastSawTheAct6TeamLedByTheLeader, 1)
+                .And(Player_SawTheAct6TeamWindow, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EnteringAnAct6RaidShowsItsTeamHud()
+        {
+            await new Spec("An Act 6 raid closes the team window before the move and shows the members' HP and MP with raidfhp and raidfmp")
+                .Given(TheRaidIsInAct6)
+                .AndAsync(ATeamOf_Async, 2)
+                .And(Player_ForgetsWhatTheySaw, 1)
+                .WhenAsync(TheTeamEntersTheRaidAsync)
+                .Then(Player_FirstSaw_, 1, new RaidfPacket { Type = 1, Value = 0 })
+                .And(Player_LastSaw_, 1, new IPacket[]
+                {
+                    new RdlstfPacket(), new RaidfPacket { Type = 5, Value = 0 }, new RaidfPacket { Type = 4 },
+                    new RaidfhpPacket(), new RaidfmpPacket()
+                })
+                .And(Player_SawNoOrdinaryRaidPacket, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheEndOfAnAct6RaidClearsItsTeamWithRaidf()
+        {
+            await new Spec("When an Act 6 raid's members are sent back, the team is closed with raidf")
+                .Given(TheRaidIsInAct6)
+                .AndAsync(AStartedRaidOf_Async, 2)
+                .AndAsync(TheBossDiesAsync)
+                .And(Player_ForgetsWhatTheySaw, 0)
+                .WhenAsync(TheReturnDelayPassesAsync)
+                .Then(Player_LastSaw_, 0, new IPacket[] { new RaidfPacket { Type = 2, Value = -1 }, HudCleared })
+                .ExecuteAsync();
+        }
+
+        private static readonly EventPacket HudCleared = new()
+        {
+            Type = EventPacketType.ClearTimeSpaceUI,
+            State = EventTimerState.Running,
+            Parameter = -1,
+            SecondParameter = -1
+        };
+
+        private void TheRaidIsInAct6() => _raid = new Raid(inAct6: true);
+
+        private void Player_ForgetsWhatTheySaw(int player) => _players[player].LastPackets.Clear();
+
+        private async Task EveryMemberIsAtFullHpAndMpAsync()
+        {
+            foreach (var character in _players.Take(2).Select(s => s.Character))
+            {
+                await character.MapInstance.Executor.RunAsync(() =>
+                {
+                    character.Hp = character.MaxHp;
+                    character.Mp = character.MaxMp;
+                    return Task.CompletedTask;
+                });
+            }
+        }
+
+        private async Task Player_IsAtHalfHpAndAQuarterMpAsync(int player)
+        {
+            var character = _players[player].Character;
+            await character.MapInstance.Executor.RunAsync(() =>
+            {
+                character.Hp = (character.MaxHp + 1) / 2;
+                character.Mp = (character.MaxMp + 3) / 4;
+                return Task.CompletedTask;
+            });
+        }
+
+        // The raid team and HUD packets a player was shown, in order.
+        private List<IPacket> RaidPackets(int player) =>
+            _players[player].LastPackets
+                .Where(p => p is RaidPacket or RaidfPacket or RdlstPacket or RdlstfPacket or RaidMemberStatsPacket
+                    or RaidfhpPacket or RaidfmpPacket or EventPacket { Type: EventPacketType.ClearTimeSpaceUI })
+                .OfType<IPacket>()
+                .ToList();
+
+        // A team state or a cleared HUD must match field for field; a list packet only has to come in its place.
+        private static void AssertSame(IPacket expected, IPacket actual)
+        {
+            if (expected is RaidPacket or RaidfPacket or EventPacket)
+            {
+                PacketAssert.AreEqual(expected, actual);
+                return;
+            }
+
+            Assert.AreEqual(expected.GetType(), actual.GetType());
+        }
+
+        private void Player_LastSaw_(int player, IPacket[] expected)
+        {
+            var seen = RaidPackets(player);
+            Assert.IsTrue(seen.Count >= expected.Length);
+            var last = seen.Skip(seen.Count - expected.Length).ToList();
+            for (var i = 0; i < expected.Length; i++)
+            {
+                AssertSame(expected[i], last[i]);
+            }
+        }
+
+        private void Player_FirstSaw_(int player, IPacket expected) => AssertSame(expected, RaidPackets(player).First());
+
+        private void Player_SawNoOrdinaryRaidPacket(int player) =>
+            Assert.IsFalse(RaidPackets(player).Any(p => p is RaidPacket or RdlstPacket or RaidMemberStatsPacket));
+
+        private void Player_LastSawTheAct6TeamLedByTheLeader(int player) =>
+            Player_LastSaw_(player, new IPacket[]
+            {
+                new RaidfPacket { Type = 2, Value = Leader.Character.CharacterId },
+                new RaidfPacket { Type = 1, Value = 1 },
+                new RdlstfPacket()
+            });
+
+        private void Player_SawTheAct6TeamWindow(int player)
+        {
+            Assert.IsTrue(_players[player].LastPackets.OfType<RdlstfPacket>().Any());
+            Assert.IsFalse(_players[player].LastPackets.OfType<RdlstPacket>().Any());
+        }
+
+        private void Player_LastSawTheTeamAt_(int player, string[] percents)
+        {
+            var stats = _players[player].LastPackets.OfType<RaidMemberStatsPacket>().Last();
+            CollectionAssert.AreEqual(_players.Take(percents.Length).Select(s => s.Character.CharacterId).ToList(),
+                stats.Members.NotNull().Select(m => m.NotNull().CharacterId).ToList());
+            Assert.AreEqual(string.Join(" ", percents),
+                string.Join(" ", stats.Members.NotNull().Select(m => $"{m.NotNull().HpPercent}.{m.NotNull().MpPercent}")));
+        }
+
         // The arrival a map change raises is not dispatched here, so the test raises it.
         private async Task TheTeamEntersTheRaidAsync()
         {
@@ -885,6 +1087,13 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         private async Task TenSecondsPassAsync()
         {
             World.Clock.Advance(Duration.FromSeconds(10));
+            await Run.TickAsync();
+        }
+
+        // The members are sent back 30 seconds after the win, as in the official raid traces.
+        private async Task TheReturnDelayPassesAsync()
+        {
+            World.Clock.Advance(Duration.FromSeconds(30));
             await Run.TickAsync();
         }
 
