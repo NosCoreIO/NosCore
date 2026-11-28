@@ -307,6 +307,39 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task PayingTheNpcSaysTheNpcWasTalkedTo()
+        {
+            await new Spec("Paying the NPC says it was talked to, as the official server does for quest 2123")
+                .Given(CharacterHasQuest_With_, QuestType.TransmitGold, new[] { Objective(QuestGiverVNum, 75) })
+                .And(CharacterHas_Gold, 1_000_000L)
+                .WhenAsync(TalkingTo_, QuestGiverVNum)
+                .Then(TheChatShouldSay_WasTalkedTo, QuestGiverVNum)
+                .And(QuestShouldBeComplete)
+                .And(CharacterShouldHave_Gold, 250_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARefusedPaymentSaysNothingAboutTheNpc()
+        {
+            await new Spec("A payment refused for lack of gold does not say the NPC was talked to")
+                .Given(CharacterHasQuest_With_, QuestType.TransmitGold, new[] { Objective(QuestGiverVNum, 75) })
+                .And(CharacterHas_Gold, 10_000L)
+                .WhenAsync(TalkingTo_, QuestGiverVNum)
+                .Then(NothingShouldBeSaidAboutTheNpc)
+                .ExecuteAsync();
+        }
+
+        private void TheChatShouldSay_WasTalkedTo(short npcVNum)
+        {
+            var said = Session.LastPackets.OfType<Sayi2Packet>().Single(p => p.Message == Game18NConstString.TalkedTo);
+            Assert.AreEqual(npcVNum.ToString(), said.Game18NArguments[0]?.ToString());
+        }
+
+        private void NothingShouldBeSaidAboutTheNpc() =>
+            Assert.IsFalse(Session.LastPackets.OfType<Sayi2Packet>().Any(p => p.Message == Game18NConstString.TalkedTo));
+
         // Stands for the tracked quest's own id, which is only known once the quest exists.
         private const short TrackedQuestIdPlaceholder = -1;
 

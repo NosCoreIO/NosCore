@@ -304,7 +304,6 @@ namespace NosCore.GameObject.Services.QuestService
 
             await questRewardService.GiveAsync(character, charQuest);
 
-            await character.SendPacketAsync(character.GenerateQuestPacket());
             await gameEvents.RaiseAsync(new QuestCompletedEvent(character, charQuest));
             return true;
         }

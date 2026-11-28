@@ -286,6 +286,30 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         }
 
         [TestMethod]
+        public async Task HandingTheRequiredItemInSaysTheNpcWasTalkedTo()
+        {
+            await new Spec("Handing a required item in says the NPC was talked to and takes the item, as the soulstone does for quest 2104")
+                .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Required, 1, QuestItem, Npc)
+                .And(TheCharacterCarries_Of_, 1, QuestItem)
+                .WhenAsync(TheCharacterTalksTo_, Npc)
+                .Then(TheChatShouldSay_WasTalkedTo, Npc)
+                .And(TheQuestShouldBeCompleted)
+                .And(TheCharacterShouldStillCarry_Of_, 0, QuestItem)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TalkingWithoutTheRequiredItemSaysNothingAboutTheNpc()
+        {
+            await new Spec("Talking to the NPC without the required item does not say it was talked to")
+                .Given(TheCharacterHasA_QuestToBring_Of_To_, QuestType.Required, 1, QuestItem, Npc)
+                .WhenAsync(TheCharacterTalksTo_, Npc)
+                .Then(NothingShouldBeSaidAboutTheNpc)
+                .And(TheQuestShouldNotBeCompleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task CarryingTheItemsWithoutTalkingToTheNpcDoesNotCount()
         {
             await new Spec("Picking up a brings quest's items does not complete it before the hand-in")
@@ -511,6 +535,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
             Assert.AreEqual(vNum.ToString(), said.Game18NArguments[0]?.ToString());
             Assert.AreEqual(count, said.Game18NArguments[1]?.ToString());
         }
+
+        private void TheChatShouldSay_WasTalkedTo(short npcVNum)
+        {
+            var said = _session.LastPackets.OfType<Sayi2Packet>().Single(p => p.Message == Game18NConstString.TalkedTo);
+            Assert.AreEqual(npcVNum.ToString(), said.Game18NArguments[0]?.ToString());
+        }
+
+        private void NothingShouldBeSaidAboutTheNpc() =>
+            Assert.IsFalse(_session.LastPackets.OfType<Sayi2Packet>().Any(p => p.Message == Game18NConstString.TalkedTo));
 
         private Task TheCharacterProduces_Of_(int amount, short vNum) =>
             _handler.Handle(new ItemProducedEvent(_session.Character, vNum, (short)amount));

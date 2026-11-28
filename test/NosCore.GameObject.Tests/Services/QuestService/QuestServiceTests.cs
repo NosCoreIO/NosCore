@@ -244,6 +244,25 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task ClaimingAQuestLeavesTheQuestWindowToItsCompletion()
+        {
+            await new Spec("Claiming a quest sends no quest window of its own; its completion sends the window and the next quest once")
+                .Given(Quest_PaysAReward, (short)2)
+                .AndAsync(TakingQuest_, (short)2)
+                .AndAsync(MeetingTheObjectivesOf_, (short)2)
+                .And(TheSentPacketsAreForgotten)
+                .WhenAsync(ClaimingTheSlotOf_, (short)2)
+                .Then(NoQuestWindowShouldBeSentByTheClaim)
+                .And(QuestCompletedShouldBeRaisedFor_, (short)2)
+                .ExecuteAsync();
+        }
+
+        private void TheSentPacketsAreForgotten() => Session.LastPackets.Clear();
+
+        private void NoQuestWindowShouldBeSentByTheClaim() =>
+            Assert.IsFalse(Session.LastPackets.OfType<QstlistPacket>().Any());
+
+        [TestMethod]
         public async Task AQuestWhoseObjectivesAreNotMetCannotBeClaimed()
         {
             await new Spec("Claiming a quest whose objectives are not met pays nothing")
@@ -654,6 +673,16 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .Given(CharacterHasHuntQuestWithOneKillRemaining)
                 .WhenAsync(KillingTheRequiredMob)
                 .Then(ObjectivesShouldBeComplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLastKillLeavesTheWindowToTheCompletion()
+        {
+            await new Spec("The kill that completes a hunt says the count, then the quest is complete, then its done window, once")
+                .Given(CharacterHasHuntQuestWithOneKillRemaining)
+                .WhenAsync(KillingTheRequiredMob)
+                .Then(TheHuntShouldBeAnnouncedThenCompletedWithOneWindow)
                 .ExecuteAsync();
         }
 
@@ -1093,6 +1122,14 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private async Task KillingOneMob()
         {
             await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = TargetMobVNum });
+        }
+
+        private void TheHuntShouldBeAnnouncedThenCompletedWithOneWindow()
+        {
+            var order = Session.LastPackets
+                .Where(p => p is Sayi2Packet { Message: Game18NConstString.Hunting } or MsgiPacket { Message: Game18NConstString.QuestComplete } or QstiPacket)
+                .Select(p => p?.GetType().Name).ToList();
+            CollectionAssert.AreEqual(new[] { nameof(Sayi2Packet), nameof(MsgiPacket), nameof(QstiPacket) }, order);
         }
 
         private void ObjectivesShouldBeComplete()

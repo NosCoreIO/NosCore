@@ -4855,6 +4855,24 @@ Krem. Stand next to one before each check.
       points]" and "Quest reward [Reputation 30]" show
 - [ ] Complete a story quest that raises the level: "Quest Reward [Level Up]" shows
 
+### SP4 card quest line (2100-2134)
+
+Give a level 65+ character quest 2101 (`2100` is the soulstone's start talk), with another main quest in slot 0.
+
+- [ ] Finish 2101 while slot 0 has been freed: 2102 opens in slot 0, not in 2101's slot
+- [ ] Hunting quest 2108: each kill says "Hunting 446 n/40" and updates the window; the 40th kill
+      says "40/40", then "Quest complete", and the window marks the quest done once
+- [ ] Quest 2104 at the soulstone with item 1340: the item leaves the bag, the chat says the
+      soulstone was talked to, then "Quest complete"
+- [ ] Quest 2123: talking to the NPC takes 750 000 gold, says the NPC was talked to and completes the
+      quest; its window line shows no amount before or after
+- [ ] Time-space quests 2105, 2112, 2119, 2133 read 0/1 in the window, and clearing the time-space
+      says "1/1" before "Quest complete"
+- [ ] Claiming a quest from its window sends the reward window, then the window without it, then
+      the next quest; the window is not sent twice
+- [ ] Claiming 2134 puts specialist card 914 in the specialist bag with the "received a specialist
+      card" line
+
 ### Collect quest drops
 
 Collect quests name a monster, the item it drops and a chance per 10 000. Put a character on

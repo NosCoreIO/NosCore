@@ -26,12 +26,12 @@ namespace NosCore.GameObject.Services.QuestService
 
         public byte Slot { get; set; }
 
-        // Main quests take the first five quest window slots and secondary quests the last five. A quest that follows
-        // another through its link keeps that quest's slot.
+        // Main quests take the first five quest window slots and secondary quests the last five. A secondary quest that
+        // follows another through its link keeps that quest's slot; a main one takes the first free slot.
         public static byte FreeSlot(IEnumerable<CharacterQuest> quests, bool secondary, byte? previous = null)
         {
             var taken = TakenSlots(quests);
-            var candidates = previous is { } slot ? new[] { (int)slot }.Concat(SlotRange(secondary)) : SlotRange(secondary);
+            var candidates = previous is { } slot && secondary ? new[] { (int)slot }.Concat(SlotRange(secondary)) : SlotRange(secondary);
             return (byte)candidates.Concat(Enumerable.Range(0, 10)).FirstOrDefault(s => !taken.Contains((byte)s));
         }
 
@@ -119,7 +119,8 @@ namespace NosCore.GameObject.Services.QuestService
             Packets.Enumerations.QuestType.Required => true,
             Packets.Enumerations.QuestType.Collect => true,
             Packets.Enumerations.QuestType.CollectInRaid => true,
-            Packets.Enumerations.QuestType.TransmitGold => true,
+            // A gold payment shows no amount, unlike the time-spaces to clear.
+            Packets.Enumerations.QuestType.TimesSpace => true,
             _ => false
         };
 
