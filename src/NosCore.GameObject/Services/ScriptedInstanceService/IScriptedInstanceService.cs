@@ -45,6 +45,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         // True when the player stood on the open exit of the run they are in.
         Task<bool> UseExitAsync(ClientSession session);
 
+        // Carries the room's players when the session stands on one of its team portals.
+        Task<bool> UseTeamPortalAsync(ClientSession session);
+
         // True when the way out the player stands on leaves a run's first room before its start was
         // confirmed, and they were asked to start it first.
         Task<bool> AskToStartAsync(ClientSession session, Portal wayOut);

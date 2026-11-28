@@ -53,6 +53,12 @@ namespace NosCore.Instances.Abstractions
 
         public short StartY { get; init; }
 
+        // The cells after the first that a raid's members are dealt to in joining order, the leader taking the first.
+        public IReadOnlyList<Spot> MoreStarts { get; init; } = [];
+
+        public Spot StartOf(int member) =>
+            member % (MoreStarts.Count + 1) is var start and > 0 ? MoreStarts[start - 1] : new Spot(StartX, StartY);
+
         public IReadOnlyList<InstanceGift> RequiredItems { get; init; } = [];
 
         // Time-spaces a character has to have cleared before entering this one.
