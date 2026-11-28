@@ -42,7 +42,6 @@ public sealed class ItemInfoService(
 {
     private const int ListedSpecialistSkills = 10;
     private const byte PartnerSpecialistSubType = 4;
-    private const int PermanentHours = -1;
 
     private const byte AdventurerClass = 1;
     private const byte SwordsmanClass = 2;
@@ -214,8 +213,8 @@ public sealed class ItemInfoService(
         ? Math.Max(0, (long)(deleteTime - clock.GetCurrentInstant()).TotalSeconds)
         : item.Item.ItemValidTime;
 
-    private int RemainingHours(IItemInstance item) =>
-        item.ItemDeleteTime == null && item.Item.ItemValidTime <= 0 ? PermanentHours : (int)(RemainingSeconds(item) / 3600);
+    private int? RemainingHours(IItemInstance item) =>
+        item.ItemDeleteTime == null && item.Item.ItemValidTime <= 0 ? null : (int)(RemainingSeconds(item) / 3600);
 
     private EInfoSpecialistHolderPacket GenerateHolderInfo(BoxInstance holder)
     {

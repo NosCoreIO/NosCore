@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task ThePlayerCardCarriesTheIntroductionAndNoFamily()
         {
-            await new Spec("tc_info carries the player's introduction, and -1 with no tag when the player has no family")
+            await new Spec("tc_info carries the player's introduction, and no family id or tag when the player has no family")
                 .Given(ThePlayerHasTheIntroduction_, "Hello there")
                 .WhenAsync(RequestingPlayerInfoForSelf)
                 .Then(TheCardShouldShowTheIntroduction_, "Hello there")
@@ -288,7 +288,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private void TheCardShouldShowNoFamily()
         {
             var card = Session.LastPackets.OfType<TcInfoPacket>().Single();
-            Assert.AreEqual(-1, card.FamilyId);
+            Assert.IsNull(card.FamilyId);
             Assert.IsNull(card.FamilyName);
         }
 

@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Battle
 
         internal static Task CancelAsync(ClientSession session, long castId, CancelPacketType type)
         {
-            return session.SendPacketAsync(new CancelPacket { Type = type, TargetId = castId, Unknow = -1 });
+            return session.SendPacketAsync(new CancelPacket { Type = type, TargetId = castId });
         }
     }
 }

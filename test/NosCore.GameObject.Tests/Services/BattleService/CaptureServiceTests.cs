@@ -139,7 +139,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var su = map.OfType<SuPacket>().Single();
             Assert.AreEqual(_monster.VisualId, su.TargetId);
             Assert.AreEqual(15, su.AttackAnimation);
-            Assert.AreEqual(-1, su.SkillVnum);
+            Assert.IsNull(su.SkillVnum);
             Assert.IsTrue(su.TargetIsAlive, "the recording shows the monster alive in the animation");
             Assert.AreEqual(40, su.HpPercentage);
             Assert.AreEqual(SuPacketHitMode.NoDamageSuccess, su.HitMode);
@@ -227,7 +227,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private void ThePetIsCaught() => Assert.IsNotNull(Caught);
 
         private void TheCastIsCancelled() =>
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 16, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 16 },
                 _session.LastPackets.OfType<CancelPacket>().Single());
 
         private void TheAttemptCostsNothing()
@@ -246,7 +246,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(_counted, "a refusal for the monster's health still costs the attempt");
             var sent = _session.LastPackets.ToList();
             var cancel = sent.OfType<CancelPacket>().Single();
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 209, Unknow = -1 }, cancel);
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 209 }, cancel);
             Assert.IsTrue(sent.IndexOf(cancel) > sent.FindIndex(p => p is MsgiPacket), "the reason comes first");
         }
 
@@ -275,7 +275,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var other = await World.CreateSessionAsync();
 
             Assert.IsFalse(await _service.TryCaptureAsync(_session.Character, other.Character, Capture));
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 16, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 16 },
                 _session.LastPackets.OfType<CancelPacket>().Single());
         }
 

@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         {
             return new PidxPacket
             {
-                GroupId = group.Count == 1 ? -1 : group.GroupId,
+                GroupId = group.Count == 1 ? null : group.GroupId,
                 SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { entity.GenerateSubPidx() }
                     : group.MembersInJoiningOrder.Select(s => s.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
             };
@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         {
             return new PidxPacket
             {
-                GroupId = group.Count == 1 ? -1 : group.GroupId,
+                GroupId = group.Count == 1 ? null : group.GroupId,
                 SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { player.GenerateSubPidx() }
                     : group.MembersInJoiningOrder.Select(s => s.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
             };

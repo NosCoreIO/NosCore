@@ -82,7 +82,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var info = entry.FindIndex(p => p is CInfoPacket);
             Assert.IsFalse(entry.Take(info).Any(p => p is CMapPacket or MapOutPacket), "no map is left on entering the game");
-            Assert.AreEqual(-1, entry.OfType<CInfoPacket>().First().Unknown3);
+            Assert.IsNull(entry.OfType<CInfoPacket>().First().Unknown3);
         }
 
         [TestMethod]

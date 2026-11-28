@@ -53,9 +53,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static Func<DlgiPacket, bool> AskedHowToRevive =>
             packet => packet.YesPacket is RevivalPacket { Type: RevivalType.InPlace } && packet.NoPacket is RevivalPacket { Type: RevivalType.AtSavePoint };
 
-        private static CancelPacket CastCancelled(long castId) => new() { Type = CancelPacketType.CancelCast, TargetId = castId, Unknow = -1 };
+        private static CancelPacket CastCancelled(long castId) => new() { Type = CancelPacketType.CancelCast, TargetId = castId };
 
-        private static CancelPacket AutoAttackStopped(long castId) => new() { Type = CancelPacketType.CancelAutoAttack, TargetId = castId, Unknow = -1 };
+        private static CancelPacket AutoAttackStopped(long castId) => new() { Type = CancelPacketType.CancelAutoAttack, TargetId = castId };
 
         private static Func<CMapPacket, bool> InTown => packet => packet is { Type: 0, Id: WorldData.Town, IsEntering: true };
 

@@ -220,7 +220,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task TheCharacterListCarriesEachMatesSkinAndMonster()
         {
-            await new Spec("The character list names each NosMate by its skin and monster, then pads the pet list with -1")
+            await new Spec("The character list names each NosMate by its skin and monster, then pads the pet list with empty slots")
                 .GivenAsync(AccountIsAlreadyInitialized)
                 .AndAsync(TheCharacterOwnsAMateOf_, (short)333)
                 .AndAsync(TheCharacterOwnsAMateOf_, (short)9)
@@ -232,7 +232,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ACharacterWithoutMatesListsNoPets()
         {
-            await new Spec("A character without NosMates gets a pet list of -1 only")
+            await new Spec("A character without NosMates gets a pet list of empty slots only")
                 .GivenAsync(AccountIsAlreadyInitialized)
                 .WhenAsync(ConnectingWithValidPassword)
                 .Then(ThePetListShouldBe_, new short?[0])
@@ -247,7 +247,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void ThePetListShouldBe_(short?[] mates)
         {
-            var expected = mates.Concat(Enumerable.Repeat<short?>(-1, 26 - mates.Length)).ToList();
+            var expected = mates.Concat(Enumerable.Repeat<short?>(null, 26 - mates.Length)).ToList();
             CollectionAssert.AreEqual(expected, Session.LastPackets.OfType<ClistPacket>().Single().Pets);
         }
 

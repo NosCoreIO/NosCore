@@ -190,11 +190,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _battleService.Verify(b => b.HitArea(It.IsAny<IAliveEntity>(), It.IsAny<short>(), It.IsAny<short>(), It.IsAny<HitArguments>()), Times.Never);
 
         private void TheCastShouldBeCancelled() =>
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelCast, TargetId = 3, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelCast, TargetId = 3 },
                 _session.LastPackets.OfType<CancelPacket>().Single());
 
         private void TheAutoAttackShouldBeStopped() =>
-            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 3, Unknow = -1 },
+            PacketAssert.AreEqual(new CancelPacket { Type = CancelPacketType.CancelAutoAttack, TargetId = 3 },
                 _session.LastPackets.OfType<CancelPacket>().Single());
 
         private void TheNotEnoughMpMessageShouldBeSent() =>

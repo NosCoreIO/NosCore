@@ -249,8 +249,6 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 await session.SendPacketAsync(new EventPacket
                 {
                     Type = EventPacketType.ClearTimeSpaceUI,
-                    Parameter = -1,
-                    SecondParameter = -1,
                 });
                 await ReturnAsync(session);
                 await session.SendPacketAsync(new MsgiPacket

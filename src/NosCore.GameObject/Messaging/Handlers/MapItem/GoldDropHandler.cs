@@ -80,8 +80,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             await session.SendPacketAsync(new CancelPacket
             {
                 Type = CancelPacketType.CancelPicking,
-                TargetId = visualId,
-                Unknow = -1
+                TargetId = visualId
             });
         }
     }

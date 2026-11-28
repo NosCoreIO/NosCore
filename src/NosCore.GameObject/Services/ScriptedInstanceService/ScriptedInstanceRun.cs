@@ -1469,9 +1469,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _pending.Add(() => mapInstance.SendPacketAsync(new EventPacket
             {
                 Type = EventPacketType.RedTimer,
-                State = EventTimerState.Stopped,
-                Parameter = -1,
-                SecondParameter = -1
+                State = EventTimerState.Stopped
             }));
         }
 

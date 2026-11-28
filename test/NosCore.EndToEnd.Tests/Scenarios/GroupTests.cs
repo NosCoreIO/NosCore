@@ -51,7 +51,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             packet => packet.Type == VisualType.Player && packet.VisualId == member.CharacterId;
 
         private static Func<PidxPacket, bool> Ungrouped(TestClient player) =>
-            packet => packet.GroupId == -1 && packet.SubPackets?.SingleOrDefault()?.VisualId == player.CharacterId;
+            packet => packet.GroupId == null && packet.SubPackets?.SingleOrDefault()?.VisualId == player.CharacterId;
 
         private static readonly GopPacket ShareTheLoot = new() { Option = GopPacketType.GroupSharing, IsActive = true };
 
@@ -136,7 +136,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             CollectionAssert.AreEqual(Ids(alice, bob), Members(await bob.ExpectAsync(GroupOf(2), "the group of two")));
             await alice.ExpectSinceAsync(formed, Told(Game18NConstString.YouAreNowGroupLeader), "the inviter told she leads");
             var shown = await carol.ExpectSinceAsync<PidxPacket>(seen, null, "the group shown to the map");
-            Assert.AreNotEqual(-1, shown.GroupId, "the group has a number");
+            Assert.IsNotNull(shown.GroupId, "the group has a number");
             CollectionAssert.AreEqual(Ids(alice, bob),
                 (shown.SubPackets ?? []).OfType<PidxSubPacket>().Select(member => member.VisualId).OrderBy(id => id).ToArray());
         }

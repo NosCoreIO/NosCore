@@ -408,7 +408,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             X = aliveEntity.PositionX,
             Y = aliveEntity.PositionY,
             Unknown6 = kind == ForcedMoveKind.Pull ? (byte)4 : (byte)2,
-            Unknown8 = kind == ForcedMoveKind.Charge ? (short)11 : (short)-1,
+            Unknown8 = kind == ForcedMoveKind.Charge ? (short)11 : null,
             Unknown9 = aliveEntity.VisualType == VisualType.Player ? (byte)1 : (byte)0,
         };
 

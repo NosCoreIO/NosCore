@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 Completion: new TaskCompletionSource<HitOutcome>(TaskCreationOptions.RunContinuationsAsynchronously),
                 Cancellation: CancellationToken.None));
 
-        private static void TheMapShouldSeeTheSlide(IAliveEntity entity, byte unknown6, short unknown8)
+        private static void TheMapShouldSeeTheSlide(IAliveEntity entity, byte unknown6, short? unknown8)
         {
             var map = entity.MapInstance;
             Assert.IsNotNull(map);
@@ -93,7 +93,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(7, Target.Character.PositionX);
             Assert.AreEqual(5, Target.Character.PositionY);
-            TheMapShouldSeeTheSlide(Target.Character, 2, -1);
+            TheMapShouldSeeTheSlide(Target.Character, 2, null);
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await HitWithAsync(Card(BCardEffect.SpecialActionsDrawEnemies, 1, 0));
 
             Assert.AreEqual(5, Target.Character.PositionX);
-            TheMapShouldSeeTheSlide(Target.Character, 4, -1);
+            TheMapShouldSeeTheSlide(Target.Character, 4, null);
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 Cancellation: CancellationToken.None));
 
             Assert.AreEqual(6, monster.PositionX);
-            TheMapShouldSeeTheSlide(monster, 2, -1);
+            TheMapShouldSeeTheSlide(monster, 2, null);
         }
 
         [TestMethod]
@@ -192,7 +192,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(2, Attacker.Character.PositionX);
             Assert.AreEqual(5, Target.Character.PositionX);
-            TheMapShouldSeeTheSlide(Attacker.Character, 2, -1);
+            TheMapShouldSeeTheSlide(Attacker.Character, 2, null);
         }
 
         [TestMethod]

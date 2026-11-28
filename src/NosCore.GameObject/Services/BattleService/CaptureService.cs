@@ -180,10 +180,8 @@ namespace NosCore.GameObject.Services.BattleService
             VisualId = owner.VisualId,
             TargetVisualType = VisualType.Monster,
             TargetId = monster.VisualId,
-            SkillVnum = -1,
             SkillCooldown = 0,
             AttackAnimation = animation,
-            SkillEffect = -1,
             PositionX = -1,
             PositionY = -1,
             TargetIsAlive = true,
@@ -196,7 +194,7 @@ namespace NosCore.GameObject.Services.BattleService
         };
 
         private static CancelPacket Cancel(long castOrSkill) =>
-            new() { Type = CancelPacketType.CancelAutoAttack, TargetId = castOrSkill, Unknow = -1 };
+            new() { Type = CancelPacketType.CancelAutoAttack, TargetId = castOrSkill };
 
         private static MsgiPacket Message(Game18NConstString message) =>
             new() { Type = MessageType.Default, Message = message };

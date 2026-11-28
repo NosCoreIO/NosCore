@@ -86,10 +86,10 @@ public static class QuicklistExtensions
         GenerateQset(entry.QuickListIndex, entry.Slot, (QSetType)entry.Type, entry.IconType, entry.IconVNum);
 
     private static QsetClientPacket GenerateReset(short quickListIndex, short slot) =>
-        GenerateQset(quickListIndex, slot, QSetType.Reset, 7, -1);
+        GenerateQset(quickListIndex, slot, QSetType.Reset, 7, null);
 
-    private static QsetClientPacket GenerateQset(short quickListIndex, short slot, QSetType type, short data1,
-        short data2) => new()
+    private static QsetClientPacket GenerateQset(short quickListIndex, short slot, QSetType type, short? data1,
+        short? data2) => new()
     {
         OriginQuickList = quickListIndex,
         OriginQuickListSlot = slot,
@@ -115,7 +115,7 @@ public static class QuicklistExtensions
                     (n.QuickListIndex == i) && (n.Slot == j) && (n.Morph == morph));
 
                 subpacket.Add(qi == null
-                    ? new QsetClientSubPacket { Type = QSetType.Reset, OriginQuickList = -1, OriginQuickListSlot = -1 }
+                    ? new QsetClientSubPacket { Type = QSetType.Reset }
                     : new QsetClientSubPacket
                     {
                         Type = (QSetType)qi.Type,

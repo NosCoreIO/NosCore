@@ -311,7 +311,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         {
             var skin = Wearable(new Item { VNum = 4270, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.WeaponSkin });
 
-            Assert.AreEqual(-1, Info<EInfoCostumeHatPacket>(skin).RemainingHours);
+            Assert.IsNull(Info<EInfoCostumeHatPacket>(skin).RemainingHours);
         }
 
         [TestMethod]

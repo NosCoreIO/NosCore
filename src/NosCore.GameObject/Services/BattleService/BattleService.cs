@@ -794,7 +794,7 @@ namespace NosCore.GameObject.Services.BattleService
         {
             if (origin is PlayerComponentBundle character)
             {
-                await character.SendPacketAsync(new CancelPacket { Type = type, TargetId = castId, Unknow = -1 });
+                await character.SendPacketAsync(new CancelPacket { Type = type, TargetId = castId });
             }
         }
     }

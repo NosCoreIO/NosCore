@@ -162,7 +162,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
         await NotifyMovementAsync(target, buff);
-        await target.SendPacketAsync(new VbPacket { CardId = card.CardId, IsActivated = true, RemainingTime = -1 });
+        await target.SendPacketAsync(new VbPacket { CardId = card.CardId, IsActivated = true });
     }
 
     public async Task ApplyStaticAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
@@ -353,7 +353,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         {
             if (target is PlayerComponentBundle character)
             {
-                await character.SendPacketAsync(new VbPacket { CardId = buff.CardId, IsActivated = false, RemainingTime = -1 });
+                await character.SendPacketAsync(new VbPacket { CardId = buff.CardId, IsActivated = false });
             }
 
             return;
