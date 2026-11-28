@@ -98,6 +98,10 @@ namespace NosCore.Instances.Abstractions
 
         void UnlockPortal(int fromRoom, int toRoom);
 
+        // A raid portal inside one room: whoever steps on it brings every player in the room, with their
+        // team mates, to the arrival cell.
+        void SpawnTeamPortal(int room, Spot at, Spot arrival);
+
         // Shuts an open portal again, so nobody can walk through it until it is unlocked.
         void LockPortal(int fromRoom, int toRoom);
 
@@ -142,6 +146,9 @@ namespace NosCore.Instances.Abstractions
 
         // Lays one item on that cell for anyone to pick up.
         void PlaceItem(int room, short vNum, Spot at);
+
+        // Moves the players standing within radius of the spot, with their pets and partners, to a cell of the same room.
+        void Teleport(int room, Spot from, short radius, Spot to);
 
         void StartClock(TimeSpan limit);
 

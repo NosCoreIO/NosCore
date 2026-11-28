@@ -10,6 +10,8 @@ using NodaTime;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging.Handlers.TimeSpace;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 using NosCore.GameObject.Services.BroadcastService;
@@ -22,6 +24,7 @@ using NosCore.Packets.ClientPackets.Event;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
@@ -43,31 +46,38 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         private const short Seal = 1012;
         private const short Box = 1013;
         private const short Boss = 282;
+        private const short Cuby = 283;
         private const short BoxesWon = 2;
         private const byte HudValue = 25;
 
+        // Mother Cuby's maximum HP in the official trace of the raid, 2026-11-28.
+        private const int BossMaxHp = 1006894;
+
         private sealed class Raid : InstanceScript
         {
-            private readonly int _lair;
+            private readonly int _room;
 
-            public Raid(bool inAct6)
+            public Raid(bool inAct6 = false)
             {
                 var builder = InstanceDefinitionBuilder.Named(0, "raid", "raid")
                     .ForLevels(30, 49)
-                    .ForTeams(2, 3)
+                    .ForTeams(2, 4)
                     .Requiring(Seal, 1)
                     .StartingAt(1, 1)
-                    .WithRoom(TestWorld.TestMapId, out _lair)
+                    .AlsoStartingAt(3, 2)
+                    .WithRoom(TestWorld.TestMapId, out _room)
                     .WithReward(Box, BoxesWon)
                     .WithRaidHudValue(HudValue);
                 Definition = (inAct6 ? builder.InAct6() : builder).Build();
             }
 
+            public MonsterSpawn[] Spawns { get; set; } = [new MonsterSpawn(Boss, new Spot(3, 3), IsBoss: true)];
+
             public override void OnFirstEnter(IInstanceRun run)
             {
                 run.StartClock(TimeSpan.FromMinutes(40));
-                run.SetMonsterLocker(_lair, 1, Boss);
-                run.Summon(_lair, new MonsterSpawn(Boss, new Spot(3, 3), IsBoss: true));
+                run.SetMonsterLocker(_room, 1, Boss);
+                run.Summon(_room, Spawns);
             }
 
             public override void OnMonsterKilled(IInstanceRun run, int room, short vNum)
@@ -84,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         private TestWorld World;
         private readonly List<ClientSession> _players = [];
         private ServiceUnderTest _raids;
-        private bool _inAct6;
+        private Raid _raid = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -110,13 +120,17 @@ namespace NosCore.GameObject.Tests.Services.RaidService
             }
 
             var loader = new Mock<IInstanceScriptLoader>();
-            loader.Setup(s => s.LoadAsync("raid")).ReturnsAsync(() => new Raid(_inAct6));
+            loader.Setup(s => s.LoadAsync("raid")).ReturnsAsync(() => _raid);
             World.Inject(loader.Object);
             World.Inject(new List<ScriptedInstanceDto>
             {
                 new() { ScriptedInstanceId = 7, MapId = TestWorld.TestMapId, PositionX = 2, PositionY = 2, Type = ScriptedInstanceType.Raid, Script = "raid" }
             });
-            World.Inject(new List<NpcMonsterDto> { new() { NpcMonsterVNum = Boss, MaxHp = 10 } });
+            World.Inject(new List<NpcMonsterDto>
+            {
+                new() { NpcMonsterVNum = Boss, MaxHp = BossMaxHp },
+                new() { NpcMonsterVNum = Cuby, MaxHp = 10 }
+            });
             World.Inject(new Lazy<IMapInstanceGeneratorService>(World.MapInstanceGeneratorService));
             World.Inject(new Lazy<IMapChangeService>(World.MapChangeService));
             World.Inject<ScriptedInstances.IScriptedInstanceService>(World.Create<ScriptedInstances.ScriptedInstanceService>());
@@ -353,6 +367,18 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         }
 
         [TestMethod]
+        public async Task TheTeamIsDealtBetweenTheStartsInJoiningOrder()
+        {
+            await new Spec("Members start on the raid's start cells in turn, the leader on the first")
+                .GivenAsync(ATeamOf_Async, 3)
+                .WhenAsync(TheLeaderStartsAsync)
+                .Then(Player_StartsAt__, 0, 1, 1)
+                .And(Player_StartsAt__, 1, 3, 2)
+                .And(Player_StartsAt__, 2, 1, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task KillingTheBossRewardsEveryMember()
         {
             await new Spec("Killing the boss wins the raid and gives every member its box")
@@ -444,6 +470,90 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .WhenAsync(Player_DisconnectsAsync, 2)
                 .Then(Player_IsNotInTheTeam, 2)
                 .And(TheRaidIsStillRunning)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingTheBossRanksTheDamageDealtToIt()
+        {
+            await new Spec("When the boss dies every member is shown who dealt it the most damage, highest first")
+                .GivenAsync(AStartedRaidAgainstTheBossOf_Async, 3)
+                .AndAsync(Player_HitsTheBossFor_Async, 2, 2047)
+                .AndAsync(Player_HitsTheBossFor_Async, 0, 578566)
+                .AndAsync(Player_HitsTheBossFor_Async, 2, 5768)
+                .AndAsync(Player_HitsTheBossFor_Async, 1, 552348)
+                .WhenAsync(Player_KillsTheBossAsync, 0)
+                .Then(EveryMemberIsShownTheRanking_, new[] { (0, 57856, 57), (1, 55234, 54), (2, 780, 0) })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlyTheThreeHighestDamageDealersAreRanked()
+        {
+            await new Spec("A fourth member who dealt less damage than the other three is left out of the ranking")
+                .GivenAsync(AStartedRaidAgainstTheBossOf_Async, 4)
+                .AndAsync(Player_HitsTheBossFor_Async, 3, 100)
+                .AndAsync(Player_HitsTheBossFor_Async, 0, 400)
+                .AndAsync(Player_HitsTheBossFor_Async, 1, 300)
+                .AndAsync(Player_HitsTheBossFor_Async, 2, 200)
+                .WhenAsync(Player_KillsTheBossAsync, 0)
+                .Then(EveryMemberIsShownTheRanking_, new[] { (0, 40, 0), (1, 30, 0), (2, 20, 0) })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlyHitsOnTheBossAreRanked()
+        {
+            await new Spec("Damage dealt to another monster of the raid is not counted in the ranking")
+                .GivenAsync(AStartedRaidAgainstTheBossOf_Async, 2)
+                .AndAsync(Player_HitsACubyFor_Async, 0, 900000)
+                .AndAsync(Player_HitsTheBossFor_Async, 1, 5000)
+                .WhenAsync(Player_KillsTheBossAsync, 1)
+                .Then(EveryMemberIsShownTheRanking_, new[] { (1, 500, 0) })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMonstersHitsOnTheBossAreNotRanked()
+        {
+            await new Spec("Only the players' own hits count: a hit on the boss from anything else is not ranked")
+                .GivenAsync(AStartedRaidAgainstTheBossOf_Async, 2)
+                .AndAsync(ACubyHitsTheBossFor_Async, 900000)
+                .WhenAsync(Player_KillsTheBossAsync, 0)
+                .Then(NobodyIsShownARanking)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheKillingBlowCountsInFull()
+        {
+            await new Spec("The killing blow is counted in full, even past the HP the boss had left")
+                .GivenAsync(AStartedRaidAgainstTheBossOf_Async, 2)
+                .AndAsync(Player_HitsTheBossFor_Async, 1, 1000)
+                .WhenAsync(Player_KillsTheBossWithAHitOf_Async, 0, 578566)
+                .Then(EveryMemberIsShownTheRanking_, new[] { (0, 57856, 57), (1, 100, 0) })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheRankingFollowsTheRewards()
+        {
+            await new Spec("The ranking comes after the raid's reward is handed out")
+                .GivenAsync(AStartedRaidAgainstTheBossOf_Async, 2)
+                .AndAsync(Player_HitsTheBossFor_Async, 0, 1000)
+                .WhenAsync(Player_KillsTheBossAsync, 0)
+                .Then(EveryMemberIsShownTheRankingAfterTheReward)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ABossNobodyHitShowsNoRanking()
+        {
+            await new Spec("A raid won without a player hitting the boss shows no ranking")
+                .GivenAsync(AStartedRaidOf_Async, 2)
+                .WhenAsync(TheBossDiesAsync)
+                .Then(TheRaidEnded_, EndStateType.Success)
+                .And(NobodyIsShownARanking)
                 .ExecuteAsync();
         }
 
@@ -553,7 +663,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .GivenAsync(AStartedRaidOf_Async, 2)
                 .WhenAsync(Player_ArrivesAsync, 1)
                 .Then(Player_SawTheBossBar_Times, 1, 1)
-                .And(Player_LastSawTheBossBarAt_Hp, 1, 10)
+                .And(Player_LastSawTheBossBarAt_Hp, 1, BossMaxHp)
                 .ExecuteAsync();
         }
 
@@ -630,7 +740,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .GivenAsync(AStartedRaidOf_Async, 2)
                 .AndAsync(TheBossDiesAsync)
                 .And(Player_ForgetsWhatTheySaw, 0)
-                .WhenAsync(TenSecondsPassAsync)
+                .WhenAsync(TheReturnDelayPassesAsync)
                 .Then(Player_LastSaw_, 0, new IPacket[] { new RaidPacket { Type = 2, Value = -1 }, HudCleared })
                 .And(Player_IsOutOfTheRaidAndAlive, 0)
                 .And(TheTeamIsDissolved)
@@ -684,7 +794,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 .AndAsync(AStartedRaidOf_Async, 2)
                 .AndAsync(TheBossDiesAsync)
                 .And(Player_ForgetsWhatTheySaw, 0)
-                .WhenAsync(TenSecondsPassAsync)
+                .WhenAsync(TheReturnDelayPassesAsync)
                 .Then(Player_LastSaw_, 0, new IPacket[] { new RaidfPacket { Type = 2, Value = -1 }, HudCleared })
                 .ExecuteAsync();
         }
@@ -697,7 +807,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
             SecondParameter = -1
         };
 
-        private void TheRaidIsInAct6() => _inAct6 = true;
+        private void TheRaidIsInAct6() => _raid = new Raid(inAct6: true);
 
         private void Player_ForgetsWhatTheySaw(int player) => _players[player].LastPackets.Clear();
 
@@ -826,7 +936,7 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         {
             var bar = _players[player].LastPackets.OfType<RbossPacket>().Last();
             Assert.AreEqual(hp, bar.CurrentHp);
-            Assert.AreEqual(10, bar.MaxHp);
+            Assert.AreEqual(BossMaxHp, bar.MaxHp);
             Assert.AreEqual(Boss, bar.VNum);
         }
 
@@ -884,6 +994,78 @@ namespace NosCore.GameObject.Tests.Services.RaidService
 
         private Task TheBossDiesAsync() => Run.MonsterKilledAsync(Run.Rooms.Values.First(), Boss);
 
+        private async Task AStartedRaidAgainstTheBossOf_Async(int size)
+        {
+            _raid.Spawns = [new MonsterSpawn(Boss, new Spot(1, 1), IsBoss: true), new MonsterSpawn(Cuby, new Spot(3, 1))];
+            _members = size;
+            await AStartedRaidOf_Async(size);
+        }
+
+        private int _members;
+
+        private MonsterComponentBundle Monster(short vNum) =>
+            Leader.Character.MapInstance.EnumerateMonsters().Single(s => s.VNum == vNum);
+
+        private Task Player_HitsTheBossFor_Async(int player, int damage) =>
+            World.Create<TimeSpaceProgressHandler>().Handle(
+                new EntityDamagedEvent(_players[player].Character, Monster(Boss), damage, false, BossMaxHp - 1));
+
+        private Task Player_HitsACubyFor_Async(int player, int damage) =>
+            World.Create<TimeSpaceProgressHandler>().Handle(
+                new EntityDamagedEvent(_players[player].Character, Monster(Cuby), damage, false, 1));
+
+        private Task ACubyHitsTheBossFor_Async(int damage) =>
+            World.Create<TimeSpaceProgressHandler>().Handle(
+                new EntityDamagedEvent(Monster(Cuby), Monster(Boss), damage, false, BossMaxHp - 1));
+
+        private Task Player_KillsTheBossAsync(int player) => Player_KillsTheBossWithAHitOf_Async(player, 0);
+
+        private async Task Player_KillsTheBossWithAHitOf_Async(int player, int damage)
+        {
+            var handler = World.Create<TimeSpaceProgressHandler>();
+            var boss = Monster(Boss);
+            if (damage > 0)
+            {
+                await handler.Handle(new EntityDamagedEvent(_players[player].Character, boss, damage, true, 0));
+            }
+
+            await handler.Handle(new EntityDiedEvent(boss, _players[player].Character));
+        }
+
+        private void EveryMemberIsShownTheRanking_((int Player, int Score, int Percent)[] ranking)
+        {
+            var expected = new HcscorePacket
+            {
+                Ranking = ranking.Select(s => (HcscoreSubPacket?)new HcscoreSubPacket
+                {
+                    Morph = -1,
+                    Class = _players[s.Player].Character.Class,
+                    Name = _players[s.Player].Character.Name,
+                    Gender = _players[s.Player].Character.Gender,
+                    Score = s.Score,
+                    DamagePercent = (byte)s.Percent
+                }).ToList()
+            };
+            foreach (var player in _players.Take(_members))
+            {
+                PacketAssert.AreEqual(expected, player.LastPackets.OfType<HcscorePacket>().Single());
+            }
+        }
+
+        private void EveryMemberIsShownTheRankingAfterTheReward()
+        {
+            foreach (var player in _players.Take(_members))
+            {
+                var packets = player.LastPackets.ToList();
+                var ranking = packets.FindIndex(s => s is HcscorePacket);
+                var reward = packets.FindLastIndex(s => s is SayiPacket { Message: Game18NConstString.ReceivedThisItem });
+                Assert.IsTrue(reward >= 0 && ranking > reward);
+            }
+        }
+
+        private void NobodyIsShownARanking() =>
+            Assert.IsFalse(_players.Any(s => s.LastPackets.OfType<HcscorePacket>().Any()));
+
         private async Task Player_FallsAsync(int player)
         {
             var character = _players[player].Character;
@@ -905,6 +1087,13 @@ namespace NosCore.GameObject.Tests.Services.RaidService
         private async Task TenSecondsPassAsync()
         {
             World.Clock.Advance(Duration.FromSeconds(10));
+            await Run.TickAsync();
+        }
+
+        // The members are sent back 30 seconds after the win, as in the official raid traces.
+        private async Task TheReturnDelayPassesAsync()
+        {
+            World.Clock.Advance(Duration.FromSeconds(30));
             await Run.TickAsync();
         }
 
@@ -968,6 +1157,9 @@ namespace NosCore.GameObject.Tests.Services.RaidService
                 Assert.AreEqual(room, player.Character.MapInstance.MapInstanceId);
             }
         }
+
+        private void Player_StartsAt__(int player, int x, int y) =>
+            Assert.AreEqual(((short)x, (short)y), (_players[player].Character.PositionX, _players[player].Character.PositionY));
 
         private void TheRaidEnded_(EndStateType state) => Assert.AreEqual(state, Run.EndState);
 

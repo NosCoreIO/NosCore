@@ -13,13 +13,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.ClientPackets.Event;
+using NosCore.Packets.ClientPackets.Instance;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Portals;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
@@ -29,11 +32,16 @@ namespace NosCore.EndToEnd.Tests.Scenarios
     [TestClass]
     public class RaidTests
     {
-        private const short MotherCuby = 282;
-        private const short StartX = 20;
-        private const short StartY = 50;
-        private const short SquareX = 26;
-        private const short SquareY = 40;
+        private const short Cuby = 283;
+        private const short CubyLever = 1135;
+        private const short FieldX = 77;
+        private const short FieldY = 167;
+        private const short Glacerus = 2049;
+        private const short GlacerusLever = 1000;
+        private const short GrottoX = 13;
+        private const short GrottoY = 39;
+        private const short DenX = 32;
+        private const short DenY = 48;
 
         // At most four cells on each axis, since a diagonal step of five is past what one walk may cover,
         // then the time an adventurer takes to cover them.
@@ -41,6 +49,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private static readonly TimeSpan StrideTime = TimeSpan.FromMilliseconds(1300);
 
         private static Action<Character> RaidLevel => c => c.Level = WorldData.RaidLevel;
+
+        private static Action<Character> GlacerusLevel => c => c.Level = WorldData.GlacerusLevel;
 
         private static Func<MsgiPacket, bool> Told(Game18NConstString message) => p => p.Message == message;
 
@@ -112,52 +122,112 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Assert.IsTrue(await leader.NoneSinceAsync<AtPacket>(started, null, TimeSpan.FromSeconds(1)), "the team stays at the gate");
         }
 
+        private static async Task<List<TestClient>> StartTeamAsync(List<Player> players, List<TestClient> team)
+        {
+            foreach (var player in players)
+            {
+                team.Add(await EnterAsync(player));
+            }
+
+            await OpenTeamAsync(team[0]);
+            foreach (var member in team.Skip(1))
+            {
+                await JoinAsync(team[0], member);
+            }
+
+            return team;
+        }
+
+        private static int CountSince(TestClient client, int mark, VisualType type, short vNum) =>
+            client.Since<InPacket>(mark).Count(p => p.VisualType == type && p.VNum == vNum.ToString());
+
+        [TestMethod]
+        public async Task TheCubyRaidStartsInTheFieldWithTheSquareShutBehindItsObjectives()
+        {
+            var players = new List<Player>();
+            for (var i = 0; i < WorldData.RaidTeamMinimum; i++)
+            {
+                players.Add(await AtTheGateAsync("Cuber", (short)(WorldData.RaidGateX + 2 * i)));
+            }
+
+            await Harness.GiveAsync(players[0], WorldData.RaidSeal, 1, pocket: NoscorePocketType.Main);
+            var team = new List<TestClient>();
+            try
+            {
+                await StartTeamAsync(players, team);
+                var leader = team[0];
+                var started = leader.Mark();
+                await leader.SendAsync(new MkRaidPacket());
+                await leader.ExpectSinceAsync<AtPacket>(started, p => p.MapId == WorldData.JellyField
+                    && p.PositionX == FieldX && p.PositionY == FieldY, "the leader in the field");
+                await leader.ExpectSinceAsync<GpPacket>(started, p => p.SourceX == 154 && p.SourceY == 11
+                    && p.PortalType == PortalType.Closed, "the shut way to the square");
+
+                var waited = System.Diagnostics.Stopwatch.StartNew();
+                while (CountSince(leader, started, VisualType.Monster, Cuby) < 11 && waited.Elapsed < TestClient.DefaultTimeout)
+                {
+                    await Task.Delay(100);
+                }
+
+                Assert.AreEqual(11, CountSince(leader, started, VisualType.Monster, Cuby), "the eleven Cubies in the field");
+                Assert.AreEqual(3, CountSince(leader, started, VisualType.Object, CubyLever), "the three levers that count");
+            }
+            finally
+            {
+                foreach (var raider in team)
+                {
+                    await raider.DisposeAsync();
+                }
+            }
+        }
+
         [TestMethod]
         public async Task ATeamThatBeatsTheBossIsRewardedAndAdvancesItsFamilyMission()
         {
             var players = new List<Player>();
             for (var i = 0; i < WorldData.RaidTeamMinimum; i++)
             {
-                players.Add(await AtTheGateAsync("Raider", (short)(WorldData.RaidGateX + 2 * i)));
+                players.Add(await Harness.AddPlayerAsync("Raider", WorldData.GlacerusEntrance, (short)(WorldData.GlacerusGateX + 2 * i),
+                    WorldData.GlacerusGateY + 1, GlacerusLevel));
             }
 
-            await Harness.GiveAsync(players[0], WorldData.RaidSeal, 1, pocket: NoscorePocketType.Main);
+            await Harness.GiveAsync(players[0], WorldData.GlacerusSeal, 1, pocket: NoscorePocketType.Main);
             var family = await Harness.AddFamilyAsync(players[0], players.Skip(1).ToArray());
             var team = new List<TestClient>();
             try
             {
-                foreach (var player in players)
-                {
-                    team.Add(await EnterAsync(player));
-                }
-
+                await StartTeamAsync(players, team);
                 var leader = team[0];
-                await OpenTeamAsync(leader);
-                foreach (var member in team.Skip(1))
-                {
-                    await JoinAsync(leader, member);
-                }
-
                 var started = leader.Mark();
                 await leader.SendAsync(new MkRaidPacket());
-                await leader.ExpectSinceAsync<AtPacket>(started, p => p.MapId == WorldData.JellyEntrance
-                    && p.PositionX == StartX && p.PositionY == StartY, "the leader in the raid's entrance");
+                await leader.ExpectSinceAsync<AtPacket>(started, p => p.MapId == WorldData.GlacerusGrotto
+                    && p.PositionX == GrottoX && p.PositionY == GrottoY, "the leader in the grotto");
+                var lever = await leader.ExpectSinceAsync<InPacket>(started,
+                    p => p.VisualType == VisualType.Object && p.VNum == GlacerusLever.ToString(), "the lever");
 
-                await WalkToAsync(leader, StartX, StartY, WorldData.RaidGateX, WorldData.RaidGateY);
+                await WalkToAsync(leader, GrottoX, GrottoY, 13, 23);
+                var pulled = leader.Mark();
+                await leader.SendAsync(new GetPacket { PickerType = VisualType.Player, PickerId = leader.CharacterId, VisualId = lever.VisualId });
+                await leader.ExpectSinceAsync<DelayPacket>(pulled, null, "the lever's bar");
+                await Task.Delay(2100);
+                await leader.SendAsync(new GitPacket { ButtonId = (int)lever.VisualId });
+                await leader.ExpectSinceAsync<GpPacket>(pulled, p => p.PortalType == PortalType.Open && !p.IsDisabled, "the way to the den open");
+
+                await WalkToAsync(leader, 13, 23, 13, 7);
                 var crossed = leader.Mark();
                 await leader.SendAsync(new PreqPacket());
-                await leader.ExpectSinceAsync<AtPacket>(crossed, p => p.MapId == WorldData.JellySquare, "the leader on the square");
+                await leader.ExpectSinceAsync<AtPacket>(crossed, p => p.MapId == WorldData.GlacerusDen, "the leader in the den");
                 var boss = await leader.ExpectSinceAsync<InPacket>(crossed,
-                    p => p.VisualType == VisualType.Monster && p.VNum == MotherCuby.ToString(), "the boss on the square");
+                    p => p.VisualType == VisualType.Monster && p.VNum == Glacerus.ToString(), "the boss in the den");
 
-                await WalkToAsync(leader, SquareX, SquareY, 26, 29);
+                await WalkToAsync(leader, DenX, DenY, 22, 14);
                 var won = leader.Mark();
                 await Steps.KillAsync(leader, boss.VisualId);
 
                 foreach (var raider in team)
                 {
                     await raider.ExpectSinceAsync<IvnPacket>(raider == leader ? won : 0,
-                        p => p.Type == PocketType.Etc && p.IvnSubPackets?.Any(s => s.VNum == WorldData.RaidReward) == true,
+                        p => p.Type == PocketType.Etc && p.IvnSubPackets?.Any(s => s.VNum == WorldData.GlacerusReward) == true,
                         "the raid's reward in the bag");
                 }
 

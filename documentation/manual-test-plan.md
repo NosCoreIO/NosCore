@@ -4450,12 +4450,24 @@ confirms "Do you want to create the raid map?".
 - [ ] With only A and B, A starts: "too few raid members" appears and nobody moves
 - [ ] With D on another map, A starts: "all raid members should be on" appears
 - [ ] With E at level 20, A starts: "level does not match" appears
-- [ ] With A to E on A's map, A starts: all five land at the bottom of Jelly Entrance and a
-      40-minute clock appears; the portal at the top leads to Jelly Square, where Mother Cuby
-      waits in the middle among Cubys, with a pack of jellies in each corner
-- [ ] Killing a Cuby does nothing; killing Mother Cuby ends the raid: every member still inside
-      gets one Raid Box of Mother Cuby (4684) and a "received" line, the team is dissolved, and
-      about ten seconds later everyone is back on the map they started from
+- [ ] With A to E on A's map, A starts: all five land in the field (2511) at 77,167 and a
+      40-minute clock appears; eleven Cubies stand around the field, three levers at 79,107,
+      41,70 and 26,162, and the portal at 154,11 is shut
+- [ ] Pulling the lever at 79,107 brings 30 Piis around it, the one at 26,162 brings 20 Poisonous
+      Hamsters north of it, the one at 41,70 brings nothing
+- [ ] Pulling the lever at 86,15 moves whoever stands within 4 cells of it, with their pets, to
+      132,152; the one at 109,139 moves them to 82,22
+- [ ] Bringing the Cuby at 32,95 below half its HP calls 13 Wild Piis; the one at 108,6 calls
+      Soft Pii Pods and Soft Piis. Killing either outright calls nothing
+- [ ] Once the eleven Cubies are down and the three levers pulled (in any order), "A door has
+      opened" appears and the portal at 154,11 leads to the square (2512) at 26,40, where Mother
+      Cuby waits at 26,28. Its way back stays shut
+- [ ] 30 seconds after the first player enters the square, and every 20 seconds after that,
+      32 jellies come in around its corners
+- [ ] Killing Mother Cuby ends the raid: her loot (gold and items) is scattered around her, every
+      member still inside gets one Raid Box of Mother Cuby (4684) and a "received" line, the team
+      is dissolved, and about thirty seconds later everyone is back where they stood on the
+      map they started from
 - [ ] A member with a full inventory gets "Not enough space" instead of the box, and the others
       still get theirs
 - [ ] A member holding 998 of a reward that comes two at a time: the reward tops that stack up to
@@ -4512,7 +4524,7 @@ confirms "Do you want to create the raid map?".
       no longer shows it; B trying the same is told only the leader can
 - [ ] A registers twice: "Already registered in the raid list." appears
 - [ ] A starts the raid: the team is gone from everyone's board
-- [ ] On a freshly parsed database, the Mother Cuby, Ginseng, Glacerus and Grenigas gates show
+- [ ] On a freshly parsed database, the Mother Cuby, Ginseng, Glacerus, Grenigas and Zenas gates show
       without touching the `Script` column
 
 #### Ginseng
@@ -4556,6 +4568,33 @@ to 99 first. Dropping `MaxHp` of the Fiery Giant (1925) and of Grenigas (1058) m
       three Fiery Giants, and leads to Grenigas Temple (2539)
 - [ ] Killing Grenigas wins: every member still inside gets a Raid Box of Grenigas (4698) and is
       sent back to Grenigas Square
+
+#### Zenas
+
+Seal 5883, levels 85 to 99, gate on map 232 at 103,125. Raise A to E to levels 85 to 99 first.
+Dropping `MaxHp` of Archangel Lucifer (2553) and of Zenas (2504) makes it quick.
+
+- [ ] A starts at the gate: A, C and E land at 90,103 and B and D at 245,102 of map 2602, with a
+      one-hour clock and Zenas at 160,128 among her guards
+- [ ] After ten seconds "Zenas' first test will start" shows, and twenty seconds later seven
+      Guardian Knights, Commanders and Mages close in on each start cell
+- [ ] Killing the 21 guards of the west pack (around 90,103) opens a raid portal at 91,149 and
+      shows "first test passed"; the east pack does not count
+- [ ] One player stepping on it brings every member, with their partners, to 88,175
+- [ ] Thirty seconds after the portal opened, Archangel Lucifer appears at 160,269
+- [ ] Killing Lucifer takes every guard left off the map, drops its loot around 160,269 and shows
+      "second test passed"; five seconds later a raid portal at 160,247 carries the team to 160,217
+- [ ] Thirty seconds after Lucifer fell, Priestess Kelly, Priestess Molly, an Initiate and seven
+      Crusaders of the Second Squad appear around 160,217, a one-minute red clock starts and a
+      Knight, a Commander and a Mage come every eight seconds from the Crusaders' cells
+- [ ] The Initiate and the Crusaders fight the guards; Kelly and Molly do not
+- [ ] When the red clock ends it stops, "all tests passed" shows, and six seconds later a raid
+      portal at 160,203 carries the team to 159,170, before Zenas
+- [ ] Killing Zenas drops her loot and gold around 160,133 and every member still inside gets a
+      Simple Raid Box of Zenas (9844)
+- [ ] Not verifiable yet: Zenas' talks to the team at the start and after the tests, the guards'
+      shout when they appear, Kelly's plea when the prayer starts, the Second Squad moving before
+      Zenas, and where the portal at 233,129 that opens when Lucifer falls leads
 
 ### Instant Combat
 
